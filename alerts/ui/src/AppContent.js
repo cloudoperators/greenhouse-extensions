@@ -8,7 +8,7 @@ import {
   Stack,
 } from "juno-ui-components"
 import useStore from "./store"
-import { useQuery } from "react-query"
+import { useQuery } from "@tanstack/react-query"
 import { fetchAlerts } from "./actions"
 import { currentState, push } from "url-state-provider"
 
@@ -38,8 +38,6 @@ const AppContent = (props) => {
 
   return (
     <Container px py>
-
-
       {isError && (
         <Message variant="danger" className="mb-4">
           {`${error.statusCode}, ${error.message}`}
@@ -48,19 +46,17 @@ const AppContent = (props) => {
 
       {/* Add a toolbar  */}
       <ContentAreaToolbar>
-        {data ? 
-          `We have ${data?.length} alerts`
-          :
-          <>&nbsp;</>
-        }
+        {data ? `We have ${data?.length} alerts` : <>&nbsp;</>}
       </ContentAreaToolbar>
-      
+
       <Container px={false} py>
-        {isLoading && 
-          <Stack gap="2"><span>Loading</span><Spinner variant="primary" /></Stack>
-        }
+        {isLoading && (
+          <Stack gap="2">
+            <span>Loading</span>
+            <Spinner variant="primary" />
+          </Stack>
+        )}
       </Container>
-      
     </Container>
   )
 }

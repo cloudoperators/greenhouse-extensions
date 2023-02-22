@@ -9,6 +9,7 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "@svgr/webpack": "^6.2.1",
+    "@tanstack/react-query": "^4.24.10",
     "@testing-library/dom": "^8.19.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -39,7 +40,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
-    "react-query": "^3.39.2",
     "react-test-renderer": "^18.2.0",
     "sass-loader": "^12.4.0",
     "shadow-dom-testing-library": "^1.7.1",
@@ -58,13 +58,13 @@
     "production": "PORT=$APP_PORT webpack serve --mode production"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^4.24.10",
     "custom-event-polyfill": "^1.0.7",
     "juno-ui-components": "*",
     "luxon": "^2.3.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-query": "^3.39.2",
     "url-state-provider": "*",
     "zustand": "^4.1.1"
   },

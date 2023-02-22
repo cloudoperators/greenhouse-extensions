@@ -2,7 +2,7 @@ import React from "react"
 
 import useStore from "./store"
 import { AppShell } from "juno-ui-components"
-import { QueryClient, QueryClientProvider } from "react-query"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
 import StyleProvider from "juno-ui-components"
