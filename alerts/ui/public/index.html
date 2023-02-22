@@ -1,52 +1,35 @@
-<!--
-  ~ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-  ~ SPDX-License-Identifier: Apache-2.0
--->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" href="favicon.ico" sizes="any"/>
-    <title>Supernova Dev</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+    <title>App Template</title>
     <style>
       html {
-        display: flex;
-        flex-direction: column;
-        margin: 0;
-        padding: 0;
+        height: 100vh;
       }
       body {
-        flex-grow: 1;
         height: 100vh;
         margin: 0;
-        padding: 0;
+        background: rgb(13, 20, 28);
       }
       #root {
-        display: inline;
+        height: 100vh;
       }
     </style>
-    <script>
-      // automatically reload on build changes
-      new EventSource("/esbuild").addEventListener("change", () => location.reload())
-    </script>
   </head>
   <body>
-    <script
-      defer
-      src="https://assets.juno.global.cloud.sap/apps/widget-loader@latest/build/app.js"
-      data-name="auth"
-      data-version="latest"
-      data-props-initial-login="true"
-      data-props-mock='{"groups":["organization:test-org", "team:containers","support-group:containers","role:ccloud:admin"]}'
-    ></script>
     <script type="module">
-      // appProps are generated in development env and added to the build
-      import allProps from "./build/appProps.js"
-      import ("./build/index.js").then((app) => {
-        app.mount(document.getElementById("root"), {props: allProps.appProps})
-      })
+      import("./<%= MAIN_FILENAME %>").then((app) =>
+        app.mount(document.getElementById("root"),{props: JSON.parse('<%=PROPS%>')})
+      )
     </script>
+
     <div id="root"></div>
   </body>
 </html>
