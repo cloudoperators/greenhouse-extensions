@@ -1,13 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.11",
-  "author": "UI-Team",
-  "contributors": [
-    "Esther Schmitz",
-    "Arturo Reuschenbach Puncernau"
-  ],
-  "repository": "https://github.com/cloudoperators/greenhouse-extensions/tree/main/alerts/ui",
-  "license": "Apache-2.0",
+  "version": "0.0.1",
   "source": "src/index.js",
   "module": "build/index.js",
   "private": true,
@@ -15,94 +8,78 @@
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
-    "@svgr/core": "^8.0.0",
-    "@svgr/plugin-jsx": "^8.0.0",
-    "@tanstack/react-query": "5.36.2",
-    "@testing-library/dom": "^10.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^15.0.0",
+    "@svgr/webpack": "^6.2.1",
+    "@testing-library/dom": "^8.19.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
     "assert": "^2.0.0",
     "autoprefixer": "^10.4.2",
     "babel-jest": "^29.3.1",
-    "babel-plugin-transform-import-meta": "^2.2.0",
-    "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@2.2.6/package.tgz",
-    "esbuild": "^0.19.4",
-    "esbuild-sass-plugin": "^3.0.0",
-    "immer": "^10.0.0",
-    "interweave": "^13.0.0",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-macros": "^3.1.0",
+    "buffer": "^6.0.3",
+    "bundle-loader": "^0.5.6",
+    "clean-webpack-plugin": "^4.0.0",
+    "css-loader": "^6.6.0",
+    "css-minimizer-webpack-plugin": "^3.4.1",
+    "custom-event-polyfill": "^1.0.7",
+    "html-webpack-plugin": "^5.4.0",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
-    "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@2.13.8/package.tgz",
-    "luxon": "^3.0.0",
-    "messages-provider": "https://assets.juno.global.cloud.sap/libs/messages-provider@0.1.12/package.tgz",
-    "postcss": "^8.4.21",
-    "postcss-url": "^10.1.3",
+    "juno-ui-components": ">= 0",
+    "luxon": "^2.3.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "postcss": "^8.4.6",
+    "postcss-loader": "^6.2.1",
+    "process": "^0.11.10",
     "prop-types": "^15.8.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-test-renderer": "18.2.0",
-    "sass": "^1.60.0",
+    "purgecss-webpack-plugin": "^4.1.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-json-view": "^1.21.3",
+    "react-query": "^3.39.2",
+    "react-test-renderer": "^18.2.0",
+    "sass-loader": "^12.4.0",
     "shadow-dom-testing-library": "^1.7.1",
-    "tailwindcss": "^3.3.1",
-    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@1.3.2/package.tgz",
+    "tailwindcss": "^3.0.24",
+    "url-state-provider": ">= 0",
     "util": "^0.12.4",
-    "zustand": "4.5.2"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4",
+    "zustand": "^4.1.1"
+  },
+  "scripts": {
+    "start": "PORT=$APP_PORT webpack serve --mode development --hot",
+    "test": "jest",
+    "build": "webpack --mode production",
+    "production": "PORT=$APP_PORT webpack serve --mode production"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "5.36.2",
     "custom-event-polyfill": "^1.0.7",
     "juno-ui-components": "*",
     "luxon": "^2.3.0",
-    "messages-provider": "*",
     "prop-types": "^15.8.1",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-query": "^3.39.2",
     "url-state-provider": "*",
-    "zustand": "4.3.7"
-  },
-  "importmapExtras": {
-    "zustand/middleware": "4.3.7"
-  },
-  "scripts": {
-    "start": "NODE_ENV=development node esbuild.config.js --port=$APP_PORT --serve --watch",
-    "test": "jest",
-    "build": "NODE_ENV=production node esbuild.config.js"
+    "zustand": "^4.1.1"
   },
   "appProps": {
     "theme": {
       "value": "theme-dark",
-      "type": "optional",
       "description": "Override the default theme. Possible values are theme-light or theme-dark (default)"
-    },
-    "embedded": {
-      "value": "false",
-      "type": "optional",
-      "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Elektra.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
     },
     "endpoint": {
       "value": "",
-      "type": "required",
       "description": "Alertmanager API Endpoint URL"
     },
-    "filterLabels": {
-      "value": null,
-      "type": "optional",
-      "description": "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The 'Status' label serves as a default filter, automatically computed from the alert status attribute and will be not overwritten. The labels must be an array of strings. Example: [\"app\", \"cluster\", \"cluster_type\"]"
-    },
-    "silenceExcludedLabels": {
-      "value": null,
-      "type": "optional",
-      "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be an array of strings. Example: [\"pod\", \"pod_name\", \"instance\"]"
-    },
-    "silenceTemplates": {
-      "value": null,
-      "type": "optional",
-      "description": "SilenceTemplates are pre-defined silence templates that can be used to scheduled Maintenance Windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title."
+    "embedded": {
+      "value": "false",
+      "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Greenhouse.  If set to true the app won't render a page header/footer and instead render only the content"
     }
-  },
-  "appDependencies": {
-    "auth": "latest"
-  },
-  "appPreview": true
+  }
 }
