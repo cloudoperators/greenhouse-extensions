@@ -81,5 +81,8 @@
       "value": "false",
       "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Greenhouse.  If set to true the app won't render a page header/footer and instead render only the content"
     }
+  }, 
+  "appDependencies" : {
+    "auth": "latest"
   }
 }
