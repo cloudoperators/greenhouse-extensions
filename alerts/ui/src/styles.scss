@@ -6,4 +6,13 @@
 
 /* If necessary, app styles can be added below */
 
+.inline-code {
+  @apply bg-theme-badge-default;
+  @apply text-theme-default;
+  @apply text-sm;
+  @apply rounded;
+  @apply px-1;
+  @apply py-0.5;
+}
+
 

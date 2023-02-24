@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useMemo} from "react"
 import {
   Button,
   ContentAreaToolbar,
@@ -8,33 +8,31 @@ import {
   Stack,
 } from "juno-ui-components"
 import useStore from "./store"
-import { useQuery } from "@tanstack/react-query"
-import { fetchAlerts } from "./actions"
+import { queryAlerts } from "./queries"
+
 import { currentState, push } from "url-state-provider"
+import AlertsList from "./components/alerts/AlertsList"
 
 const AppContent = (props) => {
-  const endpoint = useStore((state) => state.endpoint)
+  
   const urlStateKey = useStore((state) => state.urlStateKey)
 
-  const { isLoading, isError, data, error } = useQuery(
-    ["alerts", endpoint, {}],
-    fetchAlerts,
-    {
-      // enable the query also if the endpoint is set. For fetching local
-      // data is not necessary since it should be empty
-      enabled: !!endpoint,
-      // If set to Infinity, the data will never be considered stale
-      //  until a browser reload is triggered
-      staleTime: Infinity,
-      // refer to this documentation to see more options
-      // https://tanstack.com/query/v4/docs/guides/queries
-    }
-  )
+  const { isLoading, isError, data, error } = queryAlerts()
 
-  const openNewItemForm = () => {
-    const urlState = currentState(urlStateKey)
-    push(urlStateKey, { ...urlState, newItemFormOpened: true })
-  }
+  // const openNewItemForm = () => {
+  //   const urlState = currentState(urlStateKey)
+  //   push(urlStateKey, { ...urlState, newItemFormOpened: true })
+  // }
+
+  const {totalCount, criticalCount, warningCount, infoCount} = useMemo(() => {
+    if (!data) return {totalCount: 0, criticalCount: 0, warningCount: 0, infoCount: 0}
+    let totalCount = data.length
+    let criticalCount = data.reduce((critical, item) => item.labels?.severity === "critical" ? ++critical : critical, 0)
+    let warningCount = data.reduce((warning, item) => item.labels?.severity === "warning" ? ++warning : warning, 0)
+    let infoCount = data.reduce((info, item) => item.labels?.severity === "info" ? ++info : info, 0)
+
+    return {totalCount, criticalCount, warningCount, infoCount}
+  }, [data])
 
   return (
     <Container px py>
@@ -45,18 +43,22 @@ const AppContent = (props) => {
       )}
 
       {/* Add a toolbar  */}
-      <ContentAreaToolbar>
-        {data ? `We have ${data?.length} alerts` : <>&nbsp;</>}
-      </ContentAreaToolbar>
+      {data && 
+        <div className="bg-theme-background-lvl-2 py-1.5 px-4">
+          <span className="text-theme-high pr-2">{`${totalCount} alerts`}</span>
+          <span>{`(${criticalCount} critical, ${warningCount} warning, ${infoCount} info)`}</span>
+        </div>
+      }
 
-      <Container px={false} py>
-        {isLoading && (
-          <Stack gap="2">
-            <span>Loading</span>
-            <Spinner variant="primary" />
-          </Stack>
-        )}
-      </Container>
+      {isLoading && (
+        <Stack gap="2">
+          <span>Loading</span>
+          <Spinner variant="primary" />
+        </Stack>
+      )}
+
+      <AlertsList />
+
     </Container>
   )
 }
