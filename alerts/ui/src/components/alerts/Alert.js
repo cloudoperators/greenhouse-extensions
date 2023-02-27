@@ -39,7 +39,10 @@ const Alert = ({alert}) => {
         { alert.labels?.severity === "critical" ? 
           <Icon icon="danger" color="text-theme-danger" />
           :
-          <Icon icon={alert.labels?.severity} color={`text-theme-${alert.labels?.severity}`} />
+          alert.labels?.severity.match(/^(warning|info)$/) ?
+            <Icon icon={alert.labels?.severity} color={`text-theme-${alert.labels?.severity}`} />
+            :
+            <Icon icon="errorOutline" />
         }
       </DataGridCell>
       <DataGridCell>
