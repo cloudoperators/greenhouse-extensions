@@ -1,59 +1,60 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
   Icon,
 } from "juno-ui-components"
-import { queryAlerts } from "../../queries"
 import Alert from "./Alert"
+import useStore from "../../hooks/useStore"
+
+const sortAlerts = (items) => {
+  return items.sort((a, b) => {
+    if (
+      (a.labels?.severity === "critical" &&
+        b.labels?.severity !== "critical") ||
+      (a.labels?.severity === "warning" &&
+        ["critical", "warning"].indexOf(b.labels?.severity) < 0)
+    )
+      return -1
+    else if (
+      a.labels?.severity === b.labels?.severity &&
+      a.status?.state !== b.status?.state &&
+      a.status?.state
+    )
+      return a.status?.state.localeCompare(b.status?.state)
+    else if (
+      a.labels?.severity === b.labels?.severity &&
+      a.status?.state === b.status?.state &&
+      a.startsAt !== b.startsAt &&
+      b.startsAt
+    )
+      return b.startsAt?.localeCompare(a.startsAt)
+    else if (
+      a.labels?.severity === b.labels?.severity &&
+      a.status?.state === b.status?.state &&
+      a.startsAt === b.startsAt &&
+      a.labels?.region
+    )
+      return a.labels?.region?.localeCompare(b.labels?.region)
+    else return 1
+  })
+}
 
 const AlertsList = () => {
-  const sortAlerts = (items) => {
-    return items.sort((a, b) => {
-      if (
-        (a.labels?.severity === "critical" &&
-          b.labels?.severity !== "critical") ||
-        (a.labels?.severity === "warning" &&
-          ["critical", "warning"].indexOf(b.labels?.severity) < 0)
-      )
-        return -1
-      else if (
-        a.labels?.severity === b.labels?.severity &&
-        a.status?.state !== b.status?.state &&
-        a.status?.state
-      )
-        return a.status?.state.localeCompare(b.status?.state)
-      else if (
-        a.labels?.severity === b.labels?.severity &&
-        a.status?.state === b.status?.state &&
-        a.startsAt !== b.startsAt &&
-        b.startsAt
-      )
-        return b.startsAt?.localeCompare(a.startsAt)
-      else if (
-        a.labels?.severity === b.labels?.severity &&
-        a.status?.state === b.status?.state &&
-        a.startsAt === b.startsAt &&
-        a.labels?.region
-      )
-        return a.labels?.region?.localeCompare(b.labels?.region)
-      else return 1
-    })
-  }
-
-  const { isLoading, isError, data, error } = queryAlerts()
-
+  // const { isLoading, isError, data, error } = queryAlerts()
+  const alerts = useStore((state) => state.alerts)
+  console.log("====", alerts)
   // TODO: the sorting should probably not happen here but in the query action
   const alertsSorted = useMemo(() => {
-    if (data) {
-      return sortAlerts(data)
+    if (alerts.items) {
+      return sortAlerts(alerts.items)
     }
-  }, [data])
+  }, [alerts.items])
 
   return (
     <DataGrid columns={7} minContentColumns={[0, 2, 5]}>
-      {!isLoading && (
+      {!alerts.isLoading && (
         <DataGridRow>
           <DataGridHeadCell>
             <Icon icon="danger" />
