@@ -1,5 +1,14 @@
+/**
+ * This module implements a service to retrieve alerts from AlertManager.
+ * @module alertsService
+ */
 import { get } from "./client"
 
+/**
+ * This method sorts the alerts based on various parameters such as severity or state.
+ * @param {array} items, a list of alerts
+ * @returns {array} sorted alerts
+ */
 const sort = (items) => {
   return items.sort((a, b) => {
     if (
@@ -33,11 +42,15 @@ const sort = (items) => {
   })
 }
 
+// default value for watch interval
 const DEFAULT_INTERVAL = 300000
 
+/**
+ * This function implements the actual service.
+ * @param {object} initialConfig
+ */
 function AlertsService(initialConfig) {
-  let initialFetchPerformed = false
-
+  // default config
   let config = {
     initialFetch: false,
     apiEndpoint: null,
@@ -50,46 +63,58 @@ function AlertsService(initialConfig) {
     params: null,
   }
 
+  // get the allowed config keys from default config
   const allowedOptions = Object.keys(config)
+  // variable to hold the watch timer created by setInterval
   let watchTimer
+  // cache a string representation of the last alerts list
   let compareString
 
+  // This function performs the request to get all alerts
   const update = () => {
-    console.log("===update", config)
+    // do nothing until apiEndpoint and onChange config values are set
     if (!config?.apiEndpoint || !config?.onChange) {
       console.warn("Alerts service: missing apiEndpoint or onChange callback")
       return
     }
-    console.log("Alerts service: fetch alerts")
-    if (config.onFetch) config.onFetch()
-    return get(`${config.apiEndpoint}/alerts`, { params: config.params }).then(
-      (items) => {
-        initialFetchPerformed = true
-
+    // call onFetchStart if defined
+    // This is useful to inform the listener that a new fetch is starting
+    if (config.onFetchStart) config.onFetchStart()
+    // get all alerts filtered by params if defined
+    return get(`${config.apiEndpoint}/alerts`, { params: config.params })
+      .then((items) => {
+        // sort alerts
         let alerts = sort(items)
+        // slice if limit provided
         if (config?.limit) alerts = alerts.slice(0, config.limit)
 
+        // check if new loaded alerts are different from the last response
         const newCompareString = JSON.stringify(alerts)
         if (compareString !== newCompareString) {
           compareString = newCompareString
+          // inform listener to receive new alerts
           config?.onChange({ alerts })
         }
-      }
-    )
+        if (config.onFetchEnd) config.onFetchEnd()
+      })
+      .catch((error) => console.warn("Alerts service:", error))
   }
 
+  // update watcher if config has changed
   const updateWatcher = (oldConfig) => {
+    // do nothing if watch and watchInterval are the same
     if (
       oldConfig.watch === config.watch &&
       oldConfig.watchInterval === config.watchInterval
     )
       return
+    // delete last watcher
     clearInterval(watchTimer)
-
-    console.log("Alerts service: update watcher", config)
+    // create a new watcher which calls the update method
     watchTimer = setInterval(update, config.watchInterval || DEFAULT_INTERVAL)
   }
 
+  // this function is public and used to update the config
   this.configure = (newOptions) => {
     const oldConfig = { ...config }
     config = { ...config, ...newOptions }
@@ -104,6 +129,10 @@ function AlertsService(initialConfig) {
     if (config.initialFetch) update()
   }
 
+  // make it possible to update alerts explicitly, not by a watcher!
+  this.fetch = update
+
+  // update the config initially
   this.configure(initialConfig)
 }
 

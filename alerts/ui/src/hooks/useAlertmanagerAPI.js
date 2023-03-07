@@ -6,15 +6,18 @@ const useAlertmanagerAPI = (apiEndpoint) => {
   const setIsLoading = useStore((state) => state.alerts.setIsLoading)
   const setIsUpdating = useStore((state) => state.alerts.setIsUpdating)
 
-  // on app initial load save Endpoint and URL_STATE_KEY so it can be
-  // used from overall in the application
+  // Create a web worker to get updates from the alert manager api
   useEffect(() => {
     if (!apiEndpoint) return
+    // set alerts state to loading
     setIsLoading(true)
+
+    // create the worker
     let worker = new Worker(new URL("../api/worker.js", import.meta.url), {
       type: "module",
     })
 
+    // receive messages from worker
     worker.onmessage = (e) => {
       const action = e.data.action
       switch (action) {
@@ -30,7 +33,15 @@ const useAlertmanagerAPI = (apiEndpoint) => {
       }
     }
 
-    worker.postMessage({ action: "ALERTS_CONFIGURE", apiEndpoint, limit: 100 })
+    // initial config
+    worker.postMessage({
+      action: "ALERTS_CONFIGURE",
+      apiEndpoint,
+      limit: 100,
+      watch: true,
+      watchInterval: 300000, // 5 min
+      initialFetch: true,
+    })
 
     return () => worker.terminate()
   }, [apiEndpoint])
