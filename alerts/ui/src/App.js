@@ -12,6 +12,7 @@ const App = (props = {}) => {
     () => props.embedded === "true" || props.embedded === true,
     [props.embedded]
   )
+
   useAlertmanagerAPI(props.endpoint)
 
   return (
