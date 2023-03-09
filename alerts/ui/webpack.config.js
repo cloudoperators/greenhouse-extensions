@@ -32,19 +32,23 @@ module.exports = (_, argv) => {
 
     devtool: isDevelopment && "source-map",
     //Where we put the production code
-    entry: path.resolve(__dirname, pkg.source),
+    // entry: path.resolve(__dirname, pkg.source),
+    entry: {
+      [filename.replace(".js", "")]: path.resolve(__dirname, pkg.source),
+      apiWorker: "./src/api/worker.js",
+    },
     //Where we put the production code
     output: {
       path: path.resolve(__dirname, buildDir),
       // main file
-      filename,
+      filename: "[name].js",
       // async chunks which are imported asynchronous "import('...').then(...)"
       chunkFilename: "[contenthash].js",
       // result as esm
       library: { type: "module" },
       // expose files imported asynchronous as chunks
       asyncChunks: true,
-      clean: true,
+      clean: false,
     },
     externalsType: "module",
     externals: IGNORE_EXTERNALS || isDevelopment ? {} : externals,
@@ -128,7 +132,7 @@ module.exports = (_, argv) => {
       ],
     },
     resolve: {
-      extensions: [".js", ".json"],
+      extensions: [".js", ".json", ".jsx"],
       fallback: {
         path: require.resolve("path-browserify"),
         os: require.resolve("os-browserify/browser"),
@@ -195,6 +199,5 @@ module.exports = (_, argv) => {
         webSocketURL: "ws://0.0.0.0:80/ws",
       },
     },
-
   }
 }
