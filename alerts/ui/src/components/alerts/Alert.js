@@ -1,4 +1,4 @@
-import React from "react"
+import React, { forwardRef } from "react"
 import { DateTime } from "luxon"
 import { Markup } from "interweave"
 import {
@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "juno-ui-components"
 
-const Alert = ({ alert }) => {
+const Alert = ({ alert }, ref) => {
   const descriptionParsed = (text) => {
     if (!text) return ""
     // urls in descriptions follow the schema: <URL|URL-NAME>
@@ -37,14 +37,15 @@ const Alert = ({ alert }) => {
     <DataGridRow>
       <DataGridCell>
         {alert.labels?.severity === "critical" ? (
-          <Icon icon="danger" color="text-theme-danger" />
+          <Icon ref={ref} icon="danger" color="text-theme-danger" />
         ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
           <Icon
+          ref={ref}
             icon={alert.labels?.severity}
             color={`text-theme-${alert.labels?.severity}`}
           />
         ) : (
-          <Icon icon="errorOutline" />
+          <Icon ref={ref} icon="errorOutline" />
         )}
       </DataGridCell>
       <DataGridCell>
@@ -96,4 +97,4 @@ const Alert = ({ alert }) => {
   )
 }
 
-export default Alert
+export default forwardRef(Alert)

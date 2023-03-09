@@ -37,7 +37,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
     worker.postMessage({
       action: "ALERTS_CONFIGURE",
       apiEndpoint,
-      limit: 100,
+      limit: false,
       watch: true,
       watchInterval: 300000, // 5 min
       initialFetch: true,
