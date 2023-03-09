@@ -1,56 +1,54 @@
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useRef, useCallback } from "react"
 import {
   DataGrid,
   DataGridHeadCell,
   DataGridRow,
+  DataGridCell,
   Icon,
 } from "juno-ui-components"
 import Alert from "./Alert"
 import useStore from "../../hooks/useStore"
 
-const sortAlerts = (items) => {
-  return items.sort((a, b) => {
-    if (
-      (a.labels?.severity === "critical" &&
-        b.labels?.severity !== "critical") ||
-      (a.labels?.severity === "warning" &&
-        ["critical", "warning"].indexOf(b.labels?.severity) < 0)
-    )
-      return -1
-    else if (
-      a.labels?.severity === b.labels?.severity &&
-      a.status?.state !== b.status?.state &&
-      a.status?.state
-    )
-      return a.status?.state.localeCompare(b.status?.state)
-    else if (
-      a.labels?.severity === b.labels?.severity &&
-      a.status?.state === b.status?.state &&
-      a.startsAt !== b.startsAt &&
-      b.startsAt
-    )
-      return b.startsAt?.localeCompare(a.startsAt)
-    else if (
-      a.labels?.severity === b.labels?.severity &&
-      a.status?.state === b.status?.state &&
-      a.startsAt === b.startsAt &&
-      a.labels?.region
-    )
-      return a.labels?.region?.localeCompare(b.labels?.region)
-    else return 1
-  })
-}
-
 const AlertsList = () => {
+  const [visibleAmount, setVisibleAmount] = useState(20)
+  const [isAddingItems, setIsAddingItems] = useState(false)
+  const timeoutRef = React.useRef(null)
+
   // const { isLoading, isError, data, error } = queryAlerts()
   const alerts = useStore((state) => state.alerts)
-  console.log("====", alerts)
-  // TODO: the sorting should probably not happen here but in the query action
+
   const alertsSorted = useMemo(() => {
-    if (alerts.items) {
-      return sortAlerts(alerts.items)
+    if (alerts?.items) {
+      return alerts.items.slice(0, visibleAmount)
     }
-  }, [alerts.items])
+  }, [alerts, visibleAmount])
+
+  React.useEffect(() => {
+    return () => clearTimeout(timeoutRef.current) // clear when component is unmounted
+  }, [])
+
+  const observer = useRef()
+  const lastListElementRef = useCallback(
+    (node) => {
+      // no fetch if loading original data
+      if (alerts.isLoading || isAddingItems) return
+      if (observer.current) observer.current.disconnect()
+      observer.current = new IntersectionObserver((entries) => {
+        console.log("IntersectionObserver: callback")
+        if (entries[0].isIntersecting && visibleAmount <= alertsSorted.length) {
+          // setVisibleAmount((prev) => prev + 10)
+          clearTimeout(timeoutRef.current)
+          setIsAddingItems(true)
+          timeoutRef.current = setTimeout(() => {
+            setIsAddingItems(false)
+            setVisibleAmount((prev) => prev + 10)
+          }, 500)
+        }
+      })
+      if (node) observer.current.observe(node)
+    },
+    [alerts.isLoading, isAddingItems]
+  )
 
   return (
     <DataGrid columns={7} minContentColumns={[0, 2, 5]}>
@@ -67,9 +65,24 @@ const AlertsList = () => {
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
       )}
-      {alertsSorted?.map((alert) => (
-        <Alert key={alert.fingerprint} alert={alert} />
-      ))}
+      {alertsSorted?.map((alert, index) => {
+        if (alertsSorted.length === index + 1) {
+          // DataRow in alerts muss implement forwardRef
+          return (
+            <Alert
+              ref={lastListElementRef}
+              key={alert.fingerprint}
+              alert={alert}
+            />
+          )
+        }
+        return <Alert key={alert.fingerprint} alert={alert} />
+      })}
+      {isAddingItems && (
+        <DataGridRow>
+          <DataGridCell colSpan={6}>Loading ...</DataGridCell>
+        </DataGridRow>
+      )}
     </DataGrid>
   )
 }
