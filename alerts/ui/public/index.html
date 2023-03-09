@@ -25,6 +25,15 @@
   </head>
   <body>
     <script type="module">
+      // console.log(
+      //   "===========",
+      //   import.meta,
+      //   import.meta.url,
+      //   new URL(
+      //     "../api/worker.js",
+      //     "https://assets.juno.qa-de-1.cloud.sap/apps/supernova@latest/build/e89f9acf9d60574ce8e2.js"
+      //   )
+      // )
       import("./<%= MAIN_FILENAME %>").then((app) =>
         /* prettier-ignore */
         app.mount(document.getElementById("root"), {
