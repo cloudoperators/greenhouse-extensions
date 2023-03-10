@@ -1,18 +1,15 @@
 import { useEffect } from "react"
 import useStore from "./useStore"
-const timestamp = Date.now()
+
+let workerUrl = new URL("workers/api.js", import.meta.url)
 
 const loadWorker = async () => {
-  const path = `apiWorker.js?${timestamp}`
-
-  const url = new URL(import.meta.url)
-  if (url.protocol === "file:") {
-    return new Worker("/" + path, { type: "module" })
-  } else {
-    return fetch(new URL(path, import.meta.url))
-      .then((r) => r.blob())
-      .then((blob) => new Worker(URL.createObjectURL(blob), { type: "module" }))
-  }
+  return fetch(workerUrl)
+    .then((r) => r.blob())
+    .then((blob) => {
+      var blobUrl = window.URL.createObjectURL(blob)
+      return new Worker(blobUrl, { type: "module" })
+    })
 }
 
 const useAlertmanagerAPI = (apiEndpoint) => {
@@ -49,7 +46,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
       worker.postMessage({
         action: "ALERTS_CONFIGURE",
         apiEndpoint,
-        limit: 100,
+        limit: false,
         watch: true,
         watchInterval: 300000, // 5 min
         initialFetch: true,

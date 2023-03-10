@@ -3,11 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
     <title>Supernova Dev</title>
     <style>
       html {
@@ -29,26 +24,21 @@
         flex: 1;
       }
     </style>
+    <script>
+      // automatically reload on build changes
+      new EventSource("/esbuild").addEventListener("change", () =>
+        location.reload()
+      )
+    </script>
   </head>
   <body>
     <script type="module">
-      // console.log(
-      //   "===========",
-      //   import.meta,
-      //   import.meta.url,
-      //   new URL(
-      //     "../api/worker.js",
-      //     "https://assets.juno.qa-de-1.cloud.sap/apps/supernova@latest/build/e89f9acf9d60574ce8e2.js"
-      //   )
-      // )
-      import("./<%= MAIN_FILENAME %>").then((app) =>
-        /* prettier-ignore */
-        app.mount(document.getElementById("root"), {
-          props: JSON.parse('<%=PROPS%>')
-        })
-      )
+      // appProps are generated in development env and added to the build
+      import appProps from "./build/appProps.js"
+      import("./build/index.js").then((app) => {
+        app.mount(document.getElementById("root"), { props: appProps })
+      })
     </script>
-
     <div id="root"></div>
   </body>
 </html>
