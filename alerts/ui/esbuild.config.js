@@ -29,8 +29,9 @@ const config = {
   bundle: true,
   minify: isProduction,
   // target: ["es2020"],
-  target: ["chrome64", "firefox67", "safari11.1", "edge79"],
+  target: ["es2020"], //["chrome64", "firefox67", "safari11.1", "edge79"],
   format: "esm",
+  platform: "browser",
   // built-in loaders: js, jsx, ts, tsx, css, json, text, base64, dataurl, file, binary
   loader: { ".js": "jsx" },
   external:
@@ -66,7 +67,8 @@ const build = async () => {
     ...config,
     entryPoints: [pkg.source],
     outdir,
-    splitting: true,
+    // splitting: true,
+    format: "iife",
     plugins: [
       // for all sass, scss and css files starting with .inline use the css-text type
       // This means that all .inline.(s)css files are loaded as text
