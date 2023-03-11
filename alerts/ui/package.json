@@ -38,14 +38,15 @@
     "zustand": "^4.1.1"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^4.24.10",
-    "custom-event-polyfill": "^1.0.7",
-    "juno-ui-components": "*",
-    "luxon": "^2.3.0",
-    "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "url-state-provider": "*",
-    "zustand": "^4.1.1"
+    "react-dom": "^18.2.0",
+    "prop-types": "^15.8.1",
+    "zustand": "^4.1.1",
+    "@tanstack/react-query": "^4.24.10",
+    "react-json-view": "^1.21.3",
+    "custom-event-polyfill": "^1.0.7",
+    "luxon": "^2.3.0",
+    "url-state-provider": "*"
   },
   "scripts": {
     "start": "PORT=$APP_PORT NODE_ENV=development node esbuild.config.js --serve --watch",

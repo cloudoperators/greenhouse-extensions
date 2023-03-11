@@ -67,8 +67,8 @@ const build = async () => {
     ...config,
     entryPoints: [pkg.source],
     outdir,
-    // splitting: true,
-    format: "iife",
+    splitting: true,
+    format: "esm",
     plugins: [
       // for all sass, scss and css files starting with .inline use the css-text type
       // This means that all .inline.(s)css files are loaded as text
