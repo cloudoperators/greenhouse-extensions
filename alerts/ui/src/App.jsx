@@ -17,7 +17,7 @@ const App = (props = {}) => {
   return (
     <AppShell
       pageHeader="Converged Cloud | Supernova"
-      contentHeading="Alerts"
+      contentHeading="Supernova"
       embedded={embedded}
     >
       <AppContent props={props} />
