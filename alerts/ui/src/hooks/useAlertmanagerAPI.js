@@ -1,32 +1,37 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import useStore from "./useStore"
 
 let workerUrl = new URL("workers/api.js", import.meta.url)
 
-const loadWorker = async () => {
-  return fetch(workerUrl)
-    .then((r) => r.blob())
-    .then((blob) => {
-      var blobUrl = window.URL.createObjectURL(blob)
-      return new Worker(blobUrl, { type: "module" })
-    })
-}
+const loadWorker = fetch(workerUrl)
+  .then((r) => r.blob())
+  .then((blob) => {
+    var blobUrl = window.URL.createObjectURL(blob)
+    return new SharedWorker(blobUrl, { type: "module" })
+  })
+
+// const loadWorker = fetch(workerUrl)
+//   .then((r) => r.blob())
+//   .then((blob) => {
+//     var blobUrl = window.URL.createObjectURL(blob)
+//     return new Worker(blobUrl, { type: "module" })
+//   })
 
 const useAlertmanagerAPI = (apiEndpoint) => {
   const setAlerts = useStore((state) => state.alerts.setItems)
   const setIsLoading = useStore((state) => state.alerts.setIsLoading)
   const setIsUpdating = useStore((state) => state.alerts.setIsUpdating)
+  const isUserActive = useStore((state) => state.userActivity.isActive)
 
-  loadWorker()
-
-  let cleanup
   // Create a web worker to get updates from the alert manager api
   useEffect(() => {
     if (!apiEndpoint) return
+    let cleanup
+
     // set alerts state to loading
     setIsLoading(true)
 
-    loadWorker().then((worker) => {
+    loadWorker.then((worker) => {
       // receive messages from worker
       worker.onmessage = (e) => {
         const action = e.data.action
@@ -57,6 +62,16 @@ const useAlertmanagerAPI = (apiEndpoint) => {
 
     return () => cleanup && cleanup()
   }, [apiEndpoint])
+
+  useEffect(() => {
+    if (isUserActive === undefined) return
+    loadWorker.then((worker) => {
+      worker.postMessage({
+        action: "ALERTS_CONFIGURE",
+        watch: isUserActive,
+      })
+    })
+  }, [isUserActive])
 }
 
 export default useAlertmanagerAPI

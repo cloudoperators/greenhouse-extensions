@@ -1,5 +1,16 @@
 import { create } from "zustand"
 
+const createUserActivitySlice = (set, get) => ({
+  userActivity: {
+    isActive: true,
+    setIsActive: (activity) => {
+      set((state) => ({
+        userActivity: { ...state.userActivity, isActive: activity },
+      }))
+    },
+  },
+})
+
 const createAlertsSlice = (set, get) => ({
   alerts: {
     items: [],
@@ -29,10 +40,10 @@ const createAlertsSlice = (set, get) => ({
       set((state) => ({ alerts: { ...state.alerts, isUpdating: value } })),
   },
 })
-// global zustand store. See how this works here: https://github.com/pmndrs/zustand
+
 const useStore = create((set, get) => ({
   ...createAlertsSlice(set, get),
-
+  ...createUserActivitySlice(set, get),
   urlStateKey: "supernova",
 }))
 

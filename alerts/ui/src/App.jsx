@@ -5,6 +5,8 @@ import AppContent from "./AppContent"
 import styles from "./styles.inline.scss"
 import StyleProvider from "juno-ui-components"
 import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
+import useStore from "./hooks/useStore"
+import useCommunication from "./hooks/useCommunication"
 
 const App = (props = {}) => {
   const embedded = useMemo(
@@ -12,6 +14,7 @@ const App = (props = {}) => {
     [props.embedded]
   )
 
+  useCommunication()
   useAlertmanagerAPI(props.endpoint)
 
   return (
