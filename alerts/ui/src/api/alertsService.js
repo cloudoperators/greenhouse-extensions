@@ -111,7 +111,9 @@ function AlertsService(initialConfig) {
     // delete last watcher
     clearInterval(watchTimer)
     // create a new watcher which calls the update method
-    watchTimer = setInterval(update, config.watchInterval || DEFAULT_INTERVAL)
+    if (config.watch) {
+      watchTimer = setInterval(update, config.watchInterval || DEFAULT_INTERVAL)
+    }
   }
 
   // this function is public and used to update the config
