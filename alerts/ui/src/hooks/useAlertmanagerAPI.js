@@ -7,15 +7,8 @@ const loadWorker = fetch(workerUrl)
   .then((r) => r.blob())
   .then((blob) => {
     var blobUrl = window.URL.createObjectURL(blob)
-    return new SharedWorker(blobUrl, { type: "module" })
+    return new Worker(blobUrl, { type: "module" })
   })
-
-// const loadWorker = fetch(workerUrl)
-//   .then((r) => r.blob())
-//   .then((blob) => {
-//     var blobUrl = window.URL.createObjectURL(blob)
-//     return new Worker(blobUrl, { type: "module" })
-//   })
 
 const useAlertmanagerAPI = (apiEndpoint) => {
   const setAlerts = useStore((state) => state.alerts.setItems)
