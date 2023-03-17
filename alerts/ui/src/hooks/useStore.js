@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import { devtools } from 'zustand/middleware'
 
 const createUserActivitySlice = (set, get) => ({
   userActivity: {
@@ -41,10 +42,28 @@ const createAlertsSlice = (set, get) => ({
   },
 })
 
-const useStore = create((set, get) => ({
+const createFiltersSlice = (set, get) => ({
+  filters: {
+    keys: [],
+    activeFilters: [],
+
+    setKeys: (keys) =>
+      set((state) => {
+        return {
+          filters: {
+            ...state.filters,
+            keys
+          },
+        }
+      }),
+  },
+})
+
+const useStore = create(devtools((set, get) => ({
   ...createAlertsSlice(set, get),
   ...createUserActivitySlice(set, get),
+  ...createFiltersSlice(set, get),
   urlStateKey: "supernova",
-}))
+})))
 
 export default useStore

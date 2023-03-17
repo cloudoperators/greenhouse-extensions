@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useEffect } from "react"
 
 import { AppShell } from "juno-ui-components"
 import AppContent from "./AppContent"
@@ -8,11 +8,25 @@ import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
 import useStore from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
 
-const App = (props = {}) => {
+
+function App(props = {}) {
+  const setFilterKeys = useStore((state) => state.filters.setKeys)
+
   const embedded = useMemo(
     () => props.embedded === "true" || props.embedded === true,
     [props.embedded]
   )
+  
+  /** TODO: 
+   * load the values from kubernetes plugin config instead of hardcoding
+   * */
+  // transfer plugin config to store
+  useEffect(() => {
+    // load from plugin config
+    let filterKeys = ["app", "cluster", "cluster_type", "context", "job", "region", "service", "severity", "status", "support_group", "tier", "type"]
+
+    setFilterKeys(filterKeys)
+  }, [])
 
   useCommunication()
   useAlertmanagerAPI(props.endpoint)
