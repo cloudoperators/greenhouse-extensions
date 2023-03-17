@@ -51,11 +51,11 @@ const AlertsList = () => {
   )
 
   return (
-    <DataGrid columns={7} minContentColumns={[0, 2, 5]}>
+    <DataGrid columns={7} minContentColumns={[0, 2, 5]} cellVerticalAlignment="top">
       {!alerts.isLoading && (
         <DataGridRow>
           <DataGridHeadCell>
-            <Icon icon="danger" />
+            <Icon icon="monitorHeart" />
           </DataGridHeadCell>
           <DataGridHeadCell>Region</DataGridHeadCell>
           <DataGridHeadCell>Service</DataGridHeadCell>

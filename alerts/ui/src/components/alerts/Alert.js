@@ -13,6 +13,28 @@ import {
   TooltipTrigger,
 } from "juno-ui-components"
 
+const cellSeverityClasses = (severity) => {
+  let borderColor = "border-text-theme-default"
+  switch (severity) {
+    case "critical":
+      borderColor = "border-theme-danger"
+      break
+    case "warning":
+      borderColor = "border-theme-warning"
+      break
+    case "info":
+      borderColor = "border-theme-info"
+      break
+  }
+
+  return `
+    border-l-2
+    ${borderColor}
+    h-full
+    pl-5
+  `
+}
+
 const Alert = ({ alert }, ref) => {
   const descriptionParsed = (text) => {
     if (!text) return ""
@@ -35,18 +57,20 @@ const Alert = ({ alert }, ref) => {
 
   return (
     <DataGridRow>
-      <DataGridCell>
-        {alert.labels?.severity === "critical" ? (
-          <Icon ref={ref} icon="danger" color="text-theme-danger" />
-        ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
-          <Icon
-          ref={ref}
-            icon={alert.labels?.severity}
-            color={`text-theme-${alert.labels?.severity}`}
-          />
-        ) : (
-          <Icon ref={ref} icon="errorOutline" />
-        )}
+      <DataGridCell className="pl-0">
+        <div className={cellSeverityClasses(alert.labels?.severity)}>
+          {alert.labels?.severity === "critical" ? (
+            <Icon ref={ref} icon="danger" color="text-theme-danger" />
+          ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
+            <Icon
+            ref={ref}
+              icon={alert.labels?.severity}
+              color={`text-theme-${alert.labels?.severity}`}
+            />
+          ) : (
+            <Icon ref={ref} icon="errorOutline" />
+          )}
+        </div>
       </DataGridCell>
       <DataGridCell>
         {alert.labels?.region}
@@ -91,7 +115,7 @@ const Alert = ({ alert }, ref) => {
       </DataGridCell>
       <DataGridCell>{alert.status?.state}</DataGridCell>
       <DataGridCell>
-        <Button size="small">Silence</Button>
+        <Button size="small" variant="subdued">Silence</Button>
       </DataGridCell>
     </DataGridRow>
   )
