@@ -2,7 +2,6 @@ import React, { forwardRef } from "react"
 import { DateTime } from "luxon"
 import { Markup } from "interweave"
 import {
-  Badge,
   Button,
   DataGridCell,
   DataGridRow,
@@ -14,6 +13,8 @@ import {
 } from "juno-ui-components"
 
 import AlertLabels from "./AlertLabels"
+import AlertLinks from "./AlertLinks"
+import { descriptionParsed } from "../../lib/utils"
 
 const cellSeverityClasses = (severity) => {
   let borderColor = "border-text-theme-default"
@@ -38,22 +39,8 @@ const cellSeverityClasses = (severity) => {
 }
 
 const Alert = ({ alert }, ref) => {
-  const descriptionParsed = (text) => {
-    if (!text) return ""
-    // urls in descriptions follow the schema: <URL|URL-NAME>
-    // Parse description and replace urls with a-tags
-    const regexUrl = /<(http[^>|]+)\|([^>]+)>/g
-    const urlParsed = text.replace(regexUrl, `<a href="$1">$2</a>`)
-
-    // replace text wrapped in *..* by strong tags
-    const regexBold = /\*(.*)\*/g
-    const boldParsed = urlParsed.replace(regexBold, `<strong>$1</strong>`)
-
-    const regexCode = /`(.*)`/g
-    return boldParsed.replace(regexCode, `<code class="inline-code">$1</code>`)
-  }
-
-  const dateTimeFormat = { ...DateTime.DATETIME_FULL, month: "short" }
+  const dateFormat = { ...DateTime.DATE_MED }
+  const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
   const startTime = DateTime.fromISO(alert.startsAt)
   var daysFiring = DateTime.now().diff(startTime, "days")
 
@@ -86,21 +73,25 @@ const Alert = ({ alert }, ref) => {
       <DataGridCell>{alert.labels?.service}</DataGridCell>
       <DataGridCell>
         <div>{alert.annotations?.summary}</div>
-        <Markup
-          content={descriptionParsed(
-            alert.annotations?.description?.replace(
-              /`([^`]+)`/g,
-              "<code class='inline-code'>$1</code>"
-            )
-          )}
-          tagName="div"
-          className="text-sm text-theme-light mb-4"
-        />
+        <div>
+          <Markup
+            content={descriptionParsed(
+              alert.annotations?.description?.replace(
+                /`([^`]+)`/g,
+                "<code class='inline-code'>$1</code>"
+              )
+            )}
+            tagName="div"
+            className="text-theme-light"
+          />
+          <AlertLinks alert={alert} className="mb-4 mt-1" />
+        </div>
         <AlertLabels alert={alert} />
       </DataGridCell>
       <DataGridCell>
-        <Stack alignment="end" gap="2">
-          <div>{startTime.toLocaleString(dateTimeFormat)}</div>
+        <Stack direction="vertical" gap="1">
+          <div>{startTime.toLocaleString(dateFormat)}</div>
+          <div>{startTime.toLocaleString(timeFormat)}</div>
           {daysFiring.days > 7 && (
             <Tooltip variant="warning" triggerEvent="hover">
               <TooltipTrigger asChild>
