@@ -48,6 +48,9 @@
     "luxon": "^2.3.0",
     "url-state-provider": "*"
   },
+  "importmapExtras": {
+    "zustand/middleware": "^4.1.1"
+  },
   "scripts": {
     "start": "PORT=$APP_PORT NODE_ENV=development node esbuild.config.js --serve --watch",
     "test": "jest",
