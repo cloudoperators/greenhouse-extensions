@@ -20,7 +20,7 @@
     "interweave": "^13.0.0",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
-    "juno-ui-components": ">= 0",
+    "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@latest/package.tgz",
     "luxon": "^2.3.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
@@ -33,7 +33,7 @@
     "react-test-renderer": "^18.2.0",
     "shadow-dom-testing-library": "^1.7.1",
     "tailwindcss": "^3.0.24",
-    "url-state-provider": ">= 0",
+    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@latest/package.tgz",
     "util": "^0.12.4",
     "zustand": "^4.1.1"
   },
