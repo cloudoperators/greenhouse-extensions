@@ -47,7 +47,7 @@ const config = {
 const build = async () => {
   // delete build folder
   await fs.rm(outdir, { recursive: true, force: true })
-  await fs.mkdir(outdir)
+  await fs.mkdir(outdir, { recursive: true })
 
   // build web workers
   try {
@@ -94,22 +94,25 @@ const build = async () => {
     ],
   })
 
-  if (watch) await ctx.watch()
-  else ctx.rebuild()
+  if (watch || serve) {
+    if (watch) await ctx.watch()
+    if (serve) {
+      // generate app props based on package.json and secretProps.json
+      await fs.writeFile(
+        `./${outdir}/appProps.js`,
+        `export default ${JSON.stringify(appProps())}`
+      )
 
-  if (serve) {
-    // generate app props based on package.json and secretProps.json
-    await fs.writeFile(
-      `./${outdir}/appProps.js`,
-      `export default ${JSON.stringify(appProps())}`
-    )
-
-    let { host, port } = await ctx.serve({
-      host: "0.0.0.0",
-      port: parseInt(process.env.PORT),
-      servedir: "public",
-    })
-    console.log("serve on", `${host}:${port}`)
+      let { host, port } = await ctx.serve({
+        host: "0.0.0.0",
+        port: parseInt(process.env.PORT),
+        servedir: "public",
+      })
+      console.log("serve on", `${host}:${port}`)
+    }
+  } else {
+    await ctx.rebuild()
+    await ctx.dispose()
   }
 }
 
