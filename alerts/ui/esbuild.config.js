@@ -48,6 +48,7 @@ const build = async () => {
   // delete build folder
   try {
     fs.rmSync(outdir, { recursive: true })
+    fs.mkdirSync(outdir)
   } catch (e) {
     console.log("WARNING: EMPTY OUTPUT DIR", e.message)
   }
