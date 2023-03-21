@@ -5,7 +5,7 @@
 import { get } from "./client"
 
 /**
- * This method sorts the alerts based on various parameters such as severity or state.
+ * This method sorts the alerts first by severity (critical -> warning -> others), then by status, then by startsAt timestamp and finally by region
  * @param {array} items, a list of alerts
  * @returns {array} sorted alerts
  */
@@ -83,6 +83,7 @@ function AlertsService(initialConfig) {
     // get all alerts filtered by params if defined
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
+        // normalize some label values, like for example status.state to lower case
         // sort alerts
         let alerts = sort(items)
         // slice if limit provided

@@ -1,34 +1,14 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { DateTime } from "luxon"
 
 import { Container, Message, Spinner, Stack } from "juno-ui-components"
 import useStore from "./hooks/useStore"
 import AlertsList from "./components/alerts/AlertsList"
+import RegionsList from "./components/regions/RegionsList"
 
 const AppContent = (props) => {
   const alerts = useStore((state) => state.alerts)
 
-  const { totalCount, criticalCount, warningCount, infoCount } = useMemo(() => {
-    if (!alerts?.items)
-      return { totalCount: 0, criticalCount: 0, warningCount: 0, infoCount: 0 }
-    let totalCount = alerts.items.length
-    let criticalCount = alerts.items.reduce(
-      (critical, item) =>
-        item.labels?.severity === "critical" ? ++critical : critical,
-      0
-    )
-    let warningCount = alerts.items.reduce(
-      (warning, item) =>
-        item.labels?.severity === "warning" ? ++warning : warning,
-      0
-    )
-    let infoCount = alerts.items.reduce(
-      (info, item) => (item.labels?.severity === "info" ? ++info : info),
-      0
-    )
-
-    return { totalCount, criticalCount, warningCount, infoCount }
-  }, [alerts.items])
 
   return (
     <Container px py className="h-full">
@@ -38,12 +18,13 @@ const AppContent = (props) => {
         </Message>
       )}
 
-      {/* Add a toolbar  */}
+      <RegionsList />
+      
       {alerts.items && !alerts.isLoading && (
         <Stack className="bg-theme-background-lvl-2 py-1.5 px-4 text-theme-light" alignment="center">
           <div>
-            <span className="text-theme-default pr-2">{`${totalCount} alerts`}</span>
-            <span>{`(${criticalCount} critical, ${warningCount} warning, ${infoCount} info)`}</span>
+            <span className="text-theme-default pr-2">{`${alerts.totalCounts.total} alerts`}</span>
+            <span>{`(${alerts.totalCounts.critical} critical, ${alerts.totalCounts.warning} warning, ${alerts.totalCounts.info} info)`}</span>
           </div>
           <Stack alignment="center" className="ml-auto">
             {alerts.isUpdating &&
@@ -64,6 +45,7 @@ const AppContent = (props) => {
       )}
 
       <AlertsList />
+      
     </Container>
   )
 }
