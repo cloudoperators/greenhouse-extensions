@@ -1,5 +1,5 @@
 const esbuild = require("esbuild")
-const fs = require("fs")
+const fs = require("node:fs/promises")
 const pkg = require("./package.json")
 const postcss = require("postcss")
 const { sassPlugin } = require("esbuild-sass-plugin")
@@ -46,16 +46,12 @@ const config = {
 
 const build = async () => {
   // delete build folder
-  try {
-    fs.rmSync(outdir, { recursive: true })
-    fs.mkdirSync(outdir)
-  } catch (e) {
-    console.log("WARNING: EMPTY OUTPUT DIR", e.message)
-  }
+  await fs.rm(outdir, { recursive: true, force: true })
+  await fs.mkdir(outdir)
 
   // build web workers
   try {
-    const workerFiles = fs.readdirSync("src/workers")
+    const workerFiles = await fs.readdir("src/workers")
     for (let f of workerFiles) {
       await esbuild.build({
         ...config,
@@ -103,7 +99,7 @@ const build = async () => {
 
   if (serve) {
     // generate app props based on package.json and secretProps.json
-    fs.writeFileSync(
+    await fs.writeFile(
       `./${outdir}/appProps.js`,
       `export default ${JSON.stringify(appProps())}`
     )
