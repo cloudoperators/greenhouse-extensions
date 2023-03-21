@@ -23,8 +23,6 @@
     "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@1.2.3/package.tgz",
     "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@2.1.0/package.tgz",
     "luxon": "^2.3.0",
-    "os-browserify": "^0.3.0",
-    "path-browserify": "^1.0.1",
     "postcss": "^8.4.21",
     "postcss-minify": "^1.1.0",
     "prop-types": "^15.8.1",
