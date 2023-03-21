@@ -8,7 +8,6 @@ import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
 import useStore from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
 
-
 function App(props = {}) {
   const setFilterKeys = useStore((state) => state.filters.setKeys)
 
@@ -16,14 +15,27 @@ function App(props = {}) {
     () => props.embedded === "true" || props.embedded === true,
     [props.embedded]
   )
-  
-  /** TODO: 
+
+  /** TODO:
    * load the values from kubernetes plugin config instead of hardcoding
    * */
   // transfer plugin config to store
   useEffect(() => {
     // load from plugin config
-    let filterKeys = ["app", "cluster", "cluster_type", "context", "job", "region", "service", "severity", "status", "support_group", "tier", "type"]
+    let filterKeys = [
+      "app",
+      "cluster",
+      "cluster_type",
+      "context",
+      "job",
+      "region",
+      "service",
+      "severity",
+      "status",
+      "support_group",
+      "tier",
+      "type",
+    ]
 
     setFilterKeys(filterKeys)
   }, [])

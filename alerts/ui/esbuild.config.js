@@ -24,6 +24,9 @@ const serve = args.indexOf("--serve") >= 0
 const postcssPlugins = [require("tailwindcss"), require("autoprefixer")]
 if (isProduction) postcssPlugins.push(require("postcss-minify"))
 
+const green = "\x1b[32m%s\x1b[0m"
+const yellow = "\x1b[33m%s\x1b[0m"
+
 // shared config
 const config = {
   bundle: true,
@@ -34,6 +37,7 @@ const config = {
   platform: "browser",
   // built-in loaders: js, jsx, ts, tsx, css, json, text, base64, dataurl, file, binary
   loader: { ".js": "jsx" },
+  sourcemap: isProduction ? false : "both",
   external:
     isProduction && !IGNORE_EXTERNALS
       ? Object.keys(pkg.peerDependencies || {})
@@ -70,13 +74,23 @@ const build = async () => {
     splitting: true,
     format: "esm",
     plugins: [
+      {
+        name: "start/end",
+        setup(build) {
+          build.onStart(() => console.log(yellow, "Compiling..."))
+          build.onEnd((result) => console.log(green, "Done!"))
+        },
+      },
       // for all sass, scss and css files starting with .inline use the css-text type
       // This means that all .inline.(s)css files are loaded as text
       sassPlugin({
         filter: /.*\.inline\.(s[ac]ss|css)$/,
         type: "css-text",
+        cache: false,
         async transform(source, _resolveDir) {
-          const { css } = await postcss(postcssPlugins).process(source)
+          const { css } = await postcss(postcssPlugins).process(source, {
+            from: undefined,
+          })
           return css
         },
       }),
@@ -84,10 +98,7 @@ const build = async () => {
   })
 
   if (watch) await ctx.watch()
-  else {
-    ctx.rebuild()
-    ctx.dispose()
-  }
+  else ctx.rebuild()
 
   if (serve) {
     // generate app props based on package.json and secretProps.json
