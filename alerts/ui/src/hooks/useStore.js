@@ -15,6 +15,8 @@ const createUserActivitySlice = (set, get) => ({
 const createAlertsSlice = (set, get) => ({
   alerts: {
     items: [],
+    totalCounts: {},
+    severityCountsPerRegion: {},
     isLoading: false,
     updatedAt: null,
 
@@ -30,13 +32,30 @@ const createAlertsSlice = (set, get) => ({
           },
         }
       }),
+    setSeverityCountsPerRegion: (severityCountsPerRegion) =>
+      set((state) => {
+        return {
+          alerts: {
+            ...state.alerts,
+            severityCountsPerRegion
+          }
+        }
+      }),
+    setTotalCounts: (totalCounts) =>
+      set((state) => {
+        return {
+          alerts: {
+            ...state.alerts,
+            totalCounts
+          }
+        }
+      }),
     setIsLoading: (value) =>
       set((state) => {
         return {
           alerts: { ...state.alerts, isLoading: value },
         }
       }),
-
     setIsUpdating: (value) =>
       set((state) => ({ alerts: { ...state.alerts, isUpdating: value } })),
   },
