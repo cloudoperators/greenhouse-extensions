@@ -10,12 +10,14 @@ import { get } from "./client"
  * @returns {array} sorted alerts
  */
 const sort = (items) => {
+  const importantSeverities = ["critical", "warning"]
+
   return items.sort((a, b) => {
     if (
       (a.labels?.severity === "critical" &&
         b.labels?.severity !== "critical") ||
       (a.labels?.severity === "warning" &&
-        ["critical", "warning"].indexOf(b.labels?.severity) < 0)
+        importantSeverities.indexOf(b.labels?.severity) < 0)
     )
       return -1
     else if (
@@ -93,6 +95,8 @@ function AlertsService(initialConfig) {
     params: null,
   }
 
+  let initialFetchPerformed = false
+
   // get the allowed config keys from default config
   const allowedOptions = Object.keys(config)
   // variable to hold the watch timer created by setInterval
@@ -116,14 +120,21 @@ function AlertsService(initialConfig) {
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
         console.info("Alerts service: receive items")
+        initialFetchPerformed = true
+        console.info("Alerts service: sort items")
         // normalize some label values, like for example status.state to lower case
         // sort alerts
         let alerts = sort(items)
+        console.info("Alerts service: limit items")
         // slice if limit provided
         if (config?.limit) alerts = alerts.slice(0, config.limit)
 
         // check if new loaded alerts are different from the last response
         const newCompareString = JSON.stringify(alerts)
+        console.info(
+          "Alerts service: any changes?",
+          compareString !== newCompareString
+        )
         if (compareString !== newCompareString) {
           compareString = newCompareString
 
@@ -141,6 +152,7 @@ function AlertsService(initialConfig) {
   const updateWatcher = (oldConfig) => {
     // do nothing if watch and watchInterval are the same
     if (
+      initialFetchPerformed &&
       oldConfig.watch === config.watch &&
       oldConfig.watchInterval === config.watchInterval
     )
@@ -167,7 +179,7 @@ function AlertsService(initialConfig) {
     console.log("Alerts service: new config", config)
 
     updateWatcher(oldConfig)
-    if (config.initialFetch) update()
+    if (config.initialFetch && !initialFetchPerformed) update()
   }
 
   // make it possible to update alerts explicitly, not by a watcher!
