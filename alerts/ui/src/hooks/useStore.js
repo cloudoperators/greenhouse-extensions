@@ -20,42 +20,21 @@ const createAlertsSlice = (set, get) => ({
     isLoading: false,
     updatedAt: null,
 
-    setItems: (items) =>
-      set((state) => {
-        return {
-          alerts: {
-            ...state.alerts,
-            items,
-            isLoading: false,
-            isUpdating: false,
-            updatedAt: Date.now(),
-          },
-        }
-      }),
-    setSeverityCountsPerRegion: (severityCountsPerRegion) =>
-      set((state) => {
-        return {
-          alerts: {
-            ...state.alerts,
-            severityCountsPerRegion,
-          },
-        }
-      }),
-    setTotalCounts: (totalCounts) =>
-      set((state) => {
-        return {
-          alerts: {
-            ...state.alerts,
-            totalCounts,
-          },
-        }
-      }),
+    setAlertsData: ({ items, counts }) =>
+      set((state) => ({
+        alerts: {
+          ...state.alerts,
+          items,
+          totalCounts: counts?.global,
+          severityCountsPerRegion: counts?.regions,
+          isLoading: false,
+          isUpdating: false,
+          updatedAt: Date.now(),
+        },
+      })),
+
     setIsLoading: (value) =>
-      set((state) => {
-        return {
-          alerts: { ...state.alerts, isLoading: value },
-        }
-      }),
+      set((state) => ({ alerts: { ...state.alerts, isLoading: value } })),
     setIsUpdating: (value) =>
       set((state) => ({ alerts: { ...state.alerts, isUpdating: value } })),
   },

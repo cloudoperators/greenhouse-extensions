@@ -42,6 +42,36 @@ const sort = (items) => {
   })
 }
 
+// count alerts and create a map
+// {
+//   global: { total: number, warning: number, ...},
+//   regions: {
+//     "eu-de-1": { total: number, warning: number, ...}
+//   }, ...
+// }
+const count = (alerts) => {
+  const counts = { global: { total: 0 }, regions: {} }
+
+  if (!alerts || alerts.length === 0) return counts
+  alerts.forEach((alert) => {
+    counts.global.total += 1
+    const region = alert.labels?.region
+    const severity = alert.labels?.severity
+
+    // global
+    counts.global[severity] = counts.global[severity] || 0
+    counts.global[severity] += 1
+    // region
+    counts.regions[region] = counts.regions[region] || {}
+    counts.regions[region]["total"] = counts.regions[region]["total"] || 0
+    counts.regions[region]["total"] += 1
+    counts.regions[region][severity] = counts.regions[region][severity] || 0
+    counts.regions[region][severity] += 1
+  })
+
+  return counts
+}
+
 // default value for watch interval
 const DEFAULT_INTERVAL = 300000
 
@@ -80,9 +110,12 @@ function AlertsService(initialConfig) {
     // call onFetchStart if defined
     // This is useful to inform the listener that a new fetch is starting
     if (config.onFetchStart) config.onFetchStart()
+
+    console.info("Alerts service: fetch")
     // get all alerts filtered by params if defined
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
+        console.info("Alerts service: receive alerts")
         // normalize some label values, like for example status.state to lower case
         // sort alerts
         let alerts = sort(items)
@@ -93,8 +126,9 @@ function AlertsService(initialConfig) {
         const newCompareString = JSON.stringify(alerts)
         if (compareString !== newCompareString) {
           compareString = newCompareString
+
           // inform listener to receive new alerts
-          config?.onChange({ alerts })
+          config?.onChange({ alerts, counts: count(alerts) })
         }
         if (config.onFetchEnd) config.onFetchEnd()
       })
@@ -111,6 +145,7 @@ function AlertsService(initialConfig) {
       return
     // delete last watcher
     clearInterval(watchTimer)
+
     // create a new watcher which calls the update method
     if (config.watch) {
       watchTimer = setInterval(update, config.watchInterval || DEFAULT_INTERVAL)

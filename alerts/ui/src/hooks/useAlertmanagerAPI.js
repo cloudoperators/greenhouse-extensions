@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import useStore from "./useStore"
-import {
-  countSeveritiesPerRegion,
-  countTotalSeverities,
-} from "../lib/alertHelpers"
-
 let workerUrl = new URL("workers/api.js", import.meta.url)
 
 const loadWorker = fetch(workerUrl)
@@ -15,11 +10,7 @@ const loadWorker = fetch(workerUrl)
   })
 
 const useAlertmanagerAPI = (apiEndpoint) => {
-  const setAlerts = useStore((state) => state.alerts.setItems)
-  const setSeverityCountsPerRegion = useStore(
-    (state) => state.alerts.setSeverityCountsPerRegion
-  )
-  const setTotalCounts = useStore((state) => state.alerts.setTotalCounts)
+  const setAlertsData = useStore((state) => state.alerts.setAlertsData)
   const setIsLoading = useStore((state) => state.alerts.setIsLoading)
   const setIsUpdating = useStore((state) => state.alerts.setIsUpdating)
   const isUserActive = useStore((state) => state.userActivity.isActive)
@@ -38,9 +29,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
         const action = e.data.action
         switch (action) {
           case "ALERTS_UPDATE":
-            setAlerts(e.data.items)
-            setSeverityCountsPerRegion(countSeveritiesPerRegion(e.data.items))
-            setTotalCounts(countTotalSeverities(e.data.items))
+            setAlertsData({ items: e.data.alerts, counts: e.data.counts })
             break
           case "ALERTS_FETCH_START":
             setIsUpdating(true)
