@@ -117,10 +117,10 @@ function AlertsService(initialConfig) {
 
     console.info("Alerts service: start fetch")
     // get all alerts filtered by params if defined
+    initialFetchPerformed = true
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
         console.info("Alerts service: receive items")
-        initialFetchPerformed = true
         console.info("Alerts service: sort items")
         // normalize some label values, like for example status.state to lower case
         // sort alerts
@@ -138,6 +138,7 @@ function AlertsService(initialConfig) {
         if (compareString !== newCompareString) {
           compareString = newCompareString
 
+          console.info("Alerts service: inform listener")
           // inform listener to receive new alerts
           config?.onChange({ alerts, counts: count(alerts) })
         } else {
