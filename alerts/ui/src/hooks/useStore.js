@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { devtools } from 'zustand/middleware'
+import { devtools } from "zustand/middleware"
 
 const createUserActivitySlice = (set, get) => ({
   userActivity: {
@@ -37,8 +37,8 @@ const createAlertsSlice = (set, get) => ({
         return {
           alerts: {
             ...state.alerts,
-            severityCountsPerRegion
-          }
+            severityCountsPerRegion,
+          },
         }
       }),
     setTotalCounts: (totalCounts) =>
@@ -46,8 +46,8 @@ const createAlertsSlice = (set, get) => ({
         return {
           alerts: {
             ...state.alerts,
-            totalCounts
-          }
+            totalCounts,
+          },
         }
       }),
     setIsLoading: (value) =>
@@ -71,18 +71,20 @@ const createFiltersSlice = (set, get) => ({
         return {
           filters: {
             ...state.filters,
-            keys
+            keys,
           },
         }
       }),
   },
 })
 
-const useStore = create(devtools((set, get) => ({
-  ...createAlertsSlice(set, get),
-  ...createUserActivitySlice(set, get),
-  ...createFiltersSlice(set, get),
-  urlStateKey: "supernova",
-})))
+const useStore = create(
+  devtools((set, get) => ({
+    ...createAlertsSlice(set, get),
+    ...createUserActivitySlice(set, get),
+    ...createFiltersSlice(set, get),
+    urlStateKey: "supernova",
+  }))
+)
 
 export default useStore
