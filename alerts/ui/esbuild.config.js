@@ -26,6 +26,7 @@ if (isProduction) postcssPlugins.push(require("postcss-minify"))
 
 const green = "\x1b[32m%s\x1b[0m"
 const yellow = "\x1b[33m%s\x1b[0m"
+const clear = '\033c'
 
 // shared config
 const config = {
@@ -74,7 +75,10 @@ const build = async () => {
       {
         name: "start/end",
         setup(build) {
-          build.onStart(() => console.log(yellow, "Compiling..."))
+          build.onStart(() => {
+            console.log(clear)
+            console.log(yellow, "Compiling...")
+          })
           build.onEnd((result) => console.log(green, "Done!"))
         },
       },
