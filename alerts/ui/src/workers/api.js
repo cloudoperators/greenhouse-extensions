@@ -4,8 +4,8 @@ const alertsService = new AlertsService({
   initialFetch: true,
   watch: true,
   watchInterval: 300000, // 5 min
-  onChange: ({ alerts }) =>
-    self.postMessage({ action: "ALERTS_UPDATE", items: alerts }),
+  onChange: ({ alerts, counts }) =>
+    self.postMessage({ action: "ALERTS_UPDATE", alerts, counts }),
   onFetchStart: () => self.postMessage({ action: "ALERTS_FETCH_START" }),
   onFetchEnd: () => self.postMessage({ action: "ALERTS_FETCH_END" }),
 })
