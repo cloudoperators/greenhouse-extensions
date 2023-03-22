@@ -111,11 +111,9 @@ function AlertsService(initialConfig) {
     // This is useful to inform the listener that a new fetch is starting
     if (config.onFetchStart) config.onFetchStart()
 
-    console.info("Alerts service: fetch")
     // get all alerts filtered by params if defined
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
-        console.info("Alerts service: receive alerts")
         // normalize some label values, like for example status.state to lower case
         // sort alerts
         let alerts = sort(items)
