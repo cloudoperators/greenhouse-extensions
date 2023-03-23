@@ -2,7 +2,7 @@ const esbuild = require("esbuild")
 const fs = require("node:fs/promises")
 const pkg = require("./package.json")
 const postcss = require("postcss")
-const { sassPlugin } = require("esbuild-sass-plugin")
+const sass = require("sass")
 // this function generates app props based on package.json and propSecrets.json
 const appProps = require("../../helpers/appProps")
 
@@ -26,7 +26,7 @@ if (isProduction) postcssPlugins.push(require("postcss-minify"))
 
 const green = "\x1b[32m%s\x1b[0m"
 const yellow = "\x1b[33m%s\x1b[0m"
-const clear = '\033c'
+const clear = "\033c"
 
 // shared config
 const config = {
@@ -82,19 +82,31 @@ const build = async () => {
           build.onEnd((result) => console.log(green, "Done!"))
         },
       },
-      // for all sass, scss and css files starting with .inline use the css-text type
-      // This means that all .inline.(s)css files are loaded as text
-      sassPlugin({
-        filter: /.*\.inline\.(s[ac]ss|css)$/,
-        type: "css-text",
-        cache: false,
-        async transform(source, _resolveDir) {
-          const { css } = await postcss(postcssPlugins).process(source, {
-            from: undefined,
-          })
-          return css
+      {
+        name: "parse-styles",
+        setup(build) {
+          build.onLoad(
+            { filter: /.\.(css|scss)$/, namespace: "file" },
+            async (args) => {
+              let content
+              // handle scss, convert to css
+              if (args.path.endsWith(".scss")) {
+                const result = sass.renderSync({ file: args.path })
+                content = result.css
+              } else {
+                // read file content
+                content = await fs.readFile(args.path)
+              }
+              const plugins = [require("tailwindcss"), require("autoprefixer")]
+              const { css } = await postcss(plugins).process(content, {
+                from: undefined,
+              })
+
+              return { contents: css, loader: "text" }
+            }
+          )
         },
-      }),
+      },
     ],
   })
 

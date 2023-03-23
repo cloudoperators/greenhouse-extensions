@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from "react"
 
 import { AppShell } from "juno-ui-components"
 import AppContent from "./AppContent"
-import styles from "./styles.inline.scss"
+import styles from "./styles.scss"
 import StyleProvider from "juno-ui-components"
 import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
 import useStore from "./hooks/useStore"
