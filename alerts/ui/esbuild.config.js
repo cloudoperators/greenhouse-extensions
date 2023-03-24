@@ -3,6 +3,8 @@ const fs = require("node:fs/promises")
 const pkg = require("./package.json")
 const postcss = require("postcss")
 const sass = require("sass")
+const { transform } = require("@svgr/core")
+const url = require("postcss-url")
 // this function generates app props based on package.json and propSecrets.json
 const appProps = require("../../helpers/appProps")
 
@@ -82,10 +84,68 @@ const build = async () => {
           build.onEnd((result) => console.log(green, "Done!"))
         },
       },
+      // this custom plugin rewrites SVG imports to
+      // dataurls, paths or react components based on the
+      // search param and size
+      {
+        name: "svg-loader",
+        setup(build) {
+          build.onLoad(
+            // consider only .svg files
+            { filter: /.\.(svg)$/, namespace: "file" },
+            async (args) => {
+              let contents = await fs.readFile(args.path)
+              // built-in loaders: js, jsx, ts, tsx, css, json, text, base64, dataurl, file, binary
+              let loader = "text"
+              if (args.suffix === "?url") {
+                // as URL
+                const maxSize = 10240 // 10Kb
+                // use dataurl loader for small files and file loader for big files!
+                loader = contents.length <= maxSize ? "dataurl" : "file"
+              } else {
+                // as react component
+                // use react component loader (jsx)
+                loader = "jsx"
+                contents = await transform(
+                  contents,
+                  {},
+                  { filePath: args.path }
+                )
+              }
+
+              return { contents, loader }
+            }
+          )
+        },
+      },
+
+      // this custom plugin rewrites image imports to
+      // dataurls or urls based on the size
+      {
+        name: "image-loader",
+        setup(build) {
+          build.onLoad(
+            // consider only .svg files
+            { filter: /.\.(png|jpg|jpeg|gif)$/, namespace: "file" },
+            async (args) => {
+              let contents = await fs.readFile(args.path)
+              const maxSize = 10240 // 10Kb
+              // built-in loaders: js, jsx, ts, tsx, css, json, text, base64, dataurl, file, binary
+              // use dataurl loader for small files and file loader for big files!
+              loader = contents.length <= maxSize ? "dataurl" : "file"
+
+              return { contents, loader }
+            }
+          )
+        },
+      },
+
+      // this custom plugin parses the style files
       {
         name: "parse-styles",
         setup(build) {
           build.onLoad(
+            // consider only .scss and .css files
             { filter: /.\.(css|scss)$/, namespace: "file" },
             async (args) => {
               let content
@@ -97,11 +157,27 @@ const build = async () => {
                 // read file content
                 content = await fs.readFile(args.path)
               }
-              const plugins = [require("tailwindcss"), require("autoprefixer")]
-              const { css } = await postcss(plugins).process(content, {
-                from: undefined,
-              })
 
+              // postcss plugins
+              const plugins = [
+                require("tailwindcss"),
+                require("autoprefixer"),
+                // rewrite urls inside css
+                url({
+                  url: "inline",
+                  maxSize: 10, // use dataurls if files are smaller than 10k
+                  fallback: "copy", // if files are bigger use copy method
+                  assetsPath: "./build/assets",
+                  useHash: true,
+                  optimizeSvgEncode: true,
+                }),
+              ]
+
+              const { css } = await postcss(plugins).process(content, {
+                from: args.path,
+                to: outdir,
+              })
+              // built-in loaders: js, jsx, ts, tsx, css, json, text, base64, dataurl, file, binary
               return { contents: css, loader: "text" }
             }
           )
