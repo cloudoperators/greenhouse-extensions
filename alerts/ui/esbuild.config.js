@@ -23,9 +23,6 @@ const args = process.argv.slice(2)
 const watch = args.indexOf("--watch") >= 0
 const serve = args.indexOf("--serve") >= 0
 
-const postcssPlugins = [require("tailwindcss"), require("autoprefixer")]
-if (isProduction) postcssPlugins.push(require("postcss-minify"))
-
 const green = "\x1b[32m%s\x1b[0m"
 const yellow = "\x1b[33m%s\x1b[0m"
 const clear = "\033c"
