@@ -103,11 +103,9 @@ const build = async () => {
                 // as react component
                 // use react component loader (jsx)
                 loader = "jsx"
-                contents = await transform(
-                  contents,
-                  {},
-                  { filePath: args.path }
-                )
+                contents = await transform(contents, {
+                  plugins: ["@svgr/plugin-jsx"],
+                })
               }
 
               return { contents, loader }
