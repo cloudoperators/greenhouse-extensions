@@ -19,8 +19,8 @@ const RegionsList = () => {
     <>
       { !isLoading &&
         <div className={`regions ${regionsClasses}`}>
-          { Object.entries(severityCountsPerRegion).map(([region, severityCounts]) => (
-            <Region key={region} region={region} severityCounts={severityCounts} />
+          { Object.keys(severityCountsPerRegion).sort().map((region) => (
+            <Region key={region} region={region} severityCounts={severityCountsPerRegion[region]} />
           ))}
         </div>
       }
