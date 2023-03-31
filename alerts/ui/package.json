@@ -17,7 +17,7 @@
     "autoprefixer": "^10.4.2",
     "babel-jest": "^29.3.1",
     "babel-plugin-transform-import-meta": "^2.2.0",
-    "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@2.1.0/package.tgz",
+    "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@latest/package.tgz",
     "esbuild": "^0.17.11",
     "esbuild-sass-plugin": "^2.6.0",
     "interweave": "^13.0.0",
@@ -35,20 +35,19 @@
     "sass": "^1.60.0",
     "shadow-dom-testing-library": "^1.7.1",
     "tailwindcss": "^3.0.24",
-    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@1.0.0/package.tgz",
+    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@latest/package.tgz",
     "util": "^0.12.4",
     "zustand": "^4.1.1"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^4.28.0",
-    "communicator": "2.1.0",
     "custom-event-polyfill": "^1.0.7",
     "luxon": "^2.3.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
-    "url-state-provider": "1.0.0",
+    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@latest/package.tgz",
     "zustand": "^4.1.1"
   },
   "importmapExtras": {
