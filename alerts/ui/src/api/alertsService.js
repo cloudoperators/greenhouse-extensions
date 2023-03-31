@@ -46,9 +46,9 @@ const sort = (items) => {
 
 // count alerts and create a map
 // {
-//   global: { total: number, warning: number, ...},
+//   global: { total: number, critical: number, ...},
 //   regions: {
-//     "eu-de-1": { total: number, warning: number, ...}
+//     "eu-de-1": { total: number, critical: {total: number, suppressed: number}, warning: {...}, ...}
 //   }, ...
 // }
 const count = (alerts) => {
@@ -56,20 +56,39 @@ const count = (alerts) => {
 
   if (!alerts || alerts.length === 0) return counts
   alerts.forEach((alert) => {
+    // total number of alerts
     counts.global.total += 1
+    
     const region = alert.labels?.region
     const severity = alert.labels?.severity
+    const state = alert.status?.state
 
-    // global
-    counts.global[severity] = counts.global[severity] || 0
+    // global count per severity
+    counts.global[severity] = counts.global[severity] || 0 // init
     counts.global[severity] += 1
-    // region
-    counts.regions[region] = counts.regions[region] || {}
-    counts.regions[region]["total"] = counts.regions[region]["total"] || 0
-    counts.regions[region]["total"] += 1
-    counts.regions[region][severity] = counts.regions[region][severity] || 0
-    counts.regions[region][severity] += 1
+
+    // count per region and severity
+    counts.regions[region] = counts.regions[region] || {} // init
+    counts.regions[region].total = counts.regions[region].total || 0 // init
+    counts.regions[region].total += 1
+
+    // total count per severity
+    counts.regions[region][severity] = counts.regions[region][severity] || {} // init
+    counts.regions[region][severity]["total"] = counts.regions[region][severity]?.total || 0 // init
+    counts.regions[region][severity]["total"] += 1
+    // suppressed per severity
+    if (state === "suppressed" ) {
+      counts.regions[region][severity].suppressed = counts.regions[region][severity]?.suppressed || 0 // init
+      counts.regions[region][severity].suppressed += 1
+    }
+
   })
+  // TODO: sort by region name
+  // const countsRegionsSorted = [
+  //   ...new Map(
+  //     counts.regions.map((region) => [region, item.labels?.region]).sort()
+  //   ).keys(),
+  // ]
 
   return counts
 }
