@@ -1,6 +1,7 @@
 import React from "react"
 
-import { Stack } from "juno-ui-components"
+import { Icon, Stack } from "juno-ui-components"
+import RegionSeverity from "./RegionSeverity"
 
 const regionStyles = `
   grid
@@ -11,42 +12,31 @@ const regionStyles = `
 const regionHeader = `
   bg-theme-background-lvl-2
   font-bold
-  py-2
-  px-3
+  p-3
   whitespace-nowrap
 `
 
-const severityStyles = (severity, count) => {
-  let baseStyles = `
-    py-2
-    px-3
-  `
-  if (count === 0) {
-    return `${baseStyles} text-theme-light`
-  }
-
-  switch (severity) {
-    case "critical":
-      baseStyles += ` bg-theme-danger/50`
-      break
-    case "warning":
-      baseStyles += ` bg-theme-warning/50`
-      break
-    case "info":
-      baseStyles += ` bg-theme-info/50`
-      break
-  }
-
-  return baseStyles
-}
-
-const Region = ({region, severityCounts}) => {
+const Region = ({ region, severityCounts }) => {
   return (
     <div className={`region ${regionStyles}`}>
-      <Stack alignment="center" distribution="center" className={regionHeader}>{region}</Stack>
-      <Stack alignment="center" distribution="center" className={severityStyles("critical", severityCounts.critical)}>{severityCounts.critical}</Stack>
-      <Stack alignment="center" distribution="center" className={severityStyles("warning", severityCounts.warning)}>{severityCounts.warning}</Stack>
-      <Stack alignment="center" distribution="center" className={severityStyles("info", severityCounts.info)}>{severityCounts.info}</Stack>
+      <Stack alignment="center" distribution="center" className={regionHeader}>
+        {region}
+      </Stack>
+      <RegionSeverity
+        severity="critical"
+        severityCountTotal={severityCounts.critical?.total}
+        severityCountSuppressed={severityCounts.critical?.suppressed}
+      />
+      <RegionSeverity
+        severity="warning"
+        severityCountTotal={severityCounts.warning?.total}
+        severityCountSuppressed={severityCounts.warning?.suppressed}
+      />
+      <RegionSeverity
+        severity="info"
+        severityCountTotal={severityCounts.info?.total}
+        severityCountSuppressed={severityCounts.info?.suppressed}
+      />
     </div>
   )
 }

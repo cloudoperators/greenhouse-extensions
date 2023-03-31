@@ -75,7 +75,7 @@ const build = async () => {
         name: "start/end",
         setup(build) {
           build.onStart(() => {
-            console.log(clear)
+            // console.log(clear)
             console.log(yellow, "Compiling...")
           })
           build.onEnd((result) => console.log(green, "Done!"))

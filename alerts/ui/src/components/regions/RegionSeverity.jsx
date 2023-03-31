@@ -1,14 +1,10 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react"
 
 import { Icon, Stack } from "juno-ui-components"
 
 const severityStyles = (severity, count) => {
   let baseStyles = `
+    px-2
     text-lg/5
   `
   if (!count || count < 1) {
@@ -23,7 +19,7 @@ const severityStyles = (severity, count) => {
       baseStyles += ` bg-theme-warning/50`
       break
     case "info":
-      baseStyles += ` bg-theme-info/40`
+      baseStyles += ` bg-theme-info/50`
       break
   }
 
@@ -31,7 +27,7 @@ const severityStyles = (severity, count) => {
 }
 
 const calculateCount = (total, suppressed) => {
-  if (!total) return "--"
+  if (!total) return 0
   return suppressed ? total - suppressed : total
 }
 
@@ -43,25 +39,16 @@ const RegionSeverity = ({
   return (
     <Stack
       direction="vertical"
-      alignment="stretch"
+      alignment="center"
       distribution="center"
       className={severityStyles(severity, severityCountTotal)}
     >
-      <Stack
-        direction="vertical"
-        alignment="center"
-        distribution="center"
-        className="h-full"
-      >
-        {calculateCount(severityCountTotal, severityCountSuppressed)}
-      </Stack>
+      <div>{calculateCount(severityCountTotal, severityCountSuppressed)}</div>
       {severityCountSuppressed && (
-        <div className="text-xs bg-black/10 mt-auto">
-          <Stack alignment="center" distribution="center">
-            <Icon icon="notificationsOff" size="0.75rem" />
-            <span>{severityCountSuppressed}</span>
-          </Stack>
-        </div>
+        <Stack alignment="center" className="text-xs opacity-80">
+          <Icon icon="notificationsOff" size="0.75rem" />
+          <span>{severityCountSuppressed}</span>
+        </Stack>
       )}
     </Stack>
   )
