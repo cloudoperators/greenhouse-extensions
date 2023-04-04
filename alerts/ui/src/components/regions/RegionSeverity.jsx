@@ -4,7 +4,6 @@ import { Icon, Stack } from "juno-ui-components"
 
 const severityStyles = (severity, count) => {
   let baseStyles = `
-    px-2
     text-lg/5
   `
   if (!count || count < 1) {
@@ -19,7 +18,7 @@ const severityStyles = (severity, count) => {
       baseStyles += ` bg-theme-warning/50`
       break
     case "info":
-      baseStyles += ` bg-theme-info/50`
+      baseStyles += ` bg-theme-info/40`
       break
   }
 
@@ -39,16 +38,18 @@ const RegionSeverity = ({
   return (
     <Stack
       direction="vertical"
-      alignment="center"
+      alignment="stretch"
       distribution="center"
       className={severityStyles(severity, severityCountTotal)}
     >
-      <div>{calculateCount(severityCountTotal, severityCountSuppressed)}</div>
+      <Stack direction="vertical" alignment="center" distribution="center" className="h-full">{calculateCount(severityCountTotal, severityCountSuppressed)}</Stack>
       {severityCountSuppressed && (
-        <Stack alignment="center" className="text-xs opacity-80">
-          <Icon icon="notificationsOff" size="0.75rem" />
-          <span>{severityCountSuppressed}</span>
-        </Stack>
+        <div className="text-xs bg-black/10 mt-auto">
+          <Stack alignment="center" distribution="center">
+            <Icon icon="notificationsOff" size="0.75rem" />
+            <span>{severityCountSuppressed}</span>
+          </Stack>
+        </div>
       )}
     </Stack>
   )
