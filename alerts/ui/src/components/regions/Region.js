@@ -12,7 +12,8 @@ const regionStyles = `
 const regionHeader = `
   bg-theme-background-lvl-2
   font-bold
-  p-3
+  px-3
+  py-2
   whitespace-nowrap
 `
 

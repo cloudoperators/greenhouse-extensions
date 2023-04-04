@@ -55,6 +55,8 @@ const count = (alerts) => {
   const counts = { global: { total: 0 }, regions: {} }
 
   if (!alerts || alerts.length === 0) return counts
+
+  // run through each alert once and adjust different types of counts as necessary
   alerts.forEach((alert) => {
     // total number of alerts
     counts.global.total += 1
@@ -72,23 +74,17 @@ const count = (alerts) => {
     counts.regions[region].total = counts.regions[region].total || 0 // init
     counts.regions[region].total += 1
 
-    // total count per severity
+    // total count per region and severity
     counts.regions[region][severity] = counts.regions[region][severity] || {} // init
     counts.regions[region][severity]["total"] = counts.regions[region][severity]?.total || 0 // init
     counts.regions[region][severity]["total"] += 1
-    // suppressed per severity
+    // suppressed per region and severity
     if (state === "suppressed" ) {
       counts.regions[region][severity].suppressed = counts.regions[region][severity]?.suppressed || 0 // init
       counts.regions[region][severity].suppressed += 1
     }
 
   })
-  // TODO: sort by region name
-  // const countsRegionsSorted = [
-  //   ...new Map(
-  //     counts.regions.map((region) => [region, item.labels?.region]).sort()
-  //   ).keys(),
-  // ]
 
   return counts
 }
