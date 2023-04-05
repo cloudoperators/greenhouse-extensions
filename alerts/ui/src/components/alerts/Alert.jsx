@@ -1,21 +1,20 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
+import React, { forwardRef } from "react"
+import { DateTime } from "luxon"
+import { Markup } from "interweave"
+import {
+  Button,
+  DataGridCell,
+  DataGridRow,
+  Icon,
+  Stack,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "juno-ui-components"
 
-import React, { forwardRef, useRef } from "react"
-
-import { DataGridCell, DataGridRow } from "juno-ui-components"
-
-import { useGlobalsActions, useShowDetailsFor } from "../../hooks/useAppStore"
-import AlertLabels from "./shared/AlertLabels"
-import AlertLinks from "./shared/AlertLinks"
-import SilenceNew from "../silences/SilenceNew"
-import AlertIcon from "./shared/AlertIcon"
-import AlertDescription from "./shared/AlertDescription"
-import AlertTimestamp from "./shared/AlertTimestamp"
-import AlertStatus from "./AlertStatus"
-import AlertRegion from "./shared/AlertRegion"
+import AlertLabels from "./AlertLabels"
+import AlertLinks from "./AlertLinks"
+import { descriptionParsed } from "../../lib/utils"
 
 const cellSeverityClasses = (severity) => {
   let borderColor = "border-text-theme-default"
@@ -40,67 +39,76 @@ const cellSeverityClasses = (severity) => {
 }
 
 const Alert = ({ alert }, ref) => {
-  const { setShowDetailsFor } = useGlobalsActions()
-  const rowRef = useRef(null)
-
-  const handleShowDetails = (e) => {
-    // Using the rowRef to check what was clicked
-    // if the click was not on the row itself or on the row's direct children (i.e. the cells)
-    // then we don't want to show the details because then the click was on a child of one of the cells
-    // an additional check is made for targets with className "interactive". If the target has this then the click
-    // handling should proceed even if the previous condition was true
-    if (
-      e.target.parentNode !== rowRef.current &&
-      !e.target.classList.contains("interactive")
-    )
-      return
-
-    e.stopPropagation()
-    e.preventDefault()
-    setShowDetailsFor(alert?.fingerprint)
-  }
+  const dateFormat = { ...DateTime.DATE_MED }
+  const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
+  const startTime = DateTime.fromISO(alert.startsAt)
+  var daysFiring = DateTime.now().diff(startTime, "days")
 
   return (
-    <DataGridRow
-      className={`cursor-pointer ${
-        useShowDetailsFor() === alert?.fingerprint ? "active" : ""
-      }`}
-      ref={rowRef}
-      onClick={(e) => handleShowDetails(e)}
-    >
+    <DataGridRow>
       <DataGridCell className="pl-0">
         <div className={cellSeverityClasses(alert.labels?.severity)}>
-          <AlertIcon ref={ref} severity={alert.labels?.severity} />
+          {alert.labels?.severity === "critical" ? (
+            <Icon ref={ref} icon="danger" color="text-theme-danger" />
+          ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
+            <Icon
+            ref={ref}
+              icon={alert.labels?.severity}
+              color={`text-theme-${alert.labels?.severity}`}
+            />
+          ) : (
+            <Icon ref={ref} icon="errorOutline" />
+          )}
         </div>
       </DataGridCell>
       <DataGridCell>
-        <AlertRegion
-          region={alert.labels?.region}
-          cluster={alert.labels?.cluster}
-        />
+        {alert.labels?.region}
+        {alert.labels?.region !== alert.labels?.cluster && (
+          <>
+            <br />
+            <span className="text-theme-light">{alert.labels?.cluster}</span>
+          </>
+        )}
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
-      <DataGridCell className="cursor-default">
-        <div className="interactive text-theme-high cursor-pointer">
-          {alert.annotations?.summary}
-        </div>
+      <DataGridCell>
+        <div>{alert.annotations?.summary}</div>
         <div>
-          <AlertDescription
-            description={alert.annotations?.description}
-            subdued={true}
+          <Markup
+            content={descriptionParsed(
+              alert.annotations?.description?.replace(
+                /`([^`]+)`/g,
+                "<code class='inline-code'>$1</code>"
+              )
+            )}
+            tagName="div"
+            className="text-theme-light"
           />
           <AlertLinks alert={alert} className="mb-4 mt-1" />
         </div>
         <AlertLabels alert={alert} />
       </DataGridCell>
       <DataGridCell>
-        <AlertTimestamp startTimestamp={alert.startsAt} />
+        <Stack direction="vertical" gap="1">
+          <div>{startTime.toLocaleString(dateFormat)}</div>
+          <div>{startTime.toLocaleString(timeFormat)}</div>
+          {daysFiring.days > 7 && (
+            <Tooltip variant="warning" triggerEvent="hover">
+              <TooltipTrigger asChild>
+                <Icon icon="warning" color="text-theme-warning" />
+              </TooltipTrigger>
+              <TooltipContent>
+                {`Alert has been firing for ${Math.round(
+                  daysFiring.days
+                )} days`}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </Stack>
       </DataGridCell>
+      <DataGridCell>{alert.status?.state}</DataGridCell>
       <DataGridCell>
-        <AlertStatus alert={alert} />
-      </DataGridCell>
-      <DataGridCell>
-        <SilenceNew alert={alert} size="small" />
+        <Button size="small" variant="subdued">Silence</Button>
       </DataGridCell>
     </DataGridRow>
   )

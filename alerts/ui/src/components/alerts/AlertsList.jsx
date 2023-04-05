@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useMemo, useState, useRef, useCallback } from "react"
 import {
   DataGrid,
@@ -10,38 +5,33 @@ import {
   DataGridRow,
   DataGridCell,
   Icon,
-  Stack,
 } from "juno-ui-components"
 import Alert from "./Alert"
-import {
-  useAlertsItemsFiltered,
-  useAlertsIsLoading,
-} from "../../hooks/useAppStore"
+import useStore from "../../hooks/useStore"
 
 const AlertsList = () => {
   const [visibleAmount, setVisibleAmount] = useState(20)
   const [isAddingItems, setIsAddingItems] = useState(false)
   const timeoutRef = React.useRef(null)
 
-  const itemsFiltered = useAlertsItemsFiltered()
-  const alertsIsLoading = useAlertsIsLoading()
+  // const { isLoading, isError, data, error } = queryAlerts()
+  const alerts = useStore((state) => state.alerts)
 
   const alertsSorted = useMemo(() => {
-    if (itemsFiltered) {
-      return itemsFiltered.slice(0, visibleAmount)
+    if (alerts?.items) {
+      return alerts.items.slice(0, visibleAmount)
     }
-  }, [itemsFiltered, visibleAmount])
+  }, [alerts, visibleAmount])
 
   React.useEffect(() => {
     return () => clearTimeout(timeoutRef.current) // clear when component is unmounted
   }, [])
 
-  // endless scroll observer
   const observer = useRef()
   const lastListElementRef = useCallback(
     (node) => {
       // no fetch if loading original data
-      if (alertsIsLoading || isAddingItems) return
+      if (alerts.isLoading || isAddingItems) return
       if (observer.current) observer.current.disconnect()
       observer.current = new IntersectionObserver((entries) => {
         console.log("IntersectionObserver: callback")
@@ -57,17 +47,12 @@ const AlertsList = () => {
       })
       if (node) observer.current.observe(node)
     },
-    [alertsIsLoading, isAddingItems]
+    [alerts.isLoading, isAddingItems]
   )
 
   return (
-    <DataGrid
-      columns={7}
-      minContentColumns={[0, 2, 5]}
-      cellVerticalAlignment="top"
-      className="alerts"
-    >
-      {!alertsIsLoading && (
+    <DataGrid columns={7} minContentColumns={[0, 2, 5]} cellVerticalAlignment="top">
+      {!alerts.isLoading && (
         <DataGridRow>
           <DataGridHeadCell>
             <Icon icon="monitorHeart" />
@@ -80,37 +65,22 @@ const AlertsList = () => {
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
       )}
-      {alertsSorted?.length > 0 ? (
-        alertsSorted?.map((alert, index) => {
-          if (alertsSorted.length === index + 1) {
-            // DataRow in alerts muss implement forwardRef
-            return (
-              <Alert
-                ref={lastListElementRef}
-                key={alert.fingerprint}
-                alert={alert}
-              />
-            )
-          }
-          return <Alert key={alert.fingerprint} alert={alert} />
-        })
-      ) : (
-        <DataGridRow className="no-hover">
-          <DataGridCell colSpan={7}>
-            <Stack gap="3">
-              <Icon icon="info" color="text-theme-info" />
-              <div>
-                We couldn't find anything. It's possible that the matching
-                alerts are not active at the moment, or the chosen filters could
-                be overly limiting.
-              </div>
-            </Stack>
-          </DataGridCell>
-        </DataGridRow>
-      )}
+      {alertsSorted?.map((alert, index) => {
+        if (alertsSorted.length === index + 1) {
+          // DataRow in alerts muss implement forwardRef
+          return (
+            <Alert
+              ref={lastListElementRef}
+              key={alert.fingerprint}
+              alert={alert}
+            />
+          )
+        }
+        return <Alert key={alert.fingerprint} alert={alert} />
+      })}
       {isAddingItems && (
-        <DataGridRow className="no-hover">
-          <DataGridCell colSpan={7}>Loading ...</DataGridCell>
+        <DataGridRow>
+          <DataGridCell colSpan={6}>Loading ...</DataGridCell>
         </DataGridRow>
       )}
     </DataGrid>
