@@ -137,9 +137,17 @@ function AlertsService(initialConfig) {
       .then((items) => {
         console.info("Alerts service: receive items")
         console.info("Alerts service: sort items")
-        // normalize some label values, like for example status.state to lower case
         // sort alerts
         let alerts = sort(items)
+        
+        // normalize some values to lower case
+        console.info("Alerts service: normalize item values")
+        alerts.forEach(alert => {
+          if (alert.status && alert.status.state) {
+            alert.status.state = alert.status.state.toLowerCase()
+          }
+        })
+
         console.info("Alerts service: limit items")
         // slice if limit provided
         if (config?.limit) alerts = alerts.slice(0, config.limit)
