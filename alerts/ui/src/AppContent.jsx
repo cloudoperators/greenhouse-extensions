@@ -5,6 +5,7 @@ import { Container, Message, Spinner, Stack } from "juno-ui-components"
 import useStore from "./hooks/useStore"
 import AlertsList from "./components/alerts/AlertsList"
 import RegionsList from "./components/regions/RegionsList"
+import StatusBar from "./components/status/StatusBar"
 
 const AppContent = (props) => {
   const alerts = useStore((state) => state.alerts)
@@ -21,20 +22,7 @@ const AppContent = (props) => {
       <RegionsList />
       
       {alerts.items && !alerts.isLoading && (
-        <Stack className="bg-theme-background-lvl-2 py-1.5 px-4 text-theme-light" alignment="center">
-          <div>
-            <span className="text-theme-default pr-2">{`${alerts.totalCounts.total} alerts`}</span>
-            <span>{`(${alerts.totalCounts.critical} critical, ${alerts.totalCounts.warning} warning, ${alerts.totalCounts.info} info)`}</span>
-          </div>
-          <Stack alignment="center" className="ml-auto">
-            {alerts.isUpdating &&
-              <Spinner size="small" className="mr-2" />
-            }
-            {alerts.updatedAt &&
-              `updated ${DateTime.fromMillis(alerts.updatedAt).toLocaleString({...DateTime.TIME_24_WITH_SHORT_OFFSET})}`
-            }
-          </Stack>
-        </Stack>
+        <StatusBar totalCounts={alerts.totalCounts} isUpdating={alerts.isUpdating} updatedAt={alerts.updatedAt} />
       )}
 
       {alerts.isLoading && (
