@@ -60,7 +60,7 @@ const count = (alerts) => {
   alerts.forEach((alert) => {
     // total number of alerts
     counts.global.total += 1
-    
+
     const region = alert.labels?.region
     const severity = alert.labels?.severity
     const state = alert.status?.state
@@ -76,14 +76,15 @@ const count = (alerts) => {
 
     // total count per region and severity
     counts.regions[region][severity] = counts.regions[region][severity] || {} // init
-    counts.regions[region][severity]["total"] = counts.regions[region][severity]?.total || 0 // init
+    counts.regions[region][severity]["total"] =
+      counts.regions[region][severity]?.total || 0 // init
     counts.regions[region][severity]["total"] += 1
     // suppressed per region and severity
-    if (state === "suppressed" ) {
-      counts.regions[region][severity].suppressed = counts.regions[region][severity]?.suppressed || 0 // init
+    if (state === "suppressed") {
+      counts.regions[region][severity].suppressed =
+        counts.regions[region][severity]?.suppressed || 0 // init
       counts.regions[region][severity].suppressed += 1
     }
-
   })
 
   return counts
@@ -99,6 +100,7 @@ const DEFAULT_INTERVAL = 300000
 function AlertsService(initialConfig) {
   // default config
   let config = {
+    debug: false,
     initialFetch: false,
     apiEndpoint: null,
     watch: true,
@@ -123,49 +125,53 @@ function AlertsService(initialConfig) {
   const update = () => {
     // do nothing until apiEndpoint and onChange config values are set
     if (!config?.apiEndpoint || !config?.onChange) {
-      console.warn("Alerts service: missing apiEndpoint or onChange callback")
+      if (config?.debug)
+        console.warn("Alerts service: missing apiEndpoint or onChange callback")
       return
     }
     // call onFetchStart if defined
     // This is useful to inform the listener that a new fetch is starting
     if (config.onFetchStart) config.onFetchStart()
 
-    console.info("Alerts service: start fetch")
+    if (config?.debug) console.info("Alerts service: start fetch")
     // get all alerts filtered by params if defined
     initialFetchPerformed = true
     return get(`${config.apiEndpoint}/alerts`, { params: config.params })
       .then((items) => {
-        console.info("Alerts service: receive items")
-        console.info("Alerts service: sort items")
+        if (config?.debug) {
+          console.info("Alerts service: receive items")
+          console.info("Alerts service: sort items")
+        }
         // sort alerts
         let alerts = sort(items)
-        
+
         // normalize some values to lower case
-        console.info("Alerts service: normalize item values")
-        alerts.forEach(alert => {
+        if (config?.debug) console.info("Alerts service: normalize item values")
+        alerts.forEach((alert) => {
           if (alert.status && alert.status.state) {
             alert.status.state = alert.status.state.toLowerCase()
           }
         })
 
-        console.info("Alerts service: limit items")
+        if (config?.debug) console.info("Alerts service: limit items")
         // slice if limit provided
         if (config?.limit) alerts = alerts.slice(0, config.limit)
 
         // check if new loaded alerts are different from the last response
         const newCompareString = JSON.stringify(alerts)
-        console.info(
-          "Alerts service: any changes?",
-          compareString !== newCompareString
-        )
+        if (config?.debug)
+          console.info(
+            "Alerts service: any changes?",
+            compareString !== newCompareString
+          )
         if (compareString !== newCompareString) {
           compareString = newCompareString
 
-          console.info("Alerts service: inform listener")
+          if (config?.debug) console.info("Alerts service: inform listener")
           // inform listener to receive new alerts
           config?.onChange({ alerts, counts: count(alerts) })
         } else {
-          console.info("Alerts service: no change found")
+          if (config?.debug) console.info("Alerts service: no change found")
         }
         if (config.onFetchEnd) config.onFetchEnd()
       })
@@ -200,7 +206,7 @@ function AlertsService(initialConfig) {
       (key) => allowedOptions.indexOf(key) < 0 && delete config[key]
     )
 
-    console.log("Alerts service: new config", config)
+    if (config?.debug) console.log("Alerts service: new config", config)
 
     updateWatcher(oldConfig)
     if (config.initialFetch && !initialFetchPerformed) update()

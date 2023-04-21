@@ -1,6 +1,7 @@
 import AlertsService from "../api/alertsService"
 
 const alertsService = new AlertsService({
+  debug: false,
   initialFetch: true,
   watch: true,
   watchInterval: 300000, // 5 min
