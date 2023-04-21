@@ -25,18 +25,18 @@ const Region = ({ region, severityCounts }) => {
       </Stack>
       <RegionSeverity
         severity="critical"
-        severityCountTotal={severityCounts.critical?.total}
-        severityCountSuppressed={severityCounts.critical?.suppressed}
+        severityCountTotal={severityCounts?.critical?.total}
+        severityCountSuppressed={severityCounts?.critical?.suppressed}
       />
       <RegionSeverity
         severity="warning"
-        severityCountTotal={severityCounts.warning?.total}
-        severityCountSuppressed={severityCounts.warning?.suppressed}
+        severityCountTotal={severityCounts?.warning?.total}
+        severityCountSuppressed={severityCounts?.warning?.suppressed}
       />
       <RegionSeverity
         severity="info"
-        severityCountTotal={severityCounts.info?.total}
-        severityCountSuppressed={severityCounts.info?.suppressed}
+        severityCountTotal={severityCounts?.info?.total}
+        severityCountSuppressed={severityCounts?.info?.suppressed}
       />
     </div>
   )

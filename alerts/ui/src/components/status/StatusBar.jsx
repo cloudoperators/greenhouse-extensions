@@ -3,13 +3,21 @@ import { DateTime } from "luxon"
 
 import { Spinner, Stack } from "juno-ui-components"
 
+const statusBarStyles = `
+  bg-theme-background-lvl-2
+  py-1.5
+  px-4
+  my-px
+  text-theme-light
+`
+
 const StatusBar = ({totalCounts, isUpdating, updatedAt}) => {
 
   return (
-    <Stack className="bg-theme-background-lvl-2 py-1.5 px-4 text-theme-light" alignment="center">
+    <Stack className={`status-bar ${statusBarStyles}`} alignment="center">
     <div>
       <span className="text-theme-default pr-2">{`${totalCounts.total} alerts`}</span>
-      <span>{`(${totalCounts.critical} critical, ${totalCounts.warning} warning, ${totalCounts.info} info)`}</span>
+      <span>{`(${totalCounts.critical || 0} critical, ${totalCounts.warning || 0} warning, ${totalCounts.info || 0} info)`}</span>
     </div>
     <Stack alignment="center" className="ml-auto">
       {isUpdating &&

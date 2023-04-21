@@ -25,3 +25,68 @@ export const descriptionParsed = (text) => {
   const regexCode = /`(.*)`/g
   return boldParsed.replace(regexCode, `<code class="inline-code">$1</code>`)
 }
+
+// Capitalize first char, underscores to spaces, camel case to spaces, all words except the first to lower case
+export const humanizeString = (value) => {
+  if (!value) {
+    return value
+  }
+
+  const camelCaseMatch = /([A-Z])/g
+  const underscoreMatch = /_/g
+
+  const camelCaseToSpaces = value.replace(camelCaseMatch, " $1");
+  const underscoresToSpaces = camelCaseToSpaces.replace(underscoreMatch, " ")
+  
+  // all together now (also capitalize first word and lowercase all other words)
+  const humanized =
+    underscoresToSpaces.charAt(0).toUpperCase() +
+    underscoresToSpaces.slice(1).toLowerCase()
+
+  return humanized
+}
+
+// count alerts and create a map
+// {
+//   global: { total: number, critical: number, ...},
+//   regions: {
+//     "eu-de-1": { total: number, critical: {total: number, suppressed: number}, warning: {...}, ...}
+//   }, ...
+// }
+export const countAlerts = (alerts) => {
+  const counts = { global: { total: 0 }, regions: {} }
+
+  if (!alerts || alerts.length === 0) return counts
+
+  // run through each alert once and adjust different types of counts as necessary
+  alerts.forEach((alert) => {
+    // total number of alerts
+    counts.global.total += 1
+    
+    const region = alert.labels?.region
+    const severity = alert.labels?.severity
+    const state = alert.status?.state
+
+    // global count per severity
+    counts.global[severity] = counts.global[severity] || 0 // init
+    counts.global[severity] += 1
+
+    // count per region and severity
+    counts.regions[region] = counts.regions[region] || {} // init
+    counts.regions[region].total = counts.regions[region].total || 0 // init
+    counts.regions[region].total += 1
+
+    // total count per region and severity
+    counts.regions[region][severity] = counts.regions[region][severity] || {} // init
+    counts.regions[region][severity]["total"] = counts.regions[region][severity]?.total || 0 // init
+    counts.regions[region][severity]["total"] += 1
+    // suppressed per region and severity
+    if (state === "suppressed" ) {
+      counts.regions[region][severity].suppressed = counts.regions[region][severity]?.suppressed || 0 // init
+      counts.regions[region][severity].suppressed += 1
+    }
+
+  })
+
+  return counts
+}

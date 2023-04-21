@@ -1,15 +1,14 @@
 import React, { useMemo, useEffect } from "react"
 
-import { AppShell } from "juno-ui-components"
+import { AppShell, AppShellProvider } from "juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
-import StyleProvider from "juno-ui-components"
 import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
-import useStore from "./hooks/useStore"
+import { useFilterActions } from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
 
 function App(props = {}) {
-  const setFilterKeys = useStore((state) => state.filters.setKeys)
+  const { setLabels } = useFilterActions()
 
   const embedded = useMemo(
     () => props.embedded === "true" || props.embedded === true,
@@ -22,7 +21,7 @@ function App(props = {}) {
   // transfer plugin config to store
   useEffect(() => {
     // load from plugin config
-    let filterKeys = [
+    const filterLabels = [
       "app",
       "cluster",
       "cluster_type",
@@ -34,10 +33,10 @@ function App(props = {}) {
       "status",
       "support_group",
       "tier",
-      "type",
+      "type"
     ]
 
-    setFilterKeys(filterKeys)
+    setLabels(filterLabels)
   }, [])
 
   useCommunication()
@@ -56,14 +55,11 @@ function App(props = {}) {
 
 const StyledApp = (props) => {
   return (
-    <StyleProvider
-      stylesWrapper="shadowRoot"
-      theme={`${props.theme ? props.theme : "theme-dark"}`}
-    >
-      {/* load styles inside the shadow dom */}
+    <AppShellProvider>
+      {/* load appstyles inside the shadow dom */}
       <style>{styles.toString()}</style>
       <App {...props} />
-    </StyleProvider>
+    </AppShellProvider>
   )
 }
 

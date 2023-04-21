@@ -7,31 +7,32 @@ import {
   Icon,
 } from "juno-ui-components"
 import Alert from "./Alert"
-import useStore from "../../hooks/useStore"
+import { useAlertsItemsFiltered, useAlertsIsLoading } from "../../hooks/useStore"
 
 const AlertsList = () => {
   const [visibleAmount, setVisibleAmount] = useState(20)
   const [isAddingItems, setIsAddingItems] = useState(false)
   const timeoutRef = React.useRef(null)
 
-  // const { isLoading, isError, data, error } = queryAlerts()
-  const alerts = useStore((state) => state.alerts)
+  const itemsFiltered = useAlertsItemsFiltered()
+  const alertsIsLoading = useAlertsIsLoading()
 
   const alertsSorted = useMemo(() => {
-    if (alerts?.items) {
-      return alerts.items.slice(0, visibleAmount)
+    if (itemsFiltered) {
+      return itemsFiltered.slice(0, visibleAmount)
     }
-  }, [alerts, visibleAmount])
+  }, [itemsFiltered, visibleAmount])
 
   React.useEffect(() => {
     return () => clearTimeout(timeoutRef.current) // clear when component is unmounted
   }, [])
 
+  // endless scroll observer
   const observer = useRef()
   const lastListElementRef = useCallback(
     (node) => {
       // no fetch if loading original data
-      if (alerts.isLoading || isAddingItems) return
+      if (alertsIsLoading || isAddingItems) return
       if (observer.current) observer.current.disconnect()
       observer.current = new IntersectionObserver((entries) => {
         console.log("IntersectionObserver: callback")
@@ -47,12 +48,12 @@ const AlertsList = () => {
       })
       if (node) observer.current.observe(node)
     },
-    [alerts.isLoading, isAddingItems]
+    [alertsIsLoading, isAddingItems]
   )
 
   return (
     <DataGrid columns={7} minContentColumns={[0, 2, 5]} cellVerticalAlignment="top">
-      {!alerts.isLoading && (
+      {!alertsIsLoading && (
         <DataGridRow>
           <DataGridHeadCell>
             <Icon icon="monitorHeart" />

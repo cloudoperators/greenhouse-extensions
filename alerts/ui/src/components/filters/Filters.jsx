@@ -1,11 +1,23 @@
 import React from "react"
+import { Stack } from "juno-ui-components"
 
-const Filters = ({}) => {
+import FilterSelect from "./FilterSelect"
+import FilterPills from "./FilterPills"
+
+const filtersStyles = `
+  bg-theme-background-lvl-2
+  py-2
+  px-4
+  my-px
+`
+
+const Filters = () => {
 
   return (
-    <>
-      Filters
-    </>
+    <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
+      <FilterSelect />
+      <FilterPills />
+    </Stack>
   )
 }
 

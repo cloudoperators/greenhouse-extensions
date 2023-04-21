@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import useStore from "./useStore"
+import { useAlertsActions, useUserIsActive } from "./useStore"
 let workerUrl = new URL("workers/api.js", import.meta.url)
 
 const loadWorker = fetch(workerUrl)
@@ -10,10 +10,8 @@ const loadWorker = fetch(workerUrl)
   })
 
 const useAlertmanagerAPI = (apiEndpoint) => {
-  const setAlertsData = useStore((state) => state.alerts.setAlertsData)
-  const setIsLoading = useStore((state) => state.alerts.setIsLoading)
-  const setIsUpdating = useStore((state) => state.alerts.setIsUpdating)
-  const isUserActive = useStore((state) => state.userActivity.isActive)
+  const { setAlertsData, setFilteredItems, setIsLoading, setIsUpdating } = useAlertsActions()
+  const isUserActive = useUserIsActive()
 
   // Create a web worker to get updates from the alert manager api
   useEffect(() => {
