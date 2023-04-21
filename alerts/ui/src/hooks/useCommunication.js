@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { watch } from "communicator"
-import useStore from "./useStore"
+import { useUserActivityActions } from "./useStore"
 
 const useCommunication = () => {
   console.log("[supernova] useCommunication setup")
-  const setIsActive = useStore((state) => state.userActivity.setIsActive)
+  const { setIsActive } = useUserActivityActions()
 
   useEffect(() => {
     // watch for user activity updates messages

@@ -1,6 +1,6 @@
 import React from "react"
 
-import useStore from "../../hooks/useStore"
+import { useAlertsIsLoading, useAlertsRegions, useAlertsSeverityCountsPerRegion } from "../../hooks/useStore"
 import Region from "./Region"
 
 const regionsClasses = `
@@ -12,14 +12,15 @@ const regionsClasses = `
 `
 
 const RegionsList = () => {
-  const isLoading = useStore((state) => state.alerts.isLoading)
-  const severityCountsPerRegion = useStore((state) => state.alerts.severityCountsPerRegion)
+  const isLoading = useAlertsIsLoading()
+  const severityCountsPerRegion = useAlertsSeverityCountsPerRegion()
+  const regions = useAlertsRegions()
 
   return (
     <>
       { !isLoading &&
         <div className={`regions ${regionsClasses}`}>
-          { Object.keys(severityCountsPerRegion).sort().map((region) => (
+          { regions.map((region) => (
             <Region key={region} region={region} severityCounts={severityCountsPerRegion[region]} />
           ))}
         </div>

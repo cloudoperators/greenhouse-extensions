@@ -26,7 +26,7 @@ const severityStyles = (severity, count) => {
 }
 
 const calculateCount = (total, suppressed) => {
-  if (!total) return 0
+  if (!total) return "--"
   return suppressed ? total - suppressed : total
 }
 

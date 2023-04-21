@@ -2,18 +2,21 @@ import React from "react"
 
 import { Pill, Stack } from "juno-ui-components"
 
-import useStore from "../../hooks/useStore"
+import { useFilterLabels } from "../../hooks/useStore"
 
+/**
+ * For each of the given alert's labels which is included in the configured filterLabels render a Pill showing filterLabel and filterValue
+ */
 const AlertLabels = ({alert}) => {
-  const filterKeys = useStore((state) => state.filters.keys)
+  const filterLabels = useFilterLabels()
 
   return (
     <Stack gap="2" alignment="start" wrap={true}>
-      {filterKeys.map(key => {
-        let value = alert.labels?.[key]
-        // return `${key}: ${value}`
+      {filterLabels.map(filterLabel => {
+        let value = alert.labels?.[filterLabel]
+        
         return value &&
-          <Pill key={key} pillKey={key} pillValue={value} />
+          <Pill key={filterLabel} pillKey={filterLabel} pillValue={value} />
       })}
     </Stack>
   )
