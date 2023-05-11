@@ -33,7 +33,7 @@ function App(props = {}) {
       "status",
       "support_group",
       "tier",
-      "type"
+      "type",
     ]
 
     setLabels(filterLabels)
@@ -55,7 +55,7 @@ function App(props = {}) {
 
 const StyledApp = (props) => {
   return (
-    <AppShellProvider>
+    <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load appstyles inside the shadow dom */}
       <style>{styles.toString()}</style>
       <App {...props} />
