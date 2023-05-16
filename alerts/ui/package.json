@@ -76,5 +76,6 @@
   },
   "appDependencies": {
     "auth": "latest"
-  }
+  },
+  "appPreview": true
 }
