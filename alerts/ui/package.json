@@ -1,6 +1,8 @@
 {
   "name": "supernova",
   "version": "0.1.0",
+  "author": "Juno team (SAP)",
+  "license": "MIT",
   "source": "src/index.js",
   "module": "build/index.js",
   "private": true,
