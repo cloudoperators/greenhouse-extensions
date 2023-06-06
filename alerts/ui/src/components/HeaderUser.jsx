@@ -1,19 +1,19 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React from "react"
+import React, { useMemo } from "react"
 import { Stack, Button } from "juno-ui-components"
 import Avatar from "./Avatar"
 
 const HeaderUser = ({ auth, logout }) => {
+  const name = useMemo(() => {
+    return auth?.parsed?.fullName
+  }, [auth])
+
   return (
     <Stack alignment="center" className="ml-auto" distribution="end">
       <div className="mr-4">
         <Avatar
-          userName={auth?.parsed?.fullName}
-          url={auth?.parsed?.avatarUrl?.small}
+          userName={name}
+          avatarUrl={auth?.parsed?.avatarUrl}
+          displayName
         />
       </div>
 

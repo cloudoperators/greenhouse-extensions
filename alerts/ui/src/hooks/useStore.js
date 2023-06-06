@@ -3,15 +3,90 @@ import { devtools } from "zustand/middleware"
 import produce from "immer"
 import { countAlerts } from "../lib/utils"
 
+const createGlobalsSlice = (set, get) => ({
+  globals: {
+    embedded: false,
+
+    actions: {
+      setEmbedded: (embedded) =>
+        set(
+          (state) => ({ globals: { ...state.globals, embedded: embedded } }),
+          false,
+          "globals/setEmbedded"
+        ),
+    },
+  },
+})
+
+export const ACTIONS = {
+  SIGN_ON: "signOn",
+  SIGN_OUT: "signOut",
+}
+
+const createAuthDataSlice = (set, get) => ({
+  auth: {
+    data: null,
+    isProcessing: false,
+    loggedIn: false,
+    error: null,
+    lastAction: {},
+    appLoaded: false,
+    appIsLoading: false,
+
+    actions: {
+      setAppLoaded: (appLoaded) => {
+        set(
+          (state) => ({ auth: { ...state.auth, appLoaded } }),
+          false,
+          "auth/setAppLoaded"
+        )
+      },
+      setData: (data) => {
+        if (!data) return
+        set(
+          (state) => ({
+            auth: {
+              ...state.auth,
+              isProcessing: data?.isProcessing,
+              loggedIn: data?.loggedIn,
+              error: data?.error,
+              data: data?.auth,
+            },
+          }),
+          false,
+          "auth/setData"
+        )
+      },
+      setAction: (name) =>
+        set(
+          (state) => ({
+            auth: {
+              ...state.auth,
+              lastAction: { name: name, updatedAt: Date.now() },
+            },
+          }),
+          false,
+          "auth/setAction"
+        ),
+      login: () => get().auth.actions.setAction(ACTIONS.SIGN_ON),
+      logout: () => get().auth.actions.setAction(ACTIONS.SIGN_OUT),
+    },
+  },
+})
+
 const createUserActivitySlice = (set, get) => ({
   userActivity: {
     isActive: true,
 
     actions: {
       setIsActive: (activity) => {
-        set((state) => ({
-          userActivity: { ...state.userActivity, isActive: activity },
-        }), false, "userActivity.setIsActive")
+        set(
+          (state) => ({
+            userActivity: { ...state.userActivity, isActive: activity },
+          }),
+          false,
+          "userActivity.setIsActive"
+        )
       },
     },
   },
@@ -40,19 +115,21 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.isLoading = false
             state.alerts.isUpdating = false
             state.alerts.updatedAt = Date.now()
-            
+
             // on the initial fetch copy all items to the filtered items list once since
             // most views operate on the filtered items list
             if (state.alerts.itemsFiltered.length === 0) {
               state.alerts.itemsFiltered = items
             }
-            // TODO: 
+            // TODO:
             // reload previously loaded filter label values (they might have changed since last load)
-            // state.filters.filterLabelValues = {} // -> do NOT just reset them, reload instead 
-          }), false, "alerts.setAlertsData"
+            // state.filters.filterLabelValues = {} // -> do NOT just reset them, reload instead
+          }),
+          false,
+          "alerts.setAlertsData"
         )
         // if there are already active filters, filter the new list
-        if (Object.keys(get().filters.activeFilters)?.length > 0 ) {
+        if (Object.keys(get().filters.activeFilters)?.length > 0) {
           get().alerts.actions.filterItems()
         }
       },
@@ -78,7 +155,9 @@ const createAlertsSlice = (set, get) => ({
 
               return visible
             })
-          }), false, "alerts.filterItems"
+          }),
+          false,
+          "alerts.filterItems"
         )
         get().alerts.actions.updateFilteredCounts()
       },
@@ -87,7 +166,9 @@ const createAlertsSlice = (set, get) => ({
         set(
           produce((state) => {
             state.alerts.itemsFiltered = items
-          }), false, "alerts.setFilteredItems"
+          }),
+          false,
+          "alerts.setFilteredItems"
         )
         get().alerts.actions.updateFilteredCounts()
       },
@@ -98,14 +179,24 @@ const createAlertsSlice = (set, get) => ({
           produce((state) => {
             state.alerts.totalCounts = counts.global
             state.alerts.severityCountsPerRegion = counts.regions
-          }), false, "alerts.updateFilteredCounts"
+          }),
+          false,
+          "alerts.updateFilteredCounts"
         )
       },
 
       setIsLoading: (value) =>
-        set((state) => ({ alerts: { ...state.alerts, isLoading: value } }), false, "alerts.setIsLoading"),
+        set(
+          (state) => ({ alerts: { ...state.alerts, isLoading: value } }),
+          false,
+          "alerts.setIsLoading"
+        ),
       setIsUpdating: (value) =>
-        set((state) => ({ alerts: { ...state.alerts, isUpdating: value } }), false, "alerts.setIsUpdating"),
+        set(
+          (state) => ({ alerts: { ...state.alerts, isUpdating: value } }),
+          false,
+          "alerts.setIsUpdating"
+        ),
     },
   },
 })
@@ -118,32 +209,42 @@ const createFiltersSlice = (set, get) => ({
 
     actions: {
       setLabels: (labels) =>
-        set((state) => {
-          return {
-            filters: {
-              ...state.filters,
-              labels,
-            },
-          }
-        }, false, "filters.setLabels"),
+        set(
+          (state) => {
+            return {
+              filters: {
+                ...state.filters,
+                labels,
+              },
+            }
+          },
+          false,
+          "filters.setLabels"
+        ),
 
       setActiveFilters: (activeFilters) => {
-        set((state) => {
-          return {
-            filters: {
-              ...state.filters,
-              activeFilters,
-            },
-          }
-        }, false, "filters.setActiveFilters")
+        set(
+          (state) => {
+            return {
+              filters: {
+                ...state.filters,
+                activeFilters,
+              },
+            }
+          },
+          false,
+          "filters.setActiveFilters"
+        )
         get().alerts.actions.filterItems()
       },
 
-      clearActiveFilters: () => { 
+      clearActiveFilters: () => {
         set(
           produce((state) => {
             state.filters.activeFilters = {}
-          }), false, "filters.clearActiveFilters"
+          }),
+          false,
+          "filters.clearActiveFilters"
         )
         get().alerts.actions.filterItems()
       },
@@ -158,7 +259,9 @@ const createFiltersSlice = (set, get) => ({
                 filterValue,
               ]),
             ]
-          }), false, "filters.addActiveFilter"
+          }),
+          false,
+          "filters.addActiveFilter"
         )
         // after adding a new filter key and value: filter items
         get().alerts.actions.filterItems()
@@ -175,7 +278,9 @@ const createFiltersSlice = (set, get) => ({
             if (state.filters.activeFilters[filterLabel].length === 0) {
               delete state.filters.activeFilters[filterLabel]
             }
-          }), false, "filters.removeActiveFilter"
+          }),
+          false,
+          "filters.removeActiveFilter"
         )
         // after removing a filter: filter items
         get().alerts.actions.filterItems()
@@ -185,17 +290,27 @@ const createFiltersSlice = (set, get) => ({
       loadFilterLabelValues: (filterLabel) => {
         set(
           produce((state) => {
-            state.filters.filterLabelValues[filterLabel] = {isLoading: true}
-          }), false, "filters.loadFilterLabelValues.isLoading"
+            state.filters.filterLabelValues[filterLabel] = { isLoading: true }
+          }),
+          false,
+          "filters.loadFilterLabelValues.isLoading"
         )
         set(
           produce((state) => {
             // use Set to ensure unique values
-            const values = [...new Set(state.alerts.items.map(item => item.labels[filterLabel]))]
+            const values = [
+              ...new Set(
+                state.alerts.items.map((item) => item.labels[filterLabel])
+              ),
+            ]
             // remove any "blank" values from the list
-            state.filters.filterLabelValues[filterLabel].values = values.filter((value) => value ? true : false)
+            state.filters.filterLabelValues[filterLabel].values = values.filter(
+              (value) => (value ? true : false)
+            )
             state.filters.filterLabelValues[filterLabel].isLoading = false
-          }), false, "filters.loadFilterLabelValues"
+          }),
+          false,
+          "filters.loadFilterLabelValues"
         )
       },
 
@@ -210,15 +325,16 @@ const createFiltersSlice = (set, get) => ({
       //     })
       //   )
       // }
-
     },
   },
 })
 
 const useStore = create(
   devtools((set, get) => ({
-    ...createAlertsSlice(set, get),
+    ...createGlobalsSlice(set, get),
+    ...createAuthDataSlice(set, get),
     ...createUserActivitySlice(set, get),
+    ...createAlertsSlice(set, get),
     ...createFiltersSlice(set, get),
     urlStateKey: "supernova",
   }))
@@ -228,29 +344,58 @@ const useStore = create(
 // See reasoning here: https://tkdodo.eu/blog/working-with-zustand
 
 // Store exports
-export const useUrlStateKey                   = () => useStore((state) => state.urlStateKey)
+export const useUrlStateKey = () => useStore((state) => state.urlStateKey)
+
+// Globals exports
+export const useGlobalsEmbedded = () =>
+  useStore((state) => state.globals.embedded)
+export const useGlobalsActions = () =>
+  useStore((state) => state.globals.actions)
+
+// AUTH
+export const useAuthData = () => useStore((state) => state.auth.data)
+export const useAuthIsProcessing = () =>
+  useStore((state) => state.auth.isProcessing)
+export const useAuthLoggedIn = () => useStore((state) => state.auth.loggedIn)
+export const useAuthError = () => useStore((state) => state.auth.error)
+export const useAuthLastAction = () =>
+  useStore((state) => state.auth.lastAction)
+export const useAuthAppLoaded = () => useStore((state) => state.auth.appLoaded)
+export const useAuthAppIsLoading = () =>
+  useStore((state) => state.auth.appIsLoading)
+export const useAuthActions = () => useStore((state) => state.auth.actions)
 
 // UserActivity exports
-export const useUserIsActive                  = () => useStore((state) => state.userActivity.isActive)
+export const useUserIsActive = () =>
+  useStore((state) => state.userActivity.isActive)
 
-export const useUserActivityActions           = () => useStore((state) => state.userActivity.actions)
+export const useUserActivityActions = () =>
+  useStore((state) => state.userActivity.actions)
 
 // Alert exports
-export const useAlertsItems                   = () => useStore((state) => state.alerts.items)
-export const useAlertsItemsFiltered           = () => useStore((state) => state.alerts.itemsFiltered)
-export const useAlertsTotalCounts             = () => useStore((state) => state.alerts.totalCounts)
-export const useAlertsSeverityCountsPerRegion = () => useStore((state) => state.alerts.severityCountsPerRegion)
-export const useAlertsRegions                 = () => useStore((state) => state.alerts.regions)
-export const useAlertsIsLoading               = () => useStore((state) => state.alerts.isLoading)
-export const useAlertsIsUpdating              = () => useStore((state) => state.alerts.isUpdating)
-export const useAlertsUpdatedAt               = () => useStore((state) => state.alerts.updatedAt)
-export const useAlertsError                   = () => useStore((state) => state.alerts.error)
+export const useAlertsItems = () => useStore((state) => state.alerts.items)
+export const useAlertsItemsFiltered = () =>
+  useStore((state) => state.alerts.itemsFiltered)
+export const useAlertsTotalCounts = () =>
+  useStore((state) => state.alerts.totalCounts)
+export const useAlertsSeverityCountsPerRegion = () =>
+  useStore((state) => state.alerts.severityCountsPerRegion)
+export const useAlertsRegions = () => useStore((state) => state.alerts.regions)
+export const useAlertsIsLoading = () =>
+  useStore((state) => state.alerts.isLoading)
+export const useAlertsIsUpdating = () =>
+  useStore((state) => state.alerts.isUpdating)
+export const useAlertsUpdatedAt = () =>
+  useStore((state) => state.alerts.updatedAt)
+export const useAlertsError = () => useStore((state) => state.alerts.error)
 
-export const useAlertsActions                 = () => useStore((state) => state.alerts.actions)
+export const useAlertsActions = () => useStore((state) => state.alerts.actions)
 
 // Filter exports
-export const useFilterLabels                  = () => useStore((state) => state.filters.labels)
-export const useActiveFilters                 = () => useStore((state) => state.filters.activeFilters)
-export const useFilterLabelValues             = () => useStore((state) => state.filters.filterLabelValues)
+export const useFilterLabels = () => useStore((state) => state.filters.labels)
+export const useActiveFilters = () =>
+  useStore((state) => state.filters.activeFilters)
+export const useFilterLabelValues = () =>
+  useStore((state) => state.filters.filterLabelValues)
 
-export const useFilterActions                 = () => useStore((state) => state.filters.actions)
+export const useFilterActions = () => useStore((state) => state.filters.actions)

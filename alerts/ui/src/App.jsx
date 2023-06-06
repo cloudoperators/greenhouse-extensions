@@ -1,19 +1,17 @@
-import React, { useMemo, useEffect } from "react"
+import React, { useEffect, useLayoutEffect } from "react"
 
 import { AppShell, AppShellProvider } from "juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
 import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
-import { useFilterActions } from "./hooks/useStore"
+import { useGlobalsActions, useFilterActions } from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
+import { MessagesProvider } from "messages-provider"
+import CustomAppShell from "./components/CustomAppShell"
 
 function App(props = {}) {
   const { setLabels } = useFilterActions()
-
-  const embedded = useMemo(
-    () => props.embedded === "true" || props.embedded === true,
-    [props.embedded]
-  )
+  const { setEmbedded } = useGlobalsActions()
 
   /** TODO:
    * load the values from kubernetes plugin config instead of hardcoding
@@ -42,14 +40,16 @@ function App(props = {}) {
   useCommunication()
   useAlertmanagerAPI(props.endpoint)
 
+  useLayoutEffect(() => {
+    if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
+  }, [])
+
   return (
-    <AppShell
-      pageHeader="Converged Cloud | Supernova"
-      contentHeading="Supernova"
-      embedded={embedded}
-    >
-      <AppContent props={props} />
-    </AppShell>
+    <MessagesProvider>
+      <CustomAppShell>
+        <AppContent props={props} />
+      </CustomAppShell>
+    </MessagesProvider>
   )
 }
 
