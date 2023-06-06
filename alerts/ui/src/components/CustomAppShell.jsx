@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useMemo } from "react"
 import { AppShell, PageHeader } from "juno-ui-components"
 import {
@@ -10,7 +5,7 @@ import {
   useAuthLoggedIn,
   useGlobalsEmbedded,
   useAuthActions,
-} from "../hooks/useAppStore"
+} from "../hooks/useStore"
 import HeaderUser from "./HeaderUser"
 
 const CustomAppShell = ({ children }) => {
@@ -28,7 +23,11 @@ const CustomAppShell = ({ children }) => {
   }, [loggedIn, authData, logout])
 
   return (
-    <AppShell pageHeader={pageHeader} embedded={embedded}>
+    <AppShell
+      pageHeader={pageHeader}
+      contentHeading="Supernova"
+      embedded={embedded}
+    >
       {children}
     </AppShell>
   )

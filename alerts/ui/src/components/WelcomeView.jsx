@@ -1,11 +1,6 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react"
 import { Stack, Button, Spinner } from "juno-ui-components"
-import { useAuthIsProcessing, useAuthActions } from "../hooks/useAppStore"
+import { useAuthIsProcessing, useAuthActions } from "../hooks/useStore"
 
 const WelcomeView = () => {
   const { login } = useAuthActions()
