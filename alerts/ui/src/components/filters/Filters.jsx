@@ -12,7 +12,6 @@ const filtersStyles = `
 `
 
 const Filters = () => {
-
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
       <FilterSelect />

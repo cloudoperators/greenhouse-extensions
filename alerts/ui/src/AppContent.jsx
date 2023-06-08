@@ -16,6 +16,7 @@ import StatusBar from "./components/status/StatusBar"
 import Filters from "./components/filters/Filters"
 import WelcomeView from "./components/WelcomeView"
 import { parseError } from "./helpers"
+import AlertDetail from "./components/alerts/AlertDetail"
 
 const AppContent = (props) => {
   const { addMessage } = useActions()
@@ -49,8 +50,8 @@ const AppContent = (props) => {
       <Messages />
       {loggedIn && !authError ? (
         <>
+          <AlertDetail />
           <RegionsList />
-
           {isAlertsLoading ? (
             <Stack gap="2">
               <span>Loading</span>

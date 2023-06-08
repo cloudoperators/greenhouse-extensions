@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react"
 import { Stack } from "juno-ui-components"
 
@@ -11,22 +6,21 @@ h-8
 w-8
 bg-theme-background-lvl-2
 rounded-full
+mr-2
 bg-cover 
 `
 
-const Avatar = ({ userName, url }) => {
+const Avatar = ({ userName, displayName, avatarUrl }) => {
   return (
     <Stack alignment="center">
-      {url && (
-        <div
-          style={{
-            background: `url(${url}) no-repeat`,
-            backgroundSize: `cover`,
-          }}
-          className={avatarCss}
-        />
-      )}
-      {userName && <span className="ml-2">{userName}</span>}
+      <div
+        style={{
+          background: `url(${avatarUrl?.small}) no-repeat`,
+          backgroundSize: `cover`,
+        }}
+        className={avatarCss}
+      />
+      {displayName && <span>{userName}</span>}
     </Stack>
   )
 }

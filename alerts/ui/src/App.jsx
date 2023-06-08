@@ -8,6 +8,8 @@ import { useGlobalsActions, useFilterActions } from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
+import usePredefinedFilters from "./hooks/usePredefinedFilters"
+import useUrlState from "./hooks/useUrlState"
 
 function App(props = {}) {
   const { setLabels } = useFilterActions()
@@ -39,6 +41,8 @@ function App(props = {}) {
 
   useCommunication()
   useAlertmanagerAPI(props.endpoint)
+  useUrlState()
+  usePredefinedFilters()
 
   useLayoutEffect(() => {
     if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
