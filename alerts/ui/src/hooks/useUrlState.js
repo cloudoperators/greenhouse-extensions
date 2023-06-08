@@ -24,6 +24,12 @@ const useUrlState = () => {
   // do with useLayoutEffect so the ui isn't rendered before
   useLayoutEffect(() => {
     if (!loggedIn) return
+
+    console.log(
+      "SUPERNOVA:: setting up state from url::",
+      urlStateManager.currentState()
+    )
+
     const activeFilters = urlStateManager.currentState()?.[ACTIVE_FILTERS]
     if (activeFilters) {
       setActiveFilters(activeFilters)
