@@ -14,6 +14,7 @@ import {
 
 import AlertLabels from "./AlertLabels"
 import AlertLinks from "./AlertLinks"
+import AlertSilence from "./AlertSilence"
 import { descriptionParsed } from "../../lib/utils"
 
 const cellSeverityClasses = (severity) => {
@@ -52,7 +53,7 @@ const Alert = ({ alert }, ref) => {
             <Icon ref={ref} icon="danger" color="text-theme-danger" />
           ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
             <Icon
-            ref={ref}
+              ref={ref}
               icon={alert.labels?.severity}
               color={`text-theme-${alert.labels?.severity}`}
             />
@@ -108,7 +109,7 @@ const Alert = ({ alert }, ref) => {
       </DataGridCell>
       <DataGridCell>{alert.labels?.status}</DataGridCell>
       <DataGridCell>
-        <Button size="small" variant="subdued">Silence</Button>
+        <AlertSilence alert={alert} />
       </DataGridCell>
     </DataGridRow>
   )
