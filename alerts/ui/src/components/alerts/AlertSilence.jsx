@@ -9,7 +9,7 @@ import {
   SelectRow,
   SelectOption,
 } from "juno-ui-components"
-import AlertLabels from "./AlertLabels"
+import AlertLabels from "./shared/AlertLabels"
 import { Markup } from "interweave"
 import { descriptionParsed } from "../../lib/utils"
 import { useAuthData } from "../../hooks/useStore"

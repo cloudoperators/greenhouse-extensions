@@ -1,21 +1,19 @@
 import React, { forwardRef } from "react"
-import { DateTime } from "luxon"
-import { Markup } from "interweave"
+
 import {
-  Button,
   DataGridCell,
   DataGridRow,
-  Icon,
-  Stack,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from "juno-ui-components"
 
-import AlertLabels from "./AlertLabels"
-import AlertLinks from "./AlertLinks"
+import AlertLabels from "./shared/AlertLabels"
+import AlertLinks from "./shared/AlertLinks"
 import AlertSilence from "./AlertSilence"
-import { descriptionParsed } from "../../lib/utils"
+import AlertIcon from "./shared/AlertIcon"
+import AlertDescription from "./shared/AlertDescription"
+import AlertTimestamp from "./shared/AlertTimestamp"
+import AlertStatus from "./AlertStatus"
+import AlertRegion from "./shared/AlertRegion"
+
 
 const cellSeverityClasses = (severity) => {
   let borderColor = "border-text-theme-default"
@@ -40,74 +38,32 @@ const cellSeverityClasses = (severity) => {
 }
 
 const Alert = ({ alert }, ref) => {
-  const dateFormat = { ...DateTime.DATE_MED }
-  const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
-  const startTime = DateTime.fromISO(alert.startsAt)
-  const daysFiring = DateTime.now().diff(startTime, "days")
-
+  
   return (
     <DataGridRow>
       <DataGridCell className="pl-0">
         <div className={cellSeverityClasses(alert.labels?.severity)}>
-          {alert.labels?.severity === "critical" ? (
-            <Icon ref={ref} icon="danger" color="text-theme-danger" />
-          ) : alert.labels?.severity.match(/^(warning|info)$/) ? (
-            <Icon
-              ref={ref}
-              icon={alert.labels?.severity}
-              color={`text-theme-${alert.labels?.severity}`}
-            />
-          ) : (
-            <Icon ref={ref} icon="errorOutline" />
-          )}
+          <AlertIcon ref={ref} severity={alert.labels?.severity} />
         </div>
       </DataGridCell>
       <DataGridCell>
-        {alert.labels?.region}
-        {alert.labels?.region !== alert.labels?.cluster && (
-          <>
-            <br />
-            <span className="text-theme-light">{alert.labels?.cluster}</span>
-          </>
-        )}
+        <AlertRegion region={alert.labels?.region} cluster={alert.labels?.cluster} />
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
       <DataGridCell>
         <div>{alert.annotations?.summary}</div>
         <div>
-          <Markup
-            content={descriptionParsed(
-              alert.annotations?.description?.replace(
-                /`([^`]+)`/g,
-                "<code class='inline-code'>$1</code>"
-              )
-            )}
-            tagName="div"
-            className="text-theme-light"
-          />
+          <AlertDescription description={alert.annotations?.description} />
           <AlertLinks alert={alert} className="mb-4 mt-1" />
         </div>
         <AlertLabels alert={alert} />
       </DataGridCell>
       <DataGridCell>
-        <Stack direction="vertical" gap="1">
-          <div>{startTime.toLocaleString(dateFormat)}</div>
-          <div>{startTime.toLocaleString(timeFormat)}</div>
-          {daysFiring.days > 7 && (
-            <Tooltip variant="warning" triggerEvent="hover">
-              <TooltipTrigger asChild>
-                <Icon icon="warning" color="text-theme-warning" />
-              </TooltipTrigger>
-              <TooltipContent>
-                {`Alert has been firing for ${Math.round(
-                  daysFiring.days
-                )} days`}
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </Stack>
+        <AlertTimestamp startTimestamp={alert.startsAt} />
       </DataGridCell>
-      <DataGridCell>{alert.labels?.status}</DataGridCell>
+      <DataGridCell>
+        <AlertStatus status={alert?.labels?.status} />
+      </DataGridCell>
       <DataGridCell>
         <AlertSilence alert={alert} />
       </DataGridCell>

@@ -203,18 +203,25 @@ const createAlertsSlice = (set, get) => ({
         )
       },
 
-      setIsLoading: (value) =>
+      setIsLoading: (value) => {
         set(
           (state) => ({ alerts: { ...state.alerts, isLoading: value } }),
           false,
           "alerts.setIsLoading"
-        ),
-      setIsUpdating: (value) =>
+        )
+      }, 
+
+      setIsUpdating: (value) => {
         set(
           (state) => ({ alerts: { ...state.alerts, isUpdating: value } }),
           false,
           "alerts.setIsUpdating"
-        ),
+        )
+      },
+
+      getAlertByFingerprint: (fingerprint) => {
+        return get().alerts.items.find(alert => alert.fingerprint === fingerprint)
+      }
     },
   },
 })
