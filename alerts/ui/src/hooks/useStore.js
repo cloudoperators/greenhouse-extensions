@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { devtools } from "zustand/middleware"
 import produce from "immer"
 import { countAlerts } from "../lib/utils"
+import createSilencesSlice from "./createSilencesSlice"
 
 const createGlobalsSlice = (set, get) => ({
   globals: {
@@ -361,6 +362,7 @@ const useStore = create(
     ...createUserActivitySlice(set, get),
     ...createAlertsSlice(set, get),
     ...createFiltersSlice(set, get),
+    ...createSilencesSlice(set, get),
   }))
 )
 
@@ -424,3 +426,20 @@ export const useFilterLabelValues = () =>
   useStore((state) => state.filters.filterLabelValues)
 
 export const useFilterActions = () => useStore((state) => state.filters.actions)
+
+// Silences exports
+export const useSilencesItems = () => useStore((state) => state.silences.items)
+export const useSilencesItemsHash = () =>
+  useStore((state) => state.silences.itemsHash)
+export const useSilencesIsLoading = () =>
+  useStore((state) => state.silences.isLoading)
+export const useSilencesIsUpdating = () =>
+  useStore((state) => state.silences.isUpdating)
+export const useSilencesUpdatedAt = () =>
+  useStore((state) => state.silences.updatedAt)
+export const useSilencesError = () => useStore((state) => state.silences.error)
+export const useSilencesLocalItems = () =>
+  useStore((state) => state.silences.localItems)
+
+export const useSilencesActions = () =>
+  useStore((state) => state.silences.actions)
