@@ -1,10 +1,6 @@
 import React, { forwardRef } from "react"
 
-import {
-  DataGridCell,
-  DataGridRow,
-} from "juno-ui-components"
-
+import { DataGridCell, DataGridRow } from "juno-ui-components"
 import AlertLabels from "./shared/AlertLabels"
 import AlertLinks from "./shared/AlertLinks"
 import AlertSilence from "./AlertSilence"
@@ -13,7 +9,6 @@ import AlertDescription from "./shared/AlertDescription"
 import AlertTimestamp from "./shared/AlertTimestamp"
 import AlertStatus from "./AlertStatus"
 import AlertRegion from "./shared/AlertRegion"
-
 
 const cellSeverityClasses = (severity) => {
   let borderColor = "border-text-theme-default"
@@ -38,7 +33,6 @@ const cellSeverityClasses = (severity) => {
 }
 
 const Alert = ({ alert }, ref) => {
-  
   return (
     <DataGridRow>
       <DataGridCell className="pl-0">
@@ -47,7 +41,10 @@ const Alert = ({ alert }, ref) => {
         </div>
       </DataGridCell>
       <DataGridCell>
-        <AlertRegion region={alert.labels?.region} cluster={alert.labels?.cluster} />
+        <AlertRegion
+          region={alert.labels?.region}
+          cluster={alert.labels?.cluster}
+        />
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
       <DataGridCell>
@@ -62,7 +59,7 @@ const Alert = ({ alert }, ref) => {
         <AlertTimestamp startTimestamp={alert.startsAt} />
       </DataGridCell>
       <DataGridCell>
-        <AlertStatus status={alert?.labels?.status} />
+        <AlertStatus status={alert.status} />
       </DataGridCell>
       <DataGridCell>
         <AlertSilence alert={alert} />
