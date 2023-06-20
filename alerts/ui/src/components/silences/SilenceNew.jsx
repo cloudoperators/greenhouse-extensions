@@ -36,6 +36,31 @@ const errorHelpText = (messages) => {
   ))
 }
 
+const setupMatchers = (alertLabels, excludedLabels, filterLabels) => {
+  if (!alertLabels || !excludedLabels || !filterLabels) return
+  let items = []
+  // allow just labels which are configured
+  filterLabels.forEach((filterLabel) => {
+    const value = alertLabels?.[filterLabel]
+    if (value) {
+      const matcher = {
+        name: filterLabel,
+        value: value,
+        isRegex: false, // for now hardcode isRegex to false since we take the exact value
+        excluded: false,
+        configurable: false,
+      }
+      // copy excluded label values to a different array
+      if (excludedLabels[filterLabel]) {
+        items.push({ ...matcher, excluded: true, configurable: true })
+      } else {
+        items.push(matcher)
+      }
+    }
+  })
+  return items
+}
+
 const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
 const SilenceNew = ({ alert }) => {
@@ -45,38 +70,29 @@ const SilenceNew = ({ alert }) => {
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
   const [showValidation, setShowValidation] = useState({})
-  const [matchers, setMatchers] = useState([])
 
-  const name = useMemo(() => {
-    return authData?.parsed?.fullName
-  }, [authData])
-
-  // init the matchers
-  // use displayNewSilence to reset the matchers on open and close the same alert
+  // initialize form state with default values
   useEffect(() => {
-    if (!alert?.labels || !excludedLabelsHash || !filterLabels) return
+    if (
+      !alert?.labels ||
+      !excludedLabelsHash ||
+      !filterLabels ||
+      !authData ||
+      !displayNewSilence // do nothing on close modal but reset form state on open always
+    )
+      return
 
-    let items = []
-    // allow just labels which are configured
-    filterLabels.forEach((filterLabel) => {
-      const value = alert?.labels?.[filterLabel]
-      if (value) {
-        const matcher = {
-          key: filterLabel,
-          value: value,
-          excluded: false,
-          configurable: false,
-        }
-        // copy excluded label values to a different array
-        if (excludedLabelsHash[filterLabel]) {
-          items.push({ ...matcher, excluded: true, configurable: true })
-        } else {
-          items.push(matcher)
-        }
-      }
+    const matchers = setupMatchers(
+      alert?.labels,
+      excludedLabelsHash,
+      filterLabels
+    )
+    setFormState({
+      ...formState,
+      createdBy: authData?.parsed?.fullName,
+      matchers: matchers,
     })
-    setMatchers(items)
-  }, [alert, excludedLabelsHash, filterLabels, displayNewSilence])
+  }, [alert, excludedLabelsHash, filterLabels, authData, displayNewSilence])
 
   const onCloseModal = () => {
     // reset state
@@ -88,6 +104,8 @@ const SilenceNew = ({ alert }) => {
     const formValidation = validateForm(formState)
     setShowValidation(formValidation)
     if (Object.keys(formValidation).length > 0) return
+    // clean up attributes in matchers
+    let matchers = formState.matchers.slice()
   }
 
   const onInputChanged = ({ key, value }) => {
@@ -95,18 +113,15 @@ const SilenceNew = ({ alert }) => {
   }
 
   const onMatchersChanged = (matcher) => {
-    const index = matchers.findIndex((item) => item.key == matcher.key)
-    let items = matchers.slice()
+    const index = formState.matchers.findIndex(
+      (item) => item.name == matcher.name
+    )
+    let items = formState.matchers.slice()
     // update item
     if (index >= 0) {
-      items[index] = {
-        key: matcher.key,
-        value: matcher.value,
-        excluded: !matcher.excluded,
-        configurable: matcher.configurable,
-      }
+      items[index] = { ...items[index], excluded: !matcher.excluded }
     }
-    setMatchers(items)
+    setFormState({ ...formState, matchers: items })
   }
 
   return (
@@ -135,12 +150,17 @@ const SilenceNew = ({ alert }) => {
           </Box>
 
           <SilenceNewAdvanced
-            matchers={matchers}
+            matchers={formState.matchers}
             onMatchersChanged={onMatchersChanged}
           />
 
           <Form className="mt-6">
-            <TextInputRow required label="Silenced by" value={name} disabled />
+            <TextInputRow
+              required
+              label="Silenced by"
+              value={formState.createdBy}
+              disabled
+            />
             <TextareaRow
               label="Description"
               value={formState.comment}

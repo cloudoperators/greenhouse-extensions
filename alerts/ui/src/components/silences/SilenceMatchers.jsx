@@ -19,8 +19,8 @@ const SilenceMatchers = ({ matchers, onCloseCallback }) => {
               className={matcher.configurable ? "opacity-100" : "opacity-70"}
               closeable={!!matcher.configurable}
               onClose={() => onCloseCallback(matcher)}
-              key={matcher.key}
-              pillKey={matcher.key}
+              key={matcher.name}
+              pillKey={matcher.name}
               pillValue={matcher.value}
             />
           )

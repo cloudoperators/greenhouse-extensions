@@ -24,41 +24,49 @@ const SilenceNewAdvanced = ({ matchers, onMatchersChanged }) => {
 
   return (
     <>
-      <div className="advance-link mt-4">
-        <a href="#" rel="noopener noreferrer" onClick={onShowDetailsClicked}>
-          <Stack alignment="center">
-            Advanced options
-            <Icon
-              color="jn-global-text"
-              icon={showDetails ? "expandLess" : "expandMore"}
-            />
-          </Stack>
-        </a>
-      </div>
+      {matchers && (
+        <>
+          <div className="advance-link mt-4">
+            <a
+              href="#"
+              rel="noopener noreferrer"
+              onClick={onShowDetailsClicked}
+            >
+              <Stack alignment="center">
+                Advanced options
+                <Icon
+                  color="jn-global-text"
+                  icon={showDetails ? "expandLess" : "expandMore"}
+                />
+              </Stack>
+            </a>
+          </div>
 
-      <div className="advance-area overflow-hidden">
-        <div className={detailsCss(showDetails)}>
-          <p className="mt-2">Matchers attached to this silence</p>
-          <div className="mt-2">
-            <SilenceMatchers
-              matchers={matchers.filter((m) => !m.excluded)}
-              onCloseCallback={onMatchersChanged}
-            />
+          <div className="advance-area overflow-hidden">
+            <div className={detailsCss(showDetails)}>
+              <p className="mt-2">Matchers attached to this silence</p>
+              <div className="mt-2">
+                <SilenceMatchers
+                  matchers={matchers.filter((m) => !m.excluded)}
+                  onCloseCallback={onMatchersChanged}
+                />
+              </div>
+              <p className="mt-4">
+                The default silence configuration excludes the following
+                matchers. This means that any alerts triggered by these matchers
+                can be silenced together. If you want to include any of these
+                matchers in the default configuration, simply click on them.
+              </p>
+              <div className="my-2">
+                <SilenceMatchers
+                  matchers={matchers.filter((m) => m.excluded)}
+                  onCloseCallback={onMatchersChanged}
+                />
+              </div>
+            </div>
           </div>
-          <p className="mt-4">
-            The default silence configuration excludes the following matchers.
-            This means that any alerts triggered by these matchers can be
-            silenced together. If you want to include any of these matchers in
-            the default configuration, simply click on them.
-          </p>
-          <div className="my-2">
-            <SilenceMatchers
-              matchers={matchers.filter((m) => m.excluded)}
-              onCloseCallback={onMatchersChanged}
-            />
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   )
 }
