@@ -17,14 +17,15 @@ const detailsCss = (show) => {
 const SilenceNewAdvanced = ({ matchers, onMatchersChanged }) => {
   const [showDetails, setShowDetails] = useState(false)
 
+  const onShowDetailsClicked = (e) => {
+    e.preventDefault()
+    setShowDetails(!showDetails)
+  }
+
   return (
     <>
       <div className="advance-link mt-4">
-        <a
-          href="#"
-          rel="noopener noreferrer"
-          onClick={() => setShowDetails(!showDetails)}
-        >
+        <a href="#" rel="noopener noreferrer" onClick={onShowDetailsClicked}>
           <Stack alignment="center">
             Advanced options
             <Icon
