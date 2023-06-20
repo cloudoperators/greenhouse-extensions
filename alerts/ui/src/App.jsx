@@ -17,7 +17,7 @@ import useUrlState from "./hooks/useUrlState"
 
 function App(props = {}) {
   const { setLabels } = useFilterActions()
-  const { setEmbedded } = useGlobalsActions()
+  const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const { setExcludedLabels } = useSilencesActions()
 
   /** TODO:
@@ -40,11 +40,13 @@ function App(props = {}) {
       "tier",
       "type",
     ]
-
     setLabels(filterLabels)
 
     const silenceExcludedLabels = ["status", "pod", "instance"]
     setExcludedLabels(silenceExcludedLabels)
+
+    // save the apiEndpoint. It is also used outside the alertManager hook
+    setApiEndpoint(props.endpoint)
   }, [])
 
   useCommunication()
