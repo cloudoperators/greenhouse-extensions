@@ -4,7 +4,11 @@ import { AppShell, AppShellProvider } from "juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
 import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
-import { useGlobalsActions, useFilterActions } from "./hooks/useStore"
+import {
+  useGlobalsActions,
+  useFilterActions,
+  useSilencesActions,
+} from "./hooks/useStore"
 import useCommunication from "./hooks/useCommunication"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
@@ -14,6 +18,7 @@ import useUrlState from "./hooks/useUrlState"
 function App(props = {}) {
   const { setLabels } = useFilterActions()
   const { setEmbedded } = useGlobalsActions()
+  const { setExcludedLabels } = useSilencesActions()
 
   /** TODO:
    * load the values from kubernetes plugin config instead of hardcoding
@@ -37,6 +42,9 @@ function App(props = {}) {
     ]
 
     setLabels(filterLabels)
+
+    const silenceExcludedLabels = ["status", "pod", "instance"]
+    setExcludedLabels(silenceExcludedLabels)
   }, [])
 
   useCommunication()

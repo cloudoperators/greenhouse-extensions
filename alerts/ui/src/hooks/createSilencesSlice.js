@@ -5,6 +5,8 @@ const createSilencesSlice = (set, get) => ({
     items: [],
     itemsHash: {},
     itemsByState: {},
+    excludedLabels: [],
+    excludedLabelsHash: {},
     isLoading: false,
     isUpdating: false,
     updatedAt: null,
@@ -50,6 +52,28 @@ const createSilencesSlice = (set, get) => ({
           }),
           false,
           "silences.addSilence"
+        )
+      },
+      setExcludedLabels: (labels) => {
+        if (!labels) return
+
+        console.log("setExcludedLabels: ", labels)
+
+        const labelsHash = labels.reduce((map, label) => {
+          map[label] = label
+          return map
+        }, {})
+
+        return set(
+          (state) => ({
+            silences: {
+              ...state.silences,
+              excludedLabels: labels,
+              excludedLabelsHash: labelsHash,
+            },
+          }),
+          false,
+          "silences.setExcludedLabels"
         )
       },
       setIsLoading: (value) =>

@@ -210,7 +210,7 @@ const createAlertsSlice = (set, get) => ({
           false,
           "alerts.setIsLoading"
         )
-      }, 
+      },
 
       setIsUpdating: (value) => {
         set(
@@ -221,8 +221,10 @@ const createAlertsSlice = (set, get) => ({
       },
 
       getAlertByFingerprint: (fingerprint) => {
-        return get().alerts.items.find(alert => alert.fingerprint === fingerprint)
-      }
+        return get().alerts.items.find(
+          (alert) => alert.fingerprint === fingerprint
+        )
+      },
     },
   },
 })
@@ -431,6 +433,10 @@ export const useFilterActions = () => useStore((state) => state.filters.actions)
 export const useSilencesItems = () => useStore((state) => state.silences.items)
 export const useSilencesItemsHash = () =>
   useStore((state) => state.silences.itemsHash)
+export const useSilencesExcludedLabels = () =>
+  useStore((state) => state.silences.excludedLabels)
+export const useSilencesExcludedLabelsHash = () =>
+  useStore((state) => state.silences.excludedLabelsHash)
 export const useSilencesIsLoading = () =>
   useStore((state) => state.silences.isLoading)
 export const useSilencesIsUpdating = () =>

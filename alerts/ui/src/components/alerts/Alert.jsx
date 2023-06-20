@@ -3,7 +3,7 @@ import React, { forwardRef } from "react"
 import { DataGridCell, DataGridRow } from "juno-ui-components"
 import AlertLabels from "./shared/AlertLabels"
 import AlertLinks from "./shared/AlertLinks"
-import AlertSilence from "./AlertSilence"
+import SilenceNew from "../silences/SilenceNew"
 import AlertIcon from "./shared/AlertIcon"
 import AlertDescription from "./shared/AlertDescription"
 import AlertTimestamp from "./shared/AlertTimestamp"
@@ -62,7 +62,7 @@ const Alert = ({ alert }, ref) => {
         <AlertStatus status={alert.status} />
       </DataGridCell>
       <DataGridCell>
-        <AlertSilence alert={alert} />
+        <SilenceNew alert={alert} />
       </DataGridCell>
     </DataGridRow>
   )
