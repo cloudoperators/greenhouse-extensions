@@ -9,6 +9,7 @@ const createGlobalsSlice = (set, get) => ({
     embedded: false,
     isUrlStateSetup: false,
     showDetailsFor: null,
+    apiEndpoint: null,
 
     actions: {
       setEmbedded: (embedded) =>
@@ -29,6 +30,14 @@ const createGlobalsSlice = (set, get) => ({
         set(
           (state) => ({
             globals: { ...state.globals, showDetailsFor: alertID },
+          }),
+          false,
+          "globals/setShowDetailsFor"
+        ),
+      setApiEndpoint: (endpoint) =>
+        set(
+          (state) => ({
+            globals: { ...state.globals, apiEndpoint: endpoint },
           }),
           false,
           "globals/setShowDetailsFor"
@@ -378,6 +387,8 @@ export const useGlobalsIsUrlStateSetup = () =>
   useStore((state) => state.globals.isUrlStateSetup)
 export const useShowDetailsFor = () =>
   useStore((state) => state.globals.showDetailsFor)
+export const useGlobalsApiEndpoint = () =>
+  useStore((state) => state.globals.apiEndpoint)
 export const useGlobalsActions = () =>
   useStore((state) => state.globals.actions)
 

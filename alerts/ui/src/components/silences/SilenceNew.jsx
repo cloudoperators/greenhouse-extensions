@@ -8,11 +8,13 @@ import {
   TextInputRow,
   SelectRow,
   SelectOption,
+  Message,
 } from "juno-ui-components"
 import {
   useAuthData,
   useSilencesExcludedLabelsHash,
   useFilterLabels,
+  useGlobalsApiEndpoint,
 } from "../../hooks/useStore"
 import { post } from "../../api/client"
 import AlertDescription from "../alerts/shared/AlertDescription"
@@ -65,11 +67,15 @@ const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
 const SilenceNew = ({ alert }) => {
   const authData = useAuthData()
+  const apiEndpoint = useGlobalsApiEndpoint()
   const excludedLabelsHash = useSilencesExcludedLabelsHash()
   const filterLabels = useFilterLabels()
+
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
   const [showValidation, setShowValidation] = useState({})
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
 
   // initialize form state with default values
   useEffect(() => {
@@ -101,11 +107,35 @@ const SilenceNew = ({ alert }) => {
   }
 
   const onSubmitForm = () => {
+    setError(null)
+    setSuccess(null)
     const formValidation = validateForm(formState)
     setShowValidation(formValidation)
     if (Object.keys(formValidation).length > 0) return
-    // clean up attributes in matchers
-    let matchers = formState.matchers.slice()
+    let newFormState = { ...formState }
+    // clean up attributes in matchers and remove excluded
+    if (newFormState.matchers?.length > 0) {
+      newFormState.matchers = newFormState.matchers
+        .filter((m) => !m.excluded)
+        .map(({ excluded, configurable, ...keepAttrs }) => keepAttrs)
+    }
+    // add extra attributes
+    const startsAt = new Date()
+    const endsAt = new Date()
+    endsAt.setHours(
+      endsAt.getHours() + Number.parseInt(newFormState.duration || 4)
+    )
+
+    // submit
+    post(`${apiEndpoint}/silences`, {
+      body: JSON.stringify({ ...newFormState, startsAt, endsAt }),
+    })
+      .then((data) => {
+        setSuccess(data)
+      })
+      .catch((error) => {
+        setError(error.message)
+      })
   }
 
   const onInputChanged = ({ key, value }) => {
@@ -137,10 +167,12 @@ const SilenceNew = ({ alert }) => {
           title="New Silence for"
           size="large"
           open={true}
-          confirmButtonLabel="Save"
+          confirmButtonLabel={success ? null : "Save"}
           onCancel={onCloseModal}
-          onConfirm={onSubmitForm}
+          onConfirm={success ? null : onSubmitForm}
         >
+          {error && <Message text={error} variant="success" />}
+
           <span className="text-lg">
             <b>{alert?.labels?.alertname}</b>
           </span>
@@ -149,45 +181,55 @@ const SilenceNew = ({ alert }) => {
             <AlertDescription description={alert.annotations?.description} />
           </Box>
 
-          <SilenceNewAdvanced
-            matchers={formState.matchers}
-            onMatchersChanged={onMatchersChanged}
-          />
+          {success ? (
+            <Message className="mt-4" variant="info">
+              A silence object with id <b>{success?.silenceID}</b> was created
+              successfully. Please note that it may take up to 5 minutes for the
+              alert to show up as silenced.
+            </Message>
+          ) : (
+            <>
+              <SilenceNewAdvanced
+                matchers={formState.matchers}
+                onMatchersChanged={onMatchersChanged}
+              />
 
-          <Form className="mt-6">
-            <TextInputRow
-              required
-              label="Silenced by"
-              value={formState.createdBy}
-              disabled
-            />
-            <TextareaRow
-              label="Description"
-              value={formState.comment}
-              onChange={(e) =>
-                onInputChanged({ key: "comment", value: e.target.value })
-              }
-              helptext={
-                showValidation["comment"] &&
-                errorHelpText(showValidation["comment"])
-              }
-              required
-            />
-            <SelectRow
-              required
-              label="Duration"
-              defaultValue={formState.duration}
-              onValueChange={(e) =>
-                onInputChanged({ key: "duration", value: e })
-              }
-            >
-              <SelectOption label="2 hours" value="2" />
-              <SelectOption label="12 hours" value="12" />
-              <SelectOption label="1 day" value="24" />
-              <SelectOption label="3 days" value="72" />
-              <SelectOption label="7 days" value="168" />
-            </SelectRow>
-          </Form>
+              <Form className="mt-6">
+                <TextInputRow
+                  required
+                  label="Silenced by"
+                  value={formState.createdBy}
+                  disabled
+                />
+                <TextareaRow
+                  label="Description"
+                  value={formState.comment}
+                  onChange={(e) =>
+                    onInputChanged({ key: "comment", value: e.target.value })
+                  }
+                  helptext={
+                    showValidation["comment"] &&
+                    errorHelpText(showValidation["comment"])
+                  }
+                  required
+                />
+                <SelectRow
+                  required
+                  label="Duration"
+                  defaultValue={formState.duration}
+                  onValueChange={(e) =>
+                    onInputChanged({ key: "duration", value: e })
+                  }
+                >
+                  <SelectOption label="2 hours" value="2" />
+                  <SelectOption label="12 hours" value="12" />
+                  <SelectOption label="1 day" value="24" />
+                  <SelectOption label="3 days" value="72" />
+                  <SelectOption label="7 days" value="168" />
+                </SelectRow>
+              </Form>
+            </>
+          )}
         </Modal>
       )}
     </>
