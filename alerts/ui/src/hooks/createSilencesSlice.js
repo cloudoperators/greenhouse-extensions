@@ -14,24 +14,13 @@ const createSilencesSlice = (set, get) => ({
     localItems: [],
 
     actions: {
-      setSilences: ({ items, itemsByState }) => {
+      setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
-
-        // remove duplicates
-        const newItems = items.filter(
-          (item, index) => items.findIndex((i) => i.id === item.id) === index
-        )
-
-        // convert to hash for faster access
-        const hash = newItems.reduce((hash, silence) => {
-          hash[silence.id] = silence
-          return hash
-        })
 
         return set(
           produce((state) => {
-            state.silences.items = newItems
-            state.silences.itemsHash = hash
+            state.silences.items = items
+            state.silences.itemsHash = itemsHash
             state.silences.itemsByState = itemsByState
             state.silences.isLoading = false
             state.silences.isUpdating = false
