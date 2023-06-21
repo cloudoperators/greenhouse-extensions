@@ -3,12 +3,23 @@ import { get } from "../api/client"
 import { sortSilencesByState } from "../lib/utils"
 
 const fetchAction = (endpoint) => {
-  return get(`${endpoint}/silences`, {}).then((data) => {
-    const sortedSilences = sortSilencesByState(data)
+  return get(`${endpoint}/silences`, {}).then((items) => {
+
+    // convert items to hash to easear access
+    const itemsHash = items.reduce((itemsHash, silence) => {
+      itemsHash[silence.id] = silence
+      return itemsHash
+    }, {})
+
+    // split items by state (active, pending and expired)
+    // https://github.com/prometheus/alertmanager/blob/main/types/types.go#L434
+    const itemsByState = sortSilencesByState(items)
+
     self.postMessage({
       action: "SILENCES_UPDATE",
-      silences: data,
-      sortedSilences: sortedSilences,
+      silences: items,
+      silencesHash: itemsHash,
+      silencesBySate: itemsByState,      
     })
   })
 }
