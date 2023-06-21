@@ -11,13 +11,13 @@ const createSilencesSlice = (set, get) => ({
     isUpdating: false,
     updatedAt: null,
     error: null,
-    localItems: [],
+    localItems: {},
 
     actions: {
       setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
 
-        return set(
+        set(
           produce((state) => {
             state.silences.items = items
             state.silences.itemsHash = itemsHash
@@ -25,29 +25,63 @@ const createSilencesSlice = (set, get) => ({
             state.silences.isLoading = false
             state.silences.isUpdating = false
             state.silences.updatedAt = Date.now()
-            state.silences.localItems = []
           }),
           false,
           "silences.setSilencesData"
         )
+        // check if any local item can be removed
+        get().silences.actions.updateLocalItems()
       },
-      addSilence: (silence) => {
-        let items = state.silences.localItems()
-        items.push(silence)
+      addLocalItem: (silence) => {
+        if (!silence || !silence?.id) return
+
+        const newLocalItems = { ...state.silences.localItems }
+        newLocalItems[silence?.id] = silence
 
         return set(
           produce((state) => {
-            state.silences.localItems = items
+            state.silences.localItems = newLocalItems
           }),
           false,
-          "silences.addSilence"
+          "silences.addLocalItem"
+        )
+      },
+      updateLocalItems: () => {
+        const newLocalSilences = { ...get().silences.localItems }
+        Object.keys(newLocalSilences).forEach((silence) => {
+          // check for the alert reference
+          if (silence?.alertFingerPrint) {
+            const alert = get().alerts.actions.getAlertByFingerprint(
+              silence?.alertFingerPrint
+            )
+            // check if the silence is already added to the alert
+            const silencedBy = alert?.status?.silencedBy
+            if (silencedBy?.length > 0 && silencedBy?.includes("Mango")) {
+              // mark to remove silence
+              silence["remove"] = true
+            }
+          }
+        })
+        // remove silences marked to remove
+        const reducedLocalSilences = Object.keys(newLocalSilences)
+          .filter((key) => !newLocalSilences[key]?.remove)
+          .reduce((obj, key) => {
+            obj[key] = newLocalSilences[key]
+            return obj
+          }, {})
+
+        return set(
+          produce((state) => {
+            state.silences.localItems = reducedLocalSilences
+          }),
+          false,
+          "silences.updateLocalItems"
         )
       },
       setExcludedLabels: (labels) => {
         if (!labels) return
 
-        console.log("setExcludedLabels: ", labels)
-
+        // labels to hash object to easier access
         const labelsHash = labels.reduce((map, label) => {
           map[label] = label
           return map
