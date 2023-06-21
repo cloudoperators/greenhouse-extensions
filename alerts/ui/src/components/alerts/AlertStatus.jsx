@@ -6,11 +6,11 @@ const AlertStatus = ({ status }) => {
   const allSilences = useSilencesItemsHash()
 
   const silences = useMemo(() => {
-    if (!status || !status?.silencedBy) return []
+    if (!status || !status?.silencedBy || !allSilences) return []
     let silenceIds = status.silencedBy
     if (!Array.isArray(silenceIds)) silenceIds = [silenceIds]
     return silenceIds.map((id) => ({ id, silence: allSilences[id] }))
-  }, [status])
+  }, [status, allSilences])
 
   return (
     <>
