@@ -26,7 +26,7 @@ const SilenceMatchers = ({ matchers, onCloseCallback }) => {
           )
         })
       ) : (
-        <span className="opacity-70">No matchers found</span>
+        <span className="opacity-70">No excluded matchers found</span>
       )}
     </Stack>
   )

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   Modal,
   Button,
@@ -15,6 +15,7 @@ import {
   useSilencesExcludedLabelsHash,
   useFilterLabels,
   useGlobalsApiEndpoint,
+  useSilencesActions,
 } from "../../hooks/useStore"
 import { post } from "../../api/client"
 import AlertDescription from "../alerts/shared/AlertDescription"
@@ -70,6 +71,7 @@ const SilenceNew = ({ alert }) => {
   const apiEndpoint = useGlobalsApiEndpoint()
   const excludedLabelsHash = useSilencesExcludedLabelsHash()
   const filterLabels = useFilterLabels()
+  const { addLocalItem } = useSilencesActions()
 
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
@@ -126,7 +128,7 @@ const SilenceNew = ({ alert }) => {
       endsAt.getHours() + Number.parseInt(newFormState.duration || 4)
     )
 
-    // submit
+    // submit silence
     post(`${apiEndpoint}/silences`, {
       body: JSON.stringify({ ...newFormState, startsAt, endsAt }),
     })
