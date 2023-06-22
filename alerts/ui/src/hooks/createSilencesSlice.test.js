@@ -57,12 +57,16 @@ describe("createSilencesSlice", () => {
         const alertActions = renderHook(useAlertsActions)
         const silenceActions = renderHook(useSilencesActions)
 
-        // create a silence
-        const silence = createFakeSilenceWith({ id: "test1" })
-        const silence2 = createFakeSilenceWith({ id: "test2" })
-        // create an alert
-        const status = createFakeAlertStatustWith({ silencedBy: silence.id })
+        // create an alert without any silencedBy
+        const status = createFakeAlertStatustWith({ silencedBy: [] })
         const alert = createFakeAlertWith({ status: status })
+
+        // create a silence
+        const silence = createFakeSilenceWith({
+          id: "test1",
+          alertFingerPrint: alert.fingerprint,
+        })
+        const silence2 = createFakeSilenceWith({ id: "test2" })
 
         // set the alert
         act(() =>
