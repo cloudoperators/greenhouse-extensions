@@ -85,8 +85,8 @@ const useAlertmanagerAPI = (apiEndpoint) => {
             console.log("SILENCES_UPDATE:::::", e.data)
             setSilences({
               items: e.data?.silences,
-              itemsHash: e.data?.itemsHash,
-              itemsByState: e.data?.silencesHash,
+              itemsHash: e.data?.silencesHash,
+              itemsByState: e.data?.silencesBySate,
             })
             break
           case "SILENCES_FETCH_START":
