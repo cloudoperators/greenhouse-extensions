@@ -35,7 +35,7 @@ const createSilencesSlice = (set, get) => ({
       addLocalItem: (silence) => {
         if (!silence || !silence?.id) return
 
-        const newLocalItems = { ...state.silences.localItems }
+        const newLocalItems = { ...get().silences.localItems }
         newLocalItems[silence?.id] = silence
 
         return set(
