@@ -5,14 +5,16 @@ import {
   useFilterLabels,
   useFilterActions,
   useActiveFilters,
+  useAlertsActions,
   useGlobalsIsUrlStateSetup,
 } from "./useStore"
 
-const usePredefinedFilters = () => {
+const useInitialFilters = () => {
   const authData = useAuthData()
   const filterLabels = useFilterLabels()
-  const { addActiveFilter } = useFilterActions()
+  const { addActiveFilters } = useFilterActions()
   const activeFilters = useActiveFilters()
+  const {filterItems } = useAlertsActions()
   const isUrlStateSetup = useGlobalsIsUrlStateSetup()
 
   const [isRunOnce, setIsRunOnce] = useState(false)
@@ -29,28 +31,33 @@ const usePredefinedFilters = () => {
     // if filters already set through url state provider do nothing
     if (activeFilters && Object.keys(activeFilters).length > 0) return
 
-    // if no support_group of labels available return
+    // add support group filter if user is in a support group
     const label = "support_group"
     if (
-      !authData?.parsed?.teams ||
-      authData?.parsed?.teams?.length <= 0 ||
-      filterLabels?.length <= 0 ||
-      !filterLabels.includes(label)
-    )
-      return
+      // negate the following conditions
+      authData?.parsed?.teams &&
+      authData?.parsed?.teams?.length > 0 &&
+      filterLabels?.length > 0 &&
+      filterLabels.includes(label)
+    ) {
+      // this will also trigger a filterItems() call
+      addActiveFilters(label, authData.parsed.teams)
+    } else {
+      // otherwise filter once to ensure any default filters are applied
+      console.log("+++++++++++++++++ useInitialFilters: no support group filter. filter")
+      filterItems()
+    }
 
-    authData.parsed.teams.forEach((team) => {
-      addActiveFilter(label, team)
-    })
+
+
   }, [
     isUrlStateSetup,
     isRunOnce,
     filterLabels,
     authData,
-    addActiveFilter,
-    ,
+    addActiveFilters,
     activeFilters,
   ])
 }
 
-export default usePredefinedFilters
+export default useInitialFilters

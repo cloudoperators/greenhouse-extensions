@@ -156,30 +156,65 @@ const createAlertsSlice = (set, get) => ({
           false,
           "alerts.setAlertsData"
         )
-        // if there are already active filters, filter the new list
-        if (Object.keys(get().filters.activeFilters)?.length > 0) {
+        // if there are already active filters or active predefined filters, filter the new list
+        if (
+          Object.keys(get().filters.activeFilters)?.length > 0 ||
+          get().filters.predefinedFilters.some((filter) => filter.active)
+        ) {
           get().alerts.actions.filterItems()
         }
       },
 
       filterItems: () => {
+        const activePredefinedFilters = get().filters.predefinedFilters.filter(
+          (filter) => filter.active
+        )
+
         set(
           produce((state) => {
             state.alerts.itemsFiltered = state.alerts.items.filter((item) => {
               let visible = true
 
+              // check if the item gets filtered out by the active predefined filters
+              activePredefinedFilters.forEach((filter) => {
+                // test if item labels match the regex matchers of the predefined filter
+                // for each key and value pair in the filter matchers check if the key's value regex matches the item's label value for this key
+                // if it doesn't match, set visible to false and break out of the loop
+                Object.entries(filter.matchers).forEach(([key, value]) => {
+                  if (!new RegExp(value, "i").test(item.labels[key])) {
+                    console.log(
+                      "label: ",
+                      key,
+                      " value: ",
+                      item.labels[key],
+                      " matcher: ",
+                      value,
+                      " result: no match"
+                    )
+                    visible = false
+                    return
+                  }
+                })
+              })
+
+              // if the item is still visible after the predefined filters, check if it gets filtered out by the active filters
               // active filters is an object where the keys correspond to labels and the value is an array of all selected values to be filtered by
               // iterate over all active filter keys and then check if one of the selected values matches the item's value for this key
-              Object.keys(state.filters.activeFilters).forEach((key) => {
-                // if the item's label value for the current label isn't included in the selected filters set visible to false, i.e. filter out item
-                // this automatically leads to different values for the same label to be OR concatenated, while different labels are AND concatenated
-                // so an item must have at least one of the selected values for each filtered label
-                if (
-                  state.filters.activeFilters[key].indexOf(item.labels[key]) < 0
-                ) {
-                  visible = false
-                }
-              })
+              if (visible) {
+                Object.keys(state.filters.activeFilters).forEach((key) => {
+                  // if the item's label value for the current label isn't included in the selected filters set visible to false, i.e. filter out item
+                  // this automatically leads to different values for the same label to be OR concatenated, while different labels are AND concatenated
+                  // so an item must have at least one of the selected values for each filtered label
+                  if (
+                    state.filters.activeFilters[key].indexOf(item.labels[key]) <
+                    0
+                  ) {
+                    // we can break out of the loop here since we already know the item is not visible
+                    visible = false
+                    return
+                  }
+                })
+              }
 
               return visible
             })
@@ -243,6 +278,7 @@ const createFiltersSlice = (set, get) => ({
     labels: [], // labels to be used for filtering: [ "label1", "label2", "label3"]
     activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
     filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
+    predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", active: true/false, matchers: {"label1": "regex1", "label2": "regex2", ...}, initialActive: true/false}, ...]
 
     actions: {
       setLabels: (labels) =>
@@ -304,6 +340,25 @@ const createFiltersSlice = (set, get) => ({
         get().alerts.actions.filterItems()
       },
 
+      // add multiple values for a filter label
+      addActiveFilters: (filterLabel, filterValues) => {
+        set(
+          produce((state) => {
+            // use Set to prevent duplicate values
+            state.filters.activeFilters[filterLabel] = [
+              ...new Set([
+                ...(state.filters.activeFilters[filterLabel] || []),
+                ...filterValues,
+              ]),
+            ]
+          }),
+          false,
+          "filters.addActiveFilters"
+        )
+        // after adding a new filter key and value: filter items
+        get().alerts.actions.filterItems()
+      },
+
       removeActiveFilter: (filterLabel, filterValue) => {
         set(
           produce((state) => {
@@ -320,6 +375,78 @@ const createFiltersSlice = (set, get) => ({
           "filters.removeActiveFilter"
         )
         // after removing a filter: filter items
+        get().alerts.actions.filterItems()
+      },
+
+      setPredefinedFilters: (predefinedFilters) => {
+        set(
+          produce((state) => {
+            state.filters.predefinedFilters = predefinedFilters
+            // for each predefined filter set the active state to the initialActive state
+            state.filters.predefinedFilters.forEach((filter) => {
+              filter.active = filter.initialActive
+            })
+          }),
+          false,
+          "filters.setPredefinedFilters"
+        )
+      },
+
+      setPredefinedFilterActive: (filterName) => {
+        set(
+          produce((state) => {
+            state.filters.predefinedFilters.find(
+              (filter) => filter.name === filterName
+            ).active = true
+          }),
+          false,
+          "filters.setPredefinedFilterActive"
+        )
+        // after activating filter: filter items
+        get().alerts.actions.filterItems()
+      },
+
+      setPredefinedFilterInactive: (filterName) => {
+        set(
+          produce((state) => {
+            state.filters.predefinedFilters.find(
+              (filter) => filter.name === filterName
+            ).active = false
+          }),
+          false,
+          "filters.setPredefinedFilterInactive"
+        )
+        // after deactivating filter: filter items
+        get().alerts.actions.filterItems()
+      },
+
+      togglePredefinedFilter: (filterName) => {
+        set(
+          produce((state) => {
+            const filter = state.filters.predefinedFilters.find(
+              (filter) => filter.name === filterName
+            )
+            filter.active = !filter.active
+          }),
+          false,
+          "filters.togglePredefinedFilter"
+        )
+        // after toggling filter: filter items
+        get().alerts.actions.filterItems()
+      },
+
+      // pass all active filters and set the active state of all filters to true or false accordingly
+      setPredefinedFiltersActivationState: (activeFilterNames) => {
+        set(
+          produce((state) => {
+            state.filters.predefinedFilters.forEach((filter) => {
+              filter.active = activeFilterNames.includes(filter.name)
+            })
+          }),
+          false,
+          "filters.setPredefinedFiltersActivationState"
+        )
+        // after activating filters: filter items
         get().alerts.actions.filterItems()
       },
 
@@ -437,6 +564,8 @@ export const useActiveFilters = () =>
   useStore((state) => state.filters.activeFilters)
 export const useFilterLabelValues = () =>
   useStore((state) => state.filters.filterLabelValues)
+export const usePredefinedFilters = () =>
+  useStore((state) => state.filters.predefinedFilters)
 
 export const useFilterActions = () => useStore((state) => state.filters.actions)
 
