@@ -128,12 +128,22 @@ const SilenceNew = ({ alert }) => {
       endsAt.getHours() + Number.parseInt(newFormState.duration || 4)
     )
 
+    const newSilence = { ...newFormState, startsAt, endsAt }
+
     // submit silence
     post(`${apiEndpoint}/silences`, {
-      body: JSON.stringify({ ...newFormState, startsAt, endsAt }),
+      body: JSON.stringify(newSilence),
     })
       .then((data) => {
         setSuccess(data)
+        // if (data?.silenceID) {
+        //   // add silence to local store
+        //   addLocalItem({
+        //     silence: newSilence,
+        //     id: data.silenceID,
+        //     alertFingerprint: alert.fingerprint,
+        //   })
+        // }
       })
       .catch((error) => {
         setError(error.message)

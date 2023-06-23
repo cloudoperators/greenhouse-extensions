@@ -64,7 +64,7 @@ const AlertDetail = () => {
             <DataGridRow>
               <DataGridHeadCell>Status</DataGridHeadCell>
               <DataGridCell>
-                <AlertStatus status={alert?.status} />
+                <AlertStatus alert={alert} />
               </DataGridCell>
             </DataGridRow>
             <DataGridRow>
