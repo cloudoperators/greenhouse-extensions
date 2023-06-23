@@ -460,3 +460,5 @@ export const useSilencesLocalItems = () =>
 
 export const useSilencesActions = () =>
   useStore((state) => state.silences.actions)
+export const useSilencesAdvanced = () =>
+  useStore((state) => state.silences.advanced)

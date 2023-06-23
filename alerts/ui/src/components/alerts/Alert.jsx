@@ -59,7 +59,7 @@ const Alert = ({ alert }, ref) => {
         <AlertTimestamp startTimestamp={alert.startsAt} />
       </DataGridCell>
       <DataGridCell>
-        <AlertStatus status={alert.status} />
+        <AlertStatus alert={alert} />
       </DataGridCell>
       <DataGridCell>
         <SilenceNew alert={alert} />

@@ -1,25 +1,45 @@
 import React, { useMemo } from "react"
 import { Stack } from "juno-ui-components"
-import { useSilencesItemsHash } from "../../hooks/useStore"
+import {
+  useSilencesItemsHash,
+  useSilencesLocalItems,
+  useSilencesActions,
+} from "../../hooks/useStore"
 
-const AlertStatus = ({ status }) => {
+const AlertStatus = ({ alert }) => {
   const allSilences = useSilencesItemsHash()
+  const localSilences = useSilencesLocalItems()
+  const { getMappingSilences } = useSilencesActions()
 
   const silences = useMemo(() => {
-    if (!status || !status?.silencedBy || !allSilences) return []
-    let silenceIds = status.silencedBy
-    if (!Array.isArray(silenceIds)) silenceIds = [silenceIds]
-    return silenceIds.map((id) => ({ id, silence: allSilences[id] }))
-  }, [status, allSilences])
+    if (!alert) return []
+    return getMappingSilences(alert)
+  }, [alert, allSilences, localSilences])
+
+  const state = useMemo(() => {
+    // find a localSilence with alertFingerprint equals to the alert fingerprint
+    const localSilence = Object.values(localSilences).find(
+      (silence) => silence?.alertFingerprint === alert?.fingerprint
+    )
+    // if silence found in local store, return suppressed
+    if (localSilence)
+      return (
+        <Stack direction="vertical">
+          <span>suppressed</span>
+          <span className="text-xs text-theme-warning">(processing)</span>
+        </Stack>
+      )
+    return <span>{alert?.status?.state}</span>
+  }, [alert?.status.state, localSilences])
 
   return (
     <>
-      {status?.state && <div>{status.state}</div>}
-      {status?.inhibitedBy && status?.inhibitedBy?.length > 0 && (
+      {state && <>{state}</>}
+      {alert?.status?.inhibitedBy?.length > 0 && (
         <div className="text-xs mt-2">
           <Stack direction="vertical">
             <span>Inhibited by:</span>
-            <span>{status.inhibitedBy}</span>
+            <span>{alert?.status?.inhibitedBy}</span>
           </Stack>
         </div>
       )}

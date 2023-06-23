@@ -67,7 +67,6 @@ const refAlertStatus = {
 }
 
 const refSilence = {
-  id: "9d2d3d22-a514-40a9-bf77-c8090aad637d",
   duration: "2",
   comment: "Test description",
   createdBy: "Jane Doe",
@@ -90,14 +89,14 @@ const refSilence = {
   endsAt: "2023-06-21T15:17:28.327Z",
 }
 
-export const createFakeSilenceWith = ({ id }) => {
-  return { ...refSilence, id: id || refSilence.id }
+export const createFakeSilenceWith = (props = {}) => {
+  return { ...refSilence, ...props }
 }
 
-export const createFakeAlertStatustWith = ({ silencedBy }) => {
-  return { ...refAlertStatus, silencedBy: silencedBy || [] }
+export const createFakeAlertStatustWith = (props = {}) => {
+  return { ...refAlertStatus, ...props }
 }
 
-export const createFakeAlertWith = ({ status }) => {
-  return { ...refAlert, status: status || refStatus }
+export const createFakeAlertWith = (props = {}) => {
+  return { ...refAlert, ...props }
 }
