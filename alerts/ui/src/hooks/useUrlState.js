@@ -2,7 +2,7 @@ import { useLayoutEffect, useEffect } from "react"
 import { registerConsumer } from "url-state-provider"
 import {
   useAuthLoggedIn,
-  useFilterLabels,
+  usePredefinedFilters,
   useFilterActions,
   useActiveFilters,
   useShowDetailsFor,
@@ -11,17 +11,19 @@ import {
 
 const urlStateManager = registerConsumer("supernova")
 const ACTIVE_FILTERS = "f"
+const ACTIVE_PREDEFINED_FILTERS = "p"
 const DETAILS_FOR = "d"
 
 const useUrlState = () => {
   const loggedIn = useAuthLoggedIn()
-  const { setActiveFilters } = useFilterActions()
+  const { setActiveFilters, setPredefinedFiltersActivationState } = useFilterActions()
   const activeFilters = useActiveFilters()
+  const predefinedFilters = usePredefinedFilters()
   const { setIsUrlStateSetup, setShowDetailsFor } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
 
   // Set initial state from URL (on login)
-  // do with useLayoutEffect so the ui isn't rendered before
+  // useLayoutEffect so this is done before rendering anything
   useLayoutEffect(() => {
     if (!loggedIn) return
 
@@ -29,11 +31,20 @@ const useUrlState = () => {
       "SUPERNOVA:: setting up state from url::",
       urlStateManager.currentState()
     )
-
+    
+    // get active filters from url state
     const activeFilters = urlStateManager.currentState()?.[ACTIVE_FILTERS]
     if (activeFilters) {
       setActiveFilters(activeFilters)
     }
+
+    // get active predefined filters from url state
+    const activePredefinedFilters = urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTERS]
+    if (activePredefinedFilters) {
+      setPredefinedFiltersActivationState(activePredefinedFilters)
+    }
+
+    // get detail view target from url state
     const detailsFor = urlStateManager.currentState()?.[DETAILS_FOR]
     if (detailsFor) {
       setShowDetailsFor(detailsFor)
@@ -46,7 +57,12 @@ const useUrlState = () => {
     if (!loggedIn) return
     // activeFilters: {cluster:["test1", "test2"], region: ["test1"]}
     urlStateManager.push({ [ACTIVE_FILTERS]: activeFilters })
-  }, [loggedIn, activeFilters])
+    //filter predefined filters to only active ones and return an array of their names
+    const activePredefinedFilters = predefinedFilters.filter(
+      (filter) => filter.active
+    ).map((filter) => filter.name)
+    urlStateManager.push({ [ACTIVE_PREDEFINED_FILTERS]: activePredefinedFilters })
+  }, [loggedIn, activeFilters, predefinedFilters])
 
   // sync URL state for details
   useEffect(() => {

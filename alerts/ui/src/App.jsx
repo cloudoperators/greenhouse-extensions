@@ -12,11 +12,11 @@ import {
 import useCommunication from "./hooks/useCommunication"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
-import usePredefinedFilters from "./hooks/usePredefinedFilters"
+import useInitialFilters from "./hooks/useInitialFilters"
 import useUrlState from "./hooks/useUrlState"
 
 function App(props = {}) {
-  const { setLabels } = useFilterActions()
+  const { setLabels, setPredefinedFilters } = useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const { setExcludedLabels } = useSilencesActions()
 
@@ -24,7 +24,7 @@ function App(props = {}) {
    * load the values from kubernetes plugin config instead of hardcoding
    * */
   // transfer plugin config to store
-  useEffect(() => {
+  useLayoutEffect(() => {
     // load from plugin config
     const filterLabels = [
       "app",
@@ -45,6 +45,29 @@ function App(props = {}) {
     const silenceExcludedLabels = ["status", "pod", "instance"]
     setExcludedLabels(silenceExcludedLabels)
 
+    const predefinedFilters = [
+      {
+        name: "prod-only",
+        displayName: "Prod only",
+        matchers: {
+          // regex that matches anything except regions that start with qa-de- and end with a number that is not 1
+          // regex is used in RegExp constructor, so we need to escape the backslashes for flags
+          region: "^(?!qa-de-(?!1$)\\d+).*",
+        },
+        initialActive: true,
+      },
+      {
+        name: "prod-no-qa",
+        displayName: "Prod no QA",
+        matchers: {
+          // regex that matches anything except regions that start with qa-de-
+          region: "^(?!qa-de-).*",
+        },
+        initialActive: false,
+      }
+    ]
+    setPredefinedFilters(predefinedFilters)
+
     // save the apiEndpoint. It is also used outside the alertManager hook
     setApiEndpoint(props.endpoint)
   }, [])
@@ -52,7 +75,7 @@ function App(props = {}) {
   useCommunication()
   useAlertmanagerAPI(props.endpoint)
   useUrlState()
-  usePredefinedFilters()
+  useInitialFilters()
 
   useLayoutEffect(() => {
     if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
