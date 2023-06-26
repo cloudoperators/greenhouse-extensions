@@ -56,18 +56,24 @@ const useUrlState = () => {
   useEffect(() => {
     if (!loggedIn) return
     // activeFilters: {cluster:["test1", "test2"], region: ["test1"]}
-    urlStateManager.push({ [ACTIVE_FILTERS]: activeFilters })
+    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_FILTERS]: activeFilters })
+  }, [loggedIn, activeFilters])
+
+  // sync URL state for predefined filters
+  useEffect(() => {
+    if (!loggedIn) return
+
     //filter predefined filters to only active ones and return an array of their names
     const activePredefinedFilters = predefinedFilters.filter(
       (filter) => filter.active
     ).map((filter) => filter.name)
-    urlStateManager.push({ [ACTIVE_PREDEFINED_FILTERS]: activePredefinedFilters })
-  }, [loggedIn, activeFilters, predefinedFilters])
+    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_PREDEFINED_FILTERS]: activePredefinedFilters })
+  }, [loggedIn, predefinedFilters])
 
   // sync URL state for details
   useEffect(() => {
     if (!loggedIn) return
-    urlStateManager.push({ [DETAILS_FOR]: detailsFor })
+    urlStateManager.push({...urlStateManager.currentState(), [DETAILS_FOR]: detailsFor })
   }, [loggedIn, detailsFor])
 }
 

@@ -182,15 +182,6 @@ const createAlertsSlice = (set, get) => ({
                 // if it doesn't match, set visible to false and break out of the loop
                 Object.entries(filter.matchers).forEach(([key, value]) => {
                   if (!new RegExp(value, "i").test(item.labels[key])) {
-                    console.log(
-                      "label: ",
-                      key,
-                      " value: ",
-                      item.labels[key],
-                      " matcher: ",
-                      value,
-                      " result: no match"
-                    )
                     visible = false
                     return
                   }
