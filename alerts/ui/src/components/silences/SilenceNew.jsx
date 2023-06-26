@@ -136,14 +136,14 @@ const SilenceNew = ({ alert }) => {
     })
       .then((data) => {
         setSuccess(data)
-        // if (data?.silenceID) {
-        //   // add silence to local store
-        //   addLocalItem({
-        //     silence: newSilence,
-        //     id: data.silenceID,
-        //     alertFingerprint: alert.fingerprint,
-        //   })
-        // }
+        if (data?.silenceID) {
+          // add silence to local store
+          addLocalItem({
+            silence: newSilence,
+            id: data.silenceID,
+            alertFingerprint: alert.fingerprint,
+          })
+        }
       })
       .catch((error) => {
         setError(error.message)
