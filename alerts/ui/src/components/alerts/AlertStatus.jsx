@@ -16,8 +16,6 @@ const AlertStatus = ({ alert }) => {
     return getMappingSilences(alert)
   }, [alert, allSilences, localSilences])
 
-  console.log("silences::::", silences)
-
   const state = useMemo(() => {
     if (!alert) return {}
     return getMappedState(alert)
