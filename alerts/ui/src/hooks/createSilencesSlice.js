@@ -140,9 +140,9 @@ const createSilencesSlice = (set, get) => ({
         const silences = get().silences.actions.getMappingSilences(alert)
         // if there is a silence with type local, return suppressed (processing)
         if (silences?.find((silence) => silence?.type === "local")) {
-          return { type: "suppressed", processing: true }
+          return { type: "suppressed", isProcessing: true }
         }
-        return { type: alert?.status?.state }
+        return { type: alert?.status?.state, isProcessing: false }
       },
       setExcludedLabels: (labels) => {
         if (!labels) return

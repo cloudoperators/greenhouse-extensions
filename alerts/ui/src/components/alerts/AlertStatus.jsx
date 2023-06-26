@@ -25,10 +25,10 @@ const AlertStatus = ({ alert }) => {
     <>
       {state && (
         <>
-          {state?.type === "processing" ? (
+          {state?.isProcessing ? (
             <Stack direction="vertical">
               <span>{state.type}</span>
-              <span className="text-xs text-yellow-500">processing</span>
+              <span className="text-xs text-theme-warning">processing</span>
             </Stack>
           ) : (
             <span>{state.type}</span>

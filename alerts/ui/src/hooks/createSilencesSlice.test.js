@@ -379,4 +379,93 @@ describe("updateLocalItems", () => {
     expect(savedLocalSilences.current["test1local"].id).toEqual("test1local")
     expect(savedLocalSilences.current["test2local"].id).toEqual("test2local")
   })
+  describe("getMappedState", () => {
+    beforeEach(() => {
+      const advanced = renderHook(useSilencesAdvanced)
+      act(() => advanced.result.current.resetSlice())
+    })
+
+    it("retuns supressed (processing) if a local silence is found", () => {
+      const alertActions = renderHook(useAlertsActions)
+      const silenceActions = renderHook(useSilencesActions)
+
+      // create an alert with custom status
+      const status = createFakeAlertStatustWith({
+        silencedBy: ["external"],
+      })
+      const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+      // set the alert
+      act(() =>
+        alertActions.result.current.setAlertsData({
+          items: [alert],
+          counts: countAlerts([alert]),
+        })
+      )
+
+      // create extern silences adding an id to the object
+      const silence = createFakeSilenceWith({ id: "external" })
+      act(() =>
+        silenceActions.result.current.setSilences({
+          items: [silence],
+          itemsHash: { external: silence },
+          itemsByState: { active: [silence] },
+        })
+      )
+
+      // create local silence adding per attribute the id and the alert fingerprint
+      const silence2 = createFakeSilenceWith()
+      act(() =>
+        silenceActions.result.current.addLocalItem({
+          silence: silence2,
+          id: "local",
+          alertFingerprint: "123",
+        })
+      )
+
+      // get mapping silences
+      let mappingResult = null
+      act(
+        () =>
+          (mappingResult = silenceActions.result.current.getMappedState(alert))
+      )
+      expect(mappingResult["type"]).toEqual("suppressed")
+      expect(mappingResult["isProcessing"]).toEqual(true)
+    })
+    it("retuns just the alert.status.state if no local silences found", () => {
+      const alertActions = renderHook(useAlertsActions)
+      const silenceActions = renderHook(useSilencesActions)
+
+      // create an alert with custom status
+      const status = createFakeAlertStatustWith({
+        silencedBy: ["external"],
+      })
+      const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+      // set the alert
+      act(() =>
+        alertActions.result.current.setAlertsData({
+          items: [alert],
+          counts: countAlerts([alert]),
+        })
+      )
+
+      // create extern silences adding an id to the object
+      const silence = createFakeSilenceWith({ id: "external" })
+      act(() =>
+        silenceActions.result.current.setSilences({
+          items: [silence],
+          itemsHash: { external: silence },
+          itemsByState: { active: [silence] },
+        })
+      )
+
+      // get mapping silences
+      let mappingResult = null
+      act(
+        () =>
+          (mappingResult = silenceActions.result.current.getMappedState(alert))
+      )
+      expect(mappingResult["type"]).toEqual(alert?.status?.state)
+      expect(mappingResult["isProcessing"]).toEqual(false)
+    })
+  })
 })
