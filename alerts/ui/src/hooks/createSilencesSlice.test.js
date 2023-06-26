@@ -69,13 +69,13 @@ describe("getMappingSilences", () => {
     act(() => advanced.result.current.resetSlice())
   })
 
-  it("return all silences found extern and intern", () => {
+  it("return all external silences referenced by silencedBy and all local silences with the same fingerprint which are not yet included", () => {
     const alertActions = renderHook(useAlertsActions)
     const silenceActions = renderHook(useSilencesActions)
 
     // create an alert with custom status
     const status = createFakeAlertStatustWith({
-      silencedBy: ["extern", "local"],
+      silencedBy: ["external"],
     })
     const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
     // set the alert
@@ -87,11 +87,11 @@ describe("getMappingSilences", () => {
     )
 
     // create extern silences adding an id to the object
-    const silence = createFakeSilenceWith({ id: "extern" })
+    const silence = createFakeSilenceWith({ id: "external" })
     act(() =>
       silenceActions.result.current.setSilences({
         items: [silence],
-        itemsHash: { extern: silence },
+        itemsHash: { external: silence },
         itemsByState: { active: [silence] },
       })
     )
@@ -114,8 +114,11 @@ describe("getMappingSilences", () => {
           silenceActions.result.current.getMappingSilences(alert))
     )
     expect(mappingResult.length).toEqual(2)
-    expect(mappingResult.map((item) => item.id)).toContainEqual("extern")
+    expect(mappingResult.map((item) => item.id)).toContainEqual("external")
     expect(mappingResult.map((item) => item.id)).toContainEqual("local")
+    expect(mappingResult.find((item) => item.id === "local").type).toEqual(
+      "local"
+    )
   })
 
   it("return silences also when alert silencedBy is just a string", () => {
@@ -123,7 +126,7 @@ describe("getMappingSilences", () => {
     const silenceActions = renderHook(useSilencesActions)
 
     // create an alert
-    const status = createFakeAlertStatustWith({ silencedBy: "local" })
+    const status = createFakeAlertStatustWith({ silencedBy: "external" })
     const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
     // set the alert
     act(() =>
@@ -134,10 +137,107 @@ describe("getMappingSilences", () => {
     )
 
     // create local silence
-    const silence = createFakeSilenceWith()
+    const silence = createFakeSilenceWith({ id: "external" })
+    act(() =>
+      silenceActions.result.current.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { active: [silence] },
+      })
+    )
+
+    // get mapping silences
+    let mappingResult = null
+    act(
+      () =>
+        (mappingResult =
+          silenceActions.result.current.getMappingSilences(alert))
+    )
+    expect(mappingResult.length).toEqual(1)
+    expect(mappingResult.map((item) => item.id)).toContainEqual("external")
+  })
+  it("ignores 'local silences' which are already included in silencedBy and exist as external silence", () => {
+    const alertActions = renderHook(useAlertsActions)
+    const silenceActions = renderHook(useSilencesActions)
+
+    // create an alert with custom status
+    const status = createFakeAlertStatustWith({
+      silencedBy: ["external", "externalAndLocal"],
+    })
+    const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+    // set the alert
+    act(() =>
+      alertActions.result.current.setAlertsData({
+        items: [alert],
+        counts: countAlerts([alert]),
+      })
+    )
+
+    // create external silences adding an id to the object
+    const silence = createFakeSilenceWith({ id: "external" })
+    const silence2 = createFakeSilenceWith({ id: "externalAndLocal" })
+    act(() =>
+      silenceActions.result.current.setSilences({
+        items: [silence, silence2],
+        itemsHash: { external: silence, externalAndLocal: silence2 },
+        itemsByState: { active: [silence, silence2] },
+      })
+    )
+
+    // create local silence which already exists as external silence
+    const silence3 = createFakeSilenceWith()
     act(() =>
       silenceActions.result.current.addLocalItem({
-        silence: silence,
+        silence: silence3,
+        id: "externalAndLocal",
+        alertFingerprint: "123",
+      })
+    )
+
+    // get mapping silences
+    let mappingResult = null
+    act(
+      () =>
+        (mappingResult =
+          silenceActions.result.current.getMappingSilences(alert))
+    )
+    expect(mappingResult.length).toEqual(2)
+    // checking type to be undefined means that the silence is not local
+    expect(mappingResult[0].type).toEqual(undefined)
+    expect(mappingResult[1].type).toEqual(undefined)
+  })
+  it("returns local silences when the id exists in silencedBy but it does not exist as external silence", () => {
+    const alertActions = renderHook(useAlertsActions)
+    const silenceActions = renderHook(useSilencesActions)
+
+    // create an alert with custom status
+    const status = createFakeAlertStatustWith({
+      silencedBy: ["external", "local"],
+    })
+    const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+    // set the alert
+    act(() =>
+      alertActions.result.current.setAlertsData({
+        items: [alert],
+        counts: countAlerts([alert]),
+      })
+    )
+
+    // create external silences adding an id to the object
+    const silence = createFakeSilenceWith({ id: "external" })
+    act(() =>
+      silenceActions.result.current.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { active: [silence] },
+      })
+    )
+
+    // create local silence which already exists as external silence
+    const silence2 = createFakeSilenceWith()
+    act(() =>
+      silenceActions.result.current.addLocalItem({
+        silence: silence2,
         id: "local",
         alertFingerprint: "123",
       })
@@ -150,8 +250,10 @@ describe("getMappingSilences", () => {
         (mappingResult =
           silenceActions.result.current.getMappingSilences(alert))
     )
-    expect(mappingResult.length).toEqual(1)
-    expect(mappingResult.map((item) => item.id)).toContainEqual("local")
+    expect(mappingResult.length).toEqual(2)
+    // checking type to be undefined means that the silence is not local
+    expect(mappingResult[0].type).toEqual(undefined)
+    expect(mappingResult[1].type).toEqual("local")
   })
 })
 
