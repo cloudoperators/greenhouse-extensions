@@ -1,6 +1,6 @@
 import React from "react"
 
-import { SwitchRow } from "juno-ui-components"
+import { Button, Stack } from "juno-ui-components"
 import { useFilterActions, usePredefinedFilters } from "../../hooks/useStore"
 
 
@@ -9,18 +9,17 @@ const PredefinedFilters = () => {
   const predefinedFilters = usePredefinedFilters()
 
   return (
-    <div>
+    <Stack gap="2" wrap={true}>
       { predefinedFilters.map((filter) => (
-        <SwitchRow
+        <Button
           label={filter.displayName}
-          name={filter.name}
-          on={filter.active}
-          onChange={() => togglePredefinedFilter(filter.name)}
+          variant={filter.active ? "primary" : "default"}
+          onClick={() => togglePredefinedFilter(filter.name)}
           key={filter.name}
         />
       ))}
 
-    </div>
+    </Stack>
   )
 }
 

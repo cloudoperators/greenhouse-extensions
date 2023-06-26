@@ -44,7 +44,6 @@ const useInitialFilters = () => {
       addActiveFilters(label, authData.parsed.teams)
     } else {
       // otherwise filter once to ensure any default filters are applied
-      console.log("+++++++++++++++++ useInitialFilters: no support group filter. filter")
       filterItems()
     }
 
