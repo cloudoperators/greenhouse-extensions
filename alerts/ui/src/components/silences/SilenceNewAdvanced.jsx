@@ -7,7 +7,7 @@ const detailsCss = (show) => {
       transition-all
       ease-out
       max-h-0
-      overflow-y-scroll
+      overflow-y-auto
 			${show ? "duration-1000 max-h-[34rem]" : `duration-300`}
 		`
     .replace(/\n/g, " ")
@@ -42,25 +42,27 @@ const SilenceNewAdvanced = ({ matchers, onMatchersChanged }) => {
             </a>
           </div>
 
-          <div className="advance-area overflow-hidden">
+          <div className="advanced-area overflow-hidden">
             <div className={detailsCss(showDetails)}>
               <p className="mt-2">Matchers attached to this silence</p>
               <div className="mt-2">
                 <SilenceMatchers
                   matchers={matchers.filter((m) => !m.excluded)}
-                  onCloseCallback={onMatchersChanged}
+                  onClickCallback={onMatchersChanged}
                 />
               </div>
               <p className="mt-4">
                 The default silence configuration excludes the following
-                matchers. This means that any alerts triggered by these matchers
-                can be silenced together. If you want to include any of these
-                matchers in the default configuration, simply click on them.
+                matchers because they typically make the silence too specific 
+                which can lead to alerts bypassing the silence unexpectedly. 
+                If you do want to include any of these matchers in the silence 
+                configuration, click on them to add them. If you change your mind,
+                click again to remove.
               </p>
               <div className="my-2">
                 <SilenceMatchers
                   matchers={matchers.filter((m) => m.excluded)}
-                  onCloseCallback={onMatchersChanged}
+                  onClickCallback={onMatchersChanged}
                 />
               </div>
             </div>
