@@ -36,8 +36,12 @@ const createSilencesSlice = (set, get) => ({
         // check if any local item can be removed
         get().silences.actions.updateLocalItems()
       },
+      /* 
+      Save temporary created silences to be able to display which alert is silenced
+      and who silenced it until the next alert fetch contains the silencedBy reference
+      */
       addLocalItem: ({ silence, id, alertFingerprint }) => {
-        // enforce silences with ids and alertFingerprint
+        // enforce silences with id and alertFingerprint
         if (!silence || !id || !alertFingerprint) return
         return set(
           produce((state) => {
@@ -55,26 +59,26 @@ const createSilencesSlice = (set, get) => ({
           "silences.addLocalItem"
         )
       },
+      /*
+      Remove local silences which are already referenced by an alert
+      */
       updateLocalItems: () => {
         const allSilences = get().silences.itemsHash
         let newLocalSilences = { ...get().silences.localItems }
         Object.keys(newLocalSilences).forEach((key) => {
-          // check for the alert reference
-          if (newLocalSilences[key]?.alertFingerprint) {
-            const alert = get().alerts.actions.getAlertByFingerprint(
-              newLocalSilences[key]?.alertFingerprint
-            )
+          const alert = get().alerts.actions.getAlertByFingerprint(
+            newLocalSilences[key]?.alertFingerprint
+          )
 
-            // check if the alert has already the silence reference and if the extern silence already exists
-            const silencedBy = alert?.status?.silencedBy
-            if (
-              silencedBy?.length > 0 &&
-              silencedBy?.includes(newLocalSilences[key]?.id) &&
-              allSilences[key]
-            ) {
-              // mark to remove silence
-              newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
-            }
+          // check if the alert has already the silence reference and if the extern silence already exists
+          const silencedBy = alert?.status?.silencedBy
+          if (
+            silencedBy?.length > 0 &&
+            silencedBy?.includes(newLocalSilences[key]?.id) &&
+            allSilences[key]
+          ) {
+            // mark to remove silence
+            newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
           }
         })
 
@@ -94,23 +98,51 @@ const createSilencesSlice = (set, get) => ({
           "silences.updateLocalItems"
         )
       },
+      /* 
+      Given an alert fingerprint, this function returns all silences referenced by silencingBy. It also 
+      check if there are local silences with the same alert fingerprint and return them as well.
+      */
       getMappingSilences: (alert) => {
         if (!alert) return
-        const silences = get().silences.itemsHash
-        const localSilences = get().silences.localItems
-        const allSilences = { ...silences, ...localSilences }
+        const externalSilences = get().silences.itemsHash
         let silencedBy = alert?.status?.silencedBy || []
 
         // ensure silencedBy is an array
         if (!Array.isArray(silencedBy)) silencedBy = [silencedBy]
-        const mappingSilences = silencedBy.map((id) => allSilences[id])
+        let mappingSilences = []
+        silencedBy.forEach((id) => {
+          if (externalSilences[id]) {
+            mappingSilences.push(externalSilences[id])
+          }
+        })
+
+        // add local silences
+        let localSilences = get().silences.localItems
+        Object.keys(localSilences).forEach((silenceID) => {
+          // if there is already a silence with the same id, skip it and exists as external silence
+          if (silencedBy.includes(silenceID) && externalSilences[silenceID])
+            return
+          // if the local silence has the same alert fingerprint, add it to the mapping silences
+          if (
+            localSilences[silenceID]?.alertFingerprint === alert?.fingerprint
+          ) {
+            mappingSilences.push(localSilences[silenceID])
+          }
+        })
         return mappingSilences
       },
+      /*
+      Return the state of an alert. If the alert is silenced by a local silence, the state is suppressed (processing)
+      */
       getMappedState: (alert) => {
         if (!alert) return
+        // get all silences (local and external)
         const silences = get().silences.actions.getMappingSilences(alert)
-        const state = silences?.length > 0 ? "suppressed" : alert?.status?.state
-        return state
+        // if there is a silence with type local, return suppressed (processing)
+        if (silences?.find((silence) => silence?.type === "local")) {
+          return { type: "suppressed", processing: true }
+        }
+        return { type: alert?.status?.state }
       },
       setExcludedLabels: (labels) => {
         if (!labels) return
