@@ -2,23 +2,23 @@ import { useLayoutEffect, useEffect } from "react"
 import { registerConsumer } from "url-state-provider"
 import {
   useAuthLoggedIn,
-  usePredefinedFilters,
   useFilterActions,
   useActiveFilters,
+  useActivePredefinedFilter,
   useShowDetailsFor,
   useGlobalsActions,
 } from "./useStore"
 
 const urlStateManager = registerConsumer("supernova")
 const ACTIVE_FILTERS = "f"
-const ACTIVE_PREDEFINED_FILTERS = "p"
+const ACTIVE_PREDEFINED_FILTER = "p"
 const DETAILS_FOR = "d"
 
 const useUrlState = () => {
   const loggedIn = useAuthLoggedIn()
-  const { setActiveFilters, setPredefinedFiltersActivationState } = useFilterActions()
+  const { setActiveFilters, setActivePredefinedFilter } = useFilterActions()
   const activeFilters = useActiveFilters()
-  const predefinedFilters = usePredefinedFilters()
+  const activePredefinedFilter = useActivePredefinedFilter()
   const { setIsUrlStateSetup, setShowDetailsFor } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
 
@@ -39,9 +39,9 @@ const useUrlState = () => {
     }
 
     // get active predefined filters from url state
-    const activePredefinedFilters = urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTERS]
-    if (activePredefinedFilters) {
-      setPredefinedFiltersActivationState(activePredefinedFilters)
+    const activePredefinedFilter = urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTER]
+    if (activePredefinedFilter) {
+      setActivePredefinedFilter(activePredefinedFilter)
     }
 
     // get detail view target from url state
@@ -57,23 +57,24 @@ const useUrlState = () => {
     if (!loggedIn) return
     // activeFilters: {cluster:["test1", "test2"], region: ["test1"]}
     urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_FILTERS]: activeFilters })
+    // urlStateManager.push({[ACTIVE_FILTERS]: activeFilters }, {merge: true}) // why this no worky?
+    // console.log("===== urlstate filter: ", urlStateManager.currentState())
   }, [loggedIn, activeFilters])
 
   // sync URL state for predefined filters
   useEffect(() => {
     if (!loggedIn) return
-
-    //filter predefined filters to only active ones and return an array of their names
-    const activePredefinedFilters = predefinedFilters.filter(
-      (filter) => filter.active
-    ).map((filter) => filter.name)
-    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_PREDEFINED_FILTERS]: activePredefinedFilters })
-  }, [loggedIn, predefinedFilters])
+    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter })
+    // urlStateManager.push({[ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter }, {merge: true})
+    // console.log("===== urlstate predef: ", urlStateManager.currentState())
+  }, [loggedIn, activePredefinedFilter])
 
   // sync URL state for details
   useEffect(() => {
     if (!loggedIn) return
     urlStateManager.push({...urlStateManager.currentState(), [DETAILS_FOR]: detailsFor })
+    // urlStateManager.push({[DETAILS_FOR]: detailsFor }, {merge: true})
+    // console.log("===== urlstate details: ", urlStateManager.currentState())
   }, [loggedIn, detailsFor])
 }
 

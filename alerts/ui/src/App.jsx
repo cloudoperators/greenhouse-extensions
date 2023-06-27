@@ -16,7 +16,7 @@ import useInitialFilters from "./hooks/useInitialFilters"
 import useUrlState from "./hooks/useUrlState"
 
 function App(props = {}) {
-  const { setLabels, setPredefinedFilters } = useFilterActions()
+  const { setLabels, setPredefinedFilters, setActivePredefinedFilter } = useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const { setExcludedLabels } = useSilencesActions()
 
@@ -45,28 +45,41 @@ function App(props = {}) {
     const silenceExcludedLabels = ["status", "pod", "instance"]
     setExcludedLabels(silenceExcludedLabels)
 
+    // predefined filters config
     const predefinedFilters = [
       {
-        name: "prod-only",
-        displayName: "Prod only",
+        name: "prod",
+        displayName: "Prod",
+        matchers: {
+          // regex that matches anything except regions that start with qa-de-
+          region: "^(?!qa-de-).*",
+        },
+      },
+      {
+        name: "prod-no-qa",
+        displayName: "Prod + QA",
         matchers: {
           // regex that matches anything except regions that start with qa-de- and end with a number that is not 1
           // regex is used in RegExp constructor, so we need to escape the backslashes for flags
           region: "^(?!qa-de-(?!1$)\\d+).*",
         },
-        initialActive: true,
       },
       {
-        name: "prod-no-qa",
-        displayName: "Prod no QA",
+        name: "labs",
+        displayName: "Labs",
         matchers: {
-          // regex that matches anything except regions that start with qa-de-
-          region: "^(?!qa-de-).*",
+          // regex that matches all regions that start with qa-de- and end with a number that is not 1
+          // regex is used in RegExp constructor, so we need to escape the backslashes for flags
+          region: "^qa-de-(?!1$)\\d+",
         },
-        initialActive: false,
-      }
+      },
     ]
     setPredefinedFilters(predefinedFilters)
+
+    // initially active predefined filter
+    const initialPredefinedFilter = "prod"
+    setActivePredefinedFilter(initialPredefinedFilter)
+
 
     // save the apiEndpoint. It is also used outside the alertManager hook
     setApiEndpoint(props.endpoint)
