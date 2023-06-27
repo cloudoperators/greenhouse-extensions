@@ -16,7 +16,8 @@ const DETAILS_FOR = "d"
 
 const useUrlState = () => {
   const loggedIn = useAuthLoggedIn()
-  const { setActiveFilters, setActivePredefinedFilter } = useFilterActions()
+  const { setActiveFilters, setPredefinedFiltersActivationState } =
+    useFilterActions()
   const activeFilters = useActiveFilters()
   const activePredefinedFilter = useActivePredefinedFilter()
   const { setIsUrlStateSetup, setShowDetailsFor } = useGlobalsActions()
@@ -31,7 +32,7 @@ const useUrlState = () => {
       "SUPERNOVA:: setting up state from url::",
       urlStateManager.currentState()
     )
-    
+
     // get active filters from url state
     const activeFilters = urlStateManager.currentState()?.[ACTIVE_FILTERS]
     if (activeFilters) {
@@ -39,9 +40,10 @@ const useUrlState = () => {
     }
 
     // get active predefined filters from url state
-    const activePredefinedFilter = urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTER]
-    if (activePredefinedFilter) {
-      setActivePredefinedFilter(activePredefinedFilter)
+    const activePredefinedFilters =
+      urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTERS]
+    if (activePredefinedFilters) {
+      setPredefinedFiltersActivationState(activePredefinedFilters)
     }
 
     // get detail view target from url state
@@ -56,25 +58,29 @@ const useUrlState = () => {
   useEffect(() => {
     if (!loggedIn) return
     // activeFilters: {cluster:["test1", "test2"], region: ["test1"]}
-    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_FILTERS]: activeFilters })
-    // urlStateManager.push({[ACTIVE_FILTERS]: activeFilters }, {merge: true}) // why this no worky?
-    // console.log("===== urlstate filter: ", urlStateManager.currentState())
+    urlStateManager.push({ [ACTIVE_FILTERS]: activeFilters }, { merge: true })
   }, [loggedIn, activeFilters])
 
   // sync URL state for predefined filters
   useEffect(() => {
     if (!loggedIn) return
-    urlStateManager.push({...urlStateManager.currentState(), [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter })
-    // urlStateManager.push({[ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter }, {merge: true})
-    // console.log("===== urlstate predef: ", urlStateManager.currentState())
-  }, [loggedIn, activePredefinedFilter])
+
+    //filter predefined filters to only active ones and return an array of their names
+    const activePredefinedFilters = predefinedFilters
+      .filter((filter) => filter.active)
+      .map((filter) => filter.name)
+    urlStateManager.push(
+      {
+        [ACTIVE_PREDEFINED_FILTERS]: activePredefinedFilters,
+      },
+      { merge: true }
+    )
+  }, [loggedIn, predefinedFilters])
 
   // sync URL state for details
   useEffect(() => {
     if (!loggedIn) return
-    urlStateManager.push({...urlStateManager.currentState(), [DETAILS_FOR]: detailsFor })
-    // urlStateManager.push({[DETAILS_FOR]: detailsFor }, {merge: true})
-    // console.log("===== urlstate details: ", urlStateManager.currentState())
+    urlStateManager.push({ [DETAILS_FOR]: detailsFor }, { merge: true })
   }, [loggedIn, detailsFor])
 }
 
