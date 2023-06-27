@@ -225,7 +225,12 @@ const createAlertsSlice = (set, get) => ({
           "alerts.filterItems"
         )
         get().alerts.actions.updateFilteredCounts()
-        get().alerts.actions.setRegionsFiltered(Array.from(filteredRegions).sort())
+        if (filteredRegions.size > 0) {
+          get().alerts.actions.setRegionsFiltered(Array.from(filteredRegions).sort())
+        } else {
+          // if nothing was filtered out, set the filtered regions to all available regions
+          get().alerts.actions.setRegionsFiltered(get().alerts.regions)
+        }
       },
 
       setFilteredItems: (items) => {
