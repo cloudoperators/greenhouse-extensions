@@ -70,6 +70,9 @@ const refSilence = {
   duration: "2",
   comment: "Test description",
   createdBy: "Jane Doe",
+  status: {
+    state: "active",
+  },
   matchers: [
     { name: "cluster", value: "s-na-us-1", isRegex: false },
     { name: "cluster_type", value: "scaleout", isRegex: false },

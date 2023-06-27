@@ -165,6 +165,22 @@ const createSilencesSlice = (set, get) => ({
           "silences.setExcludedLabels"
         )
       },
+      /*
+      Find all silences in itemsByState with key expired that matches all labels (key&value) from the alert
+      */
+      getExpiredSilences: (alert) => {
+        if (!alert) return
+        const { labels } = alert
+        const silences = get().silences.itemsByState?.expired || []
+
+        return silences.filter((silence) => {
+          const silenceMatchers = silence?.matchers || []
+          // The every() method tests whether all elements in the array pass the test implemented by the provided function. It returns a Boolean value.
+          return silenceMatchers.every((matcher) => {
+            return labels[matcher.name] === matcher.value
+          })
+        })
+      },
       setIsLoading: (value) =>
         set(
           (state) => ({ silences: { ...state.silences, isLoading: value } }),
