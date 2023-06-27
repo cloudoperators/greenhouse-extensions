@@ -468,4 +468,84 @@ describe("updateLocalItems", () => {
       expect(mappingResult["isProcessing"]).toEqual(false)
     })
   })
+  describe("getExpiredSilences", () => {
+    beforeEach(() => {
+      const advanced = renderHook(useSilencesAdvanced)
+      act(() => advanced.result.current.resetSlice())
+    })
+
+    it("returns all silences which are expired matching the alert labels", () => {
+      const alertActions = renderHook(useAlertsActions)
+      const silenceActions = renderHook(useSilencesActions)
+
+      // create an alert with custom status
+      const alert = createFakeAlertWith({
+        fingerprint: "123",
+        labels: {
+          severity: "critical",
+          support_group: "containers",
+          service: "automation",
+        },
+      })
+      // set the alert
+      act(() =>
+        alertActions.result.current.setAlertsData({
+          items: [alert],
+          counts: countAlerts([alert]),
+        })
+      )
+
+      // create external silences with different labels (service compute)
+      const silence = createFakeSilenceWith({
+        id: "test1",
+        status: {
+          state: "expired",
+        },
+        matchers: [
+          { name: "severity", value: "critical", isRegex: false },
+          { name: "support_group", value: "compute", isRegex: false },
+          { name: "service", value: "compute", isRegex: false },
+        ],
+      })
+      // create an external silences with matching labels
+      const silence2 = createFakeSilenceWith({
+        id: "test2",
+        status: {
+          state: "expired",
+        },
+        matchers: [
+          { name: "severity", value: "critical", isRegex: false },
+          { name: "support_group", value: "containers", isRegex: false },
+          { name: "service", value: "automation", isRegex: false },
+        ],
+      })
+      // create an external silences with less labels but matching
+      const silence3 = createFakeSilenceWith({
+        id: "test3",
+        status: {
+          state: "expired",
+        },
+        matchers: [
+          { name: "severity", value: "info", isRegex: false },
+          { name: "support_group", value: "containers", isRegex: false },
+        ],
+      })
+      act(() =>
+        silenceActions.result.current.setSilences({
+          items: [silence, silence2, silence3],
+          itemsHash: { test1: silence, test2: silence2, test3: silence3 },
+          itemsByState: { expired: [silence, silence2, silence3] },
+        })
+      )
+
+      // get mapping silences
+      let expResult = null
+      act(
+        () =>
+          (expResult = silenceActions.result.current.getExpiredSilences(alert))
+      )
+      expect(expResult.length).toEqual(1)
+      expect(expResult[0].id).toEqual("test2")
+    })
+  })
 })

@@ -4,7 +4,6 @@ import { sortSilencesByState } from "../lib/utils"
 
 const fetchAction = (endpoint) => {
   return get(`${endpoint}/silences`, {}).then((items) => {
-
     // convert items to hash to easear access
     const itemsHash = items.reduce((itemsHash, silence) => {
       itemsHash[silence.id] = silence
@@ -19,7 +18,7 @@ const fetchAction = (endpoint) => {
       action: "SILENCES_UPDATE",
       silences: items,
       silencesHash: itemsHash,
-      silencesBySate: itemsByState,      
+      silencesBySate: itemsByState,
     })
   })
 }

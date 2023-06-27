@@ -60,9 +60,6 @@ export const sortSilencesByState = (silences) => {
     if (!sortedSilences[state]) sortedSilences[state] = [] // init
     sortedSilences[state].push(silences)
   })
-
-  console.log("silences sorted:::::::: ", sortedSilences)
-
   return sortedSilences
 }
 
