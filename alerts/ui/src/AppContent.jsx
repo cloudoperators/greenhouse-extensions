@@ -17,6 +17,7 @@ import Filters from "./components/filters/Filters"
 import WelcomeView from "./components/WelcomeView"
 import { parseError } from "./helpers"
 import AlertDetail from "./components/alerts/AlertDetail"
+import PredefinedFilters from "./components/filters/PredefinedFilters"
 
 const AppContent = (props) => {
   const { addMessage } = useActions()
@@ -50,6 +51,7 @@ const AppContent = (props) => {
       <Messages />
       {loggedIn && !authError ? (
         <>
+          
           <AlertDetail />
           <RegionsList />
           {isAlertsLoading ? (
@@ -59,6 +61,7 @@ const AppContent = (props) => {
             </Stack>
           ) : (
             <>
+              <PredefinedFilters />
               <Filters />
               <StatusBar
                 totalCounts={totalCounts}
