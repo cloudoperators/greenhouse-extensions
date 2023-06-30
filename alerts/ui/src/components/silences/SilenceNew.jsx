@@ -66,7 +66,7 @@ const setupMatchers = (alertLabels, excludedLabels, filterLabels) => {
 
 const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
-const SilenceNew = ({ alert }) => {
+const SilenceNew = ({ alert, variant, size }) => {
   const authData = useAuthData()
   const apiEndpoint = useGlobalsApiEndpoint()
   const excludedLabelsHash = useSilencesExcludedLabelsHash()
@@ -169,7 +169,8 @@ const SilenceNew = ({ alert }) => {
   return (
     <>
       <Button
-        size="small"
+        size={size}
+        variant={variant}
         onClick={() => setDisplayNewSilence(!displayNewSilence)}
       >
         Silence
