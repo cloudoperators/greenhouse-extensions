@@ -24,6 +24,7 @@ import AlertLabels from "./shared/AlertLabels"
 import SilenceNew from "../silences/SilenceNew"
 import AlertStatus from "./AlertStatus"
 import AlertRegion from "./shared/AlertRegion"
+import AlertSilences from "./AlertSilences"
 
 const AlertDetail = () => {
   const alertID = useShowDetailsFor()
@@ -60,58 +61,62 @@ const AlertDetail = () => {
             "Not found - the alert is probably not firing at the moment"
           )
         ) : (
-          <DataGrid columns={2}>
-            <DataGridRow>
-              <DataGridHeadCell>Status</DataGridHeadCell>
-              <DataGridCell>
-                <AlertStatus alert={alert} />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Firing Since</DataGridHeadCell>
-              <DataGridCell>
-                <AlertTimestamp startTimestamp={alert?.startsAt} />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Service</DataGridHeadCell>
-              <DataGridCell>{alert?.labels?.service}</DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Region</DataGridHeadCell>
-              <DataGridCell>
-                <AlertRegion
-                  region={alert?.labels?.region}
-                  cluster={alert?.labels?.cluster}
-                />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Description</DataGridHeadCell>
-              <DataGridCell>
-                <AlertDescription
-                  description={alert?.annotations?.description}
-                />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Links</DataGridHeadCell>
-              <DataGridCell>
-                <AlertLinks alert={alert} />
-              </DataGridCell>
-            </DataGridRow>
-            <DataGridRow>
-              <DataGridHeadCell>Labels</DataGridHeadCell>
-              <DataGridCell>
-                <AlertLabels alert={alert} />
-              </DataGridCell>
-            </DataGridRow>
-          </DataGrid>
+          <>
+            <DataGrid columns={2}>
+              <DataGridRow>
+                <DataGridHeadCell>Status</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertStatus alert={alert} />
+                </DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Firing Since</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertTimestamp startTimestamp={alert?.startsAt} />
+                </DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Service</DataGridHeadCell>
+                <DataGridCell>{alert?.labels?.service}</DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Region</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertRegion
+                    region={alert?.labels?.region}
+                    cluster={alert?.labels?.cluster}
+                  />
+                </DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Description</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertDescription
+                    description={alert?.annotations?.description}
+                  />
+                </DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Links</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertLinks alert={alert} />
+                </DataGridCell>
+              </DataGridRow>
+              <DataGridRow>
+                <DataGridHeadCell>Labels</DataGridHeadCell>
+                <DataGridCell>
+                  <AlertLabels alert={alert} />
+                </DataGridCell>
+              </DataGridRow>
+            </DataGrid>
+
+            <AlertSilences alert={alert} />
+          </>
         )}
       </PanelBody>
 
       <PanelFooter>
-        <SilenceNew alert={alert} />
+        <SilenceNew alert={alert} variant="primary" />
       </PanelFooter>
     </Panel>
   )

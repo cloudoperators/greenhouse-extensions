@@ -62,7 +62,7 @@ const Alert = ({ alert }, ref) => {
         <AlertStatus alert={alert} />
       </DataGridCell>
       <DataGridCell>
-        <SilenceNew alert={alert} />
+        <SilenceNew alert={alert} size="small" />
       </DataGridCell>
     </DataGridRow>
   )
