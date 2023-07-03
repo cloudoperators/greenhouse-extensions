@@ -548,4 +548,120 @@ describe("updateLocalItems", () => {
       expect(expResult[0].id).toEqual("test2")
     })
   })
+  describe("getLatestMappingSilence", () => {
+    beforeEach(() => {
+      const advanced = renderHook(useSilencesAdvanced)
+      act(() => advanced.result.current.resetSlice())
+    })
+    it("returns the silence with the latest endsAt timestamp when local", () => {
+      const alertActions = renderHook(useAlertsActions)
+      const silenceActions = renderHook(useSilencesActions)
+
+      // create an alert with custom status
+      const status = createFakeAlertStatustWith({
+        silencedBy: ["external"],
+      })
+      const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+      // set the alert
+      act(() =>
+        alertActions.result.current.setAlertsData({
+          items: [alert],
+          counts: countAlerts([alert]),
+        })
+      )
+
+      // create extern silences adding an id to the object
+      const silence = createFakeSilenceWith({
+        id: "external",
+        endsAt: "2023-06-21T15:17:28.327Z",
+      })
+      const silence2 = createFakeSilenceWith({
+        id: "external2",
+        endsAt: "2023-06-21T16:18:28.327Z",
+      })
+      act(() =>
+        silenceActions.result.current.setSilences({
+          items: [silence, silence2],
+          itemsHash: { external: silence, external2: silence2 },
+          itemsByState: { active: [silence, silence2] },
+        })
+      )
+
+      // create local silence adding per attribute the id and the alert fingerprint
+      const silence3 = createFakeSilenceWith({
+        endsAt: "2023-06-21T19:17:28.327Z",
+      })
+      act(() =>
+        silenceActions.result.current.addLocalItem({
+          silence: silence3,
+          id: "local",
+          alertFingerprint: "123",
+        })
+      )
+
+      // get mapping silences
+      let mappingResult = null
+      act(
+        () =>
+          (mappingResult =
+            silenceActions.result.current.getLatestMappingSilence(alert))
+      )
+      expect(mappingResult.id).toEqual("local")
+    })
+    it("returns the silence with the latest endsAt timestamp when external", () => {
+      const alertActions = renderHook(useAlertsActions)
+      const silenceActions = renderHook(useSilencesActions)
+
+      // create an alert with custom status
+      const status = createFakeAlertStatustWith({
+        silencedBy: ["external", "external2"],
+      })
+      const alert = createFakeAlertWith({ status: status, fingerprint: "123" })
+      // set the alert
+      act(() =>
+        alertActions.result.current.setAlertsData({
+          items: [alert],
+          counts: countAlerts([alert]),
+        })
+      )
+
+      // create extern silences adding an id to the object
+      const silence = createFakeSilenceWith({
+        id: "external",
+        endsAt: "2023-06-21T15:17:28.327Z",
+      })
+      const silence2 = createFakeSilenceWith({
+        id: "external2",
+        endsAt: "2023-06-21T20:18:28.327Z",
+      })
+      act(() =>
+        silenceActions.result.current.setSilences({
+          items: [silence, silence2],
+          itemsHash: { external: silence, external2: silence2 },
+          itemsByState: { active: [silence, silence2] },
+        })
+      )
+
+      // create local silence adding per attribute the id and the alert fingerprint
+      const silence3 = createFakeSilenceWith({
+        endsAt: "2023-06-21T19:17:28.327Z",
+      })
+      act(() =>
+        silenceActions.result.current.addLocalItem({
+          silence: silence3,
+          id: "local",
+          alertFingerprint: "123",
+        })
+      )
+
+      // get mapping silences
+      let mappingResult = null
+      act(
+        () =>
+          (mappingResult =
+            silenceActions.result.current.getLatestMappingSilence(alert))
+      )
+      expect(mappingResult.id).toEqual("external2")
+    })
+  })
 })

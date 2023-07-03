@@ -181,6 +181,21 @@ const createSilencesSlice = (set, get) => ({
           })
         })
       },
+      /*
+        Returns the silence (including the local ones) with the latest expiration time for an alert. Useful to display when the alert will be active again.
+      */
+      getLatestMappingSilence: (alert) => {
+        if (!alert) return
+        const silences = get().silences.actions.getMappingSilences(alert)
+
+        console.log("silences", silences)
+
+        if (!silences?.length) return
+        // return the latest expired silence
+        return silences.reduce((prev, current) =>
+          prev.endsAt > current.endsAt ? prev : current
+        )
+      },
       setIsLoading: (value) =>
         set(
           (state) => ({ silences: { ...state.silences, isLoading: value } }),
