@@ -116,7 +116,7 @@ const AlertDetail = () => {
       </PanelBody>
 
       <PanelFooter>
-        <SilenceNew alert={alert} variant="primary" />
+        {alert && <SilenceNew alert={alert} variant="primary" /> }
       </PanelFooter>
     </Panel>
   )
