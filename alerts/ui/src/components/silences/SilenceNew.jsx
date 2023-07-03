@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import {
   Modal,
   Button,
@@ -16,10 +16,12 @@ import {
   useFilterLabels,
   useGlobalsApiEndpoint,
   useSilencesActions,
+  useSilencesLocalItems,
 } from "../../hooks/useStore"
 import { post } from "../../api/client"
 import AlertDescription from "../alerts/shared/AlertDescription"
 import SilenceNewAdvanced from "./SilenceNewAdvanced"
+import { DateTime } from "luxon"
 
 const validateForm = (values) => {
   const invalidItems = {}
@@ -64,14 +66,24 @@ const setupMatchers = (alertLabels, excludedLabels, filterLabels) => {
   return items
 }
 
+const DEFAULT_DURATION_OPTIONS = [
+  { label: "2 hours", value: "2" },
+  { label: "12 hours", value: "12" },
+  { label: "1 day", value: "24" },
+  { label: "3 days", value: "72" },
+  { label: "7 days", value: "168" },
+]
+
 const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
-const SilenceNew = ({ alert, variant, size }) => {
+const SilenceNew = ({ alert }) => {
   const authData = useAuthData()
   const apiEndpoint = useGlobalsApiEndpoint()
   const excludedLabelsHash = useSilencesExcludedLabelsHash()
   const filterLabels = useFilterLabels()
-  const { addLocalItem } = useSilencesActions()
+
+  const { addLocalItem, getMappingSilences } = useSilencesActions()
+  const localSilences = useSilencesLocalItems() // load local silences
 
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
@@ -86,7 +98,7 @@ const SilenceNew = ({ alert, variant, size }) => {
       !excludedLabelsHash ||
       !filterLabels ||
       !authData ||
-      !displayNewSilence // do nothing on close modal but reset form state on open always
+      !displayNewSilence // do nothing on close modal but reset form state and matchers on open always
     )
       return
 
@@ -100,12 +112,55 @@ const SilenceNew = ({ alert, variant, size }) => {
       createdBy: authData?.parsed?.fullName,
       matchers: matchers,
     })
-  }, [alert, excludedLabelsHash, filterLabels, authData, displayNewSilence])
+  }, [alert, authData, excludedLabelsHash, filterLabels, displayNewSilence])
+
+  // get the "latest" expiration date if there is a silence for the alert
+  // Add local silences dependency to be able to update the expiration date when a new silence is created
+  const expirationDate = useMemo(() => {
+    // on open recalculates the expiration date since it may change depending on the local silences
+    if (!alert && !displayNewSilence) return
+    const silences = getMappingSilences(alert)
+    if (silences?.length > 0) {
+      const sortedSilences = silences.sort((a, b) => {
+        return new Date(b.endsAt) - new Date(a.endsAt)
+      })
+      return sortedSilences[0].endsAt
+    }
+  }, [alert, displayNewSilence])
+
+  // collect options for select dropdown with time (2 hours, 12 hours, 1 day, 3 days, 7 days) which exceeds the expiration date
+  // on open panel retrigger the calculation
+  const durationOptions = useMemo(() => {
+    if (!expirationDate) return DEFAULT_DURATION_OPTIONS
+    const now = new Date()
+    const expiration = new Date(expirationDate)
+    const diff = expiration - now
+    const diffInHours = diff / (1000 * 60 * 60)
+    const newOptions = DEFAULT_DURATION_OPTIONS.map((o) => {
+      if (o.value <= diffInHours) {
+        return {
+          ...o,
+          label: o.label + " (covered with the existing silence)",
+          covered: true,
+        }
+      }
+      return o
+    })
+    // find the first option which is not covered by the existing silence
+    const firstNotCovered = newOptions.find((o) => !o?.covered)
+    if (firstNotCovered) {
+      setFormState({ ...formState, duration: firstNotCovered.value })
+    }
+
+    return newOptions
+  }, [expirationDate])
 
   const onCloseModal = () => {
-    // reset state
+    // reset states
     setDisplayNewSilence(false)
     setFormState(DEFAULT_FORM_VALUES)
+    setError(null)
+    setSuccess(null)
   }
 
   const onSubmitForm = () => {
@@ -128,7 +183,11 @@ const SilenceNew = ({ alert, variant, size }) => {
       endsAt.getHours() + Number.parseInt(newFormState.duration || 4)
     )
 
-    const newSilence = { ...newFormState, startsAt, endsAt }
+    const newSilence = {
+      ...newFormState,
+      startsAt: startsAt.toISOString(),
+      endsAt: endsAt.toISOString(),
+    }
 
     // submit silence
     post(`${apiEndpoint}/silences`, {
@@ -169,8 +228,7 @@ const SilenceNew = ({ alert, variant, size }) => {
   return (
     <>
       <Button
-        size={size}
-        variant={variant}
+        size="small"
         onClick={() => setDisplayNewSilence(!displayNewSilence)}
       >
         Silence
@@ -186,6 +244,25 @@ const SilenceNew = ({ alert, variant, size }) => {
         >
           {error && <Message text={error} variant="success" />}
 
+          {success && (
+            <Message className="mb-6" variant="info">
+              A silence object with id <b>{success?.silenceID}</b> was created
+              successfully. Please note that it may take up to 5 minutes for the
+              alert to show up as silenced.
+            </Message>
+          )}
+
+          {expirationDate && !success && (
+            <Message className="mb-6" variant="info">
+              There is already a silence for this alert that expires at{" "}
+              <b>
+                {DateTime.fromISO(expirationDate).toLocaleString(
+                  DateTime.DATETIME_SHORT
+                )}
+              </b>
+            </Message>
+          )}
+
           <span className="text-lg">
             <b>{alert?.labels?.alertname}</b>
           </span>
@@ -194,13 +271,7 @@ const SilenceNew = ({ alert, variant, size }) => {
             <AlertDescription description={alert.annotations?.description} />
           </Box>
 
-          {success ? (
-            <Message className="mt-4" variant="info">
-              A silence object with id <b>{success?.silenceID}</b> was created
-              successfully. Please note that it may take up to 5 minutes for the
-              alert to show up as silenced.
-            </Message>
-          ) : (
+          {!success && (
             <>
               <SilenceNewAdvanced
                 matchers={formState.matchers}
@@ -234,11 +305,13 @@ const SilenceNew = ({ alert, variant, size }) => {
                     onInputChanged({ key: "duration", value: e })
                   }
                 >
-                  <SelectOption label="2 hours" value="2" />
-                  <SelectOption label="12 hours" value="12" />
-                  <SelectOption label="1 day" value="24" />
-                  <SelectOption label="3 days" value="72" />
-                  <SelectOption label="7 days" value="168" />
+                  {durationOptions.map((option) => (
+                    <SelectOption
+                      key={option.value}
+                      label={option.label}
+                      value={option.value}
+                    />
+                  ))}
                 </SelectRow>
               </Form>
             </>
