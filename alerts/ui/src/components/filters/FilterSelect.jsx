@@ -3,9 +3,8 @@ import React, { useState } from "react"
 import {
   Button,
   InputGroup,
-  Select,
   SelectOption,
-  SelectRow,
+  Select,
   Stack,
 } from "juno-ui-components"
 import { useFilterLabels, useFilterLabelValues, useFilterActions, useActiveFilters } from "../../hooks/useStore"
@@ -63,7 +62,7 @@ const FilterSelect = () => {
   return (
     <Stack alignment="center" gap="8">
       <InputGroup>
-        <SelectRow
+        <Select
           name="filter"
           className="filter-label-select w-64 mb-0"
           label="Filter"
@@ -77,7 +76,7 @@ const FilterSelect = () => {
               key={filterLabel}
             />
           ))}
-        </SelectRow>
+        </Select>
         <Select
           name="filterValue"
           value={filterValue}
