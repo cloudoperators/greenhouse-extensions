@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware"
 import produce from "immer"
 import { countAlerts } from "../lib/utils"
 import createSilencesSlice from "./createSilencesSlice"
+import { u } from "juno-ui-components/build/DataList.component-9bf888b5"
 
 const createGlobalsSlice = (set, get) => ({
   globals: {
@@ -128,6 +129,7 @@ const createAlertsSlice = (set, get) => ({
     severityCountsPerRegion: {}, // {"eu-de-1": { total: number, critical: {total: number, suppressed: number}, warning: {...}, ...}
     regions: [], // save all available regions from initial list here
     regionsFiltered: [], // regions list filtered by active predefined filters
+    enrichedLabels: [], // labels that are enriched by the alert worker
     isLoading: false,
     isUpdating: false,
     updatedAt: null,
@@ -184,20 +186,22 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.itemsFiltered = state.alerts.items.filter((item) => {
               let visible = true
 
-
               // test if item labels match the regex matchers of the active predefined filter
               // for each key and value pair in the filter matchers check if the key's value regex matches the item's label value for this key
               // if it doesn't match, set visible to false and break out of the loop
-              activePredefinedFilter && Object.entries(activePredefinedFilter.matchers).forEach(([key, value]) => {
-                if (!new RegExp(value, "i").test(item.labels[key])) {
-                  visible = false
-                  return
-                } else {
-                  // if the item is visible, add the item's region to the filtered regions set
-                  // this way the filtered Regions set will contain all regions that have at least one visible item
-                  filteredRegions.add(item.labels.region)
-                }
-              })
+              activePredefinedFilter &&
+                Object.entries(activePredefinedFilter.matchers).forEach(
+                  ([key, value]) => {
+                    if (!new RegExp(value, "i").test(item.labels[key])) {
+                      visible = false
+                      return
+                    } else {
+                      // if the item is visible, add the item's region to the filtered regions set
+                      // this way the filtered Regions set will contain all regions that have at least one visible item
+                      filteredRegions.add(item.labels.region)
+                    }
+                  }
+                )
 
               // if the item is still visible after the predefined filters, check if it gets filtered out by the active filters
               // active filters is an object where the keys correspond to labels and the value is an array of all selected values to be filtered by
@@ -226,7 +230,9 @@ const createAlertsSlice = (set, get) => ({
         )
         get().alerts.actions.updateFilteredCounts()
         if (filteredRegions.size > 0) {
-          get().alerts.actions.setRegionsFiltered(Array.from(filteredRegions).sort())
+          get().alerts.actions.setRegionsFiltered(
+            Array.from(filteredRegions).sort()
+          )
         } else {
           // if nothing was filtered out, set the filtered regions to all available regions
           get().alerts.actions.setRegionsFiltered(get().alerts.regions)
@@ -279,6 +285,14 @@ const createAlertsSlice = (set, get) => ({
           (state) => ({ alerts: { ...state.alerts, isUpdating: value } }),
           false,
           "alerts.setIsUpdating"
+        )
+      },
+
+      setEnrichedLabels: (labels) => {
+        set(
+          (state) => ({ alerts: { ...state.alerts, enrichedLabels: labels } }),
+          false,
+          "alerts.setEnrichedLabels"
         )
       },
 
@@ -546,7 +560,8 @@ export const useAlertsTotalCounts = () =>
 export const useAlertsSeverityCountsPerRegion = () =>
   useStore((state) => state.alerts.severityCountsPerRegion)
 export const useAlertsRegions = () => useStore((state) => state.alerts.regions)
-export const useAlertsRegionsFiltered = () => useStore((state) => state.alerts.regionsFiltered)
+export const useAlertsRegionsFiltered = () =>
+  useStore((state) => state.alerts.regionsFiltered)
 export const useAlertsIsLoading = () =>
   useStore((state) => state.alerts.isLoading)
 export const useAlertsIsUpdating = () =>
@@ -554,6 +569,8 @@ export const useAlertsIsUpdating = () =>
 export const useAlertsUpdatedAt = () =>
   useStore((state) => state.alerts.updatedAt)
 export const useAlertsError = () => useStore((state) => state.alerts.error)
+export const useAlertEnrichedLabels = () =>
+  useStore((state) => state.alerts.enrichedLabels)
 
 export const useAlertsActions = () => useStore((state) => state.alerts.actions)
 
