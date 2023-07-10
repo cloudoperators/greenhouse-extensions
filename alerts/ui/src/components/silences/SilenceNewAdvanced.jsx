@@ -49,20 +49,22 @@ const SilenceNewAdvanced = ({ matchers, onMatchersChanged }) => {
                 <SilenceMatchers
                   matchers={matchers.filter((m) => !m.excluded)}
                   onClickCallback={onMatchersChanged}
+                  closeable={true}
                 />
               </div>
               <p className="mt-4">
                 The default silence configuration excludes the following
-                matchers because they typically make the silence too specific 
-                which can lead to alerts bypassing the silence unexpectedly. 
-                If you do want to include any of these matchers in the silence 
-                configuration, click on them to add them. If you change your mind,
-                click again to remove.
+                matchers because they typically make the silence too specific
+                which can lead to alerts bypassing the silence unexpectedly. If
+                you do want to include any of these matchers in the silence
+                configuration, click on them to add them. If you change your
+                mind, click again to remove.
               </p>
               <div className="my-2">
                 <SilenceMatchers
                   matchers={matchers.filter((m) => m.excluded)}
                   onClickCallback={onMatchersChanged}
+                  closeable={false}
                 />
               </div>
             </div>
