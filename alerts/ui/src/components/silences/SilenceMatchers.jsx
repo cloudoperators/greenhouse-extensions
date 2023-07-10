@@ -3,7 +3,7 @@ import React, { useMemo } from "react"
 import { Pill, Stack } from "juno-ui-components"
 
 // Matchers can be clicked if the matcher is configurable
-const SilenceMatchers = ({ matchers, onClickCallback }) => {
+const SilenceMatchers = ({ matchers, onClickCallback, closeable }) => {
   // sort matchers by exclude flag
   const sortedMatchers = useMemo(() => {
     if (!matchers || matchers?.length <= 0) return []
@@ -17,7 +17,7 @@ const SilenceMatchers = ({ matchers, onClickCallback }) => {
           return (
             <Pill
               className={matcher.configurable ? "opacity-100" : "opacity-70"}
-              closeable={matcher.configurable}
+              closeable={matcher.configurable && closeable}
               onClose={() => onClickCallback(matcher)}
               onClick={() => onClickCallback(matcher)}
               key={matcher.name}

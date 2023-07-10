@@ -474,9 +474,12 @@ describe("updateLocalItems", () => {
       act(() => advanced.result.current.resetSlice())
     })
 
-    it("returns all silences which are expired matching the alert labels", () => {
+    it("returns all silences which are expired matching the alert labels but omitting the excludeLabels", () => {
       const alertActions = renderHook(useAlertsActions)
       const silenceActions = renderHook(useSilencesActions)
+
+      // set the excluded labels
+      act(() => silenceActions.result.current.setExcludedLabels(["pod"]))
 
       // create an alert with custom status
       const alert = createFakeAlertWith({
@@ -485,6 +488,7 @@ describe("updateLocalItems", () => {
           severity: "critical",
           support_group: "containers",
           service: "automation",
+          pod: "test",
         },
       })
       // set the alert

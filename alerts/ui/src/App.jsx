@@ -45,7 +45,7 @@ function App(props = {}) {
     ]
     setLabels(filterLabels)
 
-    const silenceExcludedLabels = ["status", "pod", "instance"]
+    const silenceExcludedLabels = ["pod", "instance"]
     setExcludedLabels(silenceExcludedLabels)
 
     // labels that are enriched by the alert worker
