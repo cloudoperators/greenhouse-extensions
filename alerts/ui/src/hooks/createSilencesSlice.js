@@ -5,7 +5,6 @@ const initialSilencesState = {
   itemsHash: {},
   itemsByState: {},
   excludedLabels: [],
-  excludedLabelsHash: {},
   isLoading: false,
   isUpdating: false,
   updatedAt: null,
@@ -146,19 +145,11 @@ const createSilencesSlice = (set, get) => ({
       },
       setExcludedLabels: (labels) => {
         if (!labels) return
-
-        // labels to hash object to easier access
-        const labelsHash = labels.reduce((map, label) => {
-          map[label] = label
-          return map
-        }, {})
-
         return set(
           (state) => ({
             silences: {
               ...state.silences,
               excludedLabels: labels,
-              excludedLabelsHash: labelsHash,
             },
           }),
           false,

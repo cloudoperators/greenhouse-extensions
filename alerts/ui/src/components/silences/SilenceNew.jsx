@@ -12,7 +12,7 @@ import {
 } from "juno-ui-components"
 import {
   useAuthData,
-  useSilencesExcludedLabelsHash,
+  useSilencesExcludedLabels,
   useFilterLabels,
   useGlobalsApiEndpoint,
   useSilencesActions,
@@ -26,6 +26,7 @@ import {
   latestExpirationDate,
   DEFAULT_DURATION_OPTIONS,
   getSelectOptions,
+  setupMatchers,
 } from "./helpers"
 
 const validateForm = (values) => {
@@ -46,38 +47,12 @@ const errorHelpText = (messages) => {
   ))
 }
 
-const setupMatchers = (alertLabels, excludedLabels, filterLabels) => {
-  if (!alertLabels || !excludedLabels || !filterLabels) return
-  let items = []
-  // allow just labels which are configured
-  filterLabels.forEach((filterLabel) => {
-    const value = alertLabels?.[filterLabel]
-    if (value) {
-      const matcher = {
-        name: filterLabel,
-        value: value,
-        isRegex: false, // for now hardcode isRegex to false since we take the exact value
-        excluded: false,
-        configurable: false,
-      }
-      // copy excluded label values to a different array
-      if (excludedLabels[filterLabel]) {
-        items.push({ ...matcher, excluded: true, configurable: true })
-      } else {
-        items.push(matcher)
-      }
-    }
-  })
-  return items
-}
-
 const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
 const SilenceNew = ({ alert, size, variant }) => {
   const authData = useAuthData()
   const apiEndpoint = useGlobalsApiEndpoint()
-  const excludedLabelsHash = useSilencesExcludedLabelsHash()
-  const filterLabels = useFilterLabels()
+  const excludedLabels = useSilencesExcludedLabels()
   const { addLocalItem, getMappingSilences } = useSilencesActions()
   const enrichedLabels = useAlertEnrichedLabels()
 
@@ -99,7 +74,7 @@ const SilenceNew = ({ alert, size, variant }) => {
       ...formState,
       ...DEFAULT_FORM_VALUES,
       createdBy: authData?.parsed?.fullName,
-      matchers: setupMatchers(alert?.labels, excludedLabelsHash, filterLabels),
+      matchers: setupMatchers(alert?.labels, excludedLabels, enrichedLabels),
     })
     // get the latest expiration date from the existing silences
     // recalculate always on open modal due to the fact that the silences or local silences

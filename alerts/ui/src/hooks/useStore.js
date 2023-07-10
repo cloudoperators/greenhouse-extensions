@@ -593,8 +593,6 @@ export const useSilencesItemsHash = () =>
   useStore((state) => state.silences.itemsHash)
 export const useSilencesExcludedLabels = () =>
   useStore((state) => state.silences.excludedLabels)
-export const useSilencesExcludedLabelsHash = () =>
-  useStore((state) => state.silences.excludedLabelsHash)
 export const useSilencesIsLoading = () =>
   useStore((state) => state.silences.isLoading)
 export const useSilencesIsUpdating = () =>

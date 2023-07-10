@@ -39,3 +39,37 @@ export const getSelectOptions = (expirationDate) => {
 
   return { items: options, firstNotCovered }
 }
+
+// Setup the matchers for the silence removing the excluded labels
+// These excluded labels are those that not included by default when generating a silence configuration.
+// The enrichedLabels are those that are added by the worker just for UI purposes when the alert is received.
+export const setupMatchers = (
+  alertLabels,
+  excludedLabels = [],
+  enrichedLabels = []
+) => {
+  if (!alertLabels || !excludedLabels) return
+  let items = []
+
+  Object.keys(alertLabels).forEach((label) => {
+    const value = alertLabels?.[label]
+    if (value) {
+      const matcher = {
+        name: label,
+        value: value,
+        isRegex: false, // for now hardcode isRegex to false since we take the exact value
+        excluded: false,
+        configurable: false,
+      }
+      if (enrichedLabels.includes(label)) {
+        // do not add enriched labels, skip
+      } else if (excludedLabels.includes(label)) {
+        // mark excluded label
+        items.push({ ...matcher, excluded: true, configurable: true })
+      } else {
+        items.push(matcher)
+      }
+    }
+  })
+  return items
+}
