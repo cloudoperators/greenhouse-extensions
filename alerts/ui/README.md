@@ -1,4 +1,4 @@
-`Supernova` is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
+Supernova is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
 
 - Micro frontend design based on [Juno UI components](https://ui.juno.global.cloud.sap)
 - Predefined filter categories
