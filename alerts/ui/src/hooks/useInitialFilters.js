@@ -7,14 +7,14 @@ import {
   useActiveFilters,
   useAlertsActions,
   useGlobalsIsUrlStateSetup,
-} from "./useStore"
+} from "./useAppStore"
 
 const useInitialFilters = () => {
   const authData = useAuthData()
   const filterLabels = useFilterLabels()
   const { addActiveFilters } = useFilterActions()
   const activeFilters = useActiveFilters()
-  const {filterItems } = useAlertsActions()
+  const { filterItems } = useAlertsActions()
   const isUrlStateSetup = useGlobalsIsUrlStateSetup()
 
   const [isRunOnce, setIsRunOnce] = useState(false)
@@ -46,9 +46,6 @@ const useInitialFilters = () => {
       // otherwise filter once to ensure any default filters are applied
       filterItems()
     }
-
-
-
   }, [
     isUrlStateSetup,
     isRunOnce,

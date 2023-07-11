@@ -1,33 +1,37 @@
 import React from "react"
 import { DateTime } from "luxon"
 
-import { Button, Container, DataGrid, DataGridCell, DataGridHeadCell, DataGridRow } from "juno-ui-components"
+import {
+  Button,
+  Container,
+  DataGrid,
+  DataGridCell,
+  DataGridHeadCell,
+  DataGridRow,
+} from "juno-ui-components"
 
-import { useAlertsActions, useGlobalsActions } from "../../hooks/useStore"
+import { useAlertsActions, useGlobalsActions } from "../../hooks/useAppStore"
 import AlertDescription from "./shared/AlertDescription"
 import AlertSilencesList from "./shared/AlertSilencesList"
 
-const AlertSilences = ({alert}) => {
-
+const AlertSilences = ({ alert }) => {
   const { getAlertByFingerprint } = useAlertsActions()
   const { setShowDetailsFor } = useGlobalsActions()
 
-// comment
-// createdBy
-// endsAt
-// id
-// matchers
-// startsAt
-// status.state
-// updatedAt
-
+  // comment
+  // createdBy
+  // endsAt
+  // id
+  // matchers
+  // startsAt
+  // status.state
+  // updatedAt
 
   return (
     <Container py px={false}>
-
       <AlertSilencesList alert={alert} />
 
-      { alert.status.inhibitedBy.length > 0 &&
+      {alert.status.inhibitedBy.length > 0 && (
         <>
           <h2 className="text-xl font-bold mb-2 mt-8">Inhibited by</h2>
           <DataGrid columns={2}>
@@ -35,19 +39,32 @@ const AlertSilences = ({alert}) => {
               <DataGridHeadCell>Alert</DataGridHeadCell>
               <DataGridHeadCell></DataGridHeadCell>
             </DataGridRow>
-          {alert.status.inhibitedBy.map((fingerprint) => (
-            <DataGridRow key={fingerprint}>
-              <DataGridCell>
-                <div>{getAlertByFingerprint(fingerprint)?.annotations?.summary}</div>
-                <AlertDescription description={getAlertByFingerprint(fingerprint)?.annotations?.description} />
-              </DataGridCell>
-              <DataGridCell><Button size="small" onClick={() => setShowDetailsFor(fingerprint)}>See details</Button></DataGridCell>
-
-            </DataGridRow>
-          ))}
+            {alert.status.inhibitedBy.map((fingerprint) => (
+              <DataGridRow key={fingerprint}>
+                <DataGridCell>
+                  <div>
+                    {getAlertByFingerprint(fingerprint)?.annotations?.summary}
+                  </div>
+                  <AlertDescription
+                    description={
+                      getAlertByFingerprint(fingerprint)?.annotations
+                        ?.description
+                    }
+                  />
+                </DataGridCell>
+                <DataGridCell>
+                  <Button
+                    size="small"
+                    onClick={() => setShowDetailsFor(fingerprint)}
+                  >
+                    See details
+                  </Button>
+                </DataGridCell>
+              </DataGridRow>
+            ))}
           </DataGrid>
         </>
-      }
+      )}
     </Container>
   )
 }

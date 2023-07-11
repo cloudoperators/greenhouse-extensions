@@ -1,28 +1,20 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import produce from "immer"
 import { countAlerts } from "./utils"
 
-const initialAlertsState = {
-  items: [],
-  itemsFiltered: [],
-  totalCounts: {}, // { total: number, critical: number, ...},
-  severityCountsPerRegion: {}, // {"eu-de-1": { total: number, critical: {total: number, suppressed: number}, warning: {...}, ...}
-  regions: [], // save all available regions from initial list here
-  regionsFiltered: [], // regions list filtered by active predefined filters
-  enrichedLabels: ["status"], // labels that are enriched by the alert worker
-  isLoading: false,
-  isUpdating: false,
-  updatedAt: null,
-  error: null,
-}
-
 const createAlertsSlice = (set, get) => ({
   alerts: {
-    ...initialAlertsState,
+    items: [],
+    itemsFiltered: [],
+    totalCounts: {}, // { total: number, critical: number, ...},
+    severityCountsPerRegion: {}, // {"eu-de-1": { total: number, critical: {total: number, suppressed: number}, warning: {...}, ...}
+    regions: [], // save all available regions from initial list here
+    regionsFiltered: [], // regions list filtered by active predefined filters
+    enrichedLabels: [], // labels that are enriched by the alert worker
+    isLoading: false,
+    isUpdating: false,
+    updatedAt: null,
+    error: null,
+
     actions: {
       setAlertsData: ({ items, counts }) => {
         set(
@@ -34,7 +26,6 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.isLoading = false
             state.alerts.isUpdating = false
             state.alerts.updatedAt = Date.now()
-            state.alerts.error = null
 
             // on the initial fetch copy all items to the filtered items list once since
             // most views operate on the filtered items list
@@ -75,13 +66,7 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.itemsFiltered = state.alerts.items.filter((item) => {
               let visible = true
 
-              // test if the item has a label "visibility" with value "hidden"
-              // if it does, immediately return false, no further processing needed, these items are always filtered out
-              if (item.labels.visibility === "hidden") {
-                return false
-              }
-
-              // if the item is still visible test if item labels match the regex matchers of the active predefined filter
+              // test if item labels match the regex matchers of the active predefined filter
               // for each key and value pair in the filter matchers check if the key's value regex matches the item's label value for this key
               // if it doesn't match, set visible to false and break out of the loop
               activePredefinedFilter &&
@@ -115,21 +100,6 @@ const createAlertsSlice = (set, get) => ({
                     return
                   }
                 })
-              }
-
-              // if the item is still visible check if it gets filtered out by a search term
-              // the search term is matched against the stringified item object via regex
-              // if the item object does not contain the search term, it is not visible
-              if (
-                visible &&
-                state.filters.searchTerm &&
-                state.filters.searchTerm.length > 0
-              ) {
-                const itemString = JSON.stringify(item)
-                const re = new RegExp(state.filters.searchTerm, "i")
-                if (!itemString.match(re)) {
-                  visible = false
-                }
               }
 
               return visible
@@ -198,11 +168,11 @@ const createAlertsSlice = (set, get) => ({
         )
       },
 
-      setError: (error) => {
+      setEnrichedLabels: (labels) => {
         set(
-          (state) => ({ alerts: { ...state.alerts, error, isLoading: false } }),
+          (state) => ({ alerts: { ...state.alerts, enrichedLabels: labels } }),
           false,
-          "alerts.setError"
+          "alerts.setEnrichedLabels"
         )
       },
 

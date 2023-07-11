@@ -7,30 +7,34 @@ import {
   Select,
   Stack,
 } from "juno-ui-components"
-import { useFilterLabels, useFilterLabelValues, useFilterActions, useActiveFilters } from "../../hooks/useStore"
+import {
+  useFilterLabels,
+  useFilterLabelValues,
+  useFilterActions,
+  useActiveFilters,
+} from "../../hooks/useAppStore"
 import { humanizeString } from "../../lib/utils"
-
 
 const FilterSelect = () => {
   const [filterLabel, setFilterLabel] = useState()
   const [filterValue, setFilterValue] = useState()
   const [resetKey, setResetKey] = useState(Date.now())
 
-  const { addActiveFilter, loadFilterLabelValues, clearActiveFilters } = useFilterActions()
-  const filterLabels = useFilterLabels() 
+  const { addActiveFilter, loadFilterLabelValues, clearActiveFilters } =
+    useFilterActions()
+  const filterLabels = useFilterLabels()
   const filterLabelValues = useFilterLabelValues()
   const activeFilters = useActiveFilters()
 
   const handleFilterAdd = (value) => {
-    
     if (filterLabel && (filterValue || value)) {
       // add active filter to store
-      addActiveFilter(filterLabel, (filterValue || value))
+      addActiveFilter(filterLabel, filterValue || value)
 
       // reset filterValue
       setFilterValue(undefined)
       // force key change to reset the Select component to its initial state
-      // so that the placeholder is rendered again. This is a workaround to fix an open issue 
+      // so that the placeholder is rendered again. This is a workaround to fix an open issue
       // in Radix UI. See: https://github.com/radix-ui/primitives/issues/1569
       setResetKey(Date.now())
 
@@ -56,7 +60,7 @@ const FilterSelect = () => {
   // const handleKeyDown = (event) => {
   //   if (event.key === "Enter") {
   //     handleFilterValueChange()
-  //   } 
+  //   }
   // }
 
   return (
@@ -86,15 +90,15 @@ const FilterSelect = () => {
           className="filter-value-select w-96 bg-theme-background-lvl-1"
           key={resetKey}
         >
-          { filterLabelValues[filterLabel]?.values?.filter((value) =>
-              // filter out already active values for this label
-              !activeFilters[filterLabel]?.includes(value)
-            ).map((value) =>
-            <SelectOption
-              value={value}
-              key={value}
-            />
-          )}
+          {filterLabelValues[filterLabel]?.values
+            ?.filter(
+              (value) =>
+                // filter out already active values for this label
+                !activeFilters[filterLabel]?.includes(value)
+            )
+            .map((value) => (
+              <SelectOption value={value} key={value} />
+            ))}
         </Select>
         <Button
           onClick={() => handleFilterAdd()}
@@ -102,13 +106,13 @@ const FilterSelect = () => {
           className="py-[0.3rem]"
         />
       </InputGroup>
-      {activeFilters && Object.keys(activeFilters).length > 0 &&
+      {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all filters"
           onClick={() => clearActiveFilters()}
           variant="subdued"
         />
-      }
+      )}
     </Stack>
   )
 }

@@ -1,16 +1,10 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import * as React from "react"
-import { renderHook, act } from "@testing-library/react"
+import { renderHook, act, waitFor } from "@testing-library/react"
 import {
   useSilencesActions,
   useSilencesLocalItems,
   useAlertsActions,
   useAlertsItems,
-  useSilencesExcludedLabels,
   StoreProvider,
 } from "../hooks/useAppStore"
 import {
@@ -712,67 +706,5 @@ describe("getLatestMappingSilence", () => {
           store.result.current.silenceActions.getLatestMappingSilence(alert))
     )
     expect(mappingResult.id).toEqual("external2")
-  })
-})
-
-describe("setExcludedLabels", () => {
-  it("return empty array as default", () => {
-    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
-    const store = renderHook(
-      () => ({
-        actions: useSilencesActions(),
-        excludedLabels: useSilencesExcludedLabels(),
-      }),
-      { wrapper }
-    )
-    expect(store.result.current.excludedLabels).toEqual([])
-  })
-
-  it("accepts array of strings containing the labels to use", () => {
-    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
-    const store = renderHook(
-      () => ({
-        actions: useSilencesActions(),
-        excludedLabels: useSilencesExcludedLabels(),
-      }),
-      { wrapper }
-    )
-
-    act(() => {
-      store.result.current.actions.setExcludedLabels([
-        "pod",
-        "pod_name",
-        "instance",
-      ])
-    })
-
-    expect(store.result.current.excludedLabels).toEqual([
-      "pod",
-      "pod_name",
-      "instance",
-    ])
-  })
-
-  it("warn the user if labels are different then an array of strings", () => {
-    const spy = jest.spyOn(console, "warn").mockImplementation(() => {})
-
-    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
-    const store = renderHook(
-      () => ({
-        actions: useSilencesActions(),
-        excludedLabels: useSilencesExcludedLabels(),
-      }),
-      { wrapper }
-    )
-
-    act(() =>
-      store.result.current.actions.setExcludedLabels("pod,pod_name,instance")
-    )
-
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(
-      "[supernova]::setExcludedLabels: labels object is not an array of strings"
-    )
-    spy.mockRestore()
   })
 })

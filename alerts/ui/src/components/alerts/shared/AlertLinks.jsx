@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useGlobalsActions } from "../../../hooks/useStore"
+import { useGlobalsActions } from "../../../hooks/useAppStore"
 import { Stack } from "juno-ui-components"
 
 const AlertLinks = ({ alert, className }) => {

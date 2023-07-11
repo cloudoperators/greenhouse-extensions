@@ -1,6 +1,6 @@
 import React from "react"
 import { Stack, Button, Spinner } from "juno-ui-components"
-import { useAuthIsProcessing, useAuthActions } from "../hooks/useStore"
+import { useAuthIsProcessing, useAuthActions } from "../hooks/useAppStore"
 
 const WelcomeView = () => {
   const { login } = useAuthActions()

@@ -9,7 +9,7 @@ import {
   useAlertsTotalCounts,
   useAuthLoggedIn,
   useAuthError,
-} from "./hooks/useStore"
+} from "./hooks/useAppStore"
 import AlertsList from "./components/alerts/AlertsList"
 import RegionsList from "./components/regions/RegionsList"
 import StatusBar from "./components/status/StatusBar"
@@ -51,7 +51,6 @@ const AppContent = (props) => {
       <Messages />
       {loggedIn && !authError ? (
         <>
-          
           <AlertDetail />
           <RegionsList />
           {isAlertsLoading ? (

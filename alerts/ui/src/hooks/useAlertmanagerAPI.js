@@ -4,7 +4,7 @@ import {
   useUserIsActive,
   useSilencesActions,
   useSilencesLocalItems,
-} from "./useStore"
+} from "./useAppStore"
 
 let alertsWorkerUrl = new URL("workers/api.js", import.meta.url)
 let silencesWorkerUrl = new URL("workers/silences.js", import.meta.url)

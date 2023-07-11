@@ -8,8 +8,8 @@ import {
   useAuthLoggedIn,
   useAuthLastAction,
   useAuthActions,
-  ACTIONS,
-} from "./useStore"
+} from "./useAppStore"
+import { AUTH_ACTIONS } from "../lib/createAuthDataSlice"
 
 const useCommunication = () => {
   console.log("[supernova] useCommunication setup")
@@ -39,9 +39,9 @@ const useCommunication = () => {
   useEffect(() => {
     console.log("authLastAction:::", authLastAction)
     if (!authAppLoaded || authIsProcessing || authError) return
-    if (authLastAction?.name === ACTIONS.SIGN_ON && !authLoggedIn) {
+    if (authLastAction?.name === AUTH_ACTIONS.SIGN_ON && !authLoggedIn) {
       broadcast("AUTH_LOGIN", "supernova", { debug: false })
-    } else if (authLastAction?.name === ACTIONS.SIGN_OUT && authLoggedIn) {
+    } else if (authLastAction?.name === AUTH_ACTIONS.SIGN_OUT && authLoggedIn) {
       broadcast("AUTH_LOGOUT", "supernova")
     }
   }, [authAppLoaded, authIsProcessing, authError, authLoggedIn, authLastAction])

@@ -7,7 +7,7 @@ import {
   useActivePredefinedFilter,
   useShowDetailsFor,
   useGlobalsActions,
-} from "./useStore"
+} from "./useAppStore"
 
 const urlStateManager = registerConsumer("supernova")
 const ACTIVE_FILTERS = "f"
