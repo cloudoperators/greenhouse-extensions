@@ -15,7 +15,7 @@ import {
   useGlobalsActions,
   useAlertsActions,
   useAlertsIsLoading,
-} from "../../hooks/useStore"
+} from "../../hooks/useAppStore"
 import AlertIcon from "./shared/AlertIcon"
 import AlertTimestamp from "./shared/AlertTimestamp"
 import AlertDescription from "./shared/AlertDescription"
@@ -116,7 +116,7 @@ const AlertDetail = () => {
       </PanelBody>
 
       <PanelFooter>
-        {alert && <SilenceNew alert={alert} variant="primary" /> }
+        {alert && <SilenceNew alert={alert} variant="primary" />}
       </PanelFooter>
     </Panel>
   )

@@ -5,7 +5,7 @@ import {
   useAuthLoggedIn,
   useGlobalsEmbedded,
   useAuthActions,
-} from "../hooks/useStore"
+} from "../hooks/useAppStore"
 import HeaderUser from "./HeaderUser"
 
 const CustomAppShell = ({ children }) => {

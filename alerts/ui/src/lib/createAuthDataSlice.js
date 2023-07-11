@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export const AUTH_ACTIONS = {
   SIGN_ON: "signOn",
   SIGN_OUT: "signOut",
@@ -28,15 +23,6 @@ const createAuthDataSlice = (set, get) => ({
       },
       setData: (data) => {
         if (!data) return
-        // check if data has changed before updating the state
-        if (
-          data?.isProcessing === get().auth.isProcessing &&
-          data?.loggedIn === get().auth.loggedIn &&
-          data?.error === get().auth.error &&
-          data?.auth === get().auth.data
-        )
-          return
-
         set(
           (state) => ({
             auth: {

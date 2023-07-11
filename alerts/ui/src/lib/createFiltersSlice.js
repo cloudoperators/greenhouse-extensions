@@ -1,53 +1,21 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import produce from "immer"
-
-const initialFiltersState = {
-  labels: ["status"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
-  activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
-  filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
-  predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
-  activePredefinedFilter: null, // the currently active predefined filter
-  searchTerm: "", // the search term used for full-text filtering
-}
 
 const createFiltersSlice = (set, get) => ({
   filters: {
-    ...initialFiltersState,
+    labels: [], // labels to be used for filtering: [ "label1", "label2", "label3"]
+    activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
+    filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
+    predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
+    activePredefinedFilter: null, // the currently active predefined filter
+
     actions: {
       setLabels: (labels) =>
         set(
           (state) => {
-            if (!labels) return state
-
-            // check if labels is an array
-            if (!Array.isArray(labels)) {
-              console.warn(
-                "[supernova]::setLabels: labels object is not an array"
-              )
-              return state
-            }
-
-            // check if all elements in the array are strings delete the ones that are not
-            if (!labels.every((element) => typeof element === "string")) {
-              console.warn(
-                "[supernova]::setLabels: Some elements of the array are not strings."
-              )
-              labels = labels.filter((element) => typeof element === "string")
-            }
-
-            // merge given labels with the initial, make it unique and sort it alphabetically
-            const uniqueLabels = Array.from(
-              new Set(initialFiltersState.labels.concat(labels))
-            ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
             return {
               filters: {
                 ...state.filters,
-                labels: uniqueLabels,
+                labels,
               },
             }
           },
@@ -206,35 +174,15 @@ const createFiltersSlice = (set, get) => ({
                 state.alerts.items.map((item) => item.labels[filterLabel])
               ),
             ]
-            // remove any "blank" values from the list, then sort
-            state.filters.filterLabelValues[filterLabel].values = values
-              .filter((value) => (value ? true : false))
-              .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
+            // remove any "blank" values from the list
+            state.filters.filterLabelValues[filterLabel].values = values.filter(
+              (value) => (value ? true : false)
+            )
             state.filters.filterLabelValues[filterLabel].isLoading = false
           }),
           false,
           "filters.loadFilterLabelValues"
         )
-      },
-
-      // for each filter label where we already loaded the values, reload them
-      reloadFilterLabelValues: () => {
-        Object.keys(get().filters.filterLabelValues).map((label) => {
-          get().filters.actions.loadFilterLabelValues(label)
-        })
-      },
-
-      setSearchTerm: (searchTerm) => {
-        set(
-          produce((state) => {
-            state.filters.searchTerm = searchTerm
-          }),
-          false,
-          "filters.setSearchTerm"
-        )
-        // after setting the search term: filter items
-        get().alerts.actions.filterItems()
       },
 
       // TODO:

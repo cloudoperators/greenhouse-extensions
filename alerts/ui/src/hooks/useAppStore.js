@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { createContext, useContext } from "react"
 import { createStore, useStore } from "zustand"
 import { devtools } from "zustand/middleware"
@@ -25,7 +20,7 @@ const createAppStore = devtools((set, get) => ({
 
 const StoreContext = createContext()
 
-export const StoreProvider = ({ options, children }) => {
+export const StoreProvider = ({ children }) => {
   return (
     <StoreContext.Provider
       value={createStore(
@@ -35,7 +30,7 @@ export const StoreProvider = ({ options, children }) => {
           ...createUserActivitySlice(set, get),
           ...createAlertsSlice(set, get),
           ...createFiltersSlice(set, get),
-          ...createSilencesSlice(set, get, options),
+          ...createSilencesSlice(set, get),
         }))
       )}
     >
@@ -52,6 +47,8 @@ const useAppStore = (selector) => useStore(useContext(StoreContext), selector)
 // Globals exports
 export const useGlobalsEmbedded = () =>
   useAppStore((state) => state.globals.embedded)
+export const useGlobalsIsUrlStateSetup = () =>
+  useAppStore((state) => state.globals.isUrlStateSetup)
 export const useShowDetailsFor = () =>
   useAppStore((state) => state.globals.showDetailsFor)
 export const useGlobalsApiEndpoint = () =>
@@ -110,8 +107,6 @@ export const useFilterLabels = () =>
   useAppStore((state) => state.filters.labels)
 export const useActiveFilters = () =>
   useAppStore((state) => state.filters.activeFilters)
-export const useSearchTerm = () =>
-  useAppStore((state) => state.filters.searchTerm)
 export const useFilterLabelValues = () =>
   useAppStore((state) => state.filters.filterLabelValues)
 export const usePredefinedFilters = () =>
@@ -139,9 +134,6 @@ export const useSilencesError = () =>
   useAppStore((state) => state.silences.error)
 export const useSilencesLocalItems = () =>
   useAppStore((state) => state.silences.localItems)
-
-export const useSilenceTemplates = () =>
-  useAppStore((state) => state.silences.templates)
 
 export const useSilencesActions = () =>
   useAppStore((state) => state.silences.actions)

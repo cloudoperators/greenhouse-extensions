@@ -7,7 +7,10 @@ import {
   Icon,
 } from "juno-ui-components"
 import Alert from "./Alert"
-import { useAlertsItemsFiltered, useAlertsIsLoading } from "../../hooks/useStore"
+import {
+  useAlertsItemsFiltered,
+  useAlertsIsLoading,
+} from "../../hooks/useAppStore"
 
 const AlertsList = () => {
   const [visibleAmount, setVisibleAmount] = useState(20)
@@ -52,7 +55,11 @@ const AlertsList = () => {
   )
 
   return (
-    <DataGrid columns={7} minContentColumns={[0, 2, 5]} cellVerticalAlignment="top">
+    <DataGrid
+      columns={7}
+      minContentColumns={[0, 2, 5]}
+      cellVerticalAlignment="top"
+    >
       {!alertsIsLoading && (
         <DataGridRow>
           <DataGridHeadCell>

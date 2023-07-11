@@ -4,7 +4,7 @@ import {
   useSilencesItemsHash,
   useSilencesLocalItems,
   useSilencesActions,
-} from "../../hooks/useStore"
+} from "../../hooks/useAppStore"
 
 const AlertStatus = ({ alert }) => {
   const allSilences = useSilencesItemsHash()

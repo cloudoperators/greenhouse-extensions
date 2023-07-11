@@ -9,7 +9,8 @@ import {
   useFilterActions,
   useSilencesActions,
   useAlertsActions,
-} from "./hooks/useStore"
+  StoreProvider,
+} from "./hooks/useAppStore"
 import useCommunication from "./hooks/useCommunication"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
@@ -122,7 +123,9 @@ const StyledApp = (props) => {
     <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load appstyles inside the shadow dom */}
       <style>{styles.toString()}</style>
-      <App {...props} />
+      <StoreProvider>
+        <App {...props} />
+      </StoreProvider>
     </AppShellProvider>
   )
 }

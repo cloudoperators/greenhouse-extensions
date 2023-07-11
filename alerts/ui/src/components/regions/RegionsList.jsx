@@ -1,6 +1,10 @@
 import React from "react"
 
-import { useAlertsIsLoading, useAlertsRegionsFiltered, useAlertsSeverityCountsPerRegion } from "../../hooks/useStore"
+import {
+  useAlertsIsLoading,
+  useAlertsRegionsFiltered,
+  useAlertsSeverityCountsPerRegion,
+} from "../../hooks/useAppStore"
 import Region from "./Region"
 
 const regionsClasses = `
@@ -18,13 +22,17 @@ const RegionsList = () => {
 
   return (
     <>
-      { !isLoading &&
+      {!isLoading && (
         <div className={`regions ${regionsClasses}`}>
-          { regions.map((region) => (
-            <Region key={region} region={region} severityCounts={severityCountsPerRegion[region]} />
+          {regions.map((region) => (
+            <Region
+              key={region}
+              region={region}
+              severityCounts={severityCountsPerRegion[region]}
+            />
           ))}
         </div>
-      }
+      )}
     </>
   )
 }
