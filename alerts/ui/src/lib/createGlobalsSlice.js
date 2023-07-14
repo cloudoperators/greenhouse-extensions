@@ -25,7 +25,9 @@ const createGlobalsSlice = (set, get) => ({
       setShowDetailsFor: (alertID) =>
         set(
           (state) => ({
-            globals: { ...state.globals, showDetailsFor: alertID },
+            // if the alertID is the same as the current one, we want to close the details panel again, 
+            // otherwise set the new alertID to replace the details in the panel
+            globals: { ...state.globals, showDetailsFor: get().globals.showDetailsFor === alertID ? null : alertID },
           }),
           false,
           "globals/setShowDetailsFor"

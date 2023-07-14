@@ -165,7 +165,10 @@ const SilenceNew = ({ alert, size, variant }) => {
       <Button
         size={size}
         variant={variant}
-        onClick={() => setDisplayNewSilence(!displayNewSilence)}
+        onClick={(e) => {
+          e.stopPropagation()
+          setDisplayNewSilence(!displayNewSilence)
+        }}
       >
         Silence
       </Button>
@@ -199,9 +202,7 @@ const SilenceNew = ({ alert, size, variant }) => {
             </Message>
           )}
 
-          <span className="text-lg">
-            <b>{alert?.labels?.alertname}</b>
-          </span>
+          <span className="text-lg font-bold">{alert?.labels?.alertname}</span>
 
           <Box className="mt-2">
             <AlertDescription description={alert.annotations?.description} />

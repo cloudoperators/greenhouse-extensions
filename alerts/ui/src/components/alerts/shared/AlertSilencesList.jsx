@@ -55,7 +55,9 @@ const AlertSilencesList = ({ alert }) => {
                 <DataGridCell>{formatDateTime(silence.startsAt)}</DataGridCell>
                 <DataGridCell>{formatDateTime(silence.endsAt)}</DataGridCell>
                 <DataGridCell>{silence.createdBy}</DataGridCell>
-                <DataGridCell>{silence.comment}</DataGridCell>
+                <DataGridCell className="break-all">
+                  {silence.comment}
+                </DataGridCell>
               </DataGridRow>
             ))}
           </DataGrid>
