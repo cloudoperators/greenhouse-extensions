@@ -56,8 +56,9 @@ const AlertSilences = ({ alert }) => {
                   <Button
                     size="small"
                     onClick={() => setShowDetailsFor(fingerprint)}
+                    icon="exitToApp"
                   >
-                    See details
+                    Go to details
                   </Button>
                 </DataGridCell>
               </DataGridRow>

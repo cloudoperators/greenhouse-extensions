@@ -15,4 +15,10 @@
   @apply py-0.5;
 }
 
+// datagrid row hover style
+// REMOVE THIS WHEN DATAGRID COMPONENT SUPPORTS HOVER
+.juno-datagrid-row:hover .juno-datagrid-cell {
+  @apply bg-theme-background-lvl-1;
+}
+
 
