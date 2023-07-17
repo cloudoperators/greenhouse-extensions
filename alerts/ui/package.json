@@ -67,15 +67,20 @@
       "type": "optional",
       "description": "Override the default theme. Possible values are theme-light or theme-dark (default)"
     },
+    "embedded": {
+      "value": "false",
+      "type": "optional",
+      "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Elektra.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
+    },
     "endpoint": {
       "value": "",
       "type": "required",
       "description": "Alertmanager API Endpoint URL"
     },
-    "embedded": {
-      "value": "false",
-      "type": "optional",
-      "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Elektra.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
+    "filterLabels": {
+      "value": "app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type",
+      "type": "required",
+      "description": "Labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The labels must be separated by comma. Default labes are: app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
     }
   },
   "appDependencies": {
