@@ -6,6 +6,7 @@ import {
   SelectOption,
   Select,
   Stack,
+  SearchInput,
 } from "juno-ui-components"
 import {
   useFilterLabels,
@@ -20,8 +21,12 @@ const FilterSelect = () => {
   const [filterValue, setFilterValue] = useState()
   const [resetKey, setResetKey] = useState(Date.now())
 
-  const { addActiveFilter, loadFilterLabelValues, clearActiveFilters } =
-    useFilterActions()
+  const {
+    addActiveFilter,
+    loadFilterLabelValues,
+    clearActiveFilters,
+    setSearchTerm,
+  } = useFilterActions()
   const filterLabels = useFilterLabels()
   const filterLabelValues = useFilterLabelValues()
   const activeFilters = useActiveFilters()
@@ -55,6 +60,18 @@ const FilterSelect = () => {
   const handleFilterValueChange = (value) => {
     setFilterValue(value)
     handleFilterAdd(value)
+  }
+
+  const handleSearchChange = (value) => {
+    console.log("handleSearchChange: ", value.target.value)
+    // debounce setSearchTerm to avoid unnecessary re-renders
+    const debouncedSearchTerm = setTimeout(() => {
+      console.log("debouncedSearchTerm: ", value.target.value)
+      setSearchTerm(value.target.value)
+    }, 500)
+
+    // clear timeout if we have a new value
+    return () => clearTimeout(debouncedSearchTerm)
   }
 
   // const handleKeyDown = (event) => {
@@ -113,6 +130,12 @@ const FilterSelect = () => {
           variant="subdued"
         />
       )}
+      <SearchInput
+        className="w-96 ml-auto"
+        onSearch={(value) => setSearchTerm(value)}
+        onClear={() => setSearchTerm(null)}
+        onChange={(value) => handleSearchChange(value)}
+      />
     </Stack>
   )
 }

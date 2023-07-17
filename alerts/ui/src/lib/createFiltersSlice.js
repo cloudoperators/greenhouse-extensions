@@ -7,6 +7,7 @@ const createFiltersSlice = (set, get) => ({
     filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
     predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
     activePredefinedFilter: null, // the currently active predefined filter
+    searchTerm: "", // the search term used for full-text filtering
 
     actions: {
       setLabels: (labels) =>
@@ -185,6 +186,18 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.loadFilterLabelValues"
         )
+      },
+
+      setSearchTerm: (searchTerm) => {
+        set(
+          produce((state) => {
+            state.filters.searchTerm = searchTerm
+          }),
+          false,
+          "filters.setSearchTerm"
+        )
+        // after setting the search term: filter items
+        get().alerts.actions.filterItems()
       },
 
       // TODO:
