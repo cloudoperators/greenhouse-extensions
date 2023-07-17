@@ -11,11 +11,13 @@ const createFiltersSlice = (set, get) => ({
     actions: {
       setLabels: (labels) =>
         set(
-          (state) => {
+          (state) => {            
+            if (!labels || typeof labels !== "string") return state
+            const filterLabels = labels.split(",")
             return {
               filters: {
                 ...state.filters,
-                labels,
+                labels: filterLabels,
               },
             }
           },

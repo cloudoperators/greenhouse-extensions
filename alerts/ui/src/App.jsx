@@ -24,27 +24,9 @@ function App(props = {}) {
   const { setExcludedLabels } = useSilencesActions()
   const { setEnrichedLabels } = useAlertsActions()
 
-  /** TODO:
-   * load the values from kubernetes plugin config instead of hardcoding
-   * */
-  // transfer plugin config to store
   useLayoutEffect(() => {
-    // load from plugin config
-    const filterLabels = [
-      "app",
-      "cluster",
-      "cluster_type",
-      "context",
-      "job",
-      "region",
-      "service",
-      "severity",
-      "status",
-      "support_group",
-      "tier",
-      "type",
-    ]
-    setLabels(filterLabels)
+    // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria.
+    if (props.filterLabels) setLabels(props.filterLabels)
 
     const silenceExcludedLabels = ["pod", "instance"]
     setExcludedLabels(silenceExcludedLabels)
