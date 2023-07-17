@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { DateTime } from "luxon"
 
 import {
@@ -10,6 +10,17 @@ import {
 } from "juno-ui-components"
 
 import { useSilencesActions } from "../../../hooks/useAppStore"
+
+const badgeVariant = (state) => {
+  switch (state) {
+    case "active":
+      return "info"
+    case "processing":
+      return "warning"
+    default:
+      return "default"
+  }
+}
 
 const AlertSilencesList = ({ alert }) => {
   const dateFormat = { ...DateTime.DATETIME_SHORT }
@@ -44,9 +55,7 @@ const AlertSilencesList = ({ alert }) => {
                 <DataGridCell>
                   <div>
                     <Badge
-                      variant={
-                        silence.status?.state === "active" ? "info" : "default"
-                      }
+                      variant={badgeVariant(silence?.status?.state)}
                     >
                       {silence.status?.state}
                     </Badge>
