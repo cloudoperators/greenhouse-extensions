@@ -119,6 +119,7 @@ const SilenceNew = ({ alert, size, variant }) => {
 
     const newSilence = {
       ...newFormState,
+      status: { state: "processing" },
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
     }
