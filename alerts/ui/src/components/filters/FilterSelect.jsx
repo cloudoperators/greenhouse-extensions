@@ -43,7 +43,6 @@ const FilterSelect = () => {
       // in Radix UI. See: https://github.com/radix-ui/primitives/issues/1569
       setResetKey(Date.now())
 
-      // TODO: remove filterValue from available value list
     } else {
       // TODO: show error -> please select filter/value
     }
@@ -63,10 +62,8 @@ const FilterSelect = () => {
   }
 
   const handleSearchChange = (value) => {
-    console.log("handleSearchChange: ", value.target.value)
     // debounce setSearchTerm to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
-      console.log("debouncedSearchTerm: ", value.target.value)
       setSearchTerm(value.target.value)
     }, 500)
 

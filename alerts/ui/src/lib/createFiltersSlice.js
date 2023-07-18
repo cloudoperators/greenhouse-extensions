@@ -188,6 +188,13 @@ const createFiltersSlice = (set, get) => ({
         )
       },
 
+      // for each filter label where we already loaded the values, reload them
+      reloadFilterLabelValues: () => {
+        Object.keys(get().filters.filterLabelValues).map((label) => {
+          get().filters.actions.loadFilterLabelValues(label)
+        })
+      },
+
       setSearchTerm: (searchTerm) => {
         set(
           produce((state) => {
