@@ -86,7 +86,13 @@
       "value": "pod,pod_name,instance",
       "type": "optional",
       "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be separated by comma. Default labels are: pod, pod_name, instance"
-    }    
+    },
+    "alertEnrichedLabels": {
+      "value": "status",
+      "type": "optional",
+      "description": "AlertEnrichedLabels are labels that are used to enrich the alert data and should not be used when creating a silence. The labels must be separated by comma. Default labels are: status"
+    }
+
   },
   "appDependencies": {
     "auth": "latest"
