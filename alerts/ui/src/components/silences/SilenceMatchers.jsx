@@ -4,7 +4,6 @@ import { Pill, Stack } from "juno-ui-components"
 
 // Matchers can be clicked if the matcher is configurable
 const SilenceMatchers = ({ matchers, onClickCallback, closeable }) => {
-  console.log("matchers:::::", matchers)
 
   // sort matchers by exclude flag
   const sortedMatchers = useMemo(() => {
