@@ -181,7 +181,12 @@ const createAlertsSlice = (set, get) => ({
 
       setEnrichedLabels: (labels) => {
         set(
-          (state) => ({ alerts: { ...state.alerts, enrichedLabels: labels } }),
+          (state) => {
+            if (!labels || typeof labels !== "string") return state
+            const newEnrichedLabels = labels.split(",") 
+            return { alerts: { ...state.alerts, enrichedLabels: newEnrichedLabels } }
+        }
+          ,
           false,
           "alerts.setEnrichedLabels"
         )
