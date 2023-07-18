@@ -1,10 +1,11 @@
 import * as React from "react"
-import { renderHook, act, waitFor } from "@testing-library/react"
+import { renderHook, act } from "@testing-library/react"
 import {
   useSilencesActions,
   useSilencesLocalItems,
   useAlertsActions,
   useAlertsItems,
+  useSilencesExcludedLabels,
   StoreProvider,
 } from "../hooks/useAppStore"
 import {
@@ -517,7 +518,7 @@ describe("getExpiredSilences", () => {
     )
 
     // set the excluded labels
-    act(() => store.result.current.silenceActions.setExcludedLabels(["pod"]))
+    act(() => store.result.current.silenceActions.setExcludedLabels("pod"))
     // create an alert with custom status
     const alert = createFakeAlertWith({
       fingerprint: "123",
@@ -707,4 +708,36 @@ describe("getLatestMappingSilence", () => {
     )
     expect(mappingResult.id).toEqual("external2")
   })
+})
+
+describe("setExcludedLabels", () => {
+  it("return empty array as default", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        excludedLabels: useSilencesExcludedLabels(),
+      }),
+      { wrapper }
+    )
+    expect(store.result.current.excludedLabels).toEqual([])
+  })
+
+  it("accepts and transforms to array of strings coma separated strings containing the labels to use", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        excludedLabels: useSilencesExcludedLabels(),
+      }),
+      { wrapper }
+    )
+
+    act(() => {
+      store.result.current.actions.setExcludedLabels("pod,pod_name,instance")
+    })
+
+    expect(store.result.current.excludedLabels).toEqual(["pod","pod_name","instance"])
+  })
+
 })

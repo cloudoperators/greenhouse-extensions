@@ -80,8 +80,13 @@
     "filterLabels": {
       "value": "app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type",
       "type": "required",
-      "description": "Labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The labels must be separated by comma. Default labes are: app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
-    }
+      "description": "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The labels must be separated by comma. Default labels are: app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
+    },
+    "silenceExcludedLabels": {
+      "value": "pod,pod_name,instance",
+      "type": "optional",
+      "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be separated by comma. Default labels are: pod, pod_name, instance"
+    }    
   },
   "appDependencies": {
     "auth": "latest"
