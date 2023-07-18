@@ -28,10 +28,10 @@ function App(props = {}) {
     // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria.
     if (props.filterLabels) setLabels(props.filterLabels)
 
-    const silenceExcludedLabels = ["pod", "instance"]
-    setExcludedLabels(silenceExcludedLabels)
+    // silenceExcludedLabels are re labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.
+    if(props.silenceExcludedLabels) setExcludedLabels(props.silenceExcludedLabels)
 
-    // labels that are enriched by the alert worker
+    // AlertEnrichedLabels are labels that are used to enrich the alert data and should not be used when creating a silence
     // this labels should be excluded when creating a silence
     const alertEnrichedLabels = ["status"]
     setEnrichedLabels(alertEnrichedLabels)

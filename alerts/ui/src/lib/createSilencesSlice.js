@@ -144,14 +144,15 @@ const createSilencesSlice = (set, get) => ({
         return { type: alert?.status?.state, isProcessing: false }
       },
       setExcludedLabels: (labels) => {
-        if (!labels) return
         return set(
-          (state) => ({
-            silences: {
+          (state) => { 
+            if (!labels || typeof labels !== "string") return state
+            const newExcludedLabels = labels.split(",")
+            return { silences: {
               ...state.silences,
-              excludedLabels: labels,
+              excludedLabels: newExcludedLabels,
             },
-          }),
+          }},
           false,
           "silences.setExcludedLabels"
         )
