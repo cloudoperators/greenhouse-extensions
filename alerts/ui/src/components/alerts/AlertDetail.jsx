@@ -105,7 +105,7 @@ const AlertDetail = () => {
               <DataGridRow>
                 <DataGridHeadCell>Labels</DataGridHeadCell>
                 <DataGridCell>
-                  <AlertLabels alert={alert} />
+                  <AlertLabels alert={alert} showAll={true} />
                 </DataGridCell>
               </DataGridRow>
             </DataGrid>

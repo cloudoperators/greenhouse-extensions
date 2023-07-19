@@ -61,7 +61,7 @@ const Alert = ({ alert }, ref) => {
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
       <DataGridCell>
-        <div>{alert.annotations?.summary}</div>
+        <div className="text-theme-high">{alert.annotations?.summary}</div>
         <div>
           <AlertDescription description={alert.annotations?.description} />
           <AlertLinks alert={alert} className="mb-4 mt-1" />

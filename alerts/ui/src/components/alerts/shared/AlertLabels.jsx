@@ -7,8 +7,8 @@ import { useFilterLabels } from "../../../hooks/useAppStore"
 /**
  * For each of the given alert's labels which is included in the configured filterLabels render a Pill showing filterLabel and filterValue
  */
-const AlertLabels = ({ alert }) => {
-  const filterLabels = useFilterLabels()
+const AlertLabels = ({ alert, showAll }) => {
+  const filterLabels = showAll ? Object.keys(alert?.labels) : useFilterLabels()
 
   return (
     <Stack gap="2" alignment="start" wrap={true}>
