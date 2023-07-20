@@ -4,7 +4,7 @@ import { Markup } from "interweave"
 import { descriptionParsed } from "../../../lib/utils"
 
 
-const AlertDescription = ({description}) => {
+const AlertDescription = ({description, subdued}) => {
 
   return (
     <Markup
@@ -15,7 +15,7 @@ const AlertDescription = ({description}) => {
         )
       )}
       tagName="div"
-      className="text-theme-light"
+      className={subdued ? "text-theme-light" : ""}
     />
   )
 }
