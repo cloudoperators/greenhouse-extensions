@@ -93,7 +93,7 @@ const AlertsList = () => {
           <DataGridCell colSpan={7}>
             <Stack gap="3">
               <Icon icon="info" color="text-theme-info" />
-              <div>We couldn't find anything. It's possible that the matching alerts are not active at the moment, or the chosen filters could be overly limiting.</div>
+              <div>Nothing found. The matching alerts might not be firing right now or the selected filters might be too restrictive.</div>
             </Stack>
           </DataGridCell>
         </DataGridRow>
