@@ -5,6 +5,7 @@ import {
   DataGridRow,
   DataGridCell,
   Icon,
+  Stack
 } from "juno-ui-components"
 import Alert from "./Alert"
 import {
@@ -73,22 +74,33 @@ const AlertsList = () => {
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
       )}
-      {alertsSorted?.map((alert, index) => {
-        if (alertsSorted.length === index + 1) {
-          // DataRow in alerts muss implement forwardRef
-          return (
-            <Alert
-              ref={lastListElementRef}
-              key={alert.fingerprint}
-              alert={alert}
-            />
-          )
-        }
-        return <Alert key={alert.fingerprint} alert={alert} />
-      })}
+      {alertsSorted?.length > 0 ?
+        alertsSorted?.map((alert, index) => {
+          if (alertsSorted.length === index + 1) {
+            // DataRow in alerts muss implement forwardRef
+            return (
+              <Alert
+                ref={lastListElementRef}
+                key={alert.fingerprint}
+                alert={alert}
+              />
+            )
+          }
+          return <Alert key={alert.fingerprint} alert={alert} />
+        })
+        :
+        <DataGridRow className="no-hover">
+          <DataGridCell colSpan={7}>
+            <Stack gap="3">
+              <Icon icon="info" color="text-theme-info" />
+              <div>We couldn't find anything. It's possible that the matching alerts are not active at the moment, or the chosen filters could be overly limiting.</div>
+            </Stack>
+          </DataGridCell>
+        </DataGridRow>
+      }
       {isAddingItems && (
-        <DataGridRow>
-          <DataGridCell colSpan={6}>Loading ...</DataGridCell>
+        <DataGridRow className="no-hover">
+          <DataGridCell colSpan={7}>Loading ...</DataGridCell>
         </DataGridRow>
       )}
     </DataGrid>
