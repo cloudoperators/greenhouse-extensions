@@ -3,7 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* If necessary, app styles can be added below */
 
 .inline-code {
@@ -16,9 +15,21 @@
 }
 
 // datagrid row hover style
-// REMOVE THIS WHEN DATAGRID COMPONENT SUPPORTS HOVER
-.juno-datagrid-row:hover .juno-datagrid-cell {
-  @apply bg-theme-background-lvl-1;
+// REMOVE THIS ONCE DATAGRID COMPONENT SUPPORTS HOVER
+.juno-datagrid-row:hover {
+  .juno-datagrid-cell {
+    @apply bg-theme-background-lvl-1;
+  }
+
+  &.no-hover {
+    .juno-datagrid-cell {
+      @apply bg-theme-background-lvl-0;
+    }
+  }
 }
 
-
+.juno-datagrid-row.active {
+  .juno-datagrid-cell {
+    @apply bg-theme-background-lvl-2;
+  }
+}
