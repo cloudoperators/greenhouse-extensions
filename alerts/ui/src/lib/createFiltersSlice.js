@@ -177,10 +177,11 @@ const createFiltersSlice = (set, get) => ({
                 state.alerts.items.map((item) => item.labels[filterLabel])
               ),
             ]
-            // remove any "blank" values from the list
+            // remove any "blank" values from the list, then sort
             state.filters.filterLabelValues[filterLabel].values = values.filter(
               (value) => (value ? true : false)
-            )
+            ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+
             state.filters.filterLabelValues[filterLabel].isLoading = false
           }),
           false,
