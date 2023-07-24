@@ -2,7 +2,7 @@ import React, { forwardRef } from "react"
 
 import { DataGridCell, DataGridRow } from "juno-ui-components"
 
-import { useGlobalsActions } from "../../hooks/useAppStore"
+import { useGlobalsActions, useShowDetailsFor } from "../../hooks/useAppStore"
 import AlertLabels from "./shared/AlertLabels"
 import AlertLinks from "./shared/AlertLinks"
 import SilenceNew from "../silences/SilenceNew"
@@ -35,7 +35,6 @@ const cellSeverityClasses = (severity) => {
 }
 
 const Alert = ({ alert }, ref) => {
-
   const { setShowDetailsFor } = useGlobalsActions()
 
   const handleShowDetails = (e) => {
@@ -45,7 +44,9 @@ const Alert = ({ alert }, ref) => {
 
   return (
     <DataGridRow
-      className="cursor-pointer"
+      className={`cursor-pointer ${
+        useShowDetailsFor() === alert?.fingerprint ? "active" : ""
+      }`}
       onClick={(e) => handleShowDetails(e)}
     >
       <DataGridCell className="pl-0">
@@ -63,7 +64,10 @@ const Alert = ({ alert }, ref) => {
       <DataGridCell>
         <div className="text-theme-high">{alert.annotations?.summary}</div>
         <div>
-          <AlertDescription description={alert.annotations?.description} subdued={true} />
+          <AlertDescription
+            description={alert.annotations?.description}
+            subdued={true}
+          />
           <AlertLinks alert={alert} className="mb-4 mt-1" />
         </div>
         <AlertLabels alert={alert} />
