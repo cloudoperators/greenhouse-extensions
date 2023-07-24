@@ -1,14 +1,21 @@
 import React from "react"
 import {
+  CodeBlock,
+  Container,
   DataGrid,
   DataGridRow,
   DataGridCell,
-  Panel,
   DataGridHeadCell,
+  JsonViewer,
+  Panel,
   PanelFooter,
   Stack,
   PanelBody,
   Spinner,
+  Tabs, 
+  TabList, 
+  Tab, 
+  TabPanel
 } from "juno-ui-components"
 import {
   useShowDetailsFor,
@@ -51,68 +58,82 @@ const AlertDetail = () => {
       size="large"
     >
       <PanelBody>
-        {!alert ? (
-          isAlertsLoading ? (
-            <Stack gap="2">
-              <span>Loading</span>
-              <Spinner variant="primary" />
-            </Stack>
-          ) : (
-            "Not found - the alert is probably not firing at the moment"
-          )
-        ) : (
-          <>
-            <DataGrid columns={2}>
-              <DataGridRow>
-                <DataGridHeadCell>Status</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertStatus alert={alert} />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Firing Since</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertTimestamp startTimestamp={alert?.startsAt} />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Service</DataGridHeadCell>
-                <DataGridCell>{alert?.labels?.service}</DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Region</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertRegion
-                    region={alert?.labels?.region}
-                    cluster={alert?.labels?.cluster}
-                  />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Description</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertDescription
-                    description={alert?.annotations?.description}
-                  />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Links</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertLinks alert={alert} />
-                </DataGridCell>
-              </DataGridRow>
-              <DataGridRow>
-                <DataGridHeadCell>Labels</DataGridHeadCell>
-                <DataGridCell>
-                  <AlertLabels alert={alert} showAll={true} />
-                </DataGridCell>
-              </DataGridRow>
-            </DataGrid>
+        <Tabs>
+          <TabList>
+            <Tab>Details</Tab>
+            <Tab>Raw Data</Tab>
+          </TabList>
+          <TabPanel>
+            <Container px={false} py>
+              {!alert ? (
+                isAlertsLoading ? (
+                  <Stack gap="2">
+                    <span>Loading</span>
+                    <Spinner variant="primary" />
+                  </Stack>
+                ) : (
+                  "Not found - the alert is probably not firing at the moment"
+                )
+              ) : (
+                <>
+                  <DataGrid columns={2}>
+                    <DataGridRow>
+                      <DataGridHeadCell>Status</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertStatus alert={alert} />
+                      </DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Firing Since</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertTimestamp startTimestamp={alert?.startsAt} />
+                      </DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Service</DataGridHeadCell>
+                      <DataGridCell>{alert?.labels?.service}</DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Region</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertRegion
+                          region={alert?.labels?.region}
+                          cluster={alert?.labels?.cluster}
+                        />
+                      </DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Description</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertDescription
+                          description={alert?.annotations?.description}
+                        />
+                      </DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Links</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertLinks alert={alert} />
+                      </DataGridCell>
+                    </DataGridRow>
+                    <DataGridRow>
+                      <DataGridHeadCell>Labels</DataGridHeadCell>
+                      <DataGridCell>
+                        <AlertLabels alert={alert} showAll={true} />
+                      </DataGridCell>
+                    </DataGridRow>
+                  </DataGrid>
+  
+                  <AlertSilences alert={alert} />
+                </>
+              )}
+            </Container>
+          </TabPanel>
 
-            <AlertSilences alert={alert} />
-          </>
-        )}
+          <TabPanel>
+            <Container px={false} py><CodeBlock><JsonViewer data={alert} expanded={true} /></CodeBlock></Container>
+          </TabPanel>
+        </Tabs>
       </PanelBody>
 
       <PanelFooter>
