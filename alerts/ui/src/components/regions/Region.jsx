@@ -1,16 +1,22 @@
 import React from "react"
 
-import { Icon, Stack } from "juno-ui-components"
+import { Stack } from "juno-ui-components"
 import RegionSeverity from "./RegionSeverity"
+import { useFilterActions, useActiveFilters } from "../../hooks/useAppStore"
 
 const regionStyles = `
   grid
   grid-cols-[repeat(4,_minmax(5rem,_1fr))]
+  group
   bg-theme-background-lvl-1
+  hover:bg-theme-background-lvl-2
+  hover:text-theme-high
+  cursor-pointer
 `
 
 const regionHeader = `
   bg-theme-background-lvl-2
+  group-hover:bg-theme-background-lvl-3
   font-bold
   px-3
   py-2
@@ -18,8 +24,23 @@ const regionHeader = `
 `
 
 const Region = ({ region, severityCounts }) => {
+  const { addActiveFilter, removeActiveFilter } = useFilterActions()
+  const activeFilters = useActiveFilters()
+
+  const handleRegionClick = () => {
+    // if the region is already active, remove it
+    if (activeFilters?.region?.includes(region)) {
+      removeActiveFilter("region", region)
+    } else {
+      addActiveFilter("region", region)
+    }
+  }
+
   return (
-    <div className={`region ${regionStyles}`}>
+    <div
+      className={`region ${regionStyles}`}
+      onClick={() => handleRegionClick()}
+    >
       <Stack alignment="center" distribution="center" className={regionHeader}>
         {region}
       </Stack>

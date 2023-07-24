@@ -42,7 +42,6 @@ const FilterSelect = () => {
       // so that the placeholder is rendered again. This is a workaround to fix an open issue
       // in Radix UI. See: https://github.com/radix-ui/primitives/issues/1569
       setResetKey(Date.now())
-
     } else {
       // TODO: show error -> please select filter/value
     }
@@ -122,7 +121,7 @@ const FilterSelect = () => {
       </InputGroup>
       {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
-          label="Clear all filters"
+          label="Clear all"
           onClick={() => clearActiveFilters()}
           variant="subdued"
         />
