@@ -225,7 +225,7 @@ const SilenceNew = ({ alert, size, variant }) => {
                   disabled
                 />
                 <Textarea
-                  className="mb-3"
+                  className="mb-3 h-20"
                   label="Description"
                   value={formState.comment}
                   onChange={(e) =>
