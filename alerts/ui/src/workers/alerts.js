@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import ApiService from "../api/apiService"
 import { get } from "../api/client"
 import { sortAlerts, countAlerts } from "../lib/utils"
@@ -62,9 +57,6 @@ const alertsService = new ApiService({
   debug: true,
   onFetchStart: () => self.postMessage({ action: "ALERTS_FETCH_START" }),
   onFetchEnd: () => self.postMessage({ action: "ALERTS_FETCH_END" }),
-  onFetchError: (error) => {
-    self.postMessage({ action: "ALERTS_FETCH_ERROR", error: error.message })
-  },
 })
 
 self.onmessage = (e) => {

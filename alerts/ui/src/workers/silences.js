@@ -24,6 +24,7 @@ const fetchAction = (endpoint) => {
 }
 
 const silenceService = new ApiService({
+  serviceName: "silences",
   debug: true,
   onFetchStart: () => self.postMessage({ action: "SILENCES_FETCH_START" }),
   onFetchEnd: () => self.postMessage({ action: "SILENCES_FETCH_END" }),

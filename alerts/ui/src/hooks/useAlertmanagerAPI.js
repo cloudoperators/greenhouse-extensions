@@ -6,7 +6,7 @@ import {
   useSilencesLocalItems,
 } from "./useAppStore"
 
-let alertsWorkerUrl = new URL("workers/api.js", import.meta.url)
+let alertsWorkerUrl = new URL("workers/alerts.js", import.meta.url)
 let silencesWorkerUrl = new URL("workers/silences.js", import.meta.url)
 
 const loadAlertsWorker = fetch(alertsWorkerUrl)
@@ -26,7 +26,6 @@ const loadSilencesWorker = fetch(silencesWorkerUrl)
 const useAlertmanagerAPI = (apiEndpoint) => {
   const {
     setAlertsData,
-    setFilteredItems,
     setIsLoading: setAlertsIsLoading,
     setIsUpdating: setAlertsIsUpdating,
   } = useAlertsActions()
@@ -51,12 +50,15 @@ const useAlertmanagerAPI = (apiEndpoint) => {
         const action = e.data.action
         switch (action) {
           case "ALERTS_UPDATE":
+            console.log("ALERT_UPDATE:::::", e.data)
             setAlertsData({ items: e.data.alerts, counts: e.data.counts })
             break
           case "ALERTS_FETCH_START":
+            console.log("ALERTS_FETCH_START:::::")
             setAlertsIsUpdating(true)
             break
           case "ALERTS_FETCH_END":
+            console.log("ALERTS_FETCH_END:::::")
             setAlertsIsUpdating(false)
             break
         }
@@ -64,11 +66,10 @@ const useAlertmanagerAPI = (apiEndpoint) => {
       // initial config
       worker.postMessage({
         action: "ALERTS_CONFIGURE",
-        apiEndpoint,
-        limit: false,
-        watch: true,
-        watchInterval: 300000, // 5 min
-        initialFetch: true,
+        fetchVars: {
+          apiEndpoint,
+          options: {},
+        },
       })
 
       cleanup = () => worker.terminate()
