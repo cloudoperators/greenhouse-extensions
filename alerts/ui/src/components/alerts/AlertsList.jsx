@@ -60,6 +60,7 @@ const AlertsList = () => {
       columns={7}
       minContentColumns={[0, 2, 5]}
       cellVerticalAlignment="top"
+      className="alerts"
     >
       {!alertsIsLoading && (
         <DataGridRow>

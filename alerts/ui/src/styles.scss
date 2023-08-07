@@ -15,15 +15,17 @@
 }
 
 // datagrid row hover style
-// REMOVE THIS WHEN DATAGRID COMPONENT SUPPORTS HOVER
-.juno-datagrid-row:hover {
-  .juno-datagrid-cell {
-    @apply bg-theme-background-lvl-1;
+// REMOVE THIS ONCE DATAGRID COMPONENT SUPPORTS HOVER
+.alerts {
+  .juno-datagrid-row:hover {
+    .juno-datagrid-cell {
+      @apply bg-theme-background-lvl-1;
+    }
   }
-}
 
-.juno-datagrid-row.active {
-  .juno-datagrid-cell {
-    @apply bg-theme-background-lvl-2;
+  .juno-datagrid-row.active {
+    .juno-datagrid-cell {
+      @apply bg-theme-background-lvl-2;
+    }
   }
 }
