@@ -17,10 +17,13 @@ const AlertLabels = ({ alert, showAll}) => {
   const { addActiveFilter, removeActiveFilter } = useFilterActions()
 
   const handleLabelClick = (e, filterLabel, filterValue) => {
-    // handle event only if the Pill is not already active
-    if (!activeFilters?.[filterLabel]?.includes(value)) {
+    // if filter isn't already active, add it
+    if (!activeFilters?.[filterLabel]?.includes(filterValue)) {
       e.stopPropagation()
       addActiveFilter(filterLabel, filterValue)
+    } else {
+      // otherwise remove it
+      handleRemoveFilter(e, filterLabel, filterValue)
     }
   }
 
