@@ -5,6 +5,7 @@ import {
   useFilterActions,
   useActiveFilters,
   useActivePredefinedFilter,
+  useSearchTerm,
   useShowDetailsFor,
   useGlobalsActions,
 } from "./useAppStore"
@@ -13,11 +14,14 @@ const urlStateManager = registerConsumer("supernova")
 const ACTIVE_FILTERS = "f"
 const ACTIVE_PREDEFINED_FILTER = "p"
 const DETAILS_FOR = "d"
+const SEARCH_TERM = "s"
 
 const useUrlState = () => {
   const loggedIn = useAuthLoggedIn()
-  const { setActiveFilters, setActivePredefinedFilter } = useFilterActions()
+  const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
+    useFilterActions()
   const activeFilters = useActiveFilters()
+  const searchTerm = useSearchTerm()
   const activePredefinedFilter = useActivePredefinedFilter()
   const { setIsUrlStateSetup, setShowDetailsFor } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
@@ -33,25 +37,31 @@ const useUrlState = () => {
     )
 
     // get active filters from url state
-    const activeFilters = urlStateManager.currentState()?.[ACTIVE_FILTERS]
-    if (activeFilters) {
-      setActiveFilters(activeFilters)
+    const activeFiltersFromURL =
+      urlStateManager.currentState()?.[ACTIVE_FILTERS]
+    if (activeFiltersFromURL) {
+      setActiveFilters(activeFiltersFromURL)
+    }
+
+    const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
+    if (searchTermFromURL) {
+      setSearchTerm(searchTermFromURL)
     }
 
     // get active predefined filters from url state
-    const activePredefinedFilter =
+    const activePredefinedFilterFromURL =
       urlStateManager.currentState()?.[ACTIVE_PREDEFINED_FILTER]
-    if (activePredefinedFilter) {
-      setActivePredefinedFilter(activePredefinedFilter)
+    if (activePredefinedFilterFromURL) {
+      setActivePredefinedFilter(activePredefinedFilterFromURL)
     }
 
     // get detail view target from url state
-    const detailsFor = urlStateManager.currentState()?.[DETAILS_FOR]
-    if (detailsFor) {
-      setShowDetailsFor(detailsFor)
+    const detailsForFromURL = urlStateManager.currentState()?.[DETAILS_FOR]
+    if (detailsForFromURL) {
+      setShowDetailsFor(detailsForFromURL)
     }
     setIsUrlStateSetup(true)
-  }, [loggedIn, setActiveFilters])
+  }, [loggedIn, setActiveFilters, setActivePredefinedFilter, setSearchTerm])
 
   // sync URL state for filters
   useEffect(() => {
@@ -61,9 +71,16 @@ const useUrlState = () => {
       ...urlStateManager.currentState(),
       [ACTIVE_FILTERS]: activeFilters,
     })
-    // urlStateManager.push({[ACTIVE_FILTERS]: activeFilters }, {merge: true}) // why this no worky?
-    // console.log("===== urlstate filter: ", urlStateManager.currentState())
   }, [loggedIn, activeFilters])
+
+  // sync URL state for search term
+  useEffect(() => {
+    if (!loggedIn) return
+    urlStateManager.push({
+      ...urlStateManager.currentState(),
+      [SEARCH_TERM]: searchTerm,
+    })
+  }, [loggedIn, searchTerm])
 
   // sync URL state for predefined filters
   useEffect(() => {
@@ -72,8 +89,6 @@ const useUrlState = () => {
       ...urlStateManager.currentState(),
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
     })
-    // urlStateManager.push({[ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter }, {merge: true})
-    // console.log("===== urlstate predef: ", urlStateManager.currentState())
   }, [loggedIn, activePredefinedFilter])
 
   // sync URL state for details
@@ -83,8 +98,6 @@ const useUrlState = () => {
       ...urlStateManager.currentState(),
       [DETAILS_FOR]: detailsFor,
     })
-    // urlStateManager.push({[DETAILS_FOR]: detailsFor }, {merge: true})
-    // console.log("===== urlstate details: ", urlStateManager.currentState())
   }, [loggedIn, detailsFor])
 }
 
