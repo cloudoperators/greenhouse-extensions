@@ -35,6 +35,7 @@ const AlertSilencesList = ({ alert }) => {
 
   const activeSilences = getMappingSilences(alert)
   const expiredSilences = getExpiredSilences(alert)
+  console.log("expiredSilences", expiredSilences)
   const silenceList = activeSilences.concat(expiredSilences)
 
   return (
