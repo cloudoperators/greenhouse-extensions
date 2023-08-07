@@ -13,6 +13,7 @@ import {
   useFilterLabelValues,
   useFilterActions,
   useActiveFilters,
+  useSearchTerm,
 } from "../../hooks/useAppStore"
 import { humanizeString } from "../../lib/utils"
 
@@ -30,6 +31,7 @@ const FilterSelect = () => {
   const filterLabels = useFilterLabels()
   const filterLabelValues = useFilterLabelValues()
   const activeFilters = useActiveFilters()
+  const searchTerm = useSearchTerm()
 
   const handleFilterAdd = (value) => {
     if (filterLabel && (filterValue || value)) {
@@ -128,6 +130,7 @@ const FilterSelect = () => {
       )}
       <SearchInput
         className="w-96 ml-auto"
+        value={searchTerm}
         onSearch={(value) => setSearchTerm(value)}
         onClear={() => setSearchTerm(null)}
         onChange={(value) => handleSearchChange(value)}
