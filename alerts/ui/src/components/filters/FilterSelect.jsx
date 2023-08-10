@@ -130,7 +130,7 @@ const FilterSelect = () => {
       )}
       <SearchInput
         className="w-96 ml-auto"
-        value={searchTerm}
+        value={searchTerm || ""}
         onSearch={(value) => setSearchTerm(value)}
         onClear={() => setSearchTerm(null)}
         onChange={(value) => handleSearchChange(value)}
