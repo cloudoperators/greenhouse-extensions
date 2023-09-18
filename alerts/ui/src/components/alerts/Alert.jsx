@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react"
+import React, { forwardRef, useRef } from "react"
 
 import { DataGridCell, DataGridRow } from "juno-ui-components"
 
@@ -36,8 +36,17 @@ const cellSeverityClasses = (severity) => {
 
 const Alert = ({ alert }, ref) => {
   const { setShowDetailsFor } = useGlobalsActions()
+  const rowRef = useRef(null)
 
   const handleShowDetails = (e) => {
+    // Using the rowRef to check what was clicked
+    // if the click was not on the row itself or on the row's direct children (i.e. the cells)
+    // then we don't want to show the details because then the click was on a child of one of the cells
+    // an additional check is made for targets with className "interactive". If the target has this then the click
+    // handling should proceed even if the previous condition was true
+    if ((e.target.parentNode !== rowRef.current) && !e.target.classList.contains("interactive")) return
+
+    e.stopPropagation()
     e.preventDefault()
     setShowDetailsFor(alert?.fingerprint)
   }
@@ -47,6 +56,7 @@ const Alert = ({ alert }, ref) => {
       className={`cursor-pointer ${
         useShowDetailsFor() === alert?.fingerprint ? "active" : ""
       }`}
+      ref={rowRef}
       onClick={(e) => handleShowDetails(e)}
     >
       <DataGridCell className="pl-0">
@@ -61,8 +71,8 @@ const Alert = ({ alert }, ref) => {
         />
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
-      <DataGridCell>
-        <div className="text-theme-high">{alert.annotations?.summary}</div>
+      <DataGridCell className="cursor-default">
+        <div className="interactive text-theme-high cursor-pointer">{alert.annotations?.summary}</div>
         <div>
           <AlertDescription
             description={alert.annotations?.description}

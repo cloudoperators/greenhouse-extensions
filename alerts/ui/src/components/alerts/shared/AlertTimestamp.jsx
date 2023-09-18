@@ -11,7 +11,7 @@ const AlertTimestamp = ({startTimestamp}) => {
   const daysFiring = DateTime.now().diff(startTime, "days")
 
   return (
-    <Stack direction="vertical" gap="1">
+    <Stack direction="vertical" gap="1" className="cursor-default">
       <div>{startTime.toLocaleString(dateFormat)}</div>
       <div>{startTime.toLocaleString(timeFormat)}</div>
       {daysFiring.days > 7 && (

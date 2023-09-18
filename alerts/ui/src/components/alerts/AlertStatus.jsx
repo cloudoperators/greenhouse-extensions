@@ -22,7 +22,7 @@ const AlertStatus = ({ alert }) => {
   }, [alert, allSilences, localSilences])
 
   return (
-    <>
+    <div className="cursor-default">
       {state && (
         <>
           {state?.isProcessing ? (
@@ -53,7 +53,7 @@ const AlertStatus = ({ alert }) => {
           </Stack>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
