@@ -86,7 +86,7 @@ const FilterSelect = () => {
           className="filter-label-select w-64 mb-0"
           label="Filter"
           value={filterLabel}
-          onValueChange={(val) => handleFilterLabelChange(val)}
+          onChange={(val) => handleFilterLabelChange(val)}
         >
           {filterLabels?.map((filterLabel) => (
             <SelectOption
@@ -99,7 +99,7 @@ const FilterSelect = () => {
         <Select
           name="filterValue"
           value={filterValue}
-          onValueChange={(value) => handleFilterValueChange(value)}
+          onChange={(value) => handleFilterValueChange(value)}
           disabled={filterLabelValues[filterLabel] ? false : true}
           loading={filterLabelValues[filterLabel]?.isLoading}
           className="filter-value-select w-96 bg-theme-background-lvl-1"
