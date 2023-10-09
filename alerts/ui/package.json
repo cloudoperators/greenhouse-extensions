@@ -40,7 +40,7 @@
     "tailwindcss": "^3.3.1",
     "url-state-provider": "*",
     "util": "^0.12.4",
-    "zustand": "^4.1.1"
+    "zustand": "4.3.7"
   },
   "peerDependencies": {
     "@tanstack/react-query": "4.28.0",
@@ -51,10 +51,10 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "url-state-provider": "*",
-    "zustand": "^4.1.1"
+    "zustand": "4.3.7"
   },
   "importmapExtras": {
-    "zustand/middleware": "^4.1.1"
+    "zustand/middleware": "4.3.7"
   },
   "scripts": {
     "start": "PORT=$APP_PORT NODE_ENV=development node esbuild.config.js --serve --watch",
