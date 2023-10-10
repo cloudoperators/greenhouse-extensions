@@ -23,6 +23,15 @@ const createAuthDataSlice = (set, get) => ({
       },
       setData: (data) => {
         if (!data) return
+        // check if data has changed before updating the state
+        if (
+          data?.isProcessing === get().auth.isProcessing &&
+          data?.loggedIn === get().auth.loggedIn &&
+          data?.error === get().auth.error &&
+          data?.auth === get().auth.data
+        )
+          return
+
         set(
           (state) => ({
             auth: {

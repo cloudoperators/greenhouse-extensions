@@ -3,7 +3,6 @@ import React, { useEffect, useLayoutEffect } from "react"
 import { AppShellProvider } from "juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
-import useAlertmanagerAPI from "./hooks/useAlertmanagerAPI"
 import {
   useGlobalsActions,
   useFilterActions,
@@ -11,11 +10,9 @@ import {
   useAlertsActions,
   StoreProvider,
 } from "./hooks/useAppStore"
-import useCommunication from "./hooks/useCommunication"
+import AsyncWorker from "./components/AsyncWorker"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
-import useInitialFilters from "./hooks/useInitialFilters"
-import useUrlState from "./hooks/useUrlState"
 
 function App(props = {}) {
   const { setLabels, setPredefinedFilters, setActivePredefinedFilter } =
@@ -26,7 +23,9 @@ function App(props = {}) {
 
   useLayoutEffect(() => {
     // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria.
-    setLabels("app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type")
+    setLabels(
+      "app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
+    )
 
     // silenceExcludedLabels are re labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.
     setExcludedLabels("pod,pod_name,instance")
@@ -80,11 +79,6 @@ function App(props = {}) {
     setApiEndpoint(props.endpoint)
   }, [])
 
-  useCommunication()
-  useAlertmanagerAPI(props.endpoint)
-  useUrlState()
-  useInitialFilters()
-
   useLayoutEffect(() => {
     if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
   }, [])
@@ -92,6 +86,7 @@ function App(props = {}) {
   return (
     <MessagesProvider>
       <CustomAppShell>
+        <AsyncWorker endpoint={props.endpoint} />
         <AppContent props={props} />
       </CustomAppShell>
     </MessagesProvider>
