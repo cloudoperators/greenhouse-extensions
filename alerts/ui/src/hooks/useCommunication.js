@@ -36,8 +36,8 @@ const useCommunication = () => {
     return unwatch
   }, [setIsActive])
 
+  // allow supernova to login/logout the user. Visible when app is not in embedded mode
   useEffect(() => {
-    console.log("authLastAction:::", authLastAction)
     if (!authAppLoaded || authIsProcessing || authError) return
     if (authLastAction?.name === AUTH_ACTIONS.SIGN_ON && !authLoggedIn) {
       broadcast("AUTH_LOGIN", "supernova", { debug: false })
