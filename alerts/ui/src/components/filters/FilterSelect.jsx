@@ -18,8 +18,8 @@ import {
 import { humanizeString } from "../../lib/utils"
 
 const FilterSelect = () => {
-  const [filterLabel, setFilterLabel] = useState()
-  const [filterValue, setFilterValue] = useState()
+  const [filterLabel, setFilterLabel] = useState("")
+  const [filterValue, setFilterValue] = useState("")
   const [resetKey, setResetKey] = useState(Date.now())
 
   const {
@@ -39,11 +39,7 @@ const FilterSelect = () => {
       addActiveFilter(filterLabel, filterValue || value)
 
       // reset filterValue
-      setFilterValue(undefined)
-      // force key change to reset the Select component to its initial state
-      // so that the placeholder is rendered again. This is a workaround to fix an open issue
-      // in Radix UI. See: https://github.com/radix-ui/primitives/issues/1569
-      setResetKey(Date.now())
+      setFilterValue("")
     } else {
       // TODO: show error -> please select filter/value
     }
@@ -88,11 +84,11 @@ const FilterSelect = () => {
           value={filterLabel}
           onChange={(val) => handleFilterLabelChange(val)}
         >
-          {filterLabels?.map((filterLabel) => (
+          {filterLabels?.map((filter) => (
             <SelectOption
-              value={filterLabel}
-              label={humanizeString(filterLabel)}
-              key={filterLabel}
+              value={filter}
+              label={humanizeString(filter)}
+              key={filter}
             />
           ))}
         </Select>
