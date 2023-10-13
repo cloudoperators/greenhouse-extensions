@@ -66,7 +66,13 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.itemsFiltered = state.alerts.items.filter((item) => {
               let visible = true
 
-              // test if item labels match the regex matchers of the active predefined filter
+              // test if the item has a label "visibility" with value "hidden"
+              // if it does, immediately return false, no further processing needed, these items are always filtered out
+              if (item.labels.visibility === "hidden") {
+                return false
+              }
+
+              // if the item is still visible test if item labels match the regex matchers of the active predefined filter
               // for each key and value pair in the filter matchers check if the key's value regex matches the item's label value for this key
               // if it doesn't match, set visible to false and break out of the loop
               activePredefinedFilter &&
