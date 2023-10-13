@@ -241,7 +241,7 @@ const SilenceNew = ({ alert, size, variant }) => {
                   required
                   label="Duration"
                   value={formState.duration}
-                  onValueChange={(value) =>
+                  onChange={(value) =>
                     onInputChanged({
                       key: "duration",
                       value,
