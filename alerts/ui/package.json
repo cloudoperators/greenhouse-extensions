@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "author": "Juno team (SAP)",
   "license": "MIT",
   "source": "src/index.js",

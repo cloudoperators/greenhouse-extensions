@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from "react"
+import React, { useLayoutEffect } from "react"
 
 import { AppShellProvider } from "juno-ui-components"
 import AppContent from "./AppContent"
