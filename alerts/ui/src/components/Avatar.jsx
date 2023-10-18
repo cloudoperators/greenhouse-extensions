@@ -6,21 +6,20 @@ h-8
 w-8
 bg-theme-background-lvl-2
 rounded-full
-mr-2
 bg-cover 
 `
 
-const Avatar = ({ userName, displayName, avatarUrl }) => {
+const Avatar = ({ userName, url }) => {
   return (
     <Stack alignment="center">
       <div
         style={{
-          background: `url(${avatarUrl?.small}) no-repeat`,
+          background: `url(${url}) no-repeat`,
           backgroundSize: `cover`,
         }}
         className={avatarCss}
       />
-      {displayName && <span>{userName}</span>}
+      {userName && <span className="ml-2">{userName}</span>}
     </Stack>
   )
 }
