@@ -47,8 +47,6 @@ const useAppStore = (selector) => useStore(useContext(StoreContext), selector)
 // Globals exports
 export const useGlobalsEmbedded = () =>
   useAppStore((state) => state.globals.embedded)
-export const useGlobalsIsUrlStateSetup = () =>
-  useAppStore((state) => state.globals.isUrlStateSetup)
 export const useShowDetailsFor = () =>
   useAppStore((state) => state.globals.showDetailsFor)
 export const useGlobalsApiEndpoint = () =>

@@ -1,7 +1,9 @@
-import { useLayoutEffect, useEffect } from "react"
+import { useLayoutEffect, useEffect, useState } from "react"
 import { registerConsumer } from "url-state-provider"
 import {
   useAuthLoggedIn,
+  useAuthData,
+  useFilterLabels,
   useFilterActions,
   useActiveFilters,
   useActivePredefinedFilter,
@@ -17,30 +19,47 @@ const DETAILS_FOR = "d"
 const SEARCH_TERM = "s"
 
 const useUrlState = () => {
+  const [isURLRead, setIsURLRead] = useState(false)
   const loggedIn = useAuthLoggedIn()
+  const authData = useAuthData()
   const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
     useFilterActions()
+  const filterLabels = useFilterLabels()
   const activeFilters = useActiveFilters()
   const searchTerm = useSearchTerm()
   const activePredefinedFilter = useActivePredefinedFilter()
-  const { setIsUrlStateSetup, setShowDetailsFor } = useGlobalsActions()
+  const { setShowDetailsFor } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
 
   // Set initial state from URL (on login)
   // useLayoutEffect so this is done before rendering anything
   useLayoutEffect(() => {
-    if (!loggedIn) return
+    // do not read the url state until the user is logged in and do it just once
+    if (!loggedIn || isURLRead) return
 
     console.log(
-      "SUPERNOVA:: setting up state from url::",
+      "SUPERNOVA:: setting up state from url with state::",
       urlStateManager.currentState()
     )
 
     // get active filters from url state
     const activeFiltersFromURL =
       urlStateManager.currentState()?.[ACTIVE_FILTERS]
-    if (activeFiltersFromURL) {
+    // check if there are active filters in the url state
+    if (activeFiltersFromURL && Object.keys(activeFiltersFromURL).length > 0) {
       setActiveFilters(activeFiltersFromURL)
+    } else {
+      // otherwise set the support group filter
+      // we just add this default filter when no other filters are set per URL
+      const label = "support_group"
+      if (
+        authData?.parsed?.teams?.length > 0 &&
+        filterLabels?.length > 0 &&
+        filterLabels.includes(label)
+      ) {
+        // this will also trigger a filterItems() call from the store self
+        setActiveFilters({ [label]: [`${authData.parsed.teams}`] })
+      }
     }
 
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
@@ -60,45 +79,22 @@ const useUrlState = () => {
     if (detailsForFromURL) {
       setShowDetailsFor(detailsForFromURL)
     }
-    setIsUrlStateSetup(true)
-  }, [loggedIn, setActiveFilters, setActivePredefinedFilter, setSearchTerm])
+    setIsURLRead(true)
+  }, [loggedIn, isURLRead, authData, filterLabels])
 
-  // sync URL state for filters
+  // sync URL with the desired states
   useEffect(() => {
-    if (!loggedIn) return
-    // activeFilters: {cluster:["test1", "test2"], region: ["test1"]}
+    // do not synchronize the states until the url state is read and user logged in
+    if (!loggedIn || !isURLRead) return
+
     urlStateManager.push({
       ...urlStateManager.currentState(),
       [ACTIVE_FILTERS]: activeFilters,
-    })
-  }, [loggedIn, activeFilters])
-
-  // sync URL state for search term
-  useEffect(() => {
-    if (!loggedIn) return
-    urlStateManager.push({
-      ...urlStateManager.currentState(),
       [SEARCH_TERM]: searchTerm,
-    })
-  }, [loggedIn, searchTerm])
-
-  // sync URL state for predefined filters
-  useEffect(() => {
-    if (!loggedIn) return
-    urlStateManager.push({
-      ...urlStateManager.currentState(),
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
-    })
-  }, [loggedIn, activePredefinedFilter])
-
-  // sync URL state for details
-  useEffect(() => {
-    if (!loggedIn) return
-    urlStateManager.push({
-      ...urlStateManager.currentState(),
       [DETAILS_FOR]: detailsFor,
     })
-  }, [loggedIn, detailsFor])
+  }, [loggedIn, activeFilters, searchTerm, activePredefinedFilter, detailsFor])
 }
 
 export default useUrlState
