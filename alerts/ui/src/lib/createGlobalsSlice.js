@@ -3,7 +3,6 @@ import produce from "immer"
 const createGlobalsSlice = (set, get) => ({
   globals: {
     embedded: false,
-    isUrlStateSetup: false,
     showDetailsFor: null,
     apiEndpoint: null,
 
@@ -14,20 +13,16 @@ const createGlobalsSlice = (set, get) => ({
           false,
           "globals/setEmbedded"
         ),
-      setIsUrlStateSetup: (setup) =>
-        set(
-          (state) => ({
-            globals: { ...state.globals, isUrlStateSetup: setup },
-          }),
-          false,
-          "globals/setIsUrlStateSetup"
-        ),
       setShowDetailsFor: (alertID) =>
         set(
           (state) => ({
-            // if the alertID is the same as the current one, we want to close the details panel again, 
+            // if the alertID is the same as the current one, we want to close the details panel again,
             // otherwise set the new alertID to replace the details in the panel
-            globals: { ...state.globals, showDetailsFor: get().globals.showDetailsFor === alertID ? null : alertID },
+            globals: {
+              ...state.globals,
+              showDetailsFor:
+                get().globals.showDetailsFor === alertID ? null : alertID,
+            },
           }),
           false,
           "globals/setShowDetailsFor"
