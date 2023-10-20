@@ -53,12 +53,12 @@ const useUrlState = () => {
       // we just add this default filter when no other filters are set per URL
       const label = "support_group"
       if (
-        authData?.parsed?.teams?.length > 0 &&
+        authData?.parsed?.supportGroups?.length > 0 &&
         filterLabels?.length > 0 &&
         filterLabels.includes(label)
       ) {
         // this will also trigger a filterItems() call from the store self
-        setActiveFilters({ [label]: [`${authData.parsed.teams}`] })
+        setActiveFilters({ [label]: [`${authData.parsed.supportGroups}`] })
       }
     }
 
