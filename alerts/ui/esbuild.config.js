@@ -160,11 +160,11 @@ const build = async () => {
                 // rewrite urls inside css
                 url({
                   url: "inline",
-                  maxSize: 10, // use dataurls if files are smaller than 10k
-                  fallback: "copy", // if files are bigger use copy method
-                  assetsPath: "./build/assets",
-                  useHash: true,
-                  optimizeSvgEncode: true,
+                  // maxSize: 10, // use dataurls if files are smaller than 10k
+                  // fallback: "copy", // if files are bigger use copy method
+                  // assetsPath: "./build/assets",
+                  // useHash: true,
+                  // optimizeSvgEncode: true,
                 }),
               ]
 
