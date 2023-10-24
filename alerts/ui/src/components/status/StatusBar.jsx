@@ -4,7 +4,7 @@ import { DateTime } from "luxon"
 import { Spinner, Stack } from "juno-ui-components"
 
 const statusBarStyles = `
-  bg-theme-background-lvl-2
+  bg-theme-background-lvl-1
   py-1.5
   px-4
   my-px
