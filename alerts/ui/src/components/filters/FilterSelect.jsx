@@ -98,7 +98,7 @@ const FilterSelect = () => {
           onChange={(value) => handleFilterValueChange(value)}
           disabled={filterLabelValues[filterLabel] ? false : true}
           loading={filterLabelValues[filterLabel]?.isLoading}
-          className="filter-value-select w-96 bg-theme-background-lvl-1"
+          className="filter-value-select w-96 bg-theme-background-lvl-0"
           key={resetKey}
         >
           {filterLabelValues[filterLabel]?.values

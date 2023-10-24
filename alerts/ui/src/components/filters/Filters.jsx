@@ -5,7 +5,7 @@ import FilterSelect from "./FilterSelect"
 import FilterPills from "./FilterPills"
 
 const filtersStyles = `
-  bg-theme-background-lvl-2
+  bg-theme-background-lvl-1
   py-2
   px-4
   my-px
