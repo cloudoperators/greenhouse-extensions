@@ -50,7 +50,7 @@ const useUrlState = () => {
       setActiveFilters(activeFiltersFromURL)
     } else {
       // otherwise set the support group filter
-      // we just add this default filter when no other filters are set per URL
+      // we just add this default filter when no other filters are set via URL
       const label = "support_group"
       if (
         authData?.parsed?.supportGroups?.length > 0 &&
@@ -58,8 +58,9 @@ const useUrlState = () => {
         filterLabels.includes(label)
       ) {
         // this will also trigger a filterItems() call from the store self
-        setActiveFilters({ [label]: [`${authData.parsed.supportGroups}`] })
+        setActiveFilters({ [label]: authData.parsed.supportGroups })
       }
+      
     }
 
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
