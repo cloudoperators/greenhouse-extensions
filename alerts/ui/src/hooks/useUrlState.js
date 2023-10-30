@@ -45,6 +45,7 @@ const useUrlState = () => {
     // get active filters from url state
     const activeFiltersFromURL =
       urlStateManager.currentState()?.[ACTIVE_FILTERS]
+
     // check if there are active filters in the url state
     if (activeFiltersFromURL && Object.keys(activeFiltersFromURL).length > 0) {
       setActiveFilters(activeFiltersFromURL)
@@ -60,7 +61,6 @@ const useUrlState = () => {
         // this will also trigger a filterItems() call from the store self
         setActiveFilters({ [label]: authData.parsed.supportGroups })
       }
-      
     }
 
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
@@ -87,6 +87,8 @@ const useUrlState = () => {
   useEffect(() => {
     // do not synchronize the states until the url state is read and user logged in
     if (!loggedIn || !isURLRead) return
+
+    console.log("SUPERNOVA:: syncing url state with state::")
 
     urlStateManager.push({
       ...urlStateManager.currentState(),
