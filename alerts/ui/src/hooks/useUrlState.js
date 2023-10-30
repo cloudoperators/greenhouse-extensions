@@ -88,16 +88,38 @@ const useUrlState = () => {
     // do not synchronize the states until the url state is read and user logged in
     if (!loggedIn || !isURLRead) return
 
-    console.log("SUPERNOVA:: syncing url state with state::")
-
-    urlStateManager.push({
+    const newState = {
       ...urlStateManager.currentState(),
       [ACTIVE_FILTERS]: activeFilters,
       [SEARCH_TERM]: searchTerm,
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
       [DETAILS_FOR]: detailsFor,
-    })
+    }
+
+    // do not push the state if it is the same as the current one
+    // otherwise it will reset the browser history and the forward button will not work
+    if (
+      JSON.stringify(newState) ===
+      JSON.stringify(urlStateManager.currentState())
+    )
+      return
+
+    urlStateManager.push(newState)
   }, [loggedIn, activeFilters, searchTerm, activePredefinedFilter, detailsFor])
+
+  // Support for back button
+  useEffect(() => {
+    const unregisterStateListener = urlStateManager.onChange((state) => {
+      setActiveFilters(state?.[ACTIVE_FILTERS])
+      setSearchTerm(state?.[SEARCH_TERM])
+      setActivePredefinedFilter(state?.[ACTIVE_PREDEFINED_FILTER])
+      setShowDetailsFor(state?.[DETAILS_FOR])
+    })
+
+    return () => {
+      unregisterStateListener()
+    }
+  }, [])
 }
 
 export default useUrlState
