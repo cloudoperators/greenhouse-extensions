@@ -518,7 +518,7 @@ describe("getExpiredSilences", () => {
     )
 
     // set the excluded labels
-    act(() => store.result.current.silenceActions.setExcludedLabels("pod"))
+    act(() => store.result.current.silenceActions.setExcludedLabels(["pod"]))
     // create an alert with custom status
     const alert = createFakeAlertWith({
       fingerprint: "123",
@@ -723,7 +723,7 @@ describe("setExcludedLabels", () => {
     expect(store.result.current.excludedLabels).toEqual([])
   })
 
-  it("accepts and transforms to array of strings coma separated strings containing the labels to use", () => {
+  it("accepts array of strings containing the labels to use", () => {
     const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
     const store = renderHook(
       () => ({
@@ -734,10 +734,40 @@ describe("setExcludedLabels", () => {
     )
 
     act(() => {
-      store.result.current.actions.setExcludedLabels("pod,pod_name,instance")
+      store.result.current.actions.setExcludedLabels([
+        "pod",
+        "pod_name",
+        "instance",
+      ])
     })
 
-    expect(store.result.current.excludedLabels).toEqual(["pod","pod_name","instance"])
+    expect(store.result.current.excludedLabels).toEqual([
+      "pod",
+      "pod_name",
+      "instance",
+    ])
   })
 
+  it("warn the user if labels are different then an array of strings", () => {
+    const spy = jest.spyOn(console, "warn").mockImplementation(() => {})
+
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        excludedLabels: useSilencesExcludedLabels(),
+      }),
+      { wrapper }
+    )
+
+    act(() =>
+      store.result.current.actions.setExcludedLabels("pod,pod_name,instance")
+    )
+
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(
+      "[supernova]::setExcludedLabels: labels object is not an array of strings"
+    )
+    spy.mockRestore()
+  })
 })

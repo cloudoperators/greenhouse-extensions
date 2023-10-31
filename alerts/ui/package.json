@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "author": "Juno team (SAP)",
   "license": "MIT",
   "source": "src/index.js",
@@ -78,19 +78,14 @@
       "description": "Alertmanager API Endpoint URL"
     },
     "filterLabels": {
-      "value": "app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type",
-      "type": "required",
-      "description": "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The labels must be separated by comma. Default labels are: app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
+      "value": null,
+      "type": "optional",
+      "description": "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The 'Status' label serves as a default filter, automatically computed from the alert status attribute and will be not overwritten. The labels must be an array of strings. Example: [\"app\", \"cluster\", \"cluster_type\"]"
     },
     "silenceExcludedLabels": {
-      "value": "pod,pod_name,instance",
+      "value": null,
       "type": "optional",
-      "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be separated by comma. Default labels are: pod, pod_name, instance"
-    },
-    "alertEnrichedLabels": {
-      "value": "status",
-      "type": "optional",
-      "description": "AlertEnrichedLabels are labels that are used to enrich the alert data and should not be used when creating a silence. The labels must be separated by comma. Default labels are: status"
+      "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be an array of strings. Example: [\"pod\", \"pod_name\", \"instance\"]"
     }
   },
   "appDependencies": {

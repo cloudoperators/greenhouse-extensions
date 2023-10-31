@@ -1,22 +1,19 @@
 import * as React from "react"
 import { renderHook, act } from "@testing-library/react"
-import {  
+import {
   useFilterLabels,
   useFilterActions,
-  StoreProvider
+  StoreProvider,
 } from "../hooks/useAppStore"
-import {
-  createFakeAlertStatustWith,
-  createFakeAlertWith,
-  createFakeSilenceWith,
-} from "./fakeObjects"
 
+const originalConsoleError = global.console.warn
 
 describe("createFiltersSlice", () => {
-
   describe("setLabels", () => {
-    it("return empty array as default", () => {
-      const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    it("return default status label", () => {
+      const wrapper = ({ children }) => (
+        <StoreProvider>{children}</StoreProvider>
+      )
       const store = renderHook(
         () => ({
           actions: useFilterActions(),
@@ -24,11 +21,13 @@ describe("createFiltersSlice", () => {
         }),
         { wrapper }
       )
-      expect(store.result.current.filterLabels).toEqual([])
+      expect(store.result.current.filterLabels).toEqual(["status"])
     })
-  
-    it("accepts and transforms to array of strings coma separated strings containing the labels to use", () => {
-      const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+
+    it("just accepts array of strings", () => {
+      const wrapper = ({ children }) => (
+        <StoreProvider>{children}</StoreProvider>
+      )
       const store = renderHook(
         () => ({
           actions: useFilterActions(),
@@ -36,14 +35,64 @@ describe("createFiltersSlice", () => {
         }),
         { wrapper }
       )
-  
+
       act(() => {
-        store.result.current.actions.setLabels("app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type")
+        store.result.current.actions.setLabels([
+          "app",
+          "cluster",
+          "cluster_type",
+          "context",
+          "job",
+          "region",
+          "service",
+          "severity",
+          "support_group",
+          "tier",
+          "type",
+        ])
       })
-  
-      expect(store.result.current.filterLabels).toEqual(["app","cluster","cluster_type","context","job","region","service","severity","status","support_group","tier","type"])
+
+      expect(store.result.current.filterLabels).toEqual([
+        "status",
+        "app",
+        "cluster",
+        "cluster_type",
+        "context",
+        "job",
+        "region",
+        "service",
+        "severity",
+        "support_group",
+        "tier",
+        "type",
+      ])
     })
 
-  })
+    it("warn the user if labels are different then an array of strings", () => {
+      const spy = jest.spyOn(console, "warn").mockImplementation(() => {})
 
+      const wrapper = ({ children }) => (
+        <StoreProvider>{children}</StoreProvider>
+      )
+      const store = renderHook(
+        () => ({
+          actions: useFilterActions(),
+          filterLabels: useFilterLabels(),
+        }),
+        { wrapper }
+      )
+
+      act(() =>
+        store.result.current.actions.setLabels(
+          "app,cluster,cluster_type,context,job,region,service,severity,status,support_group,tier,type"
+        )
+      )
+
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        "[supernova]::setLabels: labels object is not an array of strings"
+      )
+      spy.mockRestore()
+    })
+  })
 })
