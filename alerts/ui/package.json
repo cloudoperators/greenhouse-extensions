@@ -45,6 +45,7 @@
   "peerDependencies": {
     "@tanstack/react-query": "4.28.0",
     "custom-event-polyfill": "^1.0.7",
+    "juno-ui-components": "*",
     "luxon": "^2.3.0",
     "messages-provider": "*",
     "prop-types": "^15.8.1",
