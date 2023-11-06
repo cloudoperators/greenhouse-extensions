@@ -28,6 +28,9 @@ const silenceService = new ApiService({
   debug: true,
   onFetchStart: () => self.postMessage({ action: "SILENCES_FETCH_START" }),
   onFetchEnd: () => self.postMessage({ action: "SILENCES_FETCH_END" }),
+  onFetchError: (error) => {
+    self.postMessage({ action: "SILENCES_FETCH_ERROR", error: error.message })
+  },
 })
 
 self.onmessage = (e) => {

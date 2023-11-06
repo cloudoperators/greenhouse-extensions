@@ -20,6 +20,7 @@ function ApiService(initialConfig) {
     watchInterval: DEFAULT_INTERVAL, // 5 min
     onFetchStart: null,
     onFetchEnd: null,
+    onFetchError: null,
     debug: false,
   }
 
@@ -44,9 +45,10 @@ function ApiService(initialConfig) {
         .then(() => {
           if (config.onFetchEnd) config.onFetchEnd()
         })
-        .catch((error) =>
+        .catch((error) => {
           console.warn(`ApiService::${config.serviceName || ""}:`, error)
-        )
+          if (config.onFetchError) config.onFetchError(error)
+        })
     } else {
       if (config?.debug)
         console.warn(

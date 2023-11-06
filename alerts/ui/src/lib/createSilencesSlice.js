@@ -27,6 +27,7 @@ const createSilencesSlice = (set, get) => ({
             state.silences.isLoading = false
             state.silences.isUpdating = false
             state.silences.updatedAt = Date.now()
+            state.silences.error = null
           }),
           false,
           "silences.setSilencesData"
@@ -222,6 +223,15 @@ const createSilencesSlice = (set, get) => ({
           false,
           "silences.setIsUpdating"
         ),
+      setError: (error) => {
+        set(
+          (state) => ({
+            silences: { ...state.silences, error, isLoading: false },
+          }),
+          false,
+          "silences.setError"
+        )
+      },
     },
   },
 })

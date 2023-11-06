@@ -13,7 +13,6 @@ import {
 import {
   useAuthData,
   useSilencesExcludedLabels,
-  useFilterLabels,
   useGlobalsApiEndpoint,
   useSilencesActions,
   useAlertEnrichedLabels,
@@ -27,7 +26,8 @@ import {
   DEFAULT_DURATION_OPTIONS,
   getSelectOptions,
   setupMatchers,
-} from "./helpers"
+} from "./silenceHelpers"
+import { parseError } from "../../helpers"
 
 const validateForm = (values) => {
   const invalidItems = {}
@@ -57,7 +57,6 @@ const SilenceNew = ({ alert, size, variant }) => {
   const enrichedLabels = useAlertEnrichedLabels()
 
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
-
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
   const [expirationDate, setExpirationDate] = useState(null)
   const [showValidation, setShowValidation] = useState({})
@@ -140,7 +139,7 @@ const SilenceNew = ({ alert, size, variant }) => {
         }
       })
       .catch((error) => {
-        setError(error.message)
+        setError(parseError(error))
       })
   }
 
@@ -182,7 +181,7 @@ const SilenceNew = ({ alert, size, variant }) => {
           onCancel={() => setDisplayNewSilence(false)}
           onConfirm={success ? null : onSubmitForm}
         >
-          {error && <Message text={error} variant="success" />}
+          {error && <Message text={error} variant="danger" />}
 
           {success && (
             <Message className="mb-6" variant="info">

@@ -37,12 +37,14 @@ const useAlertmanagerAPI = (apiEndpoint) => {
     setAlertsData,
     setIsLoading: setAlertsIsLoading,
     setIsUpdating: setAlertsIsUpdating,
+    setError: setAlertsError,
   } = useAlertsActions()
   const isUserActive = useUserIsActive()
   const {
     setSilences,
     setIsUpdating: setSilencesIsUpdating,
     setIsLoading: setSilencesIsLoading,
+    setError: setSilencesError,
   } = useSilencesActions()
 
   //Setup web workers
@@ -69,6 +71,12 @@ const useAlertmanagerAPI = (apiEndpoint) => {
           case "ALERTS_FETCH_END":
             console.log("Worker::ALERTS_FETCH_END::")
             setAlertsIsUpdating(false)
+            break
+          case "ALERTS_FETCH_ERROR":
+            console.log("Worker::ALERTS_FETCH_ERROR::", e.data.error)
+            setAlertsIsUpdating(false)
+            // error comes as object string and have to be parsed
+            setAlertsError(e.data.error)
             break
         }
       }
@@ -102,6 +110,12 @@ const useAlertmanagerAPI = (apiEndpoint) => {
           case "SILENCES_FETCH_END":
             console.log("Worker::SILENCES_FETCH_END::")
             setSilencesIsUpdating(false)
+            break
+          case "SILENCES_FETCH_ERROR":
+            console.log("Worker::SILENCES_FETCH_ERROR::", e.data.error)
+            setSilencesIsUpdating(false)
+            // error comes as object string and have to be parsed
+            setSilencesError(e.data.error)
             break
         }
       }

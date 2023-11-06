@@ -29,9 +29,6 @@ function App(props = {}) {
     if (props.silenceExcludedLabels)
       setExcludedLabels(props.silenceExcludedLabels)
 
-    // AlertEnrichedLabels are labels that are used to enrich the alert data and should not be used when creating a silence.
-    // setEnrichedLabels("status")
-
     // predefined filters config
     const predefinedFilters = [
       {
