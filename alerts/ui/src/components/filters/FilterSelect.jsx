@@ -125,6 +125,7 @@ const FilterSelect = () => {
         />
       )}
       <SearchInput
+        placeholder="search term or regular expression"
         className="w-96 ml-auto"
         value={searchTerm || ""}
         onSearch={(value) => setSearchTerm(value)}
