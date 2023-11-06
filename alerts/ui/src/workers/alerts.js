@@ -57,6 +57,9 @@ const alertsService = new ApiService({
   debug: true,
   onFetchStart: () => self.postMessage({ action: "ALERTS_FETCH_START" }),
   onFetchEnd: () => self.postMessage({ action: "ALERTS_FETCH_END" }),
+  onFetchError: (error) => {
+    self.postMessage({ action: "ALERTS_FETCH_ERROR", error: error.message })
+  },
 })
 
 self.onmessage = (e) => {

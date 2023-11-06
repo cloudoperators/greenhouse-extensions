@@ -29,6 +29,7 @@ const createAlertsSlice = (set, get) => ({
             state.alerts.isLoading = false
             state.alerts.isUpdating = false
             state.alerts.updatedAt = Date.now()
+            state.alerts.error = null
 
             // on the initial fetch copy all items to the filtered items list once since
             // most views operate on the filtered items list
@@ -189,6 +190,14 @@ const createAlertsSlice = (set, get) => ({
           (state) => ({ alerts: { ...state.alerts, isUpdating: value } }),
           false,
           "alerts.setIsUpdating"
+        )
+      },
+
+      setError: (error) => {
+        set(
+          (state) => ({ alerts: { ...state.alerts, error, isLoading: false } }),
+          false,
+          "alerts.setError"
         )
       },
 
