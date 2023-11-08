@@ -25,7 +25,6 @@ const CustomAppShell = ({ children }) => {
   return (
     <AppShell
       pageHeader={pageHeader}
-      contentHeading="Supernova"
       embedded={embedded}
     >
       {children}
