@@ -5,7 +5,7 @@ import {
   DataGridRow,
   DataGridCell,
   Icon,
-  Stack
+  Stack,
 } from "juno-ui-components"
 import Alert from "./Alert"
 import {
@@ -75,7 +75,7 @@ const AlertsList = () => {
           <DataGridHeadCell></DataGridHeadCell>
         </DataGridRow>
       )}
-      {alertsSorted?.length > 0 ?
+      {alertsSorted?.length > 0 ? (
         alertsSorted?.map((alert, index) => {
           if (alertsSorted.length === index + 1) {
             // DataRow in alerts muss implement forwardRef
@@ -89,16 +89,20 @@ const AlertsList = () => {
           }
           return <Alert key={alert.fingerprint} alert={alert} />
         })
-        :
+      ) : (
         <DataGridRow className="no-hover">
           <DataGridCell colSpan={7}>
             <Stack gap="3">
               <Icon icon="info" color="text-theme-info" />
-              <div>Nothing found. The matching alerts might not be firing right now or the selected filters might be too restrictive.</div>
+              <div>
+                We couldn't find anything. It's possible that the matching
+                alerts are not active at the moment, or the chosen filters could
+                be overly limiting.
+              </div>
             </Stack>
           </DataGridCell>
         </DataGridRow>
-      }
+      )}
       {isAddingItems && (
         <DataGridRow className="no-hover">
           <DataGridCell colSpan={7}>Loading ...</DataGridCell>
