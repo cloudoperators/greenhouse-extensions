@@ -3,6 +3,7 @@ import { renderHook, act } from "@testing-library/react"
 import {
   useFilterLabels,
   useFilterActions,
+  useSearchTerm,
   StoreProvider,
 } from "../hooks/useAppStore"
 
@@ -93,6 +94,41 @@ describe("createFiltersSlice", () => {
         "[supernova]::setLabels: labels object is not an array of strings"
       )
       spy.mockRestore()
+    })
+  })
+  describe("setSearchTerm", () => {
+    it("empty search term", () => {
+      const wrapper = ({ children }) => (
+        <StoreProvider>{children}</StoreProvider>
+      )
+      const store = renderHook(
+        () => ({
+          actions: useFilterActions(),
+          searchTerm: useSearchTerm(),
+        }),
+        { wrapper }
+      )
+
+      expect(store.result.current.searchTerm).toEqual("")
+    })
+
+    it("Set a search term", () => {
+      const wrapper = ({ children }) => (
+        <StoreProvider>{children}</StoreProvider>
+      )
+      const store = renderHook(
+        () => ({
+          actions: useFilterActions(),
+          searchTerm: useSearchTerm(),
+        }),
+        { wrapper }
+      )
+
+      act(() => {
+        store.result.current.actions.setSearchTerm("k8s")
+      })
+
+      expect(store.result.current.searchTerm).toEqual("k8s")
     })
   })
 })
