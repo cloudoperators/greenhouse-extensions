@@ -52,8 +52,8 @@ export const humanizeString = (value) => {
 // }
 export const sortSilencesByState = (silences) => {
   const sortedSilences = {}
-
-  if (!silences || silences.length === 0) return counts
+  
+  if (!silences || silences.length === 0) return {}
 
   silences.forEach((silences) => {
     const state = silences.status?.state

@@ -7,6 +7,7 @@ import { useFilterActions, useActiveFilters } from "../../hooks/useAppStore"
 const regionStyles = `
   grid
   grid-cols-[repeat(4,_minmax(5rem,_1fr))]
+
   group
   bg-theme-background-lvl-1
   hover:bg-theme-background-lvl-2
@@ -42,7 +43,7 @@ const Region = ({ region, severityCounts }) => {
       onClick={() => handleRegionClick()}
     >
       <Stack alignment="center" distribution="center" className={regionHeader}>
-        {region}
+        {region || "Counts"}
       </Stack>
       <RegionSeverity
         severity="critical"
