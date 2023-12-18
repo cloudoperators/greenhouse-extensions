@@ -58,7 +58,7 @@
     "zustand/middleware": "4.3.7"
   },
   "scripts": {
-    "start": "PORT=$APP_PORT NODE_ENV=development node esbuild.config.js --serve --watch",
+    "start": "NODE_ENV=development node esbuild.config.js --port=${APP_PORT:-3000} --serve --watch",
     "test": "jest",
     "build": "NODE_ENV=production node esbuild.config.js"
   },
