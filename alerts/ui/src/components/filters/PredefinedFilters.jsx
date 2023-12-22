@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 
-import { Tabs, TabList, Tab, TabPanel } from "juno-ui-components"
+import { TabNavigation, TabNavigationItem } from "juno-ui-components"
 import {
   useActivePredefinedFilter,
   useFilterActions,
@@ -12,34 +12,22 @@ const PredefinedFilters = () => {
   const predefinedFilters = usePredefinedFilters()
   const activePredefinedFilter = useActivePredefinedFilter()
 
-  // find the index of the active predefined filter in the list of predefined filters and set it as the selected index
-  const activePredefinedFilterIndex = predefinedFilters.findIndex(
-    (filter) => filter.name === activePredefinedFilter
-  )
-  const [selectedIndex, setSelectedIndex] = useState(
-    activePredefinedFilterIndex
+
+  const [selectedItem, setSelectedItem] = useState(
+    activePredefinedFilter
   )
 
-  const handleTabSelect = (index) => {
-    setSelectedIndex(index)
-    setActivePredefinedFilter(predefinedFilters[index].name)
+  const handleTabSelect = (item) => {
+    setSelectedItem(item)
+    setActivePredefinedFilter(item)
   }
 
   return (
-    <Tabs
-      selectedIndex={selectedIndex}
-      onSelect={(index) => handleTabSelect(index)}
-      className="mb-4"
-    >
-      <TabList>
-        {predefinedFilters.map((filter) => (
-          <Tab key={filter.name}>{filter.displayName}</Tab>
-        ))}
-      </TabList>
+    <TabNavigation activeItem={selectedItem} onActiveItemChange={handleTabSelect}>
       {predefinedFilters.map((filter) => (
-        <TabPanel key={filter.name}></TabPanel>
+        <TabNavigationItem key={filter.name} value={filter.name} label={filter.displayName} />
       ))}
-    </Tabs>
+    </TabNavigation>
   )
 }
 
