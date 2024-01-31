@@ -25,5 +25,10 @@ const parseMessage = (message) => {
     }
   } catch (error) {}
 
+  if (newMsg === "Failed to fetch") {
+    newMsg =
+      "Sorry, there was an issue fetching the data. Possible causes could include network issues, incorrect URL, or server outages. "
+  }
+
   return newMsg
 }
