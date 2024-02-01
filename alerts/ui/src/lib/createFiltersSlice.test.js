@@ -54,7 +54,6 @@ describe("createFiltersSlice", () => {
       })
 
       expect(store.result.current.filterLabels).toEqual([
-        "status",
         "app",
         "cluster",
         "cluster_type",
@@ -63,6 +62,7 @@ describe("createFiltersSlice", () => {
         "region",
         "service",
         "severity",
+        "status",
         "support_group",
         "tier",
         "type",
