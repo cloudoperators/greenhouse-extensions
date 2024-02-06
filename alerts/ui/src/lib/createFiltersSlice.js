@@ -18,15 +18,20 @@ const createFiltersSlice = (set, get) => ({
           (state) => {
             if (!labels) return state
 
-            // check if labels is an array and if every element in the array is a string
-            if (
-              !Array.isArray(labels) ||
-              !labels.some((element) => typeof element === "string")
-            ) {
+            // check if labels is an array
+            if (!Array.isArray(labels)) {
               console.warn(
-                "[supernova]::setLabels: labels object is not an array of strings"
+                "[supernova]::setLabels: labels object is not an array"
               )
               return state
+            }
+
+            // check if all elements in the array are strings delete the ones that are not
+            if (!labels.every((element) => typeof element === "string")) {
+              console.warn(
+                "[supernova]::setLabels: Some elements of the array are not strings."
+              )
+              labels = labels.filter((element) => typeof element === "string")
             }
 
             // merge given labels with the initial, make it unique and sort it alphabetically
