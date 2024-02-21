@@ -94,9 +94,9 @@ Filter labels are a set of labels that are utilized to define the criteria by wh
 
 To set the filter labels:
 
-1. Edit the variable `filterLabels` at the beginning of the `App.jsx` file.
+1. Utilize the app prop `filterLabels`, which is used during the setup of the script tag. For further information, please consult the [Get Started](<https://assets.juno.qa-de-1.cloud.sap/?__s=(assets~Foverview:(assetName:supernova,assetVersion:0.9.8,navItem:%27%27,panelOpened:++,panelTabIndex:+2,tabIndex:+1))>) section.
 
-### Excluded alert labels
+### Silence excluded alert labels
 
 Excluded labels are a collection of labels that are automatically excluded by default when configuring silence matchers. These labels, such as `pod`, `pod_name` or `instance`, often undergo frequent value changes, causing new alerts to be triggered that are not covered by the existing silence.
 
@@ -131,26 +131,4 @@ If the end user wishes to include any excluded labels as matchers, they can easi
 
 To set the excluded alert labels:
 
-1. Edit the variable `silenceExcludedLabels` at the beginning of the `App.jsx` file.
-
-### Enriched labels
-
-Enriched labels are additional labels that are included in alerts to enhance user interaction within the application. These labels serve to provide extra context or information related to the alerts. However, when creating a silence, these enriched labels are omitted since they are not part of the original alarm object. The omission ensures that the silence configuration remains focused on the core attributes of the alert, without including any extraneous or supplementary labels.
-
-An example of an enriched label is the `status` label, which is extracted from the state attribute within the status object. This label can be utilized by users as a filter criterion when working with the alert list.
-
-Alarm status object:
-
-```js
-...
-status: {
-  "inhibitedBy": [],
-  "silencedBy": [],
-  "state": "active"
-}
-...
-```
-
-To set the enriched labels:
-
-1. Edit the variable `alertEnrichedLabels` at the beginning of the `App.jsx` file.
+1. Utilize the app prop `silenceExcludedLabels`, which is used during the setup of the script tag. For further information, please consult the [Get Started](<https://assets.juno.qa-de-1.cloud.sap/?__s=(assets~Foverview:(assetName:supernova,assetVersion:0.9.8,navItem:%27%27,panelOpened:++,panelTabIndex:+2,tabIndex:+1))>) section.
