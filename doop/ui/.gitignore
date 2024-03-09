@@ -1,0 +1,15 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+
+# production
+build
+/build
+/public/build
+
+secretProps.json
+secretProps.js
+.npm/*
+
+npm-debug.log*

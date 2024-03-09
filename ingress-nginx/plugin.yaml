@@ -1,0 +1,51 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: ingress-nginx
+spec:
+  version: 1.1.0
+  description: Ingress NGINX controller
+  helmChart:
+    name: ingress-nginx
+    repository: https://kubernetes.github.io/ingress-nginx
+    version: 4.7.0
+  options:
+    - name: controller.service.loadBalancerIP
+      description: IP address of the associated load balancer.
+      required: false
+      type: string
+    - name: controller.replicaCount
+      description: Replicas of the ingress controller
+      default: 3
+      required: false
+      type: int
+    - name: controller.allowSnippetAnnotations
+      description: Allow snippet annotations on ingress resources.
+      default: "false"
+      required: false
+      type: string
+    - name: controller.scope.enabled
+      description: Limit the scope of the controller to a specific namespace
+      default: true
+      required: false
+      type: bool
+    - name: controller.ingressClassResource.default
+      description: Whether this is the default ingressClass for the cluster
+      default: false
+      required: false
+      type: bool
+    - name: controller.ingressClassResource.name
+      description: Name of the ingressClass
+      default: "nginx"
+      required: false
+      type: string
+    - name: controller.ingressClassResource.controllerValue
+      description: Controller-value of the controller that is processing this ingressClass
+      default: "k8s.io/ingress-nginx"
+      required: false
+      type: string
+    - name: controller.watchIngressWithoutClass
+      description: Whether to watch ingress resources without a class
+      default: true
+      required: false
+      type: bool

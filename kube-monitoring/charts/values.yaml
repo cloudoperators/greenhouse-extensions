@@ -1,0 +1,224 @@
+global:
+
+  ## Labels to apply to all resources
+  ##
+  commonLabels: {}
+
+## kube-prometheus-stack configuration scoped to kube-monitoring
+kubeMonitoring:
+
+  defaultRules:
+    rules:
+      alertmanager: false
+      kubeControllerManager: false
+      kubeSchedulerAlerting: false
+      kubeSchedulerRecording: false
+      kubeProxy: false
+      windows: false
+
+    disabled:
+      KubeletServerCertificateExpiration: true
+      KubeletClientCertificateExpiration: true
+      KubeClientCertificateExpiration: true
+
+  additionalPrometheusRulesMap:
+    kubernetes-system-certificates:
+      groups:
+      - name: kubernetes-system-kubelet-server-certs
+        rules:
+        - alert: KubeletServerCertificateExpiration
+          annotations:
+            description: Server certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletservercertificateexpiration
+            summary: Kubelet server certificate is about to expire.
+          expr: kubelet_certificate_manager_server_ttl_seconds < 432000
+          labels:
+            severity: warning
+        - alert: KubeletServerCertificateExpiration
+          annotations:
+            description: Server certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletservercertificateexpiration
+            summary: Kubelet server certificate is about to expire.
+          expr: kubelet_certificate_manager_server_ttl_seconds < 86400
+          labels:
+            severity: critical
+        - alert: KubeletClientCertificateExpiration
+          annotations:
+            description: Client certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletclientcertificateexpiration
+            summary: Kubelet client certificate is about to expire.
+          expr: kubelet_certificate_manager_client_ttl_seconds < 432000
+          labels:
+            severity: warning
+        - alert: KubeletClientCertificateExpiration
+          annotations:
+            description: Client certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletclientcertificateexpiration
+            summary: Kubelet client certificate is about to expire.
+          expr: kubelet_certificate_manager_client_ttl_seconds < 86400
+          labels:
+            severity: critical
+        - alert: KubeClientCertificateExpiration
+          annotations:
+            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 2.0 days.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
+            summary: Client certificate is about to expire.
+          expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on (job) histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 172800
+          for: 5m
+          labels:
+            severity: warning
+        - alert: KubeClientCertificateExpiration
+          annotations:
+            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 24.0 hours.
+            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
+            summary: Client certificate is about to expire.
+          expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on (job) histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 86400
+          for: 5m
+          labels:
+            severity: critical
+
+  ## Install Prometheus Operator CRDs
+  ##
+  crds:
+    enabled: false
+
+  ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
+  ##
+  cleanPrometheusOperatorObjectNames: true
+
+  windowsMonitoring:
+  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
+    enabled: false
+
+  ## Configuration for alertmanager
+  ## ref: https://prometheus.io/docs/alerting/alertmanager/
+  ##
+  alertmanager:
+
+    ## Deploy alertmanager
+    ##
+    enabled: false
+
+  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  ##
+  grafana:
+    enabled: false
+
+  ## Configuration for thanosRuler
+  ## ref: https://thanos.io/tip/components/rule.md/
+  ##
+  thanosRuler:
+
+    ## Deploy thanosRuler
+    ##
+    enabled: false
+
+  ## Component scraping the kube controller manager
+  ##
+  kubeControllerManager:
+    enabled: false
+
+  ## Component scraping kube proxy
+  ##
+  kubeProxy:
+    enabled: false
+
+  ## Component scraping kube scheduler
+  ##
+  kubeScheduler:
+    enabled: false
+
+  ## Configuration for the Prometheus instance
+  ##
+  prometheus:
+
+    ingress:
+      enabled: false
+
+      ## By default, a ca-bundle is deployed to enable tls between Prometheus and Alertmanager
+      annotations:
+        disco: "true"
+        kubernetes.io/tls-acme: "true"
+        nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
+        nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
+        nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
+      ingressClassName: nginx
+      
+    prometheusSpec:
+
+      ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage
+      ## them separately from the helm deployment, you can use this section.
+      ## Expected values are the secret name and key
+      ## Cannot be used with additionalAlertManagerConfigs
+      additionalAlertManagerConfigsSecret:
+        name: kube-monitoring-alertmanager-config
+        key: config.yaml
+
+      ## If additional alert relabel configurations are already deployed in a single secret, or you want to manage
+      ## them separately from the helm deployment, you can use this section.
+      ## Expected values are the secret name and key
+      ## Cannot be used with additionalAlertRelabelConfigs
+      additionalAlertRelabelConfigsSecret:
+        name: kube-monitoring-alertmanager-config
+        key: relabelConfig.yaml
+
+      ## Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
+      ## The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
+      ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
+      ## with the new list of secrets.
+      secrets:
+        - tls-prometheus-alertmanager-auth
+
+      storageSpec:
+        volumeClaimTemplate:
+          metadata:
+            labels:
+              plugin: kube-monitoring
+              pluginconfig: "{{ $.Release.Name }}"
+              app: "{{ $.Release.Name }}-prometheus"
+            name: "{{ $.Release.Name }}"
+          spec:
+            storageClassName: default
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 50Gi
+
+      ## ServiceMonitors to be selected for target discovery.
+      ## If {}, select all ServiceMonitors
+      serviceMonitorSelector:
+        matchLabels:
+          pluginconfig: "{{ $.Release.Name }}"
+      ## PodMonitors to be selected for target discovery.
+      ## If {}, select all PodMonitors
+      ##
+      podMonitorSelector:
+        matchLabels:
+          pluginconfig: "{{ $.Release.Name }}"
+      ## Probes to be selected for target discovery.
+      ## If {}, select all Probes
+      ##
+      probeSelector:
+        matchLabels:
+          pluginconfig: "{{ $.Release.Name }}"
+      ## scrapeConfigs to be selected for target discovery.
+      ## If {}, select all scrapeConfigs
+      ##
+      scrapeConfigSelector:
+        matchLabels:
+          pluginconfig: "{{ $.Release.Name }}"
+      ## PrometheusRules to be selected for target discovery.
+      ## If {}, select all PrometheusRules
+      ##
+      ruleSelector:
+        matchLabels:
+          pluginconfig: "{{ $.Release.Name }}"
+
+alerts:
+  enabled: false
+  alertmanagers:
+    hosts: []
+    tlsConfig:
+      cert: ""
+      key: ""

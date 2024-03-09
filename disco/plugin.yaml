@@ -1,0 +1,48 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: disco
+spec:
+  description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
+  version: 1.2.2
+  helmChart:
+    name: disco
+    repository: oci://ghcr.io/sapcc/helm-charts
+    version: 2.2.2
+  options:
+    - name: record
+      description: The record which should be used. e.g. 'ingress.tld.'
+      required: true
+      type: string
+    - name: openstack.zoneName
+      description: The name of the DNS zone in which the record should be created in
+      required: true
+      type: string
+    - name: openstack.authURL
+      description: The OpenStack Keystone authentication URL
+      required: true
+      type: string
+    - name: openstack.regionName
+      description: The OpenStack region name
+      required: true
+      type: string
+    - name: openstack.username
+      description: The OpenStack user name
+      required: true
+      type: string
+    - name: openstack.userDomainName
+      description: The OpenStack domain name of the user
+      required: true
+      type: string
+    - name: openstack.password
+      description: The OpenStack user password
+      required: true
+      type: secret
+    - name: openstack.projectName
+      description: The OpenStack project name
+      required: true
+      type: string
+    - name: openstack.projectDomainName
+      description: The OpenStack domain name of the project
+      required: true
+      type: string

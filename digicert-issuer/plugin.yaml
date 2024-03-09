@@ -1,0 +1,38 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: digicert-issuer
+spec:
+  description: Extensions to the cert-manager for DigiCert support
+  version: "1.2.0"
+  helmChart:
+    name: digicert-issuer
+    repository: oci://ghcr.io/sapcc/helm-charts
+    version: 2.4.0
+  options:
+    - name: provisioner.apiToken
+      description: DigiCert cert-central API token
+      required: true
+      type: secret
+    - name: provisioner.organizationID
+      description: The ID of the organization in DigiCert cert central.
+      required: true
+      type: string
+    - name: provisioner.organizationUnits
+      description: Organizational units to issue certificates for.
+      required: true
+      type: string
+    - name: provisioner.caCertID
+      description: The ID of the CA certificate to use.
+      required: false
+      type: string
+    - name: certManager.serviceAccount.name
+      description: Name of the service account used by the cert-manager
+      required: false
+      type: string
+      default: cert-manager
+    - name: certManager.serviceAccount.namespace
+      description: Namespace of the service account used by the cert-manager
+      required: false
+      type: string
+      default: cert-manager

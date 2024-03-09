@@ -1,0 +1,16 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: service-proxy
+spec:
+  description: A service proxy for exposing service in remote clusters via greenhouse
+  version: "1.0.0"
+  helmChart:
+    name: service-proxy
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 1.0.0
+  options:
+    - name: domain
+      description: basedomain for the service-proxy
+      required: true
+      type: string

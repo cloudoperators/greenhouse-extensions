@@ -1,0 +1,25 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: doop
+spec:
+  description: Holistic overview on Gatekeeper policies and violations
+  version: "1.0.0"
+  weight: 1
+  # helmChart:
+  #   name: doop
+  #   repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+  #   version: 1.2.0
+  uiApplication:
+    name: doop
+    version: "latest"
+  options:
+    - name: apiEndpoint
+      description: URL of the DOOP API endpoint
+      required: true
+      type: string
+    - name: showDebugSeverities
+      description: Display debug severities
+      default: false
+      required: false
+      type: bool

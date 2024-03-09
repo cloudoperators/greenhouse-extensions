@@ -1,0 +1,41 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: cert-manager
+spec:
+  description: Automated certificate management in Kubernetes
+  version: "1.1.0"
+  helmChart:
+    name: cert-manager
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 1.11.0
+  options:
+    - name: cert-manager.installCRDs
+      description: Whether to install CRDs
+      default: false
+      required: false
+      type: bool
+    - name: cert-manager.prometheus.enabled
+      description: Whether to enable Prometheus metrics
+      default: true
+      required: false
+      type: bool
+    - name: cert-manager.extraArgs[0]
+      displayName: Enable certificate owner reference
+      description: Whether to add the owner reference to each certificate
+      default: "--enable-certificate-owner-ref=true"
+      required: false
+      type: string
+    - name: cert-manager.ingressShim.defaultIssuerName
+      displayName: Enable certificate owner reference
+      description: Name of the cert-manager issuer to use for TLS certificates
+      required: false
+      type: string
+    - name: cert-manager.ingressShim.defaultIssuerKind
+      description: Kind of the cert-manager issuer to use for TLS certificates
+      required: false
+      type: string
+    - name: cert-manager.ingressShim.defaultIssuerGroup
+      description: Group of the cert-manager issuer to use for TLS certificates
+      required: false
+      type: string

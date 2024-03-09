@@ -1,0 +1,24 @@
+apiVersion: v2
+description: This chart deploys the essential components for monitoring Kubernetes clusters.
+icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
+type: application
+maintainers:
+  - name: Richard Tief (I520251)
+    email: richard.tief@sap.com
+  - name: Tommy Sauer (D066607)
+    email: tommy.sauer@sap.com
+name: kube-monitoring
+sources:
+  - ghcr.io/cloudoperators/greenhouse-extensions
+version: 0.6.1
+# prometheus-operator app version
+appVersion: v0.71.2
+keywords:
+  - operator
+  - prometheus
+  - kube-prometheus
+dependencies:
+  - name: kube-prometheus-stack
+    alias: kubeMonitoring
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 56.9.0

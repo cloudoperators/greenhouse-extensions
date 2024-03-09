@@ -1,0 +1,69 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: alerts
+spec:
+  description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
+  version: 1.6.0
+  weight: 0
+  helmChart:
+     name: alerts
+     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+     version: 0.8.0
+  uiApplication:
+    name: supernova
+    version: "latest"
+  options:
+    # supernova options
+    - name: endpoint
+      description: Alertmanager API Endpoint URL
+      required: true
+      type: string
+    - name: filterLabels
+      description: "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The format is a list of strings."
+      required: false
+      type: list
+    - name: silenceExcludedLabels
+      description: "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The format is a list of strings."
+      required: false
+      type: list
+
+    # alertmanager options
+    - name: alerts.alertmanager.enabled
+      description: Deploy Alertmanager. Deactivate if you bring your own Alertmanager.
+      required: true
+      type: bool
+    - name: alerts.defaultRules.create
+      description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring PluginConfig to evaluate Alertmanager alerts.
+      default: true
+      required: false
+      type: bool
+    - name: alerts.alertmanager.ingress.enabled
+      description: Enable Alertmanager Ingress.
+      default: true
+      required: false
+      type: bool
+    - name: alerts.alertmanager.ingress.hosts
+      description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
+      required: false
+      type: list
+    - name: alerts.alertmanager.serviceMonitor.additionalLabels
+      description: Additional ServiceMonitor labels. Name of the kube-monitoring PluginConfig to monitor Alertmanager.
+      default:
+        pluginconfig: kube-monitoring
+      required: false
+      type: map
+    - name: alerts.defaultRules.labels
+      description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
+      default:
+        pluginconfig: kube-monitoring
+      required: false
+      type: map
+    - name: alerts.alertmanagerConfig.slack.webhookURL
+      description: Slack webhook URL to post alerts to. `slack.channel` must also be defined.
+      required: false
+      type: string
+    - name: alerts.alertmanagerConfig.slack.channel
+      description: Slack channel name to post alerts to. `slack.webhookURL` must also be defined.
+      required: false
+      type: string

@@ -1,0 +1,16 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: heureka
+spec:
+  description:
+  version: "1.0.0"
+  weight: 2
+  uiApplication:
+    name: heureka
+    version: "latest"
+  options:
+    - name: apiEndpoint
+      description: Endpoint URL of the API
+      required: true
+      type: string

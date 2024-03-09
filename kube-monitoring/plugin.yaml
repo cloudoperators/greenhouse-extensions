@@ -1,0 +1,48 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: kube-monitoring
+spec:
+  description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
+  version: 1.5.1
+  helmChart:
+    name: kube-monitoring
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 0.6.1
+  options:
+    - name: kubeMonitoring.prometheus.ingress.enabled
+      description: Ingress exposes prometheus outside the cluster
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.prometheus.ingress.hosts
+      description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
+      required: false
+      type: list
+    - name: kubeMonitoring.prometheus.prometheusSpec.retention
+      description: How long to retain metrics
+      default: "14d"
+      required: true
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage
+      description: How large the persistent volume should be to house the prometheus database
+      default: 50Gi
+      required: true
+      type: string
+    - name: alerts.enabled
+      description: Whether the Alerts Plugin is configured
+      default: false
+      required: true
+      type: bool
+    - name: alerts.alertmanagers.hosts
+      description: List of Alertmanager hosts Prometheus can send alerts to.
+      required: false
+      type: list
+    - name: alerts.alertmanagers.tlsConfig.cert
+      description: TLS certificate for communication with Alertmanager
+      required: false
+      type: secret
+    - name: alerts.alertmanagers.tlsConfig.key
+      description: TLS key for communication with Alertmanager
+      required: false
+      type: secret

@@ -1,0 +1,11 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: exposed-service
+spec:
+  description: A test plugin for validating service exposure via Greenhouse
+  version: "2.0.0"
+  helmChart:
+    name: exposed-service
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 2.0.0

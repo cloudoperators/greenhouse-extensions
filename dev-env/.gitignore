@@ -1,0 +1,6 @@
+envtest/*
+bootstrap/*
+t2s-src/*
+ui-src/*
+api-certs/*
+webhook-certs/*

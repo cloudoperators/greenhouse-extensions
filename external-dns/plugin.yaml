@@ -1,0 +1,11 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: external-dns
+spec:
+  description: The kubernetes-sigs/external-dns plugin.
+  version: 1.0.0
+  helmChart:
+    name: external-dns
+    repository: https://kubernetes-sigs.github.io/external-dns
+    version: 1.12.0

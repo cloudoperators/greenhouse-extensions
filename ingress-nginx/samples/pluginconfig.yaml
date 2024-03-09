@@ -1,0 +1,8 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginConfig
+metadata:
+  name: ingress-nginx
+  namespace: ccloud
+spec:
+  plugin: ingress-nginx
+  disabled: false
