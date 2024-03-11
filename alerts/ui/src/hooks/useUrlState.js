@@ -66,7 +66,7 @@ const useUrlState = () => {
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
     if (searchTermFromURL) {
       // decode the search term from the url. It is base64 encoded to avoid issues with special characters
-      setSearchTerm(atob(searchTermFromURL))
+      setSearchTerm(window.atob(searchTermFromURL))
     }
 
     // get active predefined filters from url state
@@ -90,7 +90,7 @@ const useUrlState = () => {
     if (!loggedIn || !isURLRead) return
 
     // encode searchTerm before pushing it to the URL to avoid missinterpretation of special characters
-    const encodedSearchTerm = btoa(searchTerm)
+    const encodedSearchTerm = window.btoa(searchTerm)
 
     const newState = {
       ...urlStateManager.currentState(),
