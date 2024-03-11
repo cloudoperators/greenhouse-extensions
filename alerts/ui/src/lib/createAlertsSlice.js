@@ -120,8 +120,8 @@ const createAlertsSlice = (set, get) => ({
                 state.filters.searchTerm &&
                 state.filters.searchTerm.length > 0
               ) {
-                const itemString = JSON.stringify(item).toLowerCase()
-                const re = new RegExp(state.filters.searchTerm.toLowerCase())
+                const itemString = JSON.stringify(item)
+                const re = new RegExp(state.filters.searchTerm, "i")
                 if (!itemString.match(re)) {
                   visible = false
                 }
