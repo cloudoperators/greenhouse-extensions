@@ -1,13 +1,13 @@
 {
   "name": "supernova",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
     "Arturo Reuschenbach Puncernau"
   ],
   "repository": "https://github.com/sapcc/juno/tree/main/apps/supernova",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "source": "src/index.js",
   "module": "build/index.js",
   "private": true,
