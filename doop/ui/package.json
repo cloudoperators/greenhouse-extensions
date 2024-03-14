@@ -9,6 +9,7 @@
   "repository": "https://github.com/cloudoperators/greenhouse-extensions/tree/main/doop/ui",
   "source": "src/index.js",
   "module": "build/index.js",
+  "license": "Apache-2.0",
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.20.2",
