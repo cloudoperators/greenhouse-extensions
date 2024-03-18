@@ -1,0 +1,16 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: kubeconfig-generator
+spec:
+  description: Automated kubeconfig generator for kubectl-sync/kubectl-logon/u8s
+  version: 0.1.0
+  helmChart:
+    name: kubeconfig-generator
+    # repository: oci://ghcr.io/sapcc/helm-charts
+    version: 0.1.0
+  options:
+    - name: config
+      description: Content of the configuration file
+      required: true
+      type: map

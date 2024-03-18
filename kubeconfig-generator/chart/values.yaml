@@ -1,0 +1,6 @@
+replicaCount: 1
+image:
+  registry: ""
+  repository: kubeconfig-generator
+  pullPolicy: IfNotPresent
+config: {}

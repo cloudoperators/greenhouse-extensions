@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeconfig-generator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kubeconfig-generator
+spec:
+  selector:
+    matchLabels:
+      app: kubeconfig-generator
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: kubeconfig-generator
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: kubeconfig-generator
+      containers:
+      - image: "{{required ".Values.image.registry is missing" .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: kubeconfig-generator
+        command: ["/kubeconfig-generator"]
+        env:
+        {{ range $org, $cfg := .Values.config -}}
+        - name: SWIFT_PASSWORD_{{- $org | upper }}
+          valueFrom:
+            secretKeyRef:
+              name: secrets-injector
+              key: SWIFT_PASSWORD_{{- $org | upper }}
+        {{ end -}}
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: secrets-injector
