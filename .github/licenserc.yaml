@@ -29,7 +29,8 @@ header:
     - '**/*.lock'
     - '**/*.json'
     - '**/.gitkeep'
-    - '**/*.txt'    
+    - '**/*.txt' 
+    - '**/nginx.conf'
 
   comment: on-failure
   
