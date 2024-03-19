@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 // Example fetch call. Adjust as needed for your API
 export const fetchData = ({ queryKey, meta }) => {
   if (meta.mock === "true" || meta.mock === true) {
