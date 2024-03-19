@@ -5,13 +5,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.yaml: |
-    {{ range $org, $cfg := .Values.config -}}
-    {{ $org -}}:
-      authUrl: {{ $cfg.authUrl | quote }}
-      region: {{ $cfg.region | quote }}
-      username: {{ $cfg.username | quote }}
-      password: ${SWIFT_PASSWORD_{{- $org | upper -}} }
-      domainName: {{ $cfg.doaminName | quote }}
-      projectId: {{ $cfg.projectId | quote }}
-      container: {{ $cfg.container | quote }}
-    {{ end -}}
+    {{ .Release.Namespace }}:
+      authUrl: {{ .Values.swift.authUrl | quote }}
+      region: {{ .Values.swift.region | quote }}
+      username: {{ .Values.swift.username | quote }}
+      password: ${SWIFT_PASSWORD}
+      domainName: {{ .Values.swift.doaminName | quote }}
+      projectId: {{ .Values.swift.projectId | quote }}
+      container: {{ .Values.swift.container | quote }}

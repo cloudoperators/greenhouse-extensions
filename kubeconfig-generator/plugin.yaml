@@ -10,7 +10,31 @@ spec:
     # repository: oci://ghcr.io/sapcc/helm-charts
     version: 0.1.0
   options:
-    - name: config
-      description: Content of the configuration file
+    - name: swift.authUrl
+      description: Keystone endpoint to be used for authentication
       required: true
-      type: map
+      type: string
+    - name: swift.region
+      description: OpenStack region
+      required: true
+      type: string
+    - name: swift.username
+      description: OpenStack username
+      required: true
+      type: string
+    - name: swift.password
+      description: OpenStack password
+      required: true
+      type: secret
+    - name: swift.domainName
+      description: OpenStack user domain name
+      required: true
+      type: string
+    - name: swift.projectId
+      description: OpenStack project id
+      required: true
+      type: string
+    - name: swift.container
+      description: Name of an existing swift container
+      required: true
+      type: string
