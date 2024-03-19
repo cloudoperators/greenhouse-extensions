@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubeconfig-generator-{{ .Release.Namespace }}
+rules:
+- apiGroups: ["greenhouse.sap"]
+  resources:
+  - organizations
+  resourceNames:
+  - {{ .Release.Namespace }}
+  verbs:
+  - get
+  - list
+  - watch

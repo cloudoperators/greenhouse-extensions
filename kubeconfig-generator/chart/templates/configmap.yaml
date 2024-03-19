@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeconfig-generator
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+    {{ .Release.Namespace }}:
+      authUrl: {{ .Values.swift.authUrl | quote }}
+      region: {{ .Values.swift.region | quote }}
+      username: {{ .Values.swift.username | quote }}
+      password: ${SWIFT_PASSWORD}
+      domainName: {{ .Values.swift.doaminName | quote }}
+      projectId: {{ .Values.swift.projectId | quote }}
+      container: {{ .Values.swift.container | quote }}
