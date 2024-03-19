@@ -3,10 +3,8 @@ description: This chart deploys the essential components for monitoring Kubernet
 icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
 type: application
 maintainers:
-  - name: Richard Tief (I520251)
-    email: richard.tief@sap.com
-  - name: Tommy Sauer (D066607)
-    email: tommy.sauer@sap.com
+  - name: richardtief 
+  - name: viennaa
 name: kube-monitoring
 sources:
   - ghcr.io/cloudoperators/greenhouse-extensions
