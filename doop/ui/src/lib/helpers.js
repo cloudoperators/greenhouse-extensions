@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 export const parseError = (error) => {
   if (!error || (typeof error === "object" && Object.keys(error).length === 0))
     return "An error occurred. There is no further information"

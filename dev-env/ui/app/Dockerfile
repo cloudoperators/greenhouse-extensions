@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 FROM alpine/git:2.43.0 as git
 RUN git clone https://github.com/sapcc/juno.git /juno 
 
