@@ -14,9 +14,9 @@ Components included in this Plugin:
 
 # Owner
 
-1. richardtief
-2. viennaa
-3. artherd42
+1. Richard Tief (@richardtief) 
+2. Tommy Sauer (@viennaa) 
+3. Martin Vossen (@artherd42) 
 
 ### kube-monitoring prometheus-operator parameters
 
