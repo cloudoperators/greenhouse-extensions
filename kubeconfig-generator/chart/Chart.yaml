@@ -6,7 +6,7 @@ description: Automated kubeconfig generator for kubectl-sync/kubectl-logon/u8s
 type: application
 name: kubeconfig-generator
 version: 0.1.1
-appVersion: "1fb0a8e65898918c2d96d186d0af7b8e38003111"
+appVersion: "608ca9c2d3cf9b8400c629e9e0989a3d62c31669"
 keywords:
 - operator
 - kubeconfig

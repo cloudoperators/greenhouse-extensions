@@ -27,13 +27,15 @@ spec:
         name: kubeconfig-generator
         command: ["/kubeconfig-generator"]
         env:
-        {{ range $org, $cfg := .Values.config -}}
-        - name: SWIFT_PASSWORD_{{- $org | upper }}
+        - name: SWIFT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: secrets-injector
-              key: SWIFT_PASSWORD_{{- $org | upper }}
-        {{ end -}}
+              name: kubeconfig-generator
+              key: SWIFT_PASSWORD
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: config
           mountPath: "/config"
