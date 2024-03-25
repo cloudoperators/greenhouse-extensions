@@ -52,7 +52,6 @@ const AppContent = ({ id, showDebugSeverities }) => {
       {/* <UrlStateManager consumerId={id || "doop"} /> */}
       <Header />
       <Messages className="mb-4" />
-
       {dataRequest?.isLoading ? (
         <HintLoading className="tw-mt-4" />
       ) : (
