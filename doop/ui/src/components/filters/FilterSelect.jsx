@@ -22,8 +22,8 @@ import {
 } from "../StoreProvider"
 
 const FilterSelect = () => {
-  const [selectedCategory, selectCategory] = useState()
-  const [selectedValue, selectValue] = useState()
+  const [selectedCategory, selectCategory] = useState("")
+  const [selectedValue, selectValue] = useState("")
   const [resetKey, setResetKey] = useState(Date.now())
   const filterEntries = useDataFilterEntries()
 
