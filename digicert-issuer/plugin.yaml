@@ -7,11 +7,11 @@ metadata:
   name: digicert-issuer
 spec:
   description: Extensions to the cert-manager for DigiCert support
-  version: "1.2.0"
+  version: "1.2.1"
   helmChart:
     name: digicert-issuer
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.4.0
+    version: 2.4.3
   options:
     - name: provisioner.apiToken
       description: DigiCert cert-central API token
