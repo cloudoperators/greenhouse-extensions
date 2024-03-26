@@ -40,6 +40,16 @@ const FilterSelect = () => {
     setResetKey(Date.now())
   }
 
+  const handleSearchChange = (value) => {
+    // debounce setSearchTerm to avoid unnecessary re-renders
+    const debouncedSearchTerm = setTimeout(() => {
+      setSearchTerm(value.target.value)
+    }, 500)
+
+    // clear timeout if we have a new value
+    return () => clearTimeout(debouncedSearchTerm)
+  }
+
   return (
     <Stack alignment="center" gap="8" distribution="between">
       <Stack gap="2">
@@ -87,9 +97,7 @@ const FilterSelect = () => {
       <SearchInput
         className="w-96"
         value={searchValue || ""}
-        onChange={(e) => {
-          setSearchTerm(e.target.value)
-        }}
+        onChange={(value) => handleSearchChange(value)}
         onClear={() => setSearchTerm(null)}
       />
     </Stack>
