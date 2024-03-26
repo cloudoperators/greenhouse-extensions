@@ -7,11 +7,11 @@ metadata:
   name: disco
 spec:
   description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
-  version: 1.2.2
+  version: 1.2.3
   helmChart:
     name: disco
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.2.2
+    version: 2.2.3
   options:
     - name: record
       description: The record which should be used. e.g. 'ingress.tld.'
