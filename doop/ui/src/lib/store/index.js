@@ -9,6 +9,7 @@ import createDataSlice from "./createDataSlice"
 import createFiltersSlice from "./createFiltersSlice"
 import createAuthDataSlice from "./createAuthDataSlice"
 import createUserActivitySlice from "./createUserActivitySlice"
+import createGlobalsSlice from "./createGlobalsSlice"
 
 export default () =>
   createStore(
@@ -17,5 +18,6 @@ export default () =>
       ...createAuthDataSlice(set, get),
       ...createFiltersSlice(set, get),
       ...createDataSlice(set, get),
+      ...createGlobalsSlice(set, get),
     }))
   )

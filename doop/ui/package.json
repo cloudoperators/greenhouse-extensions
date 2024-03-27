@@ -1,6 +1,6 @@
 {
   "name": "doop",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "author": "UI-Team",
   "contributors": [
     "Andreas Pfau",
@@ -80,7 +80,7 @@
       "type": "optional",
       "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Elektra.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
     },
-    "mock": {
+    "isMock": {
       "value": "false",
       "type": "optional",
       "description": "use mocked data (only in dev)"

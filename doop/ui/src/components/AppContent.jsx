@@ -16,10 +16,40 @@ import { fetchData } from "../lib/apiClient"
 import { parseError } from "../lib/helpers"
 import Highlighter from "./Highlighter"
 import Violations from "./violations/violations"
+import { fetchProxy } from "utils"
+import { useGlobalsMock, useGlobalsEndpoint } from "./StoreProvider"
 
 const AppContent = ({ id, showDebugSeverities }) => {
   const { setData, setShowDebugSeverities } = useDataActions()
   const { addMessage } = useActions()
+  const isMock = useGlobalsMock()
+  const endpoint = useGlobalsEndpoint()
+
+  console.log("endpoint: ", endpoint)
+  useEffect(() => {
+    if (isMock) {
+      fetchProxy(`${endpoint}/templates`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        ...{ mock: true },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            addMessage({
+              variant: "error",
+              text: parseError(e.message),
+            })
+          }
+          return response.json()
+        })
+        .then((result) => {
+          setData(result)
+        })
+    }
+  }, [isMock])
 
   // LOAD DATA
   const dataRequest = useQuery({
