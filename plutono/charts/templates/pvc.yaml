@@ -1,0 +1,33 @@
+{{- if and .Values.plutono.persistence.enabled (not .Values.plutono.persistence.existingClaim) (eq .Values.plutono.persistence.type "pvc")}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "plutono.fullname" . }}
+  namespace: {{ template "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+  {{- with .Values.plutono.persistence.annotations  }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with .Values.plutono.persistence.finalizers  }}
+  finalizers:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- range .Values.plutono.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.plutono.persistence.size | quote }}
+  {{- if .Values.plutono.persistence.storageClassName }}
+  storageClassName: {{ .Values.plutono.persistence.storageClassName }}
+  {{- end -}}
+  {{- with .Values.plutono.persistence.selectorLabels }}
+  selector:
+    matchLabels:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+{{- end -}}

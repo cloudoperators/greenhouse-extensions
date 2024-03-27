@@ -1,0 +1,25 @@
+{{- if .Values.plutono.rbac.create -}}
+apiVersion: {{ template "rbac.apiVersion" . }}
+kind: RoleBinding
+metadata:
+  name: {{ template "plutono.fullname" . }}
+  namespace: {{ template "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+{{- with .Values.plutono.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+{{- if (not .Values.plutono.rbac.useExistingRole) }}
+  name: {{ template "plutono.fullname" . }}
+{{- else }}
+  name: {{ .Values.plutono.rbac.useExistingRole }}
+{{- end }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "plutono.serviceAccountName" . }}
+  namespace: {{ template "plutono.namespace" . }}
+{{- end -}}

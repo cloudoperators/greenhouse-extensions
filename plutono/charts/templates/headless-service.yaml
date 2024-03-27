@@ -1,0 +1,18 @@
+{{- if and .Values.plutono.persistence.enabled (not .Values.plutono.persistence.existingClaim) (eq .Values.plutono.persistence.type "statefulset")}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "plutono.fullname" . }}-headless
+  namespace: {{ template "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+{{- with .Values.plutono.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "plutono.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
+{{- end }}

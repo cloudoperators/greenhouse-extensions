@@ -1,0 +1,46 @@
+{{- if .Values.plutono.serviceMonitor.enabled }}
+{{- $prometheus := (lookup "monitoring.coreos.com/v1" "Prometheus" $.Release.Namespace "").items }}
+{{- if $prometheus }}
+{{- $prometheus := $prometheus | first }}
+{{- $prometheusName := $prometheus.metadata.name }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "plutono.fullname" . }}
+  {{- if .Values.plutono.serviceMonitor.namespace }}
+  namespace: {{ .Values.plutono.serviceMonitor.namespace }}
+  {{- end }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+    pluginconfig: {{ $prometheusName }}
+    {{- if .Values.plutono.serviceMonitor.labels }}
+    {{- toYaml .Values.plutono.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+  - interval: {{ .Values.plutono.serviceMonitor.interval }}
+    {{- if .Values.plutono.serviceMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.plutono.serviceMonitor.scrapeTimeout }}
+    {{- end }}
+    honorLabels: true
+    port: {{ .Values.plutono.service.portName }}
+    path: {{ .Values.plutono.serviceMonitor.path }}
+    scheme: {{ .Values.plutono.serviceMonitor.scheme }}
+    {{- if .Values.plutono.serviceMonitor.tlsConfig }}
+    tlsConfig:
+    {{- toYaml .Values.plutono.serviceMonitor.tlsConfig | nindent 6 }}
+    {{- end }}
+    {{- if .Values.plutono.serviceMonitor.relabelings }}
+    relabelings:
+    {{- toYaml .Values.plutono.serviceMonitor.relabelings | nindent 4 }}
+    {{- end }}
+  jobLabel: "{{ .Release.Name }}"
+  selector:
+    matchLabels:
+      {{- include "plutono.selectorLabels" . | nindent 8 }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
