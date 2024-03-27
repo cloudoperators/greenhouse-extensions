@@ -1,0 +1,48 @@
+{{ if (or (not .Values.plutono.persistence.enabled) (eq .Values.plutono.persistence.type "pvc")) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "plutono.fullname" . }}
+  namespace: {{ template "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+{{- if .Values.plutono.labels }}
+{{ toYaml .Values.plutono.labels | indent 4 }}
+{{- end }}
+{{- with .Values.plutono.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.plutono.replicas }}
+  revisionHistoryLimit: {{ .Values.plutono.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "plutono.selectorLabels" . | nindent 6 }}
+{{- with .Values.plutono.deploymentStrategy }}
+  strategy:
+{{ toYaml . | trim | indent 4 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "plutono.selectorLabels" . | nindent 8 }}
+{{- with .Values.plutono.podLabels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/datasources-yaml-secret: {{ include (print $.Template.BasePath "/datasources-yaml-secret.yaml") . | sha256sum }}
+        checksum/dashboards-json-configmap: {{ include (print $.Template.BasePath "/dashboards-json-configmap.yaml") . | sha256sum }}
+{{- if or (and (not .Values.plutono.admin.existingSecret) (not .Values.plutono.env.PL_SECURITY_ADMIN_PASSWORD__FILE) (not .Values.plutono.env.PL_SECURITY_ADMIN_PASSWORD)) (and .Values.plutono.ldap.enabled (not .Values.plutono.ldap.existingSecret)) }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+{{- end }}
+{{- if .Values.plutono.envRenderSecret }}
+        checksum/secret-env: {{ include (print $.Template.BasePath "/secret-env.yaml") . | sha256sum }}
+{{- end }}
+{{- with .Values.plutono.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- include "plutono.pod" . | nindent 6 }}
+{{- end }}

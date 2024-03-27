@@ -1,0 +1,509 @@
+plutono:
+  rbac:
+    create: true
+    namespaced: false
+
+  serviceAccount:
+    create: true
+    name:
+    nameTest:
+  #  annotations:
+  #    eks.amazonaws.com/role-arn: arn:aws:iam::123456789000:role/iam-role-name-here
+
+  # These values must match the configuration from your OAuth2 app.
+  oidc:
+    enabled: false
+    apiURL:
+    authURL:
+    tokenURL:
+    clientID:
+    clientSecret:
+
+  ## Number of plutono instances to run
+  replicas: 1
+
+  ## See `kubectl explain deployment.spec.strategy` for more
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  deploymentStrategy:
+    type: RollingUpdate
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 10
+
+  ## Use an alternate scheduler, e.g. "stork".
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  # schedulerName: "default-scheduler"
+
+  image:
+    repository: ghcr.io/credativ/plutono
+    # if not set appVersion field from Chart.yaml is used
+    tag: ""
+    sha: ""
+    pullPolicy: IfNotPresent
+
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ##
+    # pullSecrets:
+    #   - myRegistrKeySecretName
+
+  securityContext:
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
+
+  containerSecurityContext:
+    {}
+
+  extraConfigmapMounts: []
+    # - name: certs-configmap
+    #   mountPath: /etc/plutono/ssl/
+    #   subPath: certificates.crt # (optional)
+    #   configMap: certs-configmap
+    #   readOnly: true
+
+
+  extraEmptyDirMounts: []
+    # - name: provisioning-notifiers
+    #   mountPath: /etc/plutono/provisioning/notifiers
+
+
+  # Apply extra labels to common labels.
+  extraLabels:
+    plugin: plutono
+
+  ## Assign a PriorityClassName to pods if set
+  # priorityClassName:
+
+  ## Pod Annotations
+  # podAnnotations: {}
+
+  ## Pod Labels
+  # podLabels: {}
+
+  podPortName: plutono
+
+  ## Deployment annotations
+  # annotations: {}
+
+  ## Expose the plutono service to be accessed from outside the cluster (LoadBalancer service).
+  ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+  ## ref: http://kubernetes.io/docs/user-guide/services/
+  ##
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+      # targetPort: 4181 To be used with a proxy extraContainer
+    annotations: {}
+    labels: {}
+    portName: service
+
+  serviceMonitor:
+    ## If true, a ServiceMonitor CRD is created for a prometheus operator
+    ## https://github.com/coreos/prometheus-operator
+    ##
+    enabled: true
+    path: /metrics
+    #  namespace: monitoring  (defaults to use the namespace this chart is deployed to)
+    labels: {}
+    interval: 1m
+    scheme: http
+    tlsConfig: {}
+    scrapeTimeout: 30s
+    relabelings: []
+
+  extraExposePorts: []
+   # - name: keycloak
+   #   port: 8080
+   #   targetPort: 8080
+   #   type: ClusterIP
+
+  # overrides pod.spec.hostAliases in the plutono deployment's pods
+  hostAliases: []
+    # - ip: "1.2.3.4"
+    #   hostnames:
+    #     - "my.host.com"
+
+  ingress:
+    enabled: true
+    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    ingressClassName: nginx
+    # Values.plutono can be templated
+    annotations:
+      disco: "true"
+      kubernetes.io/tls-acme: "true"
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    labels: {}
+    path: /
+
+    # pathType is only for k8s > 1.19
+    pathType: Prefix
+
+    hosts:
+      - chart-example.local
+    ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
+    extraPaths: []
+    # - path: /*
+    #   backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    ## Or for k8s > 1.19
+    # - path: /*
+    #   pathType: Prefix
+    #   backend:
+    #     service:
+    #       name: ssl-redirect
+    #       port:
+    #         name: service
+
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+  #  limits:
+  #    cpu: 100m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 128Mi
+
+  ## Node labels for pod assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  #
+  nodeSelector: {}
+
+  ## Tolerations for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Affinity for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ##
+  affinity: {}
+
+  extraInitContainers: []
+
+  ## Enable an Specify container in extraContainers. This is meant to allow adding an authentication proxy to a plutono pod
+  extraContainers: |
+  # - name: proxy
+  #   image: quay.io/gambol99/keycloak-proxy:latest
+  #   args:
+  #   - -provider=github
+  #   - -client-id=
+  #   - -client-secret=
+  #   - -github-org=<ORG_NAME>
+  #   - -email-domain=*
+  #   - -cookie-secret=
+  #   - -http-address=http://0.0.0.0:4181
+  #   - -upstream-url=http://127.0.0.1:3000
+  #   ports:
+  #     - name: proxy-web
+  #       containerPort: 4181
+
+  ## Volumes that can be used in init containers that will not be mounted to deployment pods
+  extraContainerVolumes: []
+  #  - name: volume-from-secret
+  #    secret:
+  #      secretName: secret-to-mount
+  #  - name: empty-dir-volume
+  #    emptyDir: {}
+
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    type: pvc
+    enabled: false
+    # storageClassName: default
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    # annotations: {}
+    finalizers:
+      - kubernetes.io/pvc-protection
+    # selectorLabels: {}
+    # subPath: ""
+    # existingClaim:
+
+    ## If persistence is not enabled, this allows to mount the
+    ## local storage in-memory to improve performance
+    ##
+    inMemory:
+      enabled: false
+      ## The maximum usage on memory medium EmptyDir would be
+      ## the minimum value between the SizeLimit specified
+      ## here and the sum of memory limits of all containers in a pod
+      ##
+      # sizeLimit: 300Mi
+
+  # Administrator credentials when not using an existing secret (see below)
+  adminUser: admin
+  adminPassword: ""
+
+  # Use an existing secret for the admin user.
+  admin:
+    existingSecret: ""
+    userKey: admin-user
+    passwordKey: admin-password
+
+  ## Define command to be executed at startup by plutono container
+  ## Needed if using `vault-env` to manage secrets (ref: https://banzaicloud.com/blog/inject-secrets-into-pods-vault/)
+  ## Default is "run.sh" as defined in plutono's Dockerfile
+  # command:
+  # - "sh"
+  # - "/run.sh"
+
+  ## Use an alternate scheduler, e.g. "stork".
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  # schedulerName:
+
+  ## Extra environment variables that will be pass onto deployment pods
+  ##
+  ## to provide plutono with access to CloudWatch on AWS EKS:
+  ## 1. create an iam role of type "Web identity" with provider oidc.eks.* (note the provider for later)
+  ## 2. edit the "Trust relationships" of the role, add a line inside the StringEquals clause using the
+  ## same oidc eks provider as noted before (same as the existing line)
+  ## also, replace NAMESPACE and prometheus-operator-plutono with the service account namespace and name
+  ##
+  ##  "oidc.eks.us-east-1.amazonaws.com/id/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:sub": "system:serviceaccount:NAMESPACE:prometheus-operator-plutono",
+  ##
+  ## 3. attach a policy to the role, you can use a built in policy called CloudWatchReadOnlyAccess
+  ## 4. use the following env: (replace 123456789000 and iam-role-name-here with your aws account number and role name)
+  ##
+  ## env:
+  ##   AWS_ROLE_ARN: arn:aws:iam::123456789000:role/iam-role-name-here
+  ##   AWS_WEB_IDENTITY_TOKEN_FILE: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+  ##   AWS_REGION: us-east-1
+  ##
+  ## 5. uncomment the EKS section in extraSecretMounts: below
+  ## 6. uncomment the annotation section in the serviceAccount: above
+  ## make sure to replace arn:aws:iam::123456789000:role/iam-role-name-here with your role arn
+
+  env: {}
+
+  ## "valueFrom" environment variable references that will be added to deployment pods
+  ## ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.17/#envvarsource-v1-core
+  ## Renders in container spec as:
+  ##   env:
+  ##     ...
+  ##     - name: <key>
+  ##       valueFrom:
+  ##         <value rendered as YAML>
+  envValueFrom: {}
+
+  ## The name of a secret in the same kubernetes namespace which contain values to be added to the environment
+  ## This can be useful for auth tokens, etc. Value is templated.
+  envFromSecret: ""
+
+  ## Sensible environment variables that will be rendered as new secret object
+  ## This can be useful for auth tokens, etc
+  envRenderSecret: {}
+
+  ## Additional plutono server secret mounts
+  # Defines additional mounts with secrets. Secrets must be manually created in the namespace.
+  extraSecretMounts: []
+    # - name: secret-files
+    #   mountPath: /etc/secrets
+    #   secretName: plutono-secret-files
+    #   readOnly: true
+    #   subPath: ""
+
+  ## Additional plutono server volume mounts
+  # Defines additional volume mounts.
+  extraVolumeMounts: []
+    # - name: extra-volume-0
+    #   mountPath: /mnt/volume0
+    #   readOnly: true
+    #   existingClaim: volume-claim
+    # - name: extra-volume-1
+    #   mountPath: /mnt/volume1
+    #   readOnly: true
+    #   hostPath: /usr/shared/
+
+  ## Lookup Prometheus datasources in cluster
+  prometheusLookup: true
+
+  ## Datasource provisioning
+  datasources:
+   # - name: Prometheus
+   #   type: prometheus
+   #   url: http://prometheus-server
+   #   access: proxy
+   #   isDefault: true
+   # - name: Opensearch
+   #   type: elasticsearch
+   #   access: proxy
+   #   uid: opensearch
+   #   editable: false
+   #   database: 'logstash*'
+   #   basicAuth: true
+   #   basicAuthUser: promuser
+   #   basicAuthPassword: OPENSEARCH_PASSWORD
+   #   jsonData:
+   #     esVersion: 70
+   #     logLevelField:
+   #     logMessageField:
+   #     maxConcurrentShardRequests: 5
+   #     timeField: '@timestamp'
+   #     tlsSkipVerify: true
+
+  ## Plutono's primary configuration
+  ## NOTE: values in map will be converted to ini format
+  ## ref: http://docs.plutono.org/installation/configuration/
+  ##
+  plutono.ini:
+    server:
+      root_url: "{{ first .Values.plutono.ingress.hosts }}"
+    paths:
+      data: /var/lib/plutono/data
+      logs: /var/log/plutono
+      plugins: /var/lib/plutono/plugins
+      provisioning: /etc/plutono/provisioning
+    log:
+      mode: console
+    auth:
+      oauth_auto_login: "{{ .Values.plutono.oidc.enabled }}"
+    auth.generic_oauth:
+      enabled: "{{ .Values.plutono.oidc.enabled }}"
+      allow_sign_up: true
+      skip_org_role_sync: true
+      auto_login: "{{ .Values.plutono.oidc.enabled }}"
+      team_ids:
+      name: OAuth2
+      scopes: openid profile email
+      use_pkce: false
+      use_refresh_token: true
+      api_url: "{{ .Values.plutono.oidc.apiURL }}"
+      auth_url: "{{ .Values.plutono.oidc.authURL }}"
+      token_url: "{{ .Values.plutono.oidc.tokenURL }}"
+      clientID: "{{ .Values.plutono.oidc.clientID }}"
+      clientSecret: "{{ .Values.plutono.oidc.clientSecret }}"
+    users:
+      auto_assign_org_role: Editor
+      editors_can_admin: true
+
+  ## plutono Authentication can be enabled with the following values on plutono.ini
+   # server:
+        # The full public facing url you use in browser, used for redirects and emails
+   #    root_url:
+   # https://plutono.com/docs/plutono/latest/auth/github/#enable-github-in-plutono
+   # auth.github:
+   #    enabled: false
+   #    allow_sign_up: false
+   #    scopes: user:email,read:org
+   #    auth_url: https://github.com/login/oauth/authorize
+   #    token_url: https://github.com/login/oauth/access_token
+   #    api_url: https://api.github.com/user
+   #    team_ids:
+   #    allowed_organizations:
+   #    client_id:
+   #    client_secret:
+  ## LDAP Authentication can be enabled with the following values on plutono.ini
+  ## NOTE: Plutono will fail to start if the value for ldap.toml is invalid
+    # auth.ldap:
+    #   enabled: true
+    #   allow_sign_up: true
+    #   config_file: /etc/plutono/ldap.toml
+
+  ## Plutono's LDAP configuration
+  ## Templated by the template in _helpers.tpl
+  ## NOTE: To enable the plutono.ini must be configured with auth.ldap.enabled
+  ## ref: http://docs.plutono.org/installation/configuration/#auth-ldap
+  ## ref: http://docs.plutono.org/installation/ldap/#configuration
+  ldap:
+    enabled: false
+    # `existingSecret` is a reference to an existing secret containing the ldap configuration
+    # for Plutono in a key `ldap-toml`.
+    existingSecret: ""
+    # `config` is the content of `ldap.toml` that will be stored in the created secret
+    config: ""
+    # config: |-
+    #   verbose_logging = true
+
+    #   [[servers]]
+    #   host = "my-ldap-server"
+    #   port = 636
+    #   use_ssl = true
+    #   start_tls = false
+    #   ssl_skip_verify = false
+    #   bind_dn = "uid=%s,ou=users,dc=myorg,dc=com"
+
+  ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+  ## Requires at least Plutono 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
+  sidecar:
+    image:
+      repository: quay.io/kiwigrid/k8s-sidecar
+      tag: 1.26.1
+      sha: ""
+    imagePullPolicy: IfNotPresent
+    resources: {}
+  #   limits:
+  #     cpu: 100m
+  #     memory: 100Mi
+  #   requests:
+  #     cpu: 50m
+  #     memory: 50Mi
+    # skipTlsVerify Set to true to skip tls verification for kube api calls
+    # skipTlsVerify: true
+    enableUniqueFilenames: false
+    dashboards:
+      enabled: true
+      # label that the configmaps with dashboards are marked with
+      label: plutono-dashboard
+      # value of label that the configmaps with dashboards are set to
+      labelValue: "true"
+      # folder in the pod that should hold the collected dashboards (unless `defaultFolderName` is set)
+      folder: /tmp/dashboards
+      # The default folder name, it will create a subfolder under the `folder` and put dashboards in there instead
+      defaultFolderName: null
+      # If specified, the sidecar will search for dashboard config-maps inside this namespace.
+      # Otherwise the namespace in which the sidecar is running will be used.
+      # It's also possible to specify ALL to search in all namespaces
+      searchNamespace: null
+      # search in configmap, secret or both
+      resource: both
+      # If specified, the sidecar will look for annotation with this name to create folder and put graph here.
+      # You can use this parameter together with `provider.foldersFromFilesStructure`to annotate configmaps and create folder structure.
+      folderAnnotation: null
+
+    datasources:
+      enabled: true
+      # label that the configmaps with datasources are marked with
+      label: plutono-datasource
+      # value of label that the configmaps with datasources are set to
+      labelValue: "true"
+      # If specified, the sidecar will search for datasource config-maps inside this namespace.
+      # Otherwise the namespace in which the sidecar is running will be used.
+      # It's also possible to specify ALL to search in all namespaces
+      searchNamespace: null
+      # search in configmap, secret or both
+      resource: both
+
+  ## Override the deployment namespace
+  ##
+  namespaceOverride: ""
+
+  ## Number of old ReplicaSets to retain
+  ##
+  revisionHistoryLimit: 10

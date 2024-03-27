@@ -1,0 +1,32 @@
+{{- if and .Values.plutono.rbac.create (not .Values.plutono.rbac.useExistingRole) -}}
+apiVersion: {{ template "rbac.apiVersion" . }}
+kind: Role
+metadata:
+  name: {{ template "plutono.fullname" . }}
+  namespace: {{ template "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+{{- with .Values.plutono.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- if or .Values.plutono.rbac.pspEnabled (and .Values.plutono.rbac.namespaced (or .Values.plutono.sidecar.dashboards.enabled (or .Values.plutono.sidecar.datasources.enabled .Values.plutono.rbac.extraRoleRules))) }}
+rules:
+{{- if .Values.plutono.rbac.pspEnabled }}
+- apiGroups:      ['extensions']
+  resources:      ['podsecuritypolicies']
+  verbs:          ['use']
+  resourceNames:  [{{ template "plutono.fullname" . }}]
+{{- end }}
+{{- if and .Values.plutono.rbac.namespaced (or .Values.plutono.sidecar.dashboards.enabled .Values.plutono.sidecar.datasources.enabled) }}
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "watch", "list"]
+{{- end }}
+{{- with .Values.plutono.rbac.extraRoleRules }}
+{{ toYaml . | indent 0 }}
+{{- end}}
+{{- else }}
+rules: []
+{{- end }}
+{{- end }}
