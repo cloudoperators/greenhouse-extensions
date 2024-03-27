@@ -226,7 +226,7 @@ datasources:
 
 ## How to securely reference secrets in plutono.ini
 
-This example uses Plutono uses [file providers](https://plutono.com/docs/plutono/latest/administration/configuration/#file-provider) for secret values and the `extraSecretMounts` configuration flag (Additional plutono server secret mounts) to mount the secrets.
+This example uses Plutono uses [file providers](https://grafana.com/docs/plutono/latest/administration/configuration/#file-provider) for secret values and the `extraSecretMounts` configuration flag (Additional plutono server secret mounts) to mount the secrets.
 
 In plutono.ini:
 
