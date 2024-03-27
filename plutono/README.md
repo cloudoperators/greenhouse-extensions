@@ -166,7 +166,8 @@ data:
 {{ printf "%s: |-" $path | replace "/" "-" | indent 2 }}
 {{ printf "%s" $bytes | indent 4 }}
 
-{{- end }}```
+{{- end }}
+```
 
 ## Sidecar for datasources
 
