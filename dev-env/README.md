@@ -102,7 +102,7 @@ To **test** your plugin with a backend (a.k.a. helm chart) the proposed way is:
   ```
   kubectl get clusters -n test-org
   ```
-- Deploy a PluginConfig to the `test-org` namespace with `Spec.ClusterName` set to your onboarded cluster
+- Deploy a Plugin to the `test-org` namespace with `Spec.ClusterName` set to your onboarded cluster
 - The resources of your Plugin will be installed to your onboarded cluster into the `test-org` namespace. View your running Application there.
 
 See [greenhouse](#greenhouse) for how to access the greenhouse controller logs.

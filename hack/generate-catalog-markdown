@@ -30,7 +30,7 @@ This following table provides an overview of the currently available Plugins in 
 
 # Find and package Helm Charts.
 echo -e "$header" > $plugins_catalog_file
-all_plugins=$(git grep --recursive --files-with-matches -e "kind: Plugin" -- '*plugin.yaml' | sort | uniq ) || true
+all_plugins=$(git grep --recursive --files-with-matches -e "kind: PluginDefinition" -- '*plugin.yaml' | sort | uniq ) || true
 for plugin in $all_plugins; do
   table_content=$(yq '(.metadata.name,.spec.description,.spec.version)' "$plugin" | tr '\n' '|')
   echo -e "| ${table_content}" >> $plugins_catalog_file

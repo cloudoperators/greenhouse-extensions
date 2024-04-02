@@ -173,7 +173,7 @@ kubeMonitoring:
         volumeClaimTemplate:
           metadata:
             labels:
-              plugin: kube-monitoring
+              pluginDefinition: kube-monitoring
               pluginconfig: "{{ $.Release.Name }}"
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
