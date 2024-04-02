@@ -3,11 +3,11 @@ description: A Helm chart for installing the Prometheus Alertmanager via operato
 icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
 type: application
 maintainers:
-  - name: richardtief 
+  - name: richardtief
   - name: viennaa
 name: alerts
 sources:
-  - ghcr.io/cloudoperators/greenhouse-extensions
+  - https://github.com/cloudoperators/greenhouse-extensions
 version: 0.8.0
 keywords:
   - prometheus-alertmanager
