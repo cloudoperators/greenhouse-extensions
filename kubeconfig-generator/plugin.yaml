@@ -10,8 +10,8 @@ spec:
   version: 0.1.1
   helmChart:
     name: kubeconfig-generator
-    repository: oci://ghcr.io/sapcc/helm-charts
-    version: 0.1.1
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 0.1.2
   options:
     - name: swift.authUrl
       description: Keystone endpoint to be used for authentication
