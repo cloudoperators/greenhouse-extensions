@@ -25,7 +25,6 @@ const AppContent = ({ id, showDebugSeverities }) => {
   const isMock = useGlobalsMock()
   const endpoint = useGlobalsEndpoint()
 
-  console.log("endpoint: ", endpoint)
   useEffect(() => {
     if (isMock) {
       fetchProxy(`${endpoint}/templates`, {
