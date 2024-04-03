@@ -41,7 +41,7 @@
     "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@latest/package.tgz",
     "util": "^0.12.4",
     "utils": "https://assets.juno.global.cloud.sap/libs/utils@latest/package.tgz",
-    "zustand": "4.3.7"
+    "zustand": "4.5.2"
   },
   "scripts": {
     "test": "jest",
@@ -50,7 +50,7 @@
   },
   "peerDependencies": {},
   "importmapExtras": {
-    "zustand/middleware": "4.3.7"
+    "zustand/middleware": "4.5.2"
   },
   "appProps": {
     "theme": {
