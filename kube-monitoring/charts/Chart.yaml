@@ -3,12 +3,12 @@ description: This chart deploys the essential components for monitoring Kubernet
 icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
 type: application
 maintainers:
-  - name: richardtief 
+  - name: richardtief
   - name: viennaa
 name: kube-monitoring
 sources:
-  - ghcr.io/cloudoperators/greenhouse-extensions
 version: 0.6.2
+  - https://github.com/cloudoperators/greenhouse-extensions
 # prometheus-operator app version
 appVersion: v0.71.2
 keywords:
