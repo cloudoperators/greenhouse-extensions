@@ -1,4 +1,63 @@
 {
+  "cluster-identifiers": [{
+    "cluster-1": {
+        "layer": "layer-1",
+        "type": "type-1"
+    },
+    "cluster-2": {
+        "layer": "layer-2",
+        "type": "type-2"
+    },
+    "cluster-3": {
+        "layer": "layer-3",
+        "type": "type-3"
+    },
+    "cluster-4": {
+        "layer": "layer-4",
+        "type": "type-4"
+    },
+    "cluster-5": {
+        "layer": "layer-5",
+        "type": "type-5"
+    },
+    "cluster-6": {
+        "layer": "layer-6",
+        "type": "type-6"
+    },
+    "cluster-7": {
+        "layer": "layer-7",
+        "type": "type-7"
+    },
+    "cluster-8": {
+        "layer": "layer-8",
+        "type": "type-8"
+    },
+    "cluster-9": {
+        "layer": "layer-9",
+        "type": "type-9"
+    },
+    "cluster-10": {
+        "layer": "layer-10",
+        "type": "type-10"
+    },
+    "cluster-11": {
+        "layer": "layer-11",
+        "type": "type-11"
+    },
+    "cluster-12": {
+        "layer": "layer-12",
+        "type": "type-12"
+    },
+    "cluster-13": {
+        "layer": "layer-13",
+        "type": "type-13"
+    },
+    "cluster-14": {
+        "layer": "layer-14",
+        "type": "type-14"
+    }
+  }
+],
   "templates": [
     {
       "kind": "kind-1",

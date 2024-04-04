@@ -27,7 +27,7 @@ const AppContent = ({ id, showDebugSeverities }) => {
 
   useEffect(() => {
     if (isMock) {
-      fetchProxy(`${endpoint}/templates`, {
+      fetchProxy(`${endpoint}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -54,6 +54,7 @@ const AppContent = ({ id, showDebugSeverities }) => {
   const dataRequest = useQuery({
     queryKey: ["violations"],
     queryFn: fetchData,
+    enabled: !isMock,
     refetchInterval: 5 * 60 * 1000, // 5 minutes
   })
 
@@ -81,7 +82,7 @@ const AppContent = ({ id, showDebugSeverities }) => {
       {/* <UrlStateManager consumerId={id || "doop"} /> */}
       <Header />
       <Messages className="mb-4" />
-      {dataRequest?.isLoading ? (
+      {dataRequest?.isLoading && !isMock ? (
         <HintLoading className="tw-mt-4" />
       ) : (
         <Violations />
