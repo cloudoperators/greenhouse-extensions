@@ -1,0 +1,14 @@
+image:
+  registry: "reg"
+swift:
+  authUrl: http://abc
+  username: banana
+  password: apple
+cluster:
+- name: some-cluster
+  clientIdRef:
+    name: top-secret
+    key: clientId
+  clientSecretRef:
+    name: super-secret
+    key: clientSecret
