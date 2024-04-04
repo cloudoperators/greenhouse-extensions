@@ -7,11 +7,11 @@ metadata:
   name: kubeconfig-generator
 spec:
   description: Automated kubeconfig generator for kubectl-sync/kubectl-logon/u8s
-  version: 0.1.1
+  version: 0.1.2
   helmChart:
     name: kubeconfig-generator
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.1.2
+    version: 0.1.3
   options:
     - name: swift.authUrl
       description: Keystone endpoint to be used for authentication
@@ -41,3 +41,7 @@ spec:
       description: Name of an existing swift container
       required: true
       type: string
+    - name: cluster
+      description: Cluster-specific configuration
+      required: false
+      type: list
