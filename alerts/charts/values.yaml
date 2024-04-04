@@ -207,8 +207,23 @@ alerts:
             name: greenhouse-notification-templates
           name: greenhouse-notification-templates
 
+  # Alertmanager integration with Slack and Webhooks
   alertmanagerConfig:
     slack:
-      channel: ""
-      webhookURL: ""
-      username: Greenhouse
+      routes:
+        #  - name: slack-info-route
+        #    channel: slack-info-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    username: Greenhouse
+        #  - name: slack-warning-route
+        #    channel: slack-warning-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    username: Greenhouse
+        #  - name: slack-critical-route
+        #    channel: slack-critical-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    username: Greenhouse
+    webhook:
+      routes:
+        #  - name: webhook-route
+        #    url: https://some-webhook.com

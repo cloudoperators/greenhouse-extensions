@@ -23,9 +23,14 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
 | `alerts.alertmanager.ingress.tls`                                | Must be a valid TLS configuration for Alertmanager Ingress. Supernova UI passes the client certificate to retrieve alerts.  | `{}`                     |
 | `alerts.alertmanager.ingress.ingressClassname`                   | Specifies the ingress-controller                                                                    | `nginx`                  |
 | `alerts.alertmanager.servicemonitor.additionalLabels`            | kube-monitoring `pluginconfig: <pluginconfig.name>` to scrape Alertmanager metrics.                 | `{}`                     |
-| `alerts.alertmanager.alertmanagerConfig.slack.webhookURL`        | Slack webhookURL to post alerts to. Must be defined with `slack.channel`.                           | `""`                     |
-| `alerts.alertmanager.alertmanagerConfig.slack.channel`           | Slack channel to post alerts to. Must be defined with `slack.webhookURL`.                           | `""`                     |
-| `alerts.defaultRules.create`                                     | Creates community Alertmanager alert rules.                                                         | `true`                   | 
+| `alerts.alertmanager.alertmanagerConfig.slack.routes[].name`     | Name of the Slack route.                                                                            | `""`                     |
+| `alerts.alertmanager.alertmanagerConfig.slack.routes[].channel`  | Slack channel to post alerts to. Must be defined with `slack.webhookURL`.                           | `""`                     |
+| `alerts.alertmanager.alertmanagerConfig.slack.routes[].webhookURL` | Slack webhookURL to post alerts to. Must be defined with `slack.channel`.                         | `""`                     |
+| `alerts.alertmanager.alertmanagerConfig.slack.routes[].matchers`   | List of matchers that the alert's label should match. matchType <string>, name <string>, regex <boolean>, value <string> | `[]`                     |
+| `alerts.alertmanager.alertmanagerConfig.webhook.routes[].name`     | Name of the webhook route.                                                                            | `""`                     |
+| `alerts.alertmanager.alertmanagerConfig.webhook.routes[].url` | Webhook url to post alerts to.                         | `""`                     |
+| `alerts.alertmanager.alertmanagerConfig.webhook.routes[].matchers`   | List of matchers that the alert's label should match. matchType <string>, name <string>, regex <boolean>, value <string> | `[]`                     |
+      | `alerts.defaultRules.create`                                     | Creates community Alertmanager alert rules.                                                         | `true`                   |
 | `alerts.defaultRules.labels`                                     | kube-monitoring `pluginconfig: <pluginconfig.name>` to evaluate Alertmanager rules.                 | `{}`                     |
 | `alerts.alertmanager.alertmanagerSpec.alertmanagerConfiguration` | AlermanagerConfig to be used as top level configuration                                             | `false`                  |
 
@@ -167,6 +172,70 @@ spec:
         - pod_name
         - instance
 ```
+
+### Example Alertmanger integration Secret
+
+In your PluginConfig, you can reference a Secret that contains the Alertmanager configuration.
+
+```yaml
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginConfig
+metadata:
+  name: alerts
+spec:
+  optionValues:
+    - name: alerts.alertmanagerConfig.slack
+      valueFrom:
+        secretKeyRef:
+          name: alertmanager-integration-secret
+          key: slack-routes
+    - name: alerts.alertmanagerConfig.webhook
+      valueFrom:
+        secretKeyRef:
+          name: alertmanager-integration-secret
+          key: webhook-routes
+```
+
+The following is an example of a Secret that contains the Alertmanager configuration.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-integration-secret
+data:
+  slack-routes:
+    ## The following must be base64 encoded
+    routes:
+      - name: slack-info-route
+        channel: slack-info-channel
+        webhookURL: https://hooks.slack.com/services/some-id
+        matchers:
+          - name: severity
+            matchType: "="
+            value: "info"
+      - name: slack-warning-route
+        channel: slack-warning-channel
+        webhookURL: https://hooks.slack.com/services/some-id
+        matchers:
+          - name: severity
+            matchType: "="
+            value: "warning"
+      - name: slack-critical-route
+        channel: slack-critical-channel
+        webhookURL: https://hooks.slack.com/services/some-id
+        matchers:
+          - name: severity
+            matchType: "="
+            value: "critical"
+    webhook-routes:
+      ## The following must be base64 encoded
+        routes:
+          - name: webhook-route
+            url: https://some-webhook.com
+```
+
+
 ### Deploy alerts without Alertmanager (Bring your own Alertmanager - Supernova UI only)
 
 ```yaml

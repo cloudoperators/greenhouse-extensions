@@ -1,0 +1,63 @@
+{{ if and .Values.alerts.alertmanagerConfig.slack.routes .Values.alerts.alertmanagerConfig.webhook.routes }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-alertmanager-slack-config
+  labels:
+    pluginconfig: "{{ $.Release.Name }}"
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  route:
+    receiver: root
+    continue: false
+    matchers:
+      - name: alertname
+        matchType: "!~"
+        value: "Watchdog|InfoInhibitor"
+      - name: organization
+        matchType: "="
+        value: {{ $.Release.Namespace | quote }}
+    routes:
+      {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+        continue: true
+        {{- if $route.matchers }}
+        matchers:
+          {{ toYaml $route.matchers | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+        continue: true
+        {{- if $route.matchers }}
+        matchers:
+          {{ toYaml $route.matchers | nindent 10 }}
+        {{- end }}
+      {{- end }}
+  receivers:
+    {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+      slackConfigs:
+        - channel: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].channel missing" $route.channel }}
+          apiURL:
+            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+            name: {{ $.Release.Name }}-webhook-urls
+          username: {{ $route.username }}
+          title: {{"'{{template \"slack.title\" . }}'"}}
+          titleLink: {{"'{{template \"slack.titlelink\" . }}'"}}
+          text: {{"'{{template \"slack.text\" . }}'"}}
+          pretext: {{"'{{template \"slack.pretext\" . }}'"}}
+          iconEmoji: {{"'{{template \"slack.iconemoji\" . }}'"}}
+          callbackId: "alertmanager"
+          color: {{`'{{template "slack.color" . }}'`}}
+          sendResolved: true
+    {{ end }}
+    {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+      webhookConfigs:
+        - url:
+            key: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+            name: {{ $.Release.Name }}-webhook-urls
+          sendResolved: true
+    {{ end }}
+{{ end }}
