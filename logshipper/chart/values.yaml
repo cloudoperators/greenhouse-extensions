@@ -1,0 +1,45 @@
+fluent-bit:
+  podAnnotations:
+    kubectl.kubernetes.io/default-container: "fluent-bit"
+  hotReload: 
+    enabled: true
+  existingConfigMap: "fluent-bit-config"
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 5
+  env:
+    - name: OPENSEARCH_USER
+      valueFrom:
+        secretKeyRef:
+          name: fluent-bit-secrets
+          key: OPENSEARCH_USER
+    - name: OPENSEARCH_PWD
+      valueFrom:
+        secretKeyRef:
+          name: fluent-bit-secrets
+          key: OPENSEARCH_PWD
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+  backend:
+    opensearch:
+      logstash_prefix: systemd
+      tls:
+        enabled: "On"
+        verify: "Off"
+        debug: '1'
+  extraPorts:
+    - name: prometheus
+      port: 2021
+      containerPort: 2021
+      protocol: TCP
+  livenessProbe:
+    httpGet:
+      path: /
+      port: prometheus
+  readinessProbe:
+    httpGet:
+      path: /api/v1/health
+      port: prometheus

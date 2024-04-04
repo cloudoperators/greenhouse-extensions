@@ -27,5 +27,6 @@ ct.yaml                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /ingress-nginx/         @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /kube-monitoring/       @richardtief @viennaa
 /kubeconfig-generator/  @Nuckal777 @ivogoman @uwe-mayer
+/logshipper/            @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /service-proxy/         @databus23 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /teams2slack/           @voigts @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer

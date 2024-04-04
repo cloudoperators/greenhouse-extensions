@@ -1,0 +1,11 @@
+fluent-bit:
+  backend:
+    opensearch:
+      http_user: top-secret
+      http_password: top-secret
+  filter:
+    additionalValues:
+      - key: region
+        name: qa
+prometheus:
+  enabled: true

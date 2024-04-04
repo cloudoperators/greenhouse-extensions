@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: logshipper
+spec:
+  description: Logshipping of container logs and systemd with fluent-bit
+  version: 0.0.1
+  helmChart:
+    name: logshipper
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    version: 0.0.1
+  options:
+    - name: fluent-bit.parser
+      description: Parser used for container logs. [docker|cri]
+      default: "cri"
+      required: false
+      type: string
+    - name: fluent-bit.backend.opensearch.host
+      description: Host for the OpenSearch HTTP Input
+      required: true
+      type: string
+    - name: fluent-bit.backend.opensearch.port
+      description: Port for the OpenSearch HTTP Input
+      required: true
+      type: string
+    - name: fluent-bit.backend.opensearch.http_user
+      description: Username for the OpenSearch HTTP Input
+      required: true
+      type: secret
+    - name: fluent-bit.backend.opensearch.http_password
+      description: Password for the OpenSearch HTTP Input
+      required: true
+      type: secret
+    - name: fluent-bit.backend.opensearch.logstash_prefix
+      description: Prefix for the OpenSearch Index
+      required: true
+      type: string
+    - name: fluent-bit.filter.additionalValues
+      description: List of Key-Value-Pairs that are added to all collected logs
+      required: false
+      type: list
