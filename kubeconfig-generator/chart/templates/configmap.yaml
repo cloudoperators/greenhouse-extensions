@@ -22,13 +22,13 @@ data:
     {{- if .Values.cluster }}
     cluster:
       {{- range .Values.cluster }}
-    - name: {{ .name }}
+    - name: {{ .name | quote }}
       namespace: {{ $.Release.Namespace }}
       clientIdRef:
         name: {{ .clientIdRef.name }}
         key: {{ .clientIdRef.key }}
       clientSecretRef:
         name: {{ .clientSecretRef.name }}
-        key: {{ .clientSecretRef.name }}
+        key: {{ .clientSecretRef.key }}
       {{- end }}
     {{- end }}
