@@ -10,7 +10,7 @@ import StoreProvider, {
   useFiltersActions,
   useDataFilteredItems,
 } from "../../components/StoreProvider"
-import data from "../dataMockV2"
+import data from "../../../db.json"
 
 describe("createFiltersSlice", () => {
   describe("set", () => {
@@ -36,8 +36,8 @@ describe("createFiltersSlice", () => {
       // set filters
       act(() => {
         store.result.current.filterActions.set([
-          { key: "check:service", value: "dns" },
-          { key: "check:service", value: "grafana" },
+          { key: "check:support-group", value: "support-group-2" },
+          { key: "check:support-group", value: "support-group-4" },
         ])
       })
       expect(
@@ -67,7 +67,10 @@ describe("createFiltersSlice", () => {
       )
       // add filters
       act(() => {
-        store.result.current.filterActions.add("check:service", "dns")
+        store.result.current.filterActions.add(
+          "check:support-group",
+          "support-group-2"
+        )
       })
       expect(
         store.result.current.filteredItems.length < data.templates.length
@@ -97,17 +100,20 @@ describe("createFiltersSlice", () => {
       // set filters
       act(() => {
         store.result.current.filterActions.set([
-          { key: "check:service", value: "dns" },
-          { key: "check:service", value: "grafana" },
+          { key: "check:support_group", value: "support-group-2" },
+          { key: "check:support_group", value: "support-group-4" },
         ])
       })
-      expect(store.result.current.filteredItems.length).toEqual(4)
+      expect(store.result.current.filteredItems.length).toEqual(2)
 
       // remove a filter
       act(() => {
-        store.result.current.filterActions.remove("check:service", "grafana")
+        store.result.current.filterActions.remove(
+          "check:support_group",
+          "support-group-2"
+        )
       })
-      expect(store.result.current.filteredItems.length).toEqual(0)
+      expect(store.result.current.filteredItems.length).toEqual(1)
     })
   })
 
@@ -133,8 +139,8 @@ describe("createFiltersSlice", () => {
       // set filters
       act(() => {
         store.result.current.filterActions.set([
-          { key: "check:service", value: "dns" },
-          { key: "check:service", value: "grafana" },
+          { key: "check:support_group", value: "support-group-2" },
+          { key: "check:support_group", value: "support-group-4" },
         ])
       })
       expect(
@@ -171,7 +177,7 @@ describe("createFiltersSlice", () => {
       )
       // set search term. It should match the support_group name
       act(() => {
-        store.result.current.filterActions.setSearchTerm("network")
+        store.result.current.filterActions.setSearchTerm("support-group-2")
       })
       expect(
         store.result.current.filteredItems.length < data.templates.length
