@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React, { useEffect, useMemo, useLayoutEffect } from "react"
 
 import { AppShellProvider } from "juno-ui-components"
 import AppContent from "./components/AppContent"
@@ -14,18 +14,45 @@ import StoreProvider from "./components/StoreProvider"
 import AsyncWorker from "./components/AsyncWorker"
 import { AppShell } from "juno-ui-components"
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
+import { fetchProxyInitDB } from "utils"
+import db from "../db.json"
+import { useGlobalsActions } from "./components/StoreProvider"
 
 const App = (props = {}) => {
+  const { setEndpoint, setMock } = useGlobalsActions()
+  const isMock = useMemo(
+    () => props.isMock === true || props.isMock === "true",
+    [props.isMock]
+  )
+  // setup the mock db.json
+  useEffect(() => {
+    if (isMock) {
+      setMock(true)
+
+      fetchProxyInitDB(db, {
+        debug: true,
+        rewriteRoutes: {
+          "/(?:doop-api\\.sap/v2/violations/(.*))": "/$1",
+        },
+      })
+    }
+  }, [])
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         meta: {
           endpoint: props.apiEndpoint,
-          mock: props.mock,
+          mock: props.isMock,
         },
       },
     },
   })
+
+  // on load application save the props to be used in oder components
+  useLayoutEffect(() => {
+    setEndpoint(isMock ? window.location.origin : props?.apiEndpoint)
+  }, [props?.apiEndpoint, isMock])
 
   return (
     <MessagesProvider>

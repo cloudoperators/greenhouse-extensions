@@ -22,8 +22,8 @@ import {
 } from "../StoreProvider"
 
 const FilterSelect = () => {
-  const [selectedCategory, selectCategory] = useState()
-  const [selectedValue, selectValue] = useState()
+  const [selectedCategory, selectCategory] = useState("")
+  const [selectedValue, selectValue] = useState("")
   const [resetKey, setResetKey] = useState(Date.now())
   const filterEntries = useDataFilterEntries()
 
@@ -38,6 +38,16 @@ const FilterSelect = () => {
     // so that the placeholder is rendered again. This is a workaround to fix an open issue
     // in Radix UI. See: https://github.com/radix-ui/primitives/issues/1569
     setResetKey(Date.now())
+  }
+
+  const handleSearchChange = (value) => {
+    // debounce setSearchTerm to avoid unnecessary re-renders
+    const debouncedSearchTerm = setTimeout(() => {
+      setSearchTerm(value.target.value)
+    }, 500)
+
+    // clear timeout if we have a new value
+    return () => clearTimeout(debouncedSearchTerm)
   }
 
   return (
@@ -87,9 +97,7 @@ const FilterSelect = () => {
       <SearchInput
         className="w-96"
         value={searchValue || ""}
-        onChange={(e) => {
-          setSearchTerm(e.target.value)
-        }}
+        onChange={(value) => handleSearchChange(value)}
         onClear={() => setSearchTerm(null)}
       />
     </Stack>

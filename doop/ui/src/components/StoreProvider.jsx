@@ -16,6 +16,11 @@ const StoreProvider = ({ children }) => (
 
 const useStore = (selector) => create(useContext(StoreContext), selector)
 
+// globals
+export const useGlobalsMock = () => useStore((s) => s.globals.isMock)
+export const useGlobalsEndpoint = () => useStore((s) => s.globals.endpoint)
+export const useGlobalsActions = () => useStore((s) => s.globals.actions)
+
 // auth
 export const useAuthData = () => useStore((s) => s.auth.data)
 export const useAuthIsProcessing = () => useStore((s) => s.auth.isProcessing)
