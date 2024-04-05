@@ -186,12 +186,12 @@ spec:
   optionValues:
     - name: alerts.alertmanagerConfig.slack
       valueFrom:
-        secretKeyRef:
+        secret:
           name: alertmanager-integration-secret
           key: slack-routes
     - name: alerts.alertmanagerConfig.webhook
       valueFrom:
-        secretKeyRef:
+        secret:
           name: alertmanager-integration-secret
           key: webhook-routes
 ```
