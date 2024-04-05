@@ -11,7 +11,7 @@ spec:
   helmChart:
     name: digicert-issuer
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.4.3
+    version: 2.4.4
   options:
     - name: provisioner.apiToken
       description: DigiCert cert-central API token
