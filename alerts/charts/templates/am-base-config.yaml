@@ -19,7 +19,7 @@ spec:
         value: {{ $.Release.Namespace | quote }}
     routes:
       {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
         continue: true
         {{- if $route.matchers }}
         matchers:
@@ -36,11 +36,11 @@ spec:
       {{- end }}
   receivers:
     {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
       slackConfigs:
         - channel: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].channel missing" $route.channel }}
           apiURL:
-            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
             name: {{ $.Release.Name }}-webhook-urls
           username: {{ $route.username }}
           title: {{"'{{template \"slack.title\" . }}'"}}

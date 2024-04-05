@@ -207,22 +207,19 @@ data:
   slack-routes:
     ## The following must be base64 encoded
     routes:
-      - name: slack-info-route
-        channel: slack-info-channel
+      - channel: slack-info-channel
         webhookURL: https://hooks.slack.com/services/some-id
         matchers:
           - name: severity
             matchType: "="
             value: "info"
-      - name: slack-warning-route
-        channel: slack-warning-channel
+      - channel: slack-warning-channel
         webhookURL: https://hooks.slack.com/services/some-id
         matchers:
           - name: severity
             matchType: "="
             value: "warning"
-      - name: slack-critical-route
-        channel: slack-critical-channel
+      - channel: slack-critical-channel
         webhookURL: https://hooks.slack.com/services/some-id
         matchers:
           - name: severity
@@ -234,7 +231,6 @@ data:
           - name: webhook-route
             url: https://some-webhook.com
 ```
-
 
 ### Deploy alerts without Alertmanager (Bring your own Alertmanager - Supernova UI only)
 
