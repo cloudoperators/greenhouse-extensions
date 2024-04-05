@@ -17,6 +17,15 @@ spec:
       description: IP address of the associated load balancer.
       required: false
       type: string
+    - name: controller.service.externalIPs
+      description: External IP addresses of the load balancer service.
+      required: false
+      type: list
+    - name: controller.service.externalTrafficPolicy
+      description: Specifies whether the service routes external traffic to node-local or cluster-wide endpoints. May be "Cluster" or "Local".
+      default: "Cluster"
+      required: false
+      type: string
     - name: controller.replicaCount
       description: Replicas of the ingress controller
       default: 3
