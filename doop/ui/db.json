@@ -1,63 +1,64 @@
 {
-  "cluster-identifiers": [{
-    "cluster-1": {
+  "cluster-identifiers": [
+    {
+      "cluster-1": {
         "layer": "layer-1",
         "type": "type-1"
-    },
-    "cluster-2": {
+      },
+      "cluster-2": {
         "layer": "layer-2",
         "type": "type-2"
-    },
-    "cluster-3": {
+      },
+      "cluster-3": {
         "layer": "layer-3",
         "type": "type-3"
-    },
-    "cluster-4": {
+      },
+      "cluster-4": {
         "layer": "layer-4",
         "type": "type-4"
-    },
-    "cluster-5": {
+      },
+      "cluster-5": {
         "layer": "layer-5",
         "type": "type-5"
-    },
-    "cluster-6": {
+      },
+      "cluster-6": {
         "layer": "layer-6",
         "type": "type-6"
-    },
-    "cluster-7": {
+      },
+      "cluster-7": {
         "layer": "layer-7",
         "type": "type-7"
-    },
-    "cluster-8": {
+      },
+      "cluster-8": {
         "layer": "layer-8",
         "type": "type-8"
-    },
-    "cluster-9": {
+      },
+      "cluster-9": {
         "layer": "layer-9",
         "type": "type-9"
-    },
-    "cluster-10": {
+      },
+      "cluster-10": {
         "layer": "layer-10",
         "type": "type-10"
-    },
-    "cluster-11": {
+      },
+      "cluster-11": {
         "layer": "layer-11",
         "type": "type-11"
-    },
-    "cluster-12": {
+      },
+      "cluster-12": {
         "layer": "layer-12",
         "type": "type-12"
-    },
-    "cluster-13": {
+      },
+      "cluster-13": {
         "layer": "layer-13",
         "type": "type-13"
-    },
-    "cluster-14": {
+      },
+      "cluster-14": {
         "layer": "layer-14",
         "type": "type-14"
+      }
     }
-  }
-],
+  ],
   "templates": [
     {
       "kind": "kind-1",
@@ -78,14 +79,14 @@
                 "namespace": "nms-1",
                 "message": "hgfhgdfhgdfhg jhfghfhgf. jhfhgfhgfhgf uiyuiy mnbnmnvbnv lkjklj.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-1",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
                 {
                   "name": "violation-group-1.v1",
-                  "cluster": "qa-de-3"
+                  "cluster": "cluster-14"
                 }
               ]
             },
@@ -96,8 +97,8 @@
                 "namespace": "nms-2",
                 "message": "nbvnbvnbv mnmnbnm mnbmnbn. jhgjhg oioi rtetrew nbvnbvnbv nbnvbvbv.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-1",
+                  "support_group": "support-group-1"
                 }
               },
               "instances": [
@@ -114,8 +115,8 @@
                 "namespace": "nms-2",
                 "message": "gfhgfhgfgf hgjhg jhjghjhg. iuiou ewrewer oioiiu nbmnbnb ghhghgjh.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-2",
+                  "support_group": "support-group-1"
                 }
               },
               "instances": [
@@ -132,8 +133,8 @@
                 "namespace": "cc3test",
                 "message": "gfhgfhgfgf hgjhg jhjghjhg. iuiou ewrewer oioiiu nbmnbnb ghhghgjh.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-2",
+                  "support_group": "support-group-1"
                 }
               },
               "instances": [
@@ -202,8 +203,8 @@
                 "namespace": "nms-2",
                 "message": "bvcbvc gfhgfhgf bvcbvcbvc bvnbvbc trytr gfgfhg kjkjhjkh nbnbnb bvnbvnbv nbvbvnbv nbvbnv.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-3",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
@@ -233,8 +234,8 @@
                 "name": "violation-group-1",
                 "message": "jhgjhgjh hjhgjhg mbnbnvbnbvnbv jyughghg hghghfghgfghf nvnbvnbvnbv nbnbvnvbnbv nbvnvbnbvnbv nbnbvnbvbn nbvnbvnbv.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-3",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
@@ -252,8 +253,8 @@
                 "name": "violation-group-2",
                 "message": "bnbnbv nnbvnbv nbvnbvbnv nbvnbvnbv nbvnbvnbv bvnbvnbv nbvnbvnbv nvbnbvnbv.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-3",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
@@ -271,8 +272,8 @@
                 "name": "violation-group-4",
                 "message": "hjhjghjg hghgfhgf bvbcvbvc ytuytuyt qrewerwerw bvbvcbvbvcbcvb nbnbvnbvnbv nbvnbvnbv nbvnbvnbv nbvnbvnbv nbvnbvnbv.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-4",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
@@ -290,7 +291,7 @@
                 "name": "violation-group-5",
                 "message": "bnbnb nbnbvnbv nbvnbvnbv tuytuyt vhghjgh mnbmnbmnb nbnbnmbmnb nbmnbmnb nbnmbmnbm bnbnmbbnb nmbnbnbn mnbmnbnbn nbmnbnmb.",
                 "object_identity": {
-                  "service": "none",
+                  "service": "service-4",
                   "support_group": "support-group-2"
                 }
               },
@@ -326,8 +327,8 @@
                 "namespace": "\nnms-3>",
                 "message": "hgjhg bvnbvbvc gftrt vcfddfgfdfd bvbvbvcbvc hgfghfgh yutytyu bvbbv nmbnbnb nbvbvbv nbvnbvbv vcxvcxc x rerere bvcvbbv bvcbvc.",
                 "object_identity": {
-                  "service": "none",
-                  "support_group": "none"
+                  "service": "service-4",
+                  "support_group": "support-group-3"
                 }
               },
               "instances": [
@@ -360,7 +361,7 @@
                 "namespace": "nms-5",
                 "message": "mbnbbnv nvnbvnbv hhghghgfhgf bvbvbv nvnbvnbv bnnmbvnmb hghghfg dffdgf nvnvnbv nvbnbvbnv nbvnbvbnv bvv.",
                 "object_identity": {
-                  "service": "none",
+                  "service": "service-5",
                   "support_group": "support-group-4"
                 }
               },
@@ -410,7 +411,7 @@
                 "namespace": "nms-6",
                 "message": "hjjhj jgjhgjgh jhgjhgjhg jhgjhgjhg hjgjhgjhg. jhgjhg vhgjhg nbvnbvnv jhghjghg nnvv nbnbnbvbv nbvbvbvb.",
                 "object_identity": {
-                  "service": "none",
+                  "service": "service-5",
                   "support_group": "support-group-5"
                 }
               },
@@ -460,7 +461,7 @@
                 "namespace": "nms-7",
                 "message": "nbmnb nghjghg nbvnbvnb nbvnvbn. jhgjhg nbvbnv nbvbnvbn bvbnvbnv hghgh bnvnbvbnv nbvbv",
                 "object_identity": {
-                  "service": "none",
+                  "service": "service-5",
                   "support_group": "support-group-6"
                 }
               },
