@@ -207,6 +207,6 @@ Bootstraps all resources in [./bootstrap](./bootstrap):
 - respective dummy teammemberships for both teams
 - [cluster-1 through cluster-3 and self](./bootstrap/clusters.yaml) with different conditions and states
 - some [dummy nodes](./bootstrap/nodes.yaml) for clusters
-- some [plugins with pluginconfigs](./bootstrap/plugins.yamls) across the clusters
+- some [plugindefinitions with plugins](./bootstrap/plugins.yamls) across the clusters
 
 Bootstrap your own resources by adding the yaml files to `./bootstrap`.
