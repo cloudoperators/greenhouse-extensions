@@ -1,6 +1,6 @@
 Greenhouse extensions
 ---------------------
-
+[![REUSE status](https://api.reuse.software/badge/github.com/cloudoperators/greenhouse-extensions)](https://api.reuse.software/badge/github.com/cloudoperators/greenhouse-extensions)
 <a href="https://github.com/cloudoperators/greenhouse-extensions"><img align="left" width="150" height="170" src="https://raw.githubusercontent.com/cloudoperators/.github/main/assets/greenhouse.svg"></a>
 
 Greenhouse is a cloud operations platform designed to streamline and simplify the management of a large-scale, distributed infrastructure.<br>
