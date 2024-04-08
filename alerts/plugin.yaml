@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: Plugin
+kind: PluginDefinition
 metadata:
   name: alerts
 spec:
@@ -37,7 +37,7 @@ spec:
       required: true
       type: bool
     - name: alerts.defaultRules.create
-      description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring PluginConfig to evaluate Alertmanager alerts.
+      description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
       default: true
       required: false
       type: bool
@@ -51,7 +51,7 @@ spec:
       required: false
       type: list
     - name: alerts.alertmanager.serviceMonitor.additionalLabels
-      description: Additional ServiceMonitor labels. Name of the kube-monitoring PluginConfig to monitor Alertmanager.
+      description: Additional ServiceMonitor labels. Name of the kube-monitoring Plugin to monitor Alertmanager.
       default:
         pluginconfig: kube-monitoring
       required: false

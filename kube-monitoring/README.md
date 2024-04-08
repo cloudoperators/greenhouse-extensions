@@ -84,11 +84,11 @@ Components included in this Plugin:
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: kube-monitoring
 spec:
-  plugin: kube-monitoring
+  pluginDefinition: kube-monitoring
   disabled: false
   optionValues:
     - name: kubeMonitoring.prometheus.prometheusSpec.retention
@@ -122,17 +122,17 @@ spec:
 
 ### Deploy Prometheus only
 
-Example `PluginConfig` to deploy Prometheus with the `kube-monitoring` Plugin.
+Example `Plugin` to deploy Prometheus with the `kube-monitoring` Plugin.
 
 **NOTE:** If you are using kube-monitoring for the first time in your cluster, it is necessary to set `kubeMonitoring.prometheusOperator.enabled` to `true`.
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: example-prometheus-name
 spec:
-  plugin: kube-monitoring
+  pluginDefinition: kube-monitoring
   disabled: false
   optionValues:
     - name: kubeMonitoring.defaultRules.create

@@ -126,11 +126,11 @@ alertmanagerConfiguration:
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: alerts
 spec:
-  plugin: alerts
+  pluginDefinition: alerts
   disabled: false
   displayName: Alerts
   optionValues:
@@ -171,11 +171,11 @@ spec:
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: alerts
 spec:
-  plugin: alerts
+  pluginDefinition: alerts
   disabled: false
   displayName: Alerts
   optionValues:

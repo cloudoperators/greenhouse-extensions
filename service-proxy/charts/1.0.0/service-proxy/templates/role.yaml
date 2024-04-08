@@ -12,5 +12,5 @@ rules:
   resources: ["secrets"]
   verbs: ["get", "watch", "list"]
 - apiGroups: ["greenhouse.sap"]
-  resources: ["pluginconfigs"]
+  resources: ["plugins"]
   verbs: ["get", "watch", "list"]

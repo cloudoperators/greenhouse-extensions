@@ -6,15 +6,15 @@ This plugin contains the [ingress NGINX controller](https://github.com/kubernete
 
 ## Example
 
-To instantiate the plugin create a `PluginConfig` like:
+To instantiate the plugin create a `Plugin` like:
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: ingress-nginx
 spec:
-  plugin: ingress-nginx-v4.4.0
+  pluginDefinition: ingress-nginx-v4.4.0
   values:
     - name: controller.service.loadBalancerIP
       value: 1.2.3.4
