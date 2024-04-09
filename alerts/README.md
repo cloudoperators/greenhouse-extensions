@@ -196,42 +196,6 @@ spec:
           key: webhook-routes
 ```
 
-The following is an example of a Secret that contains the Alertmanager configuration.
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-integration-secret
-data:
-  slack-routes:
-    ## The following must be base64 encoded
-    routes:
-      - channel: slack-info-channel
-        webhookURL: https://hooks.slack.com/services/some-id
-        matchers:
-          - name: severity
-            matchType: "="
-            value: "info"
-      - channel: slack-warning-channel
-        webhookURL: https://hooks.slack.com/services/some-id
-        matchers:
-          - name: severity
-            matchType: "="
-            value: "warning"
-      - channel: slack-critical-channel
-        webhookURL: https://hooks.slack.com/services/some-id
-        matchers:
-          - name: severity
-            matchType: "="
-            value: "critical"
-    webhook-routes:
-      ## The following must be base64 encoded
-        routes:
-          - name: webhook-route
-            url: https://some-webhook.com
-```
-
 ### Deploy alerts without Alertmanager (Bring your own Alertmanager - Supernova UI only)
 
 ```yaml
