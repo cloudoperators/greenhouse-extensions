@@ -172,6 +172,7 @@ spec:
           matchers:
             - name: alertname
               matchType: "=~"
+              value: ".*"
     - name: alerts.alertmanager.serviceMonitor.additionalLabels
       value:
         plugin: kube-monitoring
