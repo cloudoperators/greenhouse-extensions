@@ -1,4 +1,4 @@
-{{ if and .Values.alerts.alertmanagerConfig.slack.routes .Values.alerts.alertmanagerConfig.webhook.routes }}
+{{ if or .Values.alerts.alertmanagerConfig.slack.routes .Values.alerts.alertmanagerConfig.webhook.routes }}
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:

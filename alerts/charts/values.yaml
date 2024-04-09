@@ -195,32 +195,46 @@ alerts:
         matchLabels:
           pluginconfig: "{{ $.Release.Name }}"
 
-      # Additional volumes on the output StatefulSet definition.
+      ## Additional volumes on the output StatefulSet definition.
       volumeMounts:
         - mountPath: /etc/alertmanager/notification-templates
           name: greenhouse-notification-templates
           readOnly: true
 
-      # Additional VolumeMounts on the output StatefulSet definition.
+      ## Additional VolumeMounts on the output StatefulSet definition.
       volumes:
         - configMap:
             name: greenhouse-notification-templates
           name: greenhouse-notification-templates
 
-  # Alertmanager integration with Slack and Webhooks
+  ## Alertmanager integration with Slack and Webhooks
   alertmanagerConfig:
     slack:
       routes:
         #  - channel: slack-info-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
-        #    username: Greenhouse
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "info"
         #  - channel: slack-warning-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
-        #    username: Greenhouse
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "warning"
         #  - channel: slack-critical-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
-        #    username: Greenhouse
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "critical"
+
+
     webhook:
       routes:
         #  - name: webhook-route
-        #    url: https://some-webhook.com
+        #    url: https://some-webhook-url
+        #    matchers:
+        #      - name: alertname
+        #        matchType: "=~"
