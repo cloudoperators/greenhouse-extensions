@@ -53,13 +53,13 @@ spec:
     - name: alerts.alertmanager.serviceMonitor.additionalLabels
       description: Additional ServiceMonitor labels. Name of the kube-monitoring PluginConfig to monitor Alertmanager.
       default:
-        pluginconfig: kube-monitoring
+        plugin: kube-monitoring
       required: false
       type: map
     - name: alerts.defaultRules.labels
       description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
       default:
-        pluginconfig: kube-monitoring
+        plugin: kube-monitoring
       required: false
       type: map
     - name: alerts.alertmanagerConfig.slack.routes

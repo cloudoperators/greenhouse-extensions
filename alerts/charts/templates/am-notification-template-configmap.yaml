@@ -6,7 +6,7 @@ metadata:
   name: greenhouse-notification-templates
   labels:
     plugin: alerts
-    pluginconfig: {{ $.Release.Name }}
+    plugin: {{ $.Release.Name }}
     app: prometheus-alertmanager
     alertmanager: {{ include "kube-prometheus-stack.name" . }}
 

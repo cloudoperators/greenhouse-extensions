@@ -193,7 +193,7 @@ alerts:
       ##
       alertmanagerConfigSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
 
       ## Additional volumes on the output StatefulSet definition.
       volumeMounts:
