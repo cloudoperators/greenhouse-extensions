@@ -10,6 +10,10 @@ spec:
   route:
     receiver: base-route
     continue: false
+    matchers:
+      - name: alertname
+        matchType: "!~"
+        value: "Watchdog|InfoInhibitor"
     routes:
       {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
       - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
