@@ -1,10 +1,10 @@
-{{ define "slack.greenhouse.color" }}{{ if .Alerts.Firing | and .Alerts.Resolved }}warning{{ else if .Alerts.Firing }}danger{{ else }}good{{ end }}{{ end }}
-{{ define "slack.greenhouse.iconemoji" }}:prometheus:{{ end }}
-{{ define "slack.greenhouse.title" }}{{ end }}
-{{ define "slack.greenhouse.titlelink" }}{{ end }}
-{{ define "slack.greenhouse.pretext" }} {{- end }}
+{{ define "slack.color" }}{{ if .Alerts.Firing | and .Alerts.Resolved }}warning{{ else if .Alerts.Firing }}danger{{ else }}good{{ end }}{{ end }}
+{{ define "slack.iconemoji" }}:prometheus:{{ end }}
+{{ define "slack.title" }}{{ end }}
+{{ define "slack.titlelink" }}{{ end }}
+{{ define "slack.pretext" }} {{- end }}
 
-{{ define "slack.greenhouse.text" }}
+{{ define "slack.text" }}
 {{ if .Alerts.Firing }}*[{{ .CommonLabels.severity | toUpper }}{{ if gt (len .Alerts.Firing) 1 | or .Alerts.Resolved }} - {{ .Alerts.Firing | len }}{{ end }}]* {{ if .CommonLabels.cluster }}*[{{ .CommonLabels.cluster }}]* {{ end -}}*{{ .GroupLabels.alertname }}* - {{ .CommonAnnotations.summary }}{{ end }}
 
 {{- $generatorURL := "" }}
