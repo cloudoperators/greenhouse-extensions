@@ -1,0 +1,31 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+*                       @cloudoperators/Administrators
+
+/.github/               @cloudoperators/Administrators
+/.github/workflows/     @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/.github/labeler.yml    @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/.github/licenserc.yaml @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/.github/renovate.json  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+
+Makefile                @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+ct.yaml                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+
+/docs/                  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/hack/                  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+
+# The following paths are owned by the respective maintainers
+/alerts/                @richardtief @viennaa @ArtieReus
+/cert-manager/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/dev-env/               @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/digicert-issuer/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/disco/                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/doop/                  @andypf @artiereus @edda @hodanoori @tilmanhaupt
+/exposed-service/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/external-dns/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/heureka/               @andypf @artiereus @edda @hodanoori @tilmanhaupt
+/ingress-nginx/         @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/kube-monitoring/       @richardtief @viennaa
+/kubeconfig-generator/  @Nuckal777 @ivogoman @uwe-mayer
+/service-proxy/         @databus23 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/teams2slack/           @voigts @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
