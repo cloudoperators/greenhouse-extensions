@@ -20,15 +20,16 @@ The Teammembership contain the members of a team. Changes to an object will crea
 
 ### Configuration
 
-Deploy a the Teams2Slack Plugin and it's PluginConfig which looks like the following structure (the following structure only includes the mandatory fields):
+Deploy a the Teams2Slack Plugin and it's Plugin which looks like the following structure (the following structure only includes the mandatory fields):
+
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: teams2slack
   namespace: default
 spec:
-  plugin: teams2slack
+  pluginDefinition: teams2slack
   disabled: false
   optionValues:
     - name: groupNamePrefix

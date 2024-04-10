@@ -102,7 +102,7 @@ To **test** your plugin with a backend (a.k.a. helm chart) the proposed way is:
   ```
   kubectl get clusters -n test-org
   ```
-- Deploy a PluginConfig to the `test-org` namespace with `Spec.ClusterName` set to your onboarded cluster
+- Deploy a Plugin to the `test-org` namespace with `Spec.ClusterName` set to your onboarded cluster
 - The resources of your Plugin will be installed to your onboarded cluster into the `test-org` namespace. View your running Application there.
 
 See [greenhouse](#greenhouse) for how to access the greenhouse controller logs.
@@ -207,6 +207,6 @@ Bootstraps all resources in [./bootstrap](./bootstrap):
 - respective dummy teammemberships for both teams
 - [cluster-1 through cluster-3 and self](./bootstrap/clusters.yaml) with different conditions and states
 - some [dummy nodes](./bootstrap/nodes.yaml) for clusters
-- some [plugins with pluginconfigs](./bootstrap/plugins.yamls) across the clusters
+- some [plugindefinitions with plugins](./bootstrap/plugins.yamls) across the clusters
 
 Bootstrap your own resources by adding the yaml files to `./bootstrap`.

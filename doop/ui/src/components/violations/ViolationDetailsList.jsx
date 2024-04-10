@@ -5,7 +5,7 @@
 
 import React from "react"
 import { capitalize } from "../../lib/helpers"
-import useEndlessScrollList from "../../hooks/useEndlessScrollList"
+import { useEndlessScrollList } from "utils"
 import {
   DataGrid,
   DataGridRow,

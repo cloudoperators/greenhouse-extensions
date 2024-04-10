@@ -1,0 +1,512 @@
+{
+  "cluster-identifiers": [
+    {
+      "cluster-1": {
+        "layer": "layer-1",
+        "type": "type-1"
+      },
+      "cluster-2": {
+        "layer": "layer-2",
+        "type": "type-2"
+      },
+      "cluster-3": {
+        "layer": "layer-3",
+        "type": "type-3"
+      },
+      "cluster-4": {
+        "layer": "layer-4",
+        "type": "type-4"
+      },
+      "cluster-5": {
+        "layer": "layer-5",
+        "type": "type-5"
+      },
+      "cluster-6": {
+        "layer": "layer-6",
+        "type": "type-6"
+      },
+      "cluster-7": {
+        "layer": "layer-7",
+        "type": "type-7"
+      },
+      "cluster-8": {
+        "layer": "layer-8",
+        "type": "type-8"
+      },
+      "cluster-9": {
+        "layer": "layer-9",
+        "type": "type-9"
+      },
+      "cluster-10": {
+        "layer": "layer-10",
+        "type": "type-10"
+      },
+      "cluster-11": {
+        "layer": "layer-11",
+        "type": "type-11"
+      },
+      "cluster-12": {
+        "layer": "layer-12",
+        "type": "type-12"
+      },
+      "cluster-13": {
+        "layer": "layer-13",
+        "type": "type-13"
+      },
+      "cluster-14": {
+        "layer": "layer-14",
+        "type": "type-14"
+      }
+    }
+  ],
+  "templates": [
+    {
+      "kind": "kind-1",
+      "constraints": [
+        {
+          "name": "const-1",
+          "metadata": {
+            "severity": "error",
+            "template_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper/templates/constrainttemplate-owner-info-on-helm-releases.yaml",
+            "constraint_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper-config/templates/constraint-owner-info-on-helm-releases.yaml",
+            "docstring": "gfhgddg jhfghjff\n\n#### hgfhgdghdgd\n\nhghfhjfjhfjf jhgjhjhg jhgjhgjhgjh ututuytuyt"
+          },
+          "violation_groups": [
+            {
+              "pattern": {
+                "kind": "violation-kind-1",
+                "name": "violation-group-1",
+                "namespace": "nms-1",
+                "message": "hgfhgdfhgdfhg jhfghfhgf. jhfhgfhgfhgf uiyuiy mnbnmnvbnv lkjklj.",
+                "object_identity": {
+                  "service": "service-1",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "name": "violation-group-1.v1",
+                  "cluster": "cluster-14"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-1",
+                "name": "violation-group-2",
+                "namespace": "nms-2",
+                "message": "nbvnbvnbv mnmnbnm mnbmnbn. jhgjhg oioi rtetrew nbvnbvnbv nbnvbvbv.",
+                "object_identity": {
+                  "service": "service-1",
+                  "support_group": "support-group-1"
+                }
+              },
+              "instances": [
+                {
+                  "name": "violation-group-2.v1",
+                  "cluster": "cluster-13"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-1",
+                "name": "violation-group-3",
+                "namespace": "nms-2",
+                "message": "gfhgfhgfgf hgjhg jhjghjhg. iuiou ewrewer oioiiu nbmnbnb ghhghgjh.",
+                "object_identity": {
+                  "service": "service-2",
+                  "support_group": "support-group-1"
+                }
+              },
+              "instances": [
+                {
+                  "name": "violation-group-3.v1",
+                  "cluster": "s-cluster-13"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-1",
+                "name": "violation-group-4",
+                "namespace": "cc3test",
+                "message": "gfhgfhgfgf hgjhg jhjghjhg. iuiou ewrewer oioiiu nbmnbnb ghhghgjh.",
+                "object_identity": {
+                  "service": "service-2",
+                  "support_group": "support-group-1"
+                }
+              },
+              "instances": [
+                {
+                  "name": "violation-group-4.v1",
+                  "cluster": "cluster-3"
+                },
+                {
+                  "name": "violation-group-4.v12",
+                  "cluster": "cluster-2"
+                },
+                {
+                  "name": "violation-group-4.v15",
+                  "cluster": "cluster-10"
+                },
+                {
+                  "name": "violation-group-4.v2",
+                  "cluster": "cluster-5"
+                },
+                {
+                  "name": "violation-group-4.v2",
+                  "cluster": "cluster-7"
+                },
+                {
+                  "name": "violation-group-4.v4",
+                  "cluster": "cluster-4"
+                },
+                {
+                  "name": "violation-group-4.v5",
+                  "cluster": "cluster-6"
+                },
+                {
+                  "name": "violation-group-4.v5",
+                  "cluster": "cluster-13"
+                },
+                {
+                  "name": "violation-group-4.v8",
+                  "cluster": "cluster-1"
+                },
+                {
+                  "name": "violation-group-4.v8",
+                  "cluster": "cluster-8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "kind-2",
+      "constraints": [
+        {
+          "name": "const-2",
+          "metadata": {
+            "severity": "error",
+            "template_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper/templates/constrainttemplate-images-from-non-keppel.yaml",
+            "constraint_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper-config/templates/constraint-images-from-non-keppel.yaml",
+            "docstring": "hgfhgf hghghg ytuyt nmnmn ukj.\n\n#### nghgfhgfhgfghfd hgfhgf bvc?\n\nnvvv jghjhgjhg hgjhgjhg hhghghjg uyutyyut. jhgjhgjhg hgjhghgf jhgjhgjh jhjhgjhg oiou reerwew dsfds.\njhgjhghjg hvhgfhgf bvbvcbvcbvc nbvv uyuyiuy mnbmnbnmb mnbnb\nmnbmnbmnb nbvnbvnbv nbvnbvnb."
+          },
+          "violation_groups": [
+            {
+              "pattern": {
+                "kind": "violation-kind-2",
+                "name": "violation-group-1",
+                "namespace": "nms-2",
+                "message": "bvcbvc gfhgfhgf bvcbvcbvc bvnbvbc trytr gfgfhg kjkjhjkh nbnbnb bvnbvnbv nbvbvnbv nbvbnv.",
+                "object_identity": {
+                  "service": "service-3",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "kind-3",
+      "constraints": [
+        {
+          "name": "const-3",
+          "metadata": {
+            "severity": "debug",
+            "template_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper/templates/constrainttemplate-forbidden-clusterwide-objects.yaml",
+            "constraint_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper-config/templates/constraint-forbidden-clusterwide-objects.yaml"
+          },
+          "violation_groups": [
+            {
+              "pattern": {
+                "kind": "violation-kind-1",
+                "name": "violation-group-1",
+                "message": "jhgjhgjh hjhgjhg mbnbnvbnbvnbv jyughghg hghghfghgfghf nvnbvnbvnbv nbnbvnvbnbv nbvnvbnbvnbv nbnbvnbvbn nbvnbvnbv.",
+                "object_identity": {
+                  "service": "service-3",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-4"
+                },
+                {
+                  "cluster": "cluster-5"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-2",
+                "name": "violation-group-2",
+                "message": "bnbnbv nnbvnbv nbvnbvbnv nbvnbvnbv nbvnbvnbv bvnbvnbv nbvnbvnbv nvbnbvnbv.",
+                "object_identity": {
+                  "service": "service-3",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-5"
+                },
+                {
+                  "cluster": "cluster-12"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-3",
+                "name": "violation-group-4",
+                "message": "hjhjghjg hghgfhgf bvbcvbvc ytuytuyt qrewerwerw bvbvcbvbvcbcvb nbnbvnbvnbv nbvnbvnbv nbvnbvnbv nbvnbvnbv nbvnbvnbv.",
+                "object_identity": {
+                  "service": "service-4",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-7"
+                },
+                {
+                  "cluster": "cluster-14"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-4",
+                "name": "violation-group-5",
+                "message": "bnbnb nbnbvnbv nbvnbvnbv tuytuyt vhghjgh mnbmnbmnb nbnbnmbmnb nbmnbmnb nbnmbmnbm bnbnmbbnb nmbnbnbn mnbmnbnbn nbmnbnmb.",
+                "object_identity": {
+                  "service": "service-4",
+                  "support_group": "support-group-2"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-7"
+                },
+                {
+                  "cluster": "cluster-8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "violation-kind-1",
+      "constraints": [
+        {
+          "name": "violations-const-1",
+          "metadata": {
+            "severity": "info",
+            "template_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper/templates/constrainttemplate-images-from-correct-registry.yaml",
+            "constraint_source": "https://github.com/sapcc/helm-charts/tree/master/system/gatekeeper-config/templates/constraint-images-from-correct-registry.yaml",
+            "docstring": "Tjhgjhgjhg nhgfhgf nbvbnvb bvbvcbvc bcbvcbvc vcbcbvc bvcbvcvc bvbvcbvcbv bcvc.\n\n#### hjhkghfg hgfhgfhgf bvhgfhgfhgf?\n\nBkjjhgjhg,mb nbvbnvbvc utyuytuyt. bvcbvcbvcbv bgfdgfdgf vvcxvcxz vcvcvcc, hjghgfhgf bvcbvcvc tyrytr bvnbnb mn,mn,mn mnmnnbhg fdsfdsdf ewewcvx cxvcxcv.\n"
+          },
+          "violation_groups": [
+            {
+              "pattern": {
+                "kind": "violtion-kind-5",
+                "name": "violation-group-1",
+                "namespace": "\nnms-3>",
+                "message": "hgjhg bvnbvbvc gftrt vcfddfgfdfd bvbvbvcbvc hgfghfgh yutytyu bvbbv nmbnbnb nbvbvbv nbvnbvbv vcxvcxc x rerere bvcvbbv bvcbvc.",
+                "object_identity": {
+                  "service": "service-4",
+                  "support_group": "support-group-3"
+                }
+              },
+              "instances": [
+                {
+                  "namespace": "nms-3",
+                  "cluster": "cluster-1"
+                },
+                {
+                  "namespace": "nms-4",
+                  "cluster": "cluster-3"
+                },
+                {
+                  "namespace": "nms-5",
+                  "cluster": "cluster-4"
+                },
+                {
+                  "namespace": "nms-7",
+                  "cluster": "cluster-5"
+                },
+                {
+                  "namespace": "nms-6",
+                  "cluster": "cluster-14"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-5",
+                "name": "violation-group-4",
+                "namespace": "nms-5",
+                "message": "mbnbbnv nvnbvnbv hhghghgfhgf bvbvbv nvnbvnbv bnnmbvnmb hghghfg dffdgf nvnvnbv nvbnbvbnv nbvnbvbnv bvv.",
+                "object_identity": {
+                  "service": "service-5",
+                  "support_group": "support-group-4"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-1"
+                },
+                {
+                  "cluster": "cluster-2"
+                },
+                {
+                  "cluster": "cluster-3"
+                },
+                {
+                  "cluster": "cluster-4"
+                },
+                {
+                  "cluster": "cluster-5"
+                },
+                {
+                  "cluster": "cluster-6"
+                },
+                {
+                  "cluster": "cluster-7"
+                },
+                {
+                  "cluster": "cluster-8"
+                },
+                {
+                  "cluster": "cluster-9"
+                },
+                {
+                  "cluster": "cluster-10"
+                },
+                {
+                  "cluster": "cluster-11"
+                },
+                {
+                  "cluster": "cluster-12"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-5",
+                "name": "violation-group-5",
+                "namespace": "nms-6",
+                "message": "hjjhj jgjhgjgh jhgjhgjhg jhgjhgjhg hjgjhgjhg. jhgjhg vhgjhg nbvnbvnv jhghjghg nnvv nbnbnbvbv nbvbvbvb.",
+                "object_identity": {
+                  "service": "service-5",
+                  "support_group": "support-group-5"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-1"
+                },
+                {
+                  "cluster": "cluster-2"
+                },
+                {
+                  "cluster": "cluster-3"
+                },
+                {
+                  "cluster": "cluster-4"
+                },
+                {
+                  "cluster": "cluster-5"
+                },
+                {
+                  "cluster": "cluster-6"
+                },
+                {
+                  "cluster": "cluster-7"
+                },
+                {
+                  "cluster": "cluster-8"
+                },
+                {
+                  "cluster": "cluster-9"
+                },
+                {
+                  "cluster": "cluster-10"
+                },
+                {
+                  "cluster": "cluster-11"
+                },
+                {
+                  "cluster": "cluster-12"
+                }
+              ]
+            },
+            {
+              "pattern": {
+                "kind": "violation-kind-6",
+                "name": "violation-group-6",
+                "namespace": "nms-7",
+                "message": "nbmnb nghjghg nbvnbvnb nbvnvbn. jhgjhg nbvbnv nbvbnvbn bvbnvbnv hghgh bnvnbvbnv nbvbv",
+                "object_identity": {
+                  "service": "service-5",
+                  "support_group": "support-group-6"
+                }
+              },
+              "instances": [
+                {
+                  "cluster": "cluster-1"
+                },
+                {
+                  "cluster": "cluster-2"
+                },
+                {
+                  "cluster": "cluster-3"
+                },
+                {
+                  "cluster": "cluster-4"
+                },
+                {
+                  "cluster": "cluster-5"
+                },
+                {
+                  "cluster": "cluster-6"
+                },
+                {
+                  "cluster": "cluster-7"
+                },
+                {
+                  "cluster": "cluster-8"
+                },
+                {
+                  "cluster": "cluster-9"
+                },
+                {
+                  "cluster": "cluster-10"
+                },
+                {
+                  "cluster": "cluster-11"
+                },
+                {
+                  "cluster": "cluster-12"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

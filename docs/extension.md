@@ -11,9 +11,10 @@ A Greenhouse [Plugin](https://github.com/pages/cloudoperators/docs/apidocs/index
 Both parts and a set of instance-specific options are defined via the `Plugin` CRD as outlined below.
 
 Essentially, a Plugin requires the following fields:
-```
+
+```yaml
 apiVersion: greenhouse.sap/v1alpha1
-kind: Plugin
+kind: PluginDefinition
 metadata:
   name: ...
 spec:
@@ -26,9 +27,10 @@ spec:
 
 A plugin might require additional Kubernetes resources.  
 These are not part of the plugin specification, but are provided either as a [Helm chart](https://helm.sh/) or via a [Kustomize base](https://kustomize.io/) that is stored in an external artifact registry.  
-The values provided in the *Plugin* and *PluginConfig* are passed to respective mechanism during installation and upgrade.
+The values provided in the *PluginDefinition* and *Plugin* are passed to respective mechanism during installation and upgrade.
 
 Additionally, based on the respective context, the following set of values is always passed to the chart via Helm:
+
 ```yaml
 greenhouse:
   clusterNames:

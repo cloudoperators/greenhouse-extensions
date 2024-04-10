@@ -7,3 +7,4 @@ image:
   repository: kubeconfig-generator
   pullPolicy: IfNotPresent
 swift: {}
+cluster: []

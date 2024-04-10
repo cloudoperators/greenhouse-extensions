@@ -10,11 +10,25 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.yaml: |
-    {{ .Release.Namespace }}:
-      authUrl: {{ .Values.swift.authUrl | quote }}
-      region: {{ .Values.swift.region | quote }}
-      username: {{ .Values.swift.username | quote }}
-      password: ${SWIFT_PASSWORD}
-      domainName: {{ .Values.swift.doaminName | quote }}
-      projectId: {{ .Values.swift.projectId | quote }}
-      container: {{ .Values.swift.container | quote }}
+    swift:
+      {{ .Release.Namespace }}:
+        authUrl: {{ .Values.swift.authUrl | quote }}
+        region: {{ .Values.swift.region | quote }}
+        username: {{ .Values.swift.username | quote }}
+        password: ${SWIFT_PASSWORD}
+        domainName: {{ .Values.swift.domainName | quote }}
+        projectId: {{ .Values.swift.projectId | quote }}
+        container: {{ .Values.swift.container | quote }}
+    {{- if .Values.cluster }}
+    cluster:
+      {{- range .Values.cluster }}
+    - name: {{ .name | quote }}
+      namespace: {{ $.Release.Namespace }}
+      clientIdRef:
+        name: {{ .clientIdRef.name }}
+        key: {{ .clientIdRef.key }}
+      clientSecretRef:
+        name: {{ .clientSecretRef.name }}
+        key: {{ .clientSecretRef.key }}
+      {{- end }}
+    {{- end }}

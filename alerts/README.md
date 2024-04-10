@@ -135,7 +135,7 @@ kind: Plugin
 metadata:
   name: alerts
 spec:
-  plugin: alerts
+  pluginDefinition: alerts
   disabled: false
   displayName: Alerts
   optionValues:

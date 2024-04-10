@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: Plugin
+kind: Organization
 metadata:
-  name: ingress-nginx
-  namespace: ccloud
+  name: test-org
 spec:
-  pluginDefinition: ingress-nginx
-  disabled: false
+  description: Test organization
+  mappedOrgAdminIdPGroup: TEST_ORG_ADMIN
