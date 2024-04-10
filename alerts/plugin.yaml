@@ -7,12 +7,12 @@ metadata:
   name: alerts
 spec:
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
-  version: 1.6.0
+  version: 1.7.0
   weight: 0
   helmChart:
      name: alerts
-     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-     version: 0.8.0
+     repository: oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions
+     version: 0.9.0
   uiApplication:
     name: supernova
     version: "latest"
@@ -57,20 +57,20 @@ spec:
     - name: alerts.alertmanager.serviceMonitor.additionalLabels
       description: Additional ServiceMonitor labels. Name of the kube-monitoring Plugin to monitor Alertmanager.
       default:
-        pluginconfig: kube-monitoring
+        plugin: kube-monitoring
       required: false
       type: map
     - name: alerts.defaultRules.labels
       description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
       default:
-        pluginconfig: kube-monitoring
+        plugin: kube-monitoring
       required: false
       type: map
-    - name: alerts.alertmanagerConfig.slack.webhookURL
-      description: Slack webhook URL to post alerts to. `slack.channel` must also be defined.
+    - name: alerts.alertmanagerConfig.slack.routes
+      description: List of Slack routes containing name, channel, matchers and webhookURL.
       required: false
-      type: string
-    - name: alerts.alertmanagerConfig.slack.channel
-      description: Slack channel name to post alerts to. `slack.webhookURL` must also be defined.
+      type: list
+    - name: alerts.alertmanagerConfig.webhook.routes
+      description: List of Webhook routes containing name, matchers and url.
       required: false
-      type: string
+      type: list
