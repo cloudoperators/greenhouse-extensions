@@ -198,14 +198,14 @@ alerts:
       ## Additional volumes on the output StatefulSet definition.
       volumeMounts:
         - mountPath: /etc/alertmanager/notification-templates
-          name: greenhouse-notification-templates
+          name: alertmanager-notification-templates
           readOnly: true
 
       ## Additional VolumeMounts on the output StatefulSet definition.
       volumes:
         - configMap:
-            name: greenhouse-notification-templates
-          name: greenhouse-notification-templates
+            name: alertmanager-notification-templates
+          name: alertmanager-notification-templates
 
   ## Alertmanager integration with Slack and Webhooks
   alertmanagerConfig:

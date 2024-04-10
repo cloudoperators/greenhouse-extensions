@@ -2,21 +2,14 @@
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
-  name: {{ include "kube-prometheus-stack.fullname" . }}-alertmanager-slack-config
+  name: {{ include "kube-prometheus-stack.fullname" . }}-alertmanager-config
   labels:
     plugin: "{{ $.Release.Name }}"
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
   route:
-    receiver: root
+    receiver: base-route
     continue: false
-    matchers:
-      - name: alertname
-        matchType: "!~"
-        value: "Watchdog|InfoInhibitor"
-      - name: organization
-        matchType: "="
-        value: {{ $.Release.Namespace | quote }}
     routes:
       {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
       - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
@@ -35,6 +28,7 @@ spec:
         {{- end }}
       {{- end }}
   receivers:
+    - name: base-route
     {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
     - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
       slackConfigs:
@@ -42,7 +36,7 @@ spec:
           apiURL:
             key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
             name: {{ $.Release.Name }}-webhook-urls
-          username: {{ $route.username }}
+          username: {{ default "Greenhouse" $route.username }}
           title: {{"'{{template \"slack.title\" . }}'"}}
           titleLink: {{"'{{template \"slack.titlelink\" . }}'"}}
           text: {{"'{{template \"slack.text\" . }}'"}}
