@@ -5,7 +5,7 @@ FROM alpine/git:2.43.0 as git
 
 RUN git clone https://github.com/sapcc/juno.git /juno 
 
-FROM node:18.16-alpine3.18 as node
+FROM node:18.20-alpine3.18 as node
 LABEL source_repository="https://github.com/sapcc/juno"
 WORKDIR /app
 COPY --from=git /juno/apps/greenhouse /app
