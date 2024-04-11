@@ -32,6 +32,10 @@ spec:
       default: 50Gi
       required: true
       type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName
+      description: The storage class to use for the persistent volume.
+      required: false
+      type: string
     - name: alerts.enabled
       description: Whether the Alerts Plugin is configured
       default: false
