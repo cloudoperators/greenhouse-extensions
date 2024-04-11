@@ -12,6 +12,7 @@ chart-dirs:
   - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
   - kube-monitoring
+  - kubeconfig-generator
   - service-proxy/charts/1.0.0
 chart-repos:
   - cert-manager=https://charts.jetstack.io
