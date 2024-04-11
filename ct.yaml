@@ -8,10 +8,11 @@ validate-maintainers: false
 check-version-increment: false
 chart-dirs:
   - alerts
-  - cert-manager
-  - exposed-services
+  - cert-manager/charts/v1.11.0
+  - exposed-services/charts/v1.0.0
+  - exposed-services/charts/v2.0.0
   - kube-monitoring
-  - service-proxy
+  - service-proxy/charts/1.0.0
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
