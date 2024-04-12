@@ -131,6 +131,10 @@ kubeMonitoring:
   ## Configuration for the Prometheus instance
   ##
   prometheus:
+    service:
+      # Add the annotation to expose the service via Greenhouse.
+      annotations:
+        greenhouse.sap/expose: "true"
 
     ingress:
       enabled: false
