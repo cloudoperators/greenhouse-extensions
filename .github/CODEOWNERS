@@ -21,7 +21,7 @@ ct.yaml                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /digicert-issuer/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /disco/                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /doop/                  @andypf @artiereus @edda @hodanoori @tilmanhaupt
-/exposed-service/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/exposed-services/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /external-dns/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /heureka/               @andypf @artiereus @edda @hodanoori @tilmanhaupt
 /ingress-nginx/         @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
