@@ -178,7 +178,6 @@ kubeMonitoring:
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
           spec:
-            storageClassName: default
             accessModes:
               - ReadWriteOnce
             resources:

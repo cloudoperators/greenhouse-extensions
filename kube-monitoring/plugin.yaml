@@ -7,11 +7,11 @@ metadata:
   name: kube-monitoring
 spec:
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
-  version: 1.5.2
+  version: 1.5.3
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.6.2
+    version: 0.6.3
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
@@ -31,6 +31,10 @@ spec:
       description: How large the persistent volume should be to house the prometheus database
       default: 50Gi
       required: true
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName
+      description: The storage class to use for the persistent volume.
+      required: false
       type: string
     - name: alerts.enabled
       description: Whether the Alerts Plugin is configured
