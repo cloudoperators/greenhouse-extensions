@@ -7,11 +7,11 @@ metadata:
   name: kube-monitoring
 spec:
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
-  version: 1.5.4
+  version: 1.5.5
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.6.4
+    version: 0.6.5
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
