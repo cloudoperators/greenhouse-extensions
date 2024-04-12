@@ -16,7 +16,7 @@ spec:
         value: "Watchdog|InfoInhibitor"
     routes:
       {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
         continue: true
         {{- if $route.matchers }}
         matchers:
@@ -34,11 +34,11 @@ spec:
   receivers:
     - name: base-route
     {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
       slackConfigs:
         - channel: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].channel missing" $route.channel }}
           apiURL:
-            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.channel }}
+            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
             name: {{ $.Release.Name }}-webhook-urls
           username: {{ default "Greenhouse" $route.username }}
           title: {{"'{{template \"slack.title\" . }}'"}}
@@ -53,7 +53,7 @@ spec:
     {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
     - name: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
       webhookConfigs:
-        - url:
+        - urlSecret:
             key: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
             name: {{ $.Release.Name }}-webhook-urls
           sendResolved: true
