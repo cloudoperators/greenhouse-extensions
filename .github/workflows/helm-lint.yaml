@@ -3,6 +3,9 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 
+env:
+  REGISTRY: ghcr.io
+  
 jobs:
   helm-lint:
     runs-on: [ default ]
@@ -38,3 +41,15 @@ jobs:
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --config ct.yaml --target-branch ${{ github.event.repository.default_branch }}
+      
+      - name: Check version bump
+        id: check-bump
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          for chart in $(ct list-changed --config ct.yaml --target-branch ${{ github.event.repository.default_branch }}); do
+            chart_version=$(yq .version "$chart/Chart.yaml")
+            if helm pull "oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/$(dirname $chart)" --version $chart_version; then
+              echo "Chart $(dirname $chart):${chart_version} already exists in OCI registry. Skipping upload. Please increment the chart version."
+              exit 1
+            fi
+          done
