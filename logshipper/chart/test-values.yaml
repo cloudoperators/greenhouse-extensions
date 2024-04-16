@@ -10,5 +10,4 @@ fluent-bit:
     additionalValues:
       - key: region
         name: qa
-prometheus:
-  enabled: true
+prometheusName: foo-bar
