@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
@@ -92,6 +92,11 @@
       "value": null,
       "type": "optional",
       "description": "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The labels must be an array of strings. Example: [\"pod\", \"pod_name\", \"instance\"]"
+    },
+    "silenceTemplates": {
+      "value": null,
+      "type": "optional",
+      "description": "SilenceTemplates are pre-defined silence templates that can be used to scheduled Maintenance Windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title."
     }
   },
   "appDependencies": {

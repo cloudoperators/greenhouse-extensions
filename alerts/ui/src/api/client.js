@@ -19,6 +19,7 @@ const checkStatus = (response) => {
     return response.text().then((message) => {
       var error = new HTTPError(response.status, message || response.statusText)
       error.statusCode = response.status
+      error.httperror = true
       return Promise.reject(error)
     })
   }
