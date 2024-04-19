@@ -24,7 +24,6 @@ function App(props = {}) {
     useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const { setExcludedLabels } = useSilencesActions()
-  const { setEnrichedLabels } = useAlertsActions()
 
   useLayoutEffect(() => {
     // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. Default is status.
@@ -99,7 +98,7 @@ const StyledApp = (props) => {
     <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load appstyles inside the shadow dom */}
       <style>{styles.toString()}</style>
-      <StoreProvider>
+      <StoreProvider options={props}>
         <App {...props} />
       </StoreProvider>
     </AppShellProvider>

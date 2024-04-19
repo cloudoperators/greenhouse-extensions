@@ -25,7 +25,7 @@ import { parseError } from "./helpers"
 import AlertDetail from "./components/alerts/AlertDetail"
 import PredefinedFilters from "./components/filters/PredefinedFilters"
 
-const AppContent = (props) => {
+const AppContent = () => {
   const { addMessage } = useActions()
   const loggedIn = useAuthLoggedIn()
   const authError = useAuthError()
