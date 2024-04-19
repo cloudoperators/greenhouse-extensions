@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { forwardRef, useRef } from "react"
 
 import { DataGridCell, DataGridRow } from "juno-ui-components"

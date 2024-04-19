@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 export const DEFAULT_DURATION_OPTIONS = [
   { label: "2 hours", value: "2" },
   { label: "12 hours", value: "12" },
