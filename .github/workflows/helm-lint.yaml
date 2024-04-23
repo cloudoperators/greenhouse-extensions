@@ -50,7 +50,7 @@ jobs:
           for chart in $(ct list-changed --config ct.yaml --target-branch ${{ github.event.repository.default_branch }}); do
             chart_version=$(yq .version "$chart/Chart.yaml")
             if helm pull "oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/$(dirname $chart)" --version $chart_version; then
-              echo "chart=$(basename $chart)" >> "$GITHUB_OUTPUT"
+              echo "chart=$(dirname $chart)" >> "$GITHUB_OUTPUT"
               echo "chart_version=${chart_version}" >> "$GITHUB_OUTPUT"
               echo "needsbump=true" >> "$GITHUB_OUTPUT"
               exit 1
