@@ -107,7 +107,9 @@ const createSilencesSlice = (set, get, options) => ({
     ...initialSilencesState,
 
     // silence templates for maintanance
-    templates: validateTemplates(options?.silenceTemplates),
+    templates: options?.silenceTemplates
+      ? validateTemplates(options?.silenceTemplates)
+      : [],
     actions: {
       setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
