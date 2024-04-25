@@ -13,7 +13,7 @@ COPY ./package.json /app/package.json
 COPY ./esbuild.config.js /app/esbuild.config.js
 RUN cd /app && npm add -D esbuild && npm install && npm run build
 
-FROM nginx:1.25.3-alpine as nginx
+FROM nginx:1.25.5-alpine as nginx
 LABEL source_repository="greenhouse"    
 COPY --from=node /app /app
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
