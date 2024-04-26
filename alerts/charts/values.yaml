@@ -211,19 +211,22 @@ alerts:
   alertmanagerConfig:
     slack:
       routes:
-        #  - channel: slack-info-channel
+        #  - name: slack-info-route
+        #    channel: slack-info-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
         #    matchers:
         #      - name: severity
         #        matchType: "="
         #        value: "info"
-        #  - channel: slack-warning-channel
+        #  - name: slack-warning-route
+        #    channel: slack-warning-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
         #    matchers:
         #      - name: severity
         #        matchType: "="
         #        value: "warning"
-        #  - channel: slack-critical-channel
+        #  - name: slack-critical-route
+        #    channel: slack-critical-channel
         #    webhookURL: https://hooks.slack.com/services/some-id
         #    matchers:
         #      - name: severity
