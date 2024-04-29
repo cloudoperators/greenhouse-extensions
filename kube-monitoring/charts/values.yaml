@@ -128,6 +128,19 @@ kubeMonitoring:
   kubeScheduler:
     enabled: false
 
+  ## Configuration for prometheus-node-exporter subchart
+  ##
+  prometheus-node-expoter:
+    enabled: true
+
+    relabelings:
+      - sourceLabels: [__meta_kubernetes_pod_node_name]
+        separator: ;
+        regex: ^(.*)$
+        targetLabel: nodename
+        replacement: $1
+        action: replace
+
   ## Configuration for the Prometheus instance
   ##
   prometheus:
