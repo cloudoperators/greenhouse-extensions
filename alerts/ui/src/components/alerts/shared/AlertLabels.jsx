@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react"
 
 import { Pill, Stack } from "juno-ui-components"
@@ -21,7 +16,7 @@ import {
 /**
  * For each of the given alert's labels which is included in the configured filterLabels render a Pill showing filterLabel and filterValue
  */
-const AlertLabels = ({ alert, showAll}) => {
+const AlertLabels = ({ alert, showAll }) => {
   const filterLabels = showAll ? Object.keys(alert?.labels) : useFilterLabels()
   const activeFilters = useActiveFilters()
   const { addActiveFilter, removeActiveFilter } = useFilterActions()
@@ -50,14 +45,14 @@ const AlertLabels = ({ alert, showAll}) => {
 
         return (
           value && (
-              <Pill
-                key={filterLabel}
-                pillKey={filterLabel}
-                pillValue={value}
-                onClick={(e, _) => handleLabelClick(e, filterLabel, value)}
-                closeable={isActive}
-                onClose={(e, _) => handleRemoveFilter(e, filterLabel, value)}
-              />
+            <Pill
+              key={filterLabel}
+              pillKey={filterLabel}
+              pillValue={value}
+              onClick={(e, _) => handleLabelClick(e, filterLabel, value)}
+              closeable={isActive}
+              onClose={(e, _) => handleRemoveFilter(e, filterLabel, value)}
+            />
           )
         )
       })}

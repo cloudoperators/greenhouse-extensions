@@ -3,11 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export const severityToSemanticName = (severity) => {
   switch (severity) {
     case "critical":
@@ -26,7 +21,10 @@ export const descriptionParsed = (text) => {
   // urls in descriptions follow the schema: <URL|URL-NAME>
   // Parse description and replace urls with a-tags
   const regexUrl = /<(http[^>|]+)\|([^>]+)>/g
-  const urlParsed = text.replace(regexUrl, `<a href="$1" target="_blank" style="text-decoration: underline;">$2</a>`)
+  const urlParsed = text.replace(
+    regexUrl,
+    `<a href="$1" target="_blank" style="text-decoration: underline;">$2</a>`
+  )
 
   // replace text wrapped in *..* by strong tags
   const regexBold = /\*(.*)\*/g
@@ -62,7 +60,7 @@ export const humanizeString = (value) => {
 // }
 export const sortSilencesByState = (silences) => {
   const sortedSilences = {}
-  
+
   if (!silences || silences.length === 0) return {}
 
   silences.forEach((silences) => {

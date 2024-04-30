@@ -3,18 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useMemo } from "react"
 
 import { Pill, Stack } from "juno-ui-components"
 
 // Matchers can be clicked if the matcher is configurable
 const SilenceMatchers = ({ matchers, onClickCallback, closeable }) => {
-
   // sort matchers by exclude flag
   const sortedMatchers = useMemo(() => {
     if (!matchers || matchers?.length <= 0) return []
@@ -25,10 +19,10 @@ const SilenceMatchers = ({ matchers, onClickCallback, closeable }) => {
   // clickable --> is true if the matcher is configurable
   // conditionally add click and close handlers only if the matcher is configurable (this is important,
   // because the Pill component styles reacts on the presence of an onClick handler)
-  const clickProps = (matcher) =>  {
+  const clickProps = (matcher) => {
     const props = {
       onClick: () => matcher.configurable && onClickCallback(matcher),
-      onClose: () => onClickCallback(matcher)
+      onClose: () => onClickCallback(matcher),
     }
     if (matcher.configurable) {
       return props

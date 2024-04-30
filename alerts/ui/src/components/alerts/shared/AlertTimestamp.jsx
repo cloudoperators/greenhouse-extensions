@@ -3,18 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react"
 import { DateTime } from "luxon"
 
-import { Icon, Stack, Tooltip, TooltipContent, TooltipTrigger } from "juno-ui-components"
+import {
+  Icon,
+  Stack,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "juno-ui-components"
 
-
-const AlertTimestamp = ({startTimestamp}) => {
+const AlertTimestamp = ({ startTimestamp }) => {
   const dateFormat = { ...DateTime.DATE_MED }
   const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
   const startTime = DateTime.fromISO(startTimestamp)
@@ -30,14 +30,11 @@ const AlertTimestamp = ({startTimestamp}) => {
             <Icon icon="warning" color="text-theme-warning" />
           </TooltipTrigger>
           <TooltipContent>
-            {`Alert has been firing for ${Math.round(
-              daysFiring.days
-            )} days`}
+            {`Alert has been firing for ${Math.round(daysFiring.days)} days`}
           </TooltipContent>
         </Tooltip>
       )}
     </Stack>
   )
-
 }
 export default AlertTimestamp
