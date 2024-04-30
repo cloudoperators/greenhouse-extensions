@@ -14,7 +14,7 @@ jest.mock("communicator")
 
 describe("logged in", () => {
   test("renders app", async () => {
-    render(<App />)
+    await act(() => render(<App />))
     const loginTitle = await screen.queryAllByShadowText(/Converged Cloud/i)
     expect(loginTitle.length > 0).toBe(true)
   })
