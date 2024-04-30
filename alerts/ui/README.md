@@ -1,6 +1,6 @@
 Supernova is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
 
-- Micro frontend design based on [Juno UI components](https://ui.juno.global.cloud.sap)
+- Micro frontend design based on `Juno UI components`
 - Predefined filter categories
 - Easy filtering
 - Autodiscover of the support group and added automatically as filter
@@ -94,7 +94,7 @@ Filter labels are a set of labels that are utilized to define the criteria by wh
 
 To set the filter labels:
 
-1. Utilize the app prop `filterLabels`, which is used during the setup of the script tag. For further information, please consult the [Get Started](<https://assets.juno.qa-de-1.cloud.sap/?__s=(assets~Foverview:(assetName:supernova,assetVersion:0.9.8,navItem:%27%27,panelOpened:++,panelTabIndex:+2,tabIndex:+1))>) section.
+1. Utilize the app prop `filterLabels`, which is used during the setup of the script tag.
 
 ### Silence excluded alert labels
 
@@ -131,4 +131,4 @@ If the end user wishes to include any excluded labels as matchers, they can easi
 
 To set the excluded alert labels:
 
-1. Utilize the app prop `silenceExcludedLabels`, which is used during the setup of the script tag. For further information, please consult the [Get Started](<https://assets.juno.qa-de-1.cloud.sap/?__s=(assets~Foverview:(assetName:supernova,assetVersion:0.9.8,navItem:%27%27,panelOpened:++,panelTabIndex:+2,tabIndex:+1))>) section.
+1. Utilize the app prop `silenceExcludedLabels`, which is used during the setup of the script tag.

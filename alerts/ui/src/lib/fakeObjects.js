@@ -11,9 +11,9 @@
 const refAlert = {
   annotations: {
     description:
-      "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164.cc.na-us-1.cloud.sap`. (vc-a-0.cc.na-us-1.cloud.sap).",
+      "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164`. (vc-a-0.cc).",
     summary:
-      "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164.cc.na-us-1.cloud.sap`. (vc-a-0.cc.na-us-1.cloud.sap).",
+      "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164`. (vc-a-0.cc).",
   },
   endsAt: "2023-06-21T13:04:01.855Z",
   fingerprint: "62cab9a4fd5732ee",
@@ -34,7 +34,7 @@ const refAlert = {
   },
   updatedAt: "2023-06-21T13:00:01.969Z",
   generatorURL:
-    "https://prometheus-vmware-vc-a-0.na-us-1.cloud.sap/graph?g0.expr=vrops_hostsystem_alert_info%7Balert_name%3D%22vSphere+High+Availability+%28HA%29+has+detected+a+possible+host+failure%22%7D+and+on+%28hostsystem%29+vrops_hostsystem_runtime_maintenancestate%7Bstate%21~%22inMaintenance%22%2Cvccluster%21~%22.%2Acontrolplane-swift%22%7D&g0.tab=1",
+    "https://prometheus-url/graph?g0.expr=vrops_hostsystem_alert_info%7Balert_name%3D%22vSphere+High+Availability+%28HA%29+has+detected+a+possible+host+failure%22%7D+and+on+%28hostsystem%29+vrops_hostsystem_runtime_maintenancestate%7Bstate%21~%22inMaintenance%22%2Cvccluster%21~%22.%2Acontrolplane-swift%22%7D&g0.tab=1",
   labels: {
     alert_impact: "HEALTH",
     alert_level: "CRITICAL",
@@ -44,13 +44,13 @@ const refAlert = {
     cluster: "s-na-us-1",
     cluster_type: "scaleout",
     collector: "vrops-vc-a-0-host",
-    context: "node014-bb164.cc.na-us-1.cloud.sap failure",
+    context: "node014-bb164 failure",
     datacenter: "na-us-1a",
     description:
       "A vSphere HA master agent considers a host to have failed if it loses contact with the vSphere HA agent on the host, the host does not respond to pings on any of the management interfaces, and the master does not observe any datastore heartbeats. This problem can occur when a computer on the network is configured to have the same IP address as one of the ESX/ESXi hosts in a HA cluster. In this situation, the HA agent receives invalid data and generates errors. The HA agent does not function properly until it is reconfigured. The frequency of this problem depends on how often the IP address conflict occurs.",
-    hostsystem: "node014-bb164.cc.na-us-1.cloud.sap",
+    hostsystem: "node014-bb164.cc",
     job: "vrops-exporter",
-    meta: "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164.cc.na-us-1.cloud.sap`. (vc-a-0.cc.na-us-1.cloud.sap).",
+    meta: "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164.cc`. (vc-a-0.cc.).",
     no_alert_on_absence: "true",
     playbook: "docs/devops/alert/vcenter/#hadetectedapossiblehostfailure",
     prometheus: "vmware-monitoring/vmware-vc-a-0",
@@ -66,7 +66,7 @@ const refAlert = {
     symptom_1_name: "vSphere HA detected a host failure",
     tier: "vmware",
     vccluster: "productionbb164",
-    vcenter: "vc-a-0.cc.na-us-1.cloud.sap",
+    vcenter: "vc-a-0.cc",
   },
 }
 
@@ -88,7 +88,7 @@ const refSilence = {
     { name: "cluster_type", value: "scaleout", isRegex: false },
     {
       name: "context",
-      value: "node014-bb164.cc.na-us-1.cloud.sap failure",
+      value: "node014-bb164.cc failure",
       isRegex: false,
     },
     { name: "job", value: "vrops-exporter", isRegex: false },
