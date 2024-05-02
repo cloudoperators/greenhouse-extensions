@@ -15,7 +15,7 @@ ct.yaml                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /hack/                  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 
 # The following paths are owned by the respective maintainers
-/alerts/                @richardtief @viennaa @ArtieReus
+/alerts/                @richardtief @viennaa @artieReus @edda @hodanoori @tilmanhaupt @andypf
 /cert-manager/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /dev-env/               @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /digicert-issuer/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
