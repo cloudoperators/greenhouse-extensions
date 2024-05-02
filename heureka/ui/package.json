@@ -26,6 +26,7 @@
     "babel-jest": "^29.3.1",
     "babel-plugin-transform-import-meta": "^2.2.0",
     "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@2.2.6/package.tgz",
+    "esbuild": "^0.19.4",
     "graphql-request": "^6.0.0",
     "immer": "^9.0.21",
     "jest": "^29.3.1",
