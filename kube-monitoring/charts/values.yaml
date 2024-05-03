@@ -158,12 +158,12 @@ kubeMonitoring:
           action: drop
           regex: '.+;'
         # Additional relabeling to make the cAdvisor metrics more useful.
-        - sourceLabels: [ id ]
+        - sourceLabels: [id]
           action: replace
           regex: '^/system\.slice/(.+)\.service$'
           targetLabel: systemd_service_name
           replacement: '${1}'
-        - sourceLabels: [ container ]
+        - sourceLabels: [container]
           regex: '^$'
           action: drop
         - regex: '^id$'
