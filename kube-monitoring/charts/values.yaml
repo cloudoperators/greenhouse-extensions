@@ -128,6 +128,49 @@ kubeMonitoring:
   kubeScheduler:
     enabled: false
 
+  kubelet:
+    enabled: true
+
+    serviceMonitor:
+      cAdvisorMetricRelabelings:
+        # Drop less useful container CPU metrics.
+        - sourceLabels: [__name__]
+          action: drop
+          regex: 'container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)'
+        # Drop less useful container / always zero filesystem metrics.
+        - sourceLabels: [__name__]
+          action: drop
+          regex: 'container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)'
+        # Drop less useful / always zero container memory metrics.
+        - sourceLabels: [__name__]
+          action: drop
+          regex: 'container_memory_(mapped_file|swap)'
+        # Drop less useful container process metrics.
+        - sourceLabels: [__name__]
+          action: drop
+          regex: 'container_(file_descriptors|tasks_state|threads_max)'
+        # Drop container spec metrics that overlap with kube-state-metrics.
+        - sourceLabels: [__name__]
+          action: drop
+          regex: 'container_spec.*'
+        # Drop cgroup metrics with no pod.
+        - sourceLabels: [id, pod]
+          action: drop
+          regex: '.+;'
+        # Additional relabeling to make the cAdvisor metrics more useful.
+        - sourceLabels: [id]
+          action: replace
+          regex: '^/system\.slice/(.+)\.service$'
+          targetLabel: systemd_service_name
+          replacement: '${1}'
+        - sourceLabels: [container]
+          regex: '^$'
+          action: drop
+        - regex: '^id$'
+          action: labeldrop
+        - regex: '^name$'
+          action: labeldrop
+
   ## Configuration for prometheus-node-exporter subchart
   ##
   prometheus-node-exporter:
