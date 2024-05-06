@@ -233,8 +233,8 @@ kubeMonitoring:
         volumeClaimTemplate:
           metadata:
             labels:
-              plugin: kube-monitoring
-              pluginconfig: "{{ $.Release.Name }}"
+              plugindefinition: kube-monitoring
+              plugin: "{{ $.Release.Name }}"
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
           spec:
@@ -248,31 +248,31 @@ kubeMonitoring:
       ## If {}, select all ServiceMonitors
       serviceMonitorSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
       ## PodMonitors to be selected for target discovery.
       ## If {}, select all PodMonitors
       ##
       podMonitorSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
       ## Probes to be selected for target discovery.
       ## If {}, select all Probes
       ##
       probeSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
       ## scrapeConfigs to be selected for target discovery.
       ## If {}, select all scrapeConfigs
       ##
       scrapeConfigSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
       ## PrometheusRules to be selected for target discovery.
       ## If {}, select all PrometheusRules
       ##
       ruleSelector:
         matchLabels:
-          pluginconfig: "{{ $.Release.Name }}"
+          plugin: "{{ $.Release.Name }}"
 
       ## securityContext for pod-level security attributes
       securityContext:
