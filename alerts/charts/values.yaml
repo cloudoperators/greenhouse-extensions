@@ -145,7 +145,7 @@ alerts:
       route:
         group_by:
           - organization
-          - alert_name
+          - alertname
           - cluster
           - region
         group_wait: 30s

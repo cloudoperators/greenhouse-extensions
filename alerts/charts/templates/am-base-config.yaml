@@ -16,7 +16,7 @@ spec:
         value: "Watchdog|InfoInhibitor"
     routes:
       {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name | quote }}
         continue: true
         {{- if $route.matchers }}
         matchers:
@@ -24,7 +24,7 @@ spec:
         {{- end }}
       {{- end }}
       {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
-      - receiver: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+      - receiver: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name | quote }}
         continue: true
         {{- if $route.matchers }}
         matchers:
@@ -34,11 +34,11 @@ spec:
   receivers:
     - name: base-route
     {{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
-    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name | quote }}
       slackConfigs:
-        - channel: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].channel missing" $route.channel }}
+        - channel: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].channel missing" $route.channel | quote }}
           apiURL:
-            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name }}
+            key: {{ required ".Values.alerts.alertmanagerConfig.slack.routes[].name missing" $route.name | quote }}
             name: {{ $.Release.Name }}-webhook-urls
           username: {{ default "Greenhouse" $route.username }}
           title: {{"'{{template \"slack.title\" . }}'"}}
@@ -51,10 +51,10 @@ spec:
           sendResolved: true
     {{ end }}
     {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
-    - name: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+    - name: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name | quote }}
       webhookConfigs:
         - urlSecret:
-            key: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name }}
+            key: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name | quote }}
             name: {{ $.Release.Name }}-webhook-urls
           sendResolved: true
     {{ end }}
