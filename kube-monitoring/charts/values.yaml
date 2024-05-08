@@ -274,15 +274,6 @@ kubeMonitoring:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
-      ## securityContext for pod-level security attributes
-      securityContext:
-        # runAsGroup: 2000
-        # runAsNonRoot: true
-        runAsUser: 0  # 1000
-        fsGroup: 0  # 2000
-        # seccompProfile:
-          # type: RuntimeDefault
-
 alerts:
   enabled: false
   alertmanagers:
