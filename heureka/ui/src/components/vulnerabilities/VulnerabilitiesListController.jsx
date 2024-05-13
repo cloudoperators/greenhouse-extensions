@@ -11,7 +11,7 @@ import {
   useActions,
 } from "../StoreProvider"
 import VulnerabilitiesList from "./VulnerabilitiesList"
-import PaginationV2 from "../shared/PaginationV2"
+import { Pagination } from "juno-ui-components"
 
 // targetRemediationDate
 // discoveryDate
@@ -54,7 +54,7 @@ const VulnerabilitiesListController = () => {
     if (!data?.VulnerabilityMatches?.pageInfo?.pages) return
     const pages = data?.VulnerabilityMatches?.pageInfo?.pages
     const currentPageIndex = pages?.findIndex(
-      (page) => page?.pageNumber === newPage
+      (page) => page?.pageNumber === parseInt(newPage)
     )
     if (currentPageIndex > -1) {
       const after = pages[currentPageIndex]?.after
@@ -71,12 +71,11 @@ const VulnerabilitiesListController = () => {
         vulnerabilities={vulnerabilities}
         isLoading={isLoading}
       />
-      <PaginationV2
+      <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
-        isLoading={isFetching}
-        disabled={isError || !vulnerabilities || vulnerabilities?.length === 0}
-        onPaginationChanged={onPaginationChanged}
+        onSelectChange={onPaginationChanged}
+        pages={totalPages}
+        variant="select"
       />
     </>
   )
