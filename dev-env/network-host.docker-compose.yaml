@@ -38,14 +38,11 @@ services:
   greenhouse-ui:
     image: ghcr.io/cloudoperators/greenhouse-dev-ui:main
     environment:
-      - PORT=3001
+      - PORT=3000
     network_mode: host
     build: ./ui/greenhouse
   app:
     image: ghcr.io/cloudoperators/greenhouse-dev-app:main
-    # uncomment to mount your folder:
-    # volumes:
-    #   - /path/to/app:/app
     network_mode: host
     build: ./ui/app
   bootstrap:
