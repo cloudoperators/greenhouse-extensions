@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: Plugin
+kind: PluginDefinition
 metadata:
   name: example-plugin
 spec:
@@ -16,7 +16,7 @@ spec:
   uiApplication:
     name: example-plugin
     version: "latest"
-    url: http://localhost:9090/index.js
+    url: http://localhost:8001/index.js
   options:
     - name: apiEndpoint
       description: URL of k8s api endpoint
@@ -26,15 +26,17 @@ spec:
 ---
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginConfig
+kind: Plugin
 metadata:
   name: example-plugin
   namespace: test-org
 spec:
   clusterName: self
   disabled: false
-  plugin: example-plugin
+  pluginDefinition: example-plugin
   displayName: Example Plugin
   optionValues:
     - name: apiEndpoint
       value: http://127.0.0.1:8090
+    - name: isMock
+      value: "true"  

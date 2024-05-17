@@ -3,16 +3,15 @@
 
 FROM alpine/git:2.43.0 as git
 
-RUN git clone https://github.com/sapcc/juno.git /juno 
+RUN git clone https://github.com/cloudoperators/greenhouse.git /greenhouse 
 
-FROM node:18.16-alpine3.18 as node
-LABEL source_repository="https://github.com/sapcc/juno"
+FROM node:18.20-alpine3.18 as node
+LABEL source_repository="https://github.com/cloudoperators/greenhouse"
 WORKDIR /app
-COPY --from=git /juno/apps/greenhouse /app
-COPY --from=git /juno/helpers/appProps.js /helpers/appProps.js
-COPY . /app
-RUN cd /app && npm add -D esbuild && npm install
+COPY ./secretProps.json /app
+COPY --from=git /greenhouse/ui/dashboard /app
+COPY --from=git /greenhouse/ui/helpers/appProps.js /helpers/appProps.js
+RUN cd /app && npm add -D esbuild && npm install && npm run build
 
-ENTRYPOINT [ "npm" ]
-CMD [ "run", "start"]
+CMD [ "npm", "start"]
 
