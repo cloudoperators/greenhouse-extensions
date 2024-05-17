@@ -15,15 +15,15 @@ ct.yaml                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /hack/                  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 
 # The following paths are owned by the respective maintainers
-/alerts/                @richardtief @viennaa @ArtieReus
+/alerts/                @richardtief @viennaa @artieReus @edda @hodanoori @tilmanhaupt @andypf @uwe-mayer
 /cert-manager/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /dev-env/               @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /digicert-issuer/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /disco/                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/doop/                  @andypf @artiereus @edda @hodanoori @tilmanhaupt
+/doop/                  @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
 /exposed-services/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /external-dns/          @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/heureka/               @andypf @artiereus @edda @hodanoori @tilmanhaupt
+/heureka/               @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
 /ingress-nginx/         @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
 /kube-monitoring/       @richardtief @viennaa
 /kubeconfig-generator/  @Nuckal777 @ivogoman @uwe-mayer
