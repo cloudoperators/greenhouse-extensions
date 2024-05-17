@@ -29,6 +29,12 @@ Spin everything up as follows:
 docker compose up -d
 ```
 
+You might have to build the `greenhouse-dev-ui` and `greenhouse-dev-app` images locally until we provide them in our registry by running
+
+```
+docker compose build greenhouse-ui app
+```
+
 Reach the frontend at [http://localhost:3001/](http://localhost:3001/)
 
 A valid kubeconfig for the [EnvTest Cluster](#envtest) is placed at ./envtest/kubeconfig.
