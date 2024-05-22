@@ -7,11 +7,11 @@ metadata:
   name: logshipper
 spec:
   description: Logshipping of container logs and systemd with fluent-bit
-  version: 0.0.4
+  version: 0.1.0
   helmChart:
     name: logshipper
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.0.4
+    version: 0.1.0
   options:
     - name: fluent-bit.parser
       description: Parser used for container logs. [docker|cri]
