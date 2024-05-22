@@ -1,9 +1,9 @@
 {
   "name": "heureka",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "author": "UI-Team",
   "contributors": [
-    "Arturo Reuschenbach Pucernau"
+    "Hoda Noori, Arturo Reuschenbach Pucernau"
   ],
   "repository": "https://github.com/cloudoperators/greenhouse-extensions/tree/main/heureka/ui",
   "license": "Apache-2.0",
