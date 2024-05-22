@@ -22,17 +22,25 @@ const VulnerabilitiesListItem = ({ item }) => {
       <DataGridCell>
         <span>{item?.node?.id}</span>
       </DataGridCell>
+      <DataGridCell>{item?.node?.status}</DataGridCell>
+      <DataGridCell>{item?.node?.severity?.value}</DataGridCell>
       <DataGridCell>
-        <div className={VulnerabilityCss}>
-          {/* <VulnerabilityBadge
-            level={item?.Scn?.ThreatLevelOverall}
-            label={item?.Scn?.ThreatLevelOverall}
-          /> */}
-        </div>
+        {item?.node?.componentInstance?.componentVersion?.component?.name}
       </DataGridCell>
-      <DataGridCell>{item?.Component?.Name}</DataGridCell>
-      <DataGridCell></DataGridCell>
-      <DataGridCell>{item?.State}</DataGridCell>
+      <DataGridCell>
+        {item?.node?.componentInstance?.componentVersion?.version}
+      </DataGridCell>
+      <DataGridCell>
+        {item?.node?.componentInstance?.service?.name}
+      </DataGridCell>
+      {/* TODO: Define how should we show more support groups inside this row */}
+      <DataGridCell>
+        {
+          item?.node?.componentInstance?.service?.supportGroups?.edges[0]?.node
+            ?.name
+        }
+      </DataGridCell>
+      <DataGridCell>{item?.node?.componentInstance?.count}</DataGridCell>
     </DataGridRow>
   )
 }

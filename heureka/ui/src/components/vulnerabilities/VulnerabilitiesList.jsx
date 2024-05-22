@@ -16,13 +16,16 @@ import VulnerabilitiesListItem from "./VulnerabilitiesListItem"
 
 const VulnerabilitiesList = ({ vulnerabilities, isLoading }) => {
   return (
-    <DataGrid columns={5}>
+    <DataGrid columns={8}>
       <DataGridRow>
         <DataGridHeadCell>SCN/CVE</DataGridHeadCell>
-        <DataGridHeadCell>Threat level</DataGridHeadCell>
-        <DataGridHeadCell>Component</DataGridHeadCell>
-        <DataGridHeadCell>Last modified</DataGridHeadCell>
-        <DataGridHeadCell>State</DataGridHeadCell>
+        <DataGridHeadCell>Status</DataGridHeadCell>
+        <DataGridHeadCell>Severity</DataGridHeadCell>
+        <DataGridHeadCell>Component Name</DataGridHeadCell>
+        <DataGridHeadCell>Component Version</DataGridHeadCell>
+        <DataGridHeadCell>Service Name</DataGridHeadCell>
+        <DataGridHeadCell>Support Group Name</DataGridHeadCell>
+        <DataGridHeadCell>Instance Count</DataGridHeadCell>
       </DataGridRow>
       {isLoading && !vulnerabilities ? (
         <HintLoading className="my-4" text="Loading vulnerabilities..." />
@@ -39,7 +42,7 @@ const VulnerabilitiesList = ({ vulnerabilities, isLoading }) => {
             </>
           ) : (
             <DataGridRow>
-              <DataGridCell colSpan={5}>
+              <DataGridCell colSpan={8}>
                 <HintNotFound text="No vulnerabilities found" />
               </DataGridCell>
             </DataGridRow>
