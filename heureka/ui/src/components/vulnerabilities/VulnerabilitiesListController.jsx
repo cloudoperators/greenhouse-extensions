@@ -1,9 +1,4 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   useQueryClientFnReady,
@@ -12,11 +7,6 @@ import {
 } from "../StoreProvider"
 import VulnerabilitiesList from "./VulnerabilitiesList"
 import { Pagination } from "juno-ui-components"
-
-// targetRemediationDate
-// discoveryDate
-// severity
-// remediationDate (detailview)
 
 const VulnerabilitiesListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
@@ -28,6 +18,8 @@ const VulnerabilitiesListController = () => {
     enabled: !!queryClientFnReady,
   })
 
+  const [currentPage, setCurrentPage] = useState(1) // State for current page
+
   const vulnerabilities = useMemo(() => {
     if (!data) return null
     return data?.VulnerabilityMatches?.edges
@@ -38,19 +30,13 @@ const VulnerabilitiesListController = () => {
     return data?.VulnerabilityMatches?.pageInfo
   }, [data])
 
-  const { currentPage, totalPages } = useMemo(() => {
-    if (!data?.VulnerabilityMatches?.pageInfo?.pages) return {}
-    const pages = data?.VulnerabilityMatches?.pageInfo?.pages
-    let currentPage = null
-    const currentPageIndex = pages?.findIndex((page) => page?.isCurrent)
-    if (currentPageIndex > -1) {
-      currentPage = pages[currentPageIndex]?.pageNumber
-    }
-    const totalPages = pages?.length
-    return { currentPage, totalPages }
+  const totalPages = useMemo(() => {
+    if (!data?.VulnerabilityMatches?.pageInfo?.pages) return 0
+    return data?.VulnerabilityMatches?.pageInfo?.pages.length
   }, [data?.VulnerabilityMatches?.pageInfo])
 
   const onPaginationChanged = (newPage) => {
+    setCurrentPage(newPage) // Update currentPage
     if (!data?.VulnerabilityMatches?.pageInfo?.pages) return
     const pages = data?.VulnerabilityMatches?.pageInfo?.pages
     const currentPageIndex = pages?.findIndex(
@@ -65,6 +51,13 @@ const VulnerabilitiesListController = () => {
     }
   }
 
+  const onPressNext = () => {
+    onPaginationChanged(parseInt(currentPage) + 1)
+  }
+  const onPressPrevious = () => {
+    onPaginationChanged(parseInt(currentPage) - 1)
+  }
+
   return (
     <>
       <VulnerabilitiesList
@@ -73,9 +66,13 @@ const VulnerabilitiesListController = () => {
       />
       <Pagination
         currentPage={currentPage}
+        isFirstPage={currentPage === 1}
+        isLastPage={currentPage === totalPages}
+        onPressNext={onPressNext}
+        onPressPrevious={onPressPrevious}
         onSelectChange={onPaginationChanged}
         pages={totalPages}
-        variant="select"
+        variant="input"
       />
     </>
   )

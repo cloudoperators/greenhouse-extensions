@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React, { useMemo } from "react"
 import { DataGridRow, DataGridCell } from "juno-ui-components"
 
 const IdClasses = `
@@ -17,6 +17,12 @@ flex
 `
 
 const VulnerabilitiesListItem = ({ item }) => {
+  const lastModifiedtString = useMemo(() => {
+    if (!item?.Scn?.ScnLastModified) return "No date available"
+    return DateTime.fromSQL(item.Scn.ScnLastModified).toLocaleString(
+      DateTime.DATETIME_SHORT
+    )
+  }, [item?.Scn?.ScnLastModified])
   return (
     <DataGridRow>
       <DataGridCell>
@@ -31,7 +37,7 @@ const VulnerabilitiesListItem = ({ item }) => {
         </div>
       </DataGridCell>
       <DataGridCell>{item?.Component?.Name}</DataGridCell>
-      <DataGridCell></DataGridCell>
+      <DataGridCell>{item?.vulnerabilityDisclosure?.lastModified}</DataGridCell>
       <DataGridCell>{item?.State}</DataGridCell>
     </DataGridRow>
   )
