@@ -56,6 +56,8 @@ export const useShowDetailsFor = () =>
   useAppStore((state) => state.globals.showDetailsFor)
 export const useGlobalsApiEndpoint = () =>
   useAppStore((state) => state.globals.apiEndpoint)
+export const useGlobalsActiveSelectedTab = () =>
+  useAppStore((state) => state.globals.activeSelectedTab)
 export const useGlobalsActions = () =>
   useAppStore((state) => state.globals.actions)
 
