@@ -3,16 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useActions, Messages } from "messages-provider"
 import {
   Container,
   Spinner,
   Stack,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanel,
+  TabNavigationItem,
+  TabNavigation,
 } from "juno-ui-components"
 import {
   useAlertsError,
@@ -23,6 +21,8 @@ import {
   useAuthLoggedIn,
   useAuthError,
   useSilencesError,
+  useGlobalsActions,
+  useGlobalsActiveSelectedTab,
 } from "./hooks/useAppStore"
 import AlertsList from "./components/alerts/AlertsList"
 import RegionsList from "./components/regions/RegionsList"
@@ -49,6 +49,9 @@ const AppContent = () => {
 
   // silences
   const silencesError = useSilencesError()
+
+  const { setActiveSelectedTab } = useGlobalsActions()
+  const activeSelectedTab = useGlobalsActiveSelectedTab()
 
   useEffect(() => {
     if (!authError) return
@@ -100,41 +103,62 @@ const AppContent = () => {
     })
   }, [silencesError, loggedIn])
 
+  const handleTabSelect = (item) => {
+    setActiveSelectedTab(item)
+  }
+
   return (
     <Container px py className="h-full">
       <Messages className="pb-6" />
       {loggedIn && !authError ? (
-        <Tabs onSelect={function noRefCheck() {}}>
-          <TabList>
-            <Tab icon="danger">Alerts</Tab>
-            <Tab icon="info">Silences</Tab>
-          </TabList>
-          <TabPanel>
-            <AlertDetail />
-            <RegionsList />
-            {isAlertsLoading ? (
-              <Stack gap="2">
-                <span>Loading</span>
-                <Spinner variant="primary" />
-              </Stack>
-            ) : (
-              <>
-                <PredefinedFilters />
-                <Filters />
-                <StatusBar
-                  totalCounts={totalCounts}
-                  isUpdating={isAlertsUpdating}
-                  updatedAt={updatedAt}
-                />
-                <AlertsList />
-              </>
-            )}
-          </TabPanel>
-          <TabPanel>
-            <SilencesDetail />
-            <SilencesList />
-          </TabPanel>
-        </Tabs>
+        <>
+          <TabNavigation
+            activeItem={activeSelectedTab}
+            onActiveItemChange={handleTabSelect}
+          >
+            <TabNavigationItem
+              icon="danger"
+              key="alerts"
+              value="alerts"
+              label="Alerts"
+            />
+            <TabNavigationItem
+              icon="info"
+              key="silences"
+              value="silences"
+              label="Silences"
+            />
+          </TabNavigation>
+          {activeSelectedTab === "alerts" && (
+            <>
+              <AlertDetail />
+              <RegionsList />
+              {isAlertsLoading ? (
+                <Stack gap="2">
+                  <span>Loading</span>
+                  <Spinner variant="primary" />
+                </Stack>
+              ) : (
+                <>
+                  <PredefinedFilters />
+                  <Filters />
+                  <StatusBar
+                    totalCounts={totalCounts}
+                    isUpdating={isAlertsUpdating}
+                    updatedAt={updatedAt}
+                  />
+                  <AlertsList />
+                </>
+              )}
+            </>
+          )}
+          {activeSelectedTab === "silences" && (
+            <>
+              <SilencesDetail />
+              <SilencesList />
+            </>
+          )}
+        </>
       ) : (
         <WelcomeView />
       )}

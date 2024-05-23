@@ -12,6 +12,7 @@ import {
   useFilterActions,
   useActiveFilters,
   useActivePredefinedFilter,
+  useGlobalsActiveSelectedTab,
   useSearchTerm,
   useShowDetailsFor,
   useGlobalsActions,
@@ -22,6 +23,8 @@ const ACTIVE_FILTERS = "f"
 const ACTIVE_PREDEFINED_FILTER = "p"
 const DETAILS_FOR = "d"
 const SEARCH_TERM = "s"
+const ACTIVE_TAB = "t"
+/// silences
 
 const useUrlState = () => {
   const [isURLRead, setIsURLRead] = useState(false)
@@ -33,7 +36,8 @@ const useUrlState = () => {
   const activeFilters = useActiveFilters()
   const searchTerm = useSearchTerm()
   const activePredefinedFilter = useActivePredefinedFilter()
-  const { setShowDetailsFor } = useGlobalsActions()
+  const activeSelectedTab = useGlobalsActiveSelectedTab()
+  const { setShowDetailsFor, setActiveSelectedTab } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
 
   // Set initial state from URL (on login)
@@ -86,6 +90,13 @@ const useUrlState = () => {
     if (detailsForFromURL) {
       setShowDetailsFor(detailsForFromURL)
     }
+
+    //get Tab from url state
+    const activeTabFromURL = urlStateManager.currentState()?.[ACTIVE_TAB]
+    if (activeTabFromURL) {
+      setActiveSelectedTab(activeTabFromURL)
+    }
+
     setIsURLRead(true)
   }, [loggedIn, isURLRead, authData, filterLabels])
 
@@ -103,6 +114,7 @@ const useUrlState = () => {
       [SEARCH_TERM]: encodedSearchTerm,
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
       [DETAILS_FOR]: detailsFor,
+      [ACTIVE_TAB]: activeSelectedTab,
     }
 
     // do not push the state if it is the same as the current one
@@ -114,7 +126,14 @@ const useUrlState = () => {
       return
 
     urlStateManager.push(newState)
-  }, [loggedIn, activeFilters, searchTerm, activePredefinedFilter, detailsFor])
+  }, [
+    loggedIn,
+    activeFilters,
+    searchTerm,
+    activePredefinedFilter,
+    detailsFor,
+    activeSelectedTab,
+  ])
 
   // Support for back button
   useEffect(() => {
@@ -123,6 +142,7 @@ const useUrlState = () => {
       setSearchTerm(state?.[SEARCH_TERM])
       setActivePredefinedFilter(state?.[ACTIVE_PREDEFINED_FILTER])
       setShowDetailsFor(state?.[DETAILS_FOR])
+      setActiveSelectedTab(state?.[ACTIVE_TAB])
     })
 
     return () => {
