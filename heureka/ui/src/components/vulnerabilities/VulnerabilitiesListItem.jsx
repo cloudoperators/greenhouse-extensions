@@ -23,12 +23,16 @@ const VulnerabilitiesListItem = ({ item }) => {
       <DataGridCell>
         {item?.node?.componentInstance?.service?.name}
       </DataGridCell>
-      {/* TODO: Define how should we show more support groups inside this row */}
+      {/* Display multiple support groups inside this row */}
       <DataGridCell>
-        {
-          item?.node?.componentInstance?.service?.supportGroups?.edges[0]?.node
-            ?.name
-        }
+        {item?.node?.componentInstance?.service?.supportGroups?.edges?.length >
+        0 ? (
+          item.node.componentInstance.service.supportGroups.edges.map(
+            (group, index) => <span key={index}>{group?.node?.name}</span>
+          )
+        ) : (
+          <span>No support groups</span>
+        )}
       </DataGridCell>
       <DataGridCell>{item?.node?.componentInstance?.count}</DataGridCell>
     </DataGridRow>

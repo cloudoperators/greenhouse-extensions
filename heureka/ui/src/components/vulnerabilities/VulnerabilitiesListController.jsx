@@ -62,6 +62,11 @@ const VulnerabilitiesListController = () => {
   const onPressPrevious = () => {
     onPaginationChanged(parseInt(currentPage) - 1)
   }
+  const onKeyPress = (oKey) => {
+    if (oKey.code === "Enter") {
+      onPaginationChanged(parseInt(oKey.currentTarget.value))
+    }
+  }
 
   return (
     <>
@@ -75,6 +80,7 @@ const VulnerabilitiesListController = () => {
         isLastPage={currentPage === totalPages}
         onPressNext={onPressNext}
         onPressPrevious={onPressPrevious}
+        onKeyPress={onKeyPress}
         onSelectChange={onPaginationChanged}
         pages={totalPages}
         variant="input"
