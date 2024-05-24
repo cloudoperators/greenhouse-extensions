@@ -39,7 +39,7 @@ const useUrlState = () => {
   const authData = useAuthData()
   const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
     useFilterActions()
-  const { setSilencesRegEx, setSilencesStatus, setShowSilenceDetails } =
+  const { setSilencesRegEx, setSilencesStatus, setShowDetailsForSilence } =
     useSilencesActions()
   const filterLabels = useFilterLabels()
   const activeFilters = useActiveFilters()
@@ -127,7 +127,7 @@ const useUrlState = () => {
     const silenceDetailFromURL =
       urlStateManager.currentState()?.[SILENCE_DETAIL]
     if (silenceDetailFromURL) {
-      setShowSilenceDetails(silenceDetailFromURL)
+      setShowDetailsForSilence(silenceDetailFromURL)
     }
 
     setIsURLRead(true)

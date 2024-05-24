@@ -138,19 +138,20 @@ const createSilencesSlice = (set, get, options) => ({
       setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
 
-        set(
-          produce((state) => {
-            state.silences.items = items
-            state.silences.itemsHash = itemsHash
-            state.silences.itemsByState = itemsByState
-            state.silences.isLoading = false
-            state.silences.isUpdating = false
-            state.silences.updatedAt = Date.now()
-            state.silences.error = null
-          }),
+        set((state) => ({
+          silences: {
+            ...state.silences,
+            items: items,
+            itemsHash: itemsHash,
+            itemsByState: itemsByState,
+            isLoading: false,
+            isUpdating: false,
+            updatedAt: Date.now(),
+            error: null,
+          },
+        })),
           false,
           "silences.setSilencesData"
-        )
 
         // check if any local item can be removed
         get().silences.actions.updateLocalItems()
