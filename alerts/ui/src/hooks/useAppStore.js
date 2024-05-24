@@ -143,7 +143,10 @@ export const useSilencesLocalItems = () =>
   useAppStore((state) => state.silences.localItems)
 export const useShowDetailsForSilence = () =>
   useAppStore((state) => state.silences.showDetailsForSilence)
-
+export const useSilencesStatus = () =>
+  useAppStore((state) => state.silences.status)
+export const useSilencesRegEx = () =>
+  useAppStore((state) => state.silences.regEx)
 export const useSilenceTemplates = () =>
   useAppStore((state) => state.silences.templates)
 

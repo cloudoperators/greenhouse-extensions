@@ -16,6 +16,8 @@ const initialSilencesState = {
   error: null,
   localItems: {},
   showDetailsForSilence: null,
+  status: "active",
+  regEx: "",
 
   // silence templates for maintanance
   templates: [],
@@ -112,6 +114,27 @@ const createSilencesSlice = (set, get, options) => ({
       ? validateTemplates(options?.silenceTemplates)
       : [],
     actions: {
+      setSilencesStatus: (status) =>
+        set(
+          (state) => ({
+            silences: { ...state.silences, status: status },
+          }),
+          false,
+          "silences.setSilencesStatus"
+        ),
+      setSilencesRegEx: (regEx) =>
+        set(
+          (state) => ({
+            silences: { ...state.silences, regEx: regEx },
+          }),
+          false,
+          "silences.setSilencesRegEx"
+        ),
+
+      getSilenceById: (id) => {
+        return get().silences.items.find((silence) => silence.id === id)
+      },
+
       setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
 
