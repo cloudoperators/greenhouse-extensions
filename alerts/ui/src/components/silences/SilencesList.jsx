@@ -22,6 +22,7 @@ import {
   useSilencesActions,
   useSilencesRegEx,
   useSilencesStatus,
+  useSilencesIsLoading,
 } from "../../hooks/useAppStore"
 import SilencesItem from "./SilencesItem"
 import { useEndlessScrollList } from "utils"
@@ -39,6 +40,13 @@ const SilencesList = () => {
   const { setSilencesStatus, setSilencesRegEx } = useSilencesActions()
   const status = useSilencesStatus()
   const regEx = useSilencesRegEx()
+  const isSilencesLoading = useSilencesIsLoading()
+
+  //  useEffect which loggs when isLoading changes
+
+  useEffect(() => {
+    console.log("isLoading changed to: ", isSilencesLoading)
+  }, [isSilencesLoading])
 
   useEffect(() => {
     let filtered = silences.filter(
@@ -124,25 +132,28 @@ const SilencesList = () => {
       </Stack>
 
       <DataGrid columns={3} cellVerticalAlignment="top" className="silences">
-        <DataGridRow>
-          <DataGridHeadCell>Timeintervall</DataGridHeadCell>
-          <DataGridHeadCell>Comment</DataGridHeadCell>
-          <DataGridHeadCell>Matchers</DataGridHeadCell>
-        </DataGridRow>
-
-        {scrollListItems?.length > 0 ? (
-          iterator.map((silence) => (
-            <SilencesItem silence={silence} key={silence.id} />
-          ))
-        ) : (
-          <DataGridRow>
-            <DataGridCell colSpan={3}>
-              <Stack gap="3">
-                <Icon icon="info" color="text-theme-info" />
-                <div>We couldn't find any matching silences.</div>
-              </Stack>
-            </DataGridCell>
-          </DataGridRow>
+        {!isSilencesLoading && (
+          <>
+            <DataGridRow>
+              <DataGridHeadCell>Timeintervall</DataGridHeadCell>
+              <DataGridHeadCell>Comment</DataGridHeadCell>
+              <DataGridHeadCell>Matchers</DataGridHeadCell>
+            </DataGridRow>
+            {scrollListItems?.length > 0 ? (
+              iterator.map((silence) => (
+                <SilencesItem silence={silence} key={silence.id} />
+              ))
+            ) : (
+              <DataGridRow>
+                <DataGridCell colSpan={3}>
+                  <Stack gap="3">
+                    <Icon icon="info" color="text-theme-info" />
+                    <div>We couldn't find any matching silences.</div>
+                  </Stack>
+                </DataGridCell>
+              </DataGridRow>
+            )}
+          </>
         )}
       </DataGrid>
     </>

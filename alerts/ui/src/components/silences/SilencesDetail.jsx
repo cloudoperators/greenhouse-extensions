@@ -24,10 +24,10 @@ import SilencesTimestamp from "./shared/SilencesTimestamp"
 
 const SilencesDetail = () => {
   const silenceID = useShowDetailsForSilence()
-  console.log(silenceID, "ssdfdspp")
 
   const { getSilenceById } = useSilencesActions()
   const silence = getSilenceById(silenceID)
+
   const { setShowDetailsForSilence } = useSilencesActions()
 
   const onPanelClose = () => {

@@ -18,6 +18,7 @@ import {
   useAlertsIsUpdating,
   useAlertsUpdatedAt,
   useAlertsTotalCounts,
+  useSilencesIsLoading,
   useAuthLoggedIn,
   useAuthError,
   useSilencesError,
@@ -49,6 +50,7 @@ const AppContent = () => {
 
   // silences
   const silencesError = useSilencesError()
+  const isSilencesLoading = useSilencesIsLoading()
 
   const { setActiveSelectedTab } = useGlobalsActions()
   const activeSelectedTab = useGlobalsActiveSelectedTab()
@@ -154,8 +156,17 @@ const AppContent = () => {
           )}
           {activeSelectedTab === "silences" && (
             <>
-              <SilencesDetail />
-              <SilencesList />
+              {isSilencesLoading ? (
+                <Stack gap="2">
+                  <span>Loading</span>
+                  <Spinner variant="primary" />
+                </Stack>
+              ) : (
+                <>
+                  <SilencesDetail />
+                  <SilencesList />{" "}
+                </>
+              )}
             </>
           )}
         </>
