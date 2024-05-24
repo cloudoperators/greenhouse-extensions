@@ -5,5 +5,5 @@ dependencies:
 - name: prometheus-kubernetes-rules
   repository: oci://ghcr.io/sapcc/helm-charts
   version: 1.8.0
-digest: sha256:f9c96ca6c3cd599c6eb134e38440dfe10990d41e76efcde8aa7374bc268ecc06
-generated: "2024-05-24T11:08:48.950701+02:00"
+digest: sha256:9fb8c7e2e40fb2236c6cc003b691afa4bdbfa8d5369d3d53c75e606d40c70857
+generated: "2024-05-24T11:38:22.625027+02:00"
