@@ -2,5 +2,8 @@ dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
   version: 58.3.3
-digest: sha256:9306c608e9866269990302b52a1a2228df8884748564e80c05d9cfe469ae7a9a
-generated: "2024-05-02T21:14:15.771652251Z"
+- name: prometheus-kubernetes-rules
+  repository: oci://ghcr.io/sapcc/helm-charts
+  version: 1.8.0
+digest: sha256:f9c96ca6c3cd599c6eb134e38440dfe10990d41e76efcde8aa7374bc268ecc06
+generated: "2024-05-24T11:08:48.950701+02:00"

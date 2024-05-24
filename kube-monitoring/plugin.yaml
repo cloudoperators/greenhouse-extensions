@@ -7,11 +7,11 @@ metadata:
   name: kube-monitoring
 spec:
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
-  version: 1.7.1
+  version: 1.8.0
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.8.1
+    version: 0.9.0
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
@@ -53,3 +53,23 @@ spec:
       description: TLS key for communication with Alertmanager
       required: false
       type: secret
+    - name: kubeMonitoring.defaultRules.create
+      description: Whether to create community Prometheus alerting and aggregration rules
+      default: false
+      required: false
+      type: bool
+    - name: prometheusKubernetesRules.tier
+      description: Name of the tier to which alerts should be routed
+      default: k8s
+      required: false
+      type: string
+    - name: prometheusKubernetesRules.service
+      description: Name of the service to which alerts should be routed
+      default: k8s
+      required: false
+      type: string
+    - name: prometheusKubernetesRules.supportGroup
+      description: Name of the support group to which alerts should be routed
+      default: containers
+      required: false
+      type: string
