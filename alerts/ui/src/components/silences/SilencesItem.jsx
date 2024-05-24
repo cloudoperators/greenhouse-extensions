@@ -25,15 +25,15 @@ const SilencesItem = ({ silence }, ref) => {
   const handleShowDetails = (e) => {
     e.stopPropagation()
     e.preventDefault()
-    showDetailsFor?.id === silence?.id
+    showDetailsFor === silence?.id
       ? setShowDetailsForSilence(false)
-      : setShowDetailsForSilence(silence)
+      : setShowDetailsForSilence(silence?.id)
   }
 
   return (
     <DataGridRow
       className={`cursor-pointer ${
-        showDetailsFor?.id === silence?.id ? "active" : ""
+        showDetailsFor === silence?.id ? "active" : ""
       } `}
       onClick={(e) => handleShowDetails(e)}
     >

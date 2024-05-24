@@ -16,6 +16,10 @@ import {
   useSearchTerm,
   useShowDetailsFor,
   useGlobalsActions,
+  useSilencesActions,
+  useSilencesRegEx,
+  useSilencesStatus,
+  useShowDetailsForSilence,
 } from "./useAppStore"
 
 const urlStateManager = registerConsumer("supernova")
@@ -25,6 +29,9 @@ const DETAILS_FOR = "d"
 const SEARCH_TERM = "s"
 const ACTIVE_TAB = "t"
 /// silences
+const SILENCE_REG_EX = "r"
+const SILENCE_STATUS = "st"
+const SILENCE_DETAIL = "sd"
 
 const useUrlState = () => {
   const [isURLRead, setIsURLRead] = useState(false)
@@ -32,6 +39,8 @@ const useUrlState = () => {
   const authData = useAuthData()
   const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
     useFilterActions()
+  const { setSilencesRegEx, setSilencesStatus, setShowSilenceDetails } =
+    useSilencesActions()
   const filterLabels = useFilterLabels()
   const activeFilters = useActiveFilters()
   const searchTerm = useSearchTerm()
@@ -39,6 +48,9 @@ const useUrlState = () => {
   const activeSelectedTab = useGlobalsActiveSelectedTab()
   const { setShowDetailsFor, setActiveSelectedTab } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
+  const silenceRegEx = useSilencesRegEx()
+  const silenceStatus = useSilencesStatus()
+  const silenceDetail = useShowDetailsForSilence()
 
   // Set initial state from URL (on login)
   // useLayoutEffect so this is done before rendering anything
@@ -97,6 +109,27 @@ const useUrlState = () => {
       setActiveSelectedTab(activeTabFromURL)
     }
 
+    // get silence regex search from url state
+    const silenceRegExFromURL = urlStateManager.currentState()?.[SILENCE_REG_EX]
+    if (silenceRegExFromURL) {
+      // decode the search term from the url. It is base64 encoded to avoid issues with special characters
+      setSilencesRegEx(atob(silenceRegExFromURL))
+    }
+
+    // get silence status from url state
+    const silenceStatusFromURL =
+      urlStateManager.currentState()?.[SILENCE_STATUS]
+    if (silenceStatusFromURL) {
+      setSilencesStatus(silenceStatusFromURL)
+    }
+
+    // get silence detail from url state
+    const silenceDetailFromURL =
+      urlStateManager.currentState()?.[SILENCE_DETAIL]
+    if (silenceDetailFromURL) {
+      setShowSilenceDetails(silenceDetailFromURL)
+    }
+
     setIsURLRead(true)
   }, [loggedIn, isURLRead, authData, filterLabels])
 
@@ -107,6 +140,7 @@ const useUrlState = () => {
 
     // encode searchTerm before pushing it to the URL to avoid missinterpretation of special characters
     const encodedSearchTerm = btoa(searchTerm)
+    const encodedSilenceRegEx = btoa(silenceRegEx)
 
     const newState = {
       ...urlStateManager.currentState(),
@@ -115,6 +149,9 @@ const useUrlState = () => {
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
       [DETAILS_FOR]: detailsFor,
       [ACTIVE_TAB]: activeSelectedTab,
+      [SILENCE_REG_EX]: encodedSilenceRegEx,
+      [SILENCE_STATUS]: silenceStatus,
+      [SILENCE_DETAIL]: silenceDetail,
     }
 
     // do not push the state if it is the same as the current one
@@ -133,6 +170,9 @@ const useUrlState = () => {
     activePredefinedFilter,
     detailsFor,
     activeSelectedTab,
+    silenceRegEx,
+    silenceStatus,
+    silenceDetail,
   ])
 
   // Support for back button
@@ -143,6 +183,9 @@ const useUrlState = () => {
       setActivePredefinedFilter(state?.[ACTIVE_PREDEFINED_FILTER])
       setShowDetailsFor(state?.[DETAILS_FOR])
       setActiveSelectedTab(state?.[ACTIVE_TAB])
+      setSilencesRegEx(state?.[SILENCE_REG_EX])
+      setSilencesStatus(state?.[SILENCE_STATUS])
+      setShowSilenceDetails(state?.[SILENCE_DETAIL])
     })
 
     return () => {

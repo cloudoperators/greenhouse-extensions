@@ -17,7 +17,12 @@ import {
   Icon,
 } from "juno-ui-components"
 
-import { useSilencesItems } from "../../hooks/useAppStore"
+import {
+  useSilencesItems,
+  useSilencesActions,
+  useSilencesRegEx,
+  useSilencesStatus,
+} from "../../hooks/useAppStore"
 import SilencesItem from "./SilencesItem"
 import { useEndlessScrollList } from "utils"
 
@@ -31,11 +36,9 @@ my-px
 const SilencesList = () => {
   const silences = useSilencesItems()
   const [visibleSilences, setVisibleSilences] = useState(silences)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [status, setStatus] = useState("active")
-  const [isAddingItems, setIsAddingItems] = useState(false)
-  const [visibleAmount, setVisibleAmount] = useState(5)
-  const timeoutRef = React.useRef(null)
+  const { setSilencesStatus, setSilencesRegEx } = useSilencesActions()
+  const status = useSilencesStatus()
+  const regEx = useSilencesRegEx()
 
   useEffect(() => {
     let filtered = silences.filter(
@@ -43,34 +46,32 @@ const SilencesList = () => {
     )
 
     try {
-      if (searchTerm) {
+      if (regEx) {
         filtered = filtered.filter((silence) =>
-          JSON.stringify(silence).match(new RegExp(searchTerm, "i"))
+          JSON.stringify(silence).match(new RegExp(regEx, "i"))
         )
       }
     } catch (e) {
       console.warn("search term is not a valid regex. " + e)
 
       filtered = filtered.filter((silence) =>
-        JSON.stringify(silence).toLowerCase().includes(searchTerm.toLowerCase)
+        JSON.stringify(silence).toLowerCase().includes(regEx.toLowerCase)
       )
-
-      console.log(searchTerm)
     }
 
     setVisibleSilences(filtered)
-  }, [status, searchTerm, silences])
+  }, [status, regEx, silences])
 
   const handleSearchChange = (value) => {
     // debounce setSearchTerm to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
-      setSearchTerm(value.target.value)
+      setSilencesRegEx(value.target.value)
     }, 500)
 
     // clear timeout if we have a new value
     return () => clearTimeout(debouncedSearchTerm)
   }
-  const { scrollListItems, iterator } = useEndlessScrollList(silences, {
+  const { scrollListItems, iterator } = useEndlessScrollList(visibleSilences, {
     loadingObject: (
       <DataGridRow>
         <DataGridCell colSpan={3}>
@@ -96,9 +97,9 @@ const SilencesList = () => {
         <Select
           className="w-3/12"
           label="Status"
-          defaultValue="active"
-          onChange={(newStatus) => {
-            setStatus(newStatus)
+          value={status}
+          onChange={(newSilencesStatus) => {
+            setSilencesStatus(newSilencesStatus)
           }}
         >
           <SelectOption value="active" />
@@ -109,14 +110,15 @@ const SilencesList = () => {
         <SearchInput
           placeholder="search term or regular expression"
           className="ml-auto w-7/12"
+          value={regEx || ""}
           onChange={(text) => {
             handleSearchChange(text)
           }}
           onSearch={(text) => {
-            setSearchTerm(text)
+            setSilencesRegEx(text)
           }}
           onClear={() => {
-            setSearchTerm(null)
+            setSilencesRegEx(null)
           }}
         />
       </Stack>
