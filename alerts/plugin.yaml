@@ -11,7 +11,7 @@ spec:
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
-  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.svg
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
   helmChart:
      name: alerts
      repository: oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions

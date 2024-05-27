@@ -10,7 +10,7 @@ spec:
   displayName: Slack integration
   description: Manage Slack handles and channels based on Greenhouse teams and their members
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/teams2slack/README.md
-  icon: https://previews.us-east-1.widencdn.net/preview/48045879/assets/asset-view/4fe2aea7-92aa-4833-94af-97b882d8cb2f/thumbnail/eyJ3Ijo0ODAsImgiOjQ4MCwic2NvcGUiOiJhcHAifQ==?Expires=1716807600&Signature=YlCSCiM~Pu5Zmw2oTdhNzyU-D-OcXjdCXw15hqIpq~6f0vYjBHaWt7MVDFaVaRlkArqeMf00WYkR8zs~z1u4RWAbSd6U2FbEXL3KcnV9SfU2mnHB0XdjM8rH97vuzPlIb1aijgzOAvm7a4ssxegvJc7m5XDl-TH-xZS-rzGn7HyYp0Li6uidibjaP6lDpnvAzuqKROLx~01kMvRx0VjH0-J2kD~HdS22poh8KziE-nnaWJLtjfKnkdPhXKPIMc9yBQgRsygDHigxLebWk3aCGWF2iSrqFyl4Dl5gXk7vCLWgjA0VaJBFPZVyYlTRAlf0PPnOMg2oQq2eSm~SiHgsOg__&Key-Pair-Id=APKAJM7FVRD2EPOYUXBQ
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/teams2slack/logo.png
   helmChart:
     name: teams2slack-helm
     repository: oci://ghcr.io/sapcc/helm-charts
