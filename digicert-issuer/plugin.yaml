@@ -7,7 +7,7 @@ metadata:
   name: digicert-issuer
 spec:
   version: "1.2.1"
-  displayName: Alerts
+  displayName: DigiCert extensions
   description: Extensions to the cert-manager for DigiCert support
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/digicert-issuer/README.md
   helmChart:
