@@ -14,13 +14,13 @@ import {
   Stack,
   PanelBody,
   Pill,
-  Button,
 } from "juno-ui-components"
 import {
   useShowDetailsForSilence,
   useSilencesActions,
 } from "../../hooks/useAppStore"
 import SilencesTimestamp from "./shared/SilencesTimestamp"
+import ExpireSilence from "./ExpireSilence"
 
 const SilencesDetail = () => {
   const silenceID = useShowDetailsForSilence()
@@ -93,8 +93,10 @@ const SilencesDetail = () => {
       </PanelBody>
 
       <PanelFooter>
-        {silence?.status?.state && (
-          <Button variant="primary-danger">Expire</Button>
+        {["active", "pending"].includes(silence?.status?.state) && (
+          <>
+            <ExpireSilence />
+          </>
         )}
       </PanelFooter>
     </Panel>
