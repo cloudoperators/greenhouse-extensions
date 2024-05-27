@@ -6,8 +6,10 @@ kind: PluginDefinition
 metadata:
   name: logshipper
 spec:
-  description: Logshipping of container logs and systemd with fluent-bit
   version: 0.1.0
+  displayName: Fluent-bit Logshipper
+  description: Logshipping of container logs and systemd with fluent-bit
+  icon: https://raw.githubusercontent.com/fluent/fluent-bit/master/fluentbit_logo.png
   helmChart:
     name: logshipper
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions

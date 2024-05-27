@@ -6,8 +6,11 @@ kind: PluginDefinition
 metadata:
   name: cert-manager
 spec:
-  description: Automated certificate management in Kubernetes
   version: "1.1.0"
+  displayName: Certificate manager
+  description: Automated TLS certificate management
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
+  icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo.svg
   helmChart:
     name: cert-manager
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions

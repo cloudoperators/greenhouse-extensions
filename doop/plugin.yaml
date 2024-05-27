@@ -6,9 +6,12 @@ kind: PluginDefinition
 metadata:
   name: doop
 spec:
-  description: Holistic overview on Gatekeeper policies and violations
   version: "1.0.0"
   weight: 1
+  displayName: DOOP
+  description: Holistic policy and violations management using the Open Policy Agent (OPA)
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/doop/README.md
+  icon: https://raw.githubusercontent.com/open-policy-agent/opa/main/logo/logo.svg
   # helmChart:
   #   name: doop
   #   repository: oci://ghcr.io/cloudoperators/greenhouse-extensions

@@ -6,8 +6,11 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   version: 1.7.1
+  displayName: Kubernetes monitoring
+  description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
+  icon: https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions

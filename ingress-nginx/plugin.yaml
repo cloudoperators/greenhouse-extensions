@@ -7,7 +7,9 @@ metadata:
   name: ingress-nginx
 spec:
   version: 1.1.0
+  displayName: Ingress NGINX
   description: Ingress NGINX controller
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
   helmChart:
     name: ingress-nginx
     repository: https://kubernetes.github.io/ingress-nginx

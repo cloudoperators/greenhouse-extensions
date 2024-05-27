@@ -6,8 +6,10 @@ kind: PluginDefinition
 metadata:
   name: disco
 spec:
-  description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
   version: 1.2.3
+  displayName: Designate Ingress CNAME Operator (DISCO)
+  description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/disco/README.md
   helmChart:
     name: disco
     repository: oci://ghcr.io/sapcc/helm-charts
