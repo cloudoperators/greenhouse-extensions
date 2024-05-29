@@ -1,9 +1,11 @@
-name: "💡 Feature Request"
-description: Create a ticket requesting a new feature
-title: "💡 [PLUGIN] - <title>"
+name: Feature Request
+description: Suggest an idea for this project
+title: "[name of the plugin] Issue Title"
 labels: [
   "plugin"
 ]
+assignees:
+  - 
 body:
   - type: markdown
     attributes:
@@ -20,14 +22,24 @@ body:
         - (Low) Something is a little off
         - (Medium) I'm annoyed but I'll live
         - (Urgent) I can't use the Greenhouse without
+        
   - type: textarea
     id: description
     attributes:
-      label: "Description"
-      description: Provide a clear and concise description of the feature you're requesting
-      placeholder: Short and explicit description of your feature
+      label: Is your feature request related to a problem?
+      description: Give a clear and concise description of what the problem is.
+      placeholder:  ex. I'm always frustrated when [...]
     validations:
       required: true
+
+  - type: textarea
+    id: additional-ctxt
+    attributes:
+      label: Additional context.
+      description: Add any other context or screenshots about the feature request here.
+    validations:
+      required: false
+      
   - type: textarea
     id: reference_issues
     attributes:
