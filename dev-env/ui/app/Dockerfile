@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-FROM alpine/git:2.43.0 as git
+FROM alpine/git:v2.45.1 as git
 RUN git clone https://github.com/cloudoperators/greenhouse.git /greenhouse 
 
 FROM node:18.20-alpine3.18 as node
