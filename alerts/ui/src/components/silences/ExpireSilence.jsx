@@ -1,10 +1,40 @@
 import React, { useState } from "react"
 import { Button, Modal } from "juno-ui-components"
+import {
+  useGlobalsApiEndpoint,
+  useSilencesActions,
+} from "../../hooks/useAppStore"
+import { useActions } from "messages-provider"
+import { parseError } from "../../helpers"
 
-const ExpireSilence = () => {
+import { del } from "../../api/client"
+
+const ExpireSilence = (props) => {
+  const { addMessage } = useActions()
+  const silence = props.silence
   const [confirmationDialog, setConfirmationDialog] = useState(false)
+  const apiEndpoint = useGlobalsApiEndpoint()
+
+  const { setShowDetailsForSilence } = useSilencesActions()
   const onExpire = () => {
+    // submit silence
+    del(`${apiEndpoint}/silence/${silence.id}`)
+      .then(() => {
+        addMessage({
+          variant: "success",
+          text: `Silence expired successfully.`,
+        })
+      })
+      .catch((error) => {
+        console.log("error", error)
+        addMessage({
+          variant: "error",
+          text: `${parseError(error)}`,
+        })
+      })
+
     setConfirmationDialog(false)
+    setShowDetailsForSilence(false)
     return
   }
 
