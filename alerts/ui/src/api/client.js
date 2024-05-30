@@ -35,7 +35,9 @@ const request = (url, options = {}) => {
 
   return fetch(url, requestOptions)
     .then(checkStatus)
-    .then((response) => response.json())
+    .then((response) => {
+      response.json() ? response.json() : response.text()
+    })
 }
 
 export const head = (url, options = {}) =>
