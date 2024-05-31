@@ -5,7 +5,7 @@
 
 import React, { useEffect, useMemo, useLayoutEffect } from "react"
 
-import { AppShellProvider } from "juno-ui-components"
+import { AppShellProvider, ContentHeading } from "juno-ui-components"
 import AppContent from "./components/AppContent"
 import styles from "./styles.scss"
 import AuthProvider from "./components/AuthProvider"
@@ -56,13 +56,12 @@ const App = (props = {}) => {
 
   return (
     <MessagesProvider>
-      <AppShell
-        pageHeader={`Doop`}
-        contentHeading={`Decentralized Observer of Policies  ${
-          props.displayName ? ` - ${props.displayName}` : ""
-        }`}
-        embedded={props.embedded === true}
-      >
+      <AppShell pageHeader={`Doop`} embedded={props.embedded === true}>
+        <ContentHeading
+          heading={`Decentralized Observer of Policies  ${
+            props.displayName ? ` - ${props.displayName}` : ""
+          }`}
+        />
         <AsyncWorker consumerId={props.id || "doop"} />
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
