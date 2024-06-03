@@ -39,7 +39,6 @@ const VulnerabilitiesListController = () => {
     if (!data?.VulnerabilityMatches?.pageInfo?.pages) return 0
     return data?.VulnerabilityMatches?.pageInfo?.pages.length
   }, [data?.VulnerabilityMatches?.pageInfo])
-  console.log("vulnerabilities", data?.VulnerabilityMatches)
   const onPaginationChanged = (newPage) => {
     setCurrentPage(newPage) // Update currentPage
     if (!data?.VulnerabilityMatches?.pageInfo?.pages) return

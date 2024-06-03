@@ -5,16 +5,7 @@
 
 import React, { useMemo } from "react"
 import { DataGridRow, DataGridCell } from "juno-ui-components"
-
-const cellClasses = ``
-
-const listOfSGsOrOw = (objs) => {
-  objs = objs?.edges || []
-  return objs
-    .filter((obj) => obj?.node?.name)
-    .map((obj) => obj?.node?.name)
-    .join(", ")
-}
+import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
 const countVulnerabilityMatches = (service) => {
   return service?.componentInstances?.edges?.reduce((acc, edge) => {
@@ -35,19 +26,15 @@ const ServicesListItem = ({ item }) => {
 
   return (
     <DataGridRow>
-      <DataGridCell className={cellClasses}>{service?.name}</DataGridCell>
-      <DataGridCell className={cellClasses}>
-        {listOfSGsOrOw(service?.owners)}
+      <DataGridCell>{service?.name}</DataGridCell>
+      <DataGridCell>{listOfCommaSeparatedObjs(service?.owners)}</DataGridCell>
+      <DataGridCell>
+        {listOfCommaSeparatedObjs(service?.supportGroups)}
       </DataGridCell>
-      <DataGridCell className={cellClasses}>
-        {listOfSGsOrOw(service?.supportGroups)}
-      </DataGridCell>
-      <DataGridCell className={cellClasses}>
+      <DataGridCell>
         {service?.componentInstances?.edges?.length || 0}
       </DataGridCell>
-      <DataGridCell className={cellClasses}>
-        {vulnerabilityMatchesCount}
-      </DataGridCell>
+      <DataGridCell>{vulnerabilityMatchesCount}</DataGridCell>
     </DataGridRow>
   )
 }
