@@ -60,6 +60,32 @@ export default () => gql`
               nextPageAfter
             }
           }
+          componentInstances {
+            edges {
+              node {
+                id
+                ccrn
+                count
+                componentVersion {
+                  version
+                  component {
+                    name
+                  }
+                }
+                vulnerabilityMatches {
+                  edges {
+                    node {
+                      id
+                      vulnerabilityDisclosure {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           advisoryRepositories {
             totalCount
             edges {
@@ -85,7 +111,16 @@ export default () => gql`
       }
       pageInfo {
         hasNextPage
+        hasPreviousPage
+        isValidPage
+        pageNumber
         nextPageAfter
+        pages {
+          after
+          isCurrent
+          pageNumber
+          pageCount
+        }
       }
     }
   }
