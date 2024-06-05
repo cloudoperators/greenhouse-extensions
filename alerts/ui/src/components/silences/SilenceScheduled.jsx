@@ -27,7 +27,7 @@ import {
   useSilenceTemplates,
   useGlobalsApiEndpoint,
 } from "../../hooks/useAppStore"
-import { post } from "../../api/client"
+import { post, get } from "../../api/client"
 import { parseError } from "../../helpers"
 
 import { DEFAULT_FORM_VALUES, validateForm } from "./silenceScheduledHelpers"

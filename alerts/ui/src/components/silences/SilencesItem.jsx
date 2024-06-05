@@ -11,6 +11,7 @@ import {
   useSilencesActions,
   useShowDetailsForSilence,
 } from "../../hooks/useAppStore"
+import ExpireSilence from "./ExpireSilence"
 
 // function that cuts the value of a string to max 40 characters
 const cutString = (str) => {
