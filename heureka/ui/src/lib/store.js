@@ -5,7 +5,7 @@
 
 import { createStore } from "zustand"
 import { devtools } from "zustand/middleware"
-import produce from "immer"
+import { produce } from "immer"
 
 export default (options) =>
   createStore(

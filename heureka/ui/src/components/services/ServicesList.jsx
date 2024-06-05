@@ -18,13 +18,13 @@ import HintLoading from "../shared/HintLoading"
 const ServicesList = ({ services, isLoading }) => {
   return (
     <>
-      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 1fr">
+      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr">
         <DataGridRow>
-          <DataGridHeadCell>Name</DataGridHeadCell>
+          <DataGridHeadCell>Service</DataGridHeadCell>
+          <DataGridHeadCell>Owners</DataGridHeadCell>
           <DataGridHeadCell>Support Groups</DataGridHeadCell>
-          <DataGridHeadCell>Operators</DataGridHeadCell>
-          <DataGridHeadCell>Vulnerabilities</DataGridHeadCell>
-          <DataGridHeadCell>Components</DataGridHeadCell>
+          <DataGridHeadCell>Component Instances Count</DataGridHeadCell>
+          <DataGridHeadCell>Total Vulnerability Matches</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !services ? (
           <HintLoading className="my-4" text="Loading services..." />

@@ -5,6 +5,7 @@
 
 import React from "react"
 import { DataGridRow, DataGridCell } from "juno-ui-components"
+import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
 const VulnerabilitiesListItem = ({ item }) => {
   return (
@@ -23,15 +24,9 @@ const VulnerabilitiesListItem = ({ item }) => {
       <DataGridCell>
         {item?.node?.componentInstance?.service?.name}
       </DataGridCell>
-      {/* Display multiple support groups inside this row */}
       <DataGridCell>
-        {item?.node?.componentInstance?.service?.supportGroups?.edges?.length >
-        0 ? (
-          item.node.componentInstance.service.supportGroups.edges.map(
-            (group, index) => <span key={index}>{group?.node?.name}</span>
-          )
-        ) : (
-          <span>No support groups</span>
+        {listOfCommaSeparatedObjs(
+          item?.node?.componentInstance?.service?.supportGroups
         )}
       </DataGridCell>
       <DataGridCell>{item?.node?.componentInstance?.count}</DataGridCell>
