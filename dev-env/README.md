@@ -105,6 +105,7 @@ To **test** your plugin (a.k.a. `PluginDefinition` yaml file) with a backend (a.
 - Spin up the `dev-env` and export `KUBECONFIG` env var.
 - Deploy your `PluginDefinition` to the `dev-env` with the reference to your helm chart in `Spec.helmChart`
 - Onboard a cluster you have access to (e.g. local [minikube](https://minikube.sigs.k8s.io/docs/start/), [KIND](https://kind.sigs.k8s.io/docs/user/quick-start/) or other)
+  For Kind clusters see [Onboarding a KIND cluster](#onboarding-a-kind-cluster)
 
   ```bash
   kubectl --namespace=test-org create secret generic <cluster-name> --type=greenhouse.sap/kubeconfig --from-file=kubeconfig=<your-cluster-kubeconfig.yaml>
@@ -200,6 +201,8 @@ Bootstraps all resources in [./bootstrap](./bootstrap):
 Bootstrap your own resources by adding the yaml files to `./bootstrap`.
 
 ## Onboarding a KIND cluster
+
+[!info] This section is currently not working on Linux due to docker network issues in combination with VPN.
 
 This requires that [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) is installed.
 
