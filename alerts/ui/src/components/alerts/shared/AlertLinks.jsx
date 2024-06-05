@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +8,6 @@ import React from "react"
 import { Stack } from "juno-ui-components"
 
 const AlertLinks = ({ alert, className }) => {
-
   return (
     <Stack gap="3" className={className}>
       {alert?.generatorURL && (

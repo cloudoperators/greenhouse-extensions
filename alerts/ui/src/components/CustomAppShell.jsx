@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -28,10 +28,7 @@ const CustomAppShell = ({ children }) => {
   }, [loggedIn, authData, logout])
 
   return (
-    <AppShell
-      pageHeader={pageHeader}
-      embedded={embedded}
-    >
+    <AppShell pageHeader={pageHeader} embedded={embedded}>
       {children}
     </AppShell>
   )

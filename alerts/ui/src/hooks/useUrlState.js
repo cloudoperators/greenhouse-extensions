@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -71,7 +71,7 @@ const useUrlState = () => {
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
     if (searchTermFromURL) {
       // decode the search term from the url. It is base64 encoded to avoid issues with special characters
-      setSearchTerm(window.atob(searchTermFromURL))
+      setSearchTerm(atob(searchTermFromURL))
     }
 
     // get active predefined filters from url state
@@ -95,7 +95,7 @@ const useUrlState = () => {
     if (!loggedIn || !isURLRead) return
 
     // encode searchTerm before pushing it to the URL to avoid missinterpretation of special characters
-    const encodedSearchTerm = window.btoa(searchTerm)
+    const encodedSearchTerm = btoa(searchTerm)
 
     const newState = {
       ...urlStateManager.currentState(),

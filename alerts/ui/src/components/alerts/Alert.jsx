@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -49,7 +49,11 @@ const Alert = ({ alert }, ref) => {
     // then we don't want to show the details because then the click was on a child of one of the cells
     // an additional check is made for targets with className "interactive". If the target has this then the click
     // handling should proceed even if the previous condition was true
-    if ((e.target.parentNode !== rowRef.current) && !e.target.classList.contains("interactive")) return
+    if (
+      e.target.parentNode !== rowRef.current &&
+      !e.target.classList.contains("interactive")
+    )
+      return
 
     e.stopPropagation()
     e.preventDefault()
@@ -77,7 +81,9 @@ const Alert = ({ alert }, ref) => {
       </DataGridCell>
       <DataGridCell>{alert.labels?.service}</DataGridCell>
       <DataGridCell className="cursor-default">
-        <div className="interactive text-theme-high cursor-pointer">{alert.annotations?.summary}</div>
+        <div className="interactive text-theme-high cursor-pointer">
+          {alert.annotations?.summary}
+        </div>
         <div>
           <AlertDescription
             description={alert.annotations?.description}
