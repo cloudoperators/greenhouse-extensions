@@ -24,16 +24,7 @@ function prepare_cluster(){
 
 function onboard_cluster(){
   echo "Creating secret on dev-env cluster to onboard ${REMOTE_CLUSTER_NAME}"
-  cat <<EOF | kubectl --kubeconfig ./envtest/kubeconfig apply -f - 
-  apiVersion: v1 
-  kind: Secret 
-  metadata: 
-    name: ${REMOTE_CLUSTER_NAME} 
-    namespace: test-org 
-  data: 
-    kubeconfig: $(cat ${REMOTE_CLUSTER_KUBECONFIG} | base64)
-  type: "greenhouse.sap/kubeconfig" 
-EOF
+  kubectl --kubeconfig="${KUBECONFIG_DIR}/kubeconfig" --namespace=test-org create secret generic ${REMOTE_CLUSTER_NAME} --type=greenhouse.sap/kubeconfig --from-file=kubeconfig="${REMOTE_CLUSTER_KUBECONFIG}"
 }
 
 REMOTE_CLUSTER_NAME=$1
