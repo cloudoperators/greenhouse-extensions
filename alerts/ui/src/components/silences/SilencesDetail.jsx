@@ -95,7 +95,7 @@ const SilencesDetail = () => {
       <PanelFooter>
         {["active", "pending"].includes(silence?.status?.state) && (
           <>
-            <ExpireSilence silence={silence} />
+            <ExpireSilence silenceId={silenceID} />
           </>
         )}
       </PanelFooter>

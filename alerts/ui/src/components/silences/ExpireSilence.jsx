@@ -11,14 +11,14 @@ import { del } from "../../api/client"
 
 const ExpireSilence = (props) => {
   const { addMessage } = useActions()
-  const silence = props.silence
+  const silenceId = props.silenceId
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
 
   const { setShowDetailsForSilence } = useSilencesActions()
   const onExpire = () => {
     // submit silence
-    del(`${apiEndpoint}/silence/${silence.id}`)
+    del(`${apiEndpoint}/silence/${silenceId}`)
       .then(() => {
         addMessage({
           variant: "success",
