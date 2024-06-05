@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,17 +9,17 @@ describe("helpers", () => {
   describe("setupMatchers", () => {
     test("mark excluded labels and ignore enriched labels", () => {
       const alertLables = {
-        region: "na-us-1",
+        region: "test-1",
         service: "compute",
         severity: "critical",
-        pod: "node014-bb164.cc.na-us-1.cloud.sap",
+        pod: "node014",
         status: "active",
       }
       const matchers = setupMatchers(alertLables, ["pod"], ["status"])
       expect(matchers).toEqual([
         {
           name: "region",
-          value: "na-us-1",
+          value: "test-1",
           isRegex: false,
           excluded: false,
           configurable: false,
@@ -40,7 +40,7 @@ describe("helpers", () => {
         },
         {
           name: "pod",
-          value: "node014-bb164.cc.na-us-1.cloud.sap",
+          value: "node014",
           isRegex: false,
           excluded: true,
           configurable: true,

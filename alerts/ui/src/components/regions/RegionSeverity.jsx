@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -47,7 +47,14 @@ const RegionSeverity = ({
       distribution="center"
       className={severityStyles(severity, severityCountTotal)}
     >
-      <Stack direction="vertical" alignment="center" distribution="center" className="h-full">{calculateCount(severityCountTotal, severityCountSuppressed)}</Stack>
+      <Stack
+        direction="vertical"
+        alignment="center"
+        distribution="center"
+        className="h-full"
+      >
+        {calculateCount(severityCountTotal, severityCountSuppressed)}
+      </Stack>
       {severityCountSuppressed && (
         <div className="text-xs bg-black/10 mt-auto">
           <Stack alignment="center" distribution="center">

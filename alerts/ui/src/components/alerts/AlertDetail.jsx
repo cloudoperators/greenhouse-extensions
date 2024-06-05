@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,10 +17,10 @@ import {
   Stack,
   PanelBody,
   Spinner,
-  Tabs, 
-  TabList, 
-  Tab, 
-  TabPanel
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
 } from "juno-ui-components"
 import {
   useShowDetailsFor,
@@ -128,7 +128,7 @@ const AlertDetail = () => {
                       </DataGridCell>
                     </DataGridRow>
                   </DataGrid>
-  
+
                   <AlertSilences alert={alert} />
                 </>
               )}
@@ -136,7 +136,11 @@ const AlertDetail = () => {
           </TabPanel>
 
           <TabPanel>
-            <Container px={false} py><CodeBlock><JsonViewer data={alert} expanded={true} /></CodeBlock></Container>
+            <Container px={false} py>
+              <CodeBlock>
+                <JsonViewer data={alert} expanded={true} />
+              </CodeBlock>
+            </Container>
           </TabPanel>
         </Tabs>
       </PanelBody>
