@@ -16,6 +16,7 @@ import {
   Spinner,
   Icon,
 } from "juno-ui-components"
+import constants from "../../constants"
 
 import {
   useSilencesItems,
@@ -110,9 +111,9 @@ const SilencesList = () => {
             setSilencesStatus(newSilencesStatus)
           }}
         >
-          <SelectOption value="active" />
-          <SelectOption value="pending" />
-          <SelectOption value="expired" />
+          <SelectOption value={constants.SILENCE_ACTIVE} />
+          <SelectOption value={constants.SILENCE_PENDING} />
+          <SelectOption value={constants.SILENCE_EXPIRED} />
         </Select>
 
         <SearchInput

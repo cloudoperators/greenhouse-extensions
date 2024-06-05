@@ -21,6 +21,7 @@ import {
 } from "../../hooks/useAppStore"
 import SilencesTimestamp from "./shared/SilencesTimestamp"
 import ExpireSilence from "./ExpireSilence"
+import constants from "../../constants"
 
 const SilencesDetail = () => {
   const silenceID = useShowDetailsForSilence()
@@ -93,7 +94,9 @@ const SilencesDetail = () => {
       </PanelBody>
 
       <PanelFooter>
-        {["active", "pending"].includes(silence?.status?.state) && (
+        {[constants.SILENCE_ACTIVE, constants.SILENCE_PENDING].includes(
+          silence?.status?.state
+        ) && (
           <>
             <ExpireSilence silenceId={silenceID} />
           </>

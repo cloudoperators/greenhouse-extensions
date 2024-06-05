@@ -16,6 +16,7 @@ import AlertDescription from "./shared/AlertDescription"
 import AlertTimestamp from "./shared/AlertTimestamp"
 import AlertStatus from "./AlertStatus"
 import AlertRegion from "./shared/AlertRegion"
+import constants from "../../constants"
 
 const cellSeverityClasses = (severity) => {
   let borderColor = "border-text-theme-default"
