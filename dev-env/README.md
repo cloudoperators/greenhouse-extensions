@@ -202,7 +202,8 @@ Bootstrap your own resources by adding the yaml files to `./bootstrap`.
 
 ## Onboarding a KIND cluster
 
-[!info] This section is currently not working on Linux due to docker network issues in combination with VPN.
+>[!IMPORTANT]
+>This section is currently not working on Linux due to docker network issues in combination with VPN.
 
 This requires that [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) is installed.
 
