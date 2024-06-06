@@ -25,29 +25,29 @@ Spin everything up as follows:
 
 (all `docker compose` commands from within `./`):
 
-```
+``` bash
 docker compose up -d
 ```
 
 You might have to build the `greenhouse-dev-ui` and `greenhouse-dev-app` images locally until we provide them in our registry by running
 
-```
+``` bash
 docker compose build greenhouse-ui app
 ```
 
-Reach the frontend at [http://localhost:3001/](http://localhost:3001/)
+Reach the frontend at [http://localhost:3000/](http://localhost:3000/)
 
 A valid kubeconfig for the [EnvTest Cluster](#envtest) is placed at ./envtest/kubeconfig.
 Get kubernetes resources e.g. via:
 
-```
+``` bash
 export KUBECONFIG=<path-to-repository>/dev-env/envtest/kubeconfig
 kubectl get teams -A
 ```
 
 Make sure to stay up to date with our `dev-env` images and pull from time to time:
 
-```
+```bash
 docker compose rm -f
 docker compose pull
 ```
@@ -58,7 +58,7 @@ To allow the docker containers full network access within f5 VPN you must activa
 
 This is prepared by using [network-host.docker-compose.yaml](./network-host.docker-compose.yml) :
 
-```
+```bash
 docker compose -f network-host.docker-compose.yaml up -d
 ```
 
@@ -94,7 +94,7 @@ If you intend to write a plugin that interacts with `Greenhouse` resources, such
 
 The [EnvTest](#envtest) container provides a kubeconfig. Use it as such:
 
-```
+```bash
 export KUBECONFIG=<path-to-repository>/dev-env/envtest/kubeconfig
 ```
 
@@ -105,15 +105,18 @@ To **test** your plugin (a.k.a. `PluginDefinition` yaml file) with a backend (a.
 - Spin up the `dev-env` and export `KUBECONFIG` env var.
 - Deploy your `PluginDefinition` to the `dev-env` with the reference to your helm chart in `Spec.helmChart`
 - Onboard a cluster you have access to (e.g. local [minikube](https://minikube.sigs.k8s.io/docs/start/), [KIND](https://kind.sigs.k8s.io/docs/user/quick-start/) or other)
+  For Kind clusters see [Onboarding a KIND cluster](#onboarding-a-kind-cluster)
 
-  ```
+  ```bash
   kubectl --namespace=test-org create secret generic <cluster-name> --type=greenhouse.sap/kubeconfig --from-file=kubeconfig=<your-cluster-kubeconfig.yaml>
   ```
 
 - Check that your cluster is `ready` [in UI](<http://localhost:3000/?org=test-org&__s=(greenhouse:(a:greenhouse~Fmanagement),greenhouse~Fmanagement:(a:greenhouse~Fcluster~Fadmin))>) or via
-  ```
+
+  ```bash
   kubectl get clusters -n test-org
   ```
+
 - Deploy a `Plugin` to the `test-org` namespace with `Spec.ClusterName` set to your onboarded cluster. Fill out the necessary `OptionValues`.
 - The resources of your Plugin will be installed to your onboarded cluster into the `Spec.RekeaseNamespace` namespace. View your running Application there.
 
@@ -125,13 +128,13 @@ We extracted the `team-admin` frontend into the `app` container.
 
 Start copying this example ui application into your own repo folder `<path-to-example-app>` as such:
 
-```
+```bash
 docker compose cp app:app/ <path-to-example-app>
 ```
 
 To develop the application standalone, just run
 
-```
+```bash
 cd <path-to-example-app>
 npm install
 npm run start
@@ -155,7 +158,7 @@ Three different contexts are bootstrapped:
 
 The apiserver is proxied and accessible on port `8090`. Set your desired context via env var before container startup (unset var / default: `cluster-admin`):
 
-```
+```bash
 export DEV_ENV_CONTEXT=<your-context>
 docker-compose up
 ```
@@ -167,7 +170,7 @@ Client certificate and key files for all three contexts are written to the same 
 
 Access the local api server via `kubectl`, e.g.:
 
-```
+```bash
 export KUBECONFIG=<path-to-repository>/dev-env/envtest/kubeconfig
 kubectl get teams
 ```
@@ -178,7 +181,7 @@ Runs the greenhouse core aka controller manager against the local api server.
 
 See `greenhouse` logs as such:
 
-```
+```bash
 docker-compose logs -f greenhouse
 ```
 
@@ -196,3 +199,26 @@ Bootstraps all resources in [./bootstrap](./bootstrap):
 - some [plugindefinitions with plugins](./bootstrap/plugins.yamls) across the clusters
 
 Bootstrap your own resources by adding the yaml files to `./bootstrap`.
+
+## Onboarding a KIND cluster
+
+>[!IMPORTANT]
+>This section is currently not working on Linux due to docker network issues in combination with VPN.
+
+This requires that [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) is installed.
+
+A kind cluster can be added to the `envtest` enviroment by executing `./onboard-cluster.sh`.
+This script will create a new kind cluster, make the cluster accessible from the `envtest` environment and onboard the cluster to the `test-org` organization.
+
+In case you need additional cluster the script can be called with the desired cluster name as argument.
+
+```bash
+./onboard-cluster.sh <cluster-name>
+```
+
+After the cluster is onboarded, the kubeconfig can be found in `./envtest/<cluster-name>.kubeconfig`.
+The status of the cluster can be checked with:
+  
+  ```bash
+  kubectl --kubeconfig ./envtest/kubeconfig -n test-org get clusters
+  ```
