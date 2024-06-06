@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.11",
+  "version": "0.9.13",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
@@ -27,7 +27,7 @@
     "babel-jest": "^29.3.1",
     "babel-plugin-transform-import-meta": "^2.2.0",
     "communicator": "https://assets.juno.global.cloud.sap/libs/communicator@2.2.6/package.tgz",
-    "esbuild": "^0.19.4",
+    "esbuild": "^0.20.1",
     "esbuild-sass-plugin": "^3.0.0",
     "immer": "^10.0.0",
     "interweave": "^13.0.0",
