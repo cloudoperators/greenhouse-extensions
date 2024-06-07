@@ -11,17 +11,17 @@ import { del } from "../../api/client"
 
 const ExpireSilence = (props) => {
   const { addMessage } = useActions()
-  const silenceId = props.silenceId
+  const silence = props.silence
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
 
   const onExpire = () => {
     // submit silence
-    del(`${apiEndpoint}/silence/${silenceId}`)
+    del(`${apiEndpoint}/silence/${silence.id}`)
       .then(() => {
         addMessage({
           variant: "success",
-          text: `Silence expired successfully.`,
+          text: `Silence ${silence.id} expired successfully.`,
         })
       })
       .catch((error) => {
@@ -48,7 +48,12 @@ const ExpireSilence = (props) => {
           open={true}
           title="Confirmation needed"
         >
-          <p>Do you really want to expire the silence?</p>
+          <p>
+            Do you really want to expire the silence <b>{silence.id}</b>?
+          </p>
+          <p>
+            Comment for the silence: <b>{silence?.comment}</b>
+          </p>
         </Modal>
       )}
     </>
