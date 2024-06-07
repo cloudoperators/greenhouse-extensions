@@ -57,7 +57,7 @@
     "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@1.3.2/package.tgz",,
+    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@1.3.2/package.tgz",
     "zustand": "^4.5.2"
   },
   "scripts": {
