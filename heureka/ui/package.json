@@ -1,6 +1,6 @@
 {
   "name": "heureka",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "author": "UI-Team",
   "contributors": [
     "Hoda Noori, Arturo Reuschenbach Pucernau"
@@ -9,7 +9,7 @@
   "license": "Apache-2.0",
   "module": "build/index.js",
   "source": "src/index.js",
-  "private": true,
+  "private": false,
   "devDependencies": {
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
@@ -54,16 +54,16 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "5.36.2",
-    "juno-ui-components": "*",
-    "messages-provider": "*",
+    "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@2.13.8/package.tgz",
+    "messages-provider": "https://assets.juno.global.cloud.sap/libs/messages-provider@0.1.12/package.tgz",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
-    "react-dom": "^18.2.0",
-    "url-state-provider": "*",
-    "zustand": "4.3.7"
+    "react-dom": "18.2.0",
+    "url-state-provider": "https://assets.juno.global.cloud.sap/libs/url-state-provider@1.3.2/package.tgz",
+    "zustand": "4.5.2"
   },
   "importmapExtras": {
-    "zustand/middleware": "4.3.7"
+    "zustand/middleware": "4.5.2"
   },
   "appProps": {
     "theme": {
@@ -79,7 +79,7 @@
     "embedded": {
       "value": "false",
       "type": "optional",
-      "description": "Set to true if app is to be embedded in another existing app or page, like e.g. Elektra.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
+      "description": "Set to true if app is to be embedded in another existing app or page.  If set to true the app won't render a page header/footer and instead render only the content. The default value is false."
     }
   },
   "appPreview": true
