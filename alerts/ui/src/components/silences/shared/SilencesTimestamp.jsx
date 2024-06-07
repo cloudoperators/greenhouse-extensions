@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,13 +9,8 @@ import { DateTime } from "luxon"
 //get start and end time of the silence
 
 const SilencesTimestamp = ({ timestamp }) => {
-  const dateFormat = { ...DateTime.DATE_MED }
-  const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
-
-  const timeformatted = DateTime.fromISO(timestamp)
-  const formattedTime = `${timeformatted.toLocaleString(
-    dateFormat
-  )} ${timeformatted.toLocaleString(timeFormat)}`
+  const dt = DateTime.fromISO(timestamp)
+  const formattedTime = dt.toFormat("yyyy-LL-dd HH:mm Z")
 
   return <div>{formattedTime}</div>
 }

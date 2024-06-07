@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -132,13 +132,14 @@ const SilencesList = () => {
         />
       </Stack>
 
-      <DataGrid columns={3} cellVerticalAlignment="top" className="silences">
+      <DataGrid columns={4} cellVerticalAlignment="top" className="silences">
         {!isSilencesLoading && (
           <>
             <DataGridRow>
-              <DataGridHeadCell>Timeintervall</DataGridHeadCell>
+              <DataGridHeadCell>Time intervall</DataGridHeadCell>
               <DataGridHeadCell>Comment</DataGridHeadCell>
-              <DataGridHeadCell>Matchers</DataGridHeadCell>
+              <DataGridHeadCell>State</DataGridHeadCell>
+              <DataGridHeadCell>Expire</DataGridHeadCell>
             </DataGridRow>
             {scrollListItems?.length > 0 ? (
               iterator.map((silence) => (
@@ -146,7 +147,7 @@ const SilencesList = () => {
               ))
             ) : (
               <DataGridRow>
-                <DataGridCell colSpan={3}>
+                <DataGridCell colSpan={4}>
                   <Stack gap="3">
                     <Icon icon="info" color="text-theme-info" />
                     <div>We couldn't find any matching silences.</div>
