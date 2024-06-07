@@ -15,40 +15,24 @@ const ExpireSilence = (props) => {
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
 
-  const onExpire = () => {
-    // submit silence
-    del(`${apiEndpoint}/silence/${silenceId}`)
-      .then(() => {
-        addMessage({
-          variant: "success",
-          text: `Silence expired successfully.`,
-        })
-      })
-      .catch((error) => {
-        console.log("error", error)
-        addMessage({
-          variant: "error",
-          text: `${parseError(error)}`,
-        })
-      })
-
+  const onCreateSilence = () => {
     setConfirmationDialog(false)
     return
   }
 
   return (
     <>
-      <Button onClick={() => setConfirmationDialog(true)}>Expire</Button>
+      <Button onClick={() => setConfirmationDialog(true)}>Recreate</Button>
       {confirmationDialog && (
         <Modal
           cancelButtonLabel="Cancel"
-          confirmButtonLabel="Expire Silence"
+          confirmButtonLabel="Create Silence"
           onCancel={() => setConfirmationDialog(false)}
-          onConfirm={onExpire}
+          onConfirm={onCreateSilence}
           open={true}
           title="Confirmation needed"
         >
-          <p>Do you really want to expire the silence?</p>
+          <p>Do you really want to create the silence?</p>
         </Modal>
       )}
     </>

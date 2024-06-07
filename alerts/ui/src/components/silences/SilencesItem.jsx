@@ -1,17 +1,21 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { forwardRef } from "react"
-import { DataGridRow, DataGridCell, Pill, Stack } from "juno-ui-components"
-import SilencesTimestamp from "./shared/SilencesTimestamp"
-
 import {
-  useSilencesActions,
-  useShowDetailsForSilence,
-} from "../../hooks/useAppStore"
+  DataGridRow,
+  DataGridCell,
+  Pill,
+  Stack,
+  Container,
+} from "juno-ui-components"
+import SilencesTimestamp from "./shared/SilencesTimestamp"
+import constants from "../../constants"
+
 import ExpireSilence from "./ExpireSilence"
+import RecreateSilence from "./RecreateSilence"
 
 // function that cuts the value of a string to max 40 characters
 const cutString = (str) => {
@@ -19,43 +23,42 @@ const cutString = (str) => {
 }
 
 const SilencesItem = ({ silence }, ref) => {
-  const { setShowDetailsForSilence } = useSilencesActions()
-  const showDetailsFor = useShowDetailsForSilence()
-
-  // handle show details
-  const handleShowDetails = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    showDetailsFor === silence?.id
-      ? setShowDetailsForSilence(false)
-      : setShowDetailsForSilence(silence?.id)
-  }
-
   return (
-    <DataGridRow
-      className={`cursor-pointer ${
-        showDetailsFor === silence?.id ? "active" : ""
-      } `}
-      onClick={(e) => handleShowDetails(e)}
-    >
+    <DataGridRow onClick={(e) => handleShowDetails(e)}>
       <DataGridCell>
         <SilencesTimestamp timestamp={silence?.startsAt} />
         <SilencesTimestamp timestamp={silence?.endsAt} />
       </DataGridCell>
       <DataGridCell className="overflow-hidden">
         <div ref={ref}>{silence?.comment}</div>
-        <div className="text-theme-light">Created by {silence?.createdBy}</div>
+        <div className="text-theme-light">
+          Silence {silence.id} created by {silence?.createdBy}
+        </div>
+        <Container className="py-2 px-0">
+          <Stack gap="2" alignment="start" wrap={true}>
+            {silence?.matchers?.map((matcher, index) => (
+              <Pill
+                key={index}
+                pillKey={matcher.name}
+                pillValue={cutString(matcher.value)}
+              />
+            ))}
+          </Stack>
+        </Container>
       </DataGridCell>
       <DataGridCell className="overflow-hidden">
-        <Stack gap="2" alignment="start" wrap={true}>
-          {silence?.matchers?.map((matcher, index) => (
-            <Pill
-              key={index}
-              pillKey={matcher.name}
-              pillValue={cutString(matcher.value)}
-            />
-          ))}
-        </Stack>
+        <p>{silence?.status?.state}</p>
+      </DataGridCell>
+      <DataGridCell className="overflow-hidden">
+        {
+          /// show the expire button only if the silence is active or pending
+          silence?.status?.state === constants.SILENCE_STATE_ACTIVE ||
+          silence?.status?.state === constants.SILENCE_STATE_PENDING ? (
+            <ExpireSilence silence={silence} />
+          ) : (
+            <RecreateSilence silence={silence} />
+          )
+        }
       </DataGridCell>
     </DataGridRow>
   )

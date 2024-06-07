@@ -1,9 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Juno contributors
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { useActions, Messages } from "messages-provider"
 import {
   Container,
@@ -32,7 +32,6 @@ import Filters from "./components/filters/Filters"
 import WelcomeView from "./components/WelcomeView"
 import { parseError } from "./helpers"
 import AlertDetail from "./components/alerts/AlertDetail"
-import SilencesDetail from "./components/silences/SilencesDetail"
 import PredefinedFilters from "./components/filters/PredefinedFilters"
 import SilencesList from "./components/silences/SilencesList"
 
@@ -162,10 +161,7 @@ const AppContent = () => {
                   <Spinner variant="primary" />
                 </Stack>
               ) : (
-                <>
-                  <SilencesDetail />
-                  <SilencesList />{" "}
-                </>
+                <SilencesList />
               )}
             </>
           )}
