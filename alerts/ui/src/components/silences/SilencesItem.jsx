@@ -52,8 +52,8 @@ const SilencesItem = ({ silence }, ref) => {
       <DataGridCell className="overflow-hidden">
         {
           /// show the expire button only if the silence is active or pending
-          silence?.status?.state === constants.SILENCE_STATE_ACTIVE ||
-          silence?.status?.state === constants.SILENCE_STATE_PENDING ? (
+          silence?.status?.state === constants.SILENCE_ACTIVE ||
+          silence?.status?.state === constants.SILENCE_PENDING ? (
             <ExpireSilence silence={silence} />
           ) : (
             <RecreateSilence silence={silence} />
