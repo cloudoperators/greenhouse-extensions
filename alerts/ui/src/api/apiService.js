@@ -8,7 +8,7 @@
  * @module apiService
  */
 
-// default value for watch interval
+// default value for watch interval in ms
 const DEFAULT_INTERVAL = 300000
 
 /**

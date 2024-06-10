@@ -24,9 +24,11 @@ import {
   useSilencesRegEx,
   useSilencesStatus,
   useSilencesIsLoading,
+  useGlobalsApiEndpoint,
 } from "../../hooks/useAppStore"
 import SilencesItem from "./SilencesItem"
 import { useEndlessScrollList } from "utils"
+import { fetchAction } from "../../workers/silences"
 
 const filtersStyles = `
 bg-theme-background-lvl-1
@@ -42,12 +44,14 @@ const SilencesList = () => {
   const status = useSilencesStatus()
   const regEx = useSilencesRegEx()
   const isSilencesLoading = useSilencesIsLoading()
+  const endpoint = useGlobalsApiEndpoint()
 
-  //  useEffect which loggs when isLoading changes
+  // fetch silences
 
   useEffect(() => {
-    console.log("isLoading changed to: ", isSilencesLoading)
-  }, [isSilencesLoading])
+    console.log("fetching silences")
+    fetchAction(endpoint)
+  }, [])
 
   useEffect(() => {
     let filtered = silences.filter(
@@ -139,7 +143,7 @@ const SilencesList = () => {
               <DataGridHeadCell>Time intervall</DataGridHeadCell>
               <DataGridHeadCell>Comment</DataGridHeadCell>
               <DataGridHeadCell>State</DataGridHeadCell>
-              <DataGridHeadCell>Expire</DataGridHeadCell>
+              <DataGridHeadCell>Action</DataGridHeadCell>
             </DataGridRow>
             {scrollListItems?.length > 0 ? (
               iterator.map((silence) => (
