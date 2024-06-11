@@ -160,9 +160,11 @@ const createSilencesSlice = (set, get, options) => ({
       Save temporary created silences to be able to display which alert is silenced
       and who silenced it until the next alert fetch contains the silencedBy reference
       */
-      addLocalItem: ({ silence, id, alertFingerprint }) => {
+      addLocalItem: ({ silence, id, type }) => {
         // enforce silences with id and alertFingerprint
-        if (!silence || !id || !alertFingerprint) return
+        console.log("addLocalItem1", silence, id, type)
+        if (!silence || !id || !type) return
+        console.log("addLocalItem2", silence, id, type)
         return set(
           produce((state) => {
             state.silences.localItems = {
@@ -170,8 +172,7 @@ const createSilencesSlice = (set, get, options) => ({
               [id]: {
                 ...silence,
                 id,
-                alertFingerprint,
-                type: "local",
+                type: type,
               },
             }
           }),
@@ -179,6 +180,7 @@ const createSilencesSlice = (set, get, options) => ({
           "silences.addLocalItem"
         )
       },
+
       /*
       Remove local silences which are already referenced by an alert
       */

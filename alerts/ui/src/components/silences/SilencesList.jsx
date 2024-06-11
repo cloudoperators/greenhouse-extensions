@@ -25,10 +25,10 @@ import {
   useSilencesStatus,
   useSilencesIsLoading,
   useGlobalsApiEndpoint,
+  useSilencesLocalItems,
 } from "../../hooks/useAppStore"
 import SilencesItem from "./SilencesItem"
 import { useEndlessScrollList } from "utils"
-import { fetchAction } from "../../workers/silences"
 
 const filtersStyles = `
 bg-theme-background-lvl-1
@@ -44,16 +44,10 @@ const SilencesList = () => {
   const status = useSilencesStatus()
   const regEx = useSilencesRegEx()
   const isSilencesLoading = useSilencesIsLoading()
-  const endpoint = useGlobalsApiEndpoint()
-
-  // fetch silences
+  const localSilences = useSilencesLocalItems()
 
   useEffect(() => {
-    console.log("fetching silences")
-    fetchAction(endpoint)
-  }, [])
-
-  useEffect(() => {
+    console.log("localSilences", localSilences)
     let filtered = silences.filter(
       (silence) => silence?.status?.state === status
     )
@@ -72,8 +66,23 @@ const SilencesList = () => {
       )
     }
 
+    // checks if filtered silences are in local silences
+    if (localSilences) {
+      console.log("localSilences!!!", localSilences)
+
+      // if silence.id is in localSilences add the localSilence to the shownSilences else the filtered silence
+      filtered = filtered.map((silence) => {
+        for (const [key, localSilence] of Object.entries(localSilences)) {
+          if (silence.id === localSilence.id) {
+            return localSilence
+          }
+        }
+        return silence
+      })
+    }
+
     setVisibleSilences(filtered)
-  }, [status, regEx, silences])
+  }, [status, regEx, silences, localSilences])
 
   const handleSearchChange = (value) => {
     // debounce setSearchTerm to avoid unnecessary re-renders

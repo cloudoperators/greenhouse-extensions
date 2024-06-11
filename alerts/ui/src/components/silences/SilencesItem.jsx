@@ -24,7 +24,7 @@ const cutString = (str) => {
 
 const SilencesItem = ({ silence }, ref) => {
   return (
-    <DataGridRow onClick={(e) => handleShowDetails(e)}>
+    <DataGridRow>
       <DataGridCell>
         <SilencesTimestamp timestamp={silence?.startsAt} />
         <SilencesTimestamp timestamp={silence?.endsAt} />
