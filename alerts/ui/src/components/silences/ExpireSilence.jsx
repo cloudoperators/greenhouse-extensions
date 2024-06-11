@@ -3,6 +3,7 @@ import { Button, Modal } from "juno-ui-components"
 import {
   useGlobalsApiEndpoint,
   useSilencesActions,
+  useSilencesLocalItems,
 } from "../../hooks/useAppStore"
 import { useActions } from "messages-provider"
 import { parseError } from "../../helpers"
@@ -14,6 +15,8 @@ const ExpireSilence = (props) => {
   const silence = props.silence
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
+  const { addLocalItem } = useSilencesActions()
+  const { localItems } = useSilencesLocalItems()
 
   const onExpire = () => {
     // submit silence
@@ -21,7 +24,7 @@ const ExpireSilence = (props) => {
       .then(() => {
         addMessage({
           variant: "success",
-          text: `Silence ${silence.id} expired successfully.`,
+          text: `Silence ${silence.id} expired successfully. Please note that it may take up to 5 minutes for the silence to show up as expired.`,
         })
       })
       .catch((error) => {
@@ -33,6 +36,17 @@ const ExpireSilence = (props) => {
       })
 
     setConfirmationDialog(false)
+    // set local silence to override old with expiring and refetch silences
+
+    let newSilence = {
+      ...silence,
+      status: { ...silence.status, state: "expiring" },
+    }
+    addLocalItem({ silence: newSilence, id: newSilence.id, type: "expiring" })
+
+    console.log("add exp", newSilence)
+
+    console.log("sdfsdadfsaexp", localItems)
     return
   }
 

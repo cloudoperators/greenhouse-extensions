@@ -188,6 +188,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
 
   // as soon as we have locally some silences we refetch the them
   useEffect(() => {
+    console.log("exp", useSilencesLocalItems)
     if (!useSilencesLocalItems || useSilencesLocalItems?.length <= 0) return
     silencesWorker.then(({ createWorker, stopWorker }) => {
       const worker = createWorker()

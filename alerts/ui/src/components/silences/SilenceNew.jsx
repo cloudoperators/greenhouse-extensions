@@ -127,6 +127,7 @@ const SilenceNew = ({ alert, size, variant }) => {
       status: { state: "processing" },
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
+      alertFingerprint: alert.fingerprint,
     }
 
     // submit silence
@@ -140,7 +141,7 @@ const SilenceNew = ({ alert, size, variant }) => {
           addLocalItem({
             silence: newSilence,
             id: data.silenceID,
-            alertFingerprint: alert.fingerprint,
+            type: "local",
           })
         }
       })

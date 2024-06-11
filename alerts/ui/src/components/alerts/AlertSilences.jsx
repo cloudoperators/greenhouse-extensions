@@ -23,15 +23,6 @@ const AlertSilences = ({ alert }) => {
   const { getAlertByFingerprint } = useAlertsActions()
   const { setShowDetailsFor } = useGlobalsActions()
 
-  // comment
-  // createdBy
-  // endsAt
-  // id
-  // matchers
-  // startsAt
-  // status.state
-  // updatedAt
-
   return (
     <Container py px={false}>
       <AlertSilencesList alert={alert} />
