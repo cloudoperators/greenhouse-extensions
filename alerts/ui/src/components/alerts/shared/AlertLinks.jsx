@@ -46,12 +46,12 @@ const AlertLinks = ({ alert, className }) => {
       {alert?.labels?.dashboard && (
         <a
           className="underline"
-          href={`https://grafana.${alert?.labels?.region}.cloud.sap/d/${alert?.labels?.dashboard}`}
+          href={`https://plutono.${alert?.labels?.region}.cloud.sap/d/${alert?.labels?.dashboard}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
         >
-          Grafana
+          Plutono
         </a>
       )}
       {alert?.labels?.spc && (
