@@ -26,6 +26,7 @@ import {
   useAuthData,
   useSilenceTemplates,
   useGlobalsApiEndpoint,
+  useSilencesActions,
 } from "../../hooks/useAppStore"
 import { post, get } from "../../api/client"
 import { parseError } from "../../helpers"
@@ -37,6 +38,8 @@ const SilenceScheduled = (props) => {
   const { addMessage, resetMessages } = useActions()
   const silenceTemplates = useSilenceTemplates()
   const apiEndpoint = useGlobalsApiEndpoint()
+
+  const { addLocalItem } = useSilencesActions()
 
   // set sucess of sending the silence
   const [success, setSuccess] = useState(null)
@@ -111,6 +114,19 @@ const SilenceScheduled = (props) => {
     })
       .then((data) => {
         setSuccess(data)
+
+        console.log("data", data)
+
+        let newSilence = {
+          ...silence,
+          status: { ...silence.status, state: "creating" },
+        }
+
+        addLocalItem({
+          silence: newSilence,
+          id: data.silenceID,
+          type: "creating",
+        })
       })
       .catch((error) => {
         addMessage({
