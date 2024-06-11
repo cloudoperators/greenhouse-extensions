@@ -69,6 +69,12 @@ const SilencesList = () => {
     // checks if filtered silences are in local silences
     if (localSilences) {
       console.log("localSilences!!!", localSilences)
+      // if localSilence.status.state is creating add them to filtered
+      for (const [key, localSilence] of Object.entries(localSilences)) {
+        if (localSilence.status.state === constants.SILENCE_CREATING) {
+          filtered.push(localSilence)
+        }
+      }
 
       // if silence.id is in localSilences add the localSilence to the shownSilences else the filtered silence
       filtered = filtered.map((silence) => {
