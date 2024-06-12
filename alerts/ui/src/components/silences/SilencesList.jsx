@@ -47,7 +47,6 @@ const SilencesList = () => {
   const localSilences = useSilencesLocalItems()
 
   useEffect(() => {
-    console.log("localSilences", localSilences)
     let filtered = silences.filter(
       (silence) => silence?.status?.state === status
     )
@@ -68,7 +67,6 @@ const SilencesList = () => {
 
     // checks if filtered silences are in local silences
     if (localSilences) {
-      console.log("localSilences!!!", localSilences)
       // if localSilence.status.state is creating add them to filtered
       for (const [key, localSilence] of Object.entries(localSilences)) {
         if (localSilence.status.state === constants.SILENCE_CREATING) {

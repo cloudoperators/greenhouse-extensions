@@ -322,7 +322,7 @@ const SilenceScheduled = (props) => {
                     </FormRow>
 
                     <FormRow>
-                      <div className="grid gap-2 grid-cols-3">
+                      <div className="grid gap-2 grid-cols-2">
                         {Object.keys(formState.editable_labels).map(
                           (editable_label, index) => (
                             <TextInput
