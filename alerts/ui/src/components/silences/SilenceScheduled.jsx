@@ -353,7 +353,12 @@ const SilenceScheduled = (props) => {
                   </FormRow>
 
                   <FormRow>
-                    <Stack gap="2" wrap={true}>
+                    <Stack
+                      gap="2"
+                      alignment="start"
+                      wrap={true}
+                      className="mt-2"
+                    >
                       {Object.keys(formState.fixed_labels).map(
                         (label, index) => (
                           <Pill
