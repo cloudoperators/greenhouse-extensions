@@ -28,6 +28,7 @@ import SilenceNewAdvanced from "./SilenceNewAdvanced"
 import { DateTime } from "luxon"
 import { latestExpirationDate, getSelectOptions } from "./silenceHelpers"
 import { parseError } from "../../helpers"
+import constants from "../../constants"
 
 const validateForm = (values) => {
   const invalidItems = {}
@@ -121,7 +122,7 @@ const RecreateSilence = (props) => {
 
     const newSilence = {
       ...newFormState,
-      status: { state: "creating" },
+      status: { state: constants.SILENCE_CREATING },
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
     }
@@ -137,7 +138,7 @@ const RecreateSilence = (props) => {
           addLocalItem({
             silence: newSilence,
             id: data.silenceID,
-            type: "local",
+            type: constants.SILENCE_CREATING,
           })
         }
       })
