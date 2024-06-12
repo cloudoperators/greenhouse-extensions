@@ -7,7 +7,6 @@ import React, { useLayoutEffect, useMemo, useState } from "react"
 import {
   Modal,
   Button,
-  Box,
   Form,
   Textarea,
   TextInput,
@@ -15,16 +14,15 @@ import {
   SelectOption,
   Message,
   FormRow,
+  Pill,
+  Stack,
 } from "juno-ui-components"
 import {
   useAuthData,
-  useSilencesExcludedLabels,
   useGlobalsApiEndpoint,
   useSilencesActions,
-  useAlertEnrichedLabels,
 } from "../../hooks/useAppStore"
 import { post } from "../../api/client"
-import SilenceNewAdvanced from "./SilenceNewAdvanced"
 import { DateTime } from "luxon"
 import { latestExpirationDate, getSelectOptions } from "./silenceHelpers"
 import { parseError } from "../../helpers"
@@ -107,12 +105,7 @@ const RecreateSilence = (props) => {
     setShowValidation(formValidation)
     if (Object.keys(formValidation).length > 0) return
     let newFormState = { ...formState }
-    // clean up attributes in matchers and remove excluded
-    if (newFormState.matchers?.length > 0) {
-      newFormState.matchers = newFormState.matchers
-        .filter((m) => !m.excluded)
-        .map(({ excluded, configurable, ...keepAttrs }) => keepAttrs)
-    }
+
     // add extra attributes
     const startsAt = new Date()
     const endsAt = new Date()
@@ -150,18 +143,6 @@ const RecreateSilence = (props) => {
   const onInputChanged = ({ key, value }) => {
     if (!value) return
     setFormState({ ...formState, [key]: value })
-  }
-
-  const onMatchersChanged = (matcher) => {
-    const index = formState.matchers.findIndex(
-      (item) => item.name == matcher.name
-    )
-    let items = formState.matchers.slice()
-    // update item
-    if (index >= 0) {
-      items[index] = { ...items[index], excluded: !matcher.excluded }
-    }
-    setFormState({ ...formState, matchers: items })
   }
 
   return (
@@ -206,10 +187,22 @@ const RecreateSilence = (props) => {
 
           {!success && (
             <>
-              <SilenceNewAdvanced
-                matchers={formState.matchers}
-                onMatchersChanged={onMatchersChanged}
-              />
+              <div className="advanced-area overflow-hidden">
+                <p className="mt-2">Matchers attached to this silence</p>
+
+                <Stack gap="2" alignment="start" wrap={true} className="mt-2">
+                  {formState?.matchers &&
+                    Object.keys(formState?.matchers).map((label, index) => (
+                      <Pill
+                        key={index}
+                        pillKey={silence?.matchers[label]?.name}
+                        pillKeyLabel={silence?.matchers[label]?.name}
+                        pillValue={silence?.matchers[label]?.value}
+                        pillValueLabel={silence?.matchers[label]?.value}
+                      />
+                    ))}
+                </Stack>
+              </div>
 
               <Form className="mt-6">
                 <FormRow>
