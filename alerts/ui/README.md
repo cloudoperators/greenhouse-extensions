@@ -1,4 +1,8 @@
-Supernova is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
+## Alerts UI
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+This UI is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
 
 - Micro frontend design based on `Juno UI components`
 - Predefined filter categories
@@ -54,7 +58,7 @@ Silences are a straightforward way to simply mute alerts for a given time. A sil
 
 A matcher is a string with a syntax inspired by PromQL and OpenMetrics. Matchers are ANDed together, meaning that all matchers must evaluate to "true" when tested against the labels on a given alert.
 
-When utilizing Supernova to add a silence, the matchers will be preselected based on the alert you selected. Moreover, through the advanced section, you have the option to include additional labels that are excluded by default. These exclusions are dependent on the configured excluded labels, which will be explained in detail in the section below.
+When utilizing this UI to add a silence, the matchers will be preselected based on the alert you selected. Moreover, through the advanced section, you have the option to include additional labels that are excluded by default. These exclusions are dependent on the configured excluded labels, which will be explained in detail in the section below.
 
 Given an alert with following labels:
 
