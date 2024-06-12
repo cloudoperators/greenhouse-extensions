@@ -2,8 +2,6 @@
 title: Decentralized Observer of Policies (Violations)
 ---
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-
 This directory contains the Greenhouse plugin for the Decentralized Observer of Policies (DOOP).
 
 # DOOP
