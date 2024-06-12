@@ -1,6 +1,6 @@
 {
   "name": "doop",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "author": "UI-Team",
   "contributors": [
     "Andreas Pfau",
@@ -50,9 +50,7 @@
     "zustand": "^4.5.2"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.0.0",
     "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@2.13.7/package.tgz",
-    "luxon": "^3.0.0",
     "messages-provider": "https://assets.juno.global.cloud.sap/libs/messages-provider@0.1.12/package.tgz",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
