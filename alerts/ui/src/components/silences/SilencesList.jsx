@@ -65,24 +65,27 @@ const SilencesList = () => {
       )
     }
 
-    // checks if filtered silences are in local silences
     if (localSilences) {
-      // if localSilence.status.state is creating add them to filtered
-      for (const [key, localSilence] of Object.entries(localSilences)) {
-        if (localSilence.status.state === constants.SILENCE_CREATING) {
-          filtered.push(localSilence)
+      //  when selected silences status is pending: if localSilence.status.state is creating add them to filtered
+      if (status === constants.SILENCE_PENDING) {
+        for (const [key, localSilence] of Object.entries(localSilences)) {
+          if (localSilence.status.state === constants.SILENCE_CREATING) {
+            filtered.push(localSilence)
+          }
         }
       }
 
-      // if silence.id is in localSilences add the localSilence to the shownSilences else the filtered silence
-      filtered = filtered.map((silence) => {
-        for (const [key, localSilence] of Object.entries(localSilences)) {
-          if (silence.id === localSilence.id) {
-            return localSilence
+      // when selected silences status is active: if silence.id is in localSilences add the localSilence to the shownSilences else the filtered silence
+      if (status === constants.SILENCE_ACTIVE) {
+        filtered = filtered.map((silence) => {
+          for (const [key, localSilence] of Object.entries(localSilences)) {
+            if (silence.id === localSilence.id) {
+              return localSilence
+            }
           }
-        }
-        return silence
-      })
+          return silence
+        })
+      }
     }
 
     setVisibleSilences(filtered)
