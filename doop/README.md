@@ -6,5 +6,5 @@ This directory contains the Greenhouse plugin for the Decentralized Observer of 
 
 # DOOP
 
-To perform automatic validations on Kubernetes objects, we run a deployment of OPA Gatekeeper in each cluster. 
+To perform automatic validations on Kubernetes objects, we run a deployment of OPA Gatekeeper in each cluster.
 This dashboard aggregates all policy violations reported by those Gatekeeper instances.

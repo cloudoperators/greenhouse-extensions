@@ -1,0 +1,4 @@
+# act artifacts needed for testing workflows
+.secrets
+.env
+act_*.json

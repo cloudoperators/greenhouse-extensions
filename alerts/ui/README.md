@@ -1,3 +1,7 @@
+## Supernova
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 Supernova is an alternative UI for Prometheus Alertmanager with some quality of life improvements:
 
 - Micro frontend design based on `Juno UI components`
