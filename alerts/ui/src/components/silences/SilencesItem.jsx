@@ -53,7 +53,8 @@ const SilencesItem = ({ silence }, ref) => {
         {
           /// show the expire button only if the silence is active or pending
           silence?.status?.state === constants.SILENCE_ACTIVE ||
-          silence?.status?.state === constants.SILENCE_PENDING ? (
+          silence?.status?.state === constants.SILENCE_PENDING ||
+          silence?.status?.state === constants.SILENCE_CREATING ? (
             <ExpireSilence silence={silence} />
           ) : (
             <RecreateSilence silence={silence} />
