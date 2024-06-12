@@ -42,12 +42,12 @@ services:
       - PORT=3000
     ports:
       - "3000:3000"
-    build: ./ui/greenhouse
+    build: ./build/greenhouse
   app:
     image: ghcr.io/cloudoperators/greenhouse-dev-app:main
     ports:
       - "8001:8001"
-    build: ./ui/app
+    build: ./build/app
   bootstrap:
     image: ghcr.io/cloudoperators/greenhouse-dev-env:main
     environment:
