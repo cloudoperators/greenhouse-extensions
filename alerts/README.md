@@ -2,8 +2,6 @@
 title: Alerts
 ---
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-
 This plugin extension contains [Prometheus Alertmanager](https://github.com/prometheus/alertmanager) via [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) and [Supernova](https://github.com/sapcc/supernova), the holistic alert management UI.
 
 # Owner
