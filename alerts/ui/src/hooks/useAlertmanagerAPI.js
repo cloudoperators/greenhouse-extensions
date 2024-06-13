@@ -200,7 +200,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
           action: "SILENCES_FETCH",
         })
       })
-    }, 1000)
+    }, 10000)
     return () => {
       if (silencesWorker.current) {
         silencesWorker.current.terminate()

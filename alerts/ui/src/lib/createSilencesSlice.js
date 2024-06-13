@@ -193,6 +193,8 @@ const createSilencesSlice = (set, get, options) => ({
           ) {
             // mark to remove silence
             newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+            // continue to next iteration
+            return
           }
 
           const alert = get().alerts.actions.getAlertByFingerprint(
