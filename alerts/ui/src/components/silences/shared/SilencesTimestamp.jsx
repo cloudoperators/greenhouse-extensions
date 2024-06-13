@@ -9,7 +9,13 @@ import { DateTime } from "luxon"
 //get start and end time of the silence
 
 const SilencesTimestamp = ({ timestamp }) => {
-  const dt = DateTime.fromISO(timestamp)
+  let dt
+  if (timestamp.includes("T")) {
+    dt = DateTime.fromISO(timestamp)
+  } else {
+    dt = DateTime.fromSQL(timestamp)
+  }
+
   const formattedTime = dt.toFormat("yyyy-LL-dd HH:mm Z")
 
   return <div>{formattedTime}</div>
