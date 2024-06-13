@@ -32,7 +32,7 @@ const validateForm = (values) => {
   const invalidItems = {}
   if (values?.comment?.length <= 3) {
     if (!invalidItems["comment"]) invalidItems["comment"] = []
-    invalidItems["comment"].push(`Description can't be blank`)
+    invalidItems["comment"].push(`Please enter at least 3 characters`)
   }
 
   return invalidItems

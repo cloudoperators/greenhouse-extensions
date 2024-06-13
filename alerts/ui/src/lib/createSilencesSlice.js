@@ -162,9 +162,7 @@ const createSilencesSlice = (set, get, options) => ({
       */
       addLocalItem: ({ silence, id, type }) => {
         // enforce silences with id and alertFingerprint
-        console.log("addLocalItem1", silence, id, type)
         if (!silence || !id || !type) return
-        console.log("addLocalItem2", silence, id, type)
         return set(
           produce((state) => {
             state.silences.localItems = {
@@ -188,6 +186,15 @@ const createSilencesSlice = (set, get, options) => ({
         const allSilences = get().silences.itemsHash
         let newLocalSilences = { ...get().silences.localItems }
         Object.keys(newLocalSilences).forEach((key) => {
+          if (
+            [constants.SILENCE_CREATING, constants.SILENCE_EXPIRING].includes(
+              newLocalSilences[key]?.status?.state
+            )
+          ) {
+            // mark to remove silence
+            newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+          }
+
           const alert = get().alerts.actions.getAlertByFingerprint(
             newLocalSilences[key]?.alertFingerprint
           )
