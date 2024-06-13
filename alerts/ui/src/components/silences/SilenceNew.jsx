@@ -34,6 +34,7 @@ import {
   setupMatchers,
 } from "./silenceHelpers"
 import { parseError } from "../../helpers"
+import constants from "../../constants"
 
 const validateForm = (values) => {
   const invalidItems = {}
@@ -124,7 +125,7 @@ const SilenceNew = ({ alert, size, variant }) => {
 
     const newSilence = {
       ...newFormState,
-      status: { state: "processing" },
+      status: { state: constants.SILENCE_CREATING },
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
       alertFingerprint: alert.fingerprint,

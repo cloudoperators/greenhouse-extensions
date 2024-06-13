@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState, useMemo } from "react"
 import produce from "immer"
+import constants from "../../constants"
 
 import { Messages, useActions } from "messages-provider"
 import {
@@ -119,13 +120,13 @@ const SilenceScheduled = (props) => {
 
         let newSilence = {
           ...silence,
-          status: { ...silence.status, state: "creating" },
+          status: { ...silence.status, state: constants.SILENCE_CREATING },
         }
 
         addLocalItem({
           silence: newSilence,
           id: data.silenceID,
-          type: "creating",
+          type: constants.SILENCE_CREATING,
         })
       })
       .catch((error) => {
