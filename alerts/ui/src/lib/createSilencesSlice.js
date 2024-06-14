@@ -184,12 +184,32 @@ const createSilencesSlice = (set, get, options) => ({
       */
       updateLocalItems: () => {
         const allSilences = get().silences.itemsHash
+        const SilencesByState = get().silences.itemsByState
         let newLocalSilences = { ...get().silences.localItems }
         Object.keys(newLocalSilences).forEach((key) => {
+          // if mapped to alert second logic
           if (!newLocalSilences[key]?.alertFingerprint) {
-            // todo wenn silenceId from create is in aktive or expiring in expire >> del
+            // when newLocalSilences[key].silenceId with a creating state is in aktive SilencesByState, then remove it
+            if (
+              newLocalSilences[key]?.status?.state ===
+                constants.SILENCE_CREATING &&
+              SilencesByState?.active?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              )
+            ) {
+              newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+            }
+            // when newLocalSilences[key].silenceId with a expiring state is in expired SilencesByState, then remove it
+            if (
+              newLocalSilences[key]?.status?.state ===
+                constants.SILENCE_EXPIRING &&
+              SilencesByState?.expired?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              )
+            ) {
+              newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+            }
 
-            newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
             // continue to next iteration
             return
           }
