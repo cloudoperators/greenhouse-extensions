@@ -5,13 +5,7 @@
 
 import React, { useEffect } from "react"
 import { useActions, Messages } from "messages-provider"
-import {
-  Container,
-  Spinner,
-  Stack,
-  TabNavigationItem,
-  TabNavigation,
-} from "juno-ui-components"
+import { Container, Spinner, Stack } from "juno-ui-components"
 import {
   useAlertsError,
   useAlertsIsLoading,
@@ -113,23 +107,6 @@ const AppContent = () => {
       <Messages className="pb-6" />
       {loggedIn && !authError ? (
         <>
-          <TabNavigation
-            activeItem={activeSelectedTab}
-            onActiveItemChange={handleTabSelect}
-          >
-            <TabNavigationItem
-              icon="danger"
-              key="alerts"
-              value="alerts"
-              label="Alerts"
-            />
-            <TabNavigationItem
-              icon="info"
-              key="silences"
-              value="silences"
-              label="Silences"
-            />
-          </TabNavigation>
           {activeSelectedTab === "alerts" && (
             <>
               <AlertDetail />
