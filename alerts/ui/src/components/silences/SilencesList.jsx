@@ -152,12 +152,17 @@ const SilencesList = () => {
         />
       </Stack>
 
-      <DataGrid columns={4} cellVerticalAlignment="top" className="silences">
+      <DataGrid
+        columns={4}
+        minContentColumns={[0, 2, 3]}
+        cellVerticalAlignment="top"
+        className="silences "
+      >
         {!isSilencesLoading && (
           <>
             <DataGridRow>
               <DataGridHeadCell>Time intervall</DataGridHeadCell>
-              <DataGridHeadCell>Comment</DataGridHeadCell>
+              <DataGridHeadCell>Details</DataGridHeadCell>
               <DataGridHeadCell>State</DataGridHeadCell>
               <DataGridHeadCell>Action</DataGridHeadCell>
             </DataGridRow>
