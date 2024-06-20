@@ -1,10 +1,11 @@
 {
   "name": "supernova",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
-    "Arturo Reuschenbach Puncernau"
+    "Arturo Reuschenbach Puncernau",
+    "Tilman Haupt"
   ],
   "repository": "https://github.com/cloudoperators/greenhouse-extensions/tree/main/alerts/ui",
   "license": "Apache-2.0",
