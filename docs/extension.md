@@ -32,13 +32,14 @@ The values provided in the *PluginDefinition* and *Plugin* are passed to respect
 Additionally, based on the respective context, the following set of values is always passed to the chart via Helm:
 
 ```yaml
-greenhouse:
-  clusterNames:
-    - <name>
-    - ...
-  teams:
-    - <name>
-    - ...
+global:
+  greenhouse:
+    clusterNames:
+      - <name>
+      - ...
+    teams:
+      - <name>
+      - ...
 ```
 
 ## Develop a Plugin
