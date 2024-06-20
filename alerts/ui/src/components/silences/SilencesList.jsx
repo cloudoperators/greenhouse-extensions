@@ -17,7 +17,7 @@ import {
   Icon,
 } from "juno-ui-components"
 import constants from "../../constants"
-
+import { useEndlessScrollList } from "utils"
 import {
   useSilencesItems,
   useSilencesActions,
@@ -28,7 +28,6 @@ import {
   useSilencesLocalItems,
 } from "../../hooks/useAppStore"
 import SilencesItem from "./SilencesItem"
-import { useEndlessScrollList } from "utils"
 
 const filtersStyles = `
 bg-theme-background-lvl-1

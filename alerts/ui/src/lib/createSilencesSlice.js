@@ -184,6 +184,7 @@ const createSilencesSlice = (set, get, options) => ({
       */
       updateLocalItems: () => {
         const allSilences = get().silences.itemsHash
+
         const SilencesByState = get().silences.itemsByState
         let newLocalSilences = { ...get().silences.localItems }
         Object.keys(newLocalSilences).forEach((key) => {
@@ -217,12 +218,11 @@ const createSilencesSlice = (set, get, options) => ({
           const alert = get().alerts.actions.getAlertByFingerprint(
             newLocalSilences[key]?.alertFingerprint
           )
-
           // check if the alert has already the silence reference and if the extern silence already exists
           const silencedBy = alert?.status?.silencedBy
           if (
             silencedBy?.length > 0 &&
-            silencedBy?.includes(newLocalSilences[key]?.id) &&
+            silencedBy?.includes(newLocalSilences[key]?.id)  &&
             allSilences[key]
           ) {
             // mark to remove silence
@@ -267,6 +267,7 @@ const createSilencesSlice = (set, get, options) => ({
         // add local silences
         let localSilences = get().silences.localItems
         Object.keys(localSilences).forEach((silenceID) => {
+          
           // if there is already a silence with the same id, skip it and exists as external silence
           if (silencedBy.includes(silenceID) && externalSilences[silenceID])
             return

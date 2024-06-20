@@ -11,7 +11,7 @@ const refAlert = {
       "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164`. (vc-a-0.cc).",
   },
   endsAt: "2023-06-21T13:04:01.855Z",
-  fingerprint: "62cab9a4fd5732ee",
+  fingerprint: "123",
   receivers: [
     { name: "elastic" },
     { name: "awx" },
@@ -75,6 +75,7 @@ const refSilence = {
   duration: "2",
   comment: "Test description",
   createdBy: "Jane Doe",
+  alertFingerprint: "123",
   status: {
     state: "active",
   },
