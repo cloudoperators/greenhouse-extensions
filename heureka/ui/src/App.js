@@ -5,14 +5,33 @@
 
 import React, { useEffect } from "react"
 import styles from "./styles.scss"
-import { AppShell, AppShellProvider } from "juno-ui-components"
+import { AppShell, AppShellProvider, CodeBlock } from "juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { MessagesProvider } from "messages-provider"
 import AsyncWorker from "./components/AsyncWorker"
 import StoreProvider, { useActions } from "./components/StoreProvider"
 import TabContext from "./components/tabs/TabContext"
+import { ErrorBoundary } from "react-error-boundary"
 
 const App = (props) => {
+  const preErrorClasses = `
+  custom-error-pre
+  border-theme-error
+  border
+  h-full
+  w-full
+  `
+
+  const fallbackRender = ({ error }) => {
+    return (
+      <div className="w-1/2">
+        <CodeBlock className={preErrorClasses} copy={false}>
+          {error?.message || error?.toString() || "An error occurred"}
+        </CodeBlock>
+      </div>
+    )
+  }
+
   // Create a client
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -32,7 +51,9 @@ const App = (props) => {
         pageHeader="Converged Cloud | Heureka"
         embedded={props.embedded === "true" || props.embedded === true}
       >
-        <TabContext />
+        <ErrorBoundary fallbackRender={fallbackRender}>
+          <TabContext />
+        </ErrorBoundary>
       </AppShell>
     </QueryClientProvider>
   )
