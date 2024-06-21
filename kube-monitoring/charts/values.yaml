@@ -21,62 +21,6 @@ kubeMonitoring:
       KubeletClientCertificateExpiration: true
       KubeClientCertificateExpiration: true
 
-  additionalPrometheusRulesMap:
-    kubernetes-system-certificates:
-      groups:
-      - name: kubernetes-system-kubelet-server-certs
-        rules:
-        - alert: KubeletServerCertificateExpiration
-          annotations:
-            description: Server certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletservercertificateexpiration
-            summary: Kubelet server certificate is about to expire.
-          expr: kubelet_certificate_manager_server_ttl_seconds < 172800
-          labels:
-            severity: warning
-        - alert: KubeletServerCertificateExpiration
-          annotations:
-            description: Server certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletservercertificateexpiration
-            summary: Kubelet server certificate is about to expire.
-          expr: kubelet_certificate_manager_server_ttl_seconds < 86400
-          labels:
-            severity: critical
-        - alert: KubeletClientCertificateExpiration
-          annotations:
-            description: Client certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletclientcertificateexpiration
-            summary: Kubelet client certificate is about to expire.
-          expr: kubelet_certificate_manager_client_ttl_seconds < 172800
-          labels:
-            severity: warning
-        - alert: KubeletClientCertificateExpiration
-          annotations:
-            description: Client certificate for Kubelet on node {{ $labels.node }} expires in {{ $value | humanizeDuration }}.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeletclientcertificateexpiration
-            summary: Kubelet client certificate is about to expire.
-          expr: kubelet_certificate_manager_client_ttl_seconds < 86400
-          labels:
-            severity: critical
-        - alert: KubeClientCertificateExpiration
-          annotations:
-            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 2.0 days.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
-            summary: Client certificate is about to expire.
-          expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on (job) histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 172800
-          for: 5m
-          labels:
-            severity: warning
-        - alert: KubeClientCertificateExpiration
-          annotations:
-            description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 24.0 hours.
-            runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubeclientcertificateexpiration
-            summary: Client certificate is about to expire.
-          expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on (job) histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 86400
-          for: 5m
-          labels:
-            severity: critical
-
   ## Install Prometheus Operator CRDs
   ##
   crds:
