@@ -140,11 +140,21 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
       Authorization: `Bearer ${bearerToken}`,
     },
   })
-    .then(checkStatus)
     .then((response) => {
+      if (!response.ok) {
+        return response.json().then((errData) => {
+          const error = new HTTPError(
+            response.status,
+            errData.message || "Unknown error occurred"
+          )
+          return Promise.reject(error)
+        })
+      }
+
       let isJSON = response.headers
         .get("content-type")
         .includes("application/json")
+
       if (!isJSON) {
         var error = new HTTPError(
           400,
@@ -152,6 +162,26 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         )
         return Promise.reject(error)
       }
+
       return response.json()
+    })
+    .then((data) => {
+      if (data.errors && data.errors.length > 0) {
+        const graphQLError = data.errors[0]
+        const error = new HTTPError(
+          400,
+          graphQLError.message || "GraphQL error occurred"
+        )
+        return Promise.reject(error)
+      }
+
+      return data
+    })
+    .catch((error) => {
+      if (error instanceof HTTPError) {
+        throw error
+      } else {
+        throw new HTTPError(500, "An unexpected error occurred")
+      }
     })
 }

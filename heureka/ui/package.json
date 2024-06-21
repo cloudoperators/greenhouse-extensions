@@ -1,6 +1,6 @@
 {
   "name": "heureka",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "author": "UI-Team",
   "contributors": [
     "Hoda Noori, Arturo Reuschenbach Pucernau"
@@ -40,6 +40,7 @@
     "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-error-boundary": "^4.0.13",
     "react-test-renderer": "18.2.0",
     "sass": "^1.77.5",
     "shadow-dom-testing-library": "^1.7.1",
@@ -54,7 +55,6 @@
     "build": "NODE_ENV=production node esbuild.config.js"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "5.36.2",
     "juno-ui-components": "https://assets.juno.global.cloud.sap/libs/juno-ui-components@2.13.8/package.tgz",
     "messages-provider": "https://assets.juno.global.cloud.sap/libs/messages-provider@0.1.12/package.tgz",
     "prop-types": "^15.8.1",
