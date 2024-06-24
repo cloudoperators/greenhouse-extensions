@@ -17,6 +17,7 @@ import {
   createFakeAlertStatustWith,
   createFakeAlertWith,
   createFakeSilenceWith,
+  createFakeSilenceWithoutAlertFingerprint,
 } from "./fakeObjects"
 import { countAlerts } from "../lib/utils"
 
@@ -62,6 +63,186 @@ describe("addLocalItem", () => {
     act(() => store.result.current.actions.addLocalItem({ silence, id: null, type: "local" }))
     
     expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+  })
+  it("should add items with and expiring type and deleted if they are set in expired after a refetch if they dont have a alertfingerprint", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "expiring"}
+    })
+    // add a local silence with type expiring
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "expiring",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+
+    // set a silence with the same id in expired so it should be deleted (triggers updateLocalItems())
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { expired: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+
+  })
+
+  it("should add items with and expiring type and they should stay if they are set in active", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "expiring"}
+    })
+
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "expiring",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+     // set a silence with the same id in active so it should not be deleted because 
+     // local silence is expiring (triggers updateLocalItems())
+   
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { active: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+  })
+
+
+  it("should add silences with creating type and delete them if they are set in active silences after a refetch if they dont have a alertfingerprint", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "creating"}
+    })
+
+    const silence2 = createFakeSilenceWith({
+      id: "test2",
+      status: {state: "creating"}
+    })
+    // add a local silences with type creating
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "creating",
+      })
+
+      store.result.current.actions.addLocalItem({
+        silence: silence2,
+        id: "test2",
+        type: "creating",
+      })
+    }) 
+
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(2)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+    expect(store.result.current.localSilences["test2"]["id"]).toEqual("test2")
+
+    // set a silence with the same id in active so it should be deleted (triggers updateLocalItems())  
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence, silence2],
+        itemsHash: { test: silence, test2: silence2 },
+        itemsByState: { active: [silence, silence2] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+    expect(store.result.current.localSilences["test2"]["id"]).toEqual("test2")
+
+
+  })
+
+  it("should add items with creating type and they should stay if they are set as an expired silence but not if its a pending one", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "creating"}
+    })
+
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "creating",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+      // set a silence with the same id in pending so it should not be deleted because 
+      // local silence is creating (triggers updateLocalItems())
+   
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { expired: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { pending: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+
   })
 })
 

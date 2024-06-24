@@ -183,6 +183,7 @@ const createSilencesSlice = (set, get, options) => ({
       Remove local silences which are already referenced by an alert
       */
       updateLocalItems: () => {
+        console.log("updateLocalItems")
         const allSilences = get().silences.itemsHash
 
         const SilencesByState = get().silences.itemsByState
@@ -194,9 +195,11 @@ const createSilencesSlice = (set, get, options) => ({
             if (
               newLocalSilences[key]?.status?.state ===
                 constants.SILENCE_CREATING &&
-              SilencesByState?.active?.find(
+              (SilencesByState?.active?.find(
                 (silence) => silence?.id === newLocalSilences[key]?.id
-              )
+              ) || SilencesByState?.pending?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              ) )
             ) {
               newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
             }
@@ -208,6 +211,7 @@ const createSilencesSlice = (set, get, options) => ({
                 (silence) => silence?.id === newLocalSilences[key]?.id
               )
             ) {
+              console.log(newLocalSilences[key]?.id, "remove")
               newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
             }
 
