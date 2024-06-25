@@ -18,35 +18,19 @@ on:
       - "*/ui/**" # This pattern matches any `ui` folder at the second level
 
 jobs:
-  list-ui-folders:
-    runs-on: [default]
-    outputs:
-      ui-folders: ${{ steps.list-folders.outputs.ui-folders }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  run-detect-changes:
+    uses: cloudoperators/juno/.github/workflows/check-changes-npm-package.yaml@reuse-workflow-juno
+    with:
+      folders: "*/ui"
 
-      - name: List UI Folders
-        id: list-folders
-        run: |
-          # Find all ui folders at the second level
-          ui_folders=$(find . -mindepth 2 -maxdepth 2 -type d -name "ui" | sed 's|^\./||' | tr '\n' ' ')
-
-          echo "::set-output name=ui-folders::$ui_folders"
-
-  # run-detect-changes:
-  #   uses: ./../juno/.github/workflows/check-changes-npm-package.yaml
-  #   with:
-  #     paths: "*/ui"
-
-  # run-pipeline:
-  #   needs: [run-detect-changes]
-  #   strategy:
-  #     matrix:
-  #       change: ${{fromJson(needs.run-detect-changes.outputs.changes)}}
-  #       node: [20.x]
-  #     fail-fast: false # Allow other jobs to continue if one fails
-  #   uses: ./../juno/.github/workflows/pipeline-npm-package.yaml
-  #   with:
-  #     path: ${{ matrix.change }}
-  #     node: "${{ matrix.node }}"
+  run-pipeline:
+    needs: [run-detect-changes]
+    strategy:
+      matrix:
+        change: ${{fromJson(needs.run-detect-changes.outputs.changes)}}
+        node: [20.x]
+      fail-fast: false # Allow other jobs to continue if one fails
+    uses: cloudoperators/juno/.github/workflows/pipeline-npm-package.yaml@reuse-workflow-juno
+    with:
+      path: ${{ matrix.change }}
+      node: "${{ matrix.node }}"
