@@ -30,7 +30,7 @@ jobs:
         change: ${{fromJson(needs.run-detect-changes.outputs.changes)}}
         node: [20.x]
       fail-fast: false # Allow other jobs to continue if one fails
-    uses: cloudoperators/juno/.github/workflows/pipeline-npm-package.yaml@reuse-workflow-juno
+    uses: cloudoperators/juno/.github/workflows/pipeline-npm-package.yaml@main
     with:
       path: ${{ matrix.change }}
       node: "${{ matrix.node }}"
