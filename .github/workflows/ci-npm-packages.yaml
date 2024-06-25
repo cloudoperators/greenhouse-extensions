@@ -19,7 +19,7 @@ on:
 
 jobs:
   run-detect-changes:
-    uses: cloudoperators/juno/.github/workflows/check-changes-npm-package.yaml@reuse-workflow-juno
+    uses: cloudoperators/juno/.github/workflows/check-changes-npm-package.yaml@main
     with:
       folders: "*/ui"
 
