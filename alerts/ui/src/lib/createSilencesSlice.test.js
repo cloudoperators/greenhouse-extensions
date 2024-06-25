@@ -64,7 +64,7 @@ describe("addLocalItem", () => {
     
     expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
   })
-  it("should add items with and expiring type and deleted if they are set in expired after a refetch if they dont have a alertfingerprint", () => {
+  it("should add silences with expiring-type and without alert fingerprint. it should delete the silence if a silence with the same id is set in expired state", () => {
     const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
     const store = renderHook(
       () => ({
@@ -102,7 +102,7 @@ describe("addLocalItem", () => {
 
   })
 
-  it("should add items with and expiring type and they should stay if they are set in active", () => {
+  it("should add items with and expiring type and the local silence should stay if a active silence is set", () => {
     const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
     const store = renderHook(
       () => ({
@@ -142,7 +142,7 @@ describe("addLocalItem", () => {
   })
 
 
-  it("should add silences with creating type and delete them if they are set in active silences after a refetch if they dont have a alertfingerprint", () => {
+  it("should add silences with creating type and delete them if they are set in active silences if they dont have a alertfingerprint", () => {
     const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
     const store = renderHook(
       () => ({
