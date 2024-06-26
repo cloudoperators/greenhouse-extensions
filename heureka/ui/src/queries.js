@@ -11,9 +11,9 @@ import {
   components,
   componentFilters,
   component,
-  vulnerabilities,
-  vulnerability,
-  vulnerabilityFilters,
+  issues,
+  issue,
+  issueFilters,
   users,
   user,
   userFilters,
@@ -115,10 +115,10 @@ export const getComponent = (
   })
 }
 
-export const getVulnerabilities = (bearerToken, endpoint, options) => {
+export const getIssues = (bearerToken, endpoint, options) => {
   return useQuery({
-    queryKey: ["vulnerabilities", bearerToken, endpoint, options],
-    queryFn: vulnerabilities,
+    queryKey: ["issues", bearerToken, endpoint, options],
+    queryFn: issues,
     // The query will not execute until the bearerToken exists
     enabled: !!bearerToken,
     // The data from the last successful fetch available while new data is being requested, even though the query key has changed.
@@ -128,15 +128,10 @@ export const getVulnerabilities = (bearerToken, endpoint, options) => {
   })
 }
 
-export const getVulnerability = (
-  bearerToken,
-  endpoint,
-  vulnerabilityId,
-  placeholderData
-) => {
+export const getIssue = (bearerToken, endpoint, issueId, placeholderData) => {
   return useQuery({
-    queryKey: ["user", bearerToken, endpoint, vulnerabilityId],
-    queryFn: vulnerability,
+    queryKey: ["user", bearerToken, endpoint, issueId],
+    queryFn: issue,
     // The query will not execute until the bearerToken exists
     enabled: !!bearerToken,
     // Placeholder data allows a query to behave as if it already has data, similar to the initialData option,
@@ -146,10 +141,10 @@ export const getVulnerability = (
   })
 }
 
-export const getVulnerabilityFilters = (bearerToken, endpoint, options) => {
+export const getIssueFilters = (bearerToken, endpoint, options) => {
   return useQuery({
-    queryKey: ["vulnerabilityFilters", bearerToken, endpoint, options],
-    queryFn: vulnerabilityFilters,
+    queryKey: ["issueFilters", bearerToken, endpoint, options],
+    queryFn: issueFilters,
     // The query will not execute until the bearerToken exists
     enabled: !!bearerToken,
     // The data from the last successful fetch available while new data is being requested, even though the query key has changed.

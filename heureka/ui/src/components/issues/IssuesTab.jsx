@@ -4,16 +4,16 @@
  */
 
 import React from "react"
-import VulnerabilitiesListController from "./VulnerabilitiesListController"
+import IssuesListController from "./IssuesListController"
 import Filters from "../filters/Filters"
 
-const VulnerabilitiesTab = () => {
+const IssuesTab = () => {
   return (
     <>
       <Filters />
-      <VulnerabilitiesListController />
+      <IssuesListController />
     </>
   )
 }
 
-export default VulnerabilitiesTab
+export default IssuesTab
