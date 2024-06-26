@@ -17,7 +17,6 @@ const AlertStatus = ({ alert }) => {
   const { getMappingSilences, getMappedState } = useSilencesActions()
 
   const silences = useMemo(() => {
-    console.log("localSilence exp")
     if (!alert) return []
     return getMappingSilences(alert)
   }, [alert, allSilences, localSilences])

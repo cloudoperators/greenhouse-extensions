@@ -9,7 +9,6 @@ import { sortSilencesByState } from "../lib/utils"
 
 export const fetchAction = (endpoint) => {
   return get(`${endpoint}/silences`, {}).then((items) => {
-    console.log("fetchAction", "I FETCH!")
     // convert items to hash to easear access
     const itemsHash = items.reduce((itemsHash, silence) => {
       itemsHash[silence.id] = silence
@@ -19,7 +18,6 @@ export const fetchAction = (endpoint) => {
     // split items by state (active, pending and expired)
     // https://github.com/prometheus/alertmanager/blob/main/types/types.go#L434
     const itemsByState = sortSilencesByState(items)
-    console.log(itemsByState)
     self.postMessage({
       action: "SILENCES_UPDATE",
       silences: items,

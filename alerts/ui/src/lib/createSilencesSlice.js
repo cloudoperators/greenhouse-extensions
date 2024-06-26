@@ -224,7 +224,7 @@ const createSilencesSlice = (set, get, options) => ({
           const silencedBy = alert?.status?.silencedBy
           if (
             silencedBy?.length > 0 &&
-            silencedBy?.includes(newLocalSilences[key]?.id)  &&
+            silencedBy?.includes(newLocalSilences[key]?.id) &&
             allSilences[key]
           ) {
             // mark to remove silence

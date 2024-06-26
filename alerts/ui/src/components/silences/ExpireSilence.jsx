@@ -49,9 +49,6 @@ const ExpireSilence = (props) => {
     }
     addLocalItem({ silence: newSilence, id: newSilence.id, type: "expiring" })
 
-    console.log("add exp", newSilence)
-
-    console.log("sdfsdadfsaexp", localItems)
     return
   }
 
