@@ -2,18 +2,19 @@
  * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-/*import React from "react"
+
+import React from "react"
 
 import { Pill, Stack } from "juno-ui-components"
-// import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
+import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
 
 const FilterPills = () => {
-  // const activeFilters = useActiveFilters()
-  // const { removeActiveFilter } = useFilterActions()
+  const activeFilters = useActiveFilters()
+  const { removeActiveFilter } = useFilterActions()
 
   return (
     <Stack gap="2" wrap={true}>
-      {/* {Object.entries(activeFilters).map(([key, values]) => {
+      {Object.entries(activeFilters).map(([key, values]) => {
         return values.map((value) => (
           <Pill
             pillKey={key}
@@ -23,36 +24,8 @@ const FilterPills = () => {
             key={`${key}:${value}`}
           />
         ))
-      })} 
-    </Stack>
-  )
-}
-
-export default FilterPills*/
-import React from "react"
-import { Stack, Pill } from "juno-ui-components"
-import { useActiveFilters, useActions } from "../StoreProvider"
-
-const FilterPills = () => {
-  const filters = useActiveFilters()
-  const { clearActiveFilters } = useActions()
-
-  return (
-    <Stack gap="2" wrap={true}>
-      {Object.entries(filters).map(([key, values]) =>
-        values.map((value) => (
-          <Pill
-            pillKey={key}
-            pillValue={value}
-            closeable
-            onClose={() => clearActiveFilters(key, value)}
-            key={`${key}:${value}`}
-          />
-        ))
-      )}
-      {/* <Button onClick={() => clearActiveFilters()} variant="subdued">
-        Clear all
-      </Button> */}
+      })}
+      :
     </Stack>
   )
 }
