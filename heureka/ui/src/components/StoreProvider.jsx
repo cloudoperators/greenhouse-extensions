@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { createContext, useContext } from "react"
 import { useStore as create } from "zustand"
 import createStore from "../lib/store"
@@ -22,6 +17,7 @@ export const useActiveTab = () => useStore((s) => s.activeTab)
 export const useQueryOptions = (tab) =>
   useStore((s) => s.tabs[tab].queryOptions)
 export const useActions = () => useStore((s) => s.actions)
+
 // Filter exports
 export const useFilterLabels = () => useStore((state) => state.filters.labels)
 export const useActiveFilters = () =>
@@ -29,6 +25,8 @@ export const useActiveFilters = () =>
 export const useSearchTerm = () => useStore((state) => state.filters.searchTerm)
 export const useFilterLabelValues = () =>
   useStore((state) => state.filters.filterLabelValues)
+export const useFilteredServices = () =>
+  useStore((state) => state.filteredServices)
 export const usePredefinedFilters = () =>
   useStore((state) => state.filters.predefinedFilters)
 export const useActivePredefinedFilter = () =>

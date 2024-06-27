@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useEffect, useState, useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
@@ -10,6 +5,7 @@ import {
   useQueryOptions,
   useActions,
   useActiveFilters,
+  useFilteredServices,
 } from "../StoreProvider"
 import { Pagination } from "juno-ui-components"
 import ServicesList from "./ServicesList"
@@ -19,18 +15,14 @@ const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
-  const { setQueryOptions } = useActions()
+  const { setQueryOptions, fetchServices } = useActions()
   const filters = useActiveFilters()
+  const services = useFilteredServices()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
-    queryKey: [`services`, { ...queryOptions, filters }],
+    queryKey: [`services`, { ...queryOptions, filter: filters }],
     enabled: !!queryClientFnReady,
   })
-
-  const services = useMemo(() => {
-    if (!data) return null
-    return data?.Services?.edges
-  }, [data])
 
   useEffect(() => {
     if (!error) return
