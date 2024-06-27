@@ -72,13 +72,13 @@ export default () => gql`
                     name
                   }
                 }
-                vulnerabilityMatches {
+                issueMatches {
                   edges {
                     node {
                       id
-                      vulnerabilityDisclosure {
+                      issue {
                         id
-                        name
+                        primaryName
                       }
                     }
                   }
@@ -86,7 +86,7 @@ export default () => gql`
               }
             }
           }
-          advisoryRepositories {
+          issueRepositories {
             totalCount
             edges {
               node {

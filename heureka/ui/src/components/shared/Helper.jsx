@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const listOfCommaSeparatedObjs = (objs) => {
+export const listOfCommaSeparatedObjs = (objs, prop) => {
   objs = objs?.edges || []
   return objs
-    .filter((obj) => obj?.node?.name)
-    .map((obj) => obj?.node?.name)
+    .filter((obj) => obj?.node?.[prop])
+    .map((obj) => obj?.node?.[prop])
     .join(", ")
 }

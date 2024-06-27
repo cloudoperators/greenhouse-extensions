@@ -9,7 +9,7 @@ import TabPanel from "./TabPanel"
 import { useActions, useActiveTab } from "../StoreProvider"
 
 import ServicesTab from "../services/ServicesTab"
-import VulnerabilitiesTab from "../vulnerabilities/VulnerabilitiesTab"
+import IssuesTab from "../issues/IssuesTab"
 
 const TAB_CONFIG = [
   {
@@ -19,10 +19,10 @@ const TAB_CONFIG = [
     component: ServicesTab,
   },
   {
-    label: "Vulnerabilities",
-    value: "vulnerabilities",
+    label: "Issues",
+    value: "issues",
     icon: "autoAwesomeMotion",
-    component: VulnerabilitiesTab,
+    component: IssuesTab,
   },
 ]
 

@@ -12,13 +12,14 @@ import {
 } from "juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
-import VulnerabilitiesListItem from "./VulnerabilitiesListItem"
+import IssuesListItem from "./IssuesListItem"
 
-const VulnerabilitiesList = ({ vulnerabilities, isLoading }) => {
+const IssuesList = ({ issues, isLoading }) => {
   return (
-    <DataGrid columns={8}>
+    <DataGrid columns={9}>
       <DataGridRow>
-        <DataGridHeadCell>SCN/CVE</DataGridHeadCell>
+        <DataGridHeadCell>Primary Name</DataGridHeadCell>
+        <DataGridHeadCell>Secondary Name</DataGridHeadCell>
         <DataGridHeadCell>Status</DataGridHeadCell>
         <DataGridHeadCell>Severity</DataGridHeadCell>
         <DataGridHeadCell>Component Name</DataGridHeadCell>
@@ -27,23 +28,20 @@ const VulnerabilitiesList = ({ vulnerabilities, isLoading }) => {
         <DataGridHeadCell>Support Group Name</DataGridHeadCell>
         <DataGridHeadCell>Instance Count</DataGridHeadCell>
       </DataGridRow>
-      {isLoading && !vulnerabilities ? (
-        <HintLoading className="my-4" text="Loading vulnerabilities..." />
+      {isLoading && !issues ? (
+        <HintLoading className="my-4" text="Loading issues..." />
       ) : (
         <>
-          {vulnerabilities?.length > 0 ? (
+          {issues?.length > 0 ? (
             <>
-              {vulnerabilities.map((item, index) => (
-                <VulnerabilitiesListItem
-                  key={index}
-                  item={item}
-                ></VulnerabilitiesListItem>
+              {issues.map((item, index) => (
+                <IssuesListItem key={index} item={item}></IssuesListItem>
               ))}
             </>
           ) : (
             <DataGridRow>
-              <DataGridCell colSpan={8}>
-                <HintNotFound text="No vulnerabilities found" />
+              <DataGridCell colSpan={9}>
+                <HintNotFound text="No issues found" />
               </DataGridCell>
             </DataGridRow>
           )}
@@ -53,4 +51,4 @@ const VulnerabilitiesList = ({ vulnerabilities, isLoading }) => {
   )
 }
 
-export default VulnerabilitiesList
+export default IssuesList

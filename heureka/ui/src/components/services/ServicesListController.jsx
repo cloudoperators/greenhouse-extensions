@@ -9,6 +9,8 @@ import {
   useQueryClientFnReady,
   useQueryOptions,
   useActions,
+  useActiveFilters,
+  useFilteredServices,
 } from "../StoreProvider"
 import { Pagination } from "juno-ui-components"
 import ServicesList from "./ServicesList"
@@ -18,25 +20,21 @@ const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
-  const { setQueryOptions } = useActions()
+  const { setQueryOptions, fetchServices } = useActions()
+  const filters = useActiveFilters()
+  const services = useFilteredServices()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
-    queryKey: [`services`, queryOptions],
+    queryKey: [`services`, { ...queryOptions, filter: filters }],
     enabled: !!queryClientFnReady,
   })
-
-  const services = useMemo(() => {
-    // return null so that the component can handle the loading state at the beginning
-    if (!data) return null
-    return data?.Services?.edges
-  }, [data])
 
   useEffect(() => {
     if (!error) return
     addMessage({ variant: "danger", text: error?.message })
   }, [error])
 
-  const [currentPage, setCurrentPage] = useState(1) // State for current page
+  const [currentPage, setCurrentPage] = useState(1)
 
   const pageInfo = useMemo(() => {
     if (!data) return null
@@ -49,7 +47,7 @@ const ServicesListController = () => {
   }, [data?.Services?.pageInfo])
 
   const onPaginationChanged = (newPage) => {
-    setCurrentPage(newPage) // Update currentPage
+    setCurrentPage(newPage)
     if (!data?.Services?.pageInfo?.pages) return
     const pages = data?.Services?.pageInfo?.pages
     const currentPageIndex = pages?.findIndex(
@@ -86,9 +84,9 @@ const ServicesListController = () => {
         onPressNext={onPressNext}
         onPressPrevious={onPressPrevious}
         onKeyPress={onKeyPress}
-        onSelectChange={onPaginationChanged}
-        pages={totalPages}
-        variant="input"
+        onChange={onPaginationChanged}
+        totalPages={totalPages}
+        hasPageInfo={!!pageInfo}
       />
     </>
   )
