@@ -4,13 +4,12 @@
  */
 
 import React from "react"
-
-import { Pill, Stack } from "@cloudoperators/juno-ui-components"
-import { useActiveFilters, useActions } from "../StoreProvider"
+import { Pill, Stack } from "juno-ui-components"
+import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
 
 const FilterPills = () => {
   const activeFilters = useActiveFilters()
-  const { removeActiveFilter } = useActions()
+  const { removeActiveFilter } = useFilterActions()
 
   return (
     <Stack gap="2" wrap={true}>
@@ -25,7 +24,6 @@ const FilterPills = () => {
           />
         ))
       })}
-      :
     </Stack>
   )
 }

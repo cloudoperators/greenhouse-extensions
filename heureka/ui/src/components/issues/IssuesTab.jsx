@@ -10,7 +10,7 @@ import Filters from "../filters/Filters"
 const IssuesTab = () => {
   return (
     <>
-      <Filters />
+      {/* <Filters /> */}
       <IssuesListController />
     </>
   )
