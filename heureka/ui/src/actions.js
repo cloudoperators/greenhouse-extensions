@@ -143,7 +143,6 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         })
       }
 
-      debugger
       if (!response.ok) {
         return response.json().then((errData) => {
           const error = new HTTPError(
