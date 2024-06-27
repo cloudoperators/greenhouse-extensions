@@ -81,31 +81,22 @@ export const componentFilters = ({ queryKey }) => {
 }
 
 //
-// VULNERABILITIES
+// ISSUES
 //
 
-export const vulnerabilities = ({ queryKey }) => {
+export const issues = ({ queryKey }) => {
   const [_key, bearerToken, endpoint, options] = queryKey
-  return fetchFromAPI(bearerToken, endpoint, "/vulnerabilities", options)
+  return fetchFromAPI(bearerToken, endpoint, "/issues", options)
 }
 
-export const vulnerability = ({ queryKey }) => {
-  const [_key, bearerToken, endpoint, vulnerabilityId] = queryKey
-  return fetchFromAPI(
-    bearerToken,
-    endpoint,
-    `/vulnerabilities/${vulnerabilityId}`
-  )
+export const issue = ({ queryKey }) => {
+  const [_key, bearerToken, endpoint, issueId] = queryKey
+  return fetchFromAPI(bearerToken, endpoint, `/issues/${issueId}`)
 }
 
-export const vulnerabilityFilters = ({ queryKey }) => {
+export const issueFilters = ({ queryKey }) => {
   const [_key, bearerToken, endpoint, options] = queryKey
-  return fetchFromAPI(
-    bearerToken,
-    endpoint,
-    "/vulnerabilities/filters",
-    options
-  )
+  return fetchFromAPI(bearerToken, endpoint, "/issues/filters", options)
 }
 
 //
