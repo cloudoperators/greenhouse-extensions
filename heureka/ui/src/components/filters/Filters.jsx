@@ -6,9 +6,14 @@
 import React, { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Stack } from "juno-ui-components"
-import { useQueryClientFnReady, useActions } from "../StoreProvider"
+import {
+  useQueryClientFnReady,
+  useActiveFilters,
+  useActions,
+} from "../StoreProvider"
 import FilterSelect from "./FilterSelect"
 import FilterPills from "./FilterPills"
+import { getServiceFilters } from "../../queries"
 
 const filtersStyles = `
   bg-theme-background-lvl-1
@@ -20,9 +25,11 @@ const filtersStyles = `
 const Filters = ({ queryKey }) => {
   const queryClientFnReady = useQueryClientFnReady()
   const { addActiveFilter } = useActions()
+  const { activeFilters } = useActiveFilters()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [queryKey],
+    queryFn: getServiceFilters,
     enabled: !!queryClientFnReady && !!queryKey,
   })
 
@@ -36,20 +43,7 @@ const Filters = ({ queryKey }) => {
     }))
   }, [data])
 
-  // Set default filter for SupportGroupName
-  useMemo(() => {
-    if (filters?.length > 0) {
-      const supportGroupFilter = filters.find(
-        (f) => f.label === "supportGroupName"
-      )
-      if (supportGroupFilter) {
-        addActiveFilter(
-          "supportGroupName",
-          supportGroupFilter.enumValues[0]?.name
-        )
-      }
-    }
-  }, [filters, addActiveFilter])
+  console.log("filters: ", filters)
 
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>

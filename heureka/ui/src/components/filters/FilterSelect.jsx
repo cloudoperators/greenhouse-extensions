@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
-
+import React, { useState, useEffect } from "react"
 import {
   Button,
   InputGroup,
@@ -14,7 +13,6 @@ import {
   SearchInput,
 } from "juno-ui-components"
 import {
-  useFilterLabels,
   useFilterLabelValues,
   useActions,
   useActiveFilters,
@@ -22,28 +20,24 @@ import {
 } from "../StoreProvider"
 import { humanizeString } from "../../lib/utils"
 
-const FilterSelect = () => {
+const FilterSelect = ({ filters }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
   const [resetKey, setResetKey] = useState(Date.now())
 
   const {
     addActiveFilter,
-    loadFilterLabelValues,
+    fetchFilterValues,
     clearActiveFilters,
     setSearchTerm,
   } = useActions()
-  const filterLabels = useFilterLabels()
   const filterLabelValues = useFilterLabelValues()
   const activeFilters = useActiveFilters()
   const searchTerm = useSearchTerm()
 
   const handleFilterAdd = (value) => {
     if (filterLabel && (filterValue || value)) {
-      // add active filter to store
       addActiveFilter(filterLabel, filterValue || value)
-
-      // reset filterValue
       setFilterValue("")
     } else {
       // TODO: show error -> please select filter/value
@@ -52,9 +46,8 @@ const FilterSelect = () => {
 
   const handleFilterLabelChange = (value) => {
     setFilterLabel(value)
-    // lazy loading of all possible values for this label (only load them if we haven't already)
     if (!filterLabelValues[value]?.values) {
-      loadFilterLabelValues(value)
+      fetchFilterValues(value)
     }
   }
 
@@ -64,20 +57,16 @@ const FilterSelect = () => {
   }
 
   const handleSearchChange = (value) => {
-    // debounce setSearchTerm to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
       setSearchTerm(value.target.value)
     }, 500)
-
-    // clear timeout if we have a new value
     return () => clearTimeout(debouncedSearchTerm)
   }
 
-  // const handleKeyDown = (event) => {
-  //   if (event.key === "Enter") {
-  //     handleFilterValueChange()
-  //   }
-  // }
+  useEffect(() => {
+    // Load initial filter labels from the filters prop
+    setFilterLabel("")
+  }, [filters])
 
   return (
     <Stack alignment="center" gap="8">
@@ -89,11 +78,11 @@ const FilterSelect = () => {
           value={filterLabel}
           onChange={(val) => handleFilterLabelChange(val)}
         >
-          {filterLabels?.map((filter) => (
+          {filters?.map((filter) => (
             <SelectOption
-              value={filter}
-              label={humanizeString(filter)}
-              key={filter}
+              value={filter.label}
+              label={humanizeString(filter.label)}
+              key={filter.label}
             />
           ))}
         </Select>
@@ -107,11 +96,7 @@ const FilterSelect = () => {
           key={resetKey}
         >
           {filterLabelValues[filterLabel]?.values
-            ?.filter(
-              (value) =>
-                // filter out already active values for this label
-                !activeFilters[filterLabel]?.includes(value)
-            )
+            ?.filter((value) => !activeFilters[filterLabel]?.includes(value))
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}

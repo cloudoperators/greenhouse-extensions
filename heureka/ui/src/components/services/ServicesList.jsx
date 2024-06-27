@@ -24,7 +24,7 @@ const ServicesList = ({ services, isLoading }) => {
           <DataGridHeadCell>Owners</DataGridHeadCell>
           <DataGridHeadCell>Support Groups</DataGridHeadCell>
           <DataGridHeadCell>Component Instances Count</DataGridHeadCell>
-          <DataGridHeadCell>Total Vulnerability Matches</DataGridHeadCell>
+          <DataGridHeadCell>Total Issue Matches</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !services ? (
           <HintLoading className="my-4" text="Loading services..." />

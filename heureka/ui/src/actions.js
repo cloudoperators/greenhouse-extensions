@@ -48,8 +48,9 @@ const checkStatus = (response) => {
 //
 
 export const services = ({ queryKey }) => {
-  const [_key, bearerToken, endpoint, options] = queryKey
-  return fetchFromAPI(bearerToken, endpoint, "/services", options)
+  const [_key, { filter, first, after }, bearerToken, endpoint] = queryKey
+  const variables = { filter, first, after }
+  return fetchFromAPI(bearerToken, endpoint, `/services`, variables)
 }
 
 export const service = ({ queryKey }) => {
@@ -60,6 +61,12 @@ export const service = ({ queryKey }) => {
 export const serviceFilters = ({ queryKey }) => {
   const [_key, bearerToken, endpoint, options] = queryKey
   return fetchFromAPI(bearerToken, endpoint, "/services/filters", options)
+}
+
+export const fetchFilterValues = ({ queryKey }) => {
+  const [_key, filterLabel, bearerToken, endpoint] = queryKey
+  const variables = { property: filterLabel }
+  return fetchFromAPI(bearerToken, endpoint, `/filters/values`, variables)
 }
 
 //
