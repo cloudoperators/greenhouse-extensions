@@ -10,7 +10,11 @@ import Filters from "../filters/Filters"
 const IssuesTab = () => {
   return (
     <>
+<<<<<<< HEAD
       {/* <Filters /> */}
+=======
+      <Filters />
+>>>>>>> b74daa74 (feat(heureka): Substitute vulnerabilities with  issues tab using the new issueMatch entity (#175))
       <IssuesListController />
     </>
   )
