@@ -1,19 +1,15 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { createStore } from "zustand"
 import { devtools } from "zustand/middleware"
 import { produce } from "immer"
+import { getServices, getFilterValues } from "../queries"
 
 const initialFiltersState = {
-  labels: ["status"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
-  activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
-  filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
-  predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
-  activePredefinedFilter: null, // the currently active predefined filter
-  searchTerm: "", // the search term used for full-text filtering
+  labels: [],
+  activeFilters: {},
+  filterLabelValues: {},
+  predefinedFilters: [],
+  activePredefinedFilter: null,
+  searchTerm: "",
 }
 
 export default (options) =>
@@ -22,7 +18,8 @@ export default (options) =>
       isUrlStateSetup: false,
       queryClientFnReady: false,
       endpoint: options?.apiEndpoint,
-
+      bearerToken: options?.bearerToken,
+      services: [],
       activeTab: "services",
       tabs: {
         services: {
@@ -39,6 +36,7 @@ export default (options) =>
       filters: {
         ...initialFiltersState,
       },
+      filteredServices: [],
       actions: {
         setQueryClientFnReady: (readiness) =>
           set(
@@ -48,6 +46,7 @@ export default (options) =>
             false,
             "setQueryClientFnReady"
           ),
+
         setActiveTab: (index) =>
           set(
             (state) => {
@@ -56,6 +55,7 @@ export default (options) =>
             false,
             "setActiveTab"
           ),
+
         setQueryOptions: (tab, options) =>
           set(
             produce((state) => {
@@ -64,241 +64,154 @@ export default (options) =>
             false,
             "setQueryOptions"
           ),
-        setLabels: (labels) =>
+
+        setServices: (services) =>
           set(
-            (state) => {
-              if (!labels) return state
-
-              // check if labels is an array
-              if (!Array.isArray(labels)) {
-                console.warn(
-                  "[heureka]::setLabels: labels object is not an array"
-                )
-                return state
-              }
-
-              // check if all elements in the array are strings delete the ones that are not
-              if (!labels.every((element) => typeof element === "string")) {
-                console.warn(
-                  "[heureka]::setLabels: Some elements of the array are not strings."
-                )
-                labels = labels.filter((element) => typeof element === "string")
-              }
-
-              // merge given labels with the initial, make it unique and sort it alphabetically
-              const uniqueLabels = Array.from(
-                new Set(initialFiltersState.labels.concat(labels))
-              ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
-              return {
-                filters: {
-                  ...state.filters,
-                  labels: uniqueLabels,
-                },
-              }
-            },
+            produce((state) => {
+              state.services = services
+              state.filteredServices = services.filter((service) =>
+                service.name
+                  .toLowerCase()
+                  .includes(state.filters.searchTerm.toLowerCase())
+              )
+            }),
             false,
-            "filters.setLabels"
+            "setServices"
           ),
 
-        setActiveFilters: (activeFilters) => {
+        setSearchTerm: (searchTerm) =>
           set(
-            (state) => {
-              return {
-                filters: {
-                  ...state.filters,
-                  activeFilters,
-                },
-              }
-            },
+            produce((state) => {
+              state.filters.searchTerm = searchTerm
+              state.filteredServices = state.services.filter((service) =>
+                service.name.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+            }),
             false,
-            "filters.setActiveFilters"
-          )
-          // get().filterItems()
-        },
+            "setSearchTerm"
+          ),
 
-        clearActiveFilters: () => {
+        setActiveFilters: (activeFilters) =>
+          set(
+            produce((state) => {
+              state.filters.activeFilters = activeFilters
+              state.filteredServices = state.services.filter((service) => {
+                return Object.keys(activeFilters).every((filterLabel) => {
+                  return activeFilters[filterLabel].includes(
+                    service[filterLabel]
+                  )
+                })
+              })
+            }),
+            false,
+            "setActiveFilters"
+          ),
+
+        clearActiveFilters: () =>
           set(
             produce((state) => {
               state.filters.activeFilters = {}
+              state.filteredServices = state.services.filter((service) =>
+                service.name
+                  .toLowerCase()
+                  .includes(state.filters.searchTerm.toLowerCase())
+              )
             }),
             false,
-            "filters.clearActiveFilters"
-          )
-          // get().actions.filterItems()
-        },
+            "clearActiveFilters"
+          ),
 
-        addActiveFilter: (filterLabel, filterValue) => {
+        addActiveFilter: (filterLabel, filterValue) =>
           set(
             produce((state) => {
-              // use Set to prevent duplicate values
-              state.filters.activeFilters[filterLabel] = [
-                ...new Set([
-                  ...(state.filters.activeFilters[filterLabel] || []),
-                  filterValue,
-                ]),
-              ]
+              if (!state.filters.activeFilters[filterLabel]) {
+                state.filters.activeFilters[filterLabel] = []
+              }
+              state.filters.activeFilters[filterLabel].push(filterValue)
+              state.filteredServices = state.services.filter((service) => {
+                return Object.keys(state.filters.activeFilters).every(
+                  (label) => {
+                    return state.filters.activeFilters[label].includes(
+                      service[label]
+                    )
+                  }
+                )
+              })
             }),
             false,
-            "filters.addActiveFilter"
-          )
-          // after adding a new filter key and value: filter items
-          // get().filterItems()
-        },
+            "addActiveFilter"
+          ),
 
-        // add multiple values for a filter label
-        addActiveFilters: (filterLabel, filterValues) => {
-          set(
-            produce((state) => {
-              // use Set to prevent duplicate values
-              state.filters.activeFilters[filterLabel] = [
-                ...new Set([
-                  ...(state.filters.activeFilters[filterLabel] || []),
-                  ...filterValues,
-                ]),
-              ]
-            }),
-            false,
-            "filters.addActiveFilters"
-          )
-          // after adding a new filter key and value: filter items
-          // get().filterItems()
-        },
-
-        removeActiveFilter: (filterLabel, filterValue) => {
+        removeActiveFilter: (filterLabel, filterValue) =>
           set(
             produce((state) => {
               state.filters.activeFilters[filterLabel] =
                 state.filters.activeFilters[filterLabel].filter(
                   (value) => value !== filterValue
                 )
-              // if this was the last selected value delete the whole label key
               if (state.filters.activeFilters[filterLabel].length === 0) {
                 delete state.filters.activeFilters[filterLabel]
               }
+              state.filteredServices = state.services.filter((service) => {
+                return Object.keys(state.filters.activeFilters).every(
+                  (label) => {
+                    return state.filters.activeFilters[label].includes(
+                      service[label]
+                    )
+                  }
+                )
+              })
             }),
             false,
-            "filters.removeActiveFilter"
+            "removeActiveFilter"
+          ),
+
+        fetchFilterValues: async (filterLabel) => {
+          const bearerToken = get().bearerToken
+          const endpoint = get().endpoint
+          const { data, error } = await getFilterValues(
+            filterLabel,
+            bearerToken,
+            endpoint
           )
-          // after removing a filter: filter items
-          // get().filterItems()
+
+          if (error) {
+            set((state) => {
+              state.filters.filterLabelValues[filterLabel] = {
+                isLoading: false,
+                values: [],
+                error: error.message,
+              }
+            })
+          } else {
+            const values = data.values || []
+            set((state) => {
+              state.filters.filterLabelValues[filterLabel] = {
+                isLoading: false,
+                values,
+              }
+            })
+          }
         },
 
-        setPredefinedFilters: (predefinedFilters) => {
-          set(
-            produce((state) => {
-              state.filters.predefinedFilters = predefinedFilters
-            }),
-            false,
-            "filters.setPredefinedFilters"
-          )
-        },
-
-        setActivePredefinedFilter: (filterName) => {
-          set(
-            produce((state) => {
-              state.filters.activePredefinedFilter = filterName
-            }),
-            false,
-            "filters.setActivePredefinedFilter"
-          )
-          // after activating predefined filter: filter items
-          // get().filterItems()
-        },
-
-        clearActivePredefinedFilter: () => {
-          set(
-            produce((state) => {
-              state.filters.activePredefinedFilter = null
-            }),
-            false,
-            "filters.clearActivePredefinedFilter"
-          )
-          // after clearing predefined filter: filter items
-          // get().filterItems()
-        },
-
-        togglePredefinedFilter: (filterName) => {
-          set(
-            produce((state) => {
-              // if active predefined filter is already set and equal to the one that was clicked, clear it
-              if (state.filters.activePredefinedFilter === filterName) {
-                state.filters.activePredefinedFilter = null
-              } else {
-                state.filters.activePredefinedFilter = filterName
-              } // otherwise set the clicked filter as active
-            }),
-            false,
-            "filters.togglePredefinedFilter"
-          )
-          // after activating predefined filter: filter items
-          // get().filterItems()
-        },
-
-        // retieve all possible values for the given filter label from the list of items and add them to the list
-        loadFilterLabelValues: (filterLabel) => {
-          set(
-            produce((state) => {
-              state.filters.filterLabelValues[filterLabel] = { isLoading: true }
-            }),
-            false,
-            "filters.loadFilterLabelValues.isLoading"
-          )
-          set(
-            produce((state) => {
-              // use Set to ensure unique values
-              const values = [
-                ...new Set(state.items.map((item) => item.labels[filterLabel])),
-              ]
-              // remove any "blank" values from the list, then sort
-              state.filters.filterLabelValues[filterLabel].values = values
-                .filter((value) => (value ? true : false))
-                .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
-              state.filters.filterLabelValues[filterLabel].isLoading = false
-            }),
-            false,
-            "filters.loadFilterLabelValues"
-          )
-        },
-
-        // for each filter label where we already loaded the values, reload them
-        reloadFilterLabelValues: () => {
-          Object.keys(get().filters.filterLabelValues).map((label) => {
-            get().loadFilterLabelValues(label)
+        fetchServices: async () => {
+          const bearerToken = get().bearerToken
+          const endpoint = get().endpoint
+          const queryOptions = get().tabs.services.queryOptions
+          const filters = get().filters.activeFilters
+          const { data, error } = await getServices(bearerToken, endpoint, {
+            ...queryOptions,
+            filter: filters,
           })
-        },
 
-        setSearchTerm: (searchTerm) => {
-          set(
-            produce((state) => {
-              state.filters.searchTerm = searchTerm
-            }),
-            false,
-            "filters.setSearchTerm"
-          )
-          // after setting the search term: filter items
-          // get().filterItems()
+          if (error) {
+            console.error(error)
+          } else {
+            set().actions.setServices(
+              data.Services.edges.map((edge) => edge.node)
+            )
+          }
         },
-        // addActiveFilter: (label, value) =>
-        //   set(
-        //     produce((state) => {
-        //       if (!state.filters[label]) {
-        //         state.filters[label] = []
-        //       }
-        //       state.filters[label].push(value)
-        //     }),
-        //     false,
-        //     "addActiveFilter"
-        //   ),
-        // clearActiveFilters: () =>
-        //   set(
-        //     produce((state) => {
-        //       state.filters = {}
-        //     }),
-        //     false,
-        //     "clearActiveFilters"
-        //   ),
       },
     }))
   )
