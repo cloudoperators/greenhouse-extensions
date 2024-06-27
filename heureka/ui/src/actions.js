@@ -31,6 +31,7 @@ export const encodeUrlParamsFromObject = (options) => {
 }
 
 const checkStatus = (response) => {
+  debugger
   if (response.status < 400) {
     return response
   } else {
@@ -142,6 +143,17 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         })
       }
 
+      debugger
+      if (!response.ok) {
+        return response.json().then((errData) => {
+          const error = new HTTPError(
+            response.status,
+            errData.message || "Unknown error occurred"
+          )
+          return Promise.reject(error)
+        })
+      }
+
       let isJSON = response.headers
         .get("content-type")
         .includes("application/json")
@@ -161,7 +173,7 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         const graphQLError = data.errors[0]
         const error = new HTTPError(
           400,
-          graphQLError.message || "GraphQL error occurred"
+          graphQLError.message || "GraphQL API error occurred"
         )
         return Promise.reject(error)
       }
