@@ -64,8 +64,8 @@ const CustomAppShell = ({ children }) => {
     <AppShell
       pageHeader={pageHeader}
       embedded={embedded}
-      topNavigation={topNavigation}
     >
+      {topNavigation}
       {children}
     </AppShell>
   )
