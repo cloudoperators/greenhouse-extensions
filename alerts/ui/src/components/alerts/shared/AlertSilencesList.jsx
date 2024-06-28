@@ -5,6 +5,7 @@
 
 import React, { useMemo } from "react"
 import { DateTime } from "luxon"
+import constants from "../../../constants"
 
 import {
   Badge,
@@ -18,9 +19,9 @@ import { useSilencesActions } from "../../../hooks/useAppStore"
 
 const badgeVariant = (state) => {
   switch (state) {
-    case "active":
+    case constants.SILENCE_STATE_ACTIVE:
       return "info"
-    case "processing":
+    case constants.SILENCE_CREATING:
       return "warning"
     default:
       return "default"

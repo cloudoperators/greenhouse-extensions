@@ -56,6 +56,8 @@ export const useShowDetailsFor = () =>
   useAppStore((state) => state.globals.showDetailsFor)
 export const useGlobalsApiEndpoint = () =>
   useAppStore((state) => state.globals.apiEndpoint)
+export const useGlobalsActiveSelectedTab = () =>
+  useAppStore((state) => state.globals.activeSelectedTab)
 export const useGlobalsActions = () =>
   useAppStore((state) => state.globals.actions)
 
@@ -139,7 +141,12 @@ export const useSilencesError = () =>
   useAppStore((state) => state.silences.error)
 export const useSilencesLocalItems = () =>
   useAppStore((state) => state.silences.localItems)
-
+export const useShowDetailsForSilence = () =>
+  useAppStore((state) => state.silences.showDetailsForSilence)
+export const useSilencesStatus = () =>
+  useAppStore((state) => state.silences.status)
+export const useSilencesRegEx = () =>
+  useAppStore((state) => state.silences.regEx)
 export const useSilenceTemplates = () =>
   useAppStore((state) => state.silences.templates)
 

@@ -187,15 +187,28 @@ const useAlertmanagerAPI = (apiEndpoint) => {
   }, [isUserActive])
 
   // as soon as we have locally some silences we refetch the them
+  const localItems = useSilencesLocalItems()
   useEffect(() => {
-    if (!useSilencesLocalItems || useSilencesLocalItems?.length <= 0) return
-    silencesWorker.then(({ createWorker, stopWorker }) => {
-      const worker = createWorker()
-      worker.postMessage({
-        action: "SILENCES_FETCH",
+    if (!localItems) return
+    // if we have no silences locally we don't need to refetch them otherwise 
+    // we will end up in an infinite loop
+    if (Object.keys(localItems).length <= 0) return
+
+    // Use setTimeout to delay the worker call delayed by 10s 
+    setTimeout(() => {
+      silencesWorker.then(({ createWorker, stopWorker }) => {
+        const worker = createWorker()
+        worker.postMessage({
+          action: "SILENCES_FETCH",
+        })
       })
-    })
-  }, [useSilencesLocalItems])
+    }, 10000)
+    return () => {
+      if (silencesWorker.current) {
+        silencesWorker.current.terminate()
+      }
+    }
+  }, [localItems])
 }
 
 export default useAlertmanagerAPI
