@@ -1,0 +1,87 @@
+global:
+
+  ## Labels to apply to all resources
+  ##
+  commonLabels: {}
+
+## kube-prometheus-stack configuration scoped to kube-monitoring
+thanos:
+  image:
+    repository: quay.io/thanos/thanos
+    # defaults to .Chart.appVersion
+    tag:
+    # defaults to IfNotPresent
+    pullPolicy: 
+  grpcAddress:
+  # used across the stack 
+  httpAddress:
+
+  query:
+    replicas:
+    # defaults to info
+    logLevel:
+
+    # arguments in general
+    autoDownsampling: true
+    replicaLabels:
+
+    web:
+      externalPrefix:
+      routePrefix:
+
+    additionalArgs: []
+      #- something.route-foo=/lol 
+
+    deploymentLabels: {} 
+
+    containerLabels:
+
+    serviceLabels:
+
+    annotations:
+
+    stores: [] 
+
+  store:
+    # adding additional arguments
+    additionalArgs: []
+
+  compactor:
+    # TODO: store secret needs to be present and can not be provisioned automatically
+    
+    logLevel:
+
+    containerLabels: []
+
+    serviceLabels:
+
+    labels: []
+    annotations: []
+ 
+    # adding additional arguments
+    additionalArgs: []
+
+    httpGracePeriod:
+    consistencyDelay:
+
+    # retention values in seconds
+    retentionResolutionRaw:
+    retentionResolution5m:
+    retentionResolution1h:
+
+    compact:
+      # int
+      concurrency:
+
+      # seconds
+      cleanupInterval:
+
+      # seconds 
+      waitInterval:
+
+    volume:
+      # bool
+      enabled:
+      # GiB
+      size:
+      labels: []

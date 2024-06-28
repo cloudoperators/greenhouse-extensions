@@ -1,0 +1,84 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    name: thanos
+spec:
+    description: thanos
+    helmChart:
+        name: thanos
+        repository: "oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions"
+        version: 0.0.3
+    options:
+        - default: null
+          description: thanos.grpcAddress
+          name: thanos.grpcAddress
+          required: false
+          type: "string"
+        - default: null
+          description: thanos.httpAddress
+          name: thanos.httpAddress
+          required: false
+          type: ""
+          type: "string"
+        - default: null
+          description: thanos.image.pullPolicy
+          name: thanos.image.pullPolicy
+          required: false
+          type: ""
+          type: "string"
+        - default: quay.io/thanos/thanos
+          description: thanos.image.repository
+          name: thanos.image.repository
+          required: false
+          type: ""
+          type: "string"
+        - default: null
+          description: thanos.image.tag
+          name: thanos.image.tag
+          required: false
+          type: ""
+          type: "string"
+        - default: true
+          description: thanos.query.autoDownsampling
+          name: thanos.query.autoDownsampling
+          required: false
+          type: "bool"
+        - default: null
+          description: thanos.query.logLevel
+          name: thanos.query.logLevel
+          required: false
+          type: "string"
+        - default: null
+          description: thanos.query.replicaLabels
+          name: thanos.query.replicaLabels
+          required: false
+          type: "string"
+        - default: null
+          description: thanos.query.replicas
+          name: thanos.query.replicas
+          required: false
+          type: "int"
+        - default: 
+            greenhouse.sap/expose: "true"
+            greenhouse.sap/exposeNamedPort: "http"
+          description: thanos.query.serviceLabels
+          name: thanos.query.serviceLabels
+          required: false
+          type: "map"
+        - default: 
+          - --store=kube-monitoring-prometheus:9090
+          description: thanos.query.stores.0
+          name: thanos.query.stores.0
+          required: false
+          type: "list"
+        - default: null
+          description: thanos.query.web.externalPrefix
+          name: thanos.query.web.externalPrefix
+          required: false
+          type: "string"
+        - default: null
+          description: thanos.query.web.routePrefix
+          name: thanos.query.web.routePrefix
+          required: false
+          type: "string"
+    version: 0.0.5
