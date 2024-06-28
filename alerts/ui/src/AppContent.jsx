@@ -12,9 +12,12 @@ import {
   useAlertsIsUpdating,
   useAlertsUpdatedAt,
   useAlertsTotalCounts,
+  useSilencesIsLoading,
   useAuthLoggedIn,
   useAuthError,
   useSilencesError,
+  useGlobalsActions,
+  useGlobalsActiveSelectedTab,
 } from "./hooks/useAppStore"
 import AlertsList from "./components/alerts/AlertsList"
 import RegionsList from "./components/regions/RegionsList"
@@ -24,6 +27,7 @@ import WelcomeView from "./components/WelcomeView"
 import { parseError } from "./helpers"
 import AlertDetail from "./components/alerts/AlertDetail"
 import PredefinedFilters from "./components/filters/PredefinedFilters"
+import SilencesList from "./components/silences/SilencesList"
 
 const AppContent = () => {
   const { addMessage } = useActions()
@@ -39,6 +43,10 @@ const AppContent = () => {
 
   // silences
   const silencesError = useSilencesError()
+  const isSilencesLoading = useSilencesIsLoading()
+
+  const { setActiveSelectedTab } = useGlobalsActions()
+  const activeSelectedTab = useGlobalsActiveSelectedTab()
 
   useEffect(() => {
     if (!authError) return
@@ -90,28 +98,48 @@ const AppContent = () => {
     })
   }, [silencesError, loggedIn])
 
+  const handleTabSelect = (item) => {
+    setActiveSelectedTab(item)
+  }
+
   return (
     <Container px py className="h-full">
       <Messages className="pb-6" />
       {loggedIn && !authError ? (
         <>
-          <AlertDetail />
-          <RegionsList />
-          {isAlertsLoading ? (
-            <Stack gap="2">
-              <span>Loading</span>
-              <Spinner variant="primary" />
-            </Stack>
-          ) : (
+          {activeSelectedTab === "alerts" && (
             <>
-              <PredefinedFilters />
-              <Filters />
-              <StatusBar
-                totalCounts={totalCounts}
-                isUpdating={isAlertsUpdating}
-                updatedAt={updatedAt}
-              />
-              <AlertsList />
+              <AlertDetail />
+              <RegionsList />
+              {isAlertsLoading ? (
+                <Stack gap="2">
+                  <span>Loading</span>
+                  <Spinner variant="primary" />
+                </Stack>
+              ) : (
+                <>
+                  <PredefinedFilters />
+                  <Filters />
+                  <StatusBar
+                    totalCounts={totalCounts}
+                    isUpdating={isAlertsUpdating}
+                    updatedAt={updatedAt}
+                  />
+                  <AlertsList />
+                </>
+              )}
+            </>
+          )}
+          {activeSelectedTab === "silences" && (
+            <>
+              {isSilencesLoading ? (
+                <Stack gap="2">
+                  <span>Loading</span>
+                  <Spinner variant="primary" />
+                </Stack>
+              ) : (
+                <SilencesList />
+              )}
             </>
           )}
         </>

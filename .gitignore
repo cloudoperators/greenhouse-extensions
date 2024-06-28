@@ -2,3 +2,6 @@
 .secrets
 .env
 act_*.json
+
+.DS_Store
+

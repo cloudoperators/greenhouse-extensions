@@ -17,6 +17,7 @@ import {
   createFakeAlertStatustWith,
   createFakeAlertWith,
   createFakeSilenceWith,
+  createFakeSilenceWithoutAlertFingerprint,
 } from "./fakeObjects"
 import { countAlerts } from "../lib/utils"
 
@@ -32,21 +33,22 @@ describe("addLocalItem", () => {
     )
 
     const silence = createFakeSilenceWith()
-    act(() =>
+
+    act(() => {
       store.result.current.actions.addLocalItem({
-        silence,
+        silence: silence,
         id: "test",
-        alertFingerprint: "123",
+        type: "local",
       })
-    )
+    })
 
     expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
     expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
-    expect(
-      store.result.current.localSilences["test"]["alertFingerprint"]
-    ).toEqual("123")
+    expect(store.result.current.localSilences["test"].alertFingerprint).toEqual(
+      "123"
+    )
   })
-  it("should avoid to add any silences without id or alertFingerprint", () => {
+  it("should avoid to add any silences without id", () => {
     const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
     const store = renderHook(
       () => ({
@@ -57,23 +59,190 @@ describe("addLocalItem", () => {
     )
 
     const silence = createFakeSilenceWith()
-    act(() => store.result.current.actions.addLocalItem({ silence, id: "" }))
-    act(() => store.result.current.actions.addLocalItem({ silence, id: null }))
-    act(() =>
-      store.result.current.actions.addLocalItem({
-        silence,
-        id: "test",
-        alertFingerprint: "",
-      })
-    )
-    act(() =>
-      store.result.current.actions.addLocalItem({
-        silence,
-        id: "test",
-        alertFingerprint: null,
-      })
-    )
+    act(() => store.result.current.actions.addLocalItem({ silence, id: "", type: "local"}))
+    act(() => store.result.current.actions.addLocalItem({ silence, id: null, type: "local" }))
+    
     expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+  })
+  it("should add silences with expiring-type and without alert fingerprint. it should delete the silence if a silence with the same id is set in expired state", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "expiring"}
+    })
+    // add a local silence with type expiring
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "expiring",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+
+    // set a silence with the same id in expired so it should be deleted (triggers updateLocalItems())
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { expired: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+
+  })
+
+  it("should add items with and expiring type and the local silence should stay if a active silence is set", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "expiring"}
+    })
+
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "expiring",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+     // set a silence with the same id in active so it should not be deleted because 
+     // local silence is expiring (triggers updateLocalItems())
+   
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { active: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+  })
+
+
+  it("should add silences with creating type and delete them if they are set in active silences if they dont have a alertfingerprint", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "creating"}
+    })
+
+    const silence2 = createFakeSilenceWith({
+      id: "test2",
+      status: {state: "creating"}
+    })
+    // add a local silences with type creating
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "creating",
+      })
+
+      store.result.current.actions.addLocalItem({
+        silence: silence2,
+        id: "test2",
+        type: "creating",
+      })
+    }) 
+
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(2)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+    expect(store.result.current.localSilences["test2"]["id"]).toEqual("test2")
+
+    // set a silence with the same id in active so it should be deleted (triggers updateLocalItems())  
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence, silence2],
+        itemsHash: { test: silence, test2: silence2 },
+        itemsByState: { active: [silence, silence2] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+    expect(store.result.current.localSilences["test2"]["id"]).toEqual("test2")
+
+
+  })
+
+  it("should add items with creating type and they should stay if they are set as an expired silence but not if its a pending one", () => {
+    const wrapper = ({ children }) => <StoreProvider>{children}</StoreProvider>
+    const store = renderHook(
+      () => ({
+        actions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
+      }),
+      { wrapper }
+    )
+
+    const silence = createFakeSilenceWithoutAlertFingerprint({
+      status: {state: "creating"}
+    })
+
+    act(() => {
+      store.result.current.actions.addLocalItem({
+        silence: silence,
+        id: "test",
+        type: "creating",
+      })
+    }) 
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+    expect(store.result.current.localSilences["test"]["id"]).toEqual("test")
+      // set a silence with the same id in pending so it should not be deleted because 
+      // local silence is creating (triggers updateLocalItems())
+   
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { expired: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(1)
+
+    act(() =>
+      store.result.current.actions.setSilences({
+        items: [silence],
+        itemsHash: { external: silence },
+        itemsByState: { pending: [silence] },
+      })
+    )
+
+    expect(Object.keys(store.result.current.localSilences).length).toEqual(0)
+
   })
 })
 
@@ -84,6 +253,7 @@ describe("getMappingSilences", () => {
       () => ({
         alertActions: useAlertsActions(),
         silenceActions: useSilencesActions(),
+        localSilences: useSilencesLocalItems(),
       }),
       { wrapper }
     )
@@ -100,8 +270,10 @@ describe("getMappingSilences", () => {
         counts: countAlerts([alert]),
       })
     )
+    
     // create extern silences adding an id to the object
     const silence = createFakeSilenceWith({ id: "external" })
+
     act(() =>
       store.result.current.silenceActions.setSilences({
         items: [silence],
@@ -111,13 +283,15 @@ describe("getMappingSilences", () => {
     )
     // create local silence adding per attribute the id and the alert fingerprint
     const silence2 = createFakeSilenceWith()
+
     act(() =>
       store.result.current.silenceActions.addLocalItem({
         silence: silence2,
         id: "local",
-        alertFingerprint: "123",
-      })
-    )
+        type: "local",
+      }))
+
+
     // get mapping silences
     let mappingResult = null
     act(
@@ -211,7 +385,6 @@ describe("getMappingSilences", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence3,
         id: "externalAndLocal",
-        alertFingerprint: "123",
       })
     )
     // get mapping silences
@@ -264,7 +437,7 @@ describe("getMappingSilences", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence2,
         id: "local",
-        alertFingerprint: "123",
+        type: "local"
       })
     )
     // get mapping silences
@@ -295,12 +468,12 @@ describe("updateLocalItems", () => {
     )
 
     // create local silences
-    const silence = createFakeSilenceWith()
+    const silence = createFakeSilenceWith( {alertFingerprint: "12345"})
     act(() =>
       store.result.current.silenceActions.addLocalItem({
         silence: silence,
         id: "test1local",
-        alertFingerprint: "12345",
+        type: "local",
       })
     )
     const silence2 = createFakeSilenceWith()
@@ -308,7 +481,7 @@ describe("updateLocalItems", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence2,
         id: "test2local",
-        alertFingerprint: "non_existing_alert",
+        type: "local",
       })
     )
     // check if the local silence are saved
@@ -328,6 +501,8 @@ describe("updateLocalItems", () => {
     )
     // check if the alert is saved
     expect(store.result.current.savedAlerts.length).toEqual(1)
+    
+
     // trigger update local items by setting new external silences
     const externalSilence = createFakeSilenceWith({ id: "test1local" })
     act(() =>
@@ -364,7 +539,7 @@ describe("updateLocalItems", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence,
         id: "test1local",
-        alertFingerprint: "12345",
+        type: "local",
       })
     )
     const silence2 = createFakeSilenceWith()
@@ -372,7 +547,7 @@ describe("updateLocalItems", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence2,
         id: "test2local",
-        alertFingerprint: "non_existing_alert",
+        type: "local",
       })
     )
     // check if the local silence are saved
@@ -454,7 +629,7 @@ describe("getMappedState", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence2,
         id: "local",
-        alertFingerprint: "123",
+        type: "local",
       })
     )
     // get mapping silences
@@ -642,7 +817,7 @@ describe("getLatestMappingSilence", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence3,
         id: "local",
-        alertFingerprint: "123",
+        type: "local"
       })
     )
     // get mapping silences
@@ -701,7 +876,7 @@ describe("getLatestMappingSilence", () => {
       store.result.current.silenceActions.addLocalItem({
         silence: silence3,
         id: "local",
-        alertFingerprint: "123",
+        type: "local"
       })
     )
     // get mapping silences

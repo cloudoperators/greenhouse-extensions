@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState, useMemo } from "react"
 import { produce } from "immer"
-
+import constants from "../../constants"
 import { Messages, useActions } from "messages-provider"
 import {
   Modal,
@@ -26,6 +26,7 @@ import {
   useAuthData,
   useSilenceTemplates,
   useGlobalsApiEndpoint,
+  useSilencesActions,
 } from "../../hooks/useAppStore"
 import { post, get } from "../../api/client"
 import { parseError } from "../../helpers"
@@ -37,6 +38,8 @@ const SilenceScheduled = (props) => {
   const { addMessage, resetMessages } = useActions()
   const silenceTemplates = useSilenceTemplates()
   const apiEndpoint = useGlobalsApiEndpoint()
+
+  const { addLocalItem } = useSilencesActions()
 
   // set sucess of sending the silence
   const [success, setSuccess] = useState(null)
@@ -111,6 +114,19 @@ const SilenceScheduled = (props) => {
     })
       .then((data) => {
         setSuccess(data)
+
+        console.log("data", data)
+
+        let newSilence = {
+          ...silence,
+          status: { ...silence.status, state: constants.SILENCE_CREATING },
+        }
+
+        addLocalItem({
+          silence: newSilence,
+          id: data.silenceID,
+          type: constants.SILENCE_CREATING,
+        })
       })
       .catch((error) => {
         addMessage({
@@ -306,7 +322,7 @@ const SilenceScheduled = (props) => {
                     </FormRow>
 
                     <FormRow>
-                      <div className="grid gap-2 grid-cols-3">
+                      <div className="grid gap-2 grid-cols-2">
                         {Object.keys(formState.editable_labels).map(
                           (editable_label, index) => (
                             <TextInput
@@ -337,7 +353,12 @@ const SilenceScheduled = (props) => {
                   </FormRow>
 
                   <FormRow>
-                    <Stack gap="2" wrap={true}>
+                    <Stack
+                      gap="2"
+                      alignment="start"
+                      wrap={true}
+                      className="mt-2"
+                    >
                       {Object.keys(formState.fixed_labels).map(
                         (label, index) => (
                           <Pill

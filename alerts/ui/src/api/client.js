@@ -35,7 +35,14 @@ const request = (url, options = {}) => {
 
   return fetch(url, requestOptions)
     .then(checkStatus)
-    .then((response) => response.json())
+    .then((response) => {
+      const contentType = response.headers.get("Content-Type")
+      if (contentType && contentType.includes("application/json")) {
+        return response.json()
+      } else {
+        return response.text()
+      }
+    })
 }
 
 export const head = (url, options = {}) =>
