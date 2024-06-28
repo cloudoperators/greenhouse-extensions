@@ -33,7 +33,6 @@ const ExpireSilence = (props) => {
         })
       })
       .catch((error) => {
-        console.log("error", error)
         addMessage({
           variant: "error",
           text: `${parseError(error)}`,
