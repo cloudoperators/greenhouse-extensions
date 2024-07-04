@@ -8,6 +8,8 @@ kind: PodMonitor
 metadata:
   annotations:
   name: opentelemetry-collector-logs
+  labels:
+    prometheus: "{{ .Values.open_telemetry.prometheus }}"
 spec:
   podMetricsEndpoints:
     - interval: 60s
