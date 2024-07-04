@@ -115,8 +115,8 @@ spec:
     processors:
       batch:
         send_batch_max_size: 10000
-        timeout: 30s
-        send_batch_size : 800
+        timeout: 10s
+        send_batch_size : 400
 
       attributes/prometheus:
         actions:
