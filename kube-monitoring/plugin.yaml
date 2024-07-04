@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 1.7.2
+  version: 1.7.3
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -56,3 +56,11 @@ spec:
       description: TLS key for communication with Alertmanager
       required: false
       type: secret
+    - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.name
+      description: 
+      required: false
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.key
+      description: 
+      required: false
+      type: string
