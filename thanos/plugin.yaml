@@ -10,7 +10,7 @@ spec:
     helmChart:
         name: thanos
         repository: "oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions"
-        version: 0.0.3
+        version: 0.0.6
     options:
         - default: null
           description: thanos.grpcAddress
@@ -69,9 +69,9 @@ spec:
           required: false
           type: "map"
         - default: 
-          - --store=kube-monitoring-prometheus:9090
-          description: thanos.query.stores.0
-          name: thanos.query.stores.0
+          - prometheus-operated:10901
+          description: thanos.query.stores
+          name: thanos.query.stores
           required: false
           type: "list"
         - default: null
@@ -84,4 +84,4 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: "string"
-    version: 0.0.5
+    version: 0.0.9

@@ -44,7 +44,7 @@ spec:
         - --data-dir=/data
         - --objstore.config-file=/etc/config/thanos.yaml
         - --consistency-delay={{ default "1800s" .Values.thanos.compactor.consistencyDelay }}
-        - --retention.resolution-raw= {{ default "7776000s" .Values.thanos.compactor.retentionResolutionRaw }}
+        - --retention.resolution-raw={{ default "7776000s" .Values.thanos.compactor.retentionResolutionRaw }}
         - --retention.resolution-5m={{ default "7776000s" .Values.thanos.compactor.retentionResolution5m }}
         - --retention.resolution-1h={{ default "157680000s" .Values.thanos.compactor.retentionResolution1h }}
         - --compact.concurrency={{ default (int 1) .Values.thanos.compactor.compact.concurrency }}
@@ -67,6 +67,17 @@ spec:
           readOnly: true
         - mountPath: /data
           name: data-volume
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 3000
+          fsGroup: 2000
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
+          volumeMounts:
+          - mountPath: /data
+            name: data-volume
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
