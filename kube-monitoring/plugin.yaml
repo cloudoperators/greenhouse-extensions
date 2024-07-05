@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 1.7.4
+  version: 1.7.5
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -64,7 +64,11 @@ spec:
       description: 
       required: false
       type: string
-    - name: kubeMonitoring.prometheus.thanosIngress.enabled
-      description: 
-      required: false
-      type: bool
+    - name: kubeMonitoring.prometheus.service.additionalPorts
+      default:
+      - name: grpc
+        port: 10901
+        protocol: TCP
+        targetPort: grpc
+      required: true
+      type: list
