@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+{{ if .Values.thanos.compactor.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,3 +90,4 @@ spec:
       - name: data-volume
         persistentVolumeClaim:
           claimName: {{ include "release.name" . }}-compactor
+{{ end }}

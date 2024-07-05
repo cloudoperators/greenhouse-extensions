@@ -50,6 +50,8 @@ thanos:
     additionalArgs: []
 
   compactor:
+    # if this is a standalone Thanos Query, we wouldn't want a compactor
+    enabled: true
     # TODO: store secret needs to be present and can not be provisioned automatically
     
     logLevel:
