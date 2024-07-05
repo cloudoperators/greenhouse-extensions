@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEndpoint, useActions } from "../components/StoreProvider"
 import { request } from "graphql-request"
 import sevicesQuery from "../lib/queries/services"
-import vulnerabilityMatchesQuery from "../lib/queries/vulnerabilityMatches"
+import issueMatchesQuery from "../lib/queries/issueMatches"
 import ServiceFilterQuery from "../lib/queries/serviceFilters"
 
 // hook to register query defaults that depends on the queryClient and options
@@ -32,11 +32,11 @@ const useQueryClientFn = () => {
       },
     })
 
-    queryClient.setQueryDefaults(["vulnerabilities"], {
+    queryClient.setQueryDefaults(["issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey)
-        return await request(endpoint, vulnerabilityMatchesQuery(), options)
+        return await request(endpoint, issueMatchesQuery(), options)
       },
     })
 

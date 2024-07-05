@@ -12,9 +12,14 @@ import {
   useFilterActions,
   useActiveFilters,
   useActivePredefinedFilter,
+  useGlobalsActiveSelectedTab,
   useSearchTerm,
   useShowDetailsFor,
   useGlobalsActions,
+  useSilencesActions,
+  useSilencesRegEx,
+  useSilencesStatus,
+  useShowDetailsForSilence,
 } from "./useAppStore"
 
 const urlStateManager = registerConsumer("supernova")
@@ -22,6 +27,11 @@ const ACTIVE_FILTERS = "f"
 const ACTIVE_PREDEFINED_FILTER = "p"
 const DETAILS_FOR = "d"
 const SEARCH_TERM = "s"
+const ACTIVE_TAB = "t"
+/// silences
+const SILENCE_REG_EX = "r"
+const SILENCE_STATUS = "st"
+const SILENCE_DETAIL = "sd"
 
 const useUrlState = () => {
   const [isURLRead, setIsURLRead] = useState(false)
@@ -29,12 +39,18 @@ const useUrlState = () => {
   const authData = useAuthData()
   const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
     useFilterActions()
+  const { setSilencesRegEx, setSilencesStatus, setShowDetailsForSilence } =
+    useSilencesActions()
   const filterLabels = useFilterLabels()
   const activeFilters = useActiveFilters()
   const searchTerm = useSearchTerm()
   const activePredefinedFilter = useActivePredefinedFilter()
-  const { setShowDetailsFor } = useGlobalsActions()
+  const activeSelectedTab = useGlobalsActiveSelectedTab()
+  const { setShowDetailsFor, setActiveSelectedTab } = useGlobalsActions()
   const detailsFor = useShowDetailsFor()
+  const silenceRegEx = useSilencesRegEx()
+  const silenceStatus = useSilencesStatus()
+  const silenceDetail = useShowDetailsForSilence()
 
   // Set initial state from URL (on login)
   // useLayoutEffect so this is done before rendering anything
@@ -86,6 +102,37 @@ const useUrlState = () => {
     if (detailsForFromURL) {
       setShowDetailsFor(detailsForFromURL)
     }
+
+    //get Tab from url state
+    const activeTabFromURL = urlStateManager.currentState()?.[ACTIVE_TAB]
+    if (activeTabFromURL) {
+      setActiveSelectedTab(activeTabFromURL)
+    }
+
+    // get silence regex search from url state
+    const silenceRegExFromURL = urlStateManager.currentState()?.[SILENCE_REG_EX]
+    if (silenceRegExFromURL) {
+      let decoded = atob(silenceRegExFromURL)
+      // decode the search term from the url. It is base64 encoded to avoid issues with special characters
+      if (decoded) {
+        setSilencesRegEx(decoded)
+      }
+    }
+
+    // get silence status from url state
+    const silenceStatusFromURL =
+      urlStateManager.currentState()?.[SILENCE_STATUS]
+    if (silenceStatusFromURL) {
+      setSilencesStatus(silenceStatusFromURL)
+    }
+
+    // get silence detail from url state
+    const silenceDetailFromURL =
+      urlStateManager.currentState()?.[SILENCE_DETAIL]
+    if (silenceDetailFromURL) {
+      setShowDetailsForSilence(silenceDetailFromURL)
+    }
+
     setIsURLRead(true)
   }, [loggedIn, isURLRead, authData, filterLabels])
 
@@ -96,6 +143,7 @@ const useUrlState = () => {
 
     // encode searchTerm before pushing it to the URL to avoid missinterpretation of special characters
     const encodedSearchTerm = btoa(searchTerm)
+    const encodedSilenceRegEx = btoa(silenceRegEx)
 
     const newState = {
       ...urlStateManager.currentState(),
@@ -103,6 +151,10 @@ const useUrlState = () => {
       [SEARCH_TERM]: encodedSearchTerm,
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
       [DETAILS_FOR]: detailsFor,
+      [ACTIVE_TAB]: activeSelectedTab,
+      [SILENCE_REG_EX]: encodedSilenceRegEx,
+      [SILENCE_STATUS]: silenceStatus,
+      [SILENCE_DETAIL]: silenceDetail,
     }
 
     // do not push the state if it is the same as the current one
@@ -114,7 +166,17 @@ const useUrlState = () => {
       return
 
     urlStateManager.push(newState)
-  }, [loggedIn, activeFilters, searchTerm, activePredefinedFilter, detailsFor])
+  }, [
+    loggedIn,
+    activeFilters,
+    searchTerm,
+    activePredefinedFilter,
+    detailsFor,
+    activeSelectedTab,
+    silenceRegEx,
+    silenceStatus,
+    silenceDetail,
+  ])
 
   // Support for back button
   useEffect(() => {
@@ -123,6 +185,10 @@ const useUrlState = () => {
       setSearchTerm(state?.[SEARCH_TERM])
       setActivePredefinedFilter(state?.[ACTIVE_PREDEFINED_FILTER])
       setShowDetailsFor(state?.[DETAILS_FOR])
+      setActiveSelectedTab(state?.[ACTIVE_TAB])
+      setSilencesRegEx(state?.[SILENCE_REG_EX])
+      setSilencesStatus(state?.[SILENCE_STATUS])
+      setShowSilenceDetails(state?.[SILENCE_DETAIL])
     })
 
     return () => {

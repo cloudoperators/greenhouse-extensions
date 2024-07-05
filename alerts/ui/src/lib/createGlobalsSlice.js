@@ -10,6 +10,7 @@ const createGlobalsSlice = (set, get) => ({
     embedded: false,
     showDetailsFor: null,
     apiEndpoint: null,
+    activeSelectedTab: "alerts",
 
     actions: {
       setEmbedded: (embedded) =>
@@ -36,6 +37,14 @@ const createGlobalsSlice = (set, get) => ({
         set(
           (state) => ({
             globals: { ...state.globals, apiEndpoint: endpoint },
+          }),
+          false,
+          "globals/setShowDetailsFor"
+        ),
+      setActiveSelectedTab: (activeSelectedTab) =>
+        set(
+          (state) => ({
+            globals: { ...state.globals, activeSelectedTab: activeSelectedTab },
           }),
           false,
           "globals/setShowDetailsFor"

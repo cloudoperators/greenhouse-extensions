@@ -10,8 +10,8 @@ import { gql } from "graphql-request"
 // like prettier formatting and IDE syntax highlighting.
 // You can use gql from graphql-tag if you need it for some reason too.
 export default () => gql`
-  query ($filter: VulnerabilityMatchFilter, $first: Int, $after: String) {
-    VulnerabilityMatches(filter: $filter, first: $first, after: $after) {
+  query ($filter: IssueMatchFilter, $first: Int, $after: String) {
+    IssueMatches(filter: $filter, first: $first, after: $after) {
       __typename
       totalCount
       edges {
@@ -25,11 +25,11 @@ export default () => gql`
             value
             score
           }
-          effectiveAdvisories {
+          effectiveIssueVariants {
             edges {
               node {
                 id
-                name
+                secondaryName
                 description
               }
             }
@@ -48,10 +48,12 @@ export default () => gql`
               nextPageAfter
             }
           }
-          vulnerabilityDisclosureId
-          vulnerabilityDisclosure {
+          issueId
+          issue {
             id
+            primaryName
             lastModified
+            type
           }
           componentInstanceId
           componentInstance {
@@ -75,13 +77,13 @@ export default () => gql`
               }
             }
           }
-          vulnerabilityMatchChanges {
+          issueMatchChanges {
             totalCount
             edges {
               node {
                 id
                 action
-                vulnerabilityMatchId
+                issueMatchId
                 activityId
               }
               cursor

@@ -7,11 +7,17 @@ import React from "react"
 import { DataGridRow, DataGridCell } from "juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
-const VulnerabilitiesListItem = ({ item }) => {
+const IssuesListItem = ({ item }) => {
+  // Log the item structure
+  console.log("Item structure:", item)
   return (
     <DataGridRow>
+      <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>
       <DataGridCell>
-        <span>{item?.node?.id}</span>
+        {listOfCommaSeparatedObjs(
+          item?.node?.effectiveIssueVariants,
+          "secondaryName"
+        )}
       </DataGridCell>
       <DataGridCell>{item?.node?.status}</DataGridCell>
       <DataGridCell>{item?.node?.severity?.value}</DataGridCell>
@@ -26,7 +32,8 @@ const VulnerabilitiesListItem = ({ item }) => {
       </DataGridCell>
       <DataGridCell>
         {listOfCommaSeparatedObjs(
-          item?.node?.componentInstance?.service?.supportGroups
+          item?.node?.componentInstance?.service?.supportGroups,
+          "name"
         )}
       </DataGridCell>
       <DataGridCell>{item?.node?.componentInstance?.count}</DataGridCell>
@@ -34,4 +41,4 @@ const VulnerabilitiesListItem = ({ item }) => {
   )
 }
 
-export default VulnerabilitiesListItem
+export default IssuesListItem

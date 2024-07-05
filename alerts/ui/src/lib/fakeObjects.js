@@ -11,7 +11,7 @@ const refAlert = {
       "vSphere High Availability (HA) has detected a possible host failure for `node014-bb164`. (vc-a-0.cc).",
   },
   endsAt: "2023-06-21T13:04:01.855Z",
-  fingerprint: "62cab9a4fd5732ee",
+  fingerprint: "123",
   receivers: [
     { name: "elastic" },
     { name: "awx" },
@@ -75,8 +75,37 @@ const refSilence = {
   duration: "2",
   comment: "Test description",
   createdBy: "Jane Doe",
+  alertFingerprint: "123",
   status: {
     state: "active",
+  },
+  matchers: [
+    { name: "cluster", value: "s-na-us-1", isRegex: false },
+    { name: "cluster_type", value: "scaleout", isRegex: false },
+    {
+      name: "context",
+      value: "node014-bb164.cc failure",
+      isRegex: false,
+    },
+    { name: "job", value: "vrops-exporter", isRegex: false },
+    { name: "region", value: "na-us-1", isRegex: false },
+    { name: "service", value: "compute", isRegex: false },
+    { name: "severity", value: "critical", isRegex: false },
+    { name: "support_group", value: "compute", isRegex: false },
+    { name: "tier", value: "vmware", isRegex: false },
+  ],
+  startsAt: "2023-06-21T13:17:28.327Z",
+  endsAt: "2023-06-21T15:17:28.327Z",
+}
+
+
+const refSilenceWithoutFingerprint = {
+  duration: "2",
+  comment: "Test description",
+  createdBy: "Jane Doe",
+  id: "test",
+  status: {
+    state: "expiring",
   },
   matchers: [
     { name: "cluster", value: "s-na-us-1", isRegex: false },
@@ -101,6 +130,9 @@ export const createFakeSilenceWith = (props = {}) => {
   return { ...refSilence, ...props }
 }
 
+export const createFakeSilenceWithoutAlertFingerprint = (props = {}) => {
+  return { ...refSilenceWithoutFingerprint, ...props }
+}
 export const createFakeAlertStatustWith = (props = {}) => {
   return { ...refAlertStatus, ...props }
 }

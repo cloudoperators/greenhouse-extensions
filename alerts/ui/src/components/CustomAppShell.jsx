@@ -4,12 +4,19 @@
  */
 
 import React, { useMemo } from "react"
-import { AppShell, PageHeader } from "juno-ui-components"
+import {
+  AppShell,
+  PageHeader,
+  TopNavigation,
+  TopNavigationItem,
+} from "juno-ui-components"
 import {
   useAuthData,
   useAuthLoggedIn,
   useGlobalsEmbedded,
   useAuthActions,
+  useGlobalsActions,
+  useGlobalsActiveSelectedTab,
 } from "../hooks/useAppStore"
 import HeaderUser from "./HeaderUser"
 
@@ -18,6 +25,8 @@ const CustomAppShell = ({ children }) => {
   const authData = useAuthData()
   const loggedIn = useAuthLoggedIn()
   const { logout } = useAuthActions()
+  const activeSelectedTab = useGlobalsActiveSelectedTab()
+  const { setActiveSelectedTab } = useGlobalsActions()
 
   const pageHeader = useMemo(() => {
     return (
@@ -27,8 +36,36 @@ const CustomAppShell = ({ children }) => {
     )
   }, [loggedIn, authData, logout])
 
+  const handleTabSelect = (item) => {
+    setActiveSelectedTab(item)
+  }
+
+  const topNavigation = (
+    <TopNavigation
+      activeItem={activeSelectedTab}
+      onActiveItemChange={handleTabSelect}
+    >
+      <TopNavigationItem
+        icon="danger"
+        key="alerts"
+        value="alerts"
+        label="Alerts"
+      />
+      <TopNavigationItem
+        icon="info"
+        key="silences"
+        value="silences"
+        label="Silences"
+      />
+    </TopNavigation>
+  )
+
   return (
-    <AppShell pageHeader={pageHeader} embedded={embedded}>
+    <AppShell
+      pageHeader={pageHeader}
+      embedded={embedded}
+    >
+      {topNavigation}
       {children}
     </AppShell>
   )

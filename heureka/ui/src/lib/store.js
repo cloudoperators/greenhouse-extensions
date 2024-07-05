@@ -21,7 +21,7 @@ export default (options) =>
             first: 20,
           },
         },
-        vulnerabilities: {
+        issues: {
           queryOptions: {
             first: 20,
           },

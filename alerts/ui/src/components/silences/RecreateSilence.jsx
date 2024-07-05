@@ -7,7 +7,6 @@ import React, { useLayoutEffect, useMemo, useState } from "react"
 import {
   Modal,
   Button,
-  Box,
   Form,
   Textarea,
   TextInput,
@@ -15,24 +14,17 @@ import {
   SelectOption,
   Message,
   FormRow,
+  Pill,
+  Stack,
 } from "juno-ui-components"
 import {
   useAuthData,
-  useSilencesExcludedLabels,
   useGlobalsApiEndpoint,
   useSilencesActions,
-  useAlertEnrichedLabels,
 } from "../../hooks/useAppStore"
 import { post } from "../../api/client"
-import AlertDescription from "../alerts/shared/AlertDescription"
-import SilenceNewAdvanced from "./SilenceNewAdvanced"
 import { DateTime } from "luxon"
-import {
-  latestExpirationDate,
-  DEFAULT_DURATION_OPTIONS,
-  getSelectOptions,
-  setupMatchers,
-} from "./silenceHelpers"
+import { latestExpirationDate, getSelectOptions } from "./silenceHelpers"
 import { parseError } from "../../helpers"
 import constants from "../../constants"
 
@@ -56,12 +48,12 @@ const errorHelpText = (messages) => {
 
 const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
-const SilenceNew = ({ alert, size, variant }) => {
+const RecreateSilence = (props) => {
+  const silence = props.silence
   const authData = useAuthData()
   const apiEndpoint = useGlobalsApiEndpoint()
-  const excludedLabels = useSilencesExcludedLabels()
+
   const { addLocalItem, getMappingSilences } = useSilencesActions()
-  const enrichedLabels = useAlertEnrichedLabels()
 
   const [displayNewSilence, setDisplayNewSilence] = useState(false)
   const [formState, setFormState] = useState(DEFAULT_FORM_VALUES)
@@ -75,17 +67,20 @@ const SilenceNew = ({ alert, size, variant }) => {
   // This is due to if the alert changes (e.g. the alert receives a new silenceBy) while the modal is open, the form state will be reset
   useLayoutEffect(() => {
     if (!displayNewSilence) return
+
+    console.log(silence)
     // reset form state with default values
     setFormState({
       ...formState,
       ...DEFAULT_FORM_VALUES,
       createdBy: authData?.parsed?.fullName,
-      matchers: setupMatchers(alert?.labels, excludedLabels, enrichedLabels),
+      matchers: silence.matchers,
+      comment: silence.comment,
     })
     // get the latest expiration date from the existing silences
     // recalculate always on open modal due to the fact that the silences or local silences
     // may change without change in the alert
-    setExpirationDate(latestExpirationDate(getMappingSilences(alert)))
+    setExpirationDate(latestExpirationDate())
     // reset other states
     setError(null)
     setSuccess(null)
@@ -110,12 +105,7 @@ const SilenceNew = ({ alert, size, variant }) => {
     setShowValidation(formValidation)
     if (Object.keys(formValidation).length > 0) return
     let newFormState = { ...formState }
-    // clean up attributes in matchers and remove excluded
-    if (newFormState.matchers?.length > 0) {
-      newFormState.matchers = newFormState.matchers
-        .filter((m) => !m.excluded)
-        .map(({ excluded, configurable, ...keepAttrs }) => keepAttrs)
-    }
+
     // add extra attributes
     const startsAt = new Date()
     const endsAt = new Date()
@@ -128,7 +118,6 @@ const SilenceNew = ({ alert, size, variant }) => {
       status: { state: constants.SILENCE_CREATING },
       startsAt: startsAt.toISOString(),
       endsAt: endsAt.toISOString(),
-      alertFingerprint: alert.fingerprint,
     }
 
     // submit silence
@@ -142,7 +131,7 @@ const SilenceNew = ({ alert, size, variant }) => {
           addLocalItem({
             silence: newSilence,
             id: data.silenceID,
-            type: "local",
+            type: constants.SILENCE_CREATING,
           })
         }
       })
@@ -156,29 +145,15 @@ const SilenceNew = ({ alert, size, variant }) => {
     setFormState({ ...formState, [key]: value })
   }
 
-  const onMatchersChanged = (matcher) => {
-    const index = formState.matchers.findIndex(
-      (item) => item.name == matcher.name
-    )
-    let items = formState.matchers.slice()
-    // update item
-    if (index >= 0) {
-      items[index] = { ...items[index], excluded: !matcher.excluded }
-    }
-    setFormState({ ...formState, matchers: items })
-  }
-
   return (
     <>
       <Button
-        size={size}
-        variant={variant}
         onClick={(e) => {
           e.stopPropagation()
           setDisplayNewSilence(!displayNewSilence)
         }}
       >
-        Silence
+        Recreate
       </Button>
       {displayNewSilence && (
         <Modal
@@ -210,18 +185,24 @@ const SilenceNew = ({ alert, size, variant }) => {
             </Message>
           )}
 
-          <span className="text-lg font-bold">{alert?.labels?.alertname}</span>
-
-          <Box className="mt-2">
-            <AlertDescription description={alert.annotations?.description} />
-          </Box>
-
           {!success && (
             <>
-              <SilenceNewAdvanced
-                matchers={formState.matchers}
-                onMatchersChanged={onMatchersChanged}
-              />
+              <div className="advanced-area overflow-hidden">
+                <p className="mt-2">Matchers attached to this silence</p>
+
+                <Stack gap="2" alignment="start" wrap={true} className="mt-2">
+                  {formState?.matchers &&
+                    Object.keys(formState?.matchers).map((label, index) => (
+                      <Pill
+                        key={index}
+                        pillKey={silence?.matchers[label]?.name}
+                        pillKeyLabel={silence?.matchers[label]?.name}
+                        pillValue={silence?.matchers[label]?.value}
+                        pillValueLabel={silence?.matchers[label]?.value}
+                      />
+                    ))}
+                </Stack>
+              </div>
 
               <Form className="mt-6">
                 <FormRow>
@@ -277,4 +258,4 @@ const SilenceNew = ({ alert, size, variant }) => {
   )
 }
 
-export default SilenceNew
+export default RecreateSilence

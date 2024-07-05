@@ -3,31 +3,32 @@
 *                         @cloudoperators/Administrators
 
 /.github/                 @cloudoperators/Administrators
-/.github/workflows/       @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/.github/labeler.yml      @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/.github/licenserc.yaml   @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/.github/renovate.json    @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/.github/workflows/       @cloudoperators/greenhouse-core
+/.github/labeler.yml      @cloudoperators/greenhouse-backend
+/.github/licenserc.yaml   @cloudoperators/greenhouse-backend
+/.github/renovate.json    @cloudoperators/greenhouse-backend
 
-Makefile                  @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-ct.yaml                   @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+Makefile                  @cloudoperators/greenhouse-backend
+ct.yaml                   @cloudoperators/greenhouse-backend
 
-/docs/                    @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/hack/                    @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/docs/                    @cloudoperators/greenhouse-core
+/hack/                    @cloudoperators/greenhouse-backend
 
 # The following paths are owned by the respective maintainers
 /alerts/                  @richardtief @viennaa @artieReus @edda @hodanoori @tilmanhaupt @andypf @uwe-mayer
-/cert-manager/            @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/dev-env/                 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/digicert-issuer/         @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/disco/                   @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/cert-manager/            @cloudoperators/greenhouse-backend
+/dev-env/                 @cloudoperators/greenhouse-backend
+/digicert-issuer/         @cloudoperators/greenhouse-backend
+/disco/                   @cloudoperators/greenhouse-backend
 /doop/                    @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
-/exposed-services/        @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/external-dns/            @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/exposed-services/        @cloudoperators/greenhouse-backend
+/external-dns/            @cloudoperators/greenhouse-backend
 /heureka/                 @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
-/ingress-nginx/           @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/ingress-nginx/           @cloudoperators/greenhouse-backend
 /kube-monitoring/         @richardtief @viennaa
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
-/logshipper/              @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/opentelemetry-collector  @timojohlo @Kuckkuck @richardtief @viennaa
-/service-proxy/           @databus23 @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
-/teams2slack/             @voigts @auhlig @ivogoman @kengou @onuryilmaz @uwe-mayer
+/logshipper/              @cloudoperators/greenhouse-backend
+/opentelemetry-operator   @timojohlo @Kuckkuck @richardtief @viennaa
+/service-proxy/           @cloudoperators/greenhouse-backend @databus23 
+/teams2slack/             @cloudoperators/greenhouse-backend @voigts 
+ui/                       @cloudoperators/greenhouse-frontend

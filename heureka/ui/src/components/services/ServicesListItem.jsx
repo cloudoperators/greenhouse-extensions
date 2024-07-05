@@ -7,9 +7,9 @@ import React, { useMemo } from "react"
 import { DataGridRow, DataGridCell } from "juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
-const countVulnerabilityMatches = (service) => {
+const countIssueMatches = (service) => {
   return service?.componentInstances?.edges?.reduce((acc, edge) => {
-    return acc + (edge?.node?.vulnerabilityMatches?.edges?.length || 0)
+    return acc + (edge?.node?.issueMatches?.edges?.length || 0)
   }, 0)
 }
 
@@ -19,22 +19,21 @@ const ServicesListItem = ({ item }) => {
     return item?.node
   }, [item])
 
-  const vulnerabilityMatchesCount = useMemo(
-    () => countVulnerabilityMatches(service),
-    [service]
-  )
+  const issueMatchesCount = useMemo(() => countIssueMatches(service), [service])
 
   return (
     <DataGridRow>
       <DataGridCell>{service?.name}</DataGridCell>
-      <DataGridCell>{listOfCommaSeparatedObjs(service?.owners)}</DataGridCell>
       <DataGridCell>
-        {listOfCommaSeparatedObjs(service?.supportGroups)}
+        {listOfCommaSeparatedObjs(service?.owners, "name")}
+      </DataGridCell>
+      <DataGridCell>
+        {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
       </DataGridCell>
       <DataGridCell>
         {service?.componentInstances?.edges?.length || 0}
       </DataGridCell>
-      <DataGridCell>{vulnerabilityMatchesCount}</DataGridCell>
+      <DataGridCell>{issueMatchesCount}</DataGridCell>
     </DataGridRow>
   )
 }

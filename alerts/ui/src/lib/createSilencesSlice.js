@@ -4,6 +4,7 @@
  */
 
 import { produce } from "immer"
+import constants from "../constants"
 
 const initialSilencesState = {
   items: [],
@@ -15,6 +16,8 @@ const initialSilencesState = {
   updatedAt: null,
   error: null,
   localItems: {},
+  status: "active",
+  regEx: "",
 
   // silence templates for maintanance
   templates: [],
@@ -111,22 +114,44 @@ const createSilencesSlice = (set, get, options) => ({
       ? validateTemplates(options?.silenceTemplates)
       : [],
     actions: {
+      setSilencesStatus: (status) =>
+        set(
+          (state) => ({
+            silences: { ...state.silences, status: status },
+          }),
+          false,
+          "silences.setSilencesStatus"
+        ),
+      setSilencesRegEx: (regEx) =>
+        set(
+          (state) => ({
+            silences: { ...state.silences, regEx: regEx },
+          }),
+          false,
+          "silences.setSilencesRegEx"
+        ),
+
+      getSilenceById: (id) => {
+        return get().silences.items.find((silence) => silence.id === id)
+      },
+
       setSilences: ({ items, itemsHash, itemsByState }) => {
         if (!items) return
 
-        set(
-          produce((state) => {
-            state.silences.items = items
-            state.silences.itemsHash = itemsHash
-            state.silences.itemsByState = itemsByState
-            state.silences.isLoading = false
-            state.silences.isUpdating = false
-            state.silences.updatedAt = Date.now()
-            state.silences.error = null
-          }),
+        set((state) => ({
+          silences: {
+            ...state.silences,
+            items: items,
+            itemsHash: itemsHash,
+            itemsByState: itemsByState,
+            isLoading: false,
+            isUpdating: false,
+            updatedAt: Date.now(),
+            error: null,
+          },
+        })),
           false,
           "silences.setSilencesData"
-        )
 
         // check if any local item can be removed
         get().silences.actions.updateLocalItems()
@@ -135,9 +160,9 @@ const createSilencesSlice = (set, get, options) => ({
       Save temporary created silences to be able to display which alert is silenced
       and who silenced it until the next alert fetch contains the silencedBy reference
       */
-      addLocalItem: ({ silence, id, alertFingerprint }) => {
+      addLocalItem: ({ silence, id, type }) => {
         // enforce silences with id and alertFingerprint
-        if (!silence || !id || !alertFingerprint) return
+        if (!silence || !id || !type) return
         return set(
           produce((state) => {
             state.silences.localItems = {
@@ -145,8 +170,7 @@ const createSilencesSlice = (set, get, options) => ({
               [id]: {
                 ...silence,
                 id,
-                alertFingerprint,
-                type: "local",
+                type: type,
               },
             }
           }),
@@ -154,17 +178,48 @@ const createSilencesSlice = (set, get, options) => ({
           "silences.addLocalItem"
         )
       },
+
       /*
       Remove local silences which are already referenced by an alert
       */
       updateLocalItems: () => {
         const allSilences = get().silences.itemsHash
+
+        const SilencesByState = get().silences.itemsByState
         let newLocalSilences = { ...get().silences.localItems }
         Object.keys(newLocalSilences).forEach((key) => {
+          // if mapped to alert second logic
+          if (!newLocalSilences[key]?.alertFingerprint) {
+            // when newLocalSilences[key].silenceId with a creating state is in aktive SilencesByState, then remove it
+            if (
+              newLocalSilences[key]?.status?.state ===
+                constants.SILENCE_CREATING &&
+              (SilencesByState?.active?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              ) || SilencesByState?.pending?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              ) )
+            ) {
+              newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+            }
+            // when newLocalSilences[key].silenceId with a expiring state is in expired SilencesByState, then remove it
+            if (
+              newLocalSilences[key]?.status?.state ===
+                constants.SILENCE_EXPIRING &&
+              SilencesByState?.expired?.find(
+                (silence) => silence?.id === newLocalSilences[key]?.id
+              )
+            ) {
+              newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
+            }
+
+            // continue to next iteration
+            return
+          }
+
           const alert = get().alerts.actions.getAlertByFingerprint(
             newLocalSilences[key]?.alertFingerprint
           )
-
           // check if the alert has already the silence reference and if the extern silence already exists
           const silencedBy = alert?.status?.silencedBy
           if (
@@ -214,6 +269,7 @@ const createSilencesSlice = (set, get, options) => ({
         // add local silences
         let localSilences = get().silences.localItems
         Object.keys(localSilences).forEach((silenceID) => {
+          
           // if there is already a silence with the same id, skip it and exists as external silence
           if (silencedBy.includes(silenceID) && externalSilences[silenceID])
             return
@@ -304,6 +360,7 @@ const createSilencesSlice = (set, get, options) => ({
           prev.endsAt > current.endsAt ? prev : current
         )
       },
+
       setIsLoading: (value) =>
         set(
           (state) => ({ silences: { ...state.silences, isLoading: value } }),
