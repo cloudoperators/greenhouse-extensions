@@ -10,44 +10,40 @@ spec:
     helmChart:
         name: thanos
         repository: "oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions"
-        version: 0.0.6
+        version: 0.0.7
     options:
         - default: null
-          description: thanos.grpcAddress
+          description: CLI param for Thanos Query
           name: thanos.grpcAddress
           required: false
           type: "string"
         - default: null
-          description: thanos.httpAddress
+          description: CLI param for Thanos Query
           name: thanos.httpAddress
           required: false
-          type: ""
           type: "string"
         - default: null
-          description: thanos.image.pullPolicy
+          description: How images should be fetched. 
           name: thanos.image.pullPolicy
           required: false
-          type: ""
           type: "string"
         - default: quay.io/thanos/thanos
-          description: thanos.image.repository
+          description: Image repository
           name: thanos.image.repository
           required: false
-          type: ""
           type: "string"
         - default: null
-          description: thanos.image.tag
+          description: Tag of the image 
           name: thanos.image.tag
           required: false
-          type: ""
           type: "string"
         - default: true
-          description: thanos.query.autoDownsampling
+          description: CLI option to be toggled.
           name: thanos.query.autoDownsampling
           required: false
           type: "bool"
         - default: null
-          description: thanos.query.logLevel
+          description: Thanos log level for Query
           name: thanos.query.logLevel
           required: false
           type: "string"
@@ -57,31 +53,31 @@ spec:
           required: false
           type: "string"
         - default: null
-          description: thanos.query.replicas
+          description: Amount of queries deployed. 
           name: thanos.query.replicas
           required: false
           type: "int"
         - default: 
             greenhouse.sap/expose: "true"
             greenhouse.sap/exposeNamedPort: "http"
-          description: thanos.query.serviceLabels
+          description: Needed for exposing Thanos to the service proxy. UI is accessible via http, exposing this particular port.
           name: thanos.query.serviceLabels
           required: false
           type: "map"
         - default: 
           - prometheus-operated:10901
-          description: thanos.query.stores
+          description: Standard port to be exposed by Prometheus Operator. If multiple Prometheis are deployed, this needs to be switched to prometheus' CRD name suffixed with -prometheus.
           name: thanos.query.stores
           required: false
           type: "list"
         - default: null
-          description: thanos.query.web.externalPrefix
+          description: Usually at /thanos, only specify if it differs. 
           name: thanos.query.web.externalPrefix
           required: false
           type: "string"
         - default: null
-          description: thanos.query.web.routePrefix
+          description: Usually at /thanos, only specify if it differs. 
           name: thanos.query.web.routePrefix
           required: false
           type: "string"
-    version: 0.0.9
+    version: 0.1.1
