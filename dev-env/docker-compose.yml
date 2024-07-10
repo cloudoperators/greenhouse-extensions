@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-version: "2.1"
-
 services:
   greenhouse:
     image: ghcr.io/cloudoperators/greenhouse:main
@@ -42,7 +40,6 @@ services:
       - PORT=3000
     ports:
       - "3000:3000"
-    build: ./build/greenhouse
   app:
     image: ghcr.io/cloudoperators/greenhouse-dev-app:main
     ports:
