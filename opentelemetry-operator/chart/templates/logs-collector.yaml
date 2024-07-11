@@ -16,9 +16,17 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
-  envFrom:
-    - secretRef:
-         name: otel-basic-auth
+  env:
+    - name: username
+      valueFrom:
+        secretKeyRef:
+          name: otel-basic-auth
+          key: username
+    - name: password
+      valueFrom:
+        secretKeyRef:
+          name: otel-basic-auth
+          key: password
   config: |
     receivers:
       filelog:
@@ -72,13 +80,13 @@ spec:
         http:
           auth:
             authenticator: basicauth
-          endpoint: {{ .Values.open_telemetry.opensearch_logs.endpoint }}
+          endpoint: {{ index .Values "open_telemetry" "opensearch_logs" "endpoint" }}
         logs_index: otel-filelog-datastream
     extensions:
       basicauth:
         client_auth:
-          password: ${env:password}
-          username: ${env:username}
+          password: ${password}
+          username: ${username}
     service:
       extensions:
         - basicauth
