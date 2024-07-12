@@ -17,7 +17,7 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 # The following paths are owned by the respective maintainers
 /alerts/                  @richardtief @viennaa @artieReus @edda @hodanoori @tilmanhaupt @andypf @uwe-mayer
 /cert-manager/            @cloudoperators/greenhouse-backend
-/dev-env/                 @cloudoperators/greenhouse-backend
+/example-plugin/                 @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
 /doop/                    @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
