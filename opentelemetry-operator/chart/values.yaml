@@ -5,6 +5,9 @@ opentelemetry-operator:
   admissionWebhooks:
     failurePolicy: 'Ignore'
   manager:
+    collectorImage:
+      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
+      tag: 0.104.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
