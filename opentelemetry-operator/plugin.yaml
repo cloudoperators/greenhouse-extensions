@@ -51,13 +51,3 @@ spec:
           name: opentelemetry-operator.manager.serviceMonitor.enabled
           required: false
           type: bool
-        - default: busybox
-          description: opentelemetry-operator.testFramework.image.repository
-          name: opentelemetry-operator.testFramework.image.repository
-          required: false
-          type: string
-        - default: latest
-          description: opentelemetry-operator.testFramework.image.tag
-          name: opentelemetry-operator.testFramework.image.tag
-          required: false
-          type: string
