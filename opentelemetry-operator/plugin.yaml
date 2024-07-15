@@ -1,7 +1,6 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    creationTimestamp: null
     name: opentelemetry-operator
 spec:
     version: 0.0.14
