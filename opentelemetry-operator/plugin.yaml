@@ -46,16 +46,6 @@ spec:
           name: opentelemetry-operator.manager.prometheusRule.enabled
           required: false
           type: bool
-        - default: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-          description: opentelemetry-operator.manager.collectorImage.repository
-          name: opentelemetry-operator.manager.collectorImage.repository
-          required: false
-          type: string
-        - default: 0.104.0
-          description: opentelemetry-operator.manager.collectorImage.tag
-          name: opentelemetry-operator.manager.collectorImage.tag
-          required: false
-          type: string
         - default: false
           description: opentelemetry-operator.manager.serviceMonitor.enabled
           name: opentelemetry-operator.manager.serviceMonitor.enabled
