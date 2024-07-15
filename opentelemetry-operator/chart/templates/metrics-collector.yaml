@@ -8,6 +8,7 @@ kind: OpenTelemetryCollector
 metadata:
   name: metrics 
 spec:
+  mode: deployment
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   config: |
     receivers:

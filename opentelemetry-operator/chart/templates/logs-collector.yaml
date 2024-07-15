@@ -8,6 +8,7 @@ kind: OpenTelemetryCollector
 metadata:
   name: logs 
 spec:
+  mode: deployment
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
