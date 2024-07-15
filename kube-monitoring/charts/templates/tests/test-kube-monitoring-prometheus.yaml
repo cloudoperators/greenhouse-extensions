@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "test-kube-monitoring-prometheus"
+  labels:
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+  namespace: default
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['kube-monitoring-prometheus.default.svc.cluster.local:9090']
+  restartPolicy: Never
