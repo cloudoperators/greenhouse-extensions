@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 1.8.2
+  version: 1.9.0
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -15,7 +15,7 @@ spec:
   helmChart:
      name: alerts
      repository: oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions
-     version: 0.10.2
+     version: 0.11.0
   uiApplication:
     name: supernova
     version: "latest"
