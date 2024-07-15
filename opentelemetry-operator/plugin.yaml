@@ -1,0 +1,71 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    creationTimestamp: null
+    name: opentelemetry-operator
+spec:
+    version: 0.0.14
+    description: opentelemetry-operator
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
+    helmChart:
+        name: opentelemetry-operator
+        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+        version: 0.0.14
+    options:
+        - description: open_telemetry.opensearch_logs.password
+          name: open_telemetry.opensearch_logs.password
+          required: false
+          type: secret
+        - description: open_telemetry.opensearch_logs.username
+          name: open_telemetry.opensearch_logs.username
+          required: false
+          type: secret
+        - description: open_telemetry.opensearch_logs.endpoint
+          name: open_telemetry.opensearch_logs.endpoint
+          required: false
+          type: string
+        - default: false
+          description: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          required: false
+          type: bool
+        - default: false
+          description: opentelemetry-operator.kubeRBACProxy.enabled
+          name: opentelemetry-operator.kubeRBACProxy.enabled
+          required: false
+          type: bool
+        - default: false
+          description: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
+          name: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
+          required: false
+          type: bool
+        - default: false
+          description: opentelemetry-operator.manager.prometheusRule.enabled
+          name: opentelemetry-operator.manager.prometheusRule.enabled
+          required: false
+          type: bool
+        - default: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
+          description: opentelemetry-operator.manager.collectorImage.repository
+          name: opentelemetry-operator.manager.collectorImage.repository
+          required: false
+          type: string
+        - default: 0.104.0
+          description: opentelemetry-operator.manager.collectorImage.tag
+          name: opentelemetry-operator.manager.collectorImage.tag
+          required: false
+          type: string
+        - default: false
+          description: opentelemetry-operator.manager.serviceMonitor.enabled
+          name: opentelemetry-operator.manager.serviceMonitor.enabled
+          required: false
+          type: bool
+        - default: busybox
+          description: opentelemetry-operator.testFramework.image.repository
+          name: opentelemetry-operator.testFramework.image.repository
+          required: false
+          type: string
+        - default: latest
+          description: opentelemetry-operator.testFramework.image.tag
+          name: opentelemetry-operator.testFramework.image.tag
+          required: false
+          type: string
