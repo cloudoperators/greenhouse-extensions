@@ -67,7 +67,7 @@ const FilterPills = () => {
       return newFilters
     })
 
-    // Optional: Aktualisiere auch activeFilters
+    //  Aktualisiere auch activeFilters
     removeActiveFilter(key, value)
   }
 
@@ -86,6 +86,20 @@ const FilterPills = () => {
 
       return newFilters
     })
+  }
+
+  const activateFilter = (key, value) => {
+    setFilters((prevFilters) => {
+      const newFilters = { ...prevFilters }
+      if (newFilters[key]) {
+        newFilters[key] = newFilters[key].map((item) =>
+          item.value === value ? { ...item, active: true } : item
+        )
+      }
+      return newFilters
+    })
+    // aktualisiere active Filters
+    addActiveFilter(key, value)
   }
 
   return (
