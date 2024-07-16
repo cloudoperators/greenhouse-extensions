@@ -83,7 +83,7 @@ spec:
           auth:
             authenticator: basicauth
           endpoint: {{ index .Values "open_telemetry" "opensearch_logs" "endpoint" }}
-        logs_index: otel-filelog-datastream
+        logs_index: ${username}-datastream
     extensions:
       basicauth:
         client_auth:
