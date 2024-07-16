@@ -50,7 +50,7 @@ const FilterPills = () => {
         console.log("sdfsdf", values)
         return values.map((value) => (
           <Pill
-            className="bg-theme-background-lvl-4"
+            className="bg-theme-background-lvl-4 opacity-70	"
             pillKey={key}
             pillValue={value}
             closeable
