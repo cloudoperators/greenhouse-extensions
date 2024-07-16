@@ -53,7 +53,6 @@ const FilterPills = () => {
 
       return newFilters
     })
-    console.log(filters)
   }, [activeFilters])
 
   const pauseFilter = (key, value) => {
