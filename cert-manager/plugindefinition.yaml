@@ -13,7 +13,7 @@ spec:
   icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo.png
   helmChart:
     name: cert-manager
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 1.11.0
   options:
     - name: cert-manager.installCRDs

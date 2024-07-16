@@ -12,7 +12,7 @@ spec:
   icon: https://raw.githubusercontent.com/fluent/fluent-bit/master/fluentbit_logo.png
   helmChart:
     name: logshipper
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.1.0
   options:
     - name: fluent-bit.parser
