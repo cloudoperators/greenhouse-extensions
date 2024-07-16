@@ -71,8 +71,26 @@ const FilterPills = () => {
     removeActiveFilter(key, value)
   }
 
+  const removeValue = (key, value) => {
+    setFilters((prevFilters) => {
+      const newFilters = { ...prevFilters }
+
+      if (newFilters[key]) {
+        newFilters[key] = newFilters[key].filter((item) => item.value !== value)
+
+        // Entferne die Kategorie, wenn sie leer ist
+        if (newFilters[key].length === 0) {
+          delete newFilters[key]
+        }
+      }
+
+      return newFilters
+    })
+  }
+
   return (
     <Stack gap="2" wrap={true}>
+<<<<<<< HEAD
       {Object.entries(activeFilters).map(([key, values]) => {
         return values.map((value) => (
           <Pill
@@ -98,6 +116,31 @@ const FilterPills = () => {
             onClick={() => activateFilter(key, value)}
           />
         ))
+=======
+      {Object.entries(filters).map(([key, filterItems]) => {
+        return filterItems.map((item) =>
+          item.active ? (
+            <Pill
+              pillKey={key}
+              pillValue={item.value}
+              closeable
+              onClose={() => removeActiveFilter(key, item.value)}
+              key={`${key}:${item.value}`}
+              onClick={() => pauseFilter(key, item.value)}
+            />
+          ) : (
+            <Pill
+              className="bg-theme-background-lvl-4 opacity-70	"
+              pillKey={key}
+              pillValue={item.value}
+              closeable
+              onClose={() => removeValue(key, item.value)}
+              key={`${key}:${item.value}`}
+              onClick={() => activateFilter(key, item.value)}
+            />
+          )
+        )
+>>>>>>> 6811992 (feat(alerts/ui): delete specific paused filters)
       })}
     </Stack>
   )
