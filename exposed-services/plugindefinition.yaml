@@ -10,5 +10,5 @@ spec:
   version: "2.0.0"
   helmChart:
     name: exposed-service
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 2.0.0
