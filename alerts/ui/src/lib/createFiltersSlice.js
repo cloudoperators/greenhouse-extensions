@@ -8,6 +8,7 @@ import { produce } from "immer"
 const initialFiltersState = {
   labels: ["status"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
   activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
+  pausedFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
   filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
   predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
   activePredefinedFilter: null, // the currently active predefined filter
@@ -129,6 +130,41 @@ const createFiltersSlice = (set, get) => ({
             // if this was the last selected value delete the whole label key
             if (state.filters.activeFilters[filterLabel].length === 0) {
               delete state.filters.activeFilters[filterLabel]
+            }
+          }),
+          false,
+          "filters.removeActiveFilter"
+        )
+        // after removing a filter: filter items
+        get().alerts.actions.filterItems()
+      },
+      addPausedFilter: (filterLabel, filterValue) => {
+        set(
+          produce((state) => {
+            // use Set to prevent duplicate values
+            state.filters.pausedFilters[filterLabel] = [
+              ...new Set([
+                ...(state.filters.pausedFilters[filterLabel] || []),
+                filterValue,
+              ]),
+            ]
+          }),
+          false,
+          "filters.setPausedFilter"
+        )
+        // after removing a filter: filter items
+        get().alerts.actions.filterItems()
+      },
+      removePausedFilter: (filterLabel, filterValue) => {
+        set(
+          produce((state) => {
+            state.filters.pausedFilters[filterLabel] =
+              state.filters.pausedFilters[filterLabel].filter(
+                (value) => value !== filterValue
+              )
+            // if this was the last selected value delete the whole label key
+            if (state.filters.pausedFilters[filterLabel].length === 0) {
+              delete state.filters.pausedFilters[filterLabel]
             }
           }),
           false,
