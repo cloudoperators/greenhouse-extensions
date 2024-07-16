@@ -15,7 +15,7 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /hack/                    @cloudoperators/greenhouse-backend
 
 # The following paths are owned by the respective maintainers
-/alerts/                  @richardtief @viennaa @artieReus @edda @hodanoori @tilmanhaupt @andypf @uwe-mayer
+/alerts/                  @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-frontend
 /cert-manager/            @cloudoperators/greenhouse-backend
 /dev-env/                 @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
@@ -25,10 +25,10 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /external-dns/            @cloudoperators/greenhouse-backend
 /heureka/                 @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
 /ingress-nginx/           @cloudoperators/greenhouse-backend
-/kube-monitoring/         @richardtief @viennaa
+/kube-monitoring/         @cloudoperators/greenhouse-observability
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
-/logshipper/              @cloudoperators/greenhouse-backend
-/opentelemetry-operator   @timojohlo @Kuckkuck @richardtief @viennaa @ivogoman
+/logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
+/opentelemetry-operator   @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 ui/                       @cloudoperators/greenhouse-frontend
