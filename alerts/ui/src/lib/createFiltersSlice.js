@@ -138,41 +138,6 @@ const createFiltersSlice = (set, get) => ({
         // after removing a filter: filter items
         get().alerts.actions.filterItems()
       },
-      addPausedFilter: (filterLabel, filterValue) => {
-        set(
-          produce((state) => {
-            // use Set to prevent duplicate values
-            state.filters.pausedFilters[filterLabel] = [
-              ...new Set([
-                ...(state.filters.pausedFilters[filterLabel] || []),
-                filterValue,
-              ]),
-            ]
-          }),
-          false,
-          "filters.setPausedFilter"
-        )
-        // after removing a filter: filter items
-        get().alerts.actions.filterItems()
-      },
-      removePausedFilter: (filterLabel, filterValue) => {
-        set(
-          produce((state) => {
-            state.filters.pausedFilters[filterLabel] =
-              state.filters.pausedFilters[filterLabel].filter(
-                (value) => value !== filterValue
-              )
-            // if this was the last selected value delete the whole label key
-            if (state.filters.pausedFilters[filterLabel].length === 0) {
-              delete state.filters.pausedFilters[filterLabel]
-            }
-          }),
-          false,
-          "filters.removeActiveFilter"
-        )
-        // after removing a filter: filter items
-        get().alerts.actions.filterItems()
-      },
 
       setPredefinedFilters: (predefinedFilters) => {
         set(
