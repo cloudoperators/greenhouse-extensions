@@ -38,10 +38,11 @@ spec:
           name: open_telemetry.prometheus
           required: false
           type: string
-        - description: open_telemetry.prometheus
-          name: open_telemetry.prometheus
+        - default: false
+          description: open_telemetry.podMonitor.enabled
+          name: open_telemetry.podMonitor.enabled
           required: false
-          type: string
+          type: bool
         - default: false
           description: opentelemetry-operator.admissionWebhooks.certManager.enabled
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
