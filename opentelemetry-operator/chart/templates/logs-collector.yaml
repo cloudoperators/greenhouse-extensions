@@ -39,11 +39,11 @@ spec:
       value: "{{ .Values.open_telemetry.cluster }}"
     - name: region
       value: "{{ .Values.open_telemetry.region }}"
-{{- if index .Values "opentelemetry-operator" "manager" "podMonitor" "enabled" }}
+{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
   ports:
     - name: prometheus
       port: 9999
-{- end }}
+{{- end }}
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
@@ -116,7 +116,7 @@ spec:
             from: attributes.namespace
             to: resource["k8s.namespace"]
 
-{{- if index .Values "opentelemetry-operator" "manager" "podMonitor" "enabled" }}
+{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
       prometheus/internal:
         config:
           scrape_configs:
@@ -124,7 +124,7 @@ spec:
               scrape_interval: 5s
               static_configs:
                 - targets: ['127.0.0.1:8888']
-{- end }}
+{{- end }}
 
     processors:
       batch:
@@ -132,7 +132,7 @@ spec:
         timeout: 10s
         send_batch_size : 400
 
-{{- if index .Values "opentelemetry-operator" "manager" "podMonitor" "enabled" }}
+{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
       attributes/prometheus:
         actions:
           - action: insert
@@ -148,7 +148,7 @@ spec:
             key: service_instance_id
           - action: delete
             key: pod
-{- end }}
+{{- end }}
 
       attributes/cluster:
         actions:
@@ -271,12 +271,12 @@ spec:
     service:
       extensions:
         - basicauth
-{{- if index .Values "opentelemetry-operator" "manager" "podMonitor" "enabled" }}
+{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
       telemetry:
         metrics:
           address: 127.0.0.1:8888
           level: detailed
-{- end }}
+{{- end }}
       pipelines:
         logs/containerd:
           receivers: [filelog]
@@ -286,9 +286,9 @@ spec:
           receivers: [k8s_events]
           processors: [resource/k8sevents,batch]
           exporters: [opensearch/logs]
-{{- if index .Values "opentelemetry-operator" "manager" "podMonitor" "enabled" }}
+{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
         metrics/prometheus:
           receivers: [prometheus/internal]
           processors: [attributes/prometheus]
           exporters: [prometheus]
-{- end }}
+{{- end }}
