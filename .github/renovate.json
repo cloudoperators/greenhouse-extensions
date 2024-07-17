@@ -12,7 +12,8 @@
       "extends": [
         "helpers:pinGitHubActionDigests"
       ],
-      "minimumReleaseAge": "14 days"
+      "minimumReleaseAge": "14 days",
+      "bumpVersion": "patch"
     },
     {
       "groupName": "npm dependencies",
