@@ -6,13 +6,13 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry-operator
 spec:
-    version: 0.1.0
+    version: 0.1.1
     description: opentelemetry-operator
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.1.0
+        version: 0.1.1
     options:
         - description: open_telemetry.opensearch_logs.username
           name: open_telemetry.opensearch_logs.username
@@ -32,6 +32,14 @@ spec:
           type: string
         - description: open_telemetry.cluster
           name: open_telemetry.cluster
+          required: false
+          type: string
+        - description: open_telemetry.prometheus
+          name: open_telemetry.prometheus
+          required: false
+          type: string
+        - description: open_telemetry.prometheus
+          name: open_telemetry.prometheus
           required: false
           type: string
         - default: false
