@@ -9,6 +9,8 @@ metadata:
   name: logs 
 spec:
   mode: daemonset
+  tolerations:
+  - operator: Exists
   env:
     - name: NAMESPACE
       valueFrom:
@@ -30,6 +32,7 @@ spec:
   ports:
     - name: prometheus
       port: 9999
+{{- if .Values.open_telemetry.fluentbit.enabled }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
@@ -38,6 +41,7 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
+{{ end }}
   envFrom:
     - secretRef:
          name: otel-basic-auth
@@ -142,6 +146,21 @@ spec:
           - action: insert
             key: region
             value: ${region}
+          - action: insert
+            key: nodename
+            value: ${KUBE_NODE_NAME}
+
+      resource/k8sevents:
+        attributes:
+          - key: k8s.node.name
+            value: ${KUBE_NODE_NAME}
+            action: insert
+          - key: cluster
+            value: ${cluster}
+            action: insert
+          - key: region
+            value: ${region}
+            action: insert
 
       transform/containerd:
         log_statements:
@@ -218,15 +237,15 @@ spec:
           auth:
             authenticator: basicauth
           endpoint: {{ .Values.open_telemetry.opensearch_logs.endpoint }}
-        logs_index: otel-filelog-datastream
+        logs_index: ${username}-datastream
       prometheus:
         endpoint: 0.0.0.0:9999
 
     extensions:
       basicauth:
         client_auth:
-          username: ${env:username}
-          password: ${env:password}
+          username: ${username}
+          password: ${password}
 
     connectors:
       routing:
@@ -247,6 +266,10 @@ spec:
         logs/containerd:
           receivers: [filelog]
           processors: [transform/containerd,k8sattributes,attributes/cluster,batch]
+          exporters: [opensearch/logs]
+        logs/k8sevents:
+          receivers: [k8s_events]
+          processors: [resource/k8sevents,batch]
           exporters: [opensearch/logs]
         metrics/prometheus:
           receivers: [prometheus/internal]
