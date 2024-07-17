@@ -25,6 +25,16 @@ spec:
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
+    - name: username
+      valueFrom:
+        secretKeyRef:
+          name: otel-basic-auth
+          key: username
+    - name: password
+      valueFrom:
+        secretKeyRef:
+          name: otel-basic-auth
+          key: password          
     - name: cluster
       value: "{{ .Values.open_telemetry.cluster }}"
     - name: region
@@ -32,7 +42,7 @@ spec:
   ports:
     - name: prometheus
       port: 9999
-{{- if .Values.open_telemetry.fluentbit.enabled }}
+  image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
@@ -41,10 +51,6 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
-{{ end }}
-  envFrom:
-    - secretRef:
-         name: otel-basic-auth
   config: |
     receivers:
       filelog:
@@ -236,8 +242,9 @@ spec:
         http:
           auth:
             authenticator: basicauth
-          endpoint: {{ .Values.open_telemetry.opensearch_logs.endpoint }}
+          endpoint: {{ index .Values "open_telemetry" "opensearch_logs" "endpoint" }}
         logs_index: ${username}-datastream
+        
       prometheus:
         endpoint: 0.0.0.0:9999
 

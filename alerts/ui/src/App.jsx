@@ -5,7 +5,7 @@
 
 import React, { useLayoutEffect } from "react"
 
-import { AppShellProvider } from "juno-ui-components"
+import { AppShellProvider, CodeBlock } from "juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
 import {
@@ -19,11 +19,20 @@ import AsyncWorker from "./components/AsyncWorker"
 import { MessagesProvider } from "messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
 
+import { ErrorBoundary } from "react-error-boundary"
+
 function App(props = {}) {
   const { setLabels, setPredefinedFilters, setActivePredefinedFilter } =
     useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const { setExcludedLabels } = useSilencesActions()
+  const preErrorClasses = `
+    custom-error-pre
+    border-theme-error
+    border
+    h-full
+    w-full
+    `
 
   useLayoutEffect(() => {
     // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. Default is status.
@@ -83,11 +92,23 @@ function App(props = {}) {
     if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
   }, [])
 
+  const fallbackRender = ({ error }) => {
+    return (
+      <div className="w-1/2">
+        <CodeBlock className={preErrorClasses} copy={false}>
+          {error?.message || error?.toString() || "An error occurred"}
+        </CodeBlock>
+      </div>
+    )
+  }
+
   return (
     <MessagesProvider>
       <CustomAppShell>
-        <AsyncWorker endpoint={props.endpoint} />
-        <AppContent props={props} />
+        <ErrorBoundary fallbackRender={fallbackRender}>
+          <AsyncWorker endpoint={props.endpoint} />
+          <AppContent props={props} />
+        </ErrorBoundary>
       </CustomAppShell>
     </MessagesProvider>
   )

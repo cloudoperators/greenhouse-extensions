@@ -14,7 +14,7 @@ spec:
   icon: https://raw.githubusercontent.com/open-policy-agent/opa/main/logo/logo.png
   # helmChart:
   #   name: doop
-  #   repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+  #   repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
   #   version: 1.2.0
   uiApplication:
     name: doop
