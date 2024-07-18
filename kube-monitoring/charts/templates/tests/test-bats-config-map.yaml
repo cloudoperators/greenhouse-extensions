@@ -19,24 +19,26 @@ data:
     DETIK_CLIENT_NAME="kubectl"
     
     @test "check if the kube-monitoring-operator components are setup correctly and the pod is running" {
-    
         verify "there is 1 deployment named 'kube-monitoring-operator'"
         verify "there is 1 service named 'kube-monitoring-operator'"
-        try "at most 2 times every 5s to get pods named 'kube-monitoring-operator' and verify that 'status' is 'running'"
+        try "at most 2 times every 5s to get pods named 'kube-monitoring-operator' and verify that '.status.phase' is 'running'"
     }
 
     @test "check if the kube-monitoring-prometheus service is setup correctly and the pod is running" {
-    
         verify "there is 1 service named 'kube-monitoring-prometheus'"
         try "at most 2 times every 5s to get pods named 'prometheus-kube-monitoring' and verify that 'status' is 'running'"
     }
 
     @test "check if the kube-monitoring-node-exporter components are setup correctly and the pod is running" {
-    
         verify "there is 1 service named 'kube-monitoring-node-exporter'"
+        try "at most 2 times every 5s to get pods named 'kube-monitoring-node-exporter.*' and verify that '.status.phase' is 'running'"
     }
 
     @test "check if the kube-monitoring-kube-state-metrics components are setup correctly and the pod is running" {
-    
         verify "there is 1 service named 'kube-monitoring-kube-state-metrics'"
+        try "at most 2 times every 5s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
+    }
+
+    @test "check if the persistent volume is setup correctly" {
+        try "at most 3 times every 5s to get persistentvolumes named 'pvc.*' and verify that '.status.phase' is 'bound'"
     }
