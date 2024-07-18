@@ -39,6 +39,23 @@ data:
         try "at most 2 times every 5s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "check if the persistent volume is setup correctly" {
+    @test "check if the persistent volume is created and status is bound" {
         try "at most 3 times every 5s to get persistentvolumes named 'pvc.*' and verify that '.status.phase' is 'bound'"
     }
+
+    @test "check if the kube-monitoring resource of type 'Prometheus' is created and setup correctly" {
+        try "at most 3 times every 5s to get prometheuses named 'kube-monitoring' and verify that '.status.availableReplicas' is more than '0'"
+    }
+
+    @test "check if the required crds are created for kube-monitoring" {
+        verify "there is 1 customresourcedefinition named 'prometheuses'"
+        verify "there is 1 customresourcedefinition named 'podmonitors'"
+        verify "there is 1 customresourcedefinition named 'prometheusrules'"
+        verify "there is 1 customresourcedefinition named 'servicemonitors'"
+        verify "there is 1 customresourcedefinition named 'thanosrulers'"
+        verify "there is 1 customresourcedefinition named 'scrapeconfigs'"
+        verify "there is 1 customresourcedefinition named 'alertmanagers'"
+        verify "there is 1 customresourcedefinition named 'alertmanagerconfigss'"
+    }
+
+    
