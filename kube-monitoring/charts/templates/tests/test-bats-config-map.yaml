@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bats-tests
+  labels:
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+data:
+  run.bash: |-
+
+    #!/usr/bin/env bats
+    
+    load "../lib/utils"
+    load "../lib/detik"
+    
+    DETIK_CLIENT_NAME="kubectl"
+    
+    @test "check if the kube-monitoring-operator components are setup correctly and the pod is running" {
+    
+        verify "there is 1 deployment named 'kube-monitoring-operator'"
+        verify "there is 1 service named 'kube-monitoring-operator'"
+        try "at most 2 times every 5s to get pods named 'kube-monitoring-operator' and verify that 'status' is 'running'"
+    }
+
+    @test "check if the kube-monitoring-prometheus service is setup correctly and the pod is running" {
+    
+        verify "there is 1 service named 'kube-monitoring-prometheus'"
+        try "at most 2 times every 5s to get pods named 'prometheus-kube-monitoring' and verify that 'status' is 'running'"
+    }
+
+    @test "check if the kube-monitoring-node-exporter components are setup correctly and the pod is running" {
+    
+        verify "there is 1 service named 'kube-monitoring-node-exporter'"
+    }
+
+    @test "check if the kube-monitoring-kube-state-metrics components are setup correctly and the pod is running" {
+    
+        verify "there is 1 service named 'kube-monitoring-kube-state-metrics'"
+    }

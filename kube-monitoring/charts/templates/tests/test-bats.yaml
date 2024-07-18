@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: bats-integration-test
+  labels: 
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+spec: 
+  containers: 
+    - name: bats-test
+      image: ibakshay/bats-detik:latest
+      command: ["bats", "-t", "scripts/run.bash"]
+      volumeMounts: 
+        - name: tests
+          mountPath: /home/testing/scripts # absolute path. This is where the bats test script will be mounted
+          readOnly: true
+  volumes: 
+    - name: tests
+      configMap: 
+        name: bats-tests
+  restartPolicy: Never
+---
