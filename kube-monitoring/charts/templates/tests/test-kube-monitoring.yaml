@@ -6,6 +6,7 @@ metadata:
     type: integration-test-test
   annotations:
     "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
 spec: 
   containers: 
     - name: bats-test
@@ -18,5 +19,5 @@ spec:
   volumes: 
     - name: tests
       configMap: 
-        name: bats-tests
+        name: test-kube-monitoring-config
   restartPolicy: Never
