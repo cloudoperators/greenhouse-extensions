@@ -15,6 +15,7 @@ const FilterPills = () => {
 
   // useEffect Hook zur Aktualisierung der Filter
   useEffect(() => {
+    console.log("trigger!")
     setFilters((prevFilters) => {
       const newFilters = { ...prevFilters }
 
@@ -23,15 +24,13 @@ const FilterPills = () => {
           if (activeFilters[key]) {
             const activeSet = new Set(activeFilters[key])
 
-            // Behalte inaktive Elemente und aktualisiere aktive
             newFilters[key] = newFilters[key].map((item) => {
               if (activeSet.has(item.value)) {
                 return { ...item, active: true }
               }
-              return item // Behalte inaktive Elemente unverändert
+              return item
             })
 
-            // Füge neue aktive Elemente hinzu
             activeFilters[key].forEach((value) => {
               if (!newFilters[key].some((item) => item.value === value)) {
                 newFilters[key].push({ value, active: true })
@@ -70,6 +69,11 @@ const FilterPills = () => {
     removeActiveFilter(key, value)
   }
 
+  const deleteFilter = (key, value) => {
+    removeValue(key, value)
+    removeActiveFilter(key, value)
+  }
+
   const removeValue = (key, value) => {
     setFilters((prevFilters) => {
       const newFilters = { ...prevFilters }
@@ -77,12 +81,11 @@ const FilterPills = () => {
       if (newFilters[key]) {
         newFilters[key] = newFilters[key].filter((item) => item.value !== value)
 
-        // Entferne die Kategorie, wenn sie leer ist
+        // delete empty category
         if (newFilters[key].length === 0) {
           delete newFilters[key]
         }
       }
-
       return newFilters
     })
   }
@@ -131,13 +134,14 @@ const FilterPills = () => {
         ))
 =======
       {Object.entries(filters).map(([key, filterItems]) => {
+        console.log(filterItems)
         return filterItems.map((item) =>
           item.active ? (
             <Pill
               pillKey={key}
               pillValue={item.value}
               closeable
-              onClose={() => removeActiveFilter(key, item.value)}
+              onClose={() => deleteFilter(key, item.value)}
               key={`${key}:${item.value}`}
               onClick={() => pauseFilter(key, item.value)}
             />
