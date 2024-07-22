@@ -11,10 +11,10 @@ spec:
   containers: 
     - name: bats-test
       image: ibakshay/bats-detik:latest
-      command: ["bats", "-t", "scripts/run.bash"]
+      command: ["bats", "-t", "tests/run.sh"]
       volumeMounts: 
         - name: tests
-          mountPath: /home/testing/scripts # absolute path. This is where the bats test script will be mounted
+          mountPath: /home/testing/tests # absolute path. This is where the bats test script will be mounted
           readOnly: true
   volumes: 
     - name: tests

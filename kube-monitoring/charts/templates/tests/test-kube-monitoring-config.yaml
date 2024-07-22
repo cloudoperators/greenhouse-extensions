@@ -9,7 +9,7 @@ metadata:
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
 data:
-  run.bash: |-
+  run.sh: |-
 
     #!/usr/bin/env bats
     
