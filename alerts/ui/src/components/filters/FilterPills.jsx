@@ -154,7 +154,6 @@ const FilterPills = () => {
         ))
 =======
       {Object.entries(filters).map(([key, filterItems]) => {
-        console.log(filterItems)
         return filterItems.map((item) =>
           item.active ? (
             <Pill

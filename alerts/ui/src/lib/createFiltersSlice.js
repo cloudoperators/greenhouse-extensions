@@ -194,7 +194,6 @@ const createFiltersSlice = (set, get) => ({
 
       // state to show Pills with active filters in the UI
       setFilterPills: (filter) => {
-        console.log("setFilterPills", filter)
         set(
           produce((state) => {
             state.filters.filterPills = filter
