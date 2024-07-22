@@ -13,7 +13,18 @@
         "helpers:pinGitHubActionDigests"
       ],
       "minimumReleaseAge": "14 days",
-      "bumpVersion": "patch"
+    },
+    {
+      "groupName": "helm v3 minor",
+      "matchManagers": ["helmv3"],
+      "matchUpdateTypes": ["minor"],
+      "bumpVersion": "minor"
+    },
+    {
+      "groupName": "helm v3 major",
+      "matchManagers": ["helmv3"],
+      "matchUpdateTypes": ["major"],
+      "bumpVersion": "major"
     },
     {
       "groupName": "npm dependencies",
