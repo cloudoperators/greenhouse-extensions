@@ -12,6 +12,19 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: Helm
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: opentelemetry-operator-webhook
+          namespace: {{ .Release.Namespace }}
+          path: /convert
+          port: {{ .Values.admissionWebhooks.servicePort }}
+  {{ if .caBundle }}{{ cat "caBundle:" .caBundle | indent 8 }}{{ end }}
+      conversionReviewVersions:
+      - v1alpha1
+      - v1beta1
   group: opentelemetry.io
   names:
     kind: OpenTelemetryCollector
