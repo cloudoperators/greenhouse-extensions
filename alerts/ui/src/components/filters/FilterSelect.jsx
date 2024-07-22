@@ -30,7 +30,7 @@ const FilterSelect = () => {
   const {
     addActiveFilter,
     loadFilterLabelValues,
-    clearActiveFilters,
+    clearFilters,
     setSearchTerm,
   } = useFilterActions()
   const filterLabels = useFilterLabels()
@@ -125,7 +125,7 @@ const FilterSelect = () => {
       {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all"
-          onClick={() => clearActiveFilters()}
+          onClick={() => clearFilters()}
           variant="subdued"
         />
       )}

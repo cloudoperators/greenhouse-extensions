@@ -120,6 +120,8 @@ export const usePredefinedFilters = () =>
   useAppStore((state) => state.filters.predefinedFilters)
 export const useActivePredefinedFilter = () =>
   useAppStore((state) => state.filters.activePredefinedFilter)
+export const useFilterPills = () =>
+  useAppStore((state) => state.filters.filterPills)
 
 export const useFilterActions = () =>
   useAppStore((state) => state.filters.actions)

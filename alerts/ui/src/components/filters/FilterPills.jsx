@@ -5,6 +5,7 @@
 
 import React from "react"
 
+<<<<<<< HEAD
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
 import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
 
@@ -13,10 +14,23 @@ const FilterPills = () => {
   const [filters, setFilters] = useState({})
   const { removeActiveFilter } = useFilterActions()
 
+=======
+import { Pill, Stack } from "juno-ui-components"
+import {
+  useActiveFilters,
+  useFilterActions,
+  useFilterPills,
+} from "../../hooks/useAppStore"
+
+const FilterPills = () => {
+  const activeFilters = useActiveFilters()
+  const filters = useFilterPills()
+  const { removeActiveFilter, addActiveFilter, setFilterPills } =
+    useFilterActions()
+>>>>>>> c43f24a (feat(alerts/ui): clear all button clears now also inactive Filters.)
   // useEffect Hook zur Aktualisierung der Filter
   useEffect(() => {
-    console.log("trigger!")
-    setFilters((prevFilters) => {
+    const pills = (prevFilters) => {
       const newFilters = { ...prevFilters }
 
       for (let key in newFilters) {
@@ -51,19 +65,22 @@ const FilterPills = () => {
       }
 
       return newFilters
-    })
+    }
+    setFilterPills(pills(filters))
   }, [activeFilters])
 
   const pauseFilter = (key, value) => {
-    setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters }
+    const pills = (filters) => {
+      const newFilters = { ...filters }
       if (newFilters[key]) {
         newFilters[key] = newFilters[key].map((item) =>
           item.value === value ? { ...item, active: false } : item
         )
       }
       return newFilters
-    })
+    }
+
+    setFilterPills(pills(filters))
 
     //  Aktualisiere auch activeFilters
     removeActiveFilter(key, value)
@@ -75,8 +92,8 @@ const FilterPills = () => {
   }
 
   const removeValue = (key, value) => {
-    setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters }
+    const pills = (filters) => {
+      const newFilters = { ...filters }
 
       if (newFilters[key]) {
         newFilters[key] = newFilters[key].filter((item) => item.value !== value)
@@ -87,19 +104,22 @@ const FilterPills = () => {
         }
       }
       return newFilters
-    })
+    }
+
+    setFilterPills(pills(filters))
   }
 
   const activateFilter = (key, value) => {
-    setFilters((prevFilters) => {
-      const newFilters = { ...prevFilters }
+    const pills = (filters) => {
+      const newFilters = { ...filters }
       if (newFilters[key]) {
         newFilters[key] = newFilters[key].map((item) =>
           item.value === value ? { ...item, active: true } : item
         )
       }
       return newFilters
-    })
+    }
+    setFilterPills(pills(filters))
     // aktualisiere active Filters
     addActiveFilter(key, value)
   }
