@@ -4,6 +4,10 @@
   "extends": [
     "config:recommended"
   ],
+  "ignorePresets": [
+    "group:monorepos",
+    "group:recommended"
+  ],
   "packageRules": [
     {
       "groupName": "github actions",
