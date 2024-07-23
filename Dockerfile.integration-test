@@ -1,12 +1,11 @@
-FROM bats/bats:latest
+FROM bats/bats:1.11.0
 
-ARG KUBECTL_VERSION=v1.29.2
+ARG KUBECTL_VERSION=v1.30.2
 
 # Add packages
-RUN apk --no-cache add \
-    curl \
-    git \
-    bash
+RUN apk upgrade --no-cache --no-progress \
+&& apk --no-cache --no-progress add curl git bash \
+&& apk del --no-cache --no-progress apk-tools alpine-keys
 
 # Install kubectl binary
 RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl" && \
