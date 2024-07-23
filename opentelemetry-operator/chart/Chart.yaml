@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: opentelemetry-operator
-version: 0.0.14
+version: 0.1.3
 description: OpenTelemetry Operator Helm chart for Kubernetes
 icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e9e3ac0c8817cb/projects/opentelemetry/icon/color/opentelemetry-icon-color.png
 type: application
@@ -13,8 +13,7 @@ maintainers:
 - name: viennaa
 sources:
 - https://github.com/cloudoperators/greenhouse-extensions
-appVersion: 0.98.0
 dependencies:
 - name: opentelemetry-operator
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.56.0
+  version: 0.64.2

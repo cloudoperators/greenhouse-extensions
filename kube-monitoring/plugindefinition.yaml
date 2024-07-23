@@ -13,7 +13,7 @@ spec:
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
   helmChart:
     name: kube-monitoring
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.9.0
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled

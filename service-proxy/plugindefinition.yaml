@@ -10,7 +10,7 @@ spec:
   version: "1.0.2"
   helmChart:
     name: service-proxy
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 1.0.2
   options:
     - name: domain

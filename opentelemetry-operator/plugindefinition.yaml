@@ -6,29 +6,56 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry-operator
 spec:
-    version: 0.0.14
+    version: 0.1.3
     description: opentelemetry-operator
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.14
+        version: 0.1.3
     options:
-        - description: open_telemetry.opensearch_logs.password
-          name: open_telemetry.opensearch_logs.password
-          required: false
-          type: secret
         - description: open_telemetry.opensearch_logs.username
           name: open_telemetry.opensearch_logs.username
+          required: false
+          type: secret
+        - description: open_telemetry.opensearch_logs.password
+          name: open_telemetry.opensearch_logs.password
           required: false
           type: secret
         - description: open_telemetry.opensearch_logs.endpoint
           name: open_telemetry.opensearch_logs.endpoint
           required: false
           type: string
+        - description: open_telemetry.region
+          name: open_telemetry.region
+          required: false
+          type: string
+        - description: open_telemetry.cluster
+          name: open_telemetry.cluster
+          required: false
+          type: string
+        - description: open_telemetry.prometheus
+          name: open_telemetry.prometheus
+          required: false
+          type: string
+        - default: false
+          description: open_telemetry.podMonitor.enabled
+          name: open_telemetry.podMonitor.enabled
+          required: false
+          type: bool
         - default: false
           description: opentelemetry-operator.admissionWebhooks.certManager.enabled
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          required: false
+          type: bool
+        - default: true
+          description: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          required: false
+          type: bool
+        - default: false
+          description: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
+          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
           required: false
           type: bool
         - default: false
