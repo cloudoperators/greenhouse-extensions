@@ -11,11 +11,11 @@ spec:
   serviceAccountName: integration-test
   containers: 
     - name: bats-test
-      image: ibakshay/bats-detik:latest
-      command: ["bats", "-t", "tests/run.sh"]
+      image: ibakshay/bats-custom:1.0.1
+      command: ["bats", "-t", "/tests/run.sh"]
       volumeMounts: 
         - name: tests
-          mountPath: /home/testing/tests # absolute path. This is where the bats test script will be mounted
+          mountPath: /tests # absolute path. This is where the bats test script will be mounted
           readOnly: true
   volumes: 
     - name: tests
