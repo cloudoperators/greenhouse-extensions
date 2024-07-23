@@ -12,18 +12,27 @@
       "extends": [
         "helpers:pinGitHubActionDigests"
       ],
-      "minimumReleaseAge": "14 days",
+      "minimumReleaseAge": "14 days"
+    },
+    {
+      "groupName": "helm v3 patch",
+      "matchManagers": ["helmv3"],
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": "7 days",
+      "bumpVersion": "patch"
     },
     {
       "groupName": "helm v3 minor",
       "matchManagers": ["helmv3"],
       "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "14 days",
       "bumpVersion": "minor"
     },
     {
       "groupName": "helm v3 major",
       "matchManagers": ["helmv3"],
       "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days",
       "bumpVersion": "major"
     },
     {
