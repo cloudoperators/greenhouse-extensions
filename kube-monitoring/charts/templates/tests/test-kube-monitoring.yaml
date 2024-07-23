@@ -11,7 +11,7 @@ spec:
   serviceAccountName: integration-test
   containers: 
     - name: bats-test
-      image: ibakshay/bats-custom:1.0.1
+      image: ghcr.io/ibakshay/greenhouse-extensions-integration-test:main # TODO: replace this docker image
       command: ["bats", "-t", "/tests/run.sh"]
       volumeMounts: 
         - name: tests

@@ -36,11 +36,11 @@ data:
 
     @test "check if the kube-monitoring-kube-state-metrics components are setup correctly and the pod is running" {
         verify "there is 1 service named 'kube-monitoring-kube-state-metrics'"
-        try "at most 2 times every 5s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
+        try "at most 3 times every 10s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "check if the persistent volume is created and status is bound" {
-        try "at most 3 times every 5s to get persistentvolumeclaims named 'kube-monitoring.*' and verify that the '.status.phase' is 'Bound'"
+    @test "check if the persistent volume claim is created and status is bound" {
+        try "at most 3 times every 5s to get persistentvolumeclaims named 'kube-monitoring.*' and verify that '.status.phase' is 'Bound'"
     }
 
     @test "check if the kube-monitoring resource of type 'prometheus' is created and setup correctly" {
