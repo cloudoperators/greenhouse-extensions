@@ -26,7 +26,7 @@ Requirements (detailed steps below):
 
 ## Object Store preparation
 
-To run thanos you need object store credentials. Choose a provider and add the credentials into a secret. The [Thanos documentation](https://thanos.io/tip/thanos/storage.md/) provides a great overview on the different supported store types.
+To run Thanos, you need object storage credentials. Get the credentials of your provider and add them to a Kubernetes Secret. The [Thanos documentation](https://thanos.io/tip/thanos/storage.md/) provides a great overview on the different supported store types.
 
 Usually this looks somewhat like this
 
