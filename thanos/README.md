@@ -14,7 +14,7 @@ This plugin deploys the following Thanos components:
 
 Requirements (detailed steps below):
 * ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
-* thanos-sidecar enabled in Prometheus (usually with [Prometheus Operator](https://prometheus-operator.dev/))
+* thanos-sidecar enabled in Prometheus (usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec))
 
 # Owner
 
