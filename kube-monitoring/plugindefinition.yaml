@@ -6,15 +6,15 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 1.7.5
+  version: 1.8.0
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
   helmChart:
     name: kube-monitoring
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
-    version: 0.8.2
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.9.0
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster

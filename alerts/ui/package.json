@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.9.18",
+  "version": "0.9.19",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
@@ -107,5 +107,8 @@
   "appDependencies": {
     "auth": "latest"
   },
-  "appPreview": true
+  "appPreview": true,
+  "dependencies": {
+    "react-error-boundary": "^4.0.13"
+  }
 }

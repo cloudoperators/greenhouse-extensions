@@ -9,9 +9,11 @@ import {
   useSilencesItemsHash,
   useSilencesLocalItems,
   useSilencesActions,
+  useAlertsActions,
 } from "../../hooks/useAppStore"
 
 const AlertStatus = ({ alert }) => {
+  const { getAlertByFingerprint } = useAlertsActions()
   const allSilences = useSilencesItemsHash()
   const localSilences = useSilencesLocalItems()
   const { getMappingSilences, getMappedState } = useSilencesActions()
@@ -44,7 +46,11 @@ const AlertStatus = ({ alert }) => {
         <div className="text-xs mt-2">
           <Stack direction="vertical">
             <span>Inhibited by:</span>
-            <span>{alert?.status?.inhibitedBy}</span>
+            {alert.status.inhibitedBy.map((fingerprint) => (
+              <span>
+                {getAlertByFingerprint(fingerprint)?.annotations?.summary}
+              </span>
+            ))}
           </Stack>
         </div>
       )}

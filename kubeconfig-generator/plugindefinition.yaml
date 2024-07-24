@@ -10,7 +10,7 @@ spec:
   version: 0.1.5
   helmChart:
     name: kubeconfig-generator
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.1.6
   options:
     - name: swift.authUrl

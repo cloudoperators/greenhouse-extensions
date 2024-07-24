@@ -1,5 +1,5 @@
 ---
-title: OpenTelemetry Collector
+title: OpenTelemetry Operator
 ---
 
 This Plugin is intended for ingesting, generating, collecting, and exporting telemetry data (metrics, logs, and traces). 
