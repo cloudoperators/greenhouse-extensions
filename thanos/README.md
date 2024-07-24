@@ -50,7 +50,7 @@ kubectl create secret generic $THANOS_PLUGIN_NAME-metrics-objectstore --from-fil
 
 ## kube-monitoring plugin enablement 
 
-Prometheus in kube-monitoring needs to be altered to have a sidecar and ship metrics to the new object store too. You have to provide the secret you've just created to the (most likely already existing) kube-monitoring plugin. Add this:
+Prometheus in kube-monitoring needs to be altered to have a sidecar and ship metrics to the new object store too. You have to provide the Secret you've just created to the (most likely already existing) kube-monitoring plugin. Add this:
 
 ```yaml
 spec:
@@ -69,7 +69,7 @@ This is the real deal now: Define your Thanos query by creating a plugin.
 **NOTE2:** The `releaseNamespace` needs to be the same as to where kube-monitoring resides. By default this is kube-monitoring. 
 
 
-```
+```yaml
 apiVersion: greenhouse.sap/v1alpha1
 kind: Plugin
 metadata:

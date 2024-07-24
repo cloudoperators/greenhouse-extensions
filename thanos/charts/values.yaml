@@ -7,7 +7,6 @@ global:
   ##
   commonLabels: {}
 
-## kube-prometheus-stack configuration scoped to kube-monitoring
 thanos:
   image:
     repository: quay.io/thanos/thanos
