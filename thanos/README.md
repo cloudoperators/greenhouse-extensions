@@ -105,3 +105,11 @@ spec:
 If you deploy the plugin with the default values, Thanos compactor will be shipped too and use the same secret (`$THANOS_PLUGIN_NAME-metrics-objectstore`) to retrieve, compact and push back timeseries.
 
 It will use a 100Gi PVC to not extensively occupy ephermeral storage. Depending on the amount of metrics this might be not enought and bigger volumes are needed. It is always safe to delete the compactor volume and increase it as needed. 
+
+The object storage costs will be heavily impacted on how granular timeseries are being stored (reference [Downsampling](https://thanos.io/tip/components/compact.md/#downsampling)). These are the pre-configured defaults, you can change them as needed:
+
+```
+raw: 777600s (90d)
+5m: 777600s (90d)
+1h: 157680000 (5y)
+```
