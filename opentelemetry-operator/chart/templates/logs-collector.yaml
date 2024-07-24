@@ -56,8 +56,8 @@ spec:
   config: |
     receivers:
       filelog:
-        include: [ /var/log/containers/*.log ]
-        exclude: [ /var/log/containers/logs-collector-*.log ]
+        include: [ /var/log/pods/*/*/*.log ]
+        exclude: [ var/log/pods/*/logs-collector/*.log ]
         include_file_path: true
         include_file_name: false
         start_at: end
@@ -95,26 +95,30 @@ spec:
           # Extract metadata from file path
           - id: extract_metadata_from_filepath
             type: regex_parser
-            regex: "^.*/(?P<pod_name>[^_]+)_(?P<namespace>[^_]+)_(?P<container_name>[^_]+)-(?P<uid>[a-f0-9\\-]{64})\\.log$"
+            regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]{36})\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
             parse_from: attributes["log.file.path"]
             cache:
               size: 128
 
-            # workaround, transform cache cannot be used, as this makes entries with wrong metadata
-          - id: move-pod-name
-            type: move
-            from: attributes.pod_name
-            to: resource["k8s.pod.name"]
-
-          - id: move-uid
-            type: move
-            from: attributes.uid
-            to: resource["k8s.pod.id"]
-
-          - id: move-namespace
-            type: move
+          # Rename attributes
+          - type: move
+            from: attributes.stream
+            to: attributes["log.iostream"]
+          - type: move
+            from: attributes.container_name
+            to: resource["k8s.container.name"]
+          - type: move
             from: attributes.namespace
             to: resource["k8s.namespace"]
+          - type: move
+            from: attributes.pod_name
+            to: resource["k8s.pod.name"]
+          - type: move
+            from: attributes.restart_count
+            to: resource["k8s.container.restart_count"]
+          - type: move
+            from: attributes.uid
+            to: resource["k8s.pod.uid"]
 
 {{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
       prometheus/internal:
