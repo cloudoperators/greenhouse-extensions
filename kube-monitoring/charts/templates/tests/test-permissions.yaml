@@ -1,24 +1,29 @@
 {{- if .Values.testFramework.enabled -}}
 apiVersion: v1
 kind: ServiceAccount 
-metadata: 
-  name: integration-test # This is the service account that will be used by the test pod
+metadata:
+  name: {{ .Release.Name }}-test
   namespace: default
+  labels: 
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
-    "helm.sh/hook-weight": "-5" # this annotation is used so that this serviceaccount is created before the test pod gets executed
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: default
-  name: object-reader
+  name: {{ .Release.Name }}-test
+  labels: 
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
-    "helm.sh/hook-weight": "-5" # this annotation is used so that the role is created before the test pod gets executed
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments", "statefulsets"]
@@ -30,11 +35,34 @@ rules:
     resources: ["prometheuses"]
     verbs: ["get", "list"]
 ---
-
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: default
+  labels: 
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-test
+    namespace: default
+roleRef:
+    kind: Role
+    name: {{ .Release.Name }}-test
+    apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: object-reader-cluster
+  name: {{ .Release.Name }}-test
+  labels: 
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "-5"
@@ -44,37 +72,24 @@ rules:
     resources: ["customresourcedefinitions"]
     verbs: ["get", "list"]
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: crd-viewer-binding
-subjects:
-  - kind: ServiceAccount
-    name: integration-test
-    namespace: default
-roleRef:
-    kind: ClusterRole
-    name: object-reader-cluster
-    apiGroup: rbac.authorization.k8s.io
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: object-reader-binding
-  namespace: default
+  name: {{ .Release.Name }}-test
+  labels: 
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 subjects:
   - kind: ServiceAccount
-    name: integration-test
+    name: {{ .Release.Name }}-test
     namespace: default
 roleRef:
-    kind: Role
-    name: object-reader
+    kind: ClusterRole
+    name: {{ .Release.Name }}-test
     apiGroup: rbac.authorization.k8s.io
 ---
 {{- end -}}

@@ -2,14 +2,15 @@
 apiVersion: v1
 kind: Pod
 metadata: 
-  name: kube-monitoring-integration-test
+  name: {{ .Release.Name }}-test
   labels: 
-    type: integration-test-test
+    type: integration-test  
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 spec:
-  serviceAccountName: integration-test
+  serviceAccountName: {{ .Release.Name }}-test
   containers: 
     - name: bats-test
       image: "{{ .Values.testFramework.image.registry}}/{{ .Values.testFramework.image.repository}}:{{ .Values.testFramework.image.tag }}"
@@ -17,11 +18,11 @@ spec:
       command: ["bats", "-t", "/tests/run.sh"]
       volumeMounts: 
         - name: tests
-          mountPath: /tests # absolute path. This is where the bats test script will be mounted
+          mountPath: /tests
           readOnly: true
   volumes: 
     - name: tests
       configMap: 
-        name: test-kube-monitoring-config
+        name: {{ .Release.Name }}-test
   restartPolicy: Never
 {{- end -}}
