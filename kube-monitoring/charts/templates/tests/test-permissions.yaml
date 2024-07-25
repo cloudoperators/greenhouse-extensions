@@ -1,3 +1,4 @@
+{{- if .Values.testFramework.enabled -}}
 apiVersion: v1
 kind: ServiceAccount 
 metadata: 
@@ -8,9 +9,10 @@ metadata:
     "helm.sh/hook-weight": "-5" # this annotation is used so that this serviceaccount is created before the test pod gets executed
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" # this annotation is used to delete the test pod after the test is successful
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
-metadata: 
+metadata:
   namespace: default
   name: object-reader
   annotations:
@@ -31,7 +33,7 @@ rules:
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
-metadata: 
+metadata:
   name: object-reader-cluster
   annotations:
     "helm.sh/hook": test
@@ -55,18 +57,18 @@ roleRef:
     kind: ClusterRole
     name: object-reader-cluster
     apiGroup: rbac.authorization.k8s.io
---- 
+---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
-metadata: 
+metadata:
   name: object-reader-binding
   namespace: default
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-subjects: 
+subjects:
   - kind: ServiceAccount
     name: integration-test
     namespace: default
@@ -74,4 +76,5 @@ roleRef:
     kind: Role
     name: object-reader
     apiGroup: rbac.authorization.k8s.io
---- 
+---
+{{- end -}}
