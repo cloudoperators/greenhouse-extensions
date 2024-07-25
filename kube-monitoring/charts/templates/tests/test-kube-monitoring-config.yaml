@@ -19,40 +19,40 @@ data:
     
     DETIK_CLIENT_NAME="kubectl"
     
-    @test "check if the kube-monitoring-operator components are setup correctly and the pod is running" {
+    @test "Verify successful deployment and running status of the kube-monitoring-operator pod" {
         verify "there is 1 deployment named 'kube-monitoring-operator'"
         verify "there is 1 service named 'kube-monitoring-operator'"
         try "at most 2 times every 5s to get pods named 'kube-monitoring-operator' and verify that '.status.phase' is 'running'"
     }
 
-    @test "check if the kube-monitoring-prometheus service is setup correctly and the pod is running" {
+    @test "Verify successful deployment and running status of the kube-monitoring-prometheus service and pod" {
         verify "there is 1 service named 'kube-monitoring-prometheus'"
         try "at most 2 times every 5s to get pods named 'prometheus-kube-monitoring' and verify that 'status' is 'running'"
     }
 
-    @test "check if the kube-monitoring-node-exporter components are setup correctly and the pod is running" {
+    @test "Verify successful deployment and running status of the kube-monitoring-node-exporter pod" {
         verify "there is 1 service named 'kube-monitoring-node-exporter'"
         try "at most 2 times every 5s to get pods named 'kube-monitoring-node-exporter.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "check if the kube-monitoring-kube-state-metrics components are setup correctly and the pod is running" {
+    @test "Verify successful deployment and running status of the kube-monitoring-kube-state-metrics pod" {
         verify "there is 1 service named 'kube-monitoring-kube-state-metrics'"
         try "at most 3 times every 10s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "check if the persistent volume claim is created and status is bound" {
+    @test "Verify successful creation and bound status of kube-monitoring persistent volume claims" {
         try "at most 3 times every 5s to get persistentvolumeclaims named 'kube-monitoring.*' and verify that '.status.phase' is 'Bound'"
     }
 
-    @test "check if the kube-monitoring resource of type 'prometheus' is created and setup correctly" {
+    @test "Verify successful creation and available replicas of kube-monitoring Prometheus resource" {
         try "at most 3 times every 5s to get prometheuses named 'kube-monitoring' and verify that '.status.availableReplicas' is more than '0'"
     }
 
-    @test "Check if the statefulset is created" {
+    @test "Verify creation of the prometheus-kube-monitoring statefulset" {
         verify "there is 1 statefulset named 'prometheus-kube-monitoring'"
     }
 
-    @test "check if the required crds are created for kube-monitoring" {
+    @test "Verify creation of required custom resource definitions (CRDs) for kube-monitoring" {
         verify "there is 1 customresourcedefinition named 'prometheuses'"
         verify "there is 1 customresourcedefinition named 'podmonitors'"
         verify "there is 1 customresourcedefinition named 'prometheusrules'"
