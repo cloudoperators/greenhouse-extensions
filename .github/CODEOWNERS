@@ -31,4 +31,5 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /opentelemetry-operator   @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
+/thanos/                  @cloudoperators/greenhouse-observability
 ui/                       @cloudoperators/greenhouse-frontend
