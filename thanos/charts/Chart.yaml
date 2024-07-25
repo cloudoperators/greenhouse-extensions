@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: Base chart for thanos monitoring deployments
+icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png 
+type: application
+maintainers:
+  - name: viennaa
+  - name: richardtief
+name: thanos 
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+version: 0.0.8
+# thanos-release
+appVersion: v0.35.0
+keywords:
+  - thanos
+  - storage
+  - metrics
