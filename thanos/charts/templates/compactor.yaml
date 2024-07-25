@@ -1,0 +1,93 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{ if .Values.thanos.compactor.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.compactor.labels }}
+    {{ toYaml .Values.thanos.compactor.labels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-compactor
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: {{ include "release.name" . }} 
+      app.kubernetes.io/name: compactor
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- if .Values.thanos.compactor.annotations }}
+      annotations:
+        {{ toYaml .Values.thanos.compactor.annotations | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/managed-by: {{ include "release.name" . }} 
+        app.kubernetes.io/name: compactor
+        {{- if .Values.thanos.compactor.containerLabels }}
+        {{ toYaml .Values.thanos.compactor.containerLabels | nindent 8 }}
+        {{- end }}
+      name: {{ include "release.name" . }}-compactor
+    spec:
+      containers:
+      - args:
+        - compact
+        - --log.level={{ default "info" .Values.thanos.compactor.logLevel }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
+        - --http-grace-period={{ default "120s" .Values.thanos.compactor.httpGracePeriod }}
+        - --data-dir=/data
+        - --objstore.config-file=/etc/config/thanos.yaml
+        - --consistency-delay={{ default "1800s" .Values.thanos.compactor.consistencyDelay }}
+        - --retention.resolution-raw={{ default "7776000s" .Values.thanos.compactor.retentionResolutionRaw }}
+        - --retention.resolution-5m={{ default "7776000s" .Values.thanos.compactor.retentionResolution5m }}
+        - --retention.resolution-1h={{ default "157680000s" .Values.thanos.compactor.retentionResolution1h }}
+        - --compact.concurrency={{ default (int 1) .Values.thanos.compactor.compact.concurrency }}
+        - --compact.cleanup-interval={{ default "1800s" .Values.thanos.compactor.compact.cleanupInterval }}
+        - --wait
+        - --wait-interval={{ default "900s" .Values.thanos.compactor.compact.cleanupInterval }}
+        {{- range .Values.thanos.compactor.additionalArgs }}
+        - {{ . }}
+        {{- end }}
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        name: compactor
+        ports:
+        - containerPort: 10902
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/config/
+          name: objectstore-secret
+          readOnly: true
+        - mountPath: /data
+          name: data-volume
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 3000
+          fsGroup: 2000
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
+          volumeMounts:
+          - mountPath: /data
+            name: data-volume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore 
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ include "release.name" . }}-compactor
+{{ end }}
