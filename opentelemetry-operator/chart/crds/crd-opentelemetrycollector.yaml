@@ -21,7 +21,6 @@ spec:
           namespace: {{ .Release.Namespace }}
           path: /convert
           port: {{ .Values.admissionWebhooks.servicePort }}
-  {{ if .caBundle }}{{ cat "caBundle:" .caBundle | indent 8 }}{{ end }}
       conversionReviewVersions:
       - v1alpha1
       - v1beta1
