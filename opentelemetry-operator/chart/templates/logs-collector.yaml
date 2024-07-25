@@ -295,6 +295,7 @@ spec:
           exporters: [opensearch/logs]
         logs/journald:
           receivers: [journald]
+          processors: [attributes/cluster,batch]
           exporters: [opensearch/logs]
 {{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
         metrics/prometheus:
