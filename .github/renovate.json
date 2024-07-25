@@ -18,21 +18,21 @@
       "matchManagers": ["helmv3"],
       "matchUpdateTypes": ["patch"],
       "minimumReleaseAge": "7 days",
-      "additionalBranchPrefix": "{{parentDir}}-"
+      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "patch"
     },
     {
       "matchManagers": ["helmv3"],
       "matchUpdateTypes": ["minor"],
       "minimumReleaseAge": "14 days",
-      "additionalBranchPrefix": "{{parentDir}}-"
+      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "minor"
     },
     {
       "matchManagers": ["helmv3"],
       "matchUpdateTypes": ["major"],
       "minimumReleaseAge": "14 days",
-      "additionalBranchPrefix": "{{parentDir}}-"
+      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "major"
     },
     {
