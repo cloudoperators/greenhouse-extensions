@@ -19,40 +19,40 @@ data:
     
     DETIK_CLIENT_NAME="kubectl"
     
-    @test "Verify successful deployment and running status of the kube-monitoring-operator pod" {
-        verify "there is 1 deployment named 'kube-monitoring-operator'"
-        verify "there is 1 service named 'kube-monitoring-operator'"
-        try "at most 2 times every 5s to get pods named 'kube-monitoring-operator' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
+        verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
+        verify "there is 1 service named '{{ .Release.Name }}-operator'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
     }
 
-    @test "Verify successful deployment and running status of the kube-monitoring-prometheus service and pod" {
-        verify "there is 1 service named 'kube-monitoring-prometheus'"
-        try "at most 2 times every 5s to get pods named 'prometheus-kube-monitoring' and verify that 'status' is 'running'"
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-prometheus service and pod" {
+        verify "there is 1 service named '{{ .Release.Name }}-prometheus'"
+        try "at most 2 times every 5s to get pods named 'prometheus-{{ .Release.Name }}' and verify that 'status' is 'running'"
     }
 
-    @test "Verify successful deployment and running status of the kube-monitoring-node-exporter pod" {
-        verify "there is 1 service named 'kube-monitoring-node-exporter'"
-        try "at most 2 times every 5s to get pods named 'kube-monitoring-node-exporter.*' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-node-exporter pod" {
+        verify "there is 1 service named '{{ .Release.Name }}-node-exporter'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-node-exporter.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "Verify successful deployment and running status of the kube-monitoring-kube-state-metrics pod" {
-        verify "there is 1 service named 'kube-monitoring-kube-state-metrics'"
-        try "at most 3 times every 10s to get pods named 'kube-monitoring-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-kube-state-metrics pod" {
+        verify "there is 1 service named '{{ .Release.Name }}-kube-state-metrics'"
+        try "at most 3 times every 10s to get pods named '{{ .Release.Name }}-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "Verify successful creation and bound status of kube-monitoring persistent volume claims" {
-        try "at most 3 times every 5s to get persistentvolumeclaims named 'kube-monitoring.*' and verify that '.status.phase' is 'Bound'"
+    @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
+        try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}.*' and verify that '.status.phase' is 'Bound'"
     }
 
-    @test "Verify successful creation and available replicas of kube-monitoring Prometheus resource" {
-        try "at most 3 times every 5s to get prometheuses named 'kube-monitoring' and verify that '.status.availableReplicas' is more than '0'"
+    @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
+        try "at most 3 times every 5s to get prometheuses named '{{ .Release.Name }}' and verify that '.status.availableReplicas' is more than '0'"
     }
 
-    @test "Verify creation of the prometheus-kube-monitoring statefulset" {
-        verify "there is 1 statefulset named 'prometheus-kube-monitoring'"
+    @test "Verify creation of the prometheus-{{ .Release.Name }} statefulset" {
+        verify "there is 1 statefulset named 'prometheus-{{ .Release.Name }}'"
     }
 
-    @test "Verify creation of required custom resource definitions (CRDs) for kube-monitoring" {
+    @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'prometheuses'"
         verify "there is 1 customresourcedefinition named 'podmonitors'"
         verify "there is 1 customresourcedefinition named 'prometheusrules'"
