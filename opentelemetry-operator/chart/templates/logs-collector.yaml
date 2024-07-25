@@ -55,6 +55,9 @@ spec:
       path: /var/log
   config: |
     receivers:
+      journald:
+        directory: /var/log/journal
+
       filelog:
         include: [ /var/log/pods/*/*/*.log ]
         exclude: [ var/log/pods/*/logs-collector/*.log ]
@@ -289,6 +292,9 @@ spec:
         logs/k8sevents:
           receivers: [k8s_events]
           processors: [resource/k8sevents,batch]
+          exporters: [opensearch/logs]
+        logs/journald:
+          receivers: [journald]
           exporters: [opensearch/logs]
 {{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
         metrics/prometheus:
