@@ -225,3 +225,5 @@ alerts:
     tlsConfig:
       cert: ""
       key: ""
+
+test: some-test
