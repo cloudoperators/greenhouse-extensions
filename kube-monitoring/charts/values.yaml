@@ -233,3 +233,6 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+
+test: some-test-value
