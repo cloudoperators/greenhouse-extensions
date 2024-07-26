@@ -58,6 +58,9 @@ spec:
       journald:
         directory: /var/log/journal
 
+      k8s_events:$
+        auth_type: serviceAccount
+
       filelog:
         include: [ /var/log/pods/*/*/*.log ]
         exclude: [ var/log/pods/*/logs-collector/*.log ]
@@ -144,13 +147,13 @@ spec:
         actions:
           - action: insert
             key: nodename
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
           - action: insert
             key: cluster
-            value: ${cluster}
+            value: "${cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
           - action: delete
             key: service_instance_id
           - action: delete
@@ -161,41 +164,78 @@ spec:
         actions:
           - action: insert
             key: cluster
-            value: ${cluster}
+            value: "${cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
           - action: insert
             key: nodename
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
 
       resource/k8sevents:
         attributes:
           - key: k8s.node.name
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
             action: insert
           - key: cluster
-            value: ${cluster}
+            value: "${cluster}"
             action: insert
           - key: region
-            value: ${region}
+            value: "${region}"
             action: insert
 
-      transform/containerd:
+      transform/journal:
+        error_mode: ignore
         log_statements:
-          context: log
-          statements:
-            - merge_maps(cache,ExtractPatterns(body,"^(?P<time>[^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^\\s]*) ?(?P<log>.*)$"), "upsert") where body != nil
-            - merge_maps(cache,ExtractPatterns(body,"^(?P<time>\\d+/\\d+/\\d+\\s+\\d+:\\d+\\d+) (?P<log>.*)$"), "upsert") where attributes["log_name"]!= "MeshAccessLog" and cache["log"]!= nil and not IsMap(cache["log"])
-            - set(body,cache["log"]) where cache["log"] != nil
-            - merge_maps(cache,ParseJSON(body), "upsert") where IsMap(body)
-            - set(body,cache["message"]) where cache["message"] != nil
-            - set(body,cache["msg"]) where cache["msg"] != nil
-            - set(severity_text,cache["level"]) where cache["level"] != nil
-            - set(severity_text,cache["severity"]) where cache["severity"] != nil
-            - set(severity_number,SEVERITY_NUMBER_INFO) where cache["level"] == "INFO"
-            - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
-            - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
+          - context: log
+            statements:
+              - merge_maps(cache, body, "upsert") where IsMatch(body, "^\\{")
+              - set(attributes["message"], cache["MESSAGE"])
+              - set(attributes["code_file"], cache["CODE_FILE"])
+              - set(attributes["code_func"], cache["CODE_FUNC"])
+              - set(attributes["code_line"], cache["CODE_LINE"])
+              - set(attributes["incovation_id"], cache["INVOCATION_ID"])
+              - set(attributes["message_id"], cache["MESSAGE_ID"])
+              - set(attributes["priority"], cache["PRIORITY"])
+              - set(attributes["syslog_facility"], cache["SYSLOG_FACILITY"])
+              - set(attributes["syslog_identifier"], cache["SYSLOG_IDENTIFIER"])
+              - set(attributes["tid"], cache["TID"])
+              - set(attributes["unit"], cache["UNIT"])
+              - set(attributes["boot_id"], cache["_BOOT_ID"])
+              - set(attributes["cao_effective"], cache["_CAP_EFFECTIVE"])
+              - set(attributes["cmdline"], cache["_CMDLINE"])
+              - set(attributes["exe"], cache["_EXE"])
+              - set(attributes["gid"], cache["_GID"])
+              - set(attributes["hostname"], cache["_HOSTNAME"])
+              - set(attributes["machine_id"], cache["_MACHINE_ID"])
+              - set(attributes["pid"], cache["_PID"])
+              - set(attributes["runtime_scope"], cache["_RUNTIME_SCOPE"])
+              - set(attributes["selinux_context"], cache["_SELINUX_CONTEXT"])
+              - set(attributes["source_realtime_timestamp"], cache["_SOURCE_REALTIME_TIMESTAMP"])
+              - set(attributes["systemd_cgroup"], cache["_SYSTEMD_CGROUP"])
+              - set(attributes["systemd_slice"], cache["_SYSTEMD_SLICE"])
+              - set(attributes["systemd_unit"], cache["_SYSTEMD_UNIT"])
+              - set(attributes["transport"], cache["_TRANSPORT"])
+              - set(attributes["uid"], cache["_UID"])
+              - set(attributes["cursor"], cache["__CURSOR"])
+              - set(attributes["monotonic_timestamp"], cache["__MONOTONIC_TIMESTAMP"])
+              - delete_key(attributes, "cache")
+
+      #transform/containerd:
+      #  log_statements:
+      #   context: log
+      #    statements:
+      #      - merge_maps(cache,ExtractPatterns(body,"^(?P<time>[^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^\\s]*) ?(?P<log>.*)$"), "upsert") where body != nil
+      #      - merge_maps(cache,ExtractPatterns(body,"^(?P<time>\\d+/\\d+/\\d+\\s+\\d+:\\d+\\d+) (?P<log>.*)$"), "upsert") where attributes["log_name"]!= "MeshAccessLog" and cache["log"]!= nil and not IsMap(cache["log"])
+      #      - set(body,cache["log"]) where cache["log"] != nil
+      #      - merge_maps(cache,ParseJSON(body), "upsert") where IsMap(body)
+      #      - set(body,cache["message"]) where cache["message"] != nil
+      #      - set(body,cache["msg"]) where cache["msg"] != nil
+      #      - set(severity_text,cache["level"]) where cache["level"] != nil
+      #      - set(severity_text,cache["severity"]) where cache["severity"] != nil
+      #      - set(severity_number,SEVERITY_NUMBER_INFO) where cache["level"] == "INFO"
+      #      - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
+      #      - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
 
       k8sattributes:
         auth_type: "serviceAccount"
@@ -295,7 +335,7 @@ spec:
           exporters: [opensearch/logs]
         logs/journald:
           receivers: [journald]
-          processors: [attributes/cluster,batch]
+          processors: [attributes/cluster,transform/journal,batch]
           exporters: [opensearch/logs]
 {{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
         metrics/prometheus:
