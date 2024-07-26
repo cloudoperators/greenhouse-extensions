@@ -91,5 +91,4 @@ roleRef:
     kind: ClusterRole
     name: {{ .Release.Name }}-test
     apiGroup: rbac.authorization.k8s.io
----
 {{- end -}}
