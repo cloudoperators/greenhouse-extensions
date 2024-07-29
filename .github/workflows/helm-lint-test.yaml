@@ -1,4 +1,4 @@
-name: "Helm lint"
+name: "Helm lint and tests"
 on:
   pull_request:
     types: [ opened, synchronize, reopened ]
@@ -7,7 +7,7 @@ env:
   REGISTRY: ghcr.io
   
 jobs:
-  helm-lint:
+  helm-lint-test:
     runs-on: [ default ]
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +38,15 @@ jobs:
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --config ct.yaml --target-branch ${{ github.event.repository.default_branch }}
-      
+
+      - name: Create kind cluster
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@v1.10.0
+
+      - name: Run chart integration tests
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --config ct.yaml
+
       - name: Check version bump
         id: check-bump
         if: steps.list-changed.outputs.changed == 'true'
@@ -52,7 +60,7 @@ jobs:
               echo "needsbump=true" >> "$GITHUB_OUTPUT"
             fi
           done
-      
+
       - uses: actions/github-script@v7
         if: steps.check-bump.outputs.needsbump == 'true'
         with:
@@ -64,3 +72,4 @@ jobs:
               body: ':warning: Chart `oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/${{ steps.check-bump.outputs.chart }}:${{ steps.check-bump.outputs.chart_version }}` already exists in OCI registry. Please increment the chart version.'
             })
             core.setFailed(`Action failed with error: Chart version bump required`);
+            
