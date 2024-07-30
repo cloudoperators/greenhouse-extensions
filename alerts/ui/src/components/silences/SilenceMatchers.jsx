@@ -5,7 +5,7 @@
 
 import React, { useMemo } from "react"
 
-import { Pill, Stack } from "juno-ui-components"
+import { Pill, Stack } from "@cloudoperators/juno-ui-components"
 
 // Matchers can be clicked if the matcher is configurable
 const SilenceMatchers = ({ matchers, onClickCallback, closeable }) => {

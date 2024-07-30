@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from "react"
-import { Stack } from "juno-ui-components"
+import { Stack } from "@cloudoperators/juno-ui-components"
 import {
   useSilencesItemsHash,
   useSilencesLocalItems,

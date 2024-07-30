@@ -15,7 +15,7 @@ import {
   SelectOption,
   Spinner,
   Icon,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import constants from "../../constants"
 import { useEndlessScrollList } from "utils"
 import {

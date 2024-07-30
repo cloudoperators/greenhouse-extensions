@@ -10,7 +10,7 @@ import {
   Pill,
   Stack,
   Container,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import SilencesTimestamp from "./shared/SilencesTimestamp"
 import constants from "../../constants"
 

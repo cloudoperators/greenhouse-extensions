@@ -4,7 +4,7 @@
  */
 
 import React from "react"
-import { Stack, Button } from "juno-ui-components"
+import { Stack, Button } from "@cloudoperators/juno-ui-components"
 import Avatar from "./Avatar"
 
 const HeaderUser = ({ auth, logout }) => {

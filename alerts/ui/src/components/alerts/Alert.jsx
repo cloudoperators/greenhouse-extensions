@@ -5,7 +5,7 @@
 
 import React, { forwardRef, useRef } from "react"
 
-import { DataGridCell, DataGridRow } from "juno-ui-components"
+import { DataGridCell, DataGridRow } from "@cloudoperators/juno-ui-components"
 
 import { useGlobalsActions, useShowDetailsFor } from "../../hooks/useAppStore"
 import AlertLabels from "./shared/AlertLabels"
