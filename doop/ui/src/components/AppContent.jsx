@@ -4,10 +4,10 @@
  */
 
 import React, { useEffect } from "react"
-import { Container } from "juno-ui-components"
-import { Messages } from "messages-provider"
+import { Container } from "@cloudoperators/juno-ui-components"
+import { Messages } from "@cloudoperators/juno-messages-provider"
 
-import { useActions } from "messages-provider"
+import { useActions } from "@cloudoperators/juno-messages-provider"
 import { useDataActions } from "./StoreProvider"
 import Header from "./Header"
 import HintLoading from "./shared/HintLoading"
@@ -16,7 +16,7 @@ import { fetchData } from "../lib/apiClient"
 import { parseError } from "../lib/helpers"
 import Highlighter from "./Highlighter"
 import Violations from "./violations/violations"
-import { fetchProxy } from "utils"
+import { fetchProxy } from "@cloudoperators/juno-utils"
 import { useGlobalsMock, useGlobalsEndpoint } from "./StoreProvider"
 
 const AppContent = ({ id, showDebugSeverities }) => {

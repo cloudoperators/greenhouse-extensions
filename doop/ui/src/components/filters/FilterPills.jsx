@@ -5,7 +5,7 @@
 
 import React from "react"
 
-import { Pill, Stack } from "juno-ui-components"
+import { Pill, Stack } from "@cloudoperators/juno-ui-components"
 import { useFiltersActive, useFiltersActions } from "../StoreProvider"
 import { valueToLabel } from "../../lib/helpers"
 

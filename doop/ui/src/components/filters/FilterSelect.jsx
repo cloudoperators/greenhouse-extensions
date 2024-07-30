@@ -12,7 +12,7 @@ import {
   Select,
   SelectOption,
   Stack,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 
 import {
   useFiltersActions,
