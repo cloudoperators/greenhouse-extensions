@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 1.9.0
+  version: 2.0.0
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -15,7 +15,7 @@ spec:
   helmChart:
      name: alerts
      repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-     version: 0.11.0
+     version: 0.12.0
   uiApplication:
     name: supernova
     version: "latest"
@@ -38,6 +38,16 @@ spec:
       required: false
       type: list
 
+    - name: alerts.prometheusOperator.enabled
+      description: Deploy Prometheus Operator if kube-monitoring has not already installed it once.
+      required: false
+      default: false
+      type: bool
+    - name: alerts.crds.enabled
+      description: Install Prometheus Operator CRDs if kube-monitoring has not already installed them.
+      required: false
+      default: false
+      type: bool
     # alertmanager options
     - name: alerts.alertmanager.enabled
       description: Deploy Alertmanager. Deactivate if you bring your own Alertmanager.
