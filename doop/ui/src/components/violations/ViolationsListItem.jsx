@@ -10,7 +10,7 @@ import {
   DataGridRow,
   DataGridCell,
   Icon,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import {
   useDataDetailsViolationGroupKind,
   useDataActions,
