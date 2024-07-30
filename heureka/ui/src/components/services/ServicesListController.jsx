@@ -10,7 +10,7 @@ import {
   useQueryOptions,
   useActions,
 } from "../StoreProvider"
-import { Pagination } from "juno-ui-components"
+import { Pagination } from "@cloudoperators/juno-ui-components"
 import ServicesList from "./ServicesList"
 import { Messages, useActions as messageActions } from "messages-provider"
 
