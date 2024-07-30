@@ -5,9 +5,13 @@
 
 import React, { useEffect } from "react"
 import styles from "./styles.scss"
-import { AppShell, AppShellProvider, CodeBlock } from "juno-ui-components"
+import {
+  AppShell,
+  AppShellProvider,
+  CodeBlock,
+} from "@cloudoperators/juno-ui-components"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { MessagesProvider } from "messages-provider"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import AsyncWorker from "./components/AsyncWorker"
 import StoreProvider, { useActions } from "./components/StoreProvider"
 import TabContext from "./components/tabs/TabContext"

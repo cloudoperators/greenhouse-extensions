@@ -11,7 +11,7 @@ import {
   useActions,
 } from "../StoreProvider"
 import IssuesList from "./IssuesList"
-import { Pagination } from "juno-ui-components"
+import { Pagination } from "@cloudoperators/juno-ui-components"
 
 const IssuesListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
