@@ -1,0 +1,88 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import {
+  useQueryClientFnReady,
+  useQueryOptions,
+  useActions,
+} from "../StoreProvider"
+import ComponentsList from "./ComponentsList"
+import { Pagination } from "@cloudoperators/juno-ui-components"
+
+const ComponentsListController = () => {
+  const queryClientFnReady = useQueryClientFnReady()
+  const queryOptions = useQueryOptions("components")
+  const { setQueryOptions } = useActions()
+
+  const { isLoading, isFetching, isError, data, error } = useQuery({
+    queryKey: [`components`, queryOptions],
+    enabled: !!queryClientFnReady,
+  })
+
+  const [currentPage, setCurrentPage] = useState(1) // State for current page
+
+  const components = useMemo(() => {
+    if (!data) return null
+    return data?.Components?.edges
+  }, [data])
+
+  const pageInfo = useMemo(() => {
+    if (!data) return null
+    return data?.Components?.pageInfo
+  }, [data])
+
+  const totalPages = useMemo(() => {
+    if (!data?.Components?.pageInfo?.pages) return 0
+    return data?.Components?.pageInfo?.pages.length
+  }, [data?.Components?.pageInfo])
+  const onPaginationChanged = (newPage) => {
+    setCurrentPage(newPage) // Update currentPage
+    if (!data?.Components?.pageInfo?.pages) return
+    const pages = data?.Components?.pageInfo?.pages
+    const currentPageIndex = pages?.findIndex(
+      (page) => page?.pageNumber === parseInt(newPage)
+    )
+    if (currentPageIndex > -1) {
+      const after = pages[currentPageIndex]?.after
+      setQueryOptions("components", {
+        ...queryOptions,
+        after: `${after}`,
+      })
+    }
+  }
+
+  const onPressNext = () => {
+    onPaginationChanged(parseInt(currentPage) + 1)
+  }
+  const onPressPrevious = () => {
+    onPaginationChanged(parseInt(currentPage) - 1)
+  }
+  const onKeyPress = (oKey) => {
+    if (oKey.code === "Enter") {
+      onPaginationChanged(parseInt(oKey.currentTarget.value))
+    }
+  }
+
+  return (
+    <>
+      <ComponentsList components={components} isLoading={isLoading} />
+      <Pagination
+        currentPage={currentPage}
+        isFirstPage={currentPage === 1}
+        isLastPage={currentPage === totalPages}
+        onPressNext={onPressNext}
+        onPressPrevious={onPressPrevious}
+        onKeyPress={onKeyPress}
+        onSelectChange={onPaginationChanged}
+        pages={totalPages}
+        variant="input"
+      />
+    </>
+  )
+}
+
+export default ComponentsListController

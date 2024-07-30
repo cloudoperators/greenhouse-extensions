@@ -6,19 +6,26 @@
 import React from "react"
 import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
+import { parseISO, format } from "date-fns"
 
 const IssuesListItem = ({ item }) => {
+  const formatDate = (dateStr) => {
+    const dateObj = parseISO(dateStr)
+    return format(dateObj, "yyyy.MM.dd.HH:mm:ss")
+  }
   // Log the item structure
   console.log("Item structure:", item)
   return (
     <DataGridRow>
       <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>
-      <DataGridCell>
+      <DataGridCell>{item?.node?.issue?.type}</DataGridCell>
+      {/* <DataGridCell>
         {listOfCommaSeparatedObjs(
           item?.node?.effectiveIssueVariants,
           "secondaryName"
-        )}
-      </DataGridCell>
+          )}
+          </DataGridCell> */}
+      <DataGridCell>{formatDate(item?.node?.remediationDate)}</DataGridCell>
       <DataGridCell>{item?.node?.status}</DataGridCell>
       <DataGridCell>{item?.node?.severity?.value}</DataGridCell>
       <DataGridCell>
