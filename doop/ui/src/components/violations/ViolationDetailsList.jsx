@@ -5,7 +5,7 @@
 
 import React from "react"
 import { capitalize } from "../../lib/helpers"
-import { useEndlessScrollList } from "utils"
+import { useEndlessScrollList } from "@cloudoperators/juno-utils"
 import {
   DataGrid,
   DataGridRow,
@@ -14,7 +14,7 @@ import {
   Stack,
   Icon,
   Message,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 // import { useGlobalsDetailsViolationItems } from "../StoreProvider"
 import { useDataDetailsViolationGroup } from "../StoreProvider"
 import ReactMarkdown from "react-markdown"

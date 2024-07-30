@@ -5,7 +5,7 @@
 
 import React from "react"
 import { useFiltersActions } from "../StoreProvider"
-import { Pill } from "juno-ui-components"
+import { Pill } from "@cloudoperators/juno-ui-components"
 
 const FilterPill = ({ name, value, nameLabel, valueLabel }) => {
   const { add: addFilter } = useFiltersActions()

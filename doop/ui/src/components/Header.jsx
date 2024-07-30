@@ -4,7 +4,7 @@
  */
 
 import React from "react"
-import { IntroBox, Container } from "juno-ui-components"
+import { IntroBox, Container } from "@cloudoperators/juno-ui-components"
 
 const Header = () => (
   <IntroBox>

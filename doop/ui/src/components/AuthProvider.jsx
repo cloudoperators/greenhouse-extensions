@@ -4,7 +4,12 @@
  */
 
 import React from "react"
-import { Stack, Button, Spinner, Message } from "juno-ui-components"
+import {
+  Stack,
+  Button,
+  Spinner,
+  Message,
+} from "@cloudoperators/juno-ui-components"
 
 import {
   useAuthError,

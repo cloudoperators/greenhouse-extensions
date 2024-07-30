@@ -6,7 +6,7 @@
 import React from "react"
 import FilterPill from "../shared/FilterPill"
 import { valueToLabel } from "../../lib/helpers"
-import { Stack } from "juno-ui-components"
+import { Stack } from "@cloudoperators/juno-ui-components"
 
 const ViolationDetailsPills = ({ violation }) => {
   if (!violation?.object_identity) return null
