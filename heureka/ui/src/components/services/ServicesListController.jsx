@@ -12,7 +12,10 @@ import {
 } from "../StoreProvider"
 import { Pagination } from "@cloudoperators/juno-ui-components"
 import ServicesList from "./ServicesList"
-import { Messages, useActions as messageActions } from "messages-provider"
+import {
+  Messages,
+  useActions as messageActions,
+} from "@cloudoperators/juno-messages-provider"
 
 const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()

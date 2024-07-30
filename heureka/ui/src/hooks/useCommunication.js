@@ -4,7 +4,7 @@
  */
 
 import React, { useReducer, useEffect, useCallback } from "react"
-import { broadcast, get, watch } from "communicator"
+import { broadcast, get, watch } from "@cloudoperators/juno-communicator"
 import useStore from "./useStore"
 
 const useCommunication = () => {

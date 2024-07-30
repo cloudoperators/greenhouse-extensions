@@ -11,7 +11,7 @@ import { render, act } from "@testing-library/react"
 import { screen } from "shadow-dom-testing-library"
 import App from "./App"
 
-jest.mock("communicator")
+jest.mock("@cloudoperators/juno-communicator")
 
 describe("logged in", () => {
   test("renders app", async () => {
