@@ -14,7 +14,7 @@ This plugin deploys the following Thanos components:
 
 Requirements (detailed steps below):
 * ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
-* thanos-sidecar enabled in Prometheus (usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec))
+* [thanos-sidecar enabled in Prometheus](#kube-monitoring-plugin-enablement) (usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec)).
 
 # Owner
 
@@ -66,8 +66,8 @@ spec:
 This is the real deal now: Define your Thanos query by creating a plugin.
 
 **NOTE1:** `$THANOS_PLUGIN_NAME` needs to be consistent with your secret created earlier.
-**NOTE2:** The `releaseNamespace` needs to be the same as to where kube-monitoring resides. By default this is kube-monitoring. 
 
+**NOTE2:** The `releaseNamespace` needs to be the same as to where kube-monitoring resides. By default this is kube-monitoring. 
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
