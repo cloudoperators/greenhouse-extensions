@@ -41,6 +41,7 @@ spec:
     - name: alerts.prometheusOperator.enabled
       description: Deploy Prometheus Operator if kube-monitoring has not already installed it once.
       required: false
+      default: false
       type: bool
     - name: alerts.crds.enabled
       description: Install Prometheus Operator CRDs if kube-monitoring has not already installed them.
