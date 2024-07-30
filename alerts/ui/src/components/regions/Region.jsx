@@ -5,7 +5,7 @@
 
 import React from "react"
 
-import { Stack } from "juno-ui-components"
+import { Stack } from "@cloudoperators/juno-ui-components"
 import RegionSeverity from "./RegionSeverity"
 import { useFilterActions, useActiveFilters } from "../../hooks/useAppStore"
 

@@ -6,7 +6,7 @@
 import React from "react"
 import { DateTime } from "luxon"
 
-import { Spinner, Stack } from "juno-ui-components"
+import { Spinner, Stack } from "@cloudoperators/juno-ui-components"
 
 const statusBarStyles = `
   bg-theme-background-lvl-1

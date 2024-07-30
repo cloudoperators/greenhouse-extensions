@@ -15,7 +15,7 @@ import {
   SelectOption,
   Message,
   FormRow,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import {
   useAuthData,
   useSilencesExcludedLabels,

@@ -4,13 +4,13 @@
  */
 
 import React, { useState } from "react"
-import { Button, Modal } from "juno-ui-components"
+import { Button, Modal } from "@cloudoperators/juno-ui-components"
 import {
   useGlobalsApiEndpoint,
   useSilencesActions,
   useSilencesLocalItems,
 } from "../../hooks/useAppStore"
-import { useActions } from "messages-provider"
+import { useActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
 
 import { del } from "../../api/client"

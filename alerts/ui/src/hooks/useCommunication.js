@@ -4,7 +4,7 @@
  */
 
 import { useEffect } from "react"
-import { broadcast, get, watch } from "communicator"
+import { broadcast, get, watch } from "@cloudoperators/juno-communicator"
 import {
   useUserActivityActions,
   useAuthAppLoaded,
