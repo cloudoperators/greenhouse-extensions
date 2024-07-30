@@ -6,7 +6,7 @@
 import React, { useState } from "react"
 import SilenceScheduled from "./SilenceScheduled"
 
-import { MessagesProvider } from "messages-provider"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import { Button } from "@cloudoperators/juno-ui-components"
 import { useSilenceTemplates } from "../../hooks/useAppStore.js"
 

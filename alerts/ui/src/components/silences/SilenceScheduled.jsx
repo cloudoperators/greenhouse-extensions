@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useMemo } from "react"
 import { produce } from "immer"
 import constants from "../../constants"
-import { Messages, useActions } from "messages-provider"
+import { Messages, useActions } from "@cloudoperators/juno-messages-provider"
 import {
   Modal,
   Box,

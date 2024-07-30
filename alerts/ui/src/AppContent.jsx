@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from "react"
-import { useActions, Messages } from "messages-provider"
+import { useActions, Messages } from "@cloudoperators/juno-messages-provider"
 import { Container, Spinner, Stack } from "@cloudoperators/juno-ui-components"
 import {
   useAlertsError,

@@ -16,7 +16,7 @@ import {
   StoreProvider,
 } from "./hooks/useAppStore"
 import AsyncWorker from "./components/AsyncWorker"
-import { MessagesProvider } from "messages-provider"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
 
 import { ErrorBoundary } from "react-error-boundary"
