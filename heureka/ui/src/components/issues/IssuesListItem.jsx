@@ -6,15 +6,13 @@
 import React from "react"
 import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
-import { parseISO, format } from "date-fns"
+import { DateTime } from "luxon"
 
 const IssuesListItem = ({ item }) => {
   const formatDate = (dateStr) => {
-    const dateObj = parseISO(dateStr)
-    return format(dateObj, "yyyy.MM.dd.HH:mm:ss")
+    const dateObj = DateTime.fromISO(dateStr)
+    return dateObj.toFormat("yyyy.MM.dd.HH:mm:ss")
   }
-  // Log the item structure
-  console.log("Item structure:", item)
   return (
     <DataGridRow>
       <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>

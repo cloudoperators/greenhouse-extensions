@@ -5,7 +5,6 @@
 
 import React from "react"
 import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
-import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
 const ComponentsListItem = ({ item }) => {
   return (

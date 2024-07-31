@@ -11,7 +11,11 @@ import {
   useActions,
 } from "../StoreProvider"
 import IssuesList from "./IssuesList"
-import { Pagination } from "@cloudoperators/juno-ui-components"
+import {
+  Container,
+  Pagination,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 
 const IssuesListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
@@ -69,18 +73,22 @@ const IssuesListController = () => {
 
   return (
     <>
-      <IssuesList issues={issues} isLoading={isLoading} />
-      <Pagination
-        currentPage={currentPage}
-        isFirstPage={currentPage === 1}
-        isLastPage={currentPage === totalPages}
-        onPressNext={onPressNext}
-        onPressPrevious={onPressPrevious}
-        onKeyPress={onKeyPress}
-        onSelectChange={onPaginationChanged}
-        pages={totalPages}
-        variant="input"
-      />
+      <Container py>
+        <IssuesList issues={issues} isLoading={isLoading} />
+      </Container>
+      <Stack direction="vertical" alignment="end">
+        <Pagination
+          currentPage={currentPage}
+          isFirstPage={currentPage === 1}
+          isLastPage={currentPage === totalPages}
+          onPressNext={onPressNext}
+          onPressPrevious={onPressPrevious}
+          onKeyPress={onKeyPress}
+          onSelectChange={onPaginationChanged}
+          pages={totalPages}
+          variant="input"
+        />
+      </Stack>
     </>
   )
 }
