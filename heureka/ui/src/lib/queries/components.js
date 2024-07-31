@@ -34,6 +34,19 @@ export default () => gql`
         }
         cursor
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        isValidPage
+        pageNumber
+        nextPageAfter
+        pages {
+          after
+          isCurrent
+          pageNumber
+          pageCount
+        }
+      }
     }
   }
 `
