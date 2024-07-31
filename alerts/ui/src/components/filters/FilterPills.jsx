@@ -3,19 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React, { useEffect } from "react"
 
-<<<<<<< HEAD
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
-import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
-
-const FilterPills = () => {
-  const activeFilters = useActiveFilters()
-  const [filters, setFilters] = useState({})
-  const { removeActiveFilter } = useFilterActions()
-
-=======
-import { Pill, Stack } from "juno-ui-components"
 import {
   useActiveFilters,
   useFilterActions,
@@ -27,7 +17,6 @@ const FilterPills = () => {
   const filters = useFilterPills()
   const { removeActiveFilter, addActiveFilter, setFilterPills } =
     useFilterActions()
->>>>>>> c43f24a (feat(alerts/ui): clear all button clears now also inactive Filters.)
   // useEffect Hook zur Aktualisierung der Filter
   useEffect(() => {
     const pills = (prevFilters) => {
@@ -126,33 +115,6 @@ const FilterPills = () => {
 
   return (
     <Stack gap="2" wrap={true}>
-<<<<<<< HEAD
-      {Object.entries(activeFilters).map(([key, values]) => {
-        return values.map((value) => (
-          <Pill
-            pillKey={key}
-            pillValue={value}
-            closeable
-            onClose={() => removeActiveFilter(key, value)}
-            key={`${key}:${value}`}
-            onClick={() => pauseFilter(key, value)}
-          />
-        ))
-      })}
-      {Object.entries(pausedFilter).map(([key, values]) => {
-        console.log("sdfsdf", values)
-        return values.map((value) => (
-          <Pill
-            className="bg-theme-background-lvl-4"
-            pillKey={key}
-            pillValue={value}
-            closeable
-            onClose={() => removePausedFilter(key, value)}
-            key={`${key}:${value}`}
-            onClick={() => activateFilter(key, value)}
-          />
-        ))
-=======
       {Object.entries(filters).map(([key, filterItems]) => {
         return filterItems.map((item) =>
           item.active ? (
@@ -176,7 +138,6 @@ const FilterPills = () => {
             />
           )
         )
->>>>>>> 6811992 (feat(alerts/ui): delete specific paused filters)
       })}
     </Stack>
   )
