@@ -29,12 +29,12 @@ const TAB_CONFIG = [
     icon: "autoAwesomeMotion",
     component: IssuesTab,
   },
-  // {
-  //   label: "Components",
-  //   value: "components",
-  //   icon: "autoAwesomeMotion",
-  //   component: ComponentsTab,
-  // },
+  {
+    label: "Components",
+    value: "components",
+    icon: "autoAwesomeMotion",
+    component: ComponentsTab,
+  },
 ]
 
 const TabContext = () => {

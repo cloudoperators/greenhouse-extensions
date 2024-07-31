@@ -20,7 +20,7 @@ const ComponentsList = ({ components, isLoading }) => {
       <DataGridRow>
         <DataGridHeadCell>Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
-        <DataGridHeadCell>Versions</DataGridHeadCell>
+        <DataGridHeadCell>Total Number of Versions</DataGridHeadCell>
       </DataGridRow>
       {isLoading && !components ? (
         <HintLoading className="my-4" text="Loading components..." />

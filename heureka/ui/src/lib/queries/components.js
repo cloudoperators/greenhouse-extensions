@@ -18,6 +18,19 @@ export default () => gql`
           id
           name
           type
+          componentVersions {
+            totalCount
+            edges {
+              node {
+                id
+                version
+                issues {
+                  totalCount
+                }
+              }
+              cursor
+            }
+          }
         }
         cursor
       }

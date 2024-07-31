@@ -12,7 +12,7 @@ const ComponentsListItem = ({ item }) => {
     <DataGridRow>
       <DataGridCell>{item?.node?.name}</DataGridCell>
       <DataGridCell>{item?.node?.type}</DataGridCell>
-      <DataGridCell></DataGridCell>
+      <DataGridCell>{item?.node?.componentVersions?.totalCount}</DataGridCell>
     </DataGridRow>
   )
 }
