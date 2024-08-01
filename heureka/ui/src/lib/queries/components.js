@@ -27,6 +27,14 @@ export default () => gql`
                 issues {
                   totalCount
                 }
+                componentInstances {
+                  totalCount
+                  edges {
+                    node {
+                      id
+                    }
+                  }
+                }
               }
               cursor
             }
