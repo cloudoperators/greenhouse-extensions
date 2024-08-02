@@ -26,6 +26,11 @@ export default (options) =>
             first: 20,
           },
         },
+        components: {
+          queryOptions: {
+            first: 20,
+          },
+        },
       },
 
       actions: {

@@ -10,7 +10,11 @@ import {
   useQueryOptions,
   useActions,
 } from "../StoreProvider"
-import { Pagination } from "@cloudoperators/juno-ui-components"
+import {
+  Pagination,
+  Container,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 import ServicesList from "./ServicesList"
 import {
   Messages,
@@ -81,18 +85,22 @@ const ServicesListController = () => {
 
   return (
     <>
-      <ServicesList services={services} isLoading={isLoading} />
-      <Pagination
-        currentPage={currentPage}
-        isFirstPage={currentPage === 1}
-        isLastPage={currentPage === totalPages}
-        onPressNext={onPressNext}
-        onPressPrevious={onPressPrevious}
-        onKeyPress={onKeyPress}
-        onSelectChange={onPaginationChanged}
-        pages={totalPages}
-        variant="input"
-      />
+      <Container py>
+        <ServicesList services={services} isLoading={isLoading} />
+      </Container>
+      <Stack className="flex justify-end">
+        <Pagination
+          currentPage={currentPage}
+          isFirstPage={currentPage === 1}
+          isLastPage={currentPage === totalPages}
+          onPressNext={onPressNext}
+          onPressPrevious={onPressPrevious}
+          onKeyPress={onKeyPress}
+          onSelectChange={onPaginationChanged}
+          pages={totalPages}
+          variant="input"
+        />
+      </Stack>
     </>
   )
 }
