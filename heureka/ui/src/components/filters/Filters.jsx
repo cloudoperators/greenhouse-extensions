@@ -20,7 +20,6 @@ const filtersStyles = `
   px-4
   my-px
 `
-
 const Filters = ({ queryKey }) => {
   const queryClientFnReady = useQueryClientFnReady()
   const { isLoading, isFetching, isError, data, error } = useQuery({
