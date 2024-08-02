@@ -12,6 +12,7 @@ import {
   useActiveFilters,
   useFilteredServices,
   useEndpoint,
+  useEndpoint,
 } from "../StoreProvider"
 import {
   Pagination,
@@ -23,6 +24,7 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
+import { getFilterValues } from "../../queries"
 import { getFilterValues } from "../../queries"
 
 const ServicesListController = () => {
@@ -77,6 +79,7 @@ const ServicesListController = () => {
       const after = pages[currentPageIndex]?.after
       setQueryOptions("services", {
         ...queryOptions,
+        filter: filters,
         filter: filters,
         after: `${after}`,
       })
