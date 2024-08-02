@@ -21,15 +21,11 @@ const filtersStyles = `
   px-4
   my-px
 `
-
 const Filters = ({ queryKey }) => {
   const queryClientFnReady = useQueryClientFnReady()
-  const { addActiveFilter } = useActions()
-  const { activeFilters } = useActiveFilters()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [queryKey],
-    queryFn: getServiceFilters,
     enabled: !!queryClientFnReady && !!queryKey,
   })
 
@@ -42,8 +38,6 @@ const Filters = ({ queryKey }) => {
       enumValues: field?.type?.ofType?.enumValues,
     }))
   }, [data])
-
-  console.log("filters: ", filters)
 
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>

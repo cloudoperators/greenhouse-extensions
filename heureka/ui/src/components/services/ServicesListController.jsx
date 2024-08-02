@@ -11,6 +11,7 @@ import {
   useActions,
   useActiveFilters,
   useFilteredServices,
+  useEndpoint,
 } from "../StoreProvider"
 import { Pagination } from "@cloudoperators/juno-ui-components"
 import ServicesList from "./ServicesList"
@@ -18,6 +19,7 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
+import { getFilterValues } from "../../queries"
 
 const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
@@ -25,12 +27,18 @@ const ServicesListController = () => {
   const queryOptions = useQueryOptions("services")
   const { setQueryOptions, fetchServices } = useActions()
   const filters = useActiveFilters()
-  const services = useFilteredServices()
+  const endpoint = useEndpoint()
+  // const services = useFilteredServices()
 
-  const { isLoading, isFetching, isError, data, error } = useQuery({
-    queryKey: [`services`, { ...queryOptions, filter: filters }],
-    enabled: !!queryClientFnReady,
-  })
+  // const { isLoading, isFetching, isError, data, error } = useQuery({
+  //   queryKey: [`services`, { ...queryOptions, filter: filters }],
+  //   enabled: !!queryClientFnReady,
+  // })
+  const { data, error, isLoading } = getFilterValues(
+    "supportGroupName",
+    queryOptions.bearerToken,
+    endpoint
+  )
 
   useEffect(() => {
     if (!error) return
@@ -38,6 +46,11 @@ const ServicesListController = () => {
   }, [error])
 
   const [currentPage, setCurrentPage] = useState(1)
+
+  const services = useMemo(() => {
+    if (!data) return null
+    return data?.Services?.edges
+  }, [data])
 
   const pageInfo = useMemo(() => {
     if (!data) return null
@@ -60,6 +73,7 @@ const ServicesListController = () => {
       const after = pages[currentPageIndex]?.after
       setQueryOptions("services", {
         ...queryOptions,
+        filter: filters,
         after: `${after}`,
       })
     }
