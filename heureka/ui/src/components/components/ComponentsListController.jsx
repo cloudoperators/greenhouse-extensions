@@ -76,7 +76,7 @@ const ComponentsListController = () => {
       <Container py>
         <ComponentsList components={components} isLoading={isLoading} />
       </Container>
-      <Stack direction="vertical" alignment="end">
+      <Stack className="flex justify-end">
         <Pagination
           currentPage={currentPage}
           isFirstPage={currentPage === 1}
