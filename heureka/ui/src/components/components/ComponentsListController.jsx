@@ -10,49 +10,49 @@ import {
   useQueryOptions,
   useActions,
 } from "../StoreProvider"
-import IssuesList from "./IssuesList"
+import ComponentsList from "./ComponentsList"
 import {
-  Container,
   Pagination,
+  Container,
   Stack,
 } from "@cloudoperators/juno-ui-components"
 
-const IssuesListController = () => {
+const ComponentsListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
-  const queryOptions = useQueryOptions("issues")
+  const queryOptions = useQueryOptions("components")
   const { setQueryOptions } = useActions()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
-    queryKey: [`issues`, queryOptions],
+    queryKey: [`components`, queryOptions],
     enabled: !!queryClientFnReady,
   })
 
   const [currentPage, setCurrentPage] = useState(1) // State for current page
 
-  const issues = useMemo(() => {
+  const components = useMemo(() => {
     if (!data) return null
-    return data?.IssueMatches?.edges
+    return data?.Components?.edges
   }, [data])
 
   const pageInfo = useMemo(() => {
     if (!data) return null
-    return data?.IssueMatches?.pageInfo
+    return data?.Components?.pageInfo
   }, [data])
 
   const totalPages = useMemo(() => {
-    if (!data?.IssueMatches?.pageInfo?.pages) return 0
-    return data?.IssueMatches?.pageInfo?.pages.length
-  }, [data?.IssueMatches?.pageInfo])
+    if (!data?.Components?.pageInfo?.pages) return 0
+    return data?.Components?.pageInfo?.pages.length
+  }, [data?.Components?.pageInfo])
   const onPaginationChanged = (newPage) => {
     setCurrentPage(newPage) // Update currentPage
-    if (!data?.IssueMatches?.pageInfo?.pages) return
-    const pages = data?.IssueMatches?.pageInfo?.pages
+    if (!data?.Components?.pageInfo?.pages) return
+    const pages = data?.Components?.pageInfo?.pages
     const currentPageIndex = pages?.findIndex(
       (page) => page?.pageNumber === parseInt(newPage)
     )
     if (currentPageIndex > -1) {
       const after = pages[currentPageIndex]?.after
-      setQueryOptions("issues", {
+      setQueryOptions("components", {
         ...queryOptions,
         after: `${after}`,
       })
@@ -74,7 +74,7 @@ const IssuesListController = () => {
   return (
     <>
       <Container py>
-        <IssuesList issues={issues} isLoading={isLoading} />
+        <ComponentsList components={components} isLoading={isLoading} />
       </Container>
       <Stack className="flex justify-end">
         <Pagination
@@ -93,4 +93,4 @@ const IssuesListController = () => {
   )
 }
 
-export default IssuesListController
+export default ComponentsListController

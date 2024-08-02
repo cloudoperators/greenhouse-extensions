@@ -1,8 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { createStore } from "zustand"
 import { devtools } from "zustand/middleware"
 import { produce } from "immer"
@@ -10,7 +5,7 @@ import { getServices, getFilterValues } from "../queries"
 
 const initialFiltersState = {
   labels: [],
-  activeFilters: {},
+  activeFilters: { supportGroupName: ["containers"] },
   filterLabelValues: {},
   predefinedFilters: [],
   activePredefinedFilter: null,
@@ -23,16 +18,20 @@ export default (options) =>
       isUrlStateSetup: false,
       queryClientFnReady: false,
       endpoint: options?.apiEndpoint,
-      bearerToken: options?.bearerToken,
-      services: [],
       activeTab: "services",
       tabs: {
         services: {
           queryOptions: {
             first: 20,
+            filter: initialFiltersState.activeFilters,
           },
         },
         issues: {
+          queryOptions: {
+            first: 20,
+          },
+        },
+        components: {
           queryOptions: {
             first: 20,
           },
@@ -51,7 +50,6 @@ export default (options) =>
             false,
             "setQueryClientFnReady"
           ),
-
         setActiveTab: (index) =>
           set(
             (state) => {
@@ -60,7 +58,6 @@ export default (options) =>
             false,
             "setActiveTab"
           ),
-
         setQueryOptions: (tab, options) =>
           set(
             produce((state) => {
@@ -69,33 +66,6 @@ export default (options) =>
             false,
             "setQueryOptions"
           ),
-
-        setServices: (services) =>
-          set(
-            produce((state) => {
-              state.services = services
-              state.filteredServices = services.filter((service) =>
-                service.name
-                  .toLowerCase()
-                  .includes(state.filters.searchTerm.toLowerCase())
-              )
-            }),
-            false,
-            "setServices"
-          ),
-
-        setSearchTerm: (searchTerm) =>
-          set(
-            produce((state) => {
-              state.filters.searchTerm = searchTerm
-              state.filteredServices = state.services.filter((service) =>
-                service.name.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-            }),
-            false,
-            "setSearchTerm"
-          ),
-
         setActiveFilters: (activeFilters) =>
           set(
             produce((state) => {
@@ -111,7 +81,6 @@ export default (options) =>
             false,
             "setActiveFilters"
           ),
-
         clearActiveFilters: () =>
           set(
             produce((state) => {
@@ -125,7 +94,6 @@ export default (options) =>
             false,
             "clearActiveFilters"
           ),
-
         addActiveFilter: (filterLabel, filterValue) =>
           set(
             produce((state) => {
@@ -146,7 +114,6 @@ export default (options) =>
             false,
             "addActiveFilter"
           ),
-
         removeActiveFilter: (filterLabel, filterValue) =>
           set(
             produce((state) => {
@@ -170,7 +137,6 @@ export default (options) =>
             false,
             "removeActiveFilter"
           ),
-
         fetchFilterValues: async (filterLabel) => {
           const bearerToken = get().bearerToken
           const endpoint = get().endpoint
@@ -198,7 +164,6 @@ export default (options) =>
             })
           }
         },
-
         fetchServices: async () => {
           const bearerToken = get().bearerToken
           const endpoint = get().endpoint

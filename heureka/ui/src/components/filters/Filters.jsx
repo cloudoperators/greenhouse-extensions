@@ -13,7 +13,6 @@ import {
 } from "../StoreProvider"
 import FilterSelect from "./FilterSelect"
 import FilterPills from "./FilterPills"
-import { getServiceFilters } from "../../queries"
 
 const filtersStyles = `
   bg-theme-background-lvl-1
@@ -21,9 +20,9 @@ const filtersStyles = `
   px-4
   my-px
 `
+
 const Filters = ({ queryKey }) => {
   const queryClientFnReady = useQueryClientFnReady()
-
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [queryKey],
     enabled: !!queryClientFnReady && !!queryKey,

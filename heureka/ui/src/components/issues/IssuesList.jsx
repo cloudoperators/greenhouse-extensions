@@ -16,10 +16,12 @@ import IssuesListItem from "./IssuesListItem"
 
 const IssuesList = ({ issues, isLoading }) => {
   return (
-    <DataGrid columns={9}>
+    <DataGrid columns={10}>
       <DataGridRow>
         <DataGridHeadCell>Primary Name</DataGridHeadCell>
-        <DataGridHeadCell>Secondary Name</DataGridHeadCell>
+        <DataGridHeadCell>Type</DataGridHeadCell>
+        {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}
+        <DataGridHeadCell>Remediation Date</DataGridHeadCell>
         <DataGridHeadCell>Status</DataGridHeadCell>
         <DataGridHeadCell>Severity</DataGridHeadCell>
         <DataGridHeadCell>Component Name</DataGridHeadCell>
@@ -40,7 +42,7 @@ const IssuesList = ({ issues, isLoading }) => {
             </>
           ) : (
             <DataGridRow>
-              <DataGridCell colSpan={9}>
+              <DataGridCell colSpan={10}>
                 <HintNotFound text="No issues found" />
               </DataGridCell>
             </DataGridRow>

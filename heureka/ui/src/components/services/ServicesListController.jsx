@@ -13,7 +13,11 @@ import {
   useFilteredServices,
   useEndpoint,
 } from "../StoreProvider"
-import { Pagination } from "@cloudoperators/juno-ui-components"
+import {
+  Pagination,
+  Container,
+  Stack,
+} from "@cloudoperators/juno-ui-components"
 import ServicesList from "./ServicesList"
 import {
   Messages,
@@ -25,25 +29,24 @@ const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
-  const { setQueryOptions, fetchServices } = useActions()
+  const { setQueryOptions, fetchServices, setActiveFilters } = useActions()
   const filters = useActiveFilters()
   const endpoint = useEndpoint()
-  // const services = useFilteredServices()
+  // const services = useFilteredServices();
 
-  // const { isLoading, isFetching, isError, data, error } = useQuery({
-  //   queryKey: [`services`, { ...queryOptions, filter: filters }],
-  //   enabled: !!queryClientFnReady,
-  // })
-  const { data, error, isLoading } = getFilterValues(
-    "supportGroupName",
-    queryOptions.bearerToken,
-    endpoint
-  )
+  const { isLoading, isFetching, isError, data, error } = useQuery({
+    queryKey: [`services`, { ...queryOptions }],
+    enabled: !!queryClientFnReady,
+  })
 
   useEffect(() => {
     if (!error) return
     addMessage({ variant: "danger", text: error?.message })
   }, [error])
+
+  useEffect(() => {
+    fetchServices()
+  }, [filters])
 
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -93,18 +96,22 @@ const ServicesListController = () => {
 
   return (
     <>
-      <ServicesList services={services} isLoading={isLoading} />
-      <Pagination
-        currentPage={currentPage}
-        isFirstPage={currentPage === 1}
-        isLastPage={currentPage === totalPages}
-        onPressNext={onPressNext}
-        onPressPrevious={onPressPrevious}
-        onKeyPress={onKeyPress}
-        onChange={onPaginationChanged}
-        totalPages={totalPages}
-        hasPageInfo={!!pageInfo}
-      />
+      <Container py>
+        <ServicesList services={services} isLoading={isLoading} />
+      </Container>
+      <Stack className="flex justify-end">
+        <Pagination
+          currentPage={currentPage}
+          isFirstPage={currentPage === 1}
+          isLastPage={currentPage === totalPages}
+          onPressNext={onPressNext}
+          onPressPrevious={onPressPrevious}
+          onKeyPress={onKeyPress}
+          onSelectChange={onPaginationChanged}
+          pages={totalPages}
+          variant="input"
+        />
+      </Stack>
     </>
   )
 }

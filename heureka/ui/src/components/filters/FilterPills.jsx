@@ -4,7 +4,6 @@
  */
 
 import React from "react"
-
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
 import { useActiveFilters, useActions } from "../StoreProvider"
 
@@ -25,7 +24,6 @@ const FilterPills = () => {
           />
         ))
       })}
-      :
     </Stack>
   )
 }
