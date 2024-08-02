@@ -10,6 +10,7 @@ import { useActions, useActiveTab } from "../StoreProvider"
 
 import ServicesTab from "../services/ServicesTab"
 import IssuesTab from "../issues/IssuesTab"
+import ComponentsTab from "../components/ComponentsTab"
 
 const TAB_CONFIG = [
   {
@@ -23,6 +24,12 @@ const TAB_CONFIG = [
     value: "issues",
     icon: "autoAwesomeMotion",
     component: IssuesTab,
+  },
+  {
+    label: "Components",
+    value: "components",
+    icon: "autoAwesomeMotion",
+    component: ComponentsTab,
   },
 ]
 

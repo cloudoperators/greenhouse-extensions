@@ -10,6 +10,7 @@ import { request } from "graphql-request"
 import sevicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
 import ServiceFilterQuery from "../lib/queries/serviceFilters"
+import componentsQuery from "../lib/queries/components"
 
 // hook to register query defaults that depends on the queryClient and options
 const useQueryClientFn = () => {
@@ -37,6 +38,14 @@ const useQueryClientFn = () => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, issueMatchesQuery(), options)
+      },
+    })
+
+    queryClient.setQueryDefaults(["components"], {
+      queryFn: async ({ queryKey }) => {
+        const [_key, options] = queryKey
+        console.log("useQueryClientFn::: queryKey: ", queryKey)
+        return await request(endpoint, componentsQuery(), options)
       },
     })
 
