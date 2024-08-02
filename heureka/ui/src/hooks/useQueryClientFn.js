@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEndpoint, useActions } from "../components/StoreProvider"
 import { request } from "graphql-request"
@@ -35,7 +35,7 @@ const useQueryClientFn = () => {
     queryClient.setQueryDefaults(["issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
+        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, issueMatchesQuery(), options)
       },
     })

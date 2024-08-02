@@ -8,8 +8,6 @@ import { DataGridRow, DataGridCell } from "juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
 const IssuesListItem = ({ item }) => {
-  // Log the item structure
-  console.log("Item structure:", item)
   return (
     <DataGridRow>
       <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>
