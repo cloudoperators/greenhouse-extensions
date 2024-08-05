@@ -6,75 +6,75 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry-operator
 spec:
-    version: 0.1.5
+    version: 0.2.0
     description: opentelemetry-operator
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.1.5
+        version: 0.2.0
     options:
-        - description: open_telemetry.opensearch_logs.username
+        - description: Username for OpenSearch endpoint
           name: open_telemetry.opensearch_logs.username
           required: false
           type: secret
-        - description: open_telemetry.opensearch_logs.password
+        - description: Password for OpenSearch endpoint
           name: open_telemetry.opensearch_logs.password
           required: false
           type: secret
-        - description: open_telemetry.opensearch_logs.endpoint
+        - description: Endpoint URL for OpenSearch
           name: open_telemetry.opensearch_logs.endpoint
           required: false
           type: string
-        - description: open_telemetry.region
+        - description: Region
           name: open_telemetry.region
           required: false
           type: string
-        - description: open_telemetry.cluster
+        - description: Cluster
           name: open_telemetry.cluster
           required: false
           type: string
-        - description: open_telemetry.prometheus
+        - description: Label for Prometheus Service Monitoring
           name: open_telemetry.prometheus
           required: false
           type: string
         - default: false
-          description: open_telemetry.podMonitor.enabled
+          description: Check to enable the Pod Monitor
           name: open_telemetry.podMonitor.enabled
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          description: Check to use certManager for generating self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
           required: false
           type: bool
         - default: true
-          description: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          description: Check to use Helm to create self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
+          description: Recreate the cert after a defined period (certPeriodDays default is 365)
           name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.kubeRBACProxy.enabled
+          description: Check to enable kube-rbac-proxy for OpenTelemetry
           name: opentelemetry-operator.kubeRBACProxy.enabled
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
+          description: Check to enable default rules for monitoring the manager
           name: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.manager.prometheusRule.enabled
+          description: Check to enable rules for monitoring the manager
           name: opentelemetry-operator.manager.prometheusRule.enabled
           required: false
           type: bool
         - default: false
-          description: opentelemetry-operator.manager.serviceMonitor.enabled
+          description: Check to enable the Service Monitor
           name: opentelemetry-operator.manager.serviceMonitor.enabled
           required: false
           type: bool
