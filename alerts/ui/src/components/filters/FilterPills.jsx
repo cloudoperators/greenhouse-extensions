@@ -17,8 +17,9 @@ const FilterPills = () => {
   const filters = useFilterPills()
   const { removeActiveFilter, addActiveFilter, setFilterPills } =
     useFilterActions()
-  // useEffect Hook zur Aktualisierung der Filter
+  // useEffect Hook to actualize the filter pills when activeFilters change
   useEffect(() => {
+    // Fuction to actualize the filter pills
     const pills = (prevFilters) => {
       const newFilters = { ...prevFilters }
 
@@ -27,6 +28,8 @@ const FilterPills = () => {
           if (activeFilters[key]) {
             const activeSet = new Set(activeFilters[key])
 
+            // Activates the filter pills that are in activeFilters and inactive
+
             newFilters[key] = newFilters[key].map((item) => {
               if (activeSet.has(item.value)) {
                 return { ...item, active: true }
@@ -34,6 +37,7 @@ const FilterPills = () => {
               return item
             })
 
+            // Add new values to filter pills if non existent
             activeFilters[key].forEach((value) => {
               if (!newFilters[key].some((item) => item.value === value)) {
                 newFilters[key].push({ value, active: true })
@@ -43,7 +47,7 @@ const FilterPills = () => {
         }
       }
 
-      // Hinzufügen neuer Kategorien aus activeFilters
+      // Add new keys to activeFilters if non existent
       for (let key in activeFilters) {
         if (!newFilters.hasOwnProperty(key)) {
           newFilters[key] = activeFilters[key].map((value) => ({
@@ -56,6 +60,7 @@ const FilterPills = () => {
       return newFilters
     }
     setFilterPills(pills(filters))
+    console.log(JSON.stringify(filters))
   }, [activeFilters])
 
   const pauseFilter = (key, value) => {
@@ -71,7 +76,7 @@ const FilterPills = () => {
 
     setFilterPills(pills(filters))
 
-    //  Aktualisiere auch activeFilters
+    // actualize activeFilters
     removeActiveFilter(key, value)
   }
 
@@ -109,7 +114,7 @@ const FilterPills = () => {
       return newFilters
     }
     setFilterPills(pills(filters))
-    // aktualisiere active Filters
+    // actualize activeFilters
     addActiveFilter(key, value)
   }
 
