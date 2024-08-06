@@ -18,6 +18,7 @@ import {
 import AsyncWorker from "./components/AsyncWorker"
 import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
+import predefinedFilters from "./predefinedFilters"
 
 import { ErrorBoundary } from "react-error-boundary"
 
@@ -42,43 +43,7 @@ function App(props = {}) {
     if (props.silenceExcludedLabels)
       setExcludedLabels(props.silenceExcludedLabels)
 
-    // predefined filters config
-    const predefinedFilters = [
-      {
-        name: "prod",
-        displayName: "Prod",
-        matchers: {
-          // regex that matches anything except regions that start with qa-de-
-          region: "^(?!qa-de-).*",
-        },
-      },
-      {
-        name: "prod-qa",
-        displayName: "Prod + QA",
-        matchers: {
-          // regex that matches anything except regions that start with qa-de- and end with a number that is not 1
-          // regex is used in RegExp constructor, so we need to escape the backslashes for flags
-          region: "^(?!qa-de-(?!1$)\\d+).*",
-        },
-      },
-      {
-        name: "labs",
-        displayName: "Labs",
-        matchers: {
-          // regex that matches all regions that start with qa-de- and end with a number that is not 1
-          // regex is used in RegExp constructor, so we need to escape the backslashes for flags
-          region: "^qa-de-(?!1$)\\d+",
-        },
-      },
-      {
-        name: "all",
-        displayName: "All",
-        matchers: {
-          region: ".*",
-        },
-      },
-    ]
-    setPredefinedFilters(predefinedFilters)
+    setPredefinedFilters(predefinedFilters.filters)
 
     // initially active predefined filter
     const initialPredefinedFilter = "prod"
