@@ -171,7 +171,8 @@ plutono:
 
 
   # Apply extra labels to common labels.
-  extraLabels: {}
+  extraLabels:
+    plugin: plutono
 
   ## Assign a PriorityClassName to pods if set
   # priorityClassName:
@@ -235,7 +236,8 @@ plutono:
       # targetPort: 4181 To be used with a proxy extraContainer
     ## Service annotations. Can be templated.
     annotations: {}
-    labels: {}
+    labels:
+      greenhouse.sap/expose: "true"
     portName: service
     # Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
     appProtocol: ""
@@ -696,29 +698,6 @@ plutono:
     #               summary: |
     #                 {{ `{{ include "default.message" . }}` }}
 
-  ## Configure notifiers
-  ## ref: http://docs.plutono.org/administration/provisioning/#alert-notification-channels
-  ##
-  notifiers: {}
-  #  notifiers.yaml:
-  #    notifiers:
-  #    - name: email-notifier
-  #      type: email
-  #      uid: email1
-  #      # either:
-  #      org_id: 1
-  #      # or
-  #      org_name: Main Org.
-  #      is_default: true
-  #      settings:
-  #        addresses: an_email_address@example.com
-  #    delete_notifiers:
-
-  ## Configure plutono dashboard providers
-  ## ref: http://docs.plutono.org/administration/provisioning/#dashboards
-  ##
-  ## `path` must be /var/lib/plutono/dashboards/<provider_name>
-  ##
   dashboardProviders: {}
   #  dashboardproviders.yaml:
   #    apiVersion: 1
@@ -1146,150 +1125,6 @@ plutono:
   ## Number of old ReplicaSets to retain
   ##
   revisionHistoryLimit: 10
-
-  ## Add a seperate remote image renderer deployment/service
-  imageRenderer:
-    deploymentStrategy: {}
-    # Enable the image-renderer deployment & service
-    enabled: false
-    replicas: 1
-    autoscaling:
-      enabled: false
-      minReplicas: 1
-      maxReplicas: 5
-      targetCPU: "60"
-      targetMemory: ""
-      behavior: {}
-    image:
-      # -- The Docker registry
-      registry: docker.io
-      # image-renderer Image repository
-      repository: plutono/plutono-image-renderer
-      # image-renderer Image tag
-      tag: latest
-      # image-renderer Image sha (optional)
-      sha: ""
-      # image-renderer ImagePullPolicy
-      pullPolicy: Always
-    # extra environment variables
-    env:
-      HTTP_HOST: "0.0.0.0"
-      # RENDERING_ARGS: --no-sandbox,--disable-gpu,--window-size=1280x758
-      # RENDERING_MODE: clustered
-      # IGNORE_HTTPS_ERRORS: true
-
-    ## "valueFrom" environment variable references that will be added to deployment pods. Name is templated.
-    ## ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core
-    ## Renders in container spec as:
-    ##   env:
-    ##     ...
-    ##     - name: <key>
-    ##       valueFrom:
-    ##         <value rendered as YAML>
-    envValueFrom: {}
-      #  ENV_NAME:
-      #    configMapKeyRef:
-      #      name: configmap-name
-      #      key: value_key
-
-    # image-renderer deployment serviceAccount
-    serviceAccountName: ""
-    # image-renderer deployment securityContext
-    securityContext: {}
-    # image-renderer deployment container securityContext
-    containerSecurityContext:
-      seccompProfile:
-        type: RuntimeDefault
-      capabilities:
-        drop: ['ALL']
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: true
-    ## image-renderer pod annotation
-    podAnnotations: {}
-    # image-renderer deployment Host Aliases
-    hostAliases: []
-    # image-renderer deployment priority class
-    priorityClassName: ''
-    service:
-      # Enable the image-renderer service
-      enabled: true
-      # image-renderer service port name
-      portName: 'http'
-      # image-renderer service port used by both service and deployment
-      port: 8081
-      targetPort: 8081
-      # Adds the appProtocol field to the image-renderer service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
-      appProtocol: ""
-    serviceMonitor:
-      ## If true, a ServiceMonitor CRD is created for a prometheus operator
-      ## https://github.com/coreos/prometheus-operator
-      ##
-      enabled: false
-      path: /metrics
-      #  namespace: monitoring  (defaults to use the namespace this chart is deployed to)
-      labels: {}
-      interval: 1m
-      scheme: http
-      tlsConfig: {}
-      scrapeTimeout: 30s
-      relabelings: []
-      # See: https://doc.crds.dev/github.com/prometheus-operator/kube-prometheus/monitoring.coreos.com/ServiceMonitor/v1@v0.11.0#spec-targetLabels
-      targetLabels: []
-        # - targetLabel1
-        # - targetLabel2
-    # If https is enabled in Plutono, this needs to be set as 'https' to correctly configure the callback used in Plutono
-    plutonoProtocol: http
-    # In case a sub_path is used this needs to be added to the image renderer callback
-    plutonoSubPath: ""
-    # name of the image-renderer port on the pod
-    podPortName: http
-    # number of image-renderer replica sets to keep
-    revisionHistoryLimit: 10
-    networkPolicy:
-      # Enable a NetworkPolicy to limit inbound traffic to only the created plutono pods
-      limitIngress: true
-      # Enable a NetworkPolicy to limit outbound traffic to only the created plutono pods
-      limitEgress: false
-      # Allow additional services to access image-renderer (eg. Prometheus operator when ServiceMonitor is enabled)
-      extraIngressSelectors: []
-    resources: {}
-  #   limits:
-  #     cpu: 100m
-  #     memory: 100Mi
-  #   requests:
-  #     cpu: 50m
-  #     memory: 50Mi
-    ## Node labels for pod assignment
-    ## ref: https://kubernetes.io/docs/user-guide/node-selection/
-    #
-    nodeSelector: {}
-
-    ## Tolerations for pod assignment
-    ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-    ##
-    tolerations: []
-
-    ## Affinity for pod assignment (evaluated as template)
-    ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-    ##
-    affinity: {}
-
-    ## Use an alternate scheduler, e.g. "stork".
-    ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-    ##
-    # schedulerName: "default-scheduler"
-
-    # Extra configmaps to mount in image-renderer pods
-    extraConfigmapMounts: []
-
-    # Extra secrets to mount in image-renderer pods
-    extraSecretMounts: []
-
-    # Extra volumes to mount in image-renderer pods
-    extraVolumeMounts: []
-
-    # Extra volumes for image-renderer pods
-    extraVolumes: []
 
   networkPolicy:
     ## @param networkPolicy.enabled Enable creation of NetworkPolicy resources. Only Ingress traffic is filtered for now.
