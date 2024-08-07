@@ -6,8 +6,11 @@
 import React, { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Stack } from "@cloudoperators/juno-ui-components"
-import { useQueryClientFnReady } from "../StoreProvider"
-
+import {
+  useQueryClientFnReady,
+  useActiveFilters,
+  useActions,
+} from "../StoreProvider"
 import FilterSelect from "./FilterSelect"
 import FilterPills from "./FilterPills"
 
@@ -17,10 +20,8 @@ const filtersStyles = `
   px-4
   my-px
 `
-
 const Filters = ({ queryKey }) => {
   const queryClientFnReady = useQueryClientFnReady()
-
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [queryKey],
     enabled: !!queryClientFnReady && !!queryKey,
@@ -38,8 +39,8 @@ const Filters = ({ queryKey }) => {
 
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
-      <FilterSelect isLoading filters={filters} />
-      {/* <FilterPills /> */}
+      <FilterSelect isLoading={isLoading} filters={filters} />
+      <FilterPills />
     </Stack>
   )
 }

@@ -23,4 +23,18 @@ export const useQueryOptions = (tab) =>
   useStore((s) => s.tabs[tab].queryOptions)
 export const useActions = () => useStore((s) => s.actions)
 
+// Filter exports
+export const useFilterLabels = () => useStore((state) => state.filters.labels)
+export const useActiveFilters = () =>
+  useStore((state) => state.filters.activeFilters)
+export const useSearchTerm = () => useStore((state) => state.filters.searchTerm)
+export const useFilterLabelValues = () =>
+  useStore((state) => state.filters.filterLabelValues)
+export const useFilteredServices = () =>
+  useStore((state) => state.filteredServices)
+export const usePredefinedFilters = () =>
+  useStore((state) => state.filters.predefinedFilters)
+export const useActivePredefinedFilter = () =>
+  useStore((state) => state.filters.activePredefinedFilter)
+
 export default StoreProvider

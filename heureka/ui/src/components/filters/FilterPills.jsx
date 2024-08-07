@@ -4,17 +4,16 @@
  */
 
 import React from "react"
-
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
-// import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
+import { useActiveFilters, useActions } from "../StoreProvider"
 
 const FilterPills = () => {
-  // const activeFilters = useActiveFilters()
-  // const { removeActiveFilter } = useFilterActions()
+  const activeFilters = useActiveFilters()
+  const { removeActiveFilter } = useActions()
 
   return (
     <Stack gap="2" wrap={true}>
-      {/* {Object.entries(activeFilters).map(([key, values]) => {
+      {Object.entries(activeFilters).map(([key, values]) => {
         return values.map((value) => (
           <Pill
             pillKey={key}
@@ -24,7 +23,7 @@ const FilterPills = () => {
             key={`${key}:${value}`}
           />
         ))
-      })} */}
+      })}
     </Stack>
   )
 }

@@ -9,6 +9,10 @@ import {
   useQueryClientFnReady,
   useQueryOptions,
   useActions,
+  useActiveFilters,
+  useFilteredServices,
+  useEndpoint,
+  useEndpoint,
 } from "../StoreProvider"
 import {
   Pagination,
@@ -20,30 +24,43 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
+import { getFilterValues } from "../../queries"
+import { getFilterValues } from "../../queries"
 
 const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
-  const { setQueryOptions } = useActions()
+  const { setQueryOptions, fetchServices, setActiveFilters } = useActions()
+  const filters = useActiveFilters()
+  const endpoint = useEndpoint()
+  // const services = useFilteredServices()
 
-  const { isLoading, isFetching, isError, data, error } = useQuery({
-    queryKey: [`services`, queryOptions],
-    enabled: !!queryClientFnReady,
-  })
-
-  const services = useMemo(() => {
-    // return null so that the component can handle the loading state at the beginning
-    if (!data) return null
-    return data?.Services?.edges
-  }, [data])
+  // const { isLoading, isFetching, isError, data, error } = useQuery({
+  //   queryKey: [`services`, { ...queryOptions, filter: filters }],
+  //   enabled: !!queryClientFnReady,
+  // })
+  const { data, error, isLoading } = getFilterValues(
+    "supportGroupName",
+    queryOptions.bearerToken,
+    endpoint
+  )
 
   useEffect(() => {
     if (!error) return
     addMessage({ variant: "danger", text: error?.message })
   }, [error])
 
-  const [currentPage, setCurrentPage] = useState(1) // State for current page
+  useEffect(() => {
+    fetchServices()
+  }, [filters])
+
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const services = useMemo(() => {
+    if (!data) return null
+    return data?.Services?.edges
+  }, [data])
 
   const pageInfo = useMemo(() => {
     if (!data) return null
@@ -56,7 +73,7 @@ const ServicesListController = () => {
   }, [data?.Services?.pageInfo])
 
   const onPaginationChanged = (newPage) => {
-    setCurrentPage(newPage) // Update currentPage
+    setCurrentPage(newPage)
     if (!data?.Services?.pageInfo?.pages) return
     const pages = data?.Services?.pageInfo?.pages
     const currentPageIndex = pages?.findIndex(
@@ -66,6 +83,8 @@ const ServicesListController = () => {
       const after = pages[currentPageIndex]?.after
       setQueryOptions("services", {
         ...queryOptions,
+        filter: filters,
+        filter: filters,
         after: `${after}`,
       })
     }

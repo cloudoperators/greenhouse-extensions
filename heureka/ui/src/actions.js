@@ -31,6 +31,7 @@ export const encodeUrlParamsFromObject = (options) => {
 }
 
 const checkStatus = (response) => {
+  debugger
   if (response.status < 400) {
     return response
   } else {
@@ -47,8 +48,9 @@ const checkStatus = (response) => {
 //
 
 export const services = ({ queryKey }) => {
-  const [_key, bearerToken, endpoint, options] = queryKey
-  return fetchFromAPI(bearerToken, endpoint, "/services", options)
+  const [_key, { filter, first, after }, bearerToken, endpoint] = queryKey
+  const variables = { filter, first, after }
+  return fetchFromAPI(bearerToken, endpoint, `/services`, variables)
 }
 
 export const service = ({ queryKey }) => {
@@ -59,6 +61,12 @@ export const service = ({ queryKey }) => {
 export const serviceFilters = ({ queryKey }) => {
   const [_key, bearerToken, endpoint, options] = queryKey
   return fetchFromAPI(bearerToken, endpoint, "/services/filters", options)
+}
+
+export const fetchFilterValues = ({ queryKey }) => {
+  const [_key, filterLabel, bearerToken, endpoint] = queryKey
+  const variables = { property: filterLabel }
+  return fetchFromAPI(bearerToken, endpoint, `/filters/values`, variables)
 }
 
 //
@@ -142,6 +150,16 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         })
       }
 
+      if (!response.ok) {
+        return response.json().then((errData) => {
+          const error = new HTTPError(
+            response.status,
+            errData.message || "Unknown error occurred"
+          )
+          return Promise.reject(error)
+        })
+      }
+
       let isJSON = response.headers
         .get("content-type")
         .includes("application/json")
@@ -161,7 +179,7 @@ const fetchFromAPI = (bearerToken, endpoint, path, options) => {
         const graphQLError = data.errors[0]
         const error = new HTTPError(
           400,
-          graphQLError.message || "GraphQL error occurred"
+          graphQLError.message || "GraphQL API error occurred"
         )
         return Promise.reject(error)
       }

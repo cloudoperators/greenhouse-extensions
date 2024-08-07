@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo, useState } from "react"
-
+import React, { useState, useEffect } from "react"
 import {
   Button,
   InputGroup,
@@ -13,23 +12,32 @@ import {
   Stack,
   SearchInput,
 } from "@cloudoperators/juno-ui-components"
-// import { humanizeString } from "../../lib/utils"
+import {
+  useFilterLabelValues,
+  useActions,
+  useActiveFilters,
+  useSearchTerm,
+} from "../StoreProvider"
+import { humanizeString } from "../../lib/utils"
 
 const FilterSelect = ({ filters }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
   const [resetKey, setResetKey] = useState(Date.now())
 
-  const filterLabels = useMemo(() => {
-    return filters?.map((filter) => filter?.label)
-  }, [filters])
+  const {
+    addActiveFilter,
+    fetchFilterValues,
+    clearActiveFilters,
+    setSearchTerm,
+  } = useActions()
+  const filterLabelValues = useFilterLabelValues()
+  const activeFilters = useActiveFilters()
+  const searchTerm = useSearchTerm()
 
   const handleFilterAdd = (value) => {
     if (filterLabel && (filterValue || value)) {
-      // add active filter to store
       addActiveFilter(filterLabel, filterValue || value)
-
-      // reset filterValue
       setFilterValue("")
     } else {
       // TODO: show error -> please select filter/value
@@ -38,6 +46,9 @@ const FilterSelect = ({ filters }) => {
 
   const handleFilterLabelChange = (value) => {
     setFilterLabel(value)
+    if (!filterLabelValues[value]?.values) {
+      fetchFilterValues(value)
+    }
   }
 
   const handleFilterValueChange = (value) => {
@@ -46,20 +57,16 @@ const FilterSelect = ({ filters }) => {
   }
 
   const handleSearchChange = (value) => {
-    // debounce setSearchTerm to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
       setSearchTerm(value.target.value)
     }, 500)
-
-    // clear timeout if we have a new value
     return () => clearTimeout(debouncedSearchTerm)
   }
 
-  // const handleKeyDown = (event) => {
-  //   if (event.key === "Enter") {
-  //     handleFilterValueChange()
-  //   }
-  // }
+  useEffect(() => {
+    // Load initial filter labels from the filters prop
+    setFilterLabel("")
+  }, [filters])
 
   return (
     <Stack alignment="center" gap="8">
@@ -71,16 +78,15 @@ const FilterSelect = ({ filters }) => {
           value={filterLabel}
           onChange={(val) => handleFilterLabelChange(val)}
         >
-          {filterLabels?.map((filter) => (
+          {filters?.map((filter) => (
             <SelectOption
-              value={filter}
-              // label={humanizeString(filter)}
-              label={filter}
-              key={filter}
+              value={filter.label}
+              label={humanizeString(filter.label)}
+              key={filter.label}
             />
           ))}
         </Select>
-        {/* <Select
+        <Select
           name="filterValue"
           value={filterValue}
           onChange={(value) => handleFilterValueChange(value)}
@@ -90,11 +96,7 @@ const FilterSelect = ({ filters }) => {
           key={resetKey}
         >
           {filterLabelValues[filterLabel]?.values
-            ?.filter(
-              (value) =>
-                // filter out already active values for this label
-                !activeFilters[filterLabel]?.includes(value)
-            )
+            ?.filter((value) => !activeFilters[filterLabel]?.includes(value))
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}
@@ -103,23 +105,23 @@ const FilterSelect = ({ filters }) => {
           onClick={() => handleFilterAdd()}
           icon="filterAlt"
           className="py-[0.3rem]"
-        /> */}
+        />
       </InputGroup>
-      {/* {activeFilters && Object.keys(activeFilters).length > 0 && (
+      {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all"
           onClick={() => clearActiveFilters()}
           variant="subdued"
         />
-      )} */}
-      {/* <SearchInput
+      )}
+      <SearchInput
         placeholder="search term or regular expression"
         className="w-96 ml-auto"
         value={searchTerm || ""}
         onSearch={(value) => setSearchTerm(value)}
         onClear={() => setSearchTerm(null)}
         onChange={(value) => handleSearchChange(value)}
-      /> */}
+      />
     </Stack>
   )
 }

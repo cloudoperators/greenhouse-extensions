@@ -17,6 +17,7 @@ import {
   users,
   user,
   userFilters,
+  fetchFilterValues,
 } from "./actions"
 
 // get all services
@@ -46,6 +47,13 @@ export const getServiceFilters = (bearerToken, endpoint, options) => {
     // If a user leaves your application and returns to stale data, React Query automatically requests fresh data for you in the background.
     // You can disable this globally or per-query using the refetchOnWindowFocus option
     refetchOnWindowFocus: false,
+  })
+}
+
+export const getFilterValues = (filterLabel, bearerToken, endpoint) => {
+  return useQuery({
+    queryKey: ["filterValues", filterLabel, bearerToken, endpoint],
+    queryFn: fetchFilterValues,
   })
 }
 
