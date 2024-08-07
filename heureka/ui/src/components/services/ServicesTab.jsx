@@ -6,12 +6,15 @@
 import React, { useMemo } from "react"
 import ServicesListController from "./ServicesListController"
 import Filters from "../filters/Filters"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 
 const ServicesTab = () => {
   return (
     <>
-      <Filters queryKey="serviceFilters" />
-      <ServicesListController />
+      <MessagesProvider>
+        <Filters queryKey="serviceFilters" />
+        <ServicesListController />
+      </MessagesProvider>
     </>
   )
 }

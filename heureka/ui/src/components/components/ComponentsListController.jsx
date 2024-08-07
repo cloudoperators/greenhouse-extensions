@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   useQueryClientFnReady,
@@ -16,11 +16,17 @@ import {
   Container,
   Stack,
 } from "@cloudoperators/juno-ui-components"
+import {
+  Messages,
+  useActions as messageActions,
+} from "@cloudoperators/juno-messages-provider"
+import { parseError } from "../../helpers"
 
 const ComponentsListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("components")
   const { setQueryOptions } = useActions()
+  const { addMessage } = messageActions()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [`components`, queryOptions],
@@ -33,6 +39,14 @@ const ComponentsListController = () => {
     if (!data) return null
     return data?.Components?.edges
   }, [data])
+
+  useEffect(() => {
+    if (!error) return
+    addMessage({
+      variant: "error",
+      text: parseError(error),
+    })
+  }, [error])
 
   const pageInfo = useMemo(() => {
     if (!data) return null
@@ -73,22 +87,30 @@ const ComponentsListController = () => {
 
   return (
     <>
-      <Container py>
-        <ComponentsList components={components} isLoading={isLoading} />
-      </Container>
-      <Stack className="flex justify-end">
-        <Pagination
-          currentPage={currentPage}
-          isFirstPage={currentPage === 1}
-          isLastPage={currentPage === totalPages}
-          onPressNext={onPressNext}
-          onPressPrevious={onPressPrevious}
-          onKeyPress={onKeyPress}
-          onSelectChange={onPaginationChanged}
-          pages={totalPages}
-          variant="input"
-        />
-      </Stack>
+      {!!error ? (
+        <Container py>
+          <Messages />
+        </Container>
+      ) : (
+        <>
+          <Container py>
+            <ComponentsList components={components} isLoading={isLoading} />
+          </Container>
+          <Stack className="flex justify-end">
+            <Pagination
+              currentPage={currentPage}
+              isFirstPage={currentPage === 1}
+              isLastPage={currentPage === totalPages}
+              onPressNext={onPressNext}
+              onPressPrevious={onPressPrevious}
+              onKeyPress={onKeyPress}
+              onSelectChange={onPaginationChanged}
+              pages={totalPages}
+              variant="input"
+            />
+          </Stack>
+        </>
+      )}
     </>
   )
 }

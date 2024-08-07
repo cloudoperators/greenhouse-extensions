@@ -20,9 +20,10 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
+import { parseError } from "../../helpers"
 
 const ServicesListController = () => {
-  const { addMessage, resetMessages } = messageActions()
+  const { addMessage } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
   const { setQueryOptions } = useActions()
@@ -40,7 +41,10 @@ const ServicesListController = () => {
 
   useEffect(() => {
     if (!error) return
-    addMessage({ variant: "danger", text: error?.message })
+    addMessage({
+      variant: "error",
+      text: parseError(error),
+    })
   }, [error])
 
   const [currentPage, setCurrentPage] = useState(1) // State for current page
@@ -85,22 +89,30 @@ const ServicesListController = () => {
 
   return (
     <>
-      <Container py>
-        <ServicesList services={services} isLoading={isLoading} />
-      </Container>
-      <Stack className="flex justify-end">
-        <Pagination
-          currentPage={currentPage}
-          isFirstPage={currentPage === 1}
-          isLastPage={currentPage === totalPages}
-          onPressNext={onPressNext}
-          onPressPrevious={onPressPrevious}
-          onKeyPress={onKeyPress}
-          onSelectChange={onPaginationChanged}
-          pages={totalPages}
-          variant="input"
-        />
-      </Stack>
+      {!!error ? (
+        <Container py>
+          <Messages />
+        </Container>
+      ) : (
+        <>
+          <Container py>
+            <ServicesList services={services} isLoading={isLoading} />
+          </Container>
+          <Stack className="flex justify-end">
+            <Pagination
+              currentPage={currentPage}
+              isFirstPage={currentPage === 1}
+              isLastPage={currentPage === totalPages}
+              onPressNext={onPressNext}
+              onPressPrevious={onPressPrevious}
+              onKeyPress={onKeyPress}
+              onSelectChange={onPaginationChanged}
+              pages={totalPages}
+              variant="input"
+            />
+          </Stack>
+        </>
+      )}
     </>
   )
 }
