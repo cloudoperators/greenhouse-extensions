@@ -41,7 +41,7 @@ const IssuesListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) resetMessages()
+    if (!error) return resetMessages()
     addMessage({
       variant: "error",
       text: parseError(error),
@@ -87,9 +87,6 @@ const IssuesListController = () => {
 
   return (
     <>
-      <Container py>
-        <Messages />
-      </Container>
       <Container py>
         <IssuesList issues={issues} isLoading={isLoading} />
       </Container>

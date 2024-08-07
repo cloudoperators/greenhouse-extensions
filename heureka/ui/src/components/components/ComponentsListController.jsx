@@ -41,7 +41,7 @@ const ComponentsListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) resetMessages()
+    if (!error) return resetMessages()
     addMessage({
       variant: "error",
       text: parseError(error),
@@ -87,9 +87,6 @@ const ComponentsListController = () => {
 
   return (
     <>
-      <Container py>
-        <Messages />
-      </Container>
       <Container py>
         <ComponentsList components={components} isLoading={isLoading} />
       </Container>

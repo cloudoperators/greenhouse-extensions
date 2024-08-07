@@ -6,13 +6,20 @@
 import React, { useMemo } from "react"
 import ServicesListController from "./ServicesListController"
 import Filters from "../filters/Filters"
-import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
+import {
+  Messages,
+  MessagesProvider,
+} from "@cloudoperators/juno-messages-provider"
+import { Container } from "@cloudoperators/juno-ui-components"
 
 const ServicesTab = () => {
   return (
     <>
       <MessagesProvider>
         <Filters queryKey="serviceFilters" />
+        <Container py>
+          <Messages />
+        </Container>
         <ServicesListController />
       </MessagesProvider>
     </>

@@ -40,7 +40,7 @@ const ServicesListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) resetMessages()
+    if (!error) return resetMessages()
     addMessage({
       variant: "error",
       text: parseError(error),
@@ -92,9 +92,6 @@ const ServicesListController = () => {
 
   return (
     <>
-      <Container py>
-        <Messages />
-      </Container>
       <Container py>
         <ServicesList services={services} isLoading={isLoading} />
       </Container>

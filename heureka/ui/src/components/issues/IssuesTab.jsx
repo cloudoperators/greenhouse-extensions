@@ -6,13 +6,20 @@
 import React from "react"
 import IssuesListController from "./IssuesListController"
 import Filters from "../filters/Filters"
-import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
+import {
+  Messages,
+  MessagesProvider,
+} from "@cloudoperators/juno-messages-provider"
+import { Container } from "@cloudoperators/juno-ui-components"
 
 const IssuesTab = () => {
   return (
     <>
       <MessagesProvider>
         <Filters />
+        <Container py>
+          <Messages />
+        </Container>
         <IssuesListController />
       </MessagesProvider>
     </>
