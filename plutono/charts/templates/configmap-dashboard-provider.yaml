@@ -1,0 +1,15 @@
+{{- if and .Values.plutono.sidecar.dashboards.enabled .Values.plutono.sidecar.dashboards.SCProvider }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+  {{- with .Values.plutono.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  name: {{ include "plutono.fullname" . }}-config-dashboards
+  namespace: {{ include "plutono.namespace" . }}
+data:
+  {{- include "plutono.configDashboardProviderData" . | nindent 2 }}
+{{- end }}

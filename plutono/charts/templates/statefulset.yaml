@@ -1,30 +1,22 @@
-{{- if (and (not .Values.plutono.useStatefulSet) (or (not .Values.plutono.persistence.enabled) (eq .Values.plutono.persistence.type "pvc"))) }}
+{{- $sts := list "sts" "StatefulSet" "statefulset" -}}
+{{- if (or (.Values.plutono.useStatefulSet) (and .Values.plutono.persistence.enabled (not .Values.plutono.persistence.existingClaim) (has .Values.plutono.persistence.type $sts)))}}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "plutono.fullname" . }}
   namespace: {{ include "plutono.namespace" . }}
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
-    {{- with .Values.plutono.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
   {{- with .Values.plutono.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and (not .Values.plutono.autoscaling.enabled) (.Values.plutono.replicas) }}
   replicas: {{ .Values.plutono.replicas }}
-  {{- end }}
-  revisionHistoryLimit: {{ .Values.plutono.revisionHistoryLimit }}
   selector:
     matchLabels:
       {{- include "plutono.selectorLabels" . | nindent 6 }}
-  {{- with .Values.plutono.deploymentStrategy }}
-  strategy:
-    {{- toYaml . | trim | nindent 4 }}
-  {{- end }}
+  serviceName: {{ include "plutono.fullname" . }}-headless
   template:
     metadata:
       labels:
@@ -33,16 +25,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
-        checksum/config: {{ include "plutono.configData" . | sha256sum }}
-        {{- if .Values.plutono.dashboards }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/dashboards-json-config: {{ include (print $.Template.BasePath "/dashboards-json-configmap.yaml") . | sha256sum }}
-        {{- end }}
-        checksum/sc-dashboard-provider-config: {{ include "plutono.configDashboardProviderData" . | sha256sum }}
+        checksum/sc-dashboard-provider-config: {{ include (print $.Template.BasePath "/configmap-dashboard-provider.yaml") . | sha256sum }}
         {{- if and (or (and (not .Values.plutono.admin.existingSecret) (not .Values.plutono.env.PL_SECURITY_ADMIN_PASSWORD__FILE) (not .Values.plutono.env.PL_SECURITY_ADMIN_PASSWORD)) (and .Values.plutono.ldap.enabled (not .Values.plutono.ldap.existingSecret))) (not .Values.plutono.env.PL_SECURITY_DISABLE_INITIAL_ADMIN_CREATION) }}
-        checksum/secret: {{ include "plutono.secretsData" . | sha256sum }}
-        {{- end }}
-        {{- if .Values.plutono.envRenderSecret }}
-        checksum/secret-env: {{ tpl (toYaml .Values.plutono.envRenderSecret) . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- end }}
         kubectl.kubernetes.io/default-container: {{ .Chart.Name }}
         {{- with .Values.plutono.podAnnotations }}
@@ -50,4 +37,22 @@ spec:
         {{- end }}
     spec:
       {{- include "plutono.pod" . | nindent 6 }}
+  {{- if .Values.plutono.persistence.enabled}}
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: storage
+    spec:
+      accessModes: {{ .Values.plutono.persistence.accessModes }}
+      storageClassName: {{ .Values.plutono.persistence.storageClassName }}
+      resources:
+        requests:
+          storage: {{ .Values.plutono.persistence.size }}
+      {{- with .Values.plutono.persistence.selectorLabels }}
+      selector:
+        matchLabels:
+          {{- toYaml . | nindent 10 }}
+      {{- end }}
+  {{- end }}
 {{- end }}

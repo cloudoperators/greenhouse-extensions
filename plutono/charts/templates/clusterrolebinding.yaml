@@ -1,24 +1,24 @@
-{{- if and .Values.plutono.rbac.create (not .Values.plutono.rbac.namespaced) }}
+{{- if and .Values.plutono.rbac.create (or (not .Values.plutono.rbac.namespaced) .Values.plutono.rbac.extraClusterRoleRules) }}
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ template "plutono.fullname" . }}-clusterrolebinding
+  name: {{ include "plutono.fullname" . }}-clusterrolebinding
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
-{{- with .Values.plutono.annotations }}
+  {{- with .Values.plutono.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "plutono.serviceAccountName" . }}
-    namespace: {{ template "plutono.namespace" . }}
+    name: {{ include "plutono.serviceAccountName" . }}
+    namespace: {{ include "plutono.namespace" . }}
 roleRef:
   kind: ClusterRole
-{{- if (not .Values.plutono.rbac.useExistingRole) }}
-  name: {{ template "plutono.fullname" . }}-clusterrole
-{{- else }}
-  name: {{ .Values.plutono.rbac.useExistingRole }}
-{{- end }}
+  {{- if .Values.plutono.rbac.useExistingClusterRole }}
+  name: {{ .Values.plutono.rbac.useExistingClusterRole }}
+  {{- else }}
+  name: {{ include "plutono.fullname" . }}-clusterrole
+  {{- end }}
   apiGroup: rbac.authorization.k8s.io
-{{- end -}}
+{{- end }}

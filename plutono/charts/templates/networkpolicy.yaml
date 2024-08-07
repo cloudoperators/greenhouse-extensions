@@ -1,0 +1,61 @@
+{{- if .Values.plutono.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "plutono.fullname" . }}
+  namespace: {{ include "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+    {{- with .Values.plutono.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.plutono.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  policyTypes:
+    {{- if .Values.plutono.networkPolicy.ingress }}
+    - Ingress
+    {{- end }}
+    {{- if .Values.plutono.networkPolicy.egress.enabled }}
+    - Egress
+    {{- end }}
+  podSelector:
+    matchLabels:
+      {{- include "plutono.selectorLabels" . | nindent 6 }}
+
+  {{- if .Values.plutono.networkPolicy.egress.enabled }}
+  egress:
+    {{- if not .Values.plutono.networkPolicy.egress.blockDNSResolution }}
+    - ports:
+        - port: 53
+          protocol: UDP
+    {{- end }}
+    - ports:
+        {{ .Values.plutono.networkPolicy.egress.ports | toJson }}
+      {{- with .Values.plutono.networkPolicy.egress.to }}
+      to:
+        {{- toYaml . | nindent 12 }}
+      {{- end }}
+  {{- end }}
+  {{- if .Values.plutono.networkPolicy.ingress }}
+  ingress:
+    - ports:
+      - port: {{ .Values.plutono.service.targetPort }}
+      {{- if not .Values.plutono.networkPolicy.allowExternal }}
+      from:
+        - podSelector:
+            matchLabels:
+              {{ include "plutono.fullname" . }}-client: "true"
+        {{- with .Values.plutono.networkPolicy.explicitNamespacesSelector }}
+        - namespaceSelector:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+        - podSelector:
+            matchLabels:
+              {{- include "plutono.labels" . | nindent 14 }}
+              role: read
+      {{- end }}
+  {{- end }}
+{{- end }}

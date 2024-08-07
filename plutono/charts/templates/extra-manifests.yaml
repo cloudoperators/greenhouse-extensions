@@ -1,0 +1,4 @@
+{{ range .Values.plutono.extraObjects }}
+---
+{{ tpl (toYaml .) $ }}
+{{ end }}

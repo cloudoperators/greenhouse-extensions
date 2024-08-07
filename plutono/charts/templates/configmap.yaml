@@ -1,25 +1,20 @@
+{{- if .Values.plutono.createConfigmap }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "plutono.fullname" . }}
-  namespace: {{ template "plutono.namespace" . }}
+  name: {{ include "plutono.fullname" . }}
+  namespace: {{ include "plutono.namespace" . }}
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
-{{- with .Values.plutono.annotations }}
+  {{- if or .Values.plutono.configMapAnnotations .Values.plutono.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- with .Values.plutono.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.plutono.configMapAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 data:
-  plutono.ini: |
-{{- range $key, $value := index .Values.plutono "plutono.ini" }}
-    [{{ $key }}]
-    {{- range $elem, $elemVal := $value }}
-    {{- if kindIs "invalid" $elemVal }}
-    {{ $elem }} =
-    {{- else if kindIs "string" $elemVal }}
-    {{ $elem }} = {{ tpl $elemVal $ }}
-    {{- else }}
-    {{ $elem }} = {{ $elemVal }}
-    {{- end }}
-    {{- end }}
+  {{- include "plutono.configData" . | nindent 2 }}
 {{- end }}

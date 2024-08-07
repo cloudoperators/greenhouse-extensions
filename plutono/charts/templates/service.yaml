@@ -1,51 +1,67 @@
-{{ if .Values.plutono.service.enabled }}
+{{- if .Values.plutono.service.enabled }}
+{{- $root := . }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "plutono.fullname" . }}
-  namespace: {{ template "plutono.namespace" . }}
+  name: {{ include "plutono.fullname" . }}
+  namespace: {{ include "plutono.namespace" . }}
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
-{{- if .Values.plutono.service.labels }}
-{{ toYaml .Values.plutono.service.labels | indent 4 }}
-{{- end }}
-{{- with .Values.plutono.service.annotations }}
+    {{- with .Values.plutono.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.plutono.service.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
-spec:
-{{- if (or (eq .Values.plutono.service.type "ClusterIP") (empty .Values.plutono.service.type)) }}
-  type: ClusterIP
-  {{- if .Values.plutono.service.clusterIP }}
-  clusterIP: {{ .Values.plutono.service.clusterIP }}
-  {{end}}
-{{- else if eq .Values.plutono.service.type "LoadBalancer" }}
-  type: {{ .Values.plutono.service.type }}
-  {{- if .Values.plutono.service.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.plutono.service.loadBalancerIP }}
+    {{- tpl (toYaml . | nindent 4) $root }}
   {{- end }}
-  {{- if .Values.plutono.service.loadBalancerSourceRanges }}
+spec:
+  {{- if (or (eq .Values.plutono.service.type "ClusterIP") (empty .Values.plutono.service.type)) }}
+  type: ClusterIP
+  {{- with .Values.plutono.service.clusterIP }}
+  clusterIP: {{ . }}
+  {{- end }}
+  {{- else if eq .Values.plutono.service.type "LoadBalancer" }}
+  type: LoadBalancer
+  {{- with .Values.plutono.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  {{- with .Values.plutono.service.loadBalancerClass }}
+  loadBalancerClass: {{ . }}
+  {{- end }}
+  {{- with .Values.plutono.service.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-{{ toYaml .Values.plutono.service.loadBalancerSourceRanges | indent 4 }}
-  {{- end -}}
-{{- else }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else }}
   type: {{ .Values.plutono.service.type }}
-{{- end }}
-{{- if .Values.plutono.service.externalIPs }}
+  {{- end }}
+  {{- if .Values.plutono.service.ipFamilyPolicy }}
+  ipFamilyPolicy: {{ .Values.plutono.service.ipFamilyPolicy }}
+  {{- end }}
+  {{- if .Values.plutono.service.ipFamilies }}
+  ipFamilies: {{ .Values.plutono.service.ipFamilies | toYaml | nindent 2 }}
+  {{- end }}
+  {{- with .Values.plutono.service.externalIPs }}
   externalIPs:
-{{ toYaml .Values.plutono.service.externalIPs | indent 4 }}
-{{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.plutono.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
   ports:
     - name: {{ .Values.plutono.service.portName }}
       port: {{ .Values.plutono.service.port }}
       protocol: TCP
       targetPort: {{ .Values.plutono.service.targetPort }}
-{{ if (and (eq .Values.plutono.service.type "NodePort") (not (empty .Values.plutono.service.nodePort))) }}
-      nodePort: {{.Values.plutono.service.nodePort}}
-{{ end }}
-  {{- if .Values.plutono.extraExposePorts }}
-  {{- tpl (toYaml .Values.plutono.extraExposePorts) . | indent 4 }}
-  {{- end }}
+      {{- with .Values.plutono.service.appProtocol }}
+      appProtocol: {{ . }}
+      {{- end }}
+      {{- if (and (eq .Values.plutono.service.type "NodePort") (not (empty .Values.plutono.service.nodePort))) }}
+      nodePort: {{ .Values.plutono.service.nodePort }}
+      {{- end }}
+      {{- with .Values.plutono.extraExposePorts }}
+      {{- tpl (toYaml . | nindent 4) $root }}
+      {{- end }}
   selector:
     {{- include "plutono.selectorLabels" . | nindent 4 }}
-{{ end }}
+{{- end }}

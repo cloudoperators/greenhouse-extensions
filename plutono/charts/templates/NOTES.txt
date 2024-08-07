@@ -1,10 +1,11 @@
 1. Get your '{{ .Values.plutono.adminUser }}' user password by running:
 
-   kubectl get secret --namespace {{ template "plutono.namespace" . }} {{ template "plutono.fullname" . }} -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+   kubectl get secret --namespace {{ include "plutono.namespace" . }} {{ .Values.plutono.admin.existingSecret | default (include "plutono.fullname" .) }} -o jsonpath="{.data.{{ .Values.plutono.admin.passwordKey | default "admin-password" }}}" | base64 --decode ; echo
+
 
 2. The Plutono server can be accessed via port {{ .Values.plutono.service.port }} on the following DNS name from within your cluster:
 
-   {{ template "plutono.fullname" . }}.{{ template "plutono.namespace" . }}.svc.cluster.local
+   {{ include "plutono.fullname" . }}.{{ include "plutono.namespace" . }}.svc.cluster.local
 {{ if .Values.plutono.ingress.enabled }}
    If you bind plutono to 80, please update values in values.yaml and reinstall:
    ```
@@ -24,29 +25,29 @@
    Or plutono would always crash.
 
    From outside the cluster, the server URL(s) are:
-{{- range .Values.plutono.ingress.hosts }}
+     {{- range .Values.plutono.ingress.hosts }}
      http://{{ . }}
-{{- end }}
-{{ else }}
+     {{- end }}
+{{- else }}
    Get the Plutono URL to visit by running these commands in the same shell:
-{{ if contains "NodePort" .Values.plutono.service.type -}}
-     export NODE_PORT=$(kubectl get --namespace {{ template "plutono.namespace" . }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "plutono.fullname" . }})
-     export NODE_IP=$(kubectl get nodes --namespace {{ template "plutono.namespace" . }} -o jsonpath="{.items[0].status.addresses[0].address}")
+   {{- if contains "NodePort" .Values.plutono.service.type }}
+     export NODE_PORT=$(kubectl get --namespace {{ include "plutono.namespace" . }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "plutono.fullname" . }})
+     export NODE_IP=$(kubectl get nodes --namespace {{ include "plutono.namespace" . }} -o jsonpath="{.items[0].status.addresses[0].address}")
      echo http://$NODE_IP:$NODE_PORT
-{{ else if contains "LoadBalancer" .Values.plutono.service.type -}}
+   {{- else if contains "LoadBalancer" .Values.plutono.service.type }}
    NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-        You can watch the status of by running 'kubectl get svc --namespace {{ template "plutono.namespace" . }} -w {{ template "plutono.fullname" . }}'
-     export SERVICE_IP=$(kubectl get svc --namespace {{ template "plutono.namespace" . }} {{ template "plutono.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        You can watch the status of by running 'kubectl get svc --namespace {{ include "plutono.namespace" . }} -w {{ include "plutono.fullname" . }}'
+     export SERVICE_IP=$(kubectl get svc --namespace {{ include "plutono.namespace" . }} {{ include "plutono.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
      http://$SERVICE_IP:{{ .Values.plutono.service.port -}}
-{{ else if contains "ClusterIP"  .Values.plutono.service.type }}
-     export POD_NAME=$(kubectl get pods --namespace {{ template "plutono.namespace" . }} -l "app.kubernetes.io/name={{ template "plutono.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-     kubectl --namespace {{ template "plutono.namespace" . }} port-forward $POD_NAME 3000
-{{- end }}
+   {{- else if contains "ClusterIP"  .Values.plutono.service.type }}
+     export POD_NAME=$(kubectl get pods --namespace {{ include "plutono.namespace" . }} -l "app.kubernetes.io/name={{ include "plutono.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace {{ include "plutono.namespace" . }} port-forward $POD_NAME 3000
+   {{- end }}
 {{- end }}
 
 3. Login with the password from step 1 and the username: {{ .Values.plutono.adminUser }}
 
-{{- if not .Values.plutono.persistence.enabled }}
+{{- if and (not .Values.plutono.persistence.enabled) (not .Values.plutono.persistence.disableWarning) }}
 #################################################################################
 ######   WARNING: Persistence is disabled!!! You will lose your data when   #####
 ######            the Plutono pod is terminated.                            #####

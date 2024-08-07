@@ -1,55 +1,51 @@
 {{- if .Values.plutono.ingress.enabled -}}
+{{- $ingressApiIsStable := eq (include "plutono.ingress.isStable" .) "true" -}}
+{{- $ingressSupportsIngressClassName := eq (include "plutono.ingress.supportsIngressClassName" .) "true" -}}
+{{- $ingressSupportsPathType := eq (include "plutono.ingress.supportsPathType" .) "true" -}}
 {{- $fullName := include "plutono.fullname" . -}}
 {{- $servicePort := .Values.plutono.service.port -}}
 {{- $ingressPath := .Values.plutono.ingress.path -}}
 {{- $ingressPathType := .Values.plutono.ingress.pathType -}}
 {{- $extraPaths := .Values.plutono.ingress.extraPaths -}}
-{{- $newAPI := .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" -}}
-{{- if $newAPI -}}
-apiVersion: networking.k8s.io/v1
-{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
-apiVersion: networking.k8s.io/v1beta1
-{{- else }}
-apiVersion: extensions/v1beta1
-{{- end }}
+apiVersion: {{ include "plutono.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  namespace: {{ template "plutono.namespace" . }}
+  namespace: {{ include "plutono.namespace" . }}
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
-{{- if .Values.plutono.ingress.labels }}
-{{ toYaml .Values.plutono.ingress.labels | indent 4 }}
-{{- end }}
-  {{- if .Values.plutono.ingress.annotations }}
+    {{- with .Values.plutono.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.plutono.ingress.annotations }}
   annotations:
-    {{- range $key, $value := .Values.plutono.ingress.annotations }}
+    {{- range $key, $value := . }}
     {{ $key }}: {{ tpl $value $ | quote }}
     {{- end }}
   {{- end }}
 spec:
-  {{- if .Values.plutono.ingress.ingressClassName }}
+  {{- if and $ingressSupportsIngressClassName .Values.plutono.ingress.ingressClassName }}
   ingressClassName: {{ .Values.plutono.ingress.ingressClassName }}
   {{- end -}}
-{{- if .Values.plutono.ingress.tls }}
+  {{- with .Values.plutono.ingress.tls }}
   tls:
-{{ tpl (toYaml .Values.plutono.ingress.tls) $ | indent 4 }}
-{{- end }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
   rules:
   {{- if .Values.plutono.ingress.hosts  }}
   {{- range .Values.plutono.ingress.hosts }}
-    - host: {{ tpl . $}}
+    - host: {{ tpl . $ | quote }}
       http:
         paths:
-{{ if $extraPaths }}
-{{ toYaml $extraPaths | indent 10 }}
-{{- end }}
+          {{- with $extraPaths }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
           - path: {{ $ingressPath }}
-            {{- if $newAPI }}
+            {{- if $ingressSupportsPathType }}
             pathType: {{ $ingressPathType }}
             {{- end }}
             backend:
-              {{- if $newAPI }}
+              {{- if $ingressApiIsStable }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -63,18 +59,20 @@ spec:
     - http:
         paths:
           - backend:
-              {{- if $newAPI }}
+              {{- if $ingressApiIsStable }}
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $servicePort }}
-            pathType: {{ $ingressPathType }}
               {{- else }}
               serviceName: {{ $fullName }}
               servicePort: {{ $servicePort }}
               {{- end }}
-          {{- if $ingressPath }}
-            path: {{ $ingressPath }}
+            {{- with $ingressPath }}
+            path: {{ . }}
+            {{- end }}
+            {{- if $ingressSupportsPathType }}
+            pathType: {{ $ingressPathType }}
             {{- end }}
   {{- end -}}
 {{- end }}
