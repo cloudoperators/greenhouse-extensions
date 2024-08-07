@@ -26,7 +26,7 @@ const IssuesListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("issues")
   const { setQueryOptions } = useActions()
-  const { addMessage } = messageActions()
+  const { addMessage, resetMessages } = messageActions()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [`issues`, queryOptions],
@@ -41,7 +41,7 @@ const IssuesListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) return
+    if (!error) resetMessages()
     addMessage({
       variant: "error",
       text: parseError(error),
@@ -87,30 +87,25 @@ const IssuesListController = () => {
 
   return (
     <>
-      {!!error ? (
-        <Container py>
-          <Messages />
-        </Container>
-      ) : (
-        <>
-          <Container py>
-            <IssuesList issues={issues} isLoading={isLoading} />
-          </Container>
-          <Stack className="flex justify-end">
-            <Pagination
-              currentPage={currentPage}
-              isFirstPage={currentPage === 1}
-              isLastPage={currentPage === totalPages}
-              onPressNext={onPressNext}
-              onPressPrevious={onPressPrevious}
-              onKeyPress={onKeyPress}
-              onSelectChange={onPaginationChanged}
-              pages={totalPages}
-              variant="input"
-            />
-          </Stack>
-        </>
-      )}
+      <Container py>
+        <Messages />
+      </Container>
+      <Container py>
+        <IssuesList issues={issues} isLoading={isLoading} />
+      </Container>
+      <Stack className="flex justify-end">
+        <Pagination
+          currentPage={currentPage}
+          isFirstPage={currentPage === 1}
+          isLastPage={currentPage === totalPages}
+          onPressNext={onPressNext}
+          onPressPrevious={onPressPrevious}
+          onKeyPress={onKeyPress}
+          onSelectChange={onPaginationChanged}
+          pages={totalPages}
+          variant="input"
+        />
+      </Stack>
     </>
   )
 }

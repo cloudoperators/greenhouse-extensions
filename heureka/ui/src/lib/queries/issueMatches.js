@@ -18,7 +18,7 @@ export default () => gql`
         node {
           id
           status
-          remediationDate
+          remiationDate
           discoveryDate
           targetRemediationDate
           severity {

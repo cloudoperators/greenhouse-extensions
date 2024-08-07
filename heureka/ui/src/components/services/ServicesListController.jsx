@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo, useLayoutEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   useQueryClientFnReady,
@@ -23,7 +23,7 @@ import {
 import { parseError } from "../../helpers"
 
 const ServicesListController = () => {
-  const { addMessage } = messageActions()
+  const { addMessage, resetMessages } = messageActions()
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("services")
   const { setQueryOptions } = useActions()
@@ -40,7 +40,7 @@ const ServicesListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) return
+    if (!error) resetMessages()
     addMessage({
       variant: "error",
       text: parseError(error),
@@ -86,33 +86,31 @@ const ServicesListController = () => {
       onPaginationChanged(parseInt(oKey.currentTarget.value))
     }
   }
+  useLayoutEffect(() => {
+    resetMessages()
+  }, [])
 
   return (
     <>
-      {!!error ? (
-        <Container py>
-          <Messages />
-        </Container>
-      ) : (
-        <>
-          <Container py>
-            <ServicesList services={services} isLoading={isLoading} />
-          </Container>
-          <Stack className="flex justify-end">
-            <Pagination
-              currentPage={currentPage}
-              isFirstPage={currentPage === 1}
-              isLastPage={currentPage === totalPages}
-              onPressNext={onPressNext}
-              onPressPrevious={onPressPrevious}
-              onKeyPress={onKeyPress}
-              onSelectChange={onPaginationChanged}
-              pages={totalPages}
-              variant="input"
-            />
-          </Stack>
-        </>
-      )}
+      <Container py>
+        <Messages />
+      </Container>
+      <Container py>
+        <ServicesList services={services} isLoading={isLoading} />
+      </Container>
+      <Stack className="flex justify-end">
+        <Pagination
+          currentPage={currentPage}
+          isFirstPage={currentPage === 1}
+          isLastPage={currentPage === totalPages}
+          onPressNext={onPressNext}
+          onPressPrevious={onPressPrevious}
+          onKeyPress={onKeyPress}
+          onSelectChange={onPaginationChanged}
+          pages={totalPages}
+          variant="input"
+        />
+      </Stack>
     </>
   )
 }
