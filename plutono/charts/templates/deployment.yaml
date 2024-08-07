@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 {{- if (and (not .Values.plutono.useStatefulSet) (or (not .Values.plutono.persistence.enabled) (eq .Values.plutono.persistence.type "pvc"))) }}
 apiVersion: apps/v1
 kind: Deployment

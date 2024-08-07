@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 {{- if .Values.plutono.ingress.enabled -}}
 {{- $ingressApiIsStable := eq (include "plutono.ingress.isStable" .) "true" -}}
 {{- $ingressSupportsIngressClassName := eq (include "plutono.ingress.supportsIngressClassName" .) "true" -}}
