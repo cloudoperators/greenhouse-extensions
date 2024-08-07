@@ -29,7 +29,18 @@ const useQueryClientFn = () => {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
-        return await request(endpoint, servicesQuery(), options)
+
+        try {
+          return await request(endpoint, servicesQuery(), options)
+        } catch (error) {
+          console.error("Error fetching services:", error)
+          throw error // This will ensure that the error is propagated to React Query's error handling
+        }
+      },
+      onError: (error) => {
+        // You can handle the error here
+        console.error("Error in services query:", error)
+        // Optionally, you can show a notification to the user, log the error to a monitoring service, etc.
       },
     })
 
