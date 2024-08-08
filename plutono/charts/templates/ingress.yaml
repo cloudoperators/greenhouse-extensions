@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.plutono.ingress.enabled -}}
+{{- $ingressApiIsStable := eq (include "plutono.ingress.isStable" .) "true" -}}
+{{- $ingressSupportsIngressClassName := eq (include "plutono.ingress.supportsIngressClassName" .) "true" -}}
+{{- $ingressSupportsPathType := eq (include "plutono.ingress.supportsPathType" .) "true" -}}
+{{- $fullName := include "plutono.fullname" . -}}
+{{- $servicePort := .Values.plutono.service.port -}}
+{{- $ingressPath := .Values.plutono.ingress.path -}}
+{{- $ingressPathType := .Values.plutono.ingress.pathType -}}
+{{- $extraPaths := .Values.plutono.ingress.extraPaths -}}
+apiVersion: {{ include "plutono.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ include "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+    {{- with .Values.plutono.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.plutono.ingress.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ tpl $value $ | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  {{- if and $ingressSupportsIngressClassName .Values.plutono.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.plutono.ingress.ingressClassName }}
+  {{- end -}}
+  {{- with .Values.plutono.ingress.tls }}
+  tls:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  rules:
+  {{- if .Values.plutono.ingress.hosts  }}
+  {{- range .Values.plutono.ingress.hosts }}
+    - host: {{ tpl . $ | quote }}
+      http:
+        paths:
+          {{- with $extraPaths }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          - path: {{ $ingressPath }}
+            {{- if $ingressSupportsPathType }}
+            pathType: {{ $ingressPathType }}
+            {{- end }}
+            backend:
+              {{- if $ingressApiIsStable }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $servicePort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $servicePort }}
+              {{- end }}
+  {{- end }}
+  {{- else }}
+    - http:
+        paths:
+          - backend:
+              {{- if $ingressApiIsStable }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $servicePort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $servicePort }}
+              {{- end }}
+            {{- with $ingressPath }}
+            path: {{ . }}
+            {{- end }}
+            {{- if $ingressSupportsPathType }}
+            pathType: {{ $ingressPathType }}
+            {{- end }}
+  {{- end -}}
+{{- end }}

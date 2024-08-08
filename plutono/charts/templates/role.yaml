@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.plutono.rbac.create (not .Values.plutono.rbac.useExistingRole) -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "plutono.fullname" . }}
+  namespace: {{ include "plutono.namespace" . }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+  {{- with .Values.plutono.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- if or .Values.plutono.rbac.pspEnabled (and .Values.plutono.rbac.namespaced (or .Values.plutono.sidecar.dashboards.enabled .Values.plutono.sidecar.datasources.enabled .Values.plutono.sidecar.plugins.enabled .Values.plutono.rbac.extraRoleRules)) }}
+rules:
+  {{- if and .Values.plutono.rbac.pspEnabled (.Capabilities.APIVersions.Has "policy/v1beta1/PodSecurityPolicy") }}
+  - apiGroups:      ['extensions']
+    resources:      ['podsecuritypolicies']
+    verbs:          ['use']
+    resourceNames:  [{{ include "plutono.fullname" . }}]
+  {{- end }}
+  {{- if and .Values.plutono.rbac.namespaced (or .Values.plutono.sidecar.dashboards.enabled .Values.plutono.sidecar.datasources.enabled .Values.plutono.sidecar.plugins.enabled) }}
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "watch", "list"]
+  {{- end }}
+  {{- with .Values.plutono.rbac.extraRoleRules }}
+  {{- toYaml . | nindent 2 }}
+  {{- end}}
+{{- else }}
+rules: []
+{{- end }}
+{{- end }}
