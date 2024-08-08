@@ -43,9 +43,9 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
 | `silenceExcludedLabels` | SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.The labels must be an array of strings. Example: `["pod", "pod_name", "instance"]`                                                            | `[]`           |
 | `filterLabels`          | FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The 'Status' label serves as a default filter, automatically computed from the alert status attribute and will be not overwritten. The labels must be an array of strings. Example: `["app", "cluster", "cluster_type"]` | `[]`           |
 
-| `silenceTemplates` | silenceTemplates are used in the Modal (Schedule Silence) to allow pre-defined silences to be used to scheduled Maintenance Windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title. | `[]` |
+| `silenceTemplates` | SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title. | `[]` |
 
-| `predefinedFilters` | PredefinedFilters are applied to Filter Alerts via TabNavigation. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value) | `[]` |
+| `predefinedFilters` | PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value) | `[]` |
 
 ### Managing Alertmanager configuration
 
