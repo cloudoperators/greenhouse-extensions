@@ -34,7 +34,7 @@ export const StoreProvider = ({ options, children }) => {
           ...createAuthDataSlice(set, get),
           ...createUserActivitySlice(set, get),
           ...createAlertsSlice(set, get),
-          ...createFiltersSlice(set, get),
+          ...createFiltersSlice(set, get, options),
           ...createSilencesSlice(set, get, options),
         }))
       )}

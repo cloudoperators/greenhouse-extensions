@@ -14,9 +14,12 @@ const initialFiltersState = {
   searchTerm: "", // the search term used for full-text filtering
 }
 
-const createFiltersSlice = (set, get) => ({
+const createFiltersSlice = (set, get, options) => ({
   filters: {
     ...initialFiltersState,
+    predefinedFilters: options?.predefinedFilters
+      ? options?.predefinedFilters
+      : [],
     actions: {
       setLabels: (labels) =>
         set(
@@ -136,16 +139,6 @@ const createFiltersSlice = (set, get) => ({
         )
         // after removing a filter: filter items
         get().alerts.actions.filterItems()
-      },
-
-      setPredefinedFilters: (predefinedFilters) => {
-        set(
-          produce((state) => {
-            state.filters.predefinedFilters = predefinedFilters
-          }),
-          false,
-          "filters.setPredefinedFilters"
-        )
       },
 
       setActivePredefinedFilter: (filterName) => {
