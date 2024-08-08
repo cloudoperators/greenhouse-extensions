@@ -24,7 +24,7 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
-import { getFilterValues } from "../../queries"
+import { parseError } from "../../helpers"
 import { getFilterValues } from "../../queries"
 
 const ServicesListController = () => {
@@ -36,10 +36,6 @@ const ServicesListController = () => {
   const endpoint = useEndpoint()
   // const services = useFilteredServices()
 
-  // const { isLoading, isFetching, isError, data, error } = useQuery({
-  //   queryKey: [`services`, { ...queryOptions, filter: filters }],
-  //   enabled: !!queryClientFnReady,
-  // })
   const { data, error, isLoading } = getFilterValues(
     "supportGroupName",
     queryOptions.bearerToken,
@@ -47,8 +43,11 @@ const ServicesListController = () => {
   )
 
   useEffect(() => {
-    if (!error) return
-    addMessage({ variant: "danger", text: error?.message })
+    if (!error) return resetMessages()
+    addMessage({
+      variant: "error",
+      text: parseError(error),
+    })
   }, [error])
 
   const [currentPage, setCurrentPage] = useState(1)

@@ -37,28 +37,38 @@ const TabContext = () => {
   const { setActiveTab } = useActions()
   const activeTab = useActiveTab()
 
+  const memoizedTabs = useMemo(
+    () =>
+      TAB_CONFIG.map((tab) => (
+        <TabNavigationItem
+          key={tab.value}
+          icon={tab.icon}
+          label={tab.label}
+          value={tab.value}
+        />
+      )),
+    []
+  )
+
+  const memoizedTabPanels = useMemo(
+    () =>
+      TAB_CONFIG.map((tab) => (
+        <TabPanel key={tab.value} value={tab.value}>
+          <tab.component />
+        </TabPanel>
+      )),
+    []
+  )
+
   return (
     <>
       <TabNavigation
         activeItem={activeTab}
         onActiveItemChange={(value) => setActiveTab(value)}
       >
-        {TAB_CONFIG.map((tab) => (
-          <TabNavigationItem
-            key={tab.value}
-            icon={tab.icon}
-            label={tab.label}
-            value={tab.value}
-          />
-        ))}
+        {memoizedTabs}
       </TabNavigation>
-      <Container py>
-        {TAB_CONFIG.map((tab) => (
-          <TabPanel key={tab.value} value={tab.value}>
-            <tab.component />
-          </TabPanel>
-        ))}
-      </Container>
+      <Container py>{memoizedTabPanels}</Container>
     </>
   )
 }

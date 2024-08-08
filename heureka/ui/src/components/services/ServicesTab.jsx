@@ -6,12 +6,22 @@
 import React from "react"
 import ServicesListController from "./ServicesListController"
 import Filters from "../filters/Filters"
+import {
+  Messages,
+  MessagesProvider,
+} from "@cloudoperators/juno-messages-provider"
+import { Container } from "@cloudoperators/juno-ui-components"
 
 const ServicesTab = () => {
   return (
     <>
-      <Filters queryKey="serviceFilters" />
-      <ServicesListController />
+      <MessagesProvider>
+        <Filters queryKey="serviceFilters" />
+        <Container py>
+          <Messages />
+        </Container>
+        <ServicesListController />
+      </MessagesProvider>
     </>
   )
 }

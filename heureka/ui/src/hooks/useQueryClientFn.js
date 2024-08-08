@@ -4,10 +4,11 @@
  */
 
 import { useEffect } from "react"
+import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEndpoint, useActions } from "../components/StoreProvider"
 import { request } from "graphql-request"
-import sevicesQuery from "../lib/queries/services"
+import servicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
 import ServiceFilterQuery from "../lib/queries/serviceFilters"
 import componentsQuery from "../lib/queries/components"
@@ -29,13 +30,14 @@ const useQueryClientFn = () => {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
-        return await request(endpoint, sevicesQuery(), options)
+        return await request(endpoint, servicesQuery(), options)
       },
     })
 
     queryClient.setQueryDefaults(["issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
+        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, issueMatchesQuery(), options)
       },
