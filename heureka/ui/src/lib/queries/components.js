@@ -18,7 +18,7 @@ export default () => gql`
           id
           name
           type
-          componentVerions {
+          componentVersions {
             totalCount
             edges {
               node {

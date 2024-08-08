@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState, useMemo, useLayoutEffect } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   useQueryClientFnReady,
@@ -86,9 +86,6 @@ const ServicesListController = () => {
       onPaginationChanged(parseInt(oKey.currentTarget.value))
     }
   }
-  useLayoutEffect(() => {
-    resetMessages()
-  }, [])
 
   return (
     <>
