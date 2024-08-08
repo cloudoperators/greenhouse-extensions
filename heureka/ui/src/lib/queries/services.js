@@ -23,7 +23,7 @@ export default () => gql`
             edges {
               node {
                 id
-                sapID
+                uniqueUserId
                 name
               }
               cursor

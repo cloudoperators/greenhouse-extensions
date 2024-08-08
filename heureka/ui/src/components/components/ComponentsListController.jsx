@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   useQueryClientFnReady,
@@ -16,11 +16,17 @@ import {
   Container,
   Stack,
 } from "@cloudoperators/juno-ui-components"
+import {
+  Messages,
+  useActions as messageActions,
+} from "@cloudoperators/juno-messages-provider"
+import { parseError } from "../../helpers"
 
 const ComponentsListController = () => {
   const queryClientFnReady = useQueryClientFnReady()
   const queryOptions = useQueryOptions("components")
   const { setQueryOptions } = useActions()
+  const { addMessage, resetMessages } = messageActions()
 
   const { isLoading, isFetching, isError, data, error } = useQuery({
     queryKey: [`components`, queryOptions],
@@ -33,6 +39,14 @@ const ComponentsListController = () => {
     if (!data) return null
     return data?.Components?.edges
   }, [data])
+
+  useEffect(() => {
+    if (!error) return resetMessages()
+    addMessage({
+      variant: "error",
+      text: parseError(error),
+    })
+  }, [error])
 
   const pageInfo = useMemo(() => {
     if (!data) return null
