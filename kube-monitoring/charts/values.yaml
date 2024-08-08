@@ -148,6 +148,9 @@ kubeMonitoring:
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
       ingressClassName: nginx
 
+    # Deploys a Plutono datasource config Secret for this Prometheus
+    plutonoDatasource: true
+
     prometheusSpec:
 
       ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage
