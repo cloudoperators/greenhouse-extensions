@@ -45,7 +45,7 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
 
 | `silenceTemplates` | SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title. | `[]` |
 
-| `predefinedFilters` | PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value) | `[]` |
+| `predefinedFilters` | PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (map containing matchers as name and expression pairs) | `[]` |
 
 ### Managing Alertmanager configuration
 
