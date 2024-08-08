@@ -1057,12 +1057,6 @@ containers:
             name: {{ .Values.plutono.smtp.existingSecret }}
             key: {{ .Values.plutono.smtp.passwordKey | default "password" }}
       {{- end }}
-      {{- if .Values.plutono.imageRenderer.enabled }}
-      - name: PL_RENDERING_SERVER_URL
-        value: http://{{ include "plutono.fullname" . }}-image-renderer.{{ include "plutono.namespace" . }}:{{ .Values.plutono.imageRenderer.service.port }}/render
-      - name: PL_RENDERING_CALLBACK_URL
-        value: {{ .Values.plutono.imageRenderer.plutonoProtocol }}://{{ include "plutono.fullname" . }}.{{ include "plutono.namespace" . }}:{{ .Values.plutono.service.port }}/{{ .Values.plutono.imageRenderer.plutonoSubPath }}
-      {{- end }}
       - name: PL_PATHS_DATA
         value: {{ (get .Values.plutono "plutono.ini").paths.data }}
       - name: PL_PATHS_LOGS

@@ -85,26 +85,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Common labels
-*/}}
-{{- define "plutono.imageRenderer.labels" -}}
-helm.sh/chart: {{ include "plutono.chart" . }}
-{{ include "plutono.imageRenderer.selectorLabels" . }}
-{{- if or .Chart.AppVersion .Values.plutono.image.tag }}
-app.kubernetes.io/version: {{ mustRegexReplaceAllLiteral "@sha.*" .Values.plutono.image.tag "" | default .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-{{/*
-Selector labels ImageRenderer
-*/}}
-{{- define "plutono.imageRenderer.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "plutono.name" . }}-image-renderer
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Looks if there's an existing secret and reuse its password. If not it generates
 new password and use it.
 */}}
