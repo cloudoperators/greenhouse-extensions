@@ -361,6 +361,8 @@ dashboards are deleted/updated.
 A recommendation is to use one configmap per dashboard, as a reduction of multiple dashboards inside
 one configmap is currently not properly mirrored in plutono.
 
+NOTE: Configure your data sources in your dashboards as variables to keep them portable across clusters.
+
 #### Example dashboard config:
 
 *Folder structure:*
