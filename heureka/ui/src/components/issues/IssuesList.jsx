@@ -14,7 +14,7 @@ import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
 import IssuesListItem from "./IssuesListItem"
 
-const IssuesList = ({ issues, isLoading }) => {
+const IssuesList = ({ items, isLoading }) => {
   return (
     <DataGrid columns={10}>
       <DataGridRow>
@@ -30,13 +30,13 @@ const IssuesList = ({ issues, isLoading }) => {
         <DataGridHeadCell>Support Group Name</DataGridHeadCell>
         <DataGridHeadCell>Instance Count</DataGridHeadCell>
       </DataGridRow>
-      {isLoading && !issues ? (
+      {isLoading && !items ? (
         <HintLoading className="my-4" text="Loading issues..." />
       ) : (
         <>
-          {issues?.length > 0 ? (
+          {items?.length > 0 ? (
             <>
-              {issues.map((item, index) => (
+              {items.map((item, index) => (
                 <IssuesListItem key={index} item={item}></IssuesListItem>
               ))}
             </>
