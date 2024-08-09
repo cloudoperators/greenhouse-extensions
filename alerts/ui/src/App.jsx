@@ -35,7 +35,6 @@ function App(props = {}) {
 
   useLayoutEffect(() => {
     // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. Default is status.
-    if (props.filterLabels) setLabels(props.filterLabels)
 
     // silenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.
     if (props.silenceExcludedLabels)
@@ -44,8 +43,6 @@ function App(props = {}) {
     // predefined filters config
 
     // initially active predefined filter
-    const initialPredefinedFilter = "prod"
-    setActivePredefinedFilter(initialPredefinedFilter)
 
     // save the apiEndpoint. It is also used outside the alertManager hook
     setApiEndpoint(props.endpoint)

@@ -20,6 +20,8 @@ const createFiltersSlice = (set, get, options) => ({
     predefinedFilters: options?.predefinedFilters
       ? options?.predefinedFilters
       : [],
+    activePredefinedFilter: options?.predefinedFilters[0]?.name,
+    filterLabelValues: options?.filterLabels,
     actions: {
       setLabels: (labels) =>
         set(
