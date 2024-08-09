@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo } from "react"
+import React from "react"
 import { DateTime } from "luxon"
 import constants from "../../../constants"
+import ExpireSilence from "../../silences/ExpireSilence"
+import RecreateSilence from "../../silences/RecreateSilence"
 
 import {
   Badge,
@@ -49,13 +51,14 @@ const AlertSilencesList = ({ alert }) => {
       {silenceList.length > 0 && (
         <>
           <h2 className="text-xl font-bold mb-2 mt-8">Silences</h2>
-          <DataGrid columns={5}>
+          <DataGrid columns={6} minContentColumns={[5]}>
             <DataGridRow>
               <DataGridHeadCell>Status</DataGridHeadCell>
               <DataGridHeadCell>Silence start</DataGridHeadCell>
               <DataGridHeadCell>Silence end</DataGridHeadCell>
               <DataGridHeadCell>Created by</DataGridHeadCell>
               <DataGridHeadCell>Comment</DataGridHeadCell>
+              <DataGridHeadCell>Action</DataGridHeadCell>
             </DataGridRow>
             {silenceList.map((silence) => (
               <DataGridRow key={silence.id}>
@@ -71,6 +74,19 @@ const AlertSilencesList = ({ alert }) => {
                 <DataGridCell>{silence.createdBy}</DataGridCell>
                 <DataGridCell className="break-all">
                   {silence.comment}
+                </DataGridCell>
+                <DataGridCell>
+                  {
+                    /// show the expire button if the silence is active or pending
+                    // else show recreate button
+                    silence?.status?.state === constants.SILENCE_ACTIVE ||
+                    silence?.status?.state === constants.SILENCE_PENDING ||
+                    silence?.status?.state === constants.SILENCE_CREATING ? (
+                      <ExpireSilence silence={silence} />
+                    ) : (
+                      <RecreateSilence silence={silence} />
+                    )
+                  }
                 </DataGridCell>
               </DataGridRow>
             ))}
