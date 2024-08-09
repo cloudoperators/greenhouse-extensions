@@ -14,7 +14,8 @@ import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
 import ComponentsListItem from "./ComponentsListItem"
 
-const ComponentsList = ({ components, isLoading }) => {
+const ComponentsList = ({ items, isLoading }) => {
+  console.log("components", items)
   return (
     <DataGrid columns={3}>
       <DataGridRow>
@@ -22,13 +23,13 @@ const ComponentsList = ({ components, isLoading }) => {
         <DataGridHeadCell>Type</DataGridHeadCell>
         <DataGridHeadCell>Total Number of Versions</DataGridHeadCell>
       </DataGridRow>
-      {isLoading && !components ? (
+      {isLoading && !items ? (
         <HintLoading className="my-4" text="Loading components..." />
       ) : (
         <>
-          {components?.length > 0 ? (
+          {items?.length > 0 ? (
             <>
-              {components.map((item, index) => (
+              {items.map((item, index) => (
                 <ComponentsListItem
                   key={index}
                   item={item}
