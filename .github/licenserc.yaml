@@ -16,6 +16,7 @@ header:
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/charts/**' # ignore the license for the alerts charts
     - 'kube-monitoring/charts/**' # ignore the license for the kube-monitoring charts
+    - 'plutono/charts/**' # ignore the license for the plutono charts
     - '**/*.md'
     - 'LICENSE'
     - 'NOTICE'
