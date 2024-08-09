@@ -38,7 +38,7 @@ spec:
       required: false
       type: list
     - name: predefinedFilters
-      description: "PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value)"
+      description: "PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, display name and matchers (map containing matchers as name and expression pairs)"
       required: false
       type: list
 

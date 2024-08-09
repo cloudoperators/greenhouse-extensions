@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.plutono.rbac.create (or (not .Values.plutono.rbac.namespaced) .Values.plutono.rbac.extraClusterRoleRules) }}
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "plutono.fullname" . }}-clusterrolebinding
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+  {{- with .Values.plutono.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "plutono.serviceAccountName" . }}
+    namespace: {{ include "plutono.namespace" . }}
+roleRef:
+  kind: ClusterRole
+  {{- if .Values.plutono.rbac.useExistingClusterRole }}
+  name: {{ .Values.plutono.rbac.useExistingClusterRole }}
+  {{- else }}
+  name: {{ include "plutono.fullname" . }}-clusterrole
+  {{- end }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

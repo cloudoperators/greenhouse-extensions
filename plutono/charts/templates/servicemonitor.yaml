@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.plutono.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "plutono.fullname" . }}
+  {{- if .Values.plutono.serviceMonitor.namespace }}
+  namespace: {{ tpl .Values.plutono.serviceMonitor.namespace . }}
+  {{- else }}
+  namespace: {{ include "plutono.namespace" . }}
+  {{- end }}
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+    {{- with .Values.plutono.serviceMonitor.labels }}
+    {{- tpl (toYaml . | nindent 4) $ }}
+    {{- end }}
+spec:
+  endpoints:
+  - port: {{ .Values.plutono.service.portName }}
+    {{- with .Values.plutono.serviceMonitor.interval }}
+    interval: {{ . }}
+    {{- end }}
+    {{- with .Values.plutono.serviceMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ . }}
+    {{- end }}
+    honorLabels: true
+    path: {{ .Values.plutono.serviceMonitor.path }}
+    scheme: {{ .Values.plutono.serviceMonitor.scheme }}
+    {{- with .Values.plutono.serviceMonitor.tlsConfig }}
+    tlsConfig:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.plutono.serviceMonitor.relabelings }}
+    relabelings:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.plutono.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  jobLabel: "{{ .Release.Name }}"
+  selector:
+    matchLabels:
+      {{- include "plutono.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ include "plutono.namespace" . }}
+  {{- with .Values.plutono.serviceMonitor.targetLabels }}
+  targetLabels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

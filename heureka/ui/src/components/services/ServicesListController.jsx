@@ -20,6 +20,7 @@ import {
   Messages,
   useActions as messageActions,
 } from "@cloudoperators/juno-messages-provider"
+import { parseError } from "../../helpers"
 
 const ServicesListController = () => {
   const { addMessage, resetMessages } = messageActions()
@@ -39,8 +40,11 @@ const ServicesListController = () => {
   }, [data])
 
   useEffect(() => {
-    if (!error) return
-    addMessage({ variant: "danger", text: error?.message })
+    if (!error) return resetMessages()
+    addMessage({
+      variant: "error",
+      text: parseError(error),
+    })
   }, [error])
 
   const [currentPage, setCurrentPage] = useState(1) // State for current page

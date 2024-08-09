@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and (.Capabilities.APIVersions.Has "policy/v1beta1/PodSecurityPolicy") .Values.plutono.testFramework.enabled .Values.plutono.rbac.pspEnabled }}
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: {{ include "plutono.fullname" . }}-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+spec:
+  allowPrivilegeEscalation: true
+  privileged: false
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  fsGroup:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  volumes:
+    - configMap
+    - downwardAPI
+    - emptyDir
+    - projected
+    - csi
+    - secret
+{{- end }}
