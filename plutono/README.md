@@ -2,7 +2,7 @@
 title: Plutono
 ---
 
-Installs the web dashboarding system [Plutono](https://github.com/credativ/plutono)to Easily collect, correlate, and visualize Prometheus metrics with beautiful dashboards.
+Installs the web dashboarding system [Plutono](https://github.com/credativ/plutono) to easily collect, correlate, and visualize Prometheus metrics with dashboards.
 
 # Owner
 
@@ -10,7 +10,7 @@ Installs the web dashboarding system [Plutono](https://github.com/credativ/pluto
 
 ## Quick Start
 
-This guide provides a quick and straightforward way to deploy Plutono as a Greenhouse Plugin on your Kubernetes cluster.
+This guide provides a quick and straightforward way how to use Plutono as a Greenhouse Plugin on your Kubernetes cluster.
 
 **Prerequisites**
 
@@ -19,15 +19,13 @@ This guide provides a quick and straightforward way to deploy Plutono as a Green
 
 The plugin works by factory default with anonymous access enabled. If you use the standard configuration in the kube-monitoring plugin, the data source and some [k8s-monitoring](https://github.com/cloudoperators/k8s-monitoring) dashboards are already pre-installed.
 
-**Step 1 Add your dashboards**
+**Step 1: Add your dashboards**
 
 Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` should contain a key like `my-dashboard.json` with the dashboard JSON content.
 
-**Step 2 Add your datasources**
+**Step 2: Add your datasources**
 
 Data sources are selected from `Secrets` across namespaces. The plugin searches for `Secrets` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `Secrets` should contain valid datasource configuration YAML like [example-datasource-config-file](http://docs.grafana.org/administration/provisioning/#example-datasource-config-file).
-
-```yaml
 
 ## Configuration
 
