@@ -30,7 +30,7 @@ export const StoreProvider = ({ options, children }) => {
     <StoreContext.Provider
       value={createStore(
         devtools((set, get) => ({
-          ...createGlobalsSlice(set, get),
+          ...createGlobalsSlice(set, get, options),
           ...createAuthDataSlice(set, get),
           ...createUserActivitySlice(set, get),
           ...createAlertsSlice(set, get),

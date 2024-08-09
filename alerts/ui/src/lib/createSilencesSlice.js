@@ -23,6 +23,20 @@ const initialSilencesState = {
   templates: [],
 }
 
+const validateExcludedLabels = (labels) => {
+  if (
+    !Array.isArray(labels) ||
+    !labels.some((element) => typeof element === "string")
+  ) {
+    console.warn(
+      "[supernova]::setExcludedLabels: labels object is not an array of strings"
+    )
+    return
+  }
+
+  return labels
+}
+
 const validateTemplates = (templates) => {
   // check if the templates are an array
   if (!Array.isArray(templates)) {
@@ -113,6 +127,7 @@ const createSilencesSlice = (set, get, options) => ({
     templates: options?.silenceTemplates
       ? validateTemplates(options?.silenceTemplates)
       : [],
+    excludedLabels: validateExcludedLabels(options?.silenceExcludedLabels),
     actions: {
       setSilencesStatus: (status) =>
         set(
@@ -196,9 +211,10 @@ const createSilencesSlice = (set, get, options) => ({
                 constants.SILENCE_CREATING &&
               (SilencesByState?.active?.find(
                 (silence) => silence?.id === newLocalSilences[key]?.id
-              ) || SilencesByState?.pending?.find(
-                (silence) => silence?.id === newLocalSilences[key]?.id
-              ) )
+              ) ||
+                SilencesByState?.pending?.find(
+                  (silence) => silence?.id === newLocalSilences[key]?.id
+                ))
             ) {
               newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
             }
@@ -269,7 +285,6 @@ const createSilencesSlice = (set, get, options) => ({
         // add local silences
         let localSilences = get().silences.localItems
         Object.keys(localSilences).forEach((silenceID) => {
-          
           // if there is already a silence with the same id, skip it and exists as external silence
           if (silencedBy.includes(silenceID) && externalSilences[silenceID])
             return
@@ -294,31 +309,6 @@ const createSilencesSlice = (set, get, options) => ({
           return { type: "suppressed", isProcessing: true }
         }
         return { type: alert?.status?.state, isProcessing: false }
-      },
-      setExcludedLabels: (labels) => {
-        return set(
-          (state) => {
-            // check if labels is an array and if every element in the array is a string
-            if (
-              !Array.isArray(labels) ||
-              !labels.some((element) => typeof element === "string")
-            ) {
-              console.warn(
-                "[supernova]::setExcludedLabels: labels object is not an array of strings"
-              )
-              return state
-            }
-
-            return {
-              silences: {
-                ...state.silences,
-                excludedLabels: labels,
-              },
-            }
-          },
-          false,
-          "silences.setExcludedLabels"
-        )
       },
       /*
       Find all silences in itemsByState with key expired that matches all labels (key&value) from the alert but omit the labels that are excluded (excludedLabels)

@@ -22,9 +22,6 @@ import CustomAppShell from "./components/CustomAppShell"
 import { ErrorBoundary } from "react-error-boundary"
 
 function App(props = {}) {
-  const { setLabels, setActivePredefinedFilter } = useFilterActions()
-  const { setEmbedded, setApiEndpoint } = useGlobalsActions()
-  const { setExcludedLabels } = useSilencesActions()
   const preErrorClasses = `
     custom-error-pre
     border-theme-error
@@ -32,25 +29,6 @@ function App(props = {}) {
     h-full
     w-full
     `
-
-  useLayoutEffect(() => {
-    // filterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. Default is status.
-
-    // silenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.
-    if (props.silenceExcludedLabels)
-      setExcludedLabels(props.silenceExcludedLabels)
-
-    // predefined filters config
-
-    // initially active predefined filter
-
-    // save the apiEndpoint. It is also used outside the alertManager hook
-    setApiEndpoint(props.endpoint)
-  }, [])
-
-  useLayoutEffect(() => {
-    if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
-  }, [])
 
   const fallbackRender = ({ error }) => {
     return (
