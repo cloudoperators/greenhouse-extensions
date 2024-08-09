@@ -14,6 +14,7 @@ on:
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
       - opentelemetry-operator/chart/**
+      - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
 
 
