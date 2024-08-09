@@ -12,7 +12,7 @@ maintainers:
 name: plutono
 appVersion: v7.5.32
 sources:
-  - ghcr.io/cloudoperators/greenhouse-extensions
+  - ghcr.io/cloudoperators/greenhouse-extensions/charts
 keywords:
   - visualization
   - querying
