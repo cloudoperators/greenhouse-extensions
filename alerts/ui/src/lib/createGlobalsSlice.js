@@ -5,20 +5,21 @@
 
 import { produce } from "immer"
 
-const createGlobalsSlice = (set, get) => ({
+const validateEmbedded = (embedded) => {
+  if (embedded === true || embedded === "true") {
+    return true
+  }
+  return false
+}
+
+const createGlobalsSlice = (set, get, options) => ({
   globals: {
-    embedded: false,
+    embedded: validateEmbedded(options?.embedded),
     showDetailsFor: null,
-    apiEndpoint: null,
+    apiEndpoint: options?.endpoint,
     activeSelectedTab: "alerts",
 
     actions: {
-      setEmbedded: (embedded) =>
-        set(
-          (state) => ({ globals: { ...state.globals, embedded: embedded } }),
-          false,
-          "globals/setEmbedded"
-        ),
       setShowDetailsFor: (alertID) =>
         set(
           (state) => ({
@@ -33,14 +34,7 @@ const createGlobalsSlice = (set, get) => ({
           false,
           "globals/setShowDetailsFor"
         ),
-      setApiEndpoint: (endpoint) =>
-        set(
-          (state) => ({
-            globals: { ...state.globals, apiEndpoint: endpoint },
-          }),
-          false,
-          "globals/setShowDetailsFor"
-        ),
+
       setActiveSelectedTab: (activeSelectedTab) =>
         set(
           (state) => ({
