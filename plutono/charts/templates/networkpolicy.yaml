@@ -1,7 +1,6 @@
+{{- if .Values.plutono.networkPolicy.enabled }}
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
-{{- if .Values.plutono.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
