@@ -51,6 +51,8 @@ jobs:
             chartName: opentelemetry-operator
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
+          - chartDir: thanos/charts
+            chartName: thanos
 
 
     steps:
