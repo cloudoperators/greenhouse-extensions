@@ -49,6 +49,8 @@ jobs:
             chartName: logshipper
           - chartDir: opentelemetry-operator/chart
             chartName: opentelemetry-operator
+          - chartDir: plutono/charts
+            chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
 
