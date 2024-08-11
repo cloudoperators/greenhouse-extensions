@@ -12,7 +12,6 @@ import {
   useActiveFilters,
   useFilteredServices,
   useEndpoint,
-  useEndpoint,
 } from "../StoreProvider"
 import {
   Pagination,
