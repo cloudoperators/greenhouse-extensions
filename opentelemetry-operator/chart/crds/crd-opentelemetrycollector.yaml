@@ -8,23 +8,10 @@ metadata:
     controller-gen.kubebuilder.io/version: v0.14.0
     meta.helm.sh/release-name: opentelemetry-operator
     meta.helm.sh/release-namespace: otel
-  name: opentelemetrycollectors.opentelemetry.io
   labels:
     app.kubernetes.io/managed-by: Helm
+  name: opentelemetrycollectors.opentelemetry.io
 spec:
-  conversion:
-    strategy: Webhook
-    webhook:
-      clientConfig:
-        service:
-          name: opentelemetry-operator-webhook
-          namespace: {{ .Release.Namespace }}
-          path: /convert
-          port: {{ .Values.admissionWebhooks.servicePort }}
-  {{ if .caBundle }}{{ cat "caBundle:" .caBundle | indent 8 }}{{ end }}
-      conversionReviewVersions:
-      - v1alpha1
-      - v1beta1
   group: opentelemetry.io
   names:
     kind: OpenTelemetryCollector
@@ -5861,7 +5848,6 @@ spec:
                               type: array
                           required:
                           - exporters
-                          - processors
                           - receivers
                           type: object
                         type: object
@@ -6745,6 +6731,13 @@ spec:
                   - name
                   type: object
                 type: array
+              ipFamilies:
+                items:
+                  type: string
+                type: array
+              ipFamilyPolicy:
+                default: SingleStack
+                type: string
               lifecycle:
                 properties:
                   postStart:
@@ -6932,6 +6925,29 @@ spec:
                     - type: integer
                     - type: string
                     x-kubernetes-int-or-string: true
+                type: object
+              podDnsConfig:
+                properties:
+                  nameservers:
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  options:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  searches:
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
                 type: object
               podSecurityContext:
                 properties:

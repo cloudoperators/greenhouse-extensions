@@ -9,7 +9,7 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
 import IssuesListItem from "./IssuesListItem"

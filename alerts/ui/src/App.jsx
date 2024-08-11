@@ -5,7 +5,7 @@
 
 import React, { useLayoutEffect } from "react"
 
-import { AppShellProvider, CodeBlock } from "juno-ui-components"
+import { AppShellProvider, CodeBlock } from "@cloudoperators/juno-ui-components"
 import AppContent from "./AppContent"
 import styles from "./styles.scss"
 import {
@@ -16,7 +16,7 @@ import {
   StoreProvider,
 } from "./hooks/useAppStore"
 import AsyncWorker from "./components/AsyncWorker"
-import { MessagesProvider } from "messages-provider"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import CustomAppShell from "./components/CustomAppShell"
 
 import { ErrorBoundary } from "react-error-boundary"

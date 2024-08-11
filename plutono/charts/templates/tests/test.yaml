@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.plutono.testFramework.enabled }}
+{{- $root := . }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "plutono.fullname" . }}-test
+  labels:
+    {{- include "plutono.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+  namespace: {{ include "plutono.namespace" . }}
+spec:
+  serviceAccountName: {{ include "plutono.serviceAccountNameTest" . }}
+  {{- with .Values.plutono.testFramework.securityContext }}
+  securityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if or .Values.plutono.image.pullSecrets .Values.global.imagePullSecrets }}
+  imagePullSecrets:
+    {{- include "plutono.imagePullSecrets" (dict "root" $root "imagePullSecrets" .Values.plutono.image.pullSecrets) | nindent 4 }}
+  {{- end }}
+  {{- with .Values.plutono.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.plutono.affinity }}
+  affinity:
+    {{- tpl (toYaml .) $root | nindent 4 }}
+  {{- end }}
+  {{- with .Values.plutono.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  containers:
+    - name: {{ .Release.Name }}-test
+      image: "{{ .Values.global.imageRegistry | default .Values.plutono.testFramework.image.registry }}/{{ .Values.plutono.testFramework.image.repository }}:{{ .Values.plutono.testFramework.image.tag }}"
+      imagePullPolicy: "{{ .Values.plutono.testFramework.imagePullPolicy}}"
+      command: ["/opt/bats/bin/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+        - mountPath: /tests
+          name: tests
+          readOnly: true
+      {{- with .Values.plutono.testFramework.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumes:
+    - name: tests
+      configMap:
+        name: {{ include "plutono.fullname" . }}-test
+  restartPolicy: Never
+{{- end }}

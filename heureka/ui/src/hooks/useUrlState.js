@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from "react"
-import { registerConsumer } from "url-state-provider"
+import { registerConsumer } from "@cloudoperators/juno-url-state-provider-v1"
 import { useActions, useActiveTab } from "../components/StoreProvider"
 
 const DEFAULT_KEY = "heureka"

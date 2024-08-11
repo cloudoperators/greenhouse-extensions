@@ -12,7 +12,7 @@ import {
   Select,
   Stack,
   SearchInput,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import {
   useFilterLabels,
   useFilterLabelValues,

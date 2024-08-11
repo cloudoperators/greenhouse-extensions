@@ -5,7 +5,7 @@
 
 import React, { forwardRef } from "react"
 
-import { Icon } from "juno-ui-components"
+import { Icon } from "@cloudoperators/juno-ui-components"
 
 const AlertIcon = ({ severity }, ref) => {
   const iconColor = () => {

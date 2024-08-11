@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import SilenceScheduled from "./SilenceScheduled"
 
-import { MessagesProvider } from "messages-provider"
-import { Button, Icon } from "juno-ui-components"
+import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
+import { Button } from "@cloudoperators/juno-ui-components"
 import { useSilenceTemplates } from "../../hooks/useAppStore.js"
 
 const SilenceScheduledWrapper = () => {

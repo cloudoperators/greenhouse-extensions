@@ -5,7 +5,11 @@
 
 import React, { useState } from "react"
 
-import { Stack, TabNavigation, TabNavigationItem } from "juno-ui-components"
+import {
+  Stack,
+  TabNavigation,
+  TabNavigationItem,
+} from "@cloudoperators/juno-ui-components"
 import {
   useActivePredefinedFilter,
   useFilterActions,

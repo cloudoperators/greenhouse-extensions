@@ -9,7 +9,7 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import { useDataSeverityWeights } from "../StoreProvider"
 
 // data to be used for severity while rendering

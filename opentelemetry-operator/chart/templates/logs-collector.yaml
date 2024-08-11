@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-apiVersion: opentelemetry.io/v1alpha1
+apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: logs 
@@ -53,7 +53,7 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
-  config: |
+  config:
     receivers:
       filelog:
         include: [ /var/log/containers/*.log ]
@@ -282,10 +282,10 @@ spec:
           receivers: [filelog]
           processors: [transform/containerd,k8sattributes,attributes/cluster,batch]
           exporters: [opensearch/logs]
-        logs/k8sevents:
-          receivers: [k8s_events]
-          processors: [resource/k8sevents,batch]
-          exporters: [opensearch/logs]
+        #logs/k8sevents:
+          #receivers: [k8s_events]
+          #processors: [resource/k8sevents,batch]
+          #exporters: [opensearch/logs]
 {{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
         metrics/prometheus:
           receivers: [prometheus/internal]

@@ -4,7 +4,11 @@
  */
 
 import React, { useMemo } from "react"
-import { Container, TabNavigation, TabNavigationItem } from "juno-ui-components"
+import {
+  Container,
+  TabNavigation,
+  TabNavigationItem,
+} from "@cloudoperators/juno-ui-components"
 import TabPanel from "./TabPanel"
 import { useActions, useActiveTab } from "../StoreProvider"
 
