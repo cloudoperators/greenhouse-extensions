@@ -33,7 +33,7 @@ const ServicesListItem = ({ item }) => {
 
   const handleClick = () => {
     if (
-      showServiceDetail === service?.id &&
+      showServiceDetail === service?.name &&
       showPanel === constants.PANEL_SERVICE
     ) {
       {
@@ -41,7 +41,7 @@ const ServicesListItem = ({ item }) => {
         setShowPanel(constants.PANEL_NONE)
       }
     } else {
-      setShowServiceDetail(service?.id)
+      setShowServiceDetail(service?.name)
       setShowPanel(constants.PANEL_SERVICE)
     }
   }
@@ -49,7 +49,7 @@ const ServicesListItem = ({ item }) => {
   return (
     <DataGridRow
       className={`cursor-pointer ${
-        showServiceDetail === service?.id ? "active" : ""
+        showServiceDetail === service?.name ? "active" : ""
       }`}
       onClick={() => handleClick()}
     >
