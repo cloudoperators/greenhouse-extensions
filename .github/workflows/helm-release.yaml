@@ -16,6 +16,7 @@ on:
       - opentelemetry-operator/chart/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
+      - thanos/charts/**
 
 
 permissions:
