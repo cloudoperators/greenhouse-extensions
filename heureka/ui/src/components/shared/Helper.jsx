@@ -10,3 +10,7 @@ export const listOfCommaSeparatedObjs = (objs, prop) => {
     .map((obj) => obj?.node?.[prop])
     .join(", ")
 }
+
+export const getServiceName = () => {
+  return "Service Details"
+}
