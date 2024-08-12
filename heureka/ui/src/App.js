@@ -16,6 +16,7 @@ import AsyncWorker from "./components/AsyncWorker"
 import StoreProvider, { useActions } from "./components/StoreProvider"
 import TabContext from "./components/tabs/TabContext"
 import { ErrorBoundary } from "react-error-boundary"
+import PanelManager from "./components/shared/PanelManager"
 
 const App = (props) => {
   const preErrorClasses = `
@@ -50,12 +51,13 @@ const App = (props) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AsyncWorker consumerId={props.id} />
       <AppShell
         pageHeader="Converged Cloud | Heureka"
         embedded={props.embedded === "true" || props.embedded === true}
       >
         <ErrorBoundary fallbackRender={fallbackRender}>
+          <AsyncWorker consumerId={props.id} />
+          <PanelManager />
           <TabContext />
         </ErrorBoundary>
       </AppShell>
@@ -68,6 +70,7 @@ const StyledApp = (props) => {
     <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load styles inside the shadow dom */}
       <style>{styles.toString()}</style>
+
       <MessagesProvider>
         <StoreProvider options={props}>
           <App {...props} />

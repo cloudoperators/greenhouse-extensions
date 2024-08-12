@@ -14,6 +14,9 @@ export default (options) =>
       queryClientFnReady: false,
       endpoint: options?.apiEndpoint,
 
+      showPanel: null,
+      showServiceDetail: null,
+
       activeTab: "services",
       tabs: {
         services: {
@@ -57,6 +60,22 @@ export default (options) =>
             }),
             false,
             "setQueryOptions"
+          ),
+        setShowPanel: (panel) =>
+          set(
+            produce((state) => {
+              state.showPanel = panel
+            }),
+            false,
+            "setShowPanel"
+          ),
+        setShowServiceDetail: (serviceId) =>
+          set(
+            produce((state) => {
+              state.showServiceDetail = serviceId
+            }),
+            false,
+            "setShowServiceDetail"
           ),
       },
     }))

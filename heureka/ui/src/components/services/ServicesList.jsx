@@ -18,7 +18,7 @@ import HintLoading from "../shared/HintLoading"
 const ServicesList = ({ items, isLoading }) => {
   return (
     <>
-      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr">
+      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr" className="clickable">
         <DataGridRow>
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>
