@@ -6,6 +6,7 @@ on:
     branches:
         - main
     paths:
+      - .github/workflows/helm-release.yaml
       - alerts/charts/**
       - cert-manager/charts/v1.11.0/cert-manager/**
       - exposed-services/charts/v1.0.0/exposed-service/**
