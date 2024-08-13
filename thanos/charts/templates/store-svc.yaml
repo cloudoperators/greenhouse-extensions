@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  {{- if .Values.thanos.store.annotations }}
+  annotations:
+    {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+  {{- end }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.store.serviceLabels }}
+    {{ toYaml .Values.thanos.store.serviceLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-store
+spec:
+  ports:
+  - name: grpc
+    port: 10901
+    protocol: TCP
+    targetPort: grpc
+  - name: http
+    port: 10902
+    protocol: TCP
+    targetPort: http
+  selector:
+    app.kubernetes.io/managed-by: {{ include "release.name" . }}
+    app.kubernetes.io/name: store

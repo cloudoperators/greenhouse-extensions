@@ -7,10 +7,10 @@ title: Thanos
 This plugin deploys the following Thanos components:
 
 * Query
-<!--* Query Frontend-->
 * Compact
+* Store
+<!--* Query Frontend-->
 <!--* (Ruler)-->
-<!--* Storegateway-->
 
 Requirements (detailed steps below):
 * ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
@@ -61,9 +61,9 @@ spec:
         value: $THANOS_PLUGIN_NAME-metrics-objectstore
 ```
 
-## Thanos Querier
+## Thanos Query
 
-This is the real deal now: Define your Thanos query by creating a plugin.
+This is the real deal now: Define your Thanos Query by creating a plugin.
 
 **NOTE1:** `$THANOS_PLUGIN_NAME` needs to be consistent with your secret created earlier.
 
@@ -81,22 +81,58 @@ spec:
   releaseNamespace: kube-monitoring
 ```
 
-## [OPTIONAL] Handling your Prometheus Store
-By default Thanos Query would check for a service `prometheus-operated` in the same namespace with this GRPC port to be available `10901`. The cli option looks like this and is configured in the PluginDefinition:
+## [OPTIONAL] Handling your Prometheus and Thanos Stores.
+### Default Prometheus and Thanos Endpoint
+
+Thanos Query is automatically adding the Prometheus and Thanos endpoints. If you just have a single Prometheus with Thanos enabled this will work out of the box. Details in the next two chapters. See [Standalone Query](#standalone-query) for your own configuration.
+
+### Prometheus Endpoint
+Thanos Query would check for a service `prometheus-operated` in the same namespace with this GRPC port to be available `10901`. The cli option looks like this and is configured in the Plugin itself:
 
 `--store=prometheus-operated:10901`
 
-This would be fine, unless you've got more than one prometheus running in this namespace. Then you would need to add all prometheus stores dedicatedly:
+### Thanos Endpoint
+Thanos Query would check for a Thanos endpoint named like `releaseName-store`. In the cli this param would look like:
+
+`--store=thanos-kube-store:10901`
+
+If you just have a single Thanos the default option would work and does not need anything else.
+
+### Standalone Query
+
+In case you want to have a Query to run with multiple Stores, you can set it to standalone and add your own store list. Set up your plugin like this:
 
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.query.stores
-    value:
-      - kube-monitoring-1-prometheus:10901 
-      - kube-monitoring-2-prometheus:10901 
+  - name: thanos.query.standalone
+    value: true
 ```
 
+This would enable you to either:
+
+* query multiple stores with a single Query
+    ```yaml
+    spec:
+      optionsValues:
+      - name: thanos.query.stores
+        value:
+          - thanos-kube-1-store:10901 
+          - thanos-kube-2-store:10901 
+          - kube-monitoring-1-prometheus:10901 
+          - kube-monitoring-2-prometheus:10901 
+    ```
+* query multiple Thanos Queries with a single Query
+  Note that there is no `-store` suffix here in this case.
+
+    ```yaml
+    spec:
+      optionsValues:
+      - name: thanos.query.stores
+        value:
+          - thanos-kube-1:10901
+          - thanos-kube-2:10901
+    ```
 
 # Operations
 

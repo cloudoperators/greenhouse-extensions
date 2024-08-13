@@ -53,8 +53,14 @@ spec:
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}
+        {{/* Technically it is possible to add stores and have the default stores all together.*/}}
+        {{/* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
         {{- range .Values.thanos.query.stores }}
         - --store={{ . }}
+        {{- end }}
+        {{- if not .Values.thanos.query.standalone }}
+        - --store=prometheus-operated:10901
+        - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
         {{- end }}
         image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
