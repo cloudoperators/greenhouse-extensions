@@ -6,13 +6,13 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry-operator
 spec:
-    version: 0.2.2
+    version: 0.2.3
     description: opentelemetry-operator
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.2
+        version: 0.2.3
     options:
         - description: Username for OpenSearch endpoint
           name: open_telemetry.opensearch_logs.username
