@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: openbao
 spec:
-  version: 2.0.0
+  version: 2.0.1
   displayName: OpenBao
   description: OpenBao Secret Management
   # docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
   # icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/logo.png
   helmChart:
     name: openbao
-    repository: https://github.com/openbao/openbao-helm
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.4.0
   options:
     - name: ui.enabled
