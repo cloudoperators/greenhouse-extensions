@@ -12,7 +12,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 
 const AlertTimestamp = ({ startTimestamp }) => {
   const dateFormat = { ...DateTime.DATE_MED }

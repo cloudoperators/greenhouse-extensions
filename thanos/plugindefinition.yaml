@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    name: thanos
+spec:
+    description: thanos
+    helmChart:
+        name: thanos
+        repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
+        version: 0.0.8
+    options:
+        - default: null
+          description: CLI param for Thanos Query
+          name: thanos.grpcAddress
+          required: false
+          type: "string"
+        - default: null
+          description: CLI param for Thanos Query
+          name: thanos.httpAddress
+          required: false
+          type: "string"
+        - default: null
+          description: How images should be fetched. 
+          name: thanos.image.pullPolicy
+          required: false
+          type: "string"
+        - default: quay.io/thanos/thanos
+          description: Image repository
+          name: thanos.image.repository
+          required: false
+          type: "string"
+        - default: null
+          description: Tag of the image 
+          name: thanos.image.tag
+          required: false
+          type: "string"
+        - default: true
+          description: CLI option to be toggled.
+          name: thanos.query.autoDownsampling
+          required: false
+          type: "bool"
+        - default: null
+          description: Thanos log level for Query
+          name: thanos.query.logLevel
+          required: false
+          type: "string"
+        - default: null
+          description: thanos.query.replicaLabels
+          name: thanos.query.replicaLabels
+          required: false
+          type: "string"
+        - default: null
+          description: Amount of queries deployed. 
+          name: thanos.query.replicas
+          required: false
+          type: "int"
+        - default: 
+            greenhouse.sap/expose: "true"
+            greenhouse.sap/exposeNamedPort: "http"
+          description: Needed for exposing Thanos to the service proxy. UI is accessible via http, exposing this particular port.
+          name: thanos.query.serviceLabels
+          required: false
+          type: "map"
+        - default: 
+          - prometheus-operated:10901
+          description: Standard port to be exposed by Prometheus Operator. If multiple Prometheis are deployed, this needs to be switched to prometheus' CRD name suffixed with -prometheus.
+          name: thanos.query.stores
+          required: false
+          type: "list"
+        - default: null
+          description: Usually at /thanos, only specify if it differs. 
+          name: thanos.query.web.externalPrefix
+          required: false
+          type: "string"
+        - default: null
+          description: Usually at /thanos, only specify if it differs. 
+          name: thanos.query.web.routePrefix
+          required: false
+          type: "string"
+    version: 0.1.3

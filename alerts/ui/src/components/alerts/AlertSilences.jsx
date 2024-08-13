@@ -13,7 +13,7 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 
 import { useAlertsActions, useGlobalsActions } from "../../hooks/useAppStore"
 import AlertDescription from "./shared/AlertDescription"

@@ -5,7 +5,7 @@
 
 import React, { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Stack } from "juno-ui-components"
+import { Stack } from "@cloudoperators/juno-ui-components"
 import { useQueryClientFnReady } from "../StoreProvider"
 
 import FilterSelect from "./FilterSelect"

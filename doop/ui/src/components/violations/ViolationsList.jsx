@@ -10,7 +10,7 @@ import {
   DataGridHeadCell,
   DataGridRow,
   Icon,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import { useDataFilteredItems } from "../StoreProvider"
 import ViolationsListItem from "./ViolationsListItem"
 

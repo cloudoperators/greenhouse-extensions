@@ -9,7 +9,7 @@ import {
   PageHeader,
   TopNavigation,
   TopNavigationItem,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import {
   useAuthData,
   useAuthLoggedIn,
@@ -61,10 +61,7 @@ const CustomAppShell = ({ children }) => {
   )
 
   return (
-    <AppShell
-      pageHeader={pageHeader}
-      embedded={embedded}
-    >
+    <AppShell pageHeader={pageHeader} embedded={embedded}>
       {topNavigation}
       {children}
     </AppShell>

@@ -10,12 +10,12 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import ServicesListItem from "./ServicesListItem"
 import HintLoading from "../shared/HintLoading"
 
-const ServicesList = ({ services, isLoading }) => {
+const ServicesList = ({ items, isLoading }) => {
   return (
     <>
       <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr">
@@ -26,13 +26,13 @@ const ServicesList = ({ services, isLoading }) => {
           <DataGridHeadCell>Component Instances Count</DataGridHeadCell>
           <DataGridHeadCell>Total Vulnerability Matches</DataGridHeadCell>
         </DataGridRow>
-        {isLoading && !services ? (
+        {isLoading && !items ? (
           <HintLoading className="my-4" text="Loading services..." />
         ) : (
           <>
-            {services?.length > 0 ? (
+            {items?.length > 0 ? (
               <>
-                {services.map((item, i) => (
+                {items.map((item, i) => (
                   <ServicesListItem key={i} item={item} />
                 ))}
               </>

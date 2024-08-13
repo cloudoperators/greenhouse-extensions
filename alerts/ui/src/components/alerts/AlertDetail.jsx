@@ -21,7 +21,7 @@ import {
   TabList,
   Tab,
   TabPanel,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 import {
   useShowDetailsFor,
   useGlobalsActions,

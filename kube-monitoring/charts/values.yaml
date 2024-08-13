@@ -24,7 +24,7 @@ kubeMonitoring:
   ## Install Prometheus Operator CRDs
   ##
   crds:
-    enabled: false
+    enabled: true
 
   ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
   ##
@@ -148,6 +148,9 @@ kubeMonitoring:
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
       ingressClassName: nginx
 
+    # Deploys a Plutono datasource config Secret for this Prometheus
+    plutonoDatasource: true
+
     prometheusSpec:
 
       ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage
@@ -225,3 +228,11 @@ alerts:
     tlsConfig:
       cert: ""
       key: ""
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent

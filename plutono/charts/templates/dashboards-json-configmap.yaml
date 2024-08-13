@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.plutono.dashboards }}
+{{ $files := .Files }}
+{{- range $provider, $dashboards := .Values.plutono.dashboards }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "plutono.fullname" $ }}-dashboards-{{ $provider }}
+  namespace: {{ include "plutono.namespace" $ }}
+  labels:
+    {{- include "plutono.labels" $ | nindent 4 }}
+    dashboard-provider: {{ $provider }}
+    {{- if $.Values.plutono.sidecar.dashboards.enabled }}
+    {{ $.Values.plutono.sidecar.dashboards.label }}: {{ $.Values.plutono.sidecar.dashboards.labelValue | quote }}
+    {{- end }}
+{{- if $dashboards }}
+data:
+{{- $dashboardFound := false }}
+{{- range $key, $value := $dashboards }}
+{{- if (or (hasKey $value "json") (hasKey $value "file")) }}
+{{- $dashboardFound = true }}
+  {{- print $key | nindent 2 }}.json:
+    {{- if hasKey $value "json" }}
+    |-
+      {{- $value.json | nindent 6 }}
+    {{- end }}
+    {{- if hasKey $value "file" }}
+    {{- toYaml ( $files.Get $value.file ) | nindent 4}}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- if not $dashboardFound }}
+  {}
+{{- end }}
+{{- end }}
+---
+{{- end }}
+
+{{- end }}

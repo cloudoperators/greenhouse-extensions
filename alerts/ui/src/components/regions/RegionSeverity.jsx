@@ -5,7 +5,7 @@
 
 import React from "react"
 
-import { Icon, Stack } from "juno-ui-components"
+import { Icon, Stack } from "@cloudoperators/juno-ui-components"
 
 const severityStyles = (severity, count) => {
   let baseStyles = `

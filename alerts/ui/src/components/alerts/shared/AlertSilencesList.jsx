@@ -13,7 +13,7 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-} from "juno-ui-components"
+} from "@cloudoperators/juno-ui-components"
 
 import { useSilencesActions } from "../../../hooks/useAppStore"
 

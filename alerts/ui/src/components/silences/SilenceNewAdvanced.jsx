@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from "react"
-import { Stack, Icon } from "juno-ui-components"
+import { Stack, Icon } from "@cloudoperators/juno-ui-components"
 import SilenceMatchers from "./SilenceMatchers"
 
 const detailsCss = (show) => {

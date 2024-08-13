@@ -4,7 +4,7 @@ kind: Secret
 metadata:
   name: kube-monitoring-alertmanager-config
   labels:
- {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
 
 data:
   config.yaml: {{ include (print $.Template.BasePath "/_alertmanager-config.yaml.tpl") . | b64enc }}

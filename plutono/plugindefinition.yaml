@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: plutono
+spec:
+  description: Plutono is a fork of Grafana 7.5.17 limited to maintenance and security updates.
+  version: 0.1.1
+  helmChart:
+    name: plutono
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.1.1
