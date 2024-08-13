@@ -17,7 +17,7 @@ on:
       - opentelemetry-operator/chart/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
-      - obenbao/charts/v0.4.0/openbao/**
+      - obenbao/charts/**
 
 
 permissions:
@@ -55,7 +55,7 @@ jobs:
             chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
-          - chartDir: openbao/charts/v0.4.0/openbao
+          - chartDir: openbao/charts/openbao
             chartName: openbao
 
 
