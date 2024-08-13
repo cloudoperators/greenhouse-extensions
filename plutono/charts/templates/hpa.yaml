@@ -1,8 +1,7 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
 {{- $sts := list "sts" "StatefulSet" "statefulset" -}}
 {{- if .Values.plutono.autoscaling.enabled }}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 apiVersion: {{ include "plutono.hpa.apiVersion" . }}
 kind: HorizontalPodAutoscaler
 metadata:

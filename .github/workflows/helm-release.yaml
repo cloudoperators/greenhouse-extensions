@@ -6,6 +6,7 @@ on:
     branches:
         - main
     paths:
+      - .github/workflows/helm-release.yaml
       - alerts/charts/**
       - cert-manager/charts/v1.11.0/cert-manager/**
       - exposed-services/charts/v1.0.0/exposed-service/**
@@ -13,6 +14,7 @@ on:
       - kube-monitoring/charts/**
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
+      - obenbao/charts/**
       - opentelemetry-operator/chart/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
@@ -48,8 +50,12 @@ jobs:
             chartName: kubeconfig-generator 
           - chartDir: logshipper/chart
             chartName: logshipper
+          - chartDir: openbao/charts/openbao
+            chartName: openbao
           - chartDir: opentelemetry-operator/chart
             chartName: opentelemetry-operator
+          - chartDir: plutono/charts
+            chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
           - chartDir: thanos/charts

@@ -1,7 +1,6 @@
+{{- if and .Values.plutono.rbac.create (not .Values.plutono.rbac.useExistingRole) }}
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
-{{- if and .Values.plutono.rbac.create (not .Values.plutono.rbac.useExistingRole) -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
