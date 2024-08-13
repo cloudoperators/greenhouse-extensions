@@ -3,7 +3,7 @@
 
 opentelemetry-operator:
   crds:
-    create: false
+    create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
   manager:
