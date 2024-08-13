@@ -21,6 +21,7 @@ metadata:
     app.kubernetes.io/name: {{ include "openbao.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+    greenhouse.sap/expose: "true"
   annotations:
 {{ template "openbao.service.annotations" .}}
 spec:
