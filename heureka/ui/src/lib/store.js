@@ -15,6 +15,7 @@ export default (options) =>
       endpoint: options?.apiEndpoint,
 
       showPanel: null,
+
       showServiceDetail: null,
 
       activeTab: "services",
