@@ -14,10 +14,11 @@ on:
       - kube-monitoring/charts/**
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
+      - obenbao/charts/**
       - opentelemetry-operator/chart/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
-      - obenbao/charts/**
+      - thanos/charts/**
 
 
 permissions:
@@ -49,14 +50,16 @@ jobs:
             chartName: kubeconfig-generator 
           - chartDir: logshipper/chart
             chartName: logshipper
+          - chartDir: openbao/charts/openbao
+            chartName: openbao
           - chartDir: opentelemetry-operator/chart
             chartName: opentelemetry-operator
           - chartDir: plutono/charts
             chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
-          - chartDir: openbao/charts/openbao
-            chartName: openbao
+          - chartDir: thanos/charts
+            chartName: thanos
 
 
     steps:
