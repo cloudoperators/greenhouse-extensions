@@ -13,7 +13,7 @@ spec:
   # icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/logo.png
   helmChart:
     name: openbao
-    repository: https://github.com/openbao/openbao-helm
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.4.0
   options:
     - name: ui.enabled
