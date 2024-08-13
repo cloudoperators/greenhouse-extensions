@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: openbao
+spec:
+  version: 2.0.0
+  displayName: OpenBao
+  description: OpenBao Secret Management
+  # docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
+  # icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/logo.png
+  helmChart:
+    name: openbao
+    repository: https://github.com/openbao/openbao-helm
+    version: 0.4.0
+  options:
+    - name: ui.enabled
+      description: Enablement of the UI
+      required: false
+      default: true
+      type: bool
