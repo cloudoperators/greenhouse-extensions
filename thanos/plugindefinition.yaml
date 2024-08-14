@@ -70,7 +70,7 @@ spec:
           required: false
           type: bool
         - default: [] 
-          description: "Automatically filled if Query is not standalone. If multiple Prometheis are deployed, all Prometheus services and Thanos store services need to be added to this list manually. Usually this means Prometheus'-CRD name suffixed with -prometheus and Thanos' release name suffixed with -store."
+          description: Automatically filled if Query is not standalone. If multiple Prometheis are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
           name: thanos.query.stores
           required: false
           type: list
