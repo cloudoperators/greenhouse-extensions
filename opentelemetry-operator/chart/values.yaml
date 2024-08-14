@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 opentelemetry-operator:
+  crds:
+    create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
   manager:
