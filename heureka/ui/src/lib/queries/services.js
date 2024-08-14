@@ -73,9 +73,14 @@ export default () => gql`
                   }
                 }
                 issueMatches {
+                  totalCount
                   edges {
                     node {
                       id
+                      severity {
+                        value
+                        score
+                      }
                       issue {
                         id
                         primaryName
