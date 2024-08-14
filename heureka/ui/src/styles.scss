@@ -6,4 +6,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* If necessary, app styles can be added below */
+// datagrid row hover style
+// REMOVE THIS ONCE DATAGRID COMPONENT SUPPORTS HOVER
+.clickable {
+  .juno-datagrid-row:hover {
+    .juno-datagrid-cell {
+      @apply bg-theme-background-lvl-1;
+    }
+  }
+
+  .juno-datagrid-row.active {
+    .juno-datagrid-cell {
+      @apply bg-theme-background-lvl-2;
+    }
+  }
+}
