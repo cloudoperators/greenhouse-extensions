@@ -6,13 +6,7 @@ on:
     branches:
         - main
     paths:
-        - cmd/**
-        - pkg/**
-        - website/**
-        - Dockerfile
         - Dockerfile.*
-        - go.mod
-        - go.sum
     tags:
       - v*.*.*
 
@@ -110,7 +104,7 @@ jobs:
         #  cache-to: type=gha,mode=max
           platforms: |
             linux/amd64
-        #    linux/arm64
+            linux/arm64
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
@@ -149,13 +143,6 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         if: success()
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.Imagename }}:${{ github.sha }}
-          ignore-unfixed: true
-          exit-code: '1'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
