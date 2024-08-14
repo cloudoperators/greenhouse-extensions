@@ -8,7 +8,7 @@ metadata:
 spec:
     description: thanos
     helmChart:
-        name: thanos 
+        name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
         version: 0.1.0
     options:
