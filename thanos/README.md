@@ -96,7 +96,7 @@ Thanos Query would check for a Thanos endpoint named like `releaseName-store`. T
 
 `--store=thanos-kube-store:10901`
 
-If you just have a single Thanos the default option would work and does not need anything else.
+If you just have one occurence of this Thanos plugin dpeloyed, the default option would work and does not need anything else.
 
 ### Standalone Query
 
