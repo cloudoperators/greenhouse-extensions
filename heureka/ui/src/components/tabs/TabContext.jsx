@@ -10,7 +10,7 @@ import {
   TabNavigationItem,
 } from "@cloudoperators/juno-ui-components"
 import TabPanel from "./TabPanel"
-import { useActions, useActiveTab } from "../StoreProvider"
+import { useGlobalsActions, useGlobalsActiveTab } from "../../hooks/useAppStore"
 
 import ServicesTab from "../services/ServicesTab"
 import IssuesTab from "../issues/IssuesTab"
@@ -38,8 +38,8 @@ const TAB_CONFIG = [
 ]
 
 const TabContext = () => {
-  const { setActiveTab } = useActions()
-  const activeTab = useActiveTab()
+  const { setActiveTab } = useGlobalsActions()
+  const activeTab = useGlobalsActiveTab()
 
   const memoizedTabs = useMemo(
     () =>

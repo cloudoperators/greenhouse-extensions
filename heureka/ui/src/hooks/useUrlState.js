@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from "react"
 import { registerConsumer } from "@cloudoperators/juno-url-state-provider-v1"
-import { useActions, useActiveTab } from "../components/StoreProvider"
+import { useGlobalsActions, useGlobalsActiveTab } from "./useAppStore"
 
 const DEFAULT_KEY = "heureka"
 const ACTIVE_TAB = "t"
@@ -16,8 +16,8 @@ const useUrlState = (key) => {
   // int his case the key should be different per app
   const urlStateManager = registerConsumer(key || DEFAULT_KEY)
 
-  const { setActiveTab } = useActions()
-  const activeTab = useActiveTab()
+  const { setActiveTab } = useGlobalsActions()
+  const activeTab = useGlobalsActiveTab()
 
   // Set initial state from URL (on login)
   useEffect(() => {

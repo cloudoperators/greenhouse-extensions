@@ -5,7 +5,7 @@
 
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useEndpoint, useActions } from "../components/StoreProvider"
+import { useGlobalsApiEndpoint, useGlobalsActions } from "./useAppStore"
 import { request } from "graphql-request"
 import servicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
@@ -15,9 +15,8 @@ import componentsQuery from "../lib/queries/components"
 // hook to register query defaults that depends on the queryClient and options
 const useQueryClientFn = () => {
   const queryClient = useQueryClient()
-  const endpoint = useEndpoint()
-  const { setQueryClientFnReady } = useActions()
-
+  const endpoint = useGlobalsApiEndpoint()
+  const { setQueryClientFnReady } = useGlobalsActions()
   /*
   As stated in getQueryDefaults, the order of registration of query defaults does matter. Since the first matching defaults are returned by getQueryDefaults, the registration should be made in the following order: from the least generic key to the most generic one. This way, in case of specific key, the first matching one would be the expected one.
   */
@@ -56,7 +55,6 @@ const useQueryClientFn = () => {
       },
       staleTime: Infinity, // this do not change often keep it until reload
     })
-
     // set queryClientFnReady to true once
     setQueryClientFnReady(true)
   }, [queryClient, endpoint])

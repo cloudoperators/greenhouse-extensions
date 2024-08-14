@@ -6,10 +6,10 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
-  useQueryClientFnReady,
-  useQueryOptions,
-  useActions,
-} from "../StoreProvider"
+  useGlobalsQueryClientFnReady,
+  useGlobalsQueryOptions,
+  useGlobalsActions,
+} from "../../hooks/useAppStore"
 import {
   Pagination,
   Container,
@@ -19,11 +19,12 @@ import { useActions as messageActions } from "@cloudoperators/juno-messages-prov
 import { parseError } from "../../helpers"
 
 const ListController = ({ queryKey, entityName, ListComponent }) => {
-  const queryClientFnReady = useQueryClientFnReady()
-  const queryOptions = useQueryOptions(queryKey)
-  const { setQueryOptions } = useActions()
+  const queryClientFnReady = useGlobalsQueryClientFnReady()
+  const queryOptions = useGlobalsQueryOptions(queryKey)
+  const { setQueryOptions } = useGlobalsActions()
   const { addMessage, resetMessages } = messageActions()
 
+  console.log("==========queryKey", queryKey, queryClientFnReady)
   const { isLoading, data, error } = useQuery({
     queryKey: [queryKey, queryOptions],
     enabled: !!queryClientFnReady,
@@ -35,7 +36,6 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
     if (!data) return null
     return data?.[entityName]?.edges
   }, [data, entityName])
-  console.log("items: ", items)
 
   useEffect(() => {
     if (!error) return resetMessages()

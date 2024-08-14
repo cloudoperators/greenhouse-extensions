@@ -15,7 +15,6 @@ import HintLoading from "../shared/HintLoading"
 import ComponentsListItem from "./ComponentsListItem"
 
 const ComponentsList = ({ items, isLoading }) => {
-  console.log("components", items)
   return (
     <DataGrid columns={3}>
       <DataGridRow>

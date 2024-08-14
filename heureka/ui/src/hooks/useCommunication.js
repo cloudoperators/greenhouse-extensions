@@ -3,49 +3,68 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useReducer, useEffect, useCallback } from "react"
+import { useEffect } from "react"
 import { broadcast, get, watch } from "@cloudoperators/juno-communicator"
-import useStore from "./useStore"
+import {
+  useUserActivityActions,
+  useAuthAppLoaded,
+  useAuthIsProcessing,
+  useAuthError,
+  useAuthLoggedIn,
+  useAuthLastAction,
+  useAuthActions,
+} from "./useAppStore"
+import { AUTH_ACTIONS } from "../lib/slices/createAuthDataSlice"
 
 const useCommunication = () => {
   console.log("[heureka] useCommunication setup")
-
-  const setAuth = useStore((state) => state.setAuth)
-  const setLoggedIn = useStore((state) => state.setLoggedIn)
-  const setLoggedOut = useStore((state) => state.setLoggedOut)
-  const setLogin = useStore((state) => state.setLogin)
+  const { setIsActive } = useUserActivityActions()
+  const authAppLoaded = useAuthAppLoaded()
+  const authIsProcessing = useAuthIsProcessing()
+  const authError = useAuthError()
+  const authLoggedIn = useAuthLoggedIn()
+  const authLastAction = useAuthLastAction()
+  const { setData: authSetData, setAppLoaded: authSetAppLoaded } =
+    useAuthActions()
 
   useEffect(() => {
-    // get manually the current auth object in case the this app mist the first auth update message
-    // this is the case this app is loaded after the Auth app.
-    get(
-      "AUTH_GET_DATA",
-      (data) => {
-        setAuth(data.auth)
-        setLoggedIn(data.loggedIn)
-      },
-      { debug: true }
-    )
-    // watch for auth updates messages
-    // with the watcher we get the auth object when this app is loaded before the Auth app
+    // watch for user activity updates messages
+    // with the watcher we get the user activity object when this app is loaded before the Auth app
     const unwatch = watch(
-      "AUTH_UPDATE_DATA",
+      "USER_ACTIVITY_UPDATE_DATA",
       (data) => {
-        setAuth(data.auth)
-        setLoggedIn(data.loggedIn)
+        console.log("got message USER_ACTIVITY_UPDATE_DATA: ", data)
+        setIsActive(data?.isActive)
       },
       { debug: true }
     )
     return unwatch
-  }, [setAuth, setLoggedIn])
+  }, [setIsActive])
 
-  setLogin(() => {
-    broadcast("AUTH_LOGIN", "heureka", { debug: true })
-  })
+  // allow heureka to login/logout the user. Visible when app is not in embedded mode
+  useEffect(() => {
+    if (!authAppLoaded || authIsProcessing || authError) return
+    if (authLastAction?.name === AUTH_ACTIONS.SIGN_ON && !authLoggedIn) {
+      broadcast("AUTH_LOGIN", "heureka", { debug: false })
+    } else if (authLastAction?.name === AUTH_ACTIONS.SIGN_OUT && authLoggedIn) {
+      broadcast("AUTH_LOGOUT", "heureka")
+    }
+  }, [authAppLoaded, authIsProcessing, authError, authLoggedIn, authLastAction])
 
-  setLoggedOut(() => {
-    broadcast("AUTH_LOGOUT", "heureka")
-  })
+  useEffect(() => {
+    if (!authSetData || !authSetAppLoaded) return
+
+    get("AUTH_APP_LOADED", authSetAppLoaded)
+    const unwatchLoaded = watch("AUTH_APP_LOADED", authSetAppLoaded)
+
+    get("AUTH_GET_DATA", authSetData)
+    const unwatchUpdate = watch("AUTH_UPDATE_DATA", authSetData)
+
+    return () => {
+      if (unwatchLoaded) unwatchLoaded()
+      if (unwatchUpdate) unwatchUpdate()
+    }
+  }, [authSetData, authSetAppLoaded])
 }
 
 export default useCommunication

@@ -4,10 +4,10 @@
  */
 
 import React, { useMemo, useRef, useEffect } from "react"
-import { useActiveTab } from "../StoreProvider"
+import { useGlobalsActiveTab } from "../../hooks/useAppStore"
 
 const TabPanel = ({ value, children }) => {
-  const activeTab = useActiveTab()
+  const activeTab = useGlobalsActiveTab()
 
   // ATENTION!! compare with == since tabindex is int and value is string
   const displayChildren = useMemo(() => activeTab == value, [activeTab, value])

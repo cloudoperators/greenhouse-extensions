@@ -6,7 +6,7 @@
 import { produce } from "immer"
 
 const initialFiltersState = {
-  labels: ["status"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
+  labels: ["support-group"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
   activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
   filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
   predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
@@ -26,7 +26,7 @@ const createFiltersSlice = (set, get) => ({
             // check if labels is an array
             if (!Array.isArray(labels)) {
               console.warn(
-                "[supernova]::setLabels: labels object is not an array"
+                "[heureka]::setLabels: labels object is not an array"
               )
               return state
             }
@@ -34,7 +34,7 @@ const createFiltersSlice = (set, get) => ({
             // check if all elements in the array are strings delete the ones that are not
             if (!labels.every((element) => typeof element === "string")) {
               console.warn(
-                "[supernova]::setLabels: Some elements of the array are not strings."
+                "[heureka]::setLabels: Some elements of the array are not strings."
               )
               labels = labels.filter((element) => typeof element === "string")
             }
@@ -68,7 +68,7 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.setActiveFilters"
         )
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       clearActiveFilters: () => {
@@ -79,7 +79,7 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.clearActiveFilters"
         )
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       addActiveFilter: (filterLabel, filterValue) => {
@@ -97,7 +97,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.addActiveFilter"
         )
         // after adding a new filter key and value: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       // add multiple values for a filter label
@@ -116,7 +116,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.addActiveFilters"
         )
         // after adding a new filter key and value: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       removeActiveFilter: (filterLabel, filterValue) => {
@@ -135,7 +135,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.removeActiveFilter"
         )
         // after removing a filter: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       setPredefinedFilters: (predefinedFilters) => {
@@ -157,7 +157,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.setActivePredefinedFilter"
         )
         // after activating predefined filter: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       clearActivePredefinedFilter: () => {
@@ -169,7 +169,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.clearActivePredefinedFilter"
         )
         // after clearing predefined filter: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       togglePredefinedFilter: (filterName) => {
@@ -186,7 +186,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.togglePredefinedFilter"
         )
         // after activating predefined filter: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       // retieve all possible values for the given filter label from the list of items and add them to the list
@@ -203,7 +203,7 @@ const createFiltersSlice = (set, get) => ({
             // use Set to ensure unique values
             const values = [
               ...new Set(
-                state.alerts.items.map((item) => item.labels[filterLabel])
+                state.services.items.map((item) => item.labels[filterLabel])
               ),
             ]
             // remove any "blank" values from the list, then sort
@@ -234,7 +234,7 @@ const createFiltersSlice = (set, get) => ({
           "filters.setSearchTerm"
         )
         // after setting the search term: filter items
-        get().alerts.actions.filterItems()
+        get().services.actions.filterItems()
       },
 
       // TODO:

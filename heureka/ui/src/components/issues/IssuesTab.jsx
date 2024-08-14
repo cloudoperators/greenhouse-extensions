@@ -10,16 +10,13 @@ import {
   Messages,
   MessagesProvider,
 } from "@cloudoperators/juno-messages-provider"
-import { Container } from "@cloudoperators/juno-ui-components"
 
 const IssuesTab = () => {
   return (
     <>
       <MessagesProvider>
+        <Messages />
         <Filters />
-        <Container py>
-          <Messages />
-        </Container>
         <IssuesListController />
       </MessagesProvider>
     </>
