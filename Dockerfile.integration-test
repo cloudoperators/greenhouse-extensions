@@ -1,6 +1,6 @@
 FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.11.0
 
-ARG KUBECTL_VERSION=v1.30.2
+ARG KUBECTL_VERSION=v1.30.3
 
 # Add packages
 RUN apk upgrade --no-cache --no-progress \  
