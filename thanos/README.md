@@ -92,7 +92,7 @@ Thanos Query would check for a service `prometheus-operated` in the same namespa
 `--store=prometheus-operated:10901`
 
 ### Thanos Endpoint
-Thanos Query would check for a Thanos endpoint named like `releaseName-store`. In the cli this param would look like:
+Thanos Query would check for a Thanos endpoint named like `releaseName-store`. The associated command line flag for this parameter would look like:
 
 `--store=thanos-kube-store:10901`
 
