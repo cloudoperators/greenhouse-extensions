@@ -15,6 +15,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useQueryClientFnReady, useShowServiceDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
+import { listOfCommaSeparatedObjs } from "../shared/Helper"
 
 const ServicesDetail = () => {
   const showServiceDetail = useShowServiceDetail()
@@ -86,11 +87,7 @@ const ServicesDetail = () => {
           <DataGridHeadCell>Support Group</DataGridHeadCell>
 
           <DataGridCell>
-            <ul>
-              {service?.supportGroups?.edges?.map((supportGroup) => {
-                return <li>{supportGroup?.node?.name}</li>
-              })}
-            </ul>
+            <ul>{listOfCommaSeparatedObjs(service?.supportGroups, "name")}</ul>
           </DataGridCell>
         </DataGridRow>
       </DataGrid>
