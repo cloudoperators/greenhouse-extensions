@@ -76,6 +76,10 @@ export default () => gql`
                   edges {
                     node {
                       id
+                      severity {
+                        value
+                        score
+                      }
                       issue {
                         id
                         primaryName
