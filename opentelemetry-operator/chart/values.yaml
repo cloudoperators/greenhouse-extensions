@@ -6,9 +6,9 @@ opentelemetry-operator:
     failurePolicy: 'Ignore'
   manager:
     collectorImage:
-      repository: keppel.eu-de-1.cloud.sap/ccloud/opentelemetry-collector-contrib
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
       #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-      tag: 202407251112
+      tag: main
       #tag: 0.104.0
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator

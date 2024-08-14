@@ -1,5 +1,3 @@
-#SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-#SPDX-License-Identifier: Apache-2.0
 FROM debian:latest as journal
 RUN apt update
 RUN apt install -y systemd libssl-dev
