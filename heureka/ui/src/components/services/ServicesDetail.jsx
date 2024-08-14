@@ -32,13 +32,25 @@ const ServicesDetail = () => {
   }, [serviceElem])
 
   const highestSeverity = (vulnerablities) => {
-    const highest = vulnerablities.reduce(
-      (max, vulnerablity) =>
-        vulnerablity?.node?.severity?.score > max?.node?.severity?.score
-          ? vulnerablity
-          : max,
-      vulnerablities[0]
-    )
+    const highest = vulnerablities.reduce((max, vulnerability) => {
+      const currentScore = vulnerability?.node?.severity?.score
+      const maxScore = max?.node?.severity?.score
+
+      // If the current score is null skip this vulnerability
+      if (currentScore == null) {
+        return max
+      }
+
+      // If current score is higher, update max
+      if (maxScore == null || currentScore > maxScore) {
+        return vulnerability
+      }
+
+      // Otherwise, keep the current max
+      return max
+    }, vulnerablities[0])
+
+    // return nothing if there is no value to show nothing.
     if (!highest?.node?.severity?.value) return
 
     return (
@@ -60,8 +72,6 @@ const ServicesDetail = () => {
               {service?.owners?.edges?.map((owner, i) => (
                 <Pill
                   key={i}
-                  onClick={function noRefCheck() {}}
-                  onClose={function noRefCheck() {}}
                   pillKey={owner.node.uniqueUserId}
                   pillKeyLabel={owner.node.uniqueUserId}
                   pillValue={owner.node.name}
@@ -91,7 +101,7 @@ const ServicesDetail = () => {
           <DataGridRow>
             <DataGridHeadCell>Component</DataGridHeadCell>
             <DataGridHeadCell>Version</DataGridHeadCell>
-            <DataGridHeadCell>Total Vulnerabilities</DataGridHeadCell>
+            <DataGridHeadCell>Total Number of Issues</DataGridHeadCell>
             <DataGridHeadCell>Highest Severity</DataGridHeadCell>
           </DataGridRow>
 
@@ -106,7 +116,7 @@ const ServicesDetail = () => {
               </DataGridCell>
 
               <DataGridCell>
-                {componentInstance?.node?.issueMatches?.edges?.length}
+                {componentInstance?.node?.issueMatches?.totalCount}
               </DataGridCell>
 
               <DataGridCell>

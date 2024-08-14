@@ -73,6 +73,7 @@ export default () => gql`
                   }
                 }
                 issueMatches {
+                  totalCount
                   edges {
                     node {
                       id

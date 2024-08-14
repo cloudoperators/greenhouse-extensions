@@ -6,6 +6,7 @@
 import { createStore } from "zustand"
 import { devtools } from "zustand/middleware"
 import { produce } from "immer"
+import constants from "../components/shared/constants"
 
 export default (options) =>
   createStore(
@@ -14,7 +15,7 @@ export default (options) =>
       queryClientFnReady: false,
       endpoint: options?.apiEndpoint,
 
-      showPanel: null,
+      showPanel: constants.PANEL_NONE,
 
       showServiceDetail: null,
 
