@@ -327,7 +327,8 @@ spec:
       pipelines:
         logs/containerd:
           receivers: [filelog]
-          processors: [transform/containerd,k8sattributes,attributes/cluster,batch]
+          processors: [k8sattributes,attributes/cluster,batch]
+          exporters: [opensearch/logs]
         logs/k8sevents:
           receivers: [k8s_events]
           processors: [resource/k8sevents,batch]
