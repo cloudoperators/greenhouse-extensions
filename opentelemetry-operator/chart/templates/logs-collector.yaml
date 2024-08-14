@@ -58,7 +58,7 @@ spec:
       journald:
         directory: /var/log/journal
 
-      k8s_events:$
+      k8s_events:
         auth_type: serviceAccount
 
       filelog:
