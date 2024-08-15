@@ -13,29 +13,101 @@ import {
   DataGridHeadCell,
   DataGridRow,
 } from "@cloudoperators/juno-ui-components"
-import { useQueryClientFnReady, useShowServiceDetail } from "../StoreProvider"
+import { useQueryClientFnReady, useShowIssueDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
+import LoadingText from "../shared/LoadingText"
 
 const IssuesDetails = () => {
-  const showServiceDetail = useShowServiceDetail()
+  const showIssueDetail = useShowIssueDetail()
 
   const queryClientFnReady = useQueryClientFnReady()
 
   const issueElem = useQuery({
-    queryKey: ["issues", { filter: { id: [showServiceDetail] } }],
+    queryKey: ["issues", { filter: { id: [showIssueDetail] } }],
     enabled: !!queryClientFnReady,
   })
-  console.log("sdf", issueElem?.data)
-  // const service = useMemo(() => {
-  //   if (!serviceElem) return null
-  //   return serviceElem?.data?.Services?.edges[0]?.node
-  // }, [serviceElem])
+  const issue = useMemo(() => {
+    if (!issueElem) return null
+    return issueElem?.data?.IssueMatches?.edges[0]?.node
+  }, [issueElem])
 
+  console.log(issue, "sdfs")
   return (
-    <Stack direction="vertical" gap="4">
-      <p>loaded</p>
-    </Stack>
+    <>
+      {/* todo add messageprovider here */}
+      <Stack direction="vertical" gap="4">
+        <DataGrid columns={2}>
+          <DataGridRow>
+            <DataGridHeadCell>Component Name</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.componentInstance?.componentVersion?.component?.name ? (
+                issue?.componentInstance?.componentVersion?.component?.name
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>CVE</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.issue?.primaryName ? (
+                issue?.issue?.primaryName
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Component Version</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.componentInstance?.componentVersion.version ? (
+                issue?.componentInstance?.componentVersion.version
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Services</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.componentInstance?.service?.name ? (
+                issue?.componentInstance?.service?.name
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Issue Variant</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.issue?.type ? issue?.issue?.type : <LoadingText />}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Issue Severity</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.severity ? (
+                issue?.severity?.value + " (" + issue?.severity?.score + ")"
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+        </DataGrid>
+      </Stack>
+    </>
   )
 }
 
