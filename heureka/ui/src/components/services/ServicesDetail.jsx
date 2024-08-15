@@ -52,7 +52,7 @@ const ServicesDetail = () => {
     }, vulnerablities[0])
 
     // return nothing if there is no value to show nothing.
-    if (!highest?.node?.severity?.value) return
+    if (!highest?.node?.severity?.value) return "—"
 
     return (
       highest?.node?.severity?.value +
