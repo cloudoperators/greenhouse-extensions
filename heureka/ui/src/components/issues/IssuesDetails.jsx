@@ -15,7 +15,7 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useQueryClientFnReady, useShowIssueDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
-import { listOfCommaSeparatedObjs } from "../shared/Helper"
+import { listOfCommaSeparatedObjs, severityString } from "../shared/Helper"
 import LoadingText from "../shared/LoadingText"
 
 const IssuesDetails = () => {
@@ -87,6 +87,47 @@ const IssuesDetails = () => {
           </DataGridRow>
 
           <DataGridRow>
+            <DataGridHeadCell>Owner</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.componentInstance?.service?.owners?.edges ? (
+                <Stack gap="2" wrap={true}>
+                  {issue?.componentInstance?.service?.owners?.edges?.map(
+                    (owner, i) => (
+                      <Pill
+                        key={i}
+                        pillKey={owner.node.uniqueUserId}
+                        pillKeyLabel={owner.node.uniqueUserId}
+                        pillValue={owner.node.name}
+                        pillValueLabel={owner.node.name}
+                      />
+                    )
+                  )}
+                </Stack>
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Support Group</DataGridHeadCell>
+
+            <DataGridCell>
+              {issue?.componentInstance?.service?.supportGroups ? (
+                <ul>
+                  {listOfCommaSeparatedObjs(
+                    issue?.componentInstance?.service?.supportGroups,
+                    "name"
+                  )}
+                </ul>
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
             <DataGridHeadCell>Issue Variant</DataGridHeadCell>
 
             <DataGridCell>
@@ -98,11 +139,7 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Issue Severity</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.severity ? (
-                issue?.severity?.value + " (" + issue?.severity?.score + ")"
-              ) : (
-                <LoadingText />
-              )}
+              {issue ? severityString(issue?.severity) : <LoadingText />}
             </DataGridCell>
           </DataGridRow>
         </DataGrid>

@@ -68,6 +68,21 @@ export default () => gql`
             }
             service {
               name
+              owners {
+                totalCount
+                edges {
+                  node {
+                    id
+                    uniqueUserId
+                    name
+                  }
+                  cursor
+                }
+                pageInfo {
+                  hasNextPage
+                  nextPageAfter
+                }
+              }
               supportGroups {
                 edges {
                   node {

@@ -15,7 +15,11 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import { useQueryClientFnReady, useShowServiceDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
-import { listOfCommaSeparatedObjs } from "../shared/Helper"
+import {
+  listOfCommaSeparatedObjs,
+  severityString,
+  highestSeverity,
+} from "../shared/Helper"
 import LoadingText from "../shared/LoadingText"
 
 const ServicesDetail = () => {
@@ -32,36 +36,6 @@ const ServicesDetail = () => {
     if (!serviceElem) return null
     return serviceElem?.data?.Services?.edges[0]?.node
   }, [serviceElem])
-
-  const highestSeverity = (vulnerablities) => {
-    const highest = vulnerablities.reduce((max, vulnerability) => {
-      const currentScore = vulnerability?.node?.severity?.score
-      const maxScore = max?.node?.severity?.score
-
-      // If the current score is null skip this vulnerability
-      if (currentScore == null) {
-        return max
-      }
-
-      // If current score is higher, update max
-      if (maxScore == null || currentScore > maxScore) {
-        return vulnerability
-      }
-
-      // Otherwise, keep the current max
-      return max
-    }, vulnerablities[0])
-
-    // return nothing if there is no value to show nothing.
-    if (!highest?.node?.severity?.value) return "—"
-
-    return (
-      highest?.node?.severity?.value +
-      " (" +
-      highest?.node?.severity?.score +
-      ")"
-    )
-  }
 
   return (
     <>
@@ -135,8 +109,10 @@ const ServicesDetail = () => {
                 </DataGridCell>
 
                 <DataGridCell>
-                  {highestSeverity(
-                    componentInstance?.node?.issueMatches?.edges
+                  {severityString(
+                    highestSeverity(
+                      componentInstance?.node?.issueMatches?.edges
+                    )
                   )}
                 </DataGridCell>
               </DataGridRow>
