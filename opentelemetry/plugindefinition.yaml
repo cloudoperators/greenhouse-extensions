@@ -4,15 +4,16 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: opentelemetry-operator
+    name: opentelemetry
 spec:
-    version: 0.2.6
-    description: opentelemetry-operator
+    version: 0.2.7
+    displayName: OpenTelemetry
+    description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
-        name: opentelemetry-operator
+        name: opentelemetry
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.6
+        version: 0.2.7
     options:
         - default: true
           description: Enable Logs Collector with default settings
