@@ -16,7 +16,7 @@ import IssuesListItem from "./IssuesListItem"
 
 const IssuesList = ({ items, isLoading }) => {
   return (
-    <DataGrid columns={10}>
+    <DataGrid columns={10} className="clickable">
       <DataGridRow>
         <DataGridHeadCell>Primary Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
@@ -31,7 +31,11 @@ const IssuesList = ({ items, isLoading }) => {
         <DataGridHeadCell>Instance Count</DataGridHeadCell>
       </DataGridRow>
       {isLoading && !items ? (
-        <HintLoading className="my-4" text="Loading issues..." />
+        <DataGridRow>
+          <DataGridCell colSpan={10}>
+            <HintLoading className="my-4" text="Loading issues..." />
+          </DataGridCell>
+        </DataGridRow>
       ) : (
         <>
           {items?.length > 0 ? (

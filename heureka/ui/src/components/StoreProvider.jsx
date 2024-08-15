@@ -23,6 +23,7 @@ export const useQueryOptions = (tab) =>
   useStore((s) => s.tabs[tab].queryOptions)
 export const useShowPanel = () => useStore((s) => s.showPanel)
 export const useShowServiceDetail = () => useStore((s) => s.showServiceDetail)
+export const useShowIssueDetail = () => useStore((s) => s.showIssueDetail)
 export const useActions = () => useStore((s) => s.actions)
 
 export default StoreProvider

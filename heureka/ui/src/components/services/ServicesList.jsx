@@ -27,7 +27,11 @@ const ServicesList = ({ items, isLoading }) => {
           <DataGridHeadCell>Total Vulnerability Matches</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
-          <HintLoading className="my-4" text="Loading services..." />
+          <DataGridRow>
+            <DataGridCell colSpan={10}>
+              <HintLoading className="my-4" text="Loading services..." />
+            </DataGridCell>
+          </DataGridRow>
         ) : (
           <>
             {items?.length > 0 ? (

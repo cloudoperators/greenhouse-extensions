@@ -8,29 +8,38 @@ import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 import { DateTime } from "luxon"
 import constants from "../shared/constants"
-import { useActions, useShowPanel } from "../StoreProvider"
+import { useActions, useShowPanel, useShowIssueDetail } from "../StoreProvider"
 
 const IssuesListItem = ({ item }) => {
-  const { setShowPanel } = useActions()
+  const { setShowPanel, setShowIssueDetail } = useActions()
   const showPanel = useShowPanel()
+  const showIssueDetail = useShowIssueDetail()
+
   const formatDate = (dateStr) => {
     const dateObj = DateTime.fromISO(dateStr)
     return dateObj.toFormat("yyyy.MM.dd.HH:mm:ss")
   }
 
   const handleClick = () => {
-    if (showPanel === constants.PANEL_ISSUE) {
+    if (
+      showPanel === constants.PANEL_ISSUE &&
+      item?.node?.id === showIssueDetail
+    ) {
       {
         setShowPanel(constants.PANEL_NONE)
+        setShowIssueDetail(null)
       }
     } else {
       setShowPanel(constants.PANEL_ISSUE)
+      setShowIssueDetail(item?.node?.id)
     }
   }
 
   return (
     <DataGridRow
-      className={`cursor-pointer ${true ? "active" : ""}`}
+      className={`cursor-pointer ${
+        showIssueDetail === item?.node?.id ? "active" : ""
+      }`}
       onClick={() => handleClick()}
     >
       <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>
