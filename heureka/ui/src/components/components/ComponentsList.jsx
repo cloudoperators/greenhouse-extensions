@@ -17,11 +17,13 @@ import ComponentsListItem from "./ComponentsListItem"
 const ComponentsList = ({ items, isLoading }) => {
   console.log("components", items)
   return (
-    <DataGrid columns={3}>
+    <DataGrid columns={4}>
       <DataGridRow>
         <DataGridHeadCell>Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
         <DataGridHeadCell>Total Number of Versions</DataGridHeadCell>
+
+        <DataGridHeadCell>Total Number of Instances</DataGridHeadCell>
       </DataGridRow>
       {isLoading && !items ? (
         <HintLoading className="my-4" text="Loading components..." />
