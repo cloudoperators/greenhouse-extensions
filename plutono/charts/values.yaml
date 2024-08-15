@@ -184,7 +184,7 @@ plutono:
     # -- The Docker registry
     registry: docker.io
     repository: curlimages/curl
-    tag: 7.85.0
+    tag: 7.88.1
     sha: ""
     pullPolicy: IfNotPresent
 
