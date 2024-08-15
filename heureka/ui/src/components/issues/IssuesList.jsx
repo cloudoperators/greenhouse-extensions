@@ -16,12 +16,12 @@ import IssuesListItem from "./IssuesListItem"
 
 const IssuesList = ({ items, isLoading }) => {
   return (
-    <DataGrid columns={10}>
+    <DataGrid gridColumnTemplate="2fr 2fr 4fr 2fr 2fr 2fr 2fr 2fr 2fr 2fr">
       <DataGridRow>
         <DataGridHeadCell>Primary Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
         {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}
-        <DataGridHeadCell>Remediation Date</DataGridHeadCell>
+        <DataGridHeadCell>Target Remediation Date</DataGridHeadCell>
         <DataGridHeadCell>Status</DataGridHeadCell>
         <DataGridHeadCell>Severity</DataGridHeadCell>
         <DataGridHeadCell>Component Name</DataGridHeadCell>

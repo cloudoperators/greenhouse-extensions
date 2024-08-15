@@ -5,7 +5,7 @@
 
 import React from "react"
 import IssuesListController from "./IssuesListController"
-import Filters from "../filters/Filters"
+// import Filters from "../filters/Filters"
 import {
   Messages,
   MessagesProvider,
@@ -16,7 +16,7 @@ const IssuesTab = () => {
     <>
       <MessagesProvider>
         <Messages />
-        <Filters />
+        {/* <Filters queryKey={IssueFilterValues} /> // Should be activated after BE respective implementation*/}
         <IssuesListController />
       </MessagesProvider>
     </>

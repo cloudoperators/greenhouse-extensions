@@ -16,7 +16,7 @@ const ServicesTab = () => {
     <>
       <MessagesProvider>
         <Messages />
-        <Filters queryKey="serviceFilters" />
+        <Filters queryKey="ServiceFilterValues" />
         <ServicesListController />
       </MessagesProvider>
     </>

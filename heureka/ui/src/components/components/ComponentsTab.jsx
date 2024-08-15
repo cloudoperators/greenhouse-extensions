@@ -16,7 +16,7 @@ const ComponentsTab = () => {
     <>
       <MessagesProvider>
         <Messages />
-        <Filters />
+        {/* <Filters queryKey={ComponentFilterValues} />  // Should be activated after BE respective implementation*/}
         <ComponentsListController />
       </MessagesProvider>
     </>

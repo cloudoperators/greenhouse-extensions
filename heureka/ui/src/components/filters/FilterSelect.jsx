@@ -14,13 +14,13 @@ import {
   SearchInput,
 } from "@cloudoperators/juno-ui-components"
 import {
+  useGlobalsQueryClientFnReady,
   useFilterLabels,
   useFilterLabelValues,
   useFilterActions,
   useActiveFilters,
   useSearchTerm,
 } from "../../hooks/useAppStore"
-import { humanizeString } from "../../lib/utils"
 
 const FilterSelect = () => {
   const [filterLabel, setFilterLabel] = useState("")
@@ -50,12 +50,11 @@ const FilterSelect = () => {
     }
   }
 
-  const handleFilterLabelChange = (value) => {
-    setFilterLabel(value)
+  const handleFilterLabelChange = (label) => {
     // lazy loading of all possible values for this label (only load them if we haven't already)
-    if (!filterLabelValues[value]?.values) {
-      loadFilterLabelValues(value)
-    }
+    filterLabelValues.find((item) => item.label === label)?.values ||
+      loadFilterLabelValues(label)
+    setFilterLabel(label)
   }
 
   const handleFilterValueChange = (value) => {
@@ -90,27 +89,24 @@ const FilterSelect = () => {
           onChange={(val) => handleFilterLabelChange(val)}
         >
           {filterLabels?.map((filter) => (
-            <SelectOption
-              value={filter}
-              label={humanizeString(filter)}
-              key={filter}
-            />
+            <SelectOption value={filter} label={filter} key={filter} />
           ))}
         </Select>
         <Select
           name="filterValue"
           value={filterValue}
           onChange={(value) => handleFilterValueChange(value)}
-          disabled={filterLabelValues[filterLabel] ? false : true}
+          disabled={
+            !filterLabelValues.find((item) => item.label === filterLabel)
+          }
           loading={filterLabelValues[filterLabel]?.isLoading}
           className="filter-value-select w-96 bg-theme-background-lvl-0"
           key={resetKey}
         >
-          {filterLabelValues[filterLabel]?.values
-            ?.filter(
-              (value) =>
-                // filter out already active values for this label
-                !activeFilters[filterLabel]?.includes(value)
+          {filterLabelValues
+            .find((item) => item.label === filterLabel)
+            ?.values?.filter(
+              (value) => !activeFilters[filterLabel]?.includes(value)
             )
             .map((value) => (
               <SelectOption value={value} key={value} />
@@ -118,8 +114,8 @@ const FilterSelect = () => {
         </Select>
         <Button
           onClick={() => handleFilterAdd()}
-          icon="filterAlt"
-          className="py-[0.3rem]"
+          // icon="filterAlt"
+          // className="py-[0.3rem]"
         />
       </InputGroup>
       {activeFilters && Object.keys(activeFilters).length > 0 && (

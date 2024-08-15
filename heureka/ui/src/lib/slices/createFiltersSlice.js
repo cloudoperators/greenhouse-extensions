@@ -6,7 +6,7 @@
 import { produce } from "immer"
 
 const initialFiltersState = {
-  labels: ["support-group"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
+  labels: [], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
   activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
   filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
   predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
@@ -39,20 +39,60 @@ const createFiltersSlice = (set, get) => ({
               labels = labels.filter((element) => typeof element === "string")
             }
 
-            // merge given labels with the initial, make it unique and sort it alphabetically
-            const uniqueLabels = Array.from(
-              new Set(initialFiltersState.labels.concat(labels))
-            ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
             return {
               filters: {
                 ...state.filters,
-                labels: uniqueLabels,
+                labels: labels,
               },
             }
           },
           false,
           "filters.setLabels"
+        ),
+      setFilterLabelValues: (filters) =>
+        set(
+          (state) => {
+            if (!filters) return state
+
+            // check if filters is an array
+            if (!Array.isArray(filters)) {
+              console.warn(
+                "[heureka]::setFilterValues: filters object is not an array"
+              )
+              return state
+            }
+
+            // check if all elements in the array are objects with 'label' and 'values'
+            if (
+              !filters.every(
+                (element) =>
+                  typeof element === "object" &&
+                  element !== null &&
+                  typeof element.label === "string" &&
+                  Array.isArray(element.values)
+              )
+            ) {
+              console.warn(
+                "[heureka]::setFilterValues: Some elements of the array are not valid filter objects."
+              )
+              filters = filters.filter(
+                (element) =>
+                  typeof element === "object" &&
+                  element !== null &&
+                  typeof element.label === "string" &&
+                  Array.isArray(element.values)
+              )
+            }
+
+            return {
+              filters: {
+                ...state.filters,
+                filterLabelValues: filters,
+              },
+            }
+          },
+          false,
+          "filters.setFilterValues"
         ),
 
       setActiveFilters: (activeFilters) => {
@@ -68,7 +108,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.setActiveFilters"
         )
-        get().services.actions.filterItems()
       },
 
       clearActiveFilters: () => {
@@ -79,10 +118,9 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.clearActiveFilters"
         )
-        get().services.actions.filterItems()
       },
 
-      addActiveFilter: (filterLabel, filterValue) => {
+      addActiveFilter: (filterLabel, filterValue, queryKey) => {
         set(
           produce((state) => {
             // use Set to prevent duplicate values
@@ -96,8 +134,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.addActiveFilter"
         )
-        // after adding a new filter key and value: filter items
-        get().services.actions.filterItems()
       },
 
       // add multiple values for a filter label
@@ -115,8 +151,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.addActiveFilters"
         )
-        // after adding a new filter key and value: filter items
-        get().services.actions.filterItems()
       },
 
       removeActiveFilter: (filterLabel, filterValue) => {
@@ -134,8 +168,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.removeActiveFilter"
         )
-        // after removing a filter: filter items
-        get().services.actions.filterItems()
       },
 
       setPredefinedFilters: (predefinedFilters) => {
@@ -156,8 +188,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.setActivePredefinedFilter"
         )
-        // after activating predefined filter: filter items
-        get().services.actions.filterItems()
       },
 
       clearActivePredefinedFilter: () => {
@@ -168,8 +198,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.clearActivePredefinedFilter"
         )
-        // after clearing predefined filter: filter items
-        get().services.actions.filterItems()
       },
 
       togglePredefinedFilter: (filterName) => {
@@ -185,8 +213,6 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.togglePredefinedFilter"
         )
-        // after activating predefined filter: filter items
-        get().services.actions.filterItems()
       },
 
       // retieve all possible values for the given filter label from the list of items and add them to the list
@@ -233,21 +259,7 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.setSearchTerm"
         )
-        // after setting the search term: filter items
-        get().services.actions.filterItems()
       },
-
-      // TODO:
-      // update previously loaded filter label values (e.g. after new items were fetched, the possible values might have changed)
-      // updateFilterLabelValues: () => {
-      //   set(
-      //     produce((state) => {
-      //       Object.keys(state.filters.filterLabelValues).map((label) =>
-
-      //       )
-      //     })
-      //   )
-      // }
     },
   },
 })

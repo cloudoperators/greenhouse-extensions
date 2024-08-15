@@ -23,8 +23,10 @@ const ServicesList = ({ items, isLoading }) => {
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>
           <DataGridHeadCell>Support Groups</DataGridHeadCell>
-          <DataGridHeadCell>Component Instances Count</DataGridHeadCell>
-          <DataGridHeadCell>Total Issue Matches</DataGridHeadCell>
+          <DataGridHeadCell>
+            Total Number of Component Instances
+          </DataGridHeadCell>
+          <DataGridHeadCell>Total Number of Issue Matches</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
           <HintLoading className="my-4" text="Loading services..." />

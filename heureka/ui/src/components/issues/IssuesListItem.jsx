@@ -23,7 +23,9 @@ const IssuesListItem = ({ item }) => {
           "secondaryName"
           )}
           </DataGridCell> */}
-      <DataGridCell>{formatDate(item?.node?.remediationDate)}</DataGridCell>
+      <DataGridCell>
+        {formatDate(item?.node?.targetRemediationDate)}
+      </DataGridCell>
       <DataGridCell>{item?.node?.status}</DataGridCell>
       <DataGridCell>{item?.node?.severity?.value}</DataGridCell>
       <DataGridCell>

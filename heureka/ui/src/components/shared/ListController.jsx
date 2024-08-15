@@ -9,6 +9,7 @@ import {
   useGlobalsQueryClientFnReady,
   useGlobalsQueryOptions,
   useGlobalsActions,
+  useActiveFilters,
 } from "../../hooks/useAppStore"
 import {
   Pagination,
@@ -18,15 +19,45 @@ import {
 import { useActions as messageActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
 
+const reformatFilters = (filters) => {
+  const reformattedFilters = {}
+
+  for (const key in filters) {
+    // Split the key into words based on spaces
+    let newKey = key
+      .split(" ")
+      .map((word, index) => {
+        if (index === 0) {
+          // Only change the first letter of the first word to lowercase if it's not already lowercase
+          return word.charAt(0).toLowerCase() + word.slice(1)
+        } else {
+          // Capitalize the first letter of subsequent words only if they are not already capitalized
+          return word.charAt(0) === word.charAt(0).toUpperCase()
+            ? word
+            : word.charAt(0).toUpperCase() + word.slice(1)
+        }
+      })
+      .join("")
+
+    // Add the reformatted filter to the new structure
+    reformattedFilters[newKey] = filters[key]
+  }
+
+  return { filter: reformattedFilters }
+}
+
 const ListController = ({ queryKey, entityName, ListComponent }) => {
   const queryClientFnReady = useGlobalsQueryClientFnReady()
   const queryOptions = useGlobalsQueryOptions(queryKey)
   const { setQueryOptions } = useGlobalsActions()
   const { addMessage, resetMessages } = messageActions()
+  const activeFilters = useActiveFilters()
 
-  console.log("==========queryKey", queryKey, queryClientFnReady)
   const { isLoading, data, error } = useQuery({
-    queryKey: [queryKey, queryOptions],
+    queryKey: [
+      queryKey,
+      { ...queryOptions, ...reformatFilters(activeFilters) },
+    ],
     enabled: !!queryClientFnReady,
   })
 

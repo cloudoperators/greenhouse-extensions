@@ -9,7 +9,7 @@ import { useGlobalsApiEndpoint, useGlobalsActions } from "./useAppStore"
 import { request } from "graphql-request"
 import servicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
-import ServiceFilterQuery from "../lib/queries/serviceFilters"
+import ServiceFilterValuesQuery from "../lib/queries/serviceFilterValues"
 import componentsQuery from "../lib/queries/components"
 
 // hook to register query defaults that depends on the queryClient and options
@@ -48,10 +48,10 @@ const useQueryClientFn = () => {
       },
     })
 
-    queryClient.setQueryDefaults(["serviceFilters"], {
-      queryFn: async ({ queryKey }) => {
+    queryClient.setQueryDefaults(["ServiceFilterValues"], {
+      queryFn: async ({ queryKey, variables }) => {
         console.log("useQueryClientFn::: queryKey: ", queryKey)
-        return await request(endpoint, ServiceFilterQuery())
+        return await request(endpoint, ServiceFilterValuesQuery(), variables)
       },
       staleTime: Infinity, // this do not change often keep it until reload
     })
