@@ -16,6 +16,7 @@ import {
 import { useQueryClientFnReady, useShowServiceDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
+import LoadingText from "../shared/LoadingText"
 
 const ServicesDetail = () => {
   const showServiceDetail = useShowServiceDetail()
@@ -63,67 +64,87 @@ const ServicesDetail = () => {
   }
 
   return (
-    <Stack direction="vertical" gap="4">
-      <DataGrid columns={2}>
-        <DataGridRow>
-          <DataGridHeadCell>Owner</DataGridHeadCell>
-
-          <DataGridCell>
-            <Stack gap="2" wrap={true}>
-              {service?.owners?.edges?.map((owner, i) => (
-                <Pill
-                  key={i}
-                  pillKey={owner.node.uniqueUserId}
-                  pillKeyLabel={owner.node.uniqueUserId}
-                  pillValue={owner.node.name}
-                  pillValueLabel={owner.node.name}
-                />
-              ))}
-            </Stack>
-          </DataGridCell>
-        </DataGridRow>
-
-        <DataGridRow>
-          <DataGridHeadCell>Support Group</DataGridHeadCell>
-
-          <DataGridCell>
-            <ul>{listOfCommaSeparatedObjs(service?.supportGroups, "name")}</ul>
-          </DataGridCell>
-        </DataGridRow>
-      </DataGrid>
-      <>
-        <ContentHeading heading="Component Instances" />
-
-        <DataGrid columns={4}>
+    <>
+      {/* todo add messageprovider here */}
+      <Stack direction="vertical" gap="4">
+        <DataGrid columns={2}>
           <DataGridRow>
-            <DataGridHeadCell>Component</DataGridHeadCell>
-            <DataGridHeadCell>Version</DataGridHeadCell>
-            <DataGridHeadCell>Total Number of Issues</DataGridHeadCell>
-            <DataGridHeadCell>Highest Severity</DataGridHeadCell>
+            <DataGridHeadCell>Owner</DataGridHeadCell>
+
+            <DataGridCell>
+              {service?.owners?.edges ? (
+                <Stack gap="2" wrap={true}>
+                  {service?.owners?.edges?.map((owner, i) => (
+                    <Pill
+                      key={i}
+                      pillKey={owner.node.uniqueUserId}
+                      pillKeyLabel={owner.node.uniqueUserId}
+                      pillValue={owner.node.name}
+                      pillValueLabel={owner.node.name}
+                    />
+                  ))}
+                </Stack>
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
           </DataGridRow>
 
-          {service?.componentInstances?.edges?.map((componentInstance, i) => (
-            <DataGridRow key={i}>
-              <DataGridCell>
-                {componentInstance?.node?.componentVersion?.component?.name}
-              </DataGridCell>
+          <DataGridRow>
+            <DataGridHeadCell>Support Group</DataGridHeadCell>
 
-              <DataGridCell>
-                {componentInstance?.node?.componentVersion?.version}
-              </DataGridCell>
-
-              <DataGridCell>
-                {componentInstance?.node?.issueMatches?.totalCount}
-              </DataGridCell>
-
-              <DataGridCell>
-                {highestSeverity(componentInstance?.node?.issueMatches?.edges)}
-              </DataGridCell>
-            </DataGridRow>
-          ))}
+            <DataGridCell>
+              {service?.supportGroups ? (
+                <ul>
+                  {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
+                </ul>
+              ) : (
+                <LoadingText />
+              )}
+            </DataGridCell>
+          </DataGridRow>
         </DataGrid>
-      </>
-    </Stack>
+        <>
+          <ContentHeading heading="Component Instances" />
+
+          <DataGrid columns={4}>
+            <DataGridRow>
+              <DataGridHeadCell>Component</DataGridHeadCell>
+              <DataGridHeadCell>Version</DataGridHeadCell>
+              <DataGridHeadCell>Total Number of Issues</DataGridHeadCell>
+              <DataGridHeadCell>Highest Severity</DataGridHeadCell>
+            </DataGridRow>
+            {!service?.componentInstances?.edges && (
+              <DataGridRow colSpan={4}>
+                <LoadingText />
+              </DataGridRow>
+            )}
+
+            {service?.componentInstances?.edges?.map((componentInstance, i) => (
+              <DataGridRow key={i}>
+                <DataGridCell>
+                  {componentInstance?.node?.componentVersion?.component?.name}
+                </DataGridCell>
+
+                <DataGridCell>
+                  {componentInstance?.node?.componentVersion?.version}
+                </DataGridCell>
+
+                <DataGridCell>
+                  {componentInstance?.node?.issueMatches?.totalCount}
+                </DataGridCell>
+
+                <DataGridCell>
+                  {highestSeverity(
+                    componentInstance?.node?.issueMatches?.edges
+                  )}
+                </DataGridCell>
+              </DataGridRow>
+            ))}
+          </DataGrid>
+        </>
+      </Stack>
+    </>
   )
 }
 

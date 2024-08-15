@@ -6,4 +6,5 @@
 module.exports = {
   PANEL_NONE: null,
   PANEL_SERVICE: "service",
+  PANEL_ISSUE: "issue",
 }

@@ -7,14 +7,32 @@ import React from "react"
 import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 import { DateTime } from "luxon"
+import constants from "../shared/constants"
+import { useActions, useShowPanel } from "../StoreProvider"
 
 const IssuesListItem = ({ item }) => {
+  const { setShowPanel } = useActions()
+  const showPanel = useShowPanel()
   const formatDate = (dateStr) => {
     const dateObj = DateTime.fromISO(dateStr)
     return dateObj.toFormat("yyyy.MM.dd.HH:mm:ss")
   }
+
+  const handleClick = () => {
+    if (showPanel === constants.PANEL_ISSUE) {
+      {
+        setShowPanel(constants.PANEL_NONE)
+      }
+    } else {
+      setShowPanel(constants.PANEL_ISSUE)
+    }
+  }
+
   return (
-    <DataGridRow>
+    <DataGridRow
+      className={`cursor-pointer ${true ? "active" : ""}`}
+      onClick={() => handleClick()}
+    >
       <DataGridCell>{item?.node?.issue?.primaryName}</DataGridCell>
       <DataGridCell>{item?.node?.issue?.type}</DataGridCell>
       {/* <DataGridCell>
