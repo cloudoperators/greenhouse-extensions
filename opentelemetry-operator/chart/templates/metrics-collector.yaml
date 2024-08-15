@@ -3,6 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
+{{- if index .Values "open_telemetry" "MetricsCollector" "enabled" }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
@@ -46,3 +47,4 @@ spec:
         metrics:
           level: detailed
           address: 0.0.0.0:8888
+{{- end }}

@@ -14,6 +14,16 @@ spec:
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
         version: 0.2.6
     options:
+        - default: true
+          description: Enable Logs Collector with default settings
+          name: open_telemetry.LogsCollector.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Enable Metrics Collector with default settings
+          name: open_telemetry.MetricsCollector.enabled
+          required: false
+          type: bool
         - description: Username for OpenSearch endpoint
           name: open_telemetry.opensearch_logs.username
           required: false

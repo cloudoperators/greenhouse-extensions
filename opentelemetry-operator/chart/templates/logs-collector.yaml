@@ -3,6 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
+{{- if index .Values "open_telemetry" "LogsCollector" "enabled" }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
@@ -342,4 +343,5 @@ spec:
           receivers: [prometheus/internal]
           processors: [attributes/prometheus]
           exporters: [prometheus]
+{{- end }}
 {{- end }}
