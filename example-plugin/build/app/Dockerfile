@@ -4,7 +4,7 @@
 FROM alpine/git:2.45.2 AS git
 RUN git clone https://github.com/cloudoperators/greenhouse.git /greenhouse 
 
-FROM node:18.20-alpine3.18 AS node
+FROM node:20.13-alpine3.18 AS node
 LABEL source_repository="https://github.com/cloudoperators/greenhouse"
 WORKDIR /app
 COPY ./secretProps.json /app
