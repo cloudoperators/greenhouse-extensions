@@ -128,6 +128,15 @@ kubeMonitoring:
             replacement: $1
             action: replace
 
+    extraArgs:
+      - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
+      - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|bpf|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tmpfs|tracefs)$$
+      - --collector.systemd.enable-task-metrics
+      - --collector.systemd.enable-restarts-metrics
+      - --collector.systemd.enable-start-time-metrics
+      - --collector.processes
+      - --collector.mountstats
+
   ## Configuration for the Prometheus instance
   ##
   prometheus:
