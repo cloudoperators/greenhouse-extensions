@@ -38,7 +38,10 @@ const IssuesListItem = ({ item }) => {
   return (
     <DataGridRow
       className={`cursor-pointer ${
-        showIssueDetail === item?.node?.id ? "active" : ""
+        showIssueDetail === item?.node?.id &&
+        showPanel === constants.PANEL_ISSUE
+          ? "active"
+          : ""
       }`}
       onClick={() => handleClick()}
     >
