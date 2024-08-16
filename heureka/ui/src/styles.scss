@@ -8,7 +8,7 @@
 
 // datagrid row hover style
 // REMOVE THIS ONCE DATAGRID COMPONENT SUPPORTS HOVER
-.clickable {
+.clickableTable {
   .juno-datagrid-row:hover {
     .juno-datagrid-cell {
       @apply bg-theme-background-lvl-1;

@@ -9,20 +9,25 @@ import {
   useActions,
   useShowPanel,
   useShowServiceDetail,
+  useShowIssueDetail,
 } from "../StoreProvider"
 import ServicesDetail from "../services/ServicesDetail"
 import constants from "./constants"
+import IssuesDetails from "../issues/IssuesDetails"
 
 const PanelManger = () => {
-  const { setShowPanel, setShowServiceDetail } = useActions()
+  const { setShowPanel, setShowServiceDetail, setShowIssueDetail } =
+    useActions()
   const showPanel = useShowPanel()
   const showServiceDetail = useShowServiceDetail()
+  const showIssueDetail = useShowIssueDetail()
 
   const onPanelClose = () => {
     setShowPanel(null)
 
     // clean up detail information
     setShowServiceDetail(null)
+    setShowIssueDetail(null)
   }
 
   return (
@@ -31,6 +36,7 @@ const PanelManger = () => {
         <Stack gap="2">
           <span>
             {showPanel === constants.PANEL_SERVICE && showServiceDetail}
+            {showPanel === constants.PANEL_ISSUE && "Detail"}
           </span>
         </Stack>
       }
@@ -40,6 +46,8 @@ const PanelManger = () => {
     >
       <PanelBody>
         {showPanel === constants.PANEL_SERVICE && <ServicesDetail />}
+
+        {showPanel === constants.PANEL_ISSUE && <IssuesDetails />}
       </PanelBody>
     </Panel>
   )

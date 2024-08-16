@@ -18,6 +18,7 @@ export default (options) =>
       showPanel: constants.PANEL_NONE,
 
       showServiceDetail: null,
+      showIssueDetail: null,
 
       activeTab: "services",
       tabs: {
@@ -78,6 +79,15 @@ export default (options) =>
             }),
             false,
             "setShowServiceDetail"
+          ),
+
+        setShowIssueDetail: (issueName) =>
+          set(
+            produce((state) => {
+              state.showIssueDetail = issueName
+            }),
+            false,
+            "setShowIssueDetail"
           ),
       },
     }))

@@ -49,7 +49,10 @@ const ServicesListItem = ({ item }) => {
   return (
     <DataGridRow
       className={`cursor-pointer ${
-        showServiceDetail === service?.name ? "active" : ""
+        showServiceDetail === service?.name &&
+        showPanel === constants.PANEL_SERVICE
+          ? "active"
+          : ""
       }`}
       onClick={() => handleClick()}
     >

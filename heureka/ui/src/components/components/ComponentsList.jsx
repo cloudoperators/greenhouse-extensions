@@ -26,7 +26,11 @@ const ComponentsList = ({ items, isLoading }) => {
         <DataGridHeadCell>Total Number of Instances</DataGridHeadCell>
       </DataGridRow>
       {isLoading && !items ? (
-        <HintLoading className="my-4" text="Loading components..." />
+        <DataGridRow>
+          <DataGridCell colSpan={10}>
+            <HintLoading className="my-4" text="Loading components..." />
+          </DataGridCell>
+        </DataGridRow>
       ) : (
         <>
           {items?.length > 0 ? (
