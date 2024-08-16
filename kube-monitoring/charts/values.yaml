@@ -137,6 +137,25 @@ kubeMonitoring:
       - --collector.processes
       - --collector.mountstats
 
+  ## Configuration for kube-state-metrics subchart
+  ##
+  kube-state-metrics:
+    metricLabelsAllowlist:
+      - cronjobs=[*]
+      - daemonsets=[*]
+      - deployments=[*]
+      - endpoints=[*]
+      - ingresses=[*]
+      - jobs=[*]
+      - namespaces=[*]
+      - nodes=[*]
+      - persistentvolumes=[*]
+      - persistentvolumeclaims=[*]
+      - pods=[*]
+      - secrets=[*]
+      - services=[*]
+      - statefulsets=[*]  
+
   ## Configuration for the Prometheus instance
   ##
   prometheus:
