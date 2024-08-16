@@ -33,7 +33,7 @@ export const highestSeverity = (vulnerablities) => {
 }
 
 export const severityString = (severity) => {
-  // return nothing if there is no value to show nothing.
+  // return -  if there is no value to show nothing.
   if (!severity?.value) return "—"
 
   return severity?.value + " (" + severity?.score + ")"
