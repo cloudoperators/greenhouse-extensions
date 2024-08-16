@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from "react"
-
 import {
   Button,
   InputGroup,
@@ -14,7 +13,6 @@ import {
   SearchInput,
 } from "@cloudoperators/juno-ui-components"
 import {
-  useGlobalsQueryClientFnReady,
   useFilterLabels,
   useFilterLabelValues,
   useFilterActions,
@@ -22,10 +20,9 @@ import {
   useSearchTerm,
 } from "../../hooks/useAppStore"
 
-const FilterSelect = () => {
+const FilterSelect = ({ entityName, isLoading }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
-  const [resetKey, setResetKey] = useState(Date.now())
 
   const {
     addActiveFilter,
@@ -33,28 +30,26 @@ const FilterSelect = () => {
     clearActiveFilters,
     setSearchTerm,
   } = useFilterActions()
-  const filterLabels = useFilterLabels()
-  const filterLabelValues = useFilterLabelValues()
-  const activeFilters = useActiveFilters()
+
+  const filterLabels = useFilterLabels(entityName)
+  const filterLabelValues = useFilterLabelValues(entityName)
+  const activeFilters = useActiveFilters(entityName)
   const searchTerm = useSearchTerm()
 
   const handleFilterAdd = (value) => {
     if (filterLabel && (filterValue || value)) {
-      // add active filter to store
-      addActiveFilter(filterLabel, filterValue || value)
-
-      // reset filterValue
-      setFilterValue("")
-    } else {
-      // TODO: show error -> please select filter/value
+      // Add the active filter to the store
+      addActiveFilter(entityName, filterLabel, filterValue || value)
+      setFilterValue("") // Reset filter value after adding
     }
   }
 
   const handleFilterLabelChange = (label) => {
-    // lazy loading of all possible values for this label (only load them if we haven't already)
-    filterLabelValues.find((item) => item.label === label)?.values ||
-      loadFilterLabelValues(label)
     setFilterLabel(label)
+    // Lazy load all possible values for this label (only load them if not already loaded)
+    if (!filterLabelValues[label]?.length) {
+      loadFilterLabelValues(entityName, label)
+    }
   }
 
   const handleFilterValueChange = (value) => {
@@ -63,20 +58,12 @@ const FilterSelect = () => {
   }
 
   const handleSearchChange = (value) => {
-    // debounce setSearchTerm to avoid unnecessary re-renders
+    // Debounce search term to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
       setSearchTerm(value.target.value)
     }, 500)
-
-    // clear timeout if we have a new value
     return () => clearTimeout(debouncedSearchTerm)
   }
-
-  // const handleKeyDown = (event) => {
-  //   if (event.key === "Enter") {
-  //     handleFilterValueChange()
-  //   }
-  // }
 
   return (
     <Stack alignment="center" gap="8">
@@ -87,6 +74,7 @@ const FilterSelect = () => {
           label="Filter"
           value={filterLabel}
           onChange={(val) => handleFilterLabelChange(val)}
+          disabled={isLoading}
         >
           {filterLabels?.map((filter) => (
             <SelectOption value={filter} label={filter} key={filter} />
@@ -96,37 +84,27 @@ const FilterSelect = () => {
           name="filterValue"
           value={filterValue}
           onChange={(value) => handleFilterValueChange(value)}
-          disabled={
-            !filterLabelValues.find((item) => item.label === filterLabel)
-          }
+          disabled={!filterLabelValues[filterLabel]?.length}
           loading={filterLabelValues[filterLabel]?.isLoading}
           className="filter-value-select w-96 bg-theme-background-lvl-0"
-          key={resetKey}
         >
-          {filterLabelValues
-            .find((item) => item.label === filterLabel)
-            ?.values?.filter(
-              (value) => !activeFilters[filterLabel]?.includes(value)
-            )
+          {filterLabelValues[filterLabel]
+            ?.filter((value) => !activeFilters[filterLabel]?.includes(value))
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}
         </Select>
-        <Button
-          onClick={() => handleFilterAdd()}
-          // icon="filterAlt"
-          // className="py-[0.3rem]"
-        />
+        <Button onClick={handleFilterAdd} />
       </InputGroup>
       {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all"
-          onClick={() => clearActiveFilters()}
+          onClick={() => clearActiveFilters(entityName)}
           variant="subdued"
         />
       )}
       <SearchInput
-        placeholder="search term or regular expression"
+        placeholder="Search term or regular expression"
         className="w-96 ml-auto"
         value={searchTerm || ""}
         onSearch={(value) => setSearchTerm(value)}

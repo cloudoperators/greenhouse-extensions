@@ -40,9 +40,6 @@ export const StoreProvider = ({ options, children }) => {
 
 const useAppStore = (selector) => useStore(useContext(StoreContext), selector)
 
-// atomic exports only instead of exporting whole store
-// See reasoning here: https://tkdodo.eu/blog/working-with-zustand
-
 // Globals exports
 export const useGlobalsEmbedded = () =>
   useAppStore((state) => state.globals.embedded)
@@ -57,7 +54,7 @@ export const useGlobalsApiEndpoint = () =>
 export const useGlobalsActions = () =>
   useAppStore((state) => state.globals.actions)
 
-// AUTH
+// AUTH exports
 export const useAuthData = () => useAppStore((state) => state.auth.data)
 export const useAuthIsProcessing = () =>
   useAppStore((state) => state.auth.isProcessing)
@@ -79,18 +76,20 @@ export const useUserActivityActions = () =>
   useAppStore((state) => state.userActivity.actions)
 
 // Filter exports
-export const useFilterLabels = () =>
-  useAppStore((state) => state.filters.labels)
-export const useActiveFilters = () =>
-  useAppStore((state) => state.filters.activeFilters)
+export const useFilterLabels = (entityName) =>
+  useAppStore((state) => state.filters.labels[entityName] || [])
+export const useActiveFilters = (entityName) =>
+  useAppStore((state) => state.filters.activeFilters[entityName] || {})
 export const useSearchTerm = () =>
   useAppStore((state) => state.filters.searchTerm)
-export const useFilterLabelValues = () =>
-  useAppStore((state) => state.filters.filterLabelValues)
-export const usePredefinedFilters = () =>
-  useAppStore((state) => state.filters.predefinedFilters)
-export const useActivePredefinedFilter = () =>
-  useAppStore((state) => state.filters.activePredefinedFilter)
+export const useFilterLabelValues = (entityName) =>
+  useAppStore((state) => state.filters.filterLabelValues[entityName] || {})
+export const usePredefinedFilters = (entityName) =>
+  useAppStore((state) => state.filters.predefinedFilters[entityName] || [])
+export const useActivePredefinedFilter = (entityName) =>
+  useAppStore(
+    (state) => state.filters.activePredefinedFilter[entityName] || null
+  )
 
 export const useFilterActions = () =>
   useAppStore((state) => state.filters.actions)

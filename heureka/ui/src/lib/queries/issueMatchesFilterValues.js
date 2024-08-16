@@ -11,23 +11,38 @@ import { gql } from "graphql-request"
 // You can use gql from graphql-tag if you need it for some reason too.
 export default () => gql`
   query {
-    ServiceFilterValues {
-      serviceName {
+    IssueMatchFilterValues {
+      status {
+        displayName
+        filterName
+        values
+      }
+      severity {
+        displayName
+        filterName
+        values
+      }
+      issueType {
+        displayName
+        filterName
+        values
+      }
+      primaryName {
+        displayName
+        filterName
+        values
+      }
+      affectedService {
+        displayName
+        filterName
+        values
+      }
+      componentName {
         displayName
         filterName
         values
       }
       supportGroupName {
-        displayName
-        filterName
-        values
-      }
-      uniqueUserId {
-        displayName
-        filterName
-        values
-      }
-      userName {
         displayName
         filterName
         values

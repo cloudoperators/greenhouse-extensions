@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo } from "react"
+import React, { useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Stack } from "@cloudoperators/juno-ui-components"
 import {
@@ -20,7 +20,7 @@ const filtersStyles = `
   my-px
 `
 
-const Filters = ({ queryKey }) => {
+const Filters = ({ queryKey, entityName }) => {
   const queryClientFnReady = useGlobalsQueryClientFnReady()
   const { setLabels, setFilterLabelValues } = useFilterActions()
 
@@ -30,29 +30,31 @@ const Filters = ({ queryKey }) => {
   })
 
   const filters = useMemo(() => {
-    if (!data || !data.ServiceFilterValues) return []
+    if (!data || !data[queryKey]) return []
 
-    return Object.keys(data.ServiceFilterValues).map((key) => {
-      const field = data.ServiceFilterValues[key]
+    return Object.keys(data[queryKey]).map((key) => {
+      const field = data[queryKey][key]
       return {
-        label: field.filterName,
-        values: field.values,
+        label: field.filterName, // Collecting filterName as filterLabel
+        values: field.values, // Collecting values as filterValues
       }
     })
-  }, [data])
+  }, [data, queryKey])
+
+  useEffect(() => {
+    if (filters.length > 0) {
+      const filterLabels = filters.map((filter) => filter.label)
+      setLabels(entityName, filterLabels)
+      setFilterLabelValues(entityName, filters)
+    }
+  }, [filters, setLabels, setFilterLabelValues, entityName])
+
   console.log("filters: ", filters)
-
-  const filterLabels = useMemo(() => {
-    return filters.map((filter) => filter.label)
-  }, [filters])
-
-  setLabels(filterLabels)
-  setFilterLabelValues(filters)
 
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
-      <FilterSelect isLoading={isLoading} />
-      <FilterPills />
+      <FilterSelect entityName={entityName} isLoading={isLoading} />
+      <FilterPills entityName={entityName} />
     </Stack>
   )
 }
