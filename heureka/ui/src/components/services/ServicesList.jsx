@@ -18,7 +18,11 @@ import HintLoading from "../shared/HintLoading"
 const ServicesList = ({ items, isLoading }) => {
   return (
     <>
-      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr" className="clickable">
+      {/* clickableTable Table allow changes the background by css when hovering or active*/}
+      <DataGrid
+        gridColumnTemplate="2fr 3fr 2fr 2fr 2fr"
+        className="clickableTable"
+      >
         <DataGridRow>
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>

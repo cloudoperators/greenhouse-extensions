@@ -16,7 +16,7 @@ import {
 import { useQueryClientFnReady, useShowIssueDetail } from "../StoreProvider"
 import { useQuery } from "@tanstack/react-query"
 import { listOfCommaSeparatedObjs, severityString } from "../shared/Helper"
-import LoadingText from "../shared/LoadingText"
+import LoadElement from "../shared/LoadElement"
 
 const IssuesDetails = () => {
   const showIssueDetail = useShowIssueDetail()
@@ -32,7 +32,6 @@ const IssuesDetails = () => {
     return issueElem?.data?.IssueMatches?.edges[0]?.node
   }, [issueElem])
 
-  console.log(issue, "sdfs")
   return (
     <>
       {/* todo add messageprovider here */}
@@ -42,11 +41,11 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Component Name</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.componentInstance?.componentVersion?.component?.name ? (
-                issue?.componentInstance?.componentVersion?.component?.name
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement
+                elem={
+                  issue?.componentInstance?.componentVersion?.component?.name
+                }
+              />
             </DataGridCell>
           </DataGridRow>
 
@@ -54,11 +53,7 @@ const IssuesDetails = () => {
             <DataGridHeadCell>CVE</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.issue?.primaryName ? (
-                issue?.issue?.primaryName
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement elem={issue?.issue?.primaryName} />
             </DataGridCell>
           </DataGridRow>
 
@@ -66,11 +61,9 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Component Version</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.componentInstance?.componentVersion.version ? (
-                issue?.componentInstance?.componentVersion.version
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement
+                elem={issue?.componentInstance?.componentVersion.version}
+              />
             </DataGridCell>
           </DataGridRow>
 
@@ -78,11 +71,7 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Services</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.componentInstance?.service?.name ? (
-                issue?.componentInstance?.service?.name
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement elem={issue?.componentInstance?.service?.name} />
             </DataGridCell>
           </DataGridRow>
 
@@ -105,7 +94,7 @@ const IssuesDetails = () => {
                   )}
                 </Stack>
               ) : (
-                <LoadingText />
+                <LoadElement />
               )}
             </DataGridCell>
           </DataGridRow>
@@ -114,16 +103,16 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Support Group</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.componentInstance?.service?.supportGroups ? (
-                <ul>
-                  {listOfCommaSeparatedObjs(
-                    issue?.componentInstance?.service?.supportGroups,
-                    "name"
-                  )}
-                </ul>
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement
+                elem={
+                  <ul>
+                    {listOfCommaSeparatedObjs(
+                      issue?.componentInstance?.service?.supportGroups,
+                      "name"
+                    )}
+                  </ul>
+                }
+              />
             </DataGridCell>
           </DataGridRow>
 
@@ -131,7 +120,7 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Issue Variant</DataGridHeadCell>
 
             <DataGridCell>
-              {issue?.issue?.type ? issue?.issue?.type : <LoadingText />}
+              {<LoadElement elem={issue?.issue?.type} />}
             </DataGridCell>
           </DataGridRow>
 
@@ -139,7 +128,7 @@ const IssuesDetails = () => {
             <DataGridHeadCell>Issue Severity</DataGridHeadCell>
 
             <DataGridCell>
-              {issue ? severityString(issue?.severity) : <LoadingText />}
+              {<LoadElement elem={severityString(issue?.severity)} />}
             </DataGridCell>
           </DataGridRow>
         </DataGrid>

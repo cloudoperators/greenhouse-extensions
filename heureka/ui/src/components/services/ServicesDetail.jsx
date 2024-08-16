@@ -20,7 +20,7 @@ import {
   severityString,
   highestSeverity,
 } from "../shared/Helper"
-import LoadingText from "../shared/LoadingText"
+import LoadElement from "../shared/LoadElement"
 
 const ServicesDetail = () => {
   const showServiceDetail = useShowServiceDetail()
@@ -46,21 +46,21 @@ const ServicesDetail = () => {
             <DataGridHeadCell>Owner</DataGridHeadCell>
 
             <DataGridCell>
-              {service?.owners?.edges ? (
-                <Stack gap="2" wrap={true}>
-                  {service?.owners?.edges?.map((owner, i) => (
-                    <Pill
-                      key={i}
-                      pillKey={owner.node.uniqueUserId}
-                      pillKeyLabel={owner.node.uniqueUserId}
-                      pillValue={owner.node.name}
-                      pillValueLabel={owner.node.name}
-                    />
-                  ))}
-                </Stack>
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement
+                elem={
+                  <Stack gap="2" wrap={true}>
+                    {service?.owners?.edges?.map((owner, i) => (
+                      <Pill
+                        key={i}
+                        pillKey={owner.node.uniqueUserId}
+                        pillKeyLabel={owner.node.uniqueUserId}
+                        pillValue={owner.node.name}
+                        pillValueLabel={owner.node.name}
+                      />
+                    ))}
+                  </Stack>
+                }
+              />
             </DataGridCell>
           </DataGridRow>
 
@@ -68,13 +68,13 @@ const ServicesDetail = () => {
             <DataGridHeadCell>Support Group</DataGridHeadCell>
 
             <DataGridCell>
-              {service?.supportGroups ? (
-                <ul>
-                  {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
-                </ul>
-              ) : (
-                <LoadingText />
-              )}
+              <LoadElement
+                elem={
+                  <ul>
+                    {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
+                  </ul>
+                }
+              />
             </DataGridCell>
           </DataGridRow>
         </DataGrid>
@@ -90,7 +90,7 @@ const ServicesDetail = () => {
             </DataGridRow>
             {!service?.componentInstances?.edges && (
               <DataGridRow colSpan={4}>
-                <LoadingText />
+                <LoadElement />
               </DataGridRow>
             )}
 
