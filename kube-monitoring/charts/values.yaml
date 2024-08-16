@@ -154,7 +154,7 @@ kubeMonitoring:
       - pods=[*]
       - secrets=[*]
       - services=[*]
-      - statefulsets=[*]  
+      - statefulsets=[*]
 
   ## Configuration for the Prometheus instance
   ##
