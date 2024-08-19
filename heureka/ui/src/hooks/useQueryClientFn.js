@@ -25,7 +25,7 @@ const useQueryClientFn = () => {
     if (!queryClient || !endpoint) return
     console.log("useQueryClientFn::: setting defaults")
 
-    queryClient.setQueryDefaults(["services"], {
+    queryClient.setQueryDefaults(["Services"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
@@ -33,7 +33,7 @@ const useQueryClientFn = () => {
       },
     })
 
-    queryClient.setQueryDefaults(["issues"], {
+    queryClient.setQueryDefaults(["Issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey, options)
@@ -41,7 +41,7 @@ const useQueryClientFn = () => {
       },
     })
 
-    queryClient.setQueryDefaults(["components"], {
+    queryClient.setQueryDefaults(["Components"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         console.log("useQueryClientFn::: queryKey: ", queryKey)

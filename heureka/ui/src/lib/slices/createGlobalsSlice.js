@@ -14,17 +14,17 @@ const createGlobalsSlice = (set, get, options) => ({
     bearerToken: options?.bearerToken,
     activeTab: "services",
     tabs: {
-      services: {
+      Services: {
         queryOptions: {
           first: 20,
         },
       },
-      issues: {
+      Issues: {
         queryOptions: {
           first: 20,
         },
       },
-      components: {
+      Components: {
         queryOptions: {
           first: 20,
         },

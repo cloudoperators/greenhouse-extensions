@@ -6,8 +6,7 @@ import {
   useGlobalsActions,
   useActiveFilters,
   usePredefinedFilters,
-  useFilterLabels,
-  useFilterLabelValues,
+  useGlobalsActiveTab,
 } from "../../hooks/useAppStore"
 import {
   Pagination,
@@ -22,11 +21,9 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
   const queryOptions = useGlobalsQueryOptions(queryKey)
   const { setQueryOptions } = useGlobalsActions()
   const { addMessage, resetMessages } = messageActions()
+  const activeTab = useGlobalsActiveTab()
   const activeFilters = useActiveFilters(entityName)
   const predefinedFilters = usePredefinedFilters(entityName)
-  const filterLabels = useFilterLabels(entityName)
-  const filterLabelValues = useFilterLabelValues(entityName)
-  console.log("queryOptions in ListController: ", queryClientFnReady)
 
   const { isLoading, data, error } = useQuery({
     queryKey: [
@@ -39,7 +36,7 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
         },
       },
     ],
-    enabled: !!queryClientFnReady,
+    enabled: !!queryClientFnReady && queryKey === activeTab,
   })
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -48,18 +45,6 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
     if (!data) return null
     return data?.[entityName]?.edges || []
   }, [data, entityName])
-
-  useEffect(() => {
-    console.log("Active Filters in ListController: ", activeFilters)
-  }, [activeFilters])
-
-  useEffect(() => {
-    console.log("Filter Labels in ListController: ", filterLabels)
-  }, [filterLabels])
-
-  useEffect(() => {
-    console.log("Filter Label Values in ListController: ", filterLabelValues)
-  }, [filterLabelValues])
 
   useEffect(() => {
     if (!error) return resetMessages()

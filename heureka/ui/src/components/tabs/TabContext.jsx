@@ -19,19 +19,19 @@ import ComponentsTab from "../components/ComponentsTab"
 const TAB_CONFIG = [
   {
     label: "Services",
-    value: "services",
+    value: "Services",
     icon: "dns",
     component: ServicesTab,
   },
   {
     label: "Issues",
-    value: "issues",
+    value: "Issues",
     icon: "autoAwesomeMotion",
     component: IssuesTab,
   },
   {
     label: "Components",
-    value: "components",
+    value: "Components",
     icon: "autoAwesomeMotion",
     component: ComponentsTab,
   },

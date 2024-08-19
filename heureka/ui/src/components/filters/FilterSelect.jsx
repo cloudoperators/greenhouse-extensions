@@ -19,6 +19,7 @@ import {
   useActiveFilters,
   useSearchTerm,
 } from "../../hooks/useAppStore"
+import { formatLabel } from "../../helpers"
 
 const FilterSelect = ({ entityName, isLoading }) => {
   const [filterLabel, setFilterLabel] = useState("")
@@ -72,12 +73,16 @@ const FilterSelect = ({ entityName, isLoading }) => {
           name="filter"
           className="filter-label-select w-64 mb-0"
           label="Filter"
-          value={filterLabel}
+          value={formatLabel(filterLabel)}
           onChange={(val) => handleFilterLabelChange(val)}
           disabled={isLoading}
         >
           {filterLabels?.map((filter) => (
-            <SelectOption value={filter} label={filter} key={filter} />
+            <SelectOption
+              value={filter}
+              label={formatLabel(filter)}
+              key={filter}
+            />
           ))}
         </Select>
         <Select

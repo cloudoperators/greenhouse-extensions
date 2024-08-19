@@ -6,6 +6,7 @@
 import React from "react"
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
 import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
+import { formatLabel } from "../../helpers"
 
 const FilterPills = ({ entityName }) => {
   const activeFilters = useActiveFilters(entityName)
@@ -16,7 +17,7 @@ const FilterPills = ({ entityName }) => {
       {Object.entries(activeFilters || {}).map(([key, values]) => {
         return values.map((value) => (
           <Pill
-            pillKey={key}
+            pillKey={formatLabel(key)}
             pillValue={value}
             closeable
             onClose={() => removeActiveFilter(entityName, key, value)}

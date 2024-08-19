@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { produce, current } from "immer"
+import { produce } from "immer"
 
 const initialFiltersState = {
   labels: {}, // Labels for each entity: { entityName: ["label1", "label2", ...] }
@@ -21,9 +21,7 @@ const createFiltersSlice = (set, get) => ({
       setLabels: (entityName, labels) =>
         set(
           produce((state) => {
-            console.log("Before setting labels:", current(state.filters.labels))
             state.filters.labels[entityName] = labels
-            console.log("After setting labels:", current(state.filters.labels))
           }),
           false,
           "filters.setLabels"
@@ -32,20 +30,12 @@ const createFiltersSlice = (set, get) => ({
       setFilterLabelValues: (entityName, filters) =>
         set(
           produce((state) => {
-            console.log(
-              "Before setting filterLabelValues:",
-              current(state.filters.filterLabelValues)
-            )
             state.filters.filterLabelValues[entityName] = filters.reduce(
               (acc, filter) => {
                 acc[filter.label] = filter.values
                 return acc
               },
               {}
-            )
-            console.log(
-              "After setting filterLabelValues:",
-              current(state.filters.filterLabelValues)
             )
           }),
           false,
@@ -55,15 +45,7 @@ const createFiltersSlice = (set, get) => ({
       setActiveFilters: (entityName, activeFilters) => {
         set(
           produce((state) => {
-            console.log(
-              "Before setting activeFilters:",
-              current(state.filters.activeFilters)
-            )
             state.filters.activeFilters[entityName] = activeFilters
-            console.log(
-              "After setting activeFilters:",
-              current(state.filters.activeFilters)
-            )
           }),
           false,
           "filters.setActiveFilters"
@@ -83,10 +65,6 @@ const createFiltersSlice = (set, get) => ({
       addActiveFilter: (entityName, filterLabel, filterValue) => {
         set(
           produce((state) => {
-            console.log(
-              "Before addActiveFilter:",
-              current(state.filters.activeFilters)
-            )
             if (!state.filters.activeFilters[entityName]) {
               state.filters.activeFilters[entityName] = {}
             }
@@ -102,10 +80,6 @@ const createFiltersSlice = (set, get) => ({
                 filterValue,
               ]),
             ]
-            console.log(
-              "After addActiveFilter:",
-              current(state.filters.activeFilters)
-            )
           }),
           false,
           "filters.addActiveFilter"

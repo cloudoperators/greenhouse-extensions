@@ -7,12 +7,13 @@ import React from "react"
 import ServicesList from "./ServicesList"
 import ListController from "../shared/ListController"
 
-const ServicesListController = () => {
+const ServicesListController = (data) => {
   return (
     <ListController
-      queryKey="services"
+      queryKey="Services"
       entityName="Services"
       ListComponent={ServicesList}
+      // items={data}
     />
   )
 }
