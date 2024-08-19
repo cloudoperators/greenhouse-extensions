@@ -4,17 +4,17 @@
  */
 
 import React from "react"
-import IssuesList from "./IssuesList"
+import IssueMatchesList from "./IssueMatchesList"
 import ListController from "../shared/ListController"
 
-const IssuesListController = () => {
+const IssueMatchesListController = () => {
   return (
     <ListController
-      queryKey="Issues"
+      queryKey="IssueMatches"
       entityName="IssueMatches"
-      ListComponent={IssuesList}
+      ListComponent={IssueMatchesList}
     />
   )
 }
 
-export default IssuesListController
+export default IssueMatchesListController

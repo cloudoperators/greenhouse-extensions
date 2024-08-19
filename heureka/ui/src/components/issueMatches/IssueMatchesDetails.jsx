@@ -7,7 +7,6 @@ import React, { useMemo } from "react"
 import {
   Pill,
   Stack,
-  ContentHeading,
   DataGrid,
   DataGridCell,
   DataGridHeadCell,
@@ -18,16 +17,20 @@ import {
   useGlobalsShowIssueDetail,
 } from "../../hooks/useAppStore"
 import { useQuery } from "@tanstack/react-query"
-import { listOfCommaSeparatedObjs, severityString } from "../shared/Helper"
+import {
+  listOfCommaSeparatedObjs,
+  severityString,
+  formatDate,
+} from "../shared/Helper"
 import LoadElement from "../shared/LoadElement"
 
-const IssuesDetails = () => {
+const IssueMatchesDetails = () => {
   const showIssueDetail = useGlobalsShowIssueDetail()
 
   const queryClientFnReady = useGlobalsQueryClientFnReady()
 
   const issueElem = useQuery({
-    queryKey: ["Issues", { filter: { id: [showIssueDetail] } }],
+    queryKey: ["IssueMatches", { filter: { id: [showIssueDetail] } }],
     enabled: !!queryClientFnReady,
   })
   const issue = useMemo(() => {
@@ -41,6 +44,59 @@ const IssuesDetails = () => {
       <Stack direction="vertical" gap="4">
         <DataGrid columns={2}>
           <DataGridRow>
+            <DataGridHeadCell>Primary Name</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement elem={issue?.issue?.primaryName} />
+            </DataGridCell>
+          </DataGridRow>
+          <DataGridRow>
+            <DataGridHeadCell>Target Remediation Date</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement
+                elem={formatDate(issue?.node?.targetRemediationDate)}
+              />
+            </DataGridCell>
+          </DataGridRow>
+          <DataGridRow>
+            <DataGridHeadCell>Status</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement elem={issue?.status} />
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Severity</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement elem={issue?.severity?.value} />
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Service Name</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement elem={issue?.componentInstance?.service?.name} />
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
+            <DataGridHeadCell>Support Group Name</DataGridHeadCell>
+
+            <DataGridCell>
+              <LoadElement
+                elem={listOfCommaSeparatedObjs(
+                  issue?.componentInstance?.service?.supportGroups,
+                  "name"
+                )}
+              />
+            </DataGridCell>
+          </DataGridRow>
+
+          <DataGridRow>
             <DataGridHeadCell>Component Name</DataGridHeadCell>
 
             <DataGridCell>
@@ -49,14 +105,6 @@ const IssuesDetails = () => {
                   issue?.componentInstance?.componentVersion?.component?.name
                 }
               />
-            </DataGridCell>
-          </DataGridRow>
-
-          <DataGridRow>
-            <DataGridHeadCell>CVE</DataGridHeadCell>
-
-            <DataGridCell>
-              <LoadElement elem={issue?.issue?.primaryName} />
             </DataGridCell>
           </DataGridRow>
 
@@ -71,14 +119,6 @@ const IssuesDetails = () => {
           </DataGridRow>
 
           <DataGridRow>
-            <DataGridHeadCell>Services</DataGridHeadCell>
-
-            <DataGridCell>
-              <LoadElement elem={issue?.componentInstance?.service?.name} />
-            </DataGridCell>
-          </DataGridRow>
-
-          <DataGridRow>
             <DataGridHeadCell>Owner</DataGridHeadCell>
 
             <DataGridCell>
@@ -88,10 +128,10 @@ const IssuesDetails = () => {
                     (owner, i) => (
                       <Pill
                         key={i}
-                        pillKey={owner.node.uniqueUserId}
-                        pillKeyLabel={owner.node.uniqueUserId}
-                        pillValue={owner.node.name}
-                        pillValueLabel={owner.node.name}
+                        pillKey={owner?.node?.uniqueUserId}
+                        pillKeyLabel={owner?.node?.uniqueUserId}
+                        pillValue={owner?.node?.name}
+                        pillValueLabel={owner?.node?.name}
                       />
                     )
                   )}
@@ -99,23 +139,6 @@ const IssuesDetails = () => {
               ) : (
                 <LoadElement />
               )}
-            </DataGridCell>
-          </DataGridRow>
-
-          <DataGridRow>
-            <DataGridHeadCell>Support Group</DataGridHeadCell>
-
-            <DataGridCell>
-              <LoadElement
-                elem={
-                  <ul>
-                    {listOfCommaSeparatedObjs(
-                      issue?.componentInstance?.service?.supportGroups,
-                      "name"
-                    )}
-                  </ul>
-                }
-              />
             </DataGridCell>
           </DataGridRow>
 
@@ -140,4 +163,4 @@ const IssuesDetails = () => {
   )
 }
 
-export default IssuesDetails
+export default IssueMatchesDetails

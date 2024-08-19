@@ -2,6 +2,7 @@
  * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
  * SPDX-License-Identifier: Apache-2.0
  */
+import { DateTime } from "luxon"
 
 export const listOfCommaSeparatedObjs = (objs, prop) => {
   objs = objs?.edges || []
@@ -9,6 +10,11 @@ export const listOfCommaSeparatedObjs = (objs, prop) => {
     .filter((obj) => obj?.node?.[prop])
     .map((obj) => obj?.node?.[prop])
     .join(", ")
+}
+
+export const formatDate = (dateStr) => {
+  const dateObj = DateTime.fromISO(dateStr)
+  return dateObj.toFormat("yyyy.MM.dd.HH:mm:ss")
 }
 
 export const highestSeverity = (vulnerablities) => {

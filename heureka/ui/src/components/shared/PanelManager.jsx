@@ -11,9 +11,9 @@ import {
   useGlobalsShowServiceDetail,
   useGlobalsShowIssueDetail,
 } from "../../hooks/useAppStore"
-import ServicesDetail from "../services/ServicesDetail"
+import ServicesDetail from "../services/ServicesDetails"
 import constants from "./constants"
-import IssuesDetails from "../issues/IssuesDetails"
+import IssueMatchesDetails from "../issueMatches/IssueMatchesDetails"
 
 const PanelManger = () => {
   const { setShowPanel, setShowServiceDetail, setShowIssueDetail } =
@@ -47,7 +47,7 @@ const PanelManger = () => {
       <PanelBody>
         {showPanel === constants.PANEL_SERVICE && <ServicesDetail />}
 
-        {showPanel === constants.PANEL_ISSUE && <IssuesDetails />}
+        {showPanel === constants.PANEL_ISSUE && <IssueMatchesDetails />}
       </PanelBody>
     </Panel>
   )

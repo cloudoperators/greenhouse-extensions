@@ -4,7 +4,7 @@
  */
 
 import React from "react"
-import IssuesListController from "./IssuesListController"
+import IssueMatchesListController from "./IssueMatchesListController"
 import Filters from "../filters/Filters"
 import {
   Messages,
@@ -16,8 +16,8 @@ const IssuesTab = () => {
     <>
       <MessagesProvider>
         <Messages />
-        {/* <Filters queryKey="IssueMatchFilterValues" entityName="issues" /> */}
-        <IssuesListController />
+        <Filters queryKey="IssueMatchFilterValues" entityName="IssueMatches" />
+        <IssueMatchesListController />
       </MessagesProvider>
     </>
   )

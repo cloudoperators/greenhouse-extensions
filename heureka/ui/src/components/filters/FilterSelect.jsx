@@ -61,7 +61,7 @@ const FilterSelect = ({ entityName, isLoading }) => {
   const handleSearchChange = (value) => {
     // Debounce search term to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
-      setSearchTerm(value.target.value)
+      setSearchTerm(entityName, value.target.value)
     }, 500)
     return () => clearTimeout(debouncedSearchTerm)
   }
@@ -113,7 +113,7 @@ const FilterSelect = ({ entityName, isLoading }) => {
           placeholder="Search term or regular expression"
           className="w-96 ml-auto"
           value={searchTerm || ""}
-          onSearch={(value) => setSearchTerm(value)}
+          onSearch={(value) => setSearchTerm(entityName, value)}
           onClear={() => setSearchTerm(null)}
           onChange={(value) => handleSearchChange(value)}
         />

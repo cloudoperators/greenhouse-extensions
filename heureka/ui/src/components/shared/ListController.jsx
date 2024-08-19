@@ -12,6 +12,7 @@ import {
   useActiveFilters,
   usePredefinedFilters,
   useGlobalsActiveTab,
+  useSearchTerm,
 } from "../../hooks/useAppStore"
 import {
   Pagination,
@@ -29,6 +30,7 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
   const activeTab = useGlobalsActiveTab()
   const activeFilters = useActiveFilters(entityName)
   const predefinedFilters = usePredefinedFilters(entityName)
+  const searchTerm = useSearchTerm(entityName)
 
   const { isLoading, data, error } = useQuery({
     queryKey: [
@@ -38,6 +40,10 @@ const ListController = ({ queryKey, entityName, ListComponent }) => {
         filter: {
           ...activeFilters,
           ...predefinedFilters,
+          ...(entityName === "IssueMatches" && {
+            // Currently search is only available for IssueMatches entity.
+            search: Array.isArray(searchTerm) ? searchTerm : [searchTerm], // Ensure searchTerm is an array
+          }),
         },
       },
     ],
