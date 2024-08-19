@@ -28,22 +28,22 @@ Contributors are welcome to provide additional collector configurations.
 ### Parameters
 | Name         | Description          | Type           | required           |
 | ------------ | -------------------- |---------------- | ------------------ | 
-`open_telemetry.LogsCollector.enabled`    | Enable or Disable the standard configuration for logs | bool | `false`
-`open_telemetry.MetricsCollector.enabled` | Enable or Disable the standard configuration for metrics | bool | `false`
-`open_telemetry.opensearch_logs.username` | Username for OpenSearch endpoint | secret | `false` |
-`open_telemetry.opensearch_logs.password` | Password for OpenSearch endpoint | secret | `false` | 
-`open_telemetry.opensearch_logs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
-`open_telemetry.region`                   | Region label for logging         | string | `false` |
-`open_telemetry.cluster`                  | Cluster label for logging        | string | `false` |
-`open_telemetry.prometheus`               | Label for Prometheus Service Monitoring | string | `false` | 
-`open_telemetry.podMonitor.enabled`       | Enable or Disable the Pod Monitor | bool | `false` | 
-`opentelemetry-operator.admissionWbhooks.certManager.enabled` | Check to use certManager for generating self-signed certificates | bool | `false` | 
-`opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Check to use Helm to create self-signed certificates | bool | `false` | 
-`opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate` | Recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
-`opentelemetry-operator.kubeRBACProxy.enabled` | Check to enable kube-rbac-proxy for OpenTelemetry | bool | `false` | 
-`opentelemetry-operator.manager.prometheusRule.defaultRules.enabled` | Check to enable default rules for monitoring the manager | bool | `false` | 
-`opentelemetry-operator.manager.prometheusRule.enabled` | Check to enable rules for monitoring the manager | bool | `false` | 
-`opentelemetry-operator.manager.serviceMonitor.enabled` | Check to enable the Service Monitor | bool | `false` | 
+`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false`
+`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false`
+`openTelemetry.openSearchLogs.username` | Username for OpenSearch endpoint | secret | `false` |
+`openTelemetry.openSearchLogs.password` | Password for OpenSearch endpoint | secret | `false` | 
+`openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
+`openTelemetry.region`                   | Region label for logging         | string | `false` |
+`openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
+`openTelemetry.prometheus`               | Label for Prometheus Service Monitoring | string | `false` | 
+`openTelemetry.podMonitor.enabled`       | Activates the pod-monitoring for the LogsCollector | bool | `false` | 
+`opentelemetry-operator.admissionWbhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
+`opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Activate to use Helm to create self-signed certificates | bool | `false` | 
+`opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate` | Activate to recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
+`opentelemetry-operator.kubeRBACProxy.enabled` | Activate to enable Kube-RBAC-Proxy for OpenTelemetry | bool | `false` | 
+`opentelemetry-operator.manager.prometheusRule.defaultRules.enabled` | Activate to enable default rules for monitoring the OpenTelemetry Manager | bool | `false` | 
+`opentelemetry-operator.manager.prometheusRule.enabled` | Activate to enable rules for monitoring the OpenTelemetry Manager | bool | `false` | 
+`opentelemetry-operator.manager.serviceMonitor.enabled` | Activate to enable the Service Monitor to ingest the metrics of the OpenTelemetry Collector in Prometheus  | bool | `false` | 
 
 ### Examples
 

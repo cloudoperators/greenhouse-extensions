@@ -2,14 +2,14 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
-{{- if index .Values "open_telemetry" "podMonitor" "enabled" }}
+{{- if .Values.openTelemetry.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
   annotations:
   name: opentelemetry-collector-logs
   labels:
-    prometheus: "{{ .Values.open_telemetry.prometheus }}"
+    prometheus: "{{ .Values.openTelemetry.prometheus }}"
 spec:
   podMetricsEndpoints:
     - interval: 60s
