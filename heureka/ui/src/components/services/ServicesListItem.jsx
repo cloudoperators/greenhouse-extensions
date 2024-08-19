@@ -7,12 +7,11 @@ import React, { useMemo } from "react"
 import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 import constants from "../shared/constants"
-
 import {
-  useActions,
-  useShowServiceDetail,
-  useShowPanel,
-} from "../StoreProvider"
+  useGlobalsActions,
+  useGlobalsShowPanel,
+  useGlobalsShowServiceDetail,
+} from "../../hooks/useAppStore"
 
 const countIssueMatches = (service) => {
   return service?.componentInstances?.edges?.reduce((acc, edge) => {
@@ -21,9 +20,9 @@ const countIssueMatches = (service) => {
 }
 
 const ServicesListItem = ({ item }) => {
-  const { setShowServiceDetail, setShowPanel } = useActions()
-  const showServiceDetail = useShowServiceDetail()
-  const showPanel = useShowPanel()
+  const { setShowServiceDetail, setShowPanel } = useGlobalsActions()
+  const showServiceDetail = useGlobalsShowServiceDetail()
+  const showPanel = useGlobalsShowPanel()
   const service = useMemo(() => {
     if (!item) return {}
     return item?.node

@@ -4,6 +4,7 @@
  */
 
 import { produce } from "immer"
+import constants from "../../components/shared/constants"
 
 const createGlobalsSlice = (set, get, options) => ({
   globals: {
@@ -12,7 +13,11 @@ const createGlobalsSlice = (set, get, options) => ({
     isUrlStateSetup: false,
     queryClientFnReady: false,
     bearerToken: options?.bearerToken,
-    activeTab: "services",
+    activeTab: "Services",
+    showPanel: constants.PANEL_NONE,
+
+    showServiceDetail: null,
+    showIssueDetail: null,
     tabs: {
       Services: {
         queryOptions: {
@@ -70,6 +75,43 @@ const createGlobalsSlice = (set, get, options) => ({
           }),
           false,
           "globals/setActiveTab"
+        ),
+      setShowPanel: (panel) =>
+        set(
+          (state) => ({
+            globals: { ...state.globals, showPanel: panel },
+          }),
+          // set(
+          //   produce((state) => {
+          //     state.showPanel = panel
+          //   }),
+          false,
+          "globals/setShowPanel"
+        ),
+      setShowServiceDetail: (serviceId) =>
+        set(
+          (state) => ({
+            globals: { ...state.globals, showServiceDetail: serviceId },
+          }),
+          // set(
+          //   produce((state) => {
+          //     state.showServiceDetail = serviceId
+          //   }),
+          false,
+          "globals/setShowServiceDetail"
+        ),
+
+      setShowIssueDetail: (issueName) =>
+        set(
+          (state) => ({
+            globals: { ...state.globals, showIssueDetail: issueName },
+          }),
+          // set(
+          //   produce((state) => {
+          //     state.showIssueDetail = issueName
+          //   }),
+          false,
+          "globals/setShowIssueDetail"
         ),
     },
   },

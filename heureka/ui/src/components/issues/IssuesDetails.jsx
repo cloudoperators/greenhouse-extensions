@@ -13,18 +13,21 @@ import {
   DataGridHeadCell,
   DataGridRow,
 } from "@cloudoperators/juno-ui-components"
-import { useQueryClientFnReady, useShowIssueDetail } from "../StoreProvider"
+import {
+  useGlobalsQueryClientFnReady,
+  useGlobalsShowIssueDetail,
+} from "../../hooks/useAppStore"
 import { useQuery } from "@tanstack/react-query"
 import { listOfCommaSeparatedObjs, severityString } from "../shared/Helper"
 import LoadElement from "../shared/LoadElement"
 
 const IssuesDetails = () => {
-  const showIssueDetail = useShowIssueDetail()
+  const showIssueDetail = useGlobalsShowIssueDetail()
 
-  const queryClientFnReady = useQueryClientFnReady()
+  const queryClientFnReady = useGlobalsQueryClientFnReady()
 
   const issueElem = useQuery({
-    queryKey: ["issues", { filter: { id: [showIssueDetail] } }],
+    queryKey: ["Issues", { filter: { id: [showIssueDetail] } }],
     enabled: !!queryClientFnReady,
   })
   const issue = useMemo(() => {

@@ -6,21 +6,21 @@
 import React from "react"
 import { Panel, Stack, PanelBody } from "@cloudoperators/juno-ui-components"
 import {
-  useActions,
-  useShowPanel,
-  useShowServiceDetail,
-  useShowIssueDetail,
-} from "../StoreProvider"
+  useGlobalsActions,
+  useGlobalsShowPanel,
+  useGlobalsShowServiceDetail,
+  useGlobalsShowIssueDetail,
+} from "../../hooks/useAppStore"
 import ServicesDetail from "../services/ServicesDetail"
 import constants from "./constants"
 import IssuesDetails from "../issues/IssuesDetails"
 
 const PanelManger = () => {
   const { setShowPanel, setShowServiceDetail, setShowIssueDetail } =
-    useActions()
-  const showPanel = useShowPanel()
-  const showServiceDetail = useShowServiceDetail()
-  const showIssueDetail = useShowIssueDetail()
+    useGlobalsActions()
+  const showPanel = useGlobalsShowPanel()
+  const showServiceDetail = useGlobalsShowServiceDetail()
+  const showIssueDetail = useGlobalsShowIssueDetail()
 
   const onPanelClose = () => {
     setShowPanel(null)
@@ -40,7 +40,7 @@ const PanelManger = () => {
           </span>
         </Stack>
       }
-      opened={!!useShowPanel()}
+      opened={!!useGlobalsShowPanel()}
       onClose={() => onPanelClose()}
       size="large"
     >

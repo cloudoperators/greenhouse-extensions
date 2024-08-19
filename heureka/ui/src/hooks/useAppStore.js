@@ -51,6 +51,12 @@ export const useGlobalsQueryOptions = (tab) =>
   useAppStore((state) => state.globals.tabs[tab].queryOptions)
 export const useGlobalsApiEndpoint = () =>
   useAppStore((state) => state.globals.apiEndpoint)
+export const useGlobalsShowPanel = () =>
+  useAppStore((state) => state.globals.showPanel)
+export const useGlobalsShowServiceDetail = () =>
+  useAppStore((state) => state.globals.showServiceDetail)
+export const useGlobalsShowIssueDetail = () =>
+  useAppStore((state) => state.globals.showIssueDetail)
 export const useGlobalsActions = () =>
   useAppStore((state) => state.globals.actions)
 
