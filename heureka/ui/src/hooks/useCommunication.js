@@ -17,7 +17,6 @@ import {
 import { AUTH_ACTIONS } from "../lib/slices/createAuthDataSlice"
 
 const useCommunication = () => {
-  console.log("[heureka] useCommunication setup")
   const { setIsActive } = useUserActivityActions()
   const authAppLoaded = useAuthAppLoaded()
   const authIsProcessing = useAuthIsProcessing()
@@ -33,7 +32,6 @@ const useCommunication = () => {
     const unwatch = watch(
       "USER_ACTIVITY_UPDATE_DATA",
       (data) => {
-        console.log("got message USER_ACTIVITY_UPDATE_DATA: ", data)
         setIsActive(data?.isActive)
       },
       { debug: true }

@@ -49,8 +49,6 @@ const Filters = ({ queryKey, entityName }) => {
     }
   }, [filters, setLabels, setFilterLabelValues, entityName])
 
-  console.log("filters: ", filters)
-
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
       <FilterSelect entityName={entityName} isLoading={isLoading} />

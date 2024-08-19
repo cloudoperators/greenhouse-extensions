@@ -22,10 +22,6 @@ const useUrlState = (key) => {
   // Set initial state from URL (on login)
   useEffect(() => {
     if (isURLRead) return
-    console.log(
-      `HEUREKA: (${key || DEFAULT_KEY}) setting up state from url:`,
-      urlStateManager.currentState()
-    )
 
     // READ the url state and set the state
     const newTabIndex = urlStateManager.currentState()?.[ACTIVE_TAB]
