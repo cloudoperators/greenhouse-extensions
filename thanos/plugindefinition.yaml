@@ -9,7 +9,7 @@ spec:
     description: thanos
     helmChart:
         name: thanos
-        repository: "oci://keppel.eu-de-1.cloud.sap/greenhouse-extensions"
+        repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
         version: 0.0.8
     options:
         - default: null
@@ -80,4 +80,4 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: "string"
-    version: 0.1.2
+    version: 0.1.3

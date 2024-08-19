@@ -2,12 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 opentelemetry-operator:
+  crds:
+    create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
   manager:
     collectorImage:
-      repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-      tag: 0.104.0
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
+      tag: main
+      #tag: 0.104.0
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.104.0

@@ -18,7 +18,11 @@ import HintLoading from "../shared/HintLoading"
 const ServicesList = ({ items, isLoading }) => {
   return (
     <>
-      <DataGrid gridColumnTemplate="2fr 3fr 2fr 2fr 2fr">
+      {/* clickableTable Table allow changes the background by css when hovering or active*/}
+      <DataGrid
+        gridColumnTemplate="2fr 3fr 2fr 2fr 2fr"
+        className="clickableTable"
+      >
         <DataGridRow>
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>
@@ -29,7 +33,11 @@ const ServicesList = ({ items, isLoading }) => {
           <DataGridHeadCell>Total Number of Issue Matches</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
-          <HintLoading className="my-4" text="Loading services..." />
+          <DataGridRow>
+            <DataGridCell colSpan={10}>
+              <HintLoading className="my-4" text="Loading services..." />
+            </DataGridCell>
+          </DataGridRow>
         ) : (
           <>
             {items?.length > 0 ? (

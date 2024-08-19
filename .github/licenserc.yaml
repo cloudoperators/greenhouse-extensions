@@ -33,7 +33,8 @@ header:
     - '**/.gitkeep'
     - '**/*.txt' 
     - '**/nginx.conf'
-
+    - 'openbao/**' # openbao has HashiCorp, Inc. license
+ 
   comment: on-failure
   
   # license-location-threshold specifies the index threshold where the license header can be located,

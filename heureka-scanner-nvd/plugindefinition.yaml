@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: heureka-scanner-nvd
+spec:
+  version: 0.1.0
+  displayName: Heureka Scanner for National Vulnerability Database
+  description: Heureka Scanner for National Vulnerability Database
+  helmChart:
+    name: heureka-scanner-nvd
+    repository: oci://docker pull ghcr.io/cloudoperators/heureka-scanner-nvd
+    version: main
+  options:
+    - name: scanner.api_token
+      description: The API token for the Heureka Scanner
+      required: true
+      type: string
+    - name: scanner.heureka_url
+      description: The URL of the Heureka API
+      required: true
+      type: string
+    - name: scanner.schedule
+      description: The schedule for the Heureka Scanner. Use a cron expression (e.g. "0 * * * *")
+      required: true
+      type: string

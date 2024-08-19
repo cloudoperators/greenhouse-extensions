@@ -21,6 +21,9 @@ export const useQueryClientFnReady = () => useStore((s) => s.queryClientFnReady)
 export const useActiveTab = () => useStore((s) => s.activeTab)
 export const useQueryOptions = (tab) =>
   useStore((s) => s.tabs[tab].queryOptions)
+export const useShowPanel = () => useStore((s) => s.showPanel)
+export const useShowServiceDetail = () => useStore((s) => s.showServiceDetail)
+export const useShowIssueDetail = () => useStore((s) => s.showIssueDetail)
 export const useActions = () => useStore((s) => s.actions)
 
 // Filter exports

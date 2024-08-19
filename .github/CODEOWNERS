@@ -34,3 +34,8 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 /thanos/                  @cloudoperators/greenhouse-observability
 ui/                       @cloudoperators/greenhouse-frontend
+/heureka/                 @cloudoperators/greenhouse-src @cloudoperators/greenhouse-frontend @dimtas
+/heureka-scanner-k8s-assets/     @cloudoperators/greenhouse-src @dimtas
+/heureka-scanner-keppel/  @cloudoperators/greenhouse-src @dimtas
+/heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
+/openbao/                 @cloudoperators/greenhouse-src @dimtas

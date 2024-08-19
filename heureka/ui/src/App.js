@@ -20,6 +20,7 @@ import {
   useFilterActions,
   StoreProvider,
 } from "./hooks/useAppStore"
+import PanelManager from "./components/shared/PanelManager"
 
 function App(props = {}) {
   const { setLabels, setPredefinedFilters, setActivePredefinedFilter } =
@@ -84,12 +85,13 @@ function App(props = {}) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AsyncWorker consumerId={props.id} />
       <AppShell
         pageHeader="Converged Cloud | Heureka"
         embedded={props.embedded === "true" || props.embedded === true}
       >
         <ErrorBoundary fallbackRender={fallbackRender}>
+          <AsyncWorker consumerId={props.id} />
+          <PanelManager />
           <TabContext />
         </ErrorBoundary>
       </AppShell>
@@ -102,6 +104,7 @@ const StyledApp = (props) => {
     <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load styles inside the shadow dom */}
       <style>{styles.toString()}</style>
+
       <MessagesProvider>
         <StoreProvider options={props}>
           <App {...props} />
