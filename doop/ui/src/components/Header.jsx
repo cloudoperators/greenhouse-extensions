@@ -36,7 +36,7 @@ const Header = () => (
         href="https://plutono.global.cloud.sap/d/doop-overview/doop-overview?orgId=1"
         target="_blank"
       >
-        Grafana dashboard.
+        Plutono dashboard.
       </a>
     </p>
   </IntroBox>
