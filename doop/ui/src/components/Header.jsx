@@ -33,7 +33,7 @@ const Header = () => (
       <br />
       To see historical trends, check out the{" "}
       <a
-        href="https://grafana.global.cloud.sap/d/doop-overview/doop-overview?orgId=1"
+        href="https://plutono.global.cloud.sap/d/doop-overview/doop-overview?orgId=1"
         target="_blank"
       >
         Grafana dashboard.
