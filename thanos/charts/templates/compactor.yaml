@@ -75,6 +75,8 @@ spec:
           volumeMounts:
           - mountPath: /data
             name: data-volume
+          securityContext:
+            runAsUser: 0
       securityContext:
         runAsUser: 1000
         runAsGroup: 3000

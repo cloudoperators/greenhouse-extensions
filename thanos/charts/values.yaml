@@ -23,6 +23,10 @@ thanos:
     # defaults to info
     logLevel:
 
+    # Disables standard prometheus-operated and Thanos Store endpoints
+    # To be used for overarching Thanos Queries with custom endpoint lists
+    standalone: false
+
     # arguments in general
     autoDownsampling: true
     replicaLabels:
@@ -47,6 +51,15 @@ thanos:
   store:
     # adding additional arguments
     additionalArgs: []
+
+    deploymentLabels: {} 
+
+    containerLabels:
+
+    #TODO use
+    serviceLabels:
+
+    annotations:
 
   compactor:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
@@ -89,3 +102,11 @@ thanos:
       # GiB
       size:
       labels: []
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent

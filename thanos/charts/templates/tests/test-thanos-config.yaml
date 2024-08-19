@@ -1,0 +1,45 @@
+{{- if .Values.testFramework.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "-5" # Installed and upgraded before the test pod
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+data:
+  run.sh: |-
+
+    #!/usr/bin/env bats
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+
+    load "/usr/lib/bats/bats-detik/utils"
+    load "/usr/lib/bats/bats-detik/detik"
+
+    DETIK_CLIENT_NAME="kubectl"
+
+    @test "Verify successful deployment and running status of {{ .Release.Name }} compactor, query and store" {
+        verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
+        verify "there is 1 deployment named '{{ .Release.Name }}-query'"
+        verify "there is 1 deployment named '{{ .Release.Name }}-store'"
+        verify "there is 1 service named '{{ .Release.Name }}-compactor'"
+        verify "there is 1 service named '{{ .Release.Name }}-query'"
+        verify "there is 1 service named '{{ .Release.Name }}-store'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
+        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
+        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
+    }
+
+    @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
+        try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
+    }
+
+{{- end -}}

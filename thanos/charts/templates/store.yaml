@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.store.deploymentLabels }}
+    {{ toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: {{ include "release.name" . }}
+      app.kubernetes.io/name: store
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- if .Values.thanos.store.annotations }}
+      annotations:
+        {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/managed-by: {{ include "release.name" . }}
+        app.kubernetes.io/name: store
+        {{- if .Values.thanos.store.containerLabels }}
+        {{ toYaml .Values.thanos.store.containerLabels | nindent 8 }}
+        {{- end }}
+      name: {{ include "release.name" . }}-store
+    spec:
+      containers:
+      - args:
+        - store
+        - --objstore.config-file=/etc/config/thanos.yaml
+        - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
+        - --log.level={{ default "info" .Values.thanos.store.logLevel }}
+        - --index-cache-size={{ default "1GB" .Values.thanos.store.indexCacheSize }}
+        - --chunk-pool-size={{ default "4GB" .Values.thanos.store.chunkPoolSize }}
+        {{- range .Values.thanos.store.additionalArgs }}
+        - {{ . }}
+        {{- end }}
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /-/healthy
+            port: 10902
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: store
+        ports:
+        - containerPort: 10902
+          name: http
+          protocol: TCP
+        - containerPort: 10901
+          name: grpc
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /-/ready
+            port: 10902
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /etc/config/
+          name: objectstore-secret
+          readOnly: true
+        - mountPath: /data
+          name: data
+      initContainers:
+      - name: init-permissions
+        image: busybox
+        command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      volumes:
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore 
+      - name: data
+        emptydir: {}
