@@ -23,12 +23,10 @@ const useQueryClientFn = () => {
   */
   useEffect(() => {
     if (!queryClient || !endpoint) return
-    console.log("useQueryClientFn::: setting defaults")
 
     queryClient.setQueryDefaults(["Services"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, servicesQuery(), options)
       },
     })
@@ -36,7 +34,6 @@ const useQueryClientFn = () => {
     queryClient.setQueryDefaults(["Issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, issueMatchesQuery(), options)
       },
     })
@@ -44,14 +41,12 @@ const useQueryClientFn = () => {
     queryClient.setQueryDefaults(["Components"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
         return await request(endpoint, componentsQuery(), options)
       },
     })
 
     queryClient.setQueryDefaults(["ServiceFilterValues"], {
       queryFn: async ({ queryKey, variables }) => {
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
         return await request(endpoint, ServiceFilterValuesQuery(), variables)
       },
       staleTime: Infinity, // this do not change often keep it until reload
@@ -59,7 +54,6 @@ const useQueryClientFn = () => {
 
     queryClient.setQueryDefaults(["IssueMatchFilterValues"], {
       queryFn: async ({ queryKey, variables }) => {
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
         return await request(
           endpoint,
           IssueMatchesFilterValuesQuery(),

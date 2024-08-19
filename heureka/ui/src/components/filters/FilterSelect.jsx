@@ -108,14 +108,16 @@ const FilterSelect = ({ entityName, isLoading }) => {
           variant="subdued"
         />
       )}
-      <SearchInput
-        placeholder="Search term or regular expression"
-        className="w-96 ml-auto"
-        value={searchTerm || ""}
-        onSearch={(value) => setSearchTerm(value)}
-        onClear={() => setSearchTerm(null)}
-        onChange={(value) => handleSearchChange(value)}
-      />
+      {entityName === "IssueMatches" && (
+        <SearchInput
+          placeholder="Search term or regular expression"
+          className="w-96 ml-auto"
+          value={searchTerm || ""}
+          onSearch={(value) => setSearchTerm(value)}
+          onClear={() => setSearchTerm(null)}
+          onChange={(value) => handleSearchChange(value)}
+        />
+      )}
     </Stack>
   )
 }
