@@ -9,15 +9,15 @@ Components included in this Plugin:
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
 - [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
-- ServiceMonitor to scrape logs statically into prometheus infra-frontend
+- ServiceMonitor to ingest the metrics of the OpenTelemetry Collector in Prometheus 
 
-The Plugin will deploy the OpenTelemetry Operator which functions as a manager for the collectors and auto-instrumentation of the workload. Per default the Plugin will also 
+The Plugin will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default the Plugin will also 
 1. Collect logs via the Filelog Receiver, process and export them to OpenSearch
     - You can disable the collecting of logs by setting `open_telemetry.LogCollector.enabled` to `false`. 
 2. Collect and expose metrics using a Prometheus interface which defaults to port 8888
     - You can disable the collecting of metrics by setting `open_telemetry.MetricsCollector.enabled` to `false`. 
 
-Contributors are open to provide additional collector configurations. 
+Contributors are welcome to provide additional collector configurations. 
 
 # Owner
 
@@ -36,7 +36,7 @@ Contributors are open to provide additional collector configurations.
 `open_telemetry.region`                   | Region label for logging         | string | `false` |
 `open_telemetry.cluster`                  | Cluster label for logging        | string | `false` |
 `open_telemetry.prometheus`               | Label for Prometheus Service Monitoring | string | `false` | 
-`open_telemetry.podMonitor.enabled`       | Check to enable the Pod Monitor | bool | `false` | 
+`open_telemetry.podMonitor.enabled`       | Enable or Disable the Pod Monitor | bool | `false` | 
 `opentelemetry-operator.admissionWbhooks.certManager.enabled` | Check to use certManager for generating self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Check to use Helm to create self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate` | Recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
