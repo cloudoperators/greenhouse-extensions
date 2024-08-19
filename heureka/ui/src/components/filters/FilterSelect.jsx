@@ -99,7 +99,7 @@ const FilterSelect = ({ entityName, isLoading }) => {
               <SelectOption value={value} key={value} />
             ))}
         </Select>
-        <Button onClick={handleFilterAdd} />
+        <Button icon="filterAlt" className="py-[0.3rem]" />
       </InputGroup>
       {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
