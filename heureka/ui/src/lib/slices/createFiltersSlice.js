@@ -11,7 +11,7 @@ const initialFiltersState = {
   filterLabelValues: {}, // Filter label values for each entity: { entityName: { label1: ["val1", "val2", ...], label2: [...] } }
   predefinedFilters: {}, // Predefined filters for each entity: { entityName: [{ name: "filter1", matchers: {"label1": "regex1", ...}}, ...] }
   activePredefinedFilter: {}, // Active predefined filter for each entity: { entityName: "filterName" }
-  search: "", // Global search term used for full-text filtering
+  search: "", // Global search term used for full-text filtering: { entityName: ["searchTerm1", "searchTerm2", ...] }
 }
 
 const createFiltersSlice = (set, get) => ({
