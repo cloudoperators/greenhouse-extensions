@@ -4,77 +4,88 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: opentelemetry-operator
+    name: opentelemetry
 spec:
-    version: 0.2.6
-    description: opentelemetry-operator
+    version: 0.2.7
+    displayName: OpenTelemetry
+    description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry-operator/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.6
+        version: 0.2.7
     options:
+        - default: true
+          description: Activates the standard configuration for logs
+          name: openTelemetry.logsCollector.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the standard configuration for metrics 
+          name: openTelemetry.metricsCollector.enabled
+          required: false
+          type: bool
         - description: Username for OpenSearch endpoint
-          name: open_telemetry.opensearch_logs.username
+          name: openTelemetry.openSearchLogs.username
           required: false
           type: secret
         - description: Password for OpenSearch endpoint
-          name: open_telemetry.opensearch_logs.password
+          name: openTelemetry.openSearchLogs.password
           required: false
           type: secret
         - description: Endpoint URL for OpenSearch
-          name: open_telemetry.opensearch_logs.endpoint
+          name: openTelemetry.openSearchLogs.endpoint
           required: false
           type: string
-        - description: Region
-          name: open_telemetry.region
+        - description: Region label for logging
+          name: openTelemetry.region
           required: false
           type: string
-        - description: Cluster
-          name: open_telemetry.cluster
+        - description: Cluster label for logging
+          name: openTelemetry.cluster
           required: false
           type: string
         - description: Label for Prometheus Service Monitoring
-          name: open_telemetry.prometheus
+          name: openTelemetry.prometheus
           required: false
           type: string
         - default: false
-          description: Check to enable the Pod Monitor
-          name: open_telemetry.podMonitor.enabled
+          description: Activates the pod-monitoring for the Logs Collector
+          name: openTelemetry.podMonitor.enabled
           required: false
           type: bool
         - default: false
-          description: Check to use certManager for generating self-signed certificates
+          description: Activate to use the CertManager for generating self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
           required: false
           type: bool
         - default: true
-          description: Check to use Helm to create self-signed certificates
+          description: Activate to use Helm to create self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
           required: false
           type: bool
         - default: false
-          description: Recreate the cert after a defined period (certPeriodDays default is 365)
+          description: Activate to recreate the cert after a defined period (certPeriodDays default is 365)
           name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
           required: false
           type: bool
         - default: false
-          description: Check to enable kube-rbac-proxy for OpenTelemetry
+          description: Activate to enable Kube-RBAC-Proxy for OpenTelemetry
           name: opentelemetry-operator.kubeRBACProxy.enabled
           required: false
           type: bool
         - default: false
-          description: Check to enable default rules for monitoring the manager
+          description: Activate to enable default rules for monitoring the OpenTelemetry Manager
           name: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
           required: false
           type: bool
         - default: false
-          description: Check to enable rules for monitoring the manager
+          description: Activate to enable rules for monitoring the OpenTelemetry Manager
           name: opentelemetry-operator.manager.prometheusRule.enabled
           required: false
           type: bool
         - default: false
-          description: Check to enable the Service Monitor
+          description: Activate to enable the Service Monitor to ingest the metrics of the OpenTelemetry Collector in Prometheus
           name: opentelemetry-operator.manager.serviceMonitor.enabled
           required: false
           type: bool
