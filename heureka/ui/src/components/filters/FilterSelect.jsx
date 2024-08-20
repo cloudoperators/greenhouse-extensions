@@ -19,18 +19,14 @@ import {
   useActiveFilters,
   useSearchTerm,
 } from "../../hooks/useAppStore"
-import { formatLabel } from "../../helpers"
+import { humanizeString } from "../../lib/utils"
 
 const FilterSelect = ({ entityName, isLoading }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
 
-  const {
-    addActiveFilter,
-    loadFilterLabelValues,
-    clearActiveFilters,
-    setSearchTerm,
-  } = useFilterActions()
+  const { addActiveFilter, clearActiveFilters, setSearchTerm } =
+    useFilterActions()
 
   const filterLabels = useFilterLabels(entityName)
   const filterLabelValues = useFilterLabelValues(entityName)
@@ -47,10 +43,6 @@ const FilterSelect = ({ entityName, isLoading }) => {
 
   const handleFilterLabelChange = (label) => {
     setFilterLabel(label)
-    // Lazy load all possible values for this label (only load them if not already loaded)
-    if (!filterLabelValues[label]?.length) {
-      loadFilterLabelValues(entityName, label)
-    }
   }
 
   const handleFilterValueChange = (value) => {
@@ -73,14 +65,14 @@ const FilterSelect = ({ entityName, isLoading }) => {
           name="filter"
           className="filter-label-select w-64 mb-0"
           label="Filter"
-          value={formatLabel(filterLabel)}
+          value={humanizeString(filterLabel)}
           onChange={(val) => handleFilterLabelChange(val)}
           disabled={isLoading}
         >
           {filterLabels?.map((filter) => (
             <SelectOption
               value={filter}
-              label={formatLabel(filter)}
+              label={humanizeString(filter)}
               key={filter}
             />
           ))}
