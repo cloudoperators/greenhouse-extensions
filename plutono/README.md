@@ -21,11 +21,11 @@ The plugin works by factory default with anonymous access enabled. If you use th
 
 **Step 1: Add your dashboards**
 
-Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` should contain a key like `my-dashboard.json` with the dashboard JSON content.
+Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` should contain a key like `my-dashboard.json` with the dashboard JSON content. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-dashboard-config)
 
 **Step 2: Add your datasources**
 
-Data sources are selected from `Secrets` across namespaces. The plugin searches for `Secrets` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `Secrets` should contain valid datasource configuration YAML like [example-datasource-config-file](http://docs.grafana.org/administration/provisioning/#example-datasource-config-file).
+Data sources are selected from `Secrets` across namespaces. The plugin searches for `Secrets` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `Secrets` should contain valid datasource configuration YAML. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-datasource-config)
 
 ## Configuration
 
@@ -405,7 +405,7 @@ Should you aim for reloading datasources in Plutono each time the config is chan
 Secrets are recommended over configmaps for this usecase because datasources usually contain private
 data like usernames and passwords. Secrets are the more appropriate cluster resource to manage those.
 
-Example values to add a postgres datasource as a kubernetes secret:
+#### Example datasource config:
 
 ```yaml
 apiVersion: v1
@@ -413,27 +413,35 @@ kind: Secret
 metadata:
   name: plutono-datasources
   labels:
-    plutono-datasource: "true" # default value for: sidecar.datasources.label
+    # default value for: sidecar.datasources.label
+    plutono-datasource: "true"
 stringData:
-  pg-db.yaml: |-
+  datasources.yaml: |-
     apiVersion: 1
     datasources:
-      - name: My pg db datasource
-        type: postgres
-        url: my-postgresql-db:5432
-        user: db-readonly-user
-        secureJsonData:
-          password: 'SUperSEcretPa$$word'
+      - name: my-prometheus 
+        type: prometheus
+        access: proxy
+        orgId: 1
+        url: my-url-domain:9090
+        isDefault: false
         jsonData:
-          database: my_datase
-          sslmode: 'disable' # disable/require/verify-ca/verify-full
-          maxOpenConns: 0 # Plutono v5.4+
-          maxIdleConns: 2 # Plutono v5.4+
-          connMaxLifetime: 14400 # Plutono v5.4+
-          postgresVersion: 1000 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
-          timescaledb: false
-        # <bool> allow users to edit datasources from the UI.
+          httpMethod: 'POST'
         editable: false
+```
+
+**NOTE:** If you might include credentials in your datasource configuration, make sure to not use stringdata but base64 encoded data instead.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-datasource
+  labels:
+    plutono-datasource: "true"
+data:
+  # The key must contain a unique name and the .yaml file type
+  my-datasource.yaml: {{ include (print $.Template.BasePath "my-datasource.yaml") . | b64enc }}
 ```
 
 Example values to add a datasource adapted from [Grafana](http://docs.grafana.org/administration/provisioning/#example-datasource-config-file):
@@ -441,46 +449,66 @@ Example values to add a datasource adapted from [Grafana](http://docs.grafana.or
 ```yaml
 datasources:
  datasources.yaml:
-   apiVersion: 1
-   datasources:
-      # <string, required> name of the datasource. Required
-    - name: Graphite
-      # <string, required> datasource type. Required
-      type: graphite
-      # <string, required> access mode. proxy or direct (Server or Browser in the UI). Required
+  apiVersion: 1
+  datasources:
+      # <string, required> Sets the name you use to refer to
+      # the data source in panels and queries.
+    - name: my-prometheus 
+      # <string, required> Sets the data source type.
+      type: prometheus
+      # <string, required> Sets the access mode, either
+      # proxy or direct (Server or Browser in the UI).
+      # Some data sources are incompatible with any setting
+      # but proxy (Server).
       access: proxy
-      # <int> org id. will default to orgId 1 if not specified
+      # <int> Sets the organization id. Defaults to orgId 1.
       orgId: 1
-      # <string> url
-      url: http://localhost:8080
-      # <string> database password, if used
-      password:
-      # <string> database user, if used
+      # <string> Sets a custom UID to reference this
+      # data source in other parts of the configuration.
+      # If not specified, Plutono generates one.
+      uid:
+      # <string> Sets the data source's URL, including the
+      # port.
+      url: my-url-domain:9090
+      # <string> Sets the database user, if necessary.
       user:
-      # <string> database name, if used
+      # <string> Sets the database name, if necessary.
       database:
-      # <bool> enable/disable basic auth
+      # <bool> Enables basic authorization.
       basicAuth:
-      # <string> basic auth username
+      # <string> Sets the basic authorization username.
       basicAuthUser:
-      # <string> basic auth password
-      basicAuthPassword:
-      # <bool> enable/disable with credentials headers
+      # <bool> Enables credential headers.
       withCredentials:
-      # <bool> mark as default datasource. Max one per org
-      isDefault:
-      # <map> fields that will be converted to json and stored in json_data
+      # <bool> Toggles whether the data source is pre-selected
+      # for new panels. You can set only one default
+      # data source per organization.
+      isDefault: false
+      # <map> Fields to convert to JSON and store in jsonData.
       jsonData:
-         graphiteVersion: "1.1"
-         tlsAuth: true
-         tlsAuthWithCACert: true
-      # <string> json object of data that will be encrypted.
+        httpMethod: 'POST'
+        # <bool> Enables TLS authentication using a client
+        # certificate configured in secureJsonData.
+        # tlsAuth: true
+        # <bool> Enables TLS authentication using a CA
+        # certificate.
+        # tlsAuthWithCACert: true
+      # <map> Fields to encrypt before storing in jsonData.
       secureJsonData:
-        tlsCACert: "..."
-        tlsClientCert: "..."
-        tlsClientKey: "..."
+        # <string> Defines the CA cert, client cert, and
+        # client key for encrypted authentication.
+        # tlsCACert: '...'
+        # tlsClientCert: '...'
+        # tlsClientKey: '...'
+        # <string> Sets the database password, if necessary.
+        # password:
+        # <string> Sets the basic authorization password.
+        # basicAuthPassword:
+      # <int> Sets the version. Used to compare versions when
+      # updating. Ignored when creating a new data source.
       version: 1
-      # <bool> allow users to edit datasources from the UI.
+      # <bool> Allows users to edit data sources from the
+      # Plutono UI.
       editable: false
 ```
 
