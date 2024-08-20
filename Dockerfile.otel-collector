@@ -39,6 +39,7 @@ COPY --from=journal /lib/x86_64-linux-gnu/libzstd.so.1 /lib/x86_64-linux-gnu/lib
 COPY --from=journal /lib/x86_64-linux-gnu/libcrypto.so.3 /lib/x86_64-linux-gnu/libcrypto.so.3
 COPY --from=journal /lib/x86_64-linux-gnu/libcrypt.so.1 /lib/x86_64-linux-gnu/libcrypt.so.1
 COPY --from=journal /lib/x86_64-linux-gnu/libcap-ng.so.0 /lib/x86_64-linux-gnu/libcap-ng.so.0
+COPY --from=journal /usr/lib/x86_64-linux-gnu/libcap-ng.so.0.0.0 /lib/x86_64-linux-gnu/libcap-ng.so.0.0.0
 COPY --from=journal /usr/bin/journalctl /usr/bin/journalctl
 
 ARG USER_UID=0
