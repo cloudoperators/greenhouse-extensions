@@ -103,12 +103,15 @@ const createAlertsSlice = (set, get) => ({
               // iterate over all active filter keys and then check if one of the selected values matches the item's value for this key
               if (visible) {
                 Object.keys(state.filters.activeFilters).forEach((key) => {
-                  // if the item's label value for the current label isn't included in the selected filters set visible to false, i.e. filter out item
+                  // if the item's label value for the current label isn't included in the selected filters or also existent in pausedFilters set visible to false, i.e. filter out item
                   // this automatically leads to different values for the same label to be OR concatenated, while different labels are AND concatenated
                   // so an item must have at least one of the selected values for each filtered label
                   if (
                     state.filters.activeFilters[key].indexOf(item.labels[key]) <
-                    0
+                      0 ||
+                    state.filters.pausedFilters[key].indexOf(
+                      item.labels[key]
+                    ) >= 0
                   ) {
                     // we can break out of the loop here since we already know the item is not visible
                     visible = false
