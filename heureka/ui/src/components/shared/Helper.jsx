@@ -14,7 +14,8 @@ export const listOfCommaSeparatedObjs = (objs, prop) => {
 
 export const formatDate = (dateStr) => {
   const dateObj = DateTime.fromISO(dateStr)
-  return dateObj.toFormat("yyyy.MM.dd.HH:mm:ss")
+  const dateFormat = { ...DateTime.DATE_MED } // Use the predefined DATE_MED format
+  return dateObj.toLocaleString(dateFormat) // Format the date using the predefined format
 }
 
 export const highestSeverity = (vulnerablities) => {

@@ -18,10 +18,7 @@ const IssueMatchesList = ({ items, isLoading }) => {
   return (
     <>
       {/* clickableTable Table allow changes the background by css when hovering or active*/}
-      <DataGrid
-        gridColumnTemplate="2fr 4fr 2fr 2fr 2fr 2fr"
-        className="clickableTable"
-      >
+      <DataGrid gridColumnTemplate columns={6} className="clickableTable">
         <DataGridRow>
           <DataGridHeadCell>Primary Name</DataGridHeadCell>
           {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}

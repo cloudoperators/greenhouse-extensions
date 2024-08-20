@@ -71,7 +71,7 @@ const IssueMatchesDetails = () => {
             <DataGridHeadCell>Severity</DataGridHeadCell>
 
             <DataGridCell>
-              <LoadElement elem={issue?.severity?.value} />
+              <LoadElement elem={severityString(issue?.severity)} />
             </DataGridCell>
           </DataGridRow>
 
@@ -147,14 +147,6 @@ const IssueMatchesDetails = () => {
 
             <DataGridCell>
               {<LoadElement elem={issue?.issue?.type} />}
-            </DataGridCell>
-          </DataGridRow>
-
-          <DataGridRow>
-            <DataGridHeadCell>Issue Severity</DataGridHeadCell>
-
-            <DataGridCell>
-              {<LoadElement elem={severityString(issue?.severity)} />}
             </DataGridCell>
           </DataGridRow>
         </DataGrid>

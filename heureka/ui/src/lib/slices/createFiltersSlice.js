@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { produce, current } from "immer"
+import { produce } from "immer"
 
 const initialFiltersState = {
   labels: {}, // Labels for each entity: { entityName: ["label1", "label2", ...] }
