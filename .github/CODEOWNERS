@@ -28,7 +28,7 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /kube-monitoring/         @cloudoperators/greenhouse-observability
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
-/opentelemetry-operator   @cloudoperators/greenhouse-observability
+/opentelemetry/           @cloudoperators/greenhouse-observability
 /plutono                  @cloudoperators/greenhouse-observability 
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
