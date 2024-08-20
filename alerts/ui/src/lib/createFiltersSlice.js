@@ -13,7 +13,6 @@ const initialFiltersState = {
   predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
   activePredefinedFilter: null, // the currently active predefined filter
   searchTerm: "", // the search term used for full-text filtering
-  filterPills: {}, // Collection of active and inactive filterPills which are shown in the UI. {"label1":[{"value":"val1","active":true},{"value":"val2","active":true}], ,"label2":[{"value":"value3","active":false}]}
 }
 
 const createFiltersSlice = (set, get) => ({
@@ -156,6 +155,7 @@ const createFiltersSlice = (set, get) => ({
           false,
           "filters.addPausedFilter"
         )
+
         // after adding a new filter key and value: filter items
         get().alerts.actions.filterItems()
       },
@@ -228,17 +228,6 @@ const createFiltersSlice = (set, get) => ({
         )
         // after activating predefined filter: filter items
         get().alerts.actions.filterItems()
-      },
-
-      // state to show Pills with active filters in the UI
-      setFilterPills: (filter) => {
-        set(
-          produce((state) => {
-            state.filters.filterPills = filter
-          }),
-          false,
-          "filters.setFilterPills"
-        )
       },
 
       // retieve all possible values for the given filter label from the list of items and add them to the list

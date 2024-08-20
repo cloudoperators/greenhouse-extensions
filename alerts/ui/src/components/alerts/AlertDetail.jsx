@@ -138,7 +138,7 @@ const AlertDetail = () => {
           <TabPanel>
             <Container px={false} py>
               <CodeBlock>
-                <JsonViewer data={alert} expanded={true} />
+                {alert && <JsonViewer data={alert} expanded={true} />}
               </CodeBlock>
             </Container>
           </TabPanel>

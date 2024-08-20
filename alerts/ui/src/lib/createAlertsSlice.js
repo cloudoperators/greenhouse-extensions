@@ -108,10 +108,7 @@ const createAlertsSlice = (set, get) => ({
                   // so an item must have at least one of the selected values for each filtered label
                   if (
                     state.filters.activeFilters[key].indexOf(item.labels[key]) <
-                      0 ||
-                    state.filters.pausedFilters[key].indexOf(
-                      item.labels[key]
-                    ) >= 0
+                    0
                   ) {
                     // we can break out of the loop here since we already know the item is not visible
                     visible = false
