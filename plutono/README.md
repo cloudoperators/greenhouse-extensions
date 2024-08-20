@@ -21,7 +21,7 @@ The plugin works by factory default with anonymous access enabled. If you use th
 
 **Step 1: Add your dashboards**
 
-Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` should contain a key like `my-dashboard.json` with the dashboard JSON content. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-dashboard-config)
+Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-dashboard-config)
 
 **Step 2: Add your datasources**
 
