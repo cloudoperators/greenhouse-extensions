@@ -8,12 +8,16 @@ import { DataGridRow, DataGridCell } from "@cloudoperators/juno-ui-components"
 import { listOfCommaSeparatedObjs } from "../shared/Helper"
 import { DateTime } from "luxon"
 import constants from "../shared/constants"
-import { useActions, useShowPanel, useShowIssueDetail } from "../StoreProvider"
+import {
+  useGlobalsActions,
+  useGlobalsShowPanel,
+  useGlobalsShowIssueDetail,
+} from "../../hooks/useAppStore"
 
 const IssuesListItem = ({ item }) => {
-  const { setShowPanel, setShowIssueDetail } = useActions()
-  const showPanel = useShowPanel()
-  const showIssueDetail = useShowIssueDetail()
+  const { setShowPanel, setShowIssueDetail } = useGlobalsActions()
+  const showPanel = useGlobalsShowPanel()
+  const showIssueDetail = useGlobalsShowIssueDetail()
 
   const formatDate = (dateStr) => {
     const dateObj = DateTime.fromISO(dateStr)
@@ -53,7 +57,9 @@ const IssuesListItem = ({ item }) => {
           "secondaryName"
           )}
           </DataGridCell> */}
-      <DataGridCell>{formatDate(item?.node?.remediationDate)}</DataGridCell>
+      <DataGridCell>
+        {formatDate(item?.node?.targetRemediationDate)}
+      </DataGridCell>
       <DataGridCell>{item?.node?.status}</DataGridCell>
       <DataGridCell>{item?.node?.severity?.value}</DataGridCell>
       <DataGridCell>

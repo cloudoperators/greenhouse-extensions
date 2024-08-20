@@ -23,7 +23,7 @@ const IssuesList = ({ items, isLoading }) => {
           <DataGridHeadCell>Primary Name</DataGridHeadCell>
           <DataGridHeadCell>Type</DataGridHeadCell>
           {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}
-          <DataGridHeadCell>Remediation Date</DataGridHeadCell>
+          <DataGridHeadCell>Target Remediation Date</DataGridHeadCell>
           <DataGridHeadCell>Status</DataGridHeadCell>
           <DataGridHeadCell>Severity</DataGridHeadCell>
           <DataGridHeadCell>Component Name</DataGridHeadCell>

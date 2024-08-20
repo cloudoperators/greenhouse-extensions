@@ -5,54 +5,60 @@
 
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useEndpoint, useActions } from "../components/StoreProvider"
+import { useGlobalsApiEndpoint, useGlobalsActions } from "./useAppStore"
 import { request } from "graphql-request"
 import servicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
-import ServiceFilterQuery from "../lib/queries/serviceFilters"
+import ServiceFilterValuesQuery from "../lib/queries/serviceFilterValues"
+import IssueMatchesFilterValuesQuery from "../lib/queries/issueMatchesFilterValues"
 import componentsQuery from "../lib/queries/components"
 
 // hook to register query defaults that depends on the queryClient and options
 const useQueryClientFn = () => {
   const queryClient = useQueryClient()
-  const endpoint = useEndpoint()
-  const { setQueryClientFnReady } = useActions()
-
+  const endpoint = useGlobalsApiEndpoint()
+  const { setQueryClientFnReady } = useGlobalsActions()
   /*
   As stated in getQueryDefaults, the order of registration of query defaults does matter. Since the first matching defaults are returned by getQueryDefaults, the registration should be made in the following order: from the least generic key to the most generic one. This way, in case of specific key, the first matching one would be the expected one.
   */
   useEffect(() => {
     if (!queryClient || !endpoint) return
-    console.log("useQueryClientFn::: setting defaults")
 
-    queryClient.setQueryDefaults(["services"], {
+    queryClient.setQueryDefaults(["Services"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, servicesQuery(), options)
       },
     })
 
-    queryClient.setQueryDefaults(["issues"], {
+    queryClient.setQueryDefaults(["Issues"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey, options)
         return await request(endpoint, issueMatchesQuery(), options)
       },
     })
 
-    queryClient.setQueryDefaults(["components"], {
+    queryClient.setQueryDefaults(["Components"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
         return await request(endpoint, componentsQuery(), options)
       },
     })
 
-    queryClient.setQueryDefaults(["serviceFilters"], {
-      queryFn: async ({ queryKey }) => {
-        console.log("useQueryClientFn::: queryKey: ", queryKey)
-        return await request(endpoint, ServiceFilterQuery())
+    queryClient.setQueryDefaults(["ServiceFilterValues"], {
+      queryFn: async ({ queryKey, variables }) => {
+        return await request(endpoint, ServiceFilterValuesQuery(), variables)
+      },
+      staleTime: Infinity, // this do not change often keep it until reload
+    })
+
+    queryClient.setQueryDefaults(["IssueMatchFilterValues"], {
+      queryFn: async ({ queryKey, variables }) => {
+        return await request(
+          endpoint,
+          IssueMatchesFilterValuesQuery(),
+          variables
+        )
       },
       staleTime: Infinity, // this do not change often keep it until reload
     })
