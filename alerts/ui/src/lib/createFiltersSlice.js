@@ -8,7 +8,7 @@ import { produce } from "immer"
 const initialFiltersState = {
   labels: ["status"], // labels to be used for filtering: [ "label1", "label2", "label3"]. Default is status which is enriched by the worker
   activeFilters: {}, // for each active filter key list the selected values: {key1: [value1], key2: [value2_1, value2_2], ...}
-  pausedFilters: {}, // inactive subset of activeFilters.
+  pausedFilters: {}, // inactive subset of activeFilters. Same structure as activeFilters
   filterLabelValues: {}, // contains all possible values for filter labels: {label1: ["val1", "val2", "val3", ...], label2: [...]}, lazy loaded when a label is selected for filtering
   predefinedFilters: [], // predefined complex filters that filter using regex: [{name: "filter1", displayName: "Filter 1", matchers: {"label1": "regex1", "label2": "regex2", ...}}, ...]
   activePredefinedFilter: null, // the currently active predefined filter
@@ -164,11 +164,11 @@ const createFiltersSlice = (set, get) => ({
         set(
           produce((state) => {
             state.filters.pausedFilters[filterLabel] =
-              state.filters.pausedFilters[filterLabel].filter(
+              state.filters.pausedFilters[filterLabel]?.filter(
                 (value) => value !== filterValue
               )
             // if this was the last selected value delete the whole label key
-            if (state.filters.pausedFilters[filterLabel].length === 0) {
+            if (state.filters.pausedFilters[filterLabel]?.length === 0) {
               delete state.filters.pausedFilters[filterLabel]
             }
           }),

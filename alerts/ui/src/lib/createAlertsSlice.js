@@ -70,6 +70,20 @@ const createAlertsSlice = (set, get) => ({
 
         const filteredRegions = new Set()
 
+        // reduce active filters to only those that are not paused (this will make the filter logic more intuitive)
+        const unpausedActiveFilters = Object.keys(get().filters.activeFilters).reduce((acc, key) => {
+          // check all values of the current label key and filter out the paused ones, so that only unpaused values remain
+          const filtered = get().filters.activeFilters[key].filter(
+            (value) => !get().filters.pausedFilters[key]?.includes(value)
+          )
+
+          // if there are still values left after filtering out the paused ones, add them to the new filtered object
+          if (filtered.length > 0) {
+            acc[key] = filtered
+          }
+          return acc
+        }, {})
+
         set(
           produce((state) => {
             state.alerts.itemsFiltered = state.alerts.items.filter((item) => {
@@ -100,22 +114,12 @@ const createAlertsSlice = (set, get) => ({
 
               // if the item is still visible after the predefined filters, check if it gets filtered out by the active filters
               // active filters is an object where the keys correspond to labels and the value is an array of all selected values to be filtered by
-              // iterate over all active filter keys and then check if one of the selected values matches the item's value for this key
+              // iterate over all (unpaused) active filter keys and then check if one of the selected values matches the item's value for this key
               if (visible) {
-                Object.keys(state.filters.activeFilters).forEach((key) => {
-                  const filtered = state.filters.activeFilters[key].filter(
-                    (value) => {
-                      state.filters?.pausedFilters[key] &&
-                        state.filters?.pausedFilters[key]?.includes(value)
-                    }
-                  )
-                  console.log(
-                    filtered,
-                    JSON.stringify(state.filters.activeFilters[key]),
-                    JSON.stringify(state.filters.pausedFilters[key])
-                  )
-                  if (!filtered.includes(item.labels[key])) {
-                    // if the item's label value for the current label isn't included in the selected filters or also existent in pausedFilters set visible to false, i.e. filter out item
+                Object.keys(unpausedActiveFilters).forEach((key) => {
+                  
+                  if (!unpausedActiveFilters[key].includes(item.labels[key])) {
+                    // if the item's label value for the current label isn't included in the active filters set visible to false, i.e. filter out item
                     // this automatically leads to different values for the same label to be OR concatenated, while different labels are AND concatenated
                     // so an item must have at least one of the selected values for each filtered label
                     // we can break out of the loop here since we already know the item is not visible
