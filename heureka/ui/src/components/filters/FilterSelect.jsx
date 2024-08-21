@@ -54,7 +54,7 @@ const FilterSelect = ({ entityName, isLoading }) => {
     // Debounce search term to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
       setSearchTerm(entityName, value.target.value)
-    }, 5000) //Every 5 seconds to avoid unnecessary API calls
+    }, 2000) //Every 2 seconds to avoid unnecessary API calls
     return () => clearTimeout(debouncedSearchTerm)
   }
 
