@@ -12,30 +12,26 @@ import {
 } from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
-import IssuesListItem from "./IssuesListItem"
+import IssueMatchesListItem from "./IssueMatchesListItem"
 
-const IssuesList = ({ items, isLoading }) => {
+const IssueMatchesList = ({ items, isLoading }) => {
   return (
     <>
       {/* clickableTable Table allow changes the background by css when hovering or active*/}
-      <DataGrid columns={10} className="clickableTable">
+      <DataGrid columns={6} className="clickableTable">
         <DataGridRow>
           <DataGridHeadCell>Primary Name</DataGridHeadCell>
-          <DataGridHeadCell>Type</DataGridHeadCell>
           {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}
           <DataGridHeadCell>Target Remediation Date</DataGridHeadCell>
           <DataGridHeadCell>Status</DataGridHeadCell>
           <DataGridHeadCell>Severity</DataGridHeadCell>
-          <DataGridHeadCell>Component Name</DataGridHeadCell>
-          <DataGridHeadCell>Component Version</DataGridHeadCell>
           <DataGridHeadCell>Service Name</DataGridHeadCell>
           <DataGridHeadCell>Support Group Name</DataGridHeadCell>
-          <DataGridHeadCell>Instance Count</DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
           <DataGridRow>
-            <DataGridCell colSpan={10}>
-              <HintLoading className="my-4" text="Loading issues..." />
+            <DataGridCell colSpan={6}>
+              <HintLoading className="my-4" text="Loading issue matches..." />
             </DataGridCell>
           </DataGridRow>
         ) : (
@@ -43,13 +39,16 @@ const IssuesList = ({ items, isLoading }) => {
             {items?.length > 0 ? (
               <>
                 {items.map((item, index) => (
-                  <IssuesListItem key={index} item={item}></IssuesListItem>
+                  <IssueMatchesListItem
+                    key={index}
+                    item={item}
+                  ></IssueMatchesListItem>
                 ))}
               </>
             ) : (
               <DataGridRow>
-                <DataGridCell colSpan={10}>
-                  <HintNotFound text="No issues found" />
+                <DataGridCell colSpan={6}>
+                  <HintNotFound text="No issue matches found" />
                 </DataGridCell>
               </DataGridRow>
             )}
@@ -60,4 +59,4 @@ const IssuesList = ({ items, isLoading }) => {
   )
 }
 
-export default IssuesList
+export default IssueMatchesList

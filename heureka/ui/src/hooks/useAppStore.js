@@ -86,8 +86,8 @@ export const useFilterLabels = (entityName) =>
   useAppStore((state) => state.filters.labels[entityName] || [])
 export const useActiveFilters = (entityName) =>
   useAppStore((state) => state.filters.activeFilters[entityName] || {})
-export const useSearchTerm = () =>
-  useAppStore((state) => state.filters.searchTerm)
+export const useSearchTerm = (entityName) =>
+  useAppStore((state) => state.filters.search[entityName] || "")
 export const useFilterLabelValues = (entityName) =>
   useAppStore((state) => state.filters.filterLabelValues[entityName] || {})
 export const usePredefinedFilters = (entityName) =>

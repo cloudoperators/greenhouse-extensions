@@ -13,7 +13,7 @@ import TabPanel from "./TabPanel"
 import { useGlobalsActions, useGlobalsActiveTab } from "../../hooks/useAppStore"
 
 import ServicesTab from "../services/ServicesTab"
-import IssuesTab from "../issues/IssuesTab"
+import IssueMatchesTab from "../issueMatches/IssueMatchesTab"
 import ComponentsTab from "../components/ComponentsTab"
 
 const TAB_CONFIG = [
@@ -24,10 +24,10 @@ const TAB_CONFIG = [
     component: ServicesTab,
   },
   {
-    label: "Issues",
-    value: "Issues",
+    label: "IssueMatches",
+    value: "IssueMatches",
     icon: "autoAwesomeMotion",
-    component: IssuesTab,
+    component: IssueMatchesTab,
   },
   {
     label: "Components",

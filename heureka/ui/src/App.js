@@ -15,16 +15,10 @@ import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import AsyncWorker from "./components/AsyncWorker"
 import TabContext from "./components/tabs/TabContext"
 import { ErrorBoundary } from "react-error-boundary"
-import {
-  useGlobalsActions,
-  useFilterActions,
-  StoreProvider,
-} from "./hooks/useAppStore"
+import { useGlobalsActions, StoreProvider } from "./hooks/useAppStore"
 import PanelManager from "./components/shared/PanelManager"
 
 function App(props = {}) {
-  const { setLabels, setPredefinedFilters, setActivePredefinedFilter } =
-    useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const preErrorClasses = `
   custom-error-pre

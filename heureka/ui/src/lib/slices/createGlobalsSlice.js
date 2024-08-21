@@ -23,7 +23,7 @@ const createGlobalsSlice = (set, get, options) => ({
           first: 20,
         },
       },
-      Issues: {
+      IssueMatches: {
         queryOptions: {
           first: 20,
         },

@@ -31,7 +31,7 @@ const useQueryClientFn = () => {
       },
     })
 
-    queryClient.setQueryDefaults(["Issues"], {
+    queryClient.setQueryDefaults(["IssueMatches"], {
       queryFn: async ({ queryKey }) => {
         const [_key, options] = queryKey
         return await request(endpoint, issueMatchesQuery(), options)
