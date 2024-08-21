@@ -50,13 +50,14 @@ const FilterSelect = ({ entityName, isLoading }) => {
     handleFilterAdd(value)
   }
 
-  const handleSearchChange = (value) => {
+  // TODO: The live search should be implemented after having store update mechanism in place
+  /*const handleSearchChange = (value) => {
     // Debounce search term to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
       setSearchTerm(entityName, value.target.value)
-    }, 2000) //Every 2 seconds to avoid unnecessary API calls
+    }, 500) 
     return () => clearTimeout(debouncedSearchTerm)
-  }
+  }*/
 
   return (
     <Stack alignment="center" gap="8">
@@ -105,9 +106,9 @@ const FilterSelect = ({ entityName, isLoading }) => {
           placeholder="Search term or regular expression"
           className="w-96 ml-auto"
           value={searchTerm || ""}
-          onSearch={(value) => setSearchTerm(value)}
+          onSearch={(value) => setSearchTerm(entityName, value)}
           onClear={() => setSearchTerm(null)}
-          onChange={(value) => handleSearchChange(value)}
+          // onChange={(value) => handleSearchChange(value)}
         />
       )}
     </Stack>
