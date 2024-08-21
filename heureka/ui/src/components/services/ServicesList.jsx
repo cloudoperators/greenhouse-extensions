@@ -10,6 +10,9 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import ServicesListItem from "./ServicesListItem"
@@ -19,18 +22,29 @@ const ServicesList = ({ items, isLoading }) => {
   return (
     <>
       {/* clickableTable Table allow changes the background by css when hovering or active*/}
-      <DataGrid
-        gridColumnTemplate="2fr 3fr 2fr 2fr 2fr"
-        className="clickableTable"
-      >
+      <DataGrid columns={5} className="clickableTable">
         <DataGridRow>
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>
           <DataGridHeadCell>Support Groups</DataGridHeadCell>
           <DataGridHeadCell>
-            Total Number of Component Instances
+            <Stack direction="vertical">
+              <Tooltip triggerEvent="hover">
+                <TooltipTrigger>Component Count</TooltipTrigger>
+                <TooltipContent>
+                  Total Number of Component Instances
+                </TooltipContent>
+              </Tooltip>
+            </Stack>
           </DataGridHeadCell>
-          <DataGridHeadCell>Total Number of Issue Matches</DataGridHeadCell>
+          <DataGridHeadCell>
+            <Stack direction="vertical">
+              <Tooltip triggerEvent="hover">
+                <TooltipTrigger>Issue Count</TooltipTrigger>
+                <TooltipContent>Total Number of IssueMatches</TooltipContent>
+              </Tooltip>
+            </Stack>
+          </DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
           <DataGridRow>

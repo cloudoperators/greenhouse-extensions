@@ -46,7 +46,6 @@ const PanelManger = () => {
     >
       <PanelBody>
         {showPanel === constants.PANEL_SERVICE && <ServicesDetail />}
-
         {showPanel === constants.PANEL_ISSUE && <IssueMatchesDetails />}
       </PanelBody>
     </Panel>

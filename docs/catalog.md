@@ -16,4 +16,4 @@ This following table provides an overview of the currently available Plugins in 
 | ingress-nginx|Ingress NGINX controller|1.1.0|
 | kube-monitoring|Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.|1.3.4|
 | teams2slack|Manage Slack handles and channels based on Greenhouse teams and their members|1.1.0|
-| opentelemetry-operator|This Plugin is intended for ingesting, generating, collecting, and exporting telemetry data (metrics, logs, and traces)|0.1.0|
+| opentelemetry|This Plugin is intended for ingesting, generating, collecting, and exporting telemetry data (metrics, logs, and traces)|0.2.7|

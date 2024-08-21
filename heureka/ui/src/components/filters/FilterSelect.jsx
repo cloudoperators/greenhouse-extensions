@@ -19,18 +19,14 @@ import {
   useActiveFilters,
   useSearchTerm,
 } from "../../hooks/useAppStore"
-import { formatLabel } from "../../helpers"
+import { humanizeString } from "../../lib/utils"
 
 const FilterSelect = ({ entityName, isLoading }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
 
-  const {
-    addActiveFilter,
-    loadFilterLabelValues,
-    clearActiveFilters,
-    setSearchTerm,
-  } = useFilterActions()
+  const { addActiveFilter, clearActiveFilters, setSearchTerm } =
+    useFilterActions()
 
   const filterLabels = useFilterLabels(entityName)
   const filterLabelValues = useFilterLabelValues(entityName)
@@ -47,10 +43,6 @@ const FilterSelect = ({ entityName, isLoading }) => {
 
   const handleFilterLabelChange = (label) => {
     setFilterLabel(label)
-    // Lazy load all possible values for this label (only load them if not already loaded)
-    if (!filterLabelValues[label]?.length) {
-      loadFilterLabelValues(entityName, label)
-    }
   }
 
   const handleFilterValueChange = (value) => {
@@ -73,14 +65,14 @@ const FilterSelect = ({ entityName, isLoading }) => {
           name="filter"
           className="filter-label-select w-64 mb-0"
           label="Filter"
-          value={formatLabel(filterLabel)}
+          value={humanizeString(filterLabel)}
           onChange={(val) => handleFilterLabelChange(val)}
           disabled={isLoading}
         >
           {filterLabels?.map((filter) => (
             <SelectOption
               value={filter}
-              label={formatLabel(filter)}
+              label={humanizeString(filter)}
               key={filter}
             />
           ))}
@@ -93,8 +85,8 @@ const FilterSelect = ({ entityName, isLoading }) => {
           loading={filterLabelValues[filterLabel]?.isLoading}
           className="filter-value-select w-96 bg-theme-background-lvl-0"
         >
-          {filterLabelValues[filterLabel]
-            ?.filter((value) => !activeFilters[filterLabel]?.includes(value))
+          {filterLabelValues[filterLabel] //Ensure already selected values are not displayed in filterValue drop down to avoid duplicate selections
+            ?.filter((value) => !activeFilters[filterLabel]?.includes(value)) // Filter out values that are already active
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}
@@ -113,7 +105,7 @@ const FilterSelect = ({ entityName, isLoading }) => {
           placeholder="Search term or regular expression"
           className="w-96 ml-auto"
           value={searchTerm || ""}
-          onSearch={(value) => setSearchTerm(entityName, value)}
+          onSearch={(value) => setSearchTerm(value)}
           onClear={() => setSearchTerm(null)}
           onChange={(value) => handleSearchChange(value)}
         />

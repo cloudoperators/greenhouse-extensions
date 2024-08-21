@@ -13,7 +13,7 @@ import {
   useGlobalsShowIssueDetail,
 } from "../../hooks/useAppStore"
 
-const IssuesListItem = ({ item }) => {
+const IssueMatchesListItem = ({ item }) => {
   const { setShowPanel, setShowIssueDetail } = useGlobalsActions()
   const showPanel = useGlobalsShowPanel()
   const showIssueDetail = useGlobalsShowIssueDetail()
@@ -68,4 +68,4 @@ const IssuesListItem = ({ item }) => {
   )
 }
 
-export default IssuesListItem
+export default IssueMatchesListItem

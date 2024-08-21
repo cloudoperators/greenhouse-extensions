@@ -15,7 +15,7 @@ on:
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
       - obenbao/charts/**
-      - opentelemetry-operator/chart/**
+      - opentelemetry/chart/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
@@ -52,7 +52,7 @@ jobs:
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
-          - chartDir: opentelemetry-operator/chart
+          - chartDir: opentelemetry/chart
             chartName: opentelemetry-operator
           - chartDir: plutono/charts
             chartName: plutono

@@ -18,7 +18,7 @@ const IssueMatchesList = ({ items, isLoading }) => {
   return (
     <>
       {/* clickableTable Table allow changes the background by css when hovering or active*/}
-      <DataGrid gridColumnTemplate columns={6} className="clickableTable">
+      <DataGrid columns={6} className="clickableTable">
         <DataGridRow>
           <DataGridHeadCell>Primary Name</DataGridHeadCell>
           {/* <DataGridHeadCell>Secondary Name</DataGridHeadCell> */}
@@ -47,7 +47,7 @@ const IssueMatchesList = ({ items, isLoading }) => {
               </>
             ) : (
               <DataGridRow>
-                <DataGridCell colSpan={10}>
+                <DataGridCell colSpan={6}>
                   <HintNotFound text="No issue matches found" />
                 </DataGridCell>
               </DataGridRow>

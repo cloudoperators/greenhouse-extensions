@@ -15,16 +15,10 @@ import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import AsyncWorker from "./components/AsyncWorker"
 import TabContext from "./components/tabs/TabContext"
 import { ErrorBoundary } from "react-error-boundary"
-import {
-  useGlobalsActions,
-  useFilterActions,
-  StoreProvider,
-} from "./hooks/useAppStore"
+import { useGlobalsActions, StoreProvider } from "./hooks/useAppStore"
 import PanelManager from "./components/shared/PanelManager"
 
 function App(props = {}) {
-  const { setLabels, setPredefinedFilters, setActivePredefinedFilter } =
-    useFilterActions()
   const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const preErrorClasses = `
   custom-error-pre
@@ -35,29 +29,7 @@ function App(props = {}) {
   `
 
   useLayoutEffect(() => {
-    // filterLabels are the labels shown in the filter dropdown, enabling users to filter services based on specific criteria. Default is support-group.
-    if (props.filterLabels) setLabels(props.filterLabels)
-
-    // predefined filters config
-    const predefinedFilters = [
-      {
-        name: "support-group",
-        displayName: "support-group",
-        // regex that matches all entities with default filter
-        region: "\bcontainers\b",
-      },
-    ]
-    // setPredefinedFilters(predefinedFilters)
-
-    // initially active predefined filter
-    const initialPredefinedFilter = "support-group"
-    // setActivePredefinedFilter(initialPredefinedFilter)
-
-    // save the apiEndpoint. It is also used outside the alertManager hook
     setApiEndpoint(props.endpoint)
-  }, [])
-
-  useLayoutEffect(() => {
     if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
   }, [])
 
