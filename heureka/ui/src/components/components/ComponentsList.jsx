@@ -20,14 +20,14 @@ import ComponentsListItem from "./ComponentsListItem"
 
 const ComponentsList = ({ items, isLoading }) => {
   return (
-    <DataGrid columns={4}>
+    <DataGrid minContentColumns={[2, 3]} columns={4}>
       <DataGridRow>
         <DataGridHeadCell>Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
         <DataGridHeadCell>
           <Stack direction="vertical">
             <Tooltip triggerEvent="hover">
-              <TooltipTrigger>Version Count</TooltipTrigger>
+              <TooltipTrigger>Versions</TooltipTrigger>
               <TooltipContent>
                 Total Number of Component Versions
               </TooltipContent>
@@ -38,7 +38,7 @@ const ComponentsList = ({ items, isLoading }) => {
         <DataGridHeadCell>
           <Stack direction="vertical">
             <Tooltip triggerEvent="hover">
-              <TooltipTrigger>Instance Count</TooltipTrigger>
+              <TooltipTrigger>Instances</TooltipTrigger>
               <TooltipContent>
                 Total Number of Component Instances
               </TooltipContent>
