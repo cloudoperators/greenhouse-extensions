@@ -20,14 +20,6 @@ export const parseError = (error) => {
   return errMsg
 }
 
-export const formatLabel = (label) => {
-  // Replace camelCase with space and capitalize the first letter
-  return label
-    .replace(/([a-z])([A-Z])/g, "$1 $2") // Add a space before each capital letter
-    .replace(/([A-Z])/g, (letter) => letter.toUpperCase()) // Ensure capitalization
-    .replace(/^\w/, (c) => c.toUpperCase()) // Capitalize the first letter of the string
-}
-
 export const usersListToString = (users) => {
   if (!users) users = []
   if (!Array.isArray(users)) users = [users]
