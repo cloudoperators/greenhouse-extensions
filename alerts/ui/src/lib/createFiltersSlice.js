@@ -140,6 +140,21 @@ const createFiltersSlice = (set, get) => ({
         // after removing a filter: filter items
         get().alerts.actions.filterItems()
       },
+      setPausedFilters: (pausedFilters) => {
+        set(
+          (state) => {
+            return {
+              filters: {
+                ...state.filters,
+                pausedFilters,
+              },
+            }
+          },
+          false,
+          "filters.setPausedFilters"
+        )
+        get().alerts.actions.filterItems()
+      },
 
       addPausedFilter: (filterLabel, filterValue) => {
         set(
