@@ -113,7 +113,7 @@ export const useFilterLabels = () =>
 export const useActiveFilters = () =>
   useAppStore((state) => state.filters.activeFilters)
 export const usePausedFilters = () =>
-  useAppStore((state) => state.filters.pausedFilter)
+  useAppStore((state) => state.filters.pausedFilters)
 export const useSearchTerm = () =>
   useAppStore((state) => state.filters.searchTerm)
 export const useFilterLabelValues = () =>
