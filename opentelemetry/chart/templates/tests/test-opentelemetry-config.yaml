@@ -14,6 +14,9 @@ data:
   run.sh: |-
 
     #!/usr/bin/env bats
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
     
     load "/usr/lib/bats/bats-detik/utils"
     load "/usr/lib/bats/bats-detik/detik"
