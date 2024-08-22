@@ -48,4 +48,3 @@ data:
         verify "there is 1 customresourcedefinition named 'opentelemetrycollectors.opentelemetry.io'"
     }
 {{- end -}}
-    
