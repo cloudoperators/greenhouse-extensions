@@ -10,13 +10,11 @@ import {
   useActiveFilters,
   usePausedFilters,
   useFilterActions,
-  useFilterPills,
 } from "../../hooks/useAppStore"
 
 const FilterPills = () => {
   const activeFilters = useActiveFilters()
   const pausedFilters = usePausedFilters()
-  const filters = useFilterPills()
   const {
     removeActiveFilter,
     addActiveFilter,
@@ -41,8 +39,6 @@ const FilterPills = () => {
   return (
     <Stack gap="2" wrap={true}>
       {Object.entries(activeFilters).map(([key, filterItems]) => {
-        console.log(key, filterItems, pausedFilters ? pausedFilters[key] : "no")
-
         return filterItems.map((item) =>
           pausedFilters[key]?.includes(item) ? (
             <Pill

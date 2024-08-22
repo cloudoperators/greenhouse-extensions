@@ -68,7 +68,6 @@ const RecreateSilence = (props) => {
   useLayoutEffect(() => {
     if (!displayNewSilence) return
 
-    console.log(silence)
     // reset form state with default values
     setFormState({
       ...formState,
