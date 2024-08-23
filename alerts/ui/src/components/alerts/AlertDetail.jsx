@@ -37,6 +37,7 @@ import SilenceNew from "../silences/SilenceNew"
 import AlertStatus from "./AlertStatus"
 import AlertRegion from "./shared/AlertRegion"
 import AlertSilences from "./AlertSilences"
+import { Messages } from "@cloudoperators/juno-messages-provider"
 
 const AlertDetail = () => {
   const alertID = useShowDetailsFor()

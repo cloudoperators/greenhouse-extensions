@@ -50,13 +50,6 @@ const AlertSilencesList = ({ alert }) => {
     silenceList = getSilencesForAlert(alert)
   }, [localItems])
 
-  // const activeSilences = getMappingSilences(alert)
-  // const expiredSilences = getExpiredSilences(alert)
-  // const silenceList = activeSilences.concat(
-  //   expiredSilences,
-  //   creatingExpiringSilences
-  // )
-
   return (
     <>
       {silenceList.length > 0 && (

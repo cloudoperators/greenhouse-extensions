@@ -355,8 +355,7 @@ const createSilencesSlice = (set, get, options) => ({
       getSilencesForAlert: (alert) => {
         if (!alert) return
         const alertLabels = alert?.labels || {}
-        let silences = []
-        silences.push(get().silences.items)
+        let silences = [...get().silences.items]
         const localItems = get().silences.localItems || {}
 
         // checking if localItem need to overwrite a item or if its appended
@@ -369,7 +368,7 @@ const createSilencesSlice = (set, get, options) => ({
 
           if (index !== -1) {
             // Update the existing element
-            silences[index].status = localSilence.status
+            silences[index] = localSilence
           } else {
             // Add the new element
             silences.push(localSilence)

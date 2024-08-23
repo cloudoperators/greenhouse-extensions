@@ -202,7 +202,7 @@ const SilenceNew = ({ alert, size, variant }) => {
 
           {expirationDate && !success && (
             <Message className="mb-6" variant="info">
-              There is already a silence for this alert that expires at{" "}
+              There is already a silence for this alert that expires at
               <b>
                 {DateTime.fromISO(expirationDate).toLocaleString(
                   DateTime.DATETIME_SHORT
