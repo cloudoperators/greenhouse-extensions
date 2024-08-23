@@ -160,12 +160,13 @@ const createFiltersSlice = (set, get) => ({
         set(
           produce((state) => {
             // use Set to prevent duplicate values
-            state.filters.pausedFilters[filterLabel] = [
+            let newFilterValues = [
               ...new Set([
                 ...(state.filters.pausedFilters[filterLabel] || []),
                 filterValue,
               ]),
             ]
+            state.filters.pausedFilters[filterLabel] = newFilterValues
           }),
           false,
           "filters.addPausedFilter"
