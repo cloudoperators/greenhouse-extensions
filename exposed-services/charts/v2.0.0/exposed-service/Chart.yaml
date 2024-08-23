@@ -27,5 +27,5 @@ version: 2.1.0
 appVersion: "2.1.0"
 dependencies:
   - name: owner-info
-    repository: ghcr.io/sapcc/helm-charts
+    repository: oci://ghcr.io/sapcc/helm-charts
     version: 1.0.0
