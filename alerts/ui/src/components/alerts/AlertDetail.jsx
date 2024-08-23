@@ -68,7 +68,7 @@ const AlertDetail = () => {
     >
       <PanelBody>
         <MessagesProvider>
-          <Messages className="pb-6" />
+          <Messages className="pb-6 absolute" />
           <Tabs>
             <TabList>
               <Tab>Details</Tab>
