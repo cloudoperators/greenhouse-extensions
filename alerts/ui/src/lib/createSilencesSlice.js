@@ -371,7 +371,7 @@ const createSilencesSlice = (set, get, options) => ({
             silences[index] = localSilence
           } else {
             // Add the new element
-            silences.push(localSilence)
+            silences.unshift(localSilence)
           }
         }
 
