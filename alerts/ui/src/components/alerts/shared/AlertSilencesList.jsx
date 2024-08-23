@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React, { useEffect } from "react"
 import { DateTime } from "luxon"
 import constants from "../../../constants"
 import ExpireSilence from "../../silences/ExpireSilence"
@@ -17,7 +17,10 @@ import {
   DataGridRow,
 } from "@cloudoperators/juno-ui-components"
 
-import { useSilencesActions } from "../../../hooks/useAppStore"
+import {
+  useSilencesActions,
+  useSilencesLocalItems,
+} from "../../../hooks/useAppStore"
 
 const badgeVariant = (state) => {
   switch (state) {
@@ -33,17 +36,26 @@ const badgeVariant = (state) => {
 const AlertSilencesList = ({ alert }) => {
   const dateFormat = { ...DateTime.DATETIME_SHORT }
   const timeFormat = { ...DateTime.TIME_24_WITH_SHORT_OFFSET }
+  const localItems = useSilencesLocalItems()
+
+  const { getSilencesForAlert } = useSilencesActions()
+  let silenceList = getSilencesForAlert(alert)
 
   const formatDateTime = (timestamp) => {
     const time = DateTime.fromISO(timestamp)
     return time.toLocaleString(dateFormat)
   }
 
-  const { getMappingSilences, getExpiredSilences } = useSilencesActions()
+  useEffect(() => {
+    silenceList = getSilencesForAlert(alert)
+  }, [localItems])
 
-  const activeSilences = getMappingSilences(alert)
-  const expiredSilences = getExpiredSilences(alert)
-  const silenceList = activeSilences.concat(expiredSilences)
+  // const activeSilences = getMappingSilences(alert)
+  // const expiredSilences = getExpiredSilences(alert)
+  // const silenceList = activeSilences.concat(
+  //   expiredSilences,
+  //   creatingExpiringSilences
+  // )
 
   return (
     <>
@@ -81,9 +93,15 @@ const AlertSilencesList = ({ alert }) => {
                     silence?.status?.state === constants.SILENCE_ACTIVE ||
                     silence?.status?.state === constants.SILENCE_PENDING ||
                     silence?.status?.state === constants.SILENCE_CREATING ? (
-                      <ExpireSilence silence={silence} />
+                      <ExpireSilence
+                        silence={silence}
+                        fingerprint={alert.fingerprint}
+                      />
                     ) : (
-                      <RecreateSilence silence={silence} />
+                      <RecreateSilence
+                        silence={silence}
+                        fingerprint={alert.fingerprint}
+                      />
                     )
                   }
                 </DataGridCell>

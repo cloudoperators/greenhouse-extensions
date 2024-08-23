@@ -8,7 +8,6 @@ import { Button, Modal } from "@cloudoperators/juno-ui-components"
 import {
   useGlobalsApiEndpoint,
   useSilencesActions,
-  useSilencesLocalItems,
 } from "../../hooks/useAppStore"
 import { useActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
@@ -19,10 +18,10 @@ import { del } from "../../api/client"
 const ExpireSilence = (props) => {
   const { addMessage } = useActions()
   const silence = props.silence
+  const fingerprint = props.fingerprint ? props.fingerprint : null
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
   const { addLocalItem } = useSilencesActions()
-  const { localItems } = useSilencesLocalItems()
 
   const onExpire = debounce(() => {
     // submit silence
@@ -52,6 +51,7 @@ const ExpireSilence = (props) => {
       silence: newSilence,
       id: newSilence.id,
       type: constants.SILENCE_EXPIRING,
+      alertFingerprint: fingerprint,
     })
 
     return

@@ -51,6 +51,7 @@ const DEFAULT_FORM_VALUES = { duration: "2", comment: "" }
 
 const RecreateSilence = (props) => {
   const silence = props.silence
+  const fingerprint = props.fingerprint ? props.fingerprint : null
   const authData = useAuthData()
   const apiEndpoint = useGlobalsApiEndpoint()
 
@@ -133,6 +134,7 @@ const RecreateSilence = (props) => {
             silence: newSilence,
             id: data.silenceID,
             type: constants.SILENCE_CREATING,
+            alertFingerprint: fingerprint,
           })
         }
       })
@@ -177,7 +179,7 @@ const RecreateSilence = (props) => {
 
           {expirationDate && !success && (
             <Message className="mb-6" variant="info">
-              There is already a silence for this alert that expires at{" "}
+              There is already a silence for this alert that expires at
               <b>
                 {DateTime.fromISO(expirationDate).toLocaleString(
                   DateTime.DATETIME_SHORT
