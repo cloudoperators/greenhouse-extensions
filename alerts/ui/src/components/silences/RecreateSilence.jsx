@@ -22,6 +22,7 @@ import {
   useGlobalsApiEndpoint,
   useSilencesActions,
 } from "../../hooks/useAppStore"
+import { debounce } from "../../helpers"
 import { post } from "../../api/client"
 import { DateTime } from "luxon"
 import { latestExpirationDate, getSelectOptions } from "./silenceHelpers"
@@ -97,7 +98,7 @@ const RecreateSilence = (props) => {
     return options.items
   }, [expirationDate])
 
-  const onSubmitForm = () => {
+  const onSubmitForm = debounce(() => {
     setError(null)
     setSuccess(null)
     const formValidation = validateForm(formState)
@@ -127,6 +128,7 @@ const RecreateSilence = (props) => {
         setSuccess(data)
         if (data?.silenceID) {
           // add silence to local store
+          console.log(newSilence, "away")
           addLocalItem({
             silence: newSilence,
             id: data.silenceID,
@@ -137,7 +139,7 @@ const RecreateSilence = (props) => {
       .catch((error) => {
         setError(parseError(error))
       })
-  }
+  }, 200)
 
   const onInputChanged = ({ key, value }) => {
     if (!value) return

@@ -12,7 +12,8 @@ import {
 } from "../../hooks/useAppStore"
 import { useActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
-
+import constants from "../../constants"
+import { debounce } from "../../helpers"
 import { del } from "../../api/client"
 
 const ExpireSilence = (props) => {
@@ -23,7 +24,7 @@ const ExpireSilence = (props) => {
   const { addLocalItem } = useSilencesActions()
   const { localItems } = useSilencesLocalItems()
 
-  const onExpire = () => {
+  const onExpire = debounce(() => {
     // submit silence
     del(`${apiEndpoint}/silence/${silence.id}`)
       .then(() => {
@@ -44,12 +45,17 @@ const ExpireSilence = (props) => {
 
     let newSilence = {
       ...silence,
-      status: { ...silence.status, state: "expiring" },
+      status: { ...silence.status, state: constants.SILENCE_EXPIRING },
     }
-    addLocalItem({ silence: newSilence, id: newSilence.id, type: "expiring" })
+    console.log(newSilence, "new")
+    addLocalItem({
+      silence: newSilence,
+      id: newSilence.id,
+      type: constants.SILENCE_EXPIRING,
+    })
 
     return
-  }
+  }, 200)
 
   return (
     <>

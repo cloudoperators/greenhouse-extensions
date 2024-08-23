@@ -26,6 +26,7 @@ import {
 import { post } from "../../api/client"
 import AlertDescription from "../alerts/shared/AlertDescription"
 import SilenceNewAdvanced from "./SilenceNewAdvanced"
+import { debounce } from "../../helpers"
 import { DateTime } from "luxon"
 import {
   latestExpirationDate,
@@ -103,7 +104,7 @@ const SilenceNew = ({ alert, size, variant }) => {
     return options.items
   }, [expirationDate])
 
-  const onSubmitForm = () => {
+  const onSubmitForm = debounce(() => {
     setError(null)
     setSuccess(null)
     const formValidation = validateForm(formState)
@@ -149,7 +150,7 @@ const SilenceNew = ({ alert, size, variant }) => {
       .catch((error) => {
         setError(parseError(error))
       })
-  }
+  }, 200)
 
   const onInputChanged = ({ key, value }) => {
     if (!value) return
