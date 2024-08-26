@@ -63,69 +63,15 @@ spec:
         auth_type: serviceAccount
 
       filelog:
-        include: [ /var/log/pods/*/*/*.log ]
-        exclude: [ var/log/pods/*/logs-collector/*.log ]
         include_file_path: true
-        include_file_name: false
-        start_at: end
-        retry_on_failure:
-          enabled: true
-
+        include: [ /var/log/pods/*/*/*.log ]
         operators:
-          - id: get-format
-            type: router
-            routes:
-              - output: set-containerd
-                expr: 'body matches "^[^ Z]+Z"'
-
-          - id: set-containerd
+          - id: container-parser
+            type: container
+          - id: parser-containerd
             type: add
             field: resource["container.runtime"]
             value: "containerd"
-
-           # Parse CRI-Containerd format
-          - id: parser-containerd
-            type: regex_parser
-            regex: '^(?P<time>[^ Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*)'
-            timestamp:
-              parse_from: attributes.time
-              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
-
-          - id: parse-time
-            type: regex_parser
-            regex: '^(?P<time>[^ Z]+)'
-            timestamp:
-              parse_from: attributes.time
-              layout_type: gotime
-              layout: '2006-01-02T15:04:05.999999999'
-
-          # Extract metadata from file path
-          - id: extract_metadata_from_filepath
-            type: regex_parser
-            regex: '^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]{36})\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$'
-            parse_from: attributes["log.file.path"]
-            cache:
-              size: 128
-
-          # Rename attributes
-          - type: move
-            from: attributes.stream
-            to: attributes["log.iostream"]
-          - type: move
-            from: attributes.container_name
-            to: resource["k8s.container.name"]
-          - type: move
-            from: attributes.namespace
-            to: resource["k8s.namespace"]
-          - type: move
-            from: attributes.pod_name
-            to: resource["k8s.pod.name"]
-          - type: move
-            from: attributes.restart_count
-            to: resource["k8s.container.restart_count"]
-          - type: move
-            from: attributes.uid
-            to: resource["k8s.pod.uid"]
 
 {{- if .Values.openTelemetry.podMonitor.enabled }}
       prometheus/internal:
@@ -238,6 +184,15 @@ spec:
       #      - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
       #      - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
 
+      transform/ingress:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["app.label.name"] == "ingress-nginx"
+            statements:
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:remoteaddr} %{NOTSPACE:ident} %{NOTSPACE:auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:upstream_addr}\\:%{NUMBER:upstream_port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert"
+
       k8sattributes:
         auth_type: "serviceAccount"
         passthrough: false
@@ -328,7 +283,7 @@ spec:
       pipelines:
         logs/containerd:
           receivers: [filelog]
-          processors: [k8sattributes,attributes/cluster,batch]
+          processors: [k8sattributes,transform/ingress,attributes/cluster,batch]
           exporters: [opensearch/logs]
         logs/k8sevents:
           receivers: [k8s_events]
