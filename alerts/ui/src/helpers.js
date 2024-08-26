@@ -37,3 +37,13 @@ const parseMessage = (message) => {
 
   return newMsg
 }
+
+// debounce helper. This will debounce the passed function by the passed delay (in milliseconds)
+export const debounce = (func, delay) => {
+  let timeout
+  return function (...args) {
+    const context = this
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(context, args), delay)
+  }
+}

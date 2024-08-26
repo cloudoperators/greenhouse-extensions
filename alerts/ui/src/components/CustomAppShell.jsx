@@ -61,8 +61,11 @@ const CustomAppShell = ({ children }) => {
   )
 
   return (
-    <AppShell pageHeader={pageHeader} embedded={embedded}>
-      {topNavigation}
+    <AppShell
+      pageHeader={pageHeader}
+      embedded={embedded}
+      topNavigation={topNavigation}
+    >
       {children}
     </AppShell>
   )

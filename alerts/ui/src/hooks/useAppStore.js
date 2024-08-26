@@ -112,6 +112,8 @@ export const useFilterLabels = () =>
   useAppStore((state) => state.filters.labels)
 export const useActiveFilters = () =>
   useAppStore((state) => state.filters.activeFilters)
+export const usePausedFilters = () =>
+  useAppStore((state) => state.filters.pausedFilters)
 export const useSearchTerm = () =>
   useAppStore((state) => state.filters.searchTerm)
 export const useFilterLabelValues = () =>
@@ -120,6 +122,8 @@ export const usePredefinedFilters = () =>
   useAppStore((state) => state.filters.predefinedFilters)
 export const useActivePredefinedFilter = () =>
   useAppStore((state) => state.filters.activePredefinedFilter)
+export const useFilterPills = () =>
+  useAppStore((state) => state.filters.filterPills)
 
 export const useFilterActions = () =>
   useAppStore((state) => state.filters.actions)

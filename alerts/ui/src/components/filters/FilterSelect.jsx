@@ -30,7 +30,7 @@ const FilterSelect = () => {
   const {
     addActiveFilter,
     loadFilterLabelValues,
-    clearActiveFilters,
+    clearFilters,
     setSearchTerm,
   } = useFilterActions()
   const filterLabels = useFilterLabels()
@@ -112,6 +112,7 @@ const FilterSelect = () => {
                 // filter out already active values for this label
                 !activeFilters[filterLabel]?.includes(value)
             )
+            .slice(0,100) // take only the first 100 values. This isn't a good solution TODO: fix this properly with combo box, typeahead search, lazy loading, etc.
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}
@@ -125,7 +126,7 @@ const FilterSelect = () => {
       {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all"
-          onClick={() => clearActiveFilters()}
+          onClick={() => clearFilters()}
           variant="subdued"
         />
       )}

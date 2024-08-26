@@ -8,22 +8,23 @@ import { Button, Modal } from "@cloudoperators/juno-ui-components"
 import {
   useGlobalsApiEndpoint,
   useSilencesActions,
-  useSilencesLocalItems,
 } from "../../hooks/useAppStore"
 import { useActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
-
+import constants from "../../constants"
+import { debounce } from "../../helpers"
 import { del } from "../../api/client"
 
 const ExpireSilence = (props) => {
   const { addMessage } = useActions()
   const silence = props.silence
+  const fingerprint = props.fingerprint ? props.fingerprint : null
   const [confirmationDialog, setConfirmationDialog] = useState(false)
   const apiEndpoint = useGlobalsApiEndpoint()
   const { addLocalItem } = useSilencesActions()
-  const { localItems } = useSilencesLocalItems()
 
-  const onExpire = () => {
+  // debounce to prevent accidental double clicks from firing multiple api calls
+  const onExpire = debounce(() => {
     // submit silence
     del(`${apiEndpoint}/silence/${silence.id}`)
       .then(() => {
@@ -44,12 +45,17 @@ const ExpireSilence = (props) => {
 
     let newSilence = {
       ...silence,
-      status: { ...silence.status, state: "expiring" },
+      status: { ...silence.status, state: constants.SILENCE_EXPIRING },
     }
-    addLocalItem({ silence: newSilence, id: newSilence.id, type: "expiring" })
+    addLocalItem({
+      silence: newSilence,
+      id: newSilence.id,
+      type: constants.SILENCE_EXPIRING,
+      alertFingerprint: fingerprint,
+    })
 
     return
-  }
+  }, 200)
 
   return (
     <>
