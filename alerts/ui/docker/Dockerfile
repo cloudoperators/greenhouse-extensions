@@ -1,10 +1,17 @@
 FROM node:20-alpine as build
 
+# we need jq to read and manipulate package.json
 RUN apk add --no-cache jq
+# create a directory where we can copy the source code
 RUN mkdir -p /tmp/src /app
-
+# copy the source code to the container
 ADD . /tmp/src
 
+# remove peerDependencies from package.json
+# install dependencies
+# build the project 
+# copy the build output to /app
+# copy favicon.ico to /app
 RUN \
   cd /tmp/src && \
   jq 'del(.peerDependencies)' package.json > tmp.json && mv tmp.json package.json && \
@@ -16,19 +23,27 @@ RUN \
   cp -r /tmp/src/$dir /app/ && \
   cp public/favicon.ico /app/
 
+# create index.html  
 RUN cat <<EOF > /app/index.html
 <!DOCTYPE html>
-<html style="margin: 0; padding: 0; display: flex; flex-direction: column">
+<html>
   <head>
     <title>Supernova</title>
     <link rel="icon" sizes="any" href="favicon.ico" />
+    <style>
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
-  <body style="height: 100vh; flex-grow: 1; margin: 0; padding: 0">
+  <body>
+    <div id="root"></div>
     <script type="module">
       import { mount } from "/$(cat /app/entry_file)"
       import props from "/appProps.js"
-      const root = document.createElement("div")
-      document.body.appendChild(root)
+      const root = document.getElementById("root")
       mount(root, { props})
     </script>
   </body>
@@ -49,6 +64,7 @@ ENV SILENCE_EXCLUDED_LABELS=""
 ENV SILENCE_TEMPLATES=""
 
 # Create Entrypoint which creates /app/appProps.js from ENVs
+# Environment variables are known at runtime, so we can use them to create a file that will be used by the app
 RUN cat <<EOF > /supernova_entrypoint.sh
 #!/bin/sh
 echo "export default {endpoint: \"\$ENDPOINT\", theme: \"\$THEME\", embedded: false, silenceExcludedLabels: \"\$SILENCE_EXCLUDED_LABELS\", silenceTemplates: \"\$SILENCE_TEMPLATES\"}" > /usr/share/nginx/html/appProps.js

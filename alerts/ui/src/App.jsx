@@ -12,7 +12,6 @@ import {
   useGlobalsActions,
   useFilterActions,
   useSilencesActions,
-  useAlertsActions,
   StoreProvider,
 } from "./hooks/useAppStore"
 import AsyncWorker from "./components/AsyncWorker"
@@ -104,7 +103,7 @@ function App(props = {}) {
 
   return (
     <MessagesProvider>
-      <CustomAppShell>
+      <CustomAppShell theme={props.theme}>
         <ErrorBoundary fallbackRender={fallbackRender}>
           <AsyncWorker endpoint={props.endpoint} />
           <AppContent props={props} />
