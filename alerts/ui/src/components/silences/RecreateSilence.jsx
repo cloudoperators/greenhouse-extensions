@@ -130,7 +130,6 @@ const RecreateSilence = (props) => {
         setSuccess(data)
         if (data?.silenceID) {
           // add silence to local store
-          console.log(newSilence, "away")
           addLocalItem({
             silence: newSilence,
             id: data.silenceID,
