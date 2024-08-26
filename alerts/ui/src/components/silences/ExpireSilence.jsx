@@ -23,6 +23,7 @@ const ExpireSilence = (props) => {
   const apiEndpoint = useGlobalsApiEndpoint()
   const { addLocalItem } = useSilencesActions()
 
+  // debounce to prevent accidental double clicks from firing multiple api calls
   const onExpire = debounce(() => {
     // submit silence
     del(`${apiEndpoint}/silence/${silence.id}`)
