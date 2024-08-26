@@ -103,7 +103,7 @@ function App(props = {}) {
 
   return (
     <MessagesProvider>
-      <CustomAppShell theme={props.theme}>
+      <CustomAppShell>
         <ErrorBoundary fallbackRender={fallbackRender}>
           <AsyncWorker endpoint={props.endpoint} />
           <AppContent props={props} />
