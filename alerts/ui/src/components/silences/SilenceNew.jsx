@@ -104,6 +104,7 @@ const SilenceNew = ({ alert, size, variant }) => {
     return options.items
   }, [expirationDate])
 
+  // debounce to prevent accidental double clicks from creating multiple silences
   const onSubmitForm = debounce(() => {
     setError(null)
     setSuccess(null)
