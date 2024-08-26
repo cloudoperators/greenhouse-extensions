@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo } from "react"
+import React from "react"
 import {
   AppShell,
   PageHeader,
@@ -11,30 +11,15 @@ import {
   TopNavigationItem,
 } from "@cloudoperators/juno-ui-components"
 import {
-  useAuthData,
-  useAuthLoggedIn,
   useGlobalsEmbedded,
-  useAuthActions,
   useGlobalsActions,
   useGlobalsActiveSelectedTab,
 } from "../hooks/useAppStore"
-import HeaderUser from "./HeaderUser"
 
 const CustomAppShell = ({ children }) => {
   const embedded = useGlobalsEmbedded()
-  const authData = useAuthData()
-  const loggedIn = useAuthLoggedIn()
-  const { logout } = useAuthActions()
   const activeSelectedTab = useGlobalsActiveSelectedTab()
   const { setActiveSelectedTab } = useGlobalsActions()
-
-  const pageHeader = useMemo(() => {
-    return (
-      <PageHeader heading="Converged Cloud | Supernova">
-        {loggedIn && <HeaderUser auth={authData} logout={logout} />}
-      </PageHeader>
-    )
-  }, [loggedIn, authData, logout])
 
   const handleTabSelect = (item) => {
     setActiveSelectedTab(item)
@@ -62,10 +47,10 @@ const CustomAppShell = ({ children }) => {
 
   return (
     <AppShell
-      pageHeader={pageHeader}
+      pageHeader={<PageHeader heading="Supernova" />}
       embedded={embedded}
-      topNavigation={topNavigation}
     >
+      {topNavigation}
       {children}
     </AppShell>
   )

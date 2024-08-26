@@ -63,16 +63,7 @@ export const useGlobalsActions = () =>
 
 // AUTH
 export const useAuthData = () => useAppStore((state) => state.auth.data)
-export const useAuthIsProcessing = () =>
-  useAppStore((state) => state.auth.isProcessing)
 export const useAuthLoggedIn = () => useAppStore((state) => state.auth.loggedIn)
-export const useAuthError = () => useAppStore((state) => state.auth.error)
-export const useAuthLastAction = () =>
-  useAppStore((state) => state.auth.lastAction)
-export const useAuthAppLoaded = () =>
-  useAppStore((state) => state.auth.appLoaded)
-export const useAuthAppIsLoading = () =>
-  useAppStore((state) => state.auth.appIsLoading)
 export const useAuthActions = () => useAppStore((state) => state.auth.actions)
 
 // UserActivity exports

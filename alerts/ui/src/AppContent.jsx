@@ -13,8 +13,6 @@ import {
   useAlertsUpdatedAt,
   useAlertsTotalCounts,
   useSilencesIsLoading,
-  useAuthLoggedIn,
-  useAuthError,
   useSilencesError,
   useGlobalsActions,
   useGlobalsActiveSelectedTab,
@@ -23,7 +21,6 @@ import AlertsList from "./components/alerts/AlertsList"
 import RegionsList from "./components/regions/RegionsList"
 import StatusBar from "./components/status/StatusBar"
 import Filters from "./components/filters/Filters"
-import WelcomeView from "./components/WelcomeView"
 import { parseError } from "./helpers"
 import AlertDetail from "./components/alerts/AlertDetail"
 import PredefinedFilters from "./components/filters/PredefinedFilters"
@@ -31,8 +28,6 @@ import SilencesList from "./components/silences/SilencesList"
 
 const AppContent = () => {
   const { addMessage } = useActions()
-  const loggedIn = useAuthLoggedIn()
-  const authError = useAuthError()
 
   // alerts
   const alertsError = useAlertsError()
@@ -49,16 +44,8 @@ const AppContent = () => {
   const activeSelectedTab = useGlobalsActiveSelectedTab()
 
   useEffect(() => {
-    if (!authError) return
-    addMessage({
-      variant: "error",
-      text: parseError(authError),
-    })
-  }, [authError])
-
-  useEffect(() => {
     // since the API call is done in a web worker and not logging aware, we need to show the error just in case the user is logged in
-    if (!alertsError || !loggedIn) return
+    if (!alertsError) return
 
     // if user uses firefox warn to activate `allow_client_cert`. Should be enough to do it just here since the API call is done in a web worker and nothing else will be loaded until the alerts are loaded
     const isFirefox = navigator.userAgent.toLowerCase().includes("firefox")
@@ -87,16 +74,16 @@ const AppContent = () => {
       variant: "error",
       text: parseError(alertsError),
     })
-  }, [alertsError, loggedIn])
+  }, [alertsError])
 
   useEffect(() => {
     // since the API call is done in a web worker and not logging aware, we need to show the error just in case the user is logged in
-    if (!silencesError || !loggedIn) return
+    if (!silencesError) return
     addMessage({
       variant: "error",
       text: parseError(silencesError),
     })
-  }, [silencesError, loggedIn])
+  }, [silencesError])
 
   const handleTabSelect = (item) => {
     setActiveSelectedTab(item)
@@ -105,46 +92,41 @@ const AppContent = () => {
   return (
     <Container px py className="h-full">
       <Messages className="pb-6" />
-      {loggedIn && !authError ? (
+
+      {activeSelectedTab === "alerts" && (
         <>
-          {activeSelectedTab === "alerts" && (
+          <AlertDetail />
+          <RegionsList />
+          {isAlertsLoading ? (
+            <Stack gap="2">
+              <span>Loading</span>
+              <Spinner variant="primary" />
+            </Stack>
+          ) : (
             <>
-              <AlertDetail />
-              <RegionsList />
-              {isAlertsLoading ? (
-                <Stack gap="2">
-                  <span>Loading</span>
-                  <Spinner variant="primary" />
-                </Stack>
-              ) : (
-                <>
-                  <PredefinedFilters />
-                  <Filters />
-                  <StatusBar
-                    totalCounts={totalCounts}
-                    isUpdating={isAlertsUpdating}
-                    updatedAt={updatedAt}
-                  />
-                  <AlertsList />
-                </>
-              )}
-            </>
-          )}
-          {activeSelectedTab === "silences" && (
-            <>
-              {isSilencesLoading ? (
-                <Stack gap="2">
-                  <span>Loading</span>
-                  <Spinner variant="primary" />
-                </Stack>
-              ) : (
-                <SilencesList />
-              )}
+              <PredefinedFilters />
+              <Filters />
+              <StatusBar
+                totalCounts={totalCounts}
+                isUpdating={isAlertsUpdating}
+                updatedAt={updatedAt}
+              />
+              <AlertsList />
             </>
           )}
         </>
-      ) : (
-        <WelcomeView />
+      )}
+      {activeSelectedTab === "silences" && (
+        <>
+          {isSilencesLoading ? (
+            <Stack gap="2">
+              <span>Loading</span>
+              <Spinner variant="primary" />
+            </Stack>
+          ) : (
+            <SilencesList />
+          )}
+        </>
       )}
     </Container>
   )
