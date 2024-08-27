@@ -27,7 +27,7 @@ docker run -v /path/to/your/appProps.json:/appProps.json -p 3010:80 supernova
 Alternatively, you can configure the application directly using environment variables:
 
 ```bash
-docker run -e ENDPOINT="https://alertmanager_url/api/v2" -e THEME="theme-light" -p 3010:80 supernova
+docker run -e ENDPOINT="https://alertmanager_url/api/v2" -p 3010:80 supernova
 ```
 
 ### Combining Both Methods
