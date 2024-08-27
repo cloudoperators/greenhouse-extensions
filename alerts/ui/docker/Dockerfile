@@ -42,7 +42,7 @@ RUN cat <<EOF > /app/index.html
     <div id="root"></div>
     <script type="module">
       import { mount } from "/$(cat /app/entry_file)"
-      import props from "/appProps.js"
+      const props = await fetch("/appProps.json").then(r => r.json())
       const root = document.getElementById("root")
       mount(root, { props})
     </script>
@@ -50,14 +50,28 @@ RUN cat <<EOF > /app/index.html
 </html>
 EOF
 
+# create appProps.js
+RUN cat <<EOF > /app/appProps.json
+{
+  "endpoint": "",
+  "theme": "theme-dark",
+  "embedded": false,
+  "silenceExcludedLabels": "",
+  "silenceTemplates": ""
+}
+EOF
+
+# clean up
 RUN rm /app/entry_file
 
 FROM nginx:alpine
 
+RUN apk add --no-cache jq
+
 COPY --from=build /app /usr/share/nginx/html
 
 ENV ENDPOINT=""
-ENV THEME="theme-dark"
+ENV THEME=""
 ENV ENDPOINT="" 
 ENV FILTER_LABELS="" 
 ENV SILENCE_EXCLUDED_LABELS=""
@@ -67,7 +81,39 @@ ENV SILENCE_TEMPLATES=""
 # Environment variables are known at runtime, so we can use them to create a file that will be used by the app
 RUN cat <<EOF > /supernova_entrypoint.sh
 #!/bin/sh
-echo "export default {endpoint: \"\$ENDPOINT\", theme: \"\$THEME\", embedded: false, silenceExcludedLabels: \"\$SILENCE_EXCLUDED_LABELS\", silenceTemplates: \"\$SILENCE_TEMPLATES\"}" > /usr/share/nginx/html/appProps.js
+# use jq to overwrite the default values in appProps.json
+# if the corresponding environment variables are set
+
+# Define the JSON file path
+APP_PROPS_FILE="/usr/share/nginx/html/appProps.json"
+
+# Copy the appProps.json file to the /usr/share/nginx/html directory if it exists
+if [ -f /appProps.json ]; then
+cp /appProps.json "\${APP_PROPS_FILE}"
+fi
+
+# Function to update JSON fields using jq
+update_json_field() {
+  field="\$1"
+  value="\$2"
+  if [ -n "\$value" ]; then
+    # Ensure jq and temporary file handling are POSIX compliant
+    jq --arg v "\$value" ".\${field} = \\\$v" "\$APP_PROPS_FILE" > tmp.json && mv tmp.json "\$APP_PROPS_FILE"
+  fi
+}
+
+# Update fields if corresponding environment variables are set
+update_json_field "endpoint" "\$ENDPOINT"
+update_json_field "theme" "\$THEME"
+update_json_field "embedded" "\$EMBEDDED"
+update_json_field "silenceExcludedLabels" "\$SILENCE_EXCLUDED_LABELS"
+update_json_field "silenceTemplates" "\$SILENCE_TEMPLATES"
+
+echo "\$APP_PROPS_FILE has been updated."
+
+cat "\$APP_PROPS_FILE"
+
+#echo "export default {endpoint: \"\$ENDPOINT\", theme: \"\$THEME\", embedded: false, silenceExcludedLabels: \"\$SILENCE_EXCLUDED_LABELS\", silenceTemplates: \"\$SILENCE_TEMPLATES\"}" > /usr/share/nginx/html/appProps.js
 exec "\$@"
 EOF
 

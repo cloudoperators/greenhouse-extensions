@@ -49,8 +49,8 @@ const CustomAppShell = ({ children }) => {
     <AppShell
       pageHeader={<PageHeader heading="Supernova" />}
       embedded={embedded}
+      topNavigation={topNavigation}
     >
-      {topNavigation}
       {children}
     </AppShell>
   )

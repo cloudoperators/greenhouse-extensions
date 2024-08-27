@@ -1,6 +1,6 @@
 # Supernova Docker Image
 
-This Dockerfile builds a standalone, runnable Supernova image. You can configure application properties using environment variables.
+This Dockerfile builds a standalone, runnable Supernova image. You can configure application properties using environment variables or by providing a custom appProps.json file via a Docker volume.
 
 ## Build the Image
 
@@ -10,28 +10,71 @@ Ensure you are in the `alerts/ui` directory, then build the Docker image with:
 docker build -t supernova -f docker/Dockerfile .
 ```
 
-## Run the Container
+## Running the Container
+
+There are two primary methods to run the Supernova container:
+
+### 1. Using a Custom `appProps.json` File
+
+To provide a custom configuration file, mount your `appProps.json` via a Docker volume:
+
+```bash
+docker run -v /path/to/your/appProps.json:/appProps.json -p 3010:80 supernova
+```
+
+### 2. Using Environment Variables
+
+Alternatively, you can configure the application directly using environment variables:
 
 ```bash
 docker run -e ENDPOINT="https://alertmanager_url/api/v2" -e THEME="theme-light" -p 3010:80 supernova
 ```
 
+### Combining Both Methods
+
+You can also combine both methods by providing a custom appProps.json via a volume and then overriding specific values using environment variables:
+
+```bash
+docker run -v /path/to/your/appProps.json:/appProps.json -p 3010:80 -e THEME="theme-light" supernova
+```
+
 ## Environment Variables
 
-- **`ENDPOINT`**: The URL for the Alertmanager API endpoint.
+You can customize the Supernova application using the following environment variables:
 
-- **`THEME`**: The theme of the application. Options include:
+- **`ENDPOINT`**: Specifies the URL for the Alertmanager API endpoint that the application will interact with.
 
-  - `theme-light`
-  - `theme-dark`
+- **`THEME`**: Determines the visual theme of the application. Available options:
 
-- **`FILTER_LABELS`**: A comma-separated list of labels available in the filter dropdown. These labels allow users to filter alerts based on specific criteria. The `Status` label is a default filter computed from the alert status attribute and will not be overwritten. The labels must be provided as an array of strings. Example: `["app", "cluster", "cluster_type"]`.
+  - `theme-light`: Light theme.
+  - `theme-dark`: Dark theme.
 
-- **`SILENCE_EXCLUDED_LABEL`**: Labels that are initially excluded by default when creating a silence. These labels can be added if needed through the advanced options in the silence form. Provide these labels as an array of strings. Example: `["pod", "pod_name", "instance"]`.
+- **`FILTER_LABELS`**: An array of labels that will be available in the filter dropdown. These labels allow users to filter alerts based on specific criteria. The `Status` label is included by default, based on the alert status attribute, and cannot be overridden. Example:
 
-- **`SILENCE_TEMPLATE`**: Pre-defined templates used for scheduling Maintenance Windows. Each template is an object that includes:
-  - `description`: A brief description of the template.
-  - `editable_labels`: An array of strings specifying labels that users can modify.
-  - `fixed_labels`: A map of labels and their fixed values that cannot be changed.
-  - `status`: The default status for the silence.
-  - `title`: A title for the silence template.
+  ```json
+  ["app", "cluster", "cluster_type"]
+  ```
+
+- **`SILENCE_EXCLUDED_LABEL`**: A list of labels that are excluded by default when creating a silence. Users can add these labels through the advanced options in the silence form if needed. Provide these labels as an array of strings. Example:
+  ```json
+  ["pod", "pod_name", "instance"]
+  ```
+- **`SILENCE_TEMPLATE`**: An array of pre-defined silence templates that can be used to schedule maintenance windows. Each template is an object with the following properties:
+  - **`description`**: A brief description of the template.
+  - **`editable_labels`**: An array of strings specifying the labels that users can modify.
+  - **`fixed_labels`**: A map containing fixed labels and their corresponding values.
+  - **`status`**: The status of the silence.
+  - **`title`**: The title of the template.
+    Example:
+  ```json
+  {
+    "description": "Weekly maintenance window",
+    "editable_labels": ["app", "environment"],
+    "fixed_labels": {
+      "maintenance": "true",
+      "team": "devops"
+    },
+    "status": "active",
+    "title": "Weekly Maintenance"
+  }
+  ```
