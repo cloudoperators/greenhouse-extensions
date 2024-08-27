@@ -7,6 +7,7 @@ This Dockerfile builds a standalone, runnable Supernova image. You can configure
 Ensure you are in the `alerts/ui` directory, then build the Docker image with:
 
 ```bash
+cd alerts/ui
 docker build -t supernova -f docker/Dockerfile .
 ```
 
