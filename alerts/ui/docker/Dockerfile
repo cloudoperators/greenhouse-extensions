@@ -81,6 +81,9 @@ ENV SILENCE_TEMPLATES=""
 # Environment variables are known at runtime, so we can use them to create a file that will be used by the app
 RUN cat <<EOF > /supernova_entrypoint.sh
 #!/bin/sh
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 # use jq to overwrite the default values in appProps.json
 # if the corresponding environment variables are set
 
