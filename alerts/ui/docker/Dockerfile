@@ -116,7 +116,6 @@ echo "\$APP_PROPS_FILE has been updated."
 
 cat "\$APP_PROPS_FILE"
 
-#echo "export default {endpoint: \"\$ENDPOINT\", theme: \"\$THEME\", embedded: false, silenceExcludedLabels: \"\$SILENCE_EXCLUDED_LABELS\", silenceTemplates: \"\$SILENCE_TEMPLATES\"}" > /usr/share/nginx/html/appProps.js
 exec "\$@"
 EOF
 
