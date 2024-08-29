@@ -6,7 +6,7 @@
 #  WORKFLOW_DISPATCH
 #     `act workflow_dispatch  --container-architecture linux/amd64 -P default=catthehacker/ubuntu:act-latest -W .github/workflows/build-push-supernova-image.yaml`
 
-name: Supernova UI Image
+name: Build Supernova UI Image
 
 on:
   workflow_dispatch: {}
