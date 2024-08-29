@@ -72,7 +72,9 @@ RUN rm /app/entry_file
 
 FROM nginx:alpine
 
-RUN apk add --no-cache jq
+RUN apk add --no-cache jq \
+  && apk upgrade --no-cache --no-progress \
+  && apk del --no-cache --no-progress apk-tools alpine-keys
 
 COPY --from=build /app /usr/share/nginx/html
 
