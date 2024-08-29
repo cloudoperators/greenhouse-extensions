@@ -3,8 +3,11 @@
 
 FROM node:20-alpine as build
 
-# we need jq to read and manipulate package.json
-RUN apk add --no-cache jq
+# we need jq to read and manipulate package.json and upgrade the system
+RUN apk add --no-cache jq \
+  && apk upgrade --no-cache --no-progress \
+  && apk del --no-cache --no-progress apk-tools alpine-keys
+
 # create a directory where we can copy the source code
 RUN mkdir -p /tmp/src /app
 # copy the source code to the container
