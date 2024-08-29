@@ -37,6 +37,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Read Docker image version
+        id: read_version
+        run: echo "IMAGE_VERSION=$(cat ${{ env.PACKAGE_PATH }}/docker/VERSION)" >> $GITHUB_ENV
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull the latest image and set status
+        id: check-image
+        run: |
+          if docker pull ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }}; then
+            echo "bump=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Image needs version bump
+        if: steps.check-image.outputs.bump == 'true'
+        run: |
+          echo "Image ${{ env.IMAGE_NAME }}:${{ env.IMAGE_VERSION }} already exists in the ${{ env.REGISTRY }} registry. Skipping workflow. Please increment the version."
+          exit 1
+
       # This action enables you to SIGN and VERIFY container images using cosign
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
@@ -57,20 +84,6 @@ jobs:
           driver-opts: |
             image=moby/buildkit:latest
 
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Read Docker image version
-        id: read_version
-        run: echo "IMAGE_VERSION=$(cat ${{ env.PACKAGE_PATH }}/docker/VERSION)" >> $GITHUB_ENV
-
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
@@ -80,9 +93,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
             # Use the version from the VERSION file
-            type=raw,value=${{ env.IMAGE_VERSION }},prefix=v
+            type=raw,value=${{ env.IMAGE_VERSION }},prefix=
             # Optionally include semver tags
-            type=semver,pattern={{major}}.{{minor}},prefix=v
+            type=semver,pattern={{major}}.{{minor}},prefix=
             # Additional Useful Tags
             type=raw,value=${{ github.sha }}
             type=sha,enable=true,format=short,prefix=
@@ -91,6 +104,8 @@ jobs:
             org.opencontainers.image.title=Supernova UI
             org.opencontainers.image.description=Supernova is an alternative UI for Prometheus Alertmanager with some quality of life improvements
             org.opencontainers.image.url=https://github.com/cloudoperators/greenhouse-extensions/tree/main/alerts/ui
+            org.opencontainers.image.source=https://github.com/cloudoperators/greenhouse-extensions/tree/main/alerts/ui
+            org.opencontainers.image.documentation=https://github.com/cloudoperators/greenhouse-extensions/tree/main/alerts/ui
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
