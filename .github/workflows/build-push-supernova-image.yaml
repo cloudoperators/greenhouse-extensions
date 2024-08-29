@@ -84,6 +84,7 @@ jobs:
             # Optionally include semver tags
             type=semver,pattern={{major}}.{{minor}},prefix=v
             # Additional Useful Tags
+            type=raw,value=${{ github.sha }}
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
           labels: |
