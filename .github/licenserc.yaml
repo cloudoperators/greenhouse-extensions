@@ -21,6 +21,7 @@ header:
     - 'opentelemetry/chart/templates/tests/**' # ignore the license for the tests of the opentelemetry chart
     - '**/*.md'
     - 'LICENSE'
+    - 'VERSION'
     - 'NOTICE'
     - 'PROJECT'
     - 'Makefile'
