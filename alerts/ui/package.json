@@ -1,6 +1,6 @@
 {
   "name": "supernova",
-  "version": "0.10.00 ",
+  "version": "0.10.1",
   "author": "UI-Team",
   "contributors": [
     "Esther Schmitz",
@@ -48,7 +48,6 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "5.36.2",
-    "custom-event-polyfill": "^1.0.7",
     "luxon": "^2.3.0",
     "prop-types": "^15.8.1",
     "react": "18.2.0",

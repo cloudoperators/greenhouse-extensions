@@ -12,7 +12,6 @@ import {
   useGlobalsActions,
   useFilterActions,
   useSilencesActions,
-  useAlertsActions,
   StoreProvider,
 } from "./hooks/useAppStore"
 import AsyncWorker from "./components/AsyncWorker"
