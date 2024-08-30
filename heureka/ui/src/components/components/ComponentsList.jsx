@@ -9,21 +9,42 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
 import ComponentsListItem from "./ComponentsListItem"
 
 const ComponentsList = ({ items, isLoading }) => {
-  console.log("components", items)
   return (
-    <DataGrid columns={4}>
+    <DataGrid minContentColumns={[2, 3]} columns={4}>
       <DataGridRow>
         <DataGridHeadCell>Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
-        <DataGridHeadCell>Total Number of Versions</DataGridHeadCell>
+        <DataGridHeadCell>
+          <Stack direction="vertical">
+            <Tooltip triggerEvent="hover">
+              <TooltipTrigger>Versions</TooltipTrigger>
+              <TooltipContent>
+                Total Number of Component Versions
+              </TooltipContent>
+            </Tooltip>
+          </Stack>
+        </DataGridHeadCell>
 
-        <DataGridHeadCell>Total Number of Instances</DataGridHeadCell>
+        <DataGridHeadCell>
+          <Stack direction="vertical">
+            <Tooltip triggerEvent="hover">
+              <TooltipTrigger>Instances</TooltipTrigger>
+              <TooltipContent>
+                Total Number of Component Instances
+              </TooltipContent>
+            </Tooltip>
+          </Stack>
+        </DataGridHeadCell>
       </DataGridRow>
       {isLoading && !items ? (
         <DataGridRow>

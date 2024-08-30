@@ -10,6 +10,9 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
 } from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import ServicesListItem from "./ServicesListItem"
@@ -20,15 +23,32 @@ const ServicesList = ({ items, isLoading }) => {
     <>
       {/* clickableTable Table allow changes the background by css when hovering or active*/}
       <DataGrid
-        gridColumnTemplate="2fr 3fr 2fr 2fr 2fr"
+        minContentColumns={[3, 4]}
+        columns={5}
         className="clickableTable"
       >
         <DataGridRow>
           <DataGridHeadCell>Service</DataGridHeadCell>
           <DataGridHeadCell>Owners</DataGridHeadCell>
           <DataGridHeadCell>Support Groups</DataGridHeadCell>
-          <DataGridHeadCell>Component Instances Count</DataGridHeadCell>
-          <DataGridHeadCell>Total Vulnerability Matches</DataGridHeadCell>
+          <DataGridHeadCell>
+            <Stack direction="vertical">
+              <Tooltip triggerEvent="hover">
+                <TooltipTrigger>Components</TooltipTrigger>
+                <TooltipContent>
+                  Total Number of Component Instances
+                </TooltipContent>
+              </Tooltip>
+            </Stack>
+          </DataGridHeadCell>
+          <DataGridHeadCell>
+            <Stack direction="vertical">
+              <Tooltip triggerEvent="hover">
+                <TooltipTrigger>Issues</TooltipTrigger>
+                <TooltipContent>Total Number of IssueMatches</TooltipContent>
+              </Tooltip>
+            </Stack>
+          </DataGridHeadCell>
         </DataGridRow>
         {isLoading && !items ? (
           <DataGridRow>

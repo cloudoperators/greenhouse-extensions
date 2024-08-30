@@ -10,7 +10,7 @@ spec:
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.1.0
+        version: 0.1.3
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -84,4 +84,4 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: string
-    version: 0.2.0
+    version: 0.2.2

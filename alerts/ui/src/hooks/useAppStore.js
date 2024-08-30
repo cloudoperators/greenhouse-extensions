@@ -63,16 +63,7 @@ export const useGlobalsActions = () =>
 
 // AUTH
 export const useAuthData = () => useAppStore((state) => state.auth.data)
-export const useAuthIsProcessing = () =>
-  useAppStore((state) => state.auth.isProcessing)
 export const useAuthLoggedIn = () => useAppStore((state) => state.auth.loggedIn)
-export const useAuthError = () => useAppStore((state) => state.auth.error)
-export const useAuthLastAction = () =>
-  useAppStore((state) => state.auth.lastAction)
-export const useAuthAppLoaded = () =>
-  useAppStore((state) => state.auth.appLoaded)
-export const useAuthAppIsLoading = () =>
-  useAppStore((state) => state.auth.appIsLoading)
 export const useAuthActions = () => useAppStore((state) => state.auth.actions)
 
 // UserActivity exports
@@ -112,6 +103,8 @@ export const useFilterLabels = () =>
   useAppStore((state) => state.filters.labels)
 export const useActiveFilters = () =>
   useAppStore((state) => state.filters.activeFilters)
+export const usePausedFilters = () =>
+  useAppStore((state) => state.filters.pausedFilters)
 export const useSearchTerm = () =>
   useAppStore((state) => state.filters.searchTerm)
 export const useFilterLabelValues = () =>
@@ -120,6 +113,8 @@ export const usePredefinedFilters = () =>
   useAppStore((state) => state.filters.predefinedFilters)
 export const useActivePredefinedFilter = () =>
   useAppStore((state) => state.filters.activePredefinedFilter)
+export const useFilterPills = () =>
+  useAppStore((state) => state.filters.filterPills)
 
 export const useFilterActions = () =>
   useAppStore((state) => state.filters.actions)

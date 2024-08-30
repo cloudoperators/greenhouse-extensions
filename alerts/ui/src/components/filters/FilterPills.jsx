@@ -6,24 +6,61 @@
 import React from "react"
 
 import { Pill, Stack } from "@cloudoperators/juno-ui-components"
-import { useActiveFilters, useFilterActions } from "../../hooks/useAppStore"
+import {
+  useActiveFilters,
+  usePausedFilters,
+  useFilterActions,
+} from "../../hooks/useAppStore"
 
 const FilterPills = () => {
   const activeFilters = useActiveFilters()
-  const { removeActiveFilter } = useFilterActions()
+  const pausedFilters = usePausedFilters()
+  const {
+    removeActiveFilter,
+    addActiveFilter,
+    addPausedFilter,
+    removePausedFilter,
+  } = useFilterActions()
+
+  const pauseFilter = (key, value) => {
+    addPausedFilter(key, value)
+  }
+
+  const deleteFilter = (key, value) => {
+    removeActiveFilter(key, value)
+    removePausedFilter(key, value)
+  }
+
+  const activateFilter = (key, value) => {
+    addActiveFilter(key, value)
+    removePausedFilter(key, value)
+  }
 
   return (
     <Stack gap="2" wrap={true}>
-      {Object.entries(activeFilters).map(([key, values]) => {
-        return values.map((value) => (
-          <Pill
-            pillKey={key}
-            pillValue={value}
-            closeable
-            onClose={() => removeActiveFilter(key, value)}
-            key={`${key}:${value}`}
-          />
-        ))
+      {Object.entries(activeFilters).map(([key, filterItems]) => {
+        return filterItems.map((item) =>
+          pausedFilters[key]?.includes(item) ? (
+            <Pill
+              className="bg-theme-background-lvl-4 opacity-70	"
+              pillKey={key}
+              pillValue={item}
+              closeable
+              onClose={() => deleteFilter(key, item)}
+              key={`${key}:${item}`}
+              onClick={() => activateFilter(key, item)}
+            />
+          ) : (
+            <Pill
+              pillKey={key}
+              pillValue={item}
+              closeable
+              onClose={() => deleteFilter(key, item)}
+              key={`${key}:${item}`}
+              onClick={() => pauseFilter(key, item)}
+            />
+          )
+        )
       })}
     </Stack>
   )

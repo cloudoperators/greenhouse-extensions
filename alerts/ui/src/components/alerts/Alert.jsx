@@ -47,11 +47,14 @@ const Alert = ({ alert }, ref) => {
     // Using the rowRef to check what was clicked
     // if the click was not on the row itself or on the row's direct children (i.e. the cells)
     // then we don't want to show the details because then the click was on a child of one of the cells
-    // an additional check is made for targets with className "interactive". If the target has this then the click
+    // an additional check is made for targets with className "interactive" and for targets where a parent has className "interactive". 
+    // If either the target itself or one of its parents has the "interactive" class then the click
     // handling should proceed even if the previous condition was true
+    // TODO: This is pretty hacky, we need to come up with a better solution for this
     if (
       e.target.parentNode !== rowRef.current &&
-      !e.target.classList.contains("interactive")
+      !e.target.classList.contains("interactive") &&
+      !e.target.closest(".interactive")
     )
       return
 
@@ -68,12 +71,12 @@ const Alert = ({ alert }, ref) => {
       ref={rowRef}
       onClick={(e) => handleShowDetails(e)}
     >
-      <DataGridCell className="pl-0">
+      <DataGridCell className="pl-0 interactive">
         <div className={cellSeverityClasses(alert.labels?.severity)}>
           <AlertIcon ref={ref} severity={alert.labels?.severity} />
         </div>
       </DataGridCell>
-      <DataGridCell>
+      <DataGridCell className="interactive">
         <AlertRegion
           region={alert.labels?.region}
           cluster={alert.labels?.cluster}
@@ -93,8 +96,10 @@ const Alert = ({ alert }, ref) => {
         </div>
         <AlertLabels alert={alert} />
       </DataGridCell>
-      <DataGridCell>
-        <AlertTimestamp startTimestamp={alert.startsAt} />
+      <DataGridCell className="interactive">
+        <AlertTimestamp
+          startTimestamp={alert.startsAt}
+        />
       </DataGridCell>
       <DataGridCell>
         <AlertStatus alert={alert} />

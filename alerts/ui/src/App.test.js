@@ -21,7 +21,8 @@ import App from "./App"
 
 test("renders app", async () => {
   render(<App />)
-
-  let loginTitle = await screen.queryAllByShadowText(/Supernova/i)
-  expect(loginTitle.length > 0).toBe(true)
+  await act(() => {
+    let loginTitle = screen.queryAllByShadowText(/Supernova/i)
+    expect(loginTitle.length > 0).toBe(true)
+  })
 })

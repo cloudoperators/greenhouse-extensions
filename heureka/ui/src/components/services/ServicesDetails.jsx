@@ -13,7 +13,10 @@ import {
   DataGridHeadCell,
   DataGridRow,
 } from "@cloudoperators/juno-ui-components"
-import { useQueryClientFnReady, useShowServiceDetail } from "../StoreProvider"
+import {
+  useGlobalsQueryClientFnReady,
+  useGlobalsShowServiceDetail,
+} from "../../hooks/useAppStore"
 import { useQuery } from "@tanstack/react-query"
 import {
   listOfCommaSeparatedObjs,
@@ -23,12 +26,12 @@ import {
 import LoadElement from "../shared/LoadElement"
 
 const ServicesDetail = () => {
-  const showServiceDetail = useShowServiceDetail()
+  const showServiceDetail = useGlobalsShowServiceDetail()
 
-  const queryClientFnReady = useQueryClientFnReady()
+  const queryClientFnReady = useGlobalsQueryClientFnReady()
 
   const serviceElem = useQuery({
-    queryKey: ["services", { filter: { serviceName: [showServiceDetail] } }],
+    queryKey: ["Services", { filter: { serviceName: [showServiceDetail] } }],
     enabled: !!queryClientFnReady,
   })
 

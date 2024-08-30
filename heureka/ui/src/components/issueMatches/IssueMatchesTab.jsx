@@ -4,23 +4,20 @@
  */
 
 import React from "react"
-import IssuesListController from "./IssuesListController"
+import IssueMatchesListController from "./IssueMatchesListController"
 import Filters from "../filters/Filters"
 import {
   Messages,
   MessagesProvider,
 } from "@cloudoperators/juno-messages-provider"
-import { Container } from "@cloudoperators/juno-ui-components"
 
 const IssuesTab = () => {
   return (
     <>
       <MessagesProvider>
-        <Filters />
-        <Container py>
-          <Messages />
-        </Container>
-        <IssuesListController />
+        <Messages />
+        <Filters queryKey="IssueMatchFilterValues" entityName="IssueMatches" />
+        <IssueMatchesListController />
       </MessagesProvider>
     </>
   )

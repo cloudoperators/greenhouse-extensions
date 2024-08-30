@@ -10,7 +10,7 @@ import ListController from "../shared/ListController"
 const ServicesListController = () => {
   return (
     <ListController
-      queryKey="services"
+      queryKey="Services"
       entityName="Services"
       ListComponent={ServicesList}
     />

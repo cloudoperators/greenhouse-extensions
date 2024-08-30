@@ -4,12 +4,14 @@
 
 /.github/                 @cloudoperators/Administrators
 /.github/workflows/       @cloudoperators/greenhouse-core
-/.github/labeler.yml      @cloudoperators/greenhouse-backend
-/.github/licenserc.yaml   @cloudoperators/greenhouse-backend
-/.github/renovate.json    @cloudoperators/greenhouse-backend
+/.github/labeler.yml      @cloudoperators/greenhouse-core
+/.github/licenserc.yaml   @cloudoperators/greenhouse-core
+/.github/renovate.json    @cloudoperators/greenhouse-core
 
 Makefile                  @cloudoperators/greenhouse-backend
 ct.yaml                   @cloudoperators/greenhouse-backend
+Dockerfile.otel-collector @cloudoperators/greenhouse-observability
+Dockerfile.integration-tests @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
 /docs/                    @cloudoperators/greenhouse-core
 /hack/                    @cloudoperators/greenhouse-backend

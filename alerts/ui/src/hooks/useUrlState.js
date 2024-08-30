@@ -11,6 +11,7 @@ import {
   useFilterLabels,
   useFilterActions,
   useActiveFilters,
+  usePausedFilters,
   useActivePredefinedFilter,
   useGlobalsActiveSelectedTab,
   useSearchTerm,
@@ -24,6 +25,7 @@ import {
 
 const urlStateManager = registerConsumer("supernova")
 const ACTIVE_FILTERS = "f"
+const PAUSED_FILTERS = "pf"
 const ACTIVE_PREDEFINED_FILTER = "p"
 const DETAILS_FOR = "d"
 const SEARCH_TERM = "s"
@@ -37,12 +39,17 @@ const useUrlState = () => {
   const [isURLRead, setIsURLRead] = useState(false)
   const loggedIn = useAuthLoggedIn()
   const authData = useAuthData()
-  const { setActiveFilters, setActivePredefinedFilter, setSearchTerm } =
-    useFilterActions()
+  const {
+    setActiveFilters,
+    setPausedFilters,
+    setActivePredefinedFilter,
+    setSearchTerm,
+  } = useFilterActions()
   const { setSilencesRegEx, setSilencesStatus, setShowDetailsForSilence } =
     useSilencesActions()
   const filterLabels = useFilterLabels()
   const activeFilters = useActiveFilters()
+  const pausedFilters = usePausedFilters()
   const searchTerm = useSearchTerm()
   const activePredefinedFilter = useActivePredefinedFilter()
   const activeSelectedTab = useGlobalsActiveSelectedTab()
@@ -82,6 +89,13 @@ const useUrlState = () => {
         // this will also trigger a filterItems() call from the store self
         setActiveFilters({ [label]: authData.parsed.supportGroups })
       }
+    }
+
+    // get paused filters from url state and set it in store
+    const pausedFiltersFromURL =
+      urlStateManager.currentState()?.[PAUSED_FILTERS]
+    if (pausedFiltersFromURL) {
+      setPausedFilters(pausedFiltersFromURL)
     }
 
     const searchTermFromURL = urlStateManager.currentState()?.[SEARCH_TERM]
@@ -148,6 +162,7 @@ const useUrlState = () => {
     const newState = {
       ...urlStateManager.currentState(),
       [ACTIVE_FILTERS]: activeFilters,
+      [PAUSED_FILTERS]: pausedFilters,
       [SEARCH_TERM]: encodedSearchTerm,
       [ACTIVE_PREDEFINED_FILTER]: activePredefinedFilter,
       [DETAILS_FOR]: detailsFor,
@@ -169,6 +184,7 @@ const useUrlState = () => {
   }, [
     loggedIn,
     activeFilters,
+    pausedFilters,
     searchTerm,
     activePredefinedFilter,
     detailsFor,
@@ -182,6 +198,7 @@ const useUrlState = () => {
   useEffect(() => {
     const unregisterStateListener = urlStateManager.onChange((state) => {
       setActiveFilters(state?.[ACTIVE_FILTERS])
+      setPausedFilters(state?.[PAUSED_FILTERS])
       setSearchTerm(state?.[SEARCH_TERM])
       setActivePredefinedFilter(state?.[ACTIVE_PREDEFINED_FILTER])
       setShowDetailsFor(state?.[DETAILS_FOR])

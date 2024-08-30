@@ -196,9 +196,10 @@ const createSilencesSlice = (set, get, options) => ({
                 constants.SILENCE_CREATING &&
               (SilencesByState?.active?.find(
                 (silence) => silence?.id === newLocalSilences[key]?.id
-              ) || SilencesByState?.pending?.find(
-                (silence) => silence?.id === newLocalSilences[key]?.id
-              ) )
+              ) ||
+                SilencesByState?.pending?.find(
+                  (silence) => silence?.id === newLocalSilences[key]?.id
+                ))
             ) {
               newLocalSilences[key] = { ...newLocalSilences[key], remove: true }
             }
@@ -269,7 +270,6 @@ const createSilencesSlice = (set, get, options) => ({
         // add local silences
         let localSilences = get().silences.localItems
         Object.keys(localSilences).forEach((silenceID) => {
-          
           // if there is already a silence with the same id, skip it and exists as external silence
           if (silencedBy.includes(silenceID) && externalSilences[silenceID])
             return
@@ -327,6 +327,54 @@ const createSilencesSlice = (set, get, options) => ({
         if (!alert) return
         const alertLabels = alert?.labels || {}
         const silences = get().silences.itemsByState?.expired || []
+        const excludedLabels = get().silences.excludedLabels || []
+        const enrichedLabels = get().alerts.enrichedLabels || []
+        // combine the arrays containing the labels that shouldn't be used for matching into one for easier checking
+        const labelsExcludedForMatching = [...excludedLabels, ...enrichedLabels]
+
+        // find all expired silences that matches all labels from the alert excluding the excluded excludedLabels
+        return silences.filter((silence) => {
+          const silenceMatchers = silence?.matchers || []
+          // check if all labels from the alert are included in the silence
+          return Object.keys(alertLabels).every((label) => {
+            // check if the label is excluded
+            if (labelsExcludedForMatching.includes(label)) return true
+            // check if the label is included in the silence
+            return silenceMatchers.some(
+              (silenceLabel) =>
+                silenceLabel?.name === label &&
+                silenceLabel?.value === alertLabels?.[label]
+            )
+          })
+        })
+      },
+
+      /*
+      Find all silences in items that matches all labels (key&value) from the alert but omit the labels that are excluded (excludedLabels)
+      */
+      getSilencesForAlert: (alert) => {
+        if (!alert) return
+        const alertLabels = alert?.labels || {}
+        let silences = [...get().silences.items]
+        const localItems = get().silences.localItems || {}
+
+        // checking if localItem need to overwrite a item or if its appended
+        for (const key in localItems) {
+          const localSilence = localItems[key]
+
+          const index = silences.findIndex(
+            (silence) => silence.id === localSilence.id
+          )
+
+          if (index !== -1) {
+            // Update the existing element
+            silences[index] = localSilence
+          } else {
+            // Add the new element
+            silences.unshift(localSilence)
+          }
+        }
+
         const excludedLabels = get().silences.excludedLabels || []
         const enrichedLabels = get().alerts.enrichedLabels || []
         // combine the arrays containing the labels that shouldn't be used for matching into one for easier checking
