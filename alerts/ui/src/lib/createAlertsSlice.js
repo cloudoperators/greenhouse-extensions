@@ -64,9 +64,15 @@ const createAlertsSlice = (set, get) => ({
       },
 
       filterItems: () => {
-        const activePredefinedFilter = get().filters.predefinedFilters.find(
-          (filter) => filter.name === get().filters.activePredefinedFilter
-        )
+        let activePredefinedFilter = null
+        if (
+          get().filters.predefinedFilters &&
+          get().filters.activePredefinedFilter
+        ) {
+          activePredefinedFilter = get().filters.predefinedFilters.find(
+            (filter) => filter.name === get().filters.activePredefinedFilter
+          )
+        }
 
         const filteredRegions = new Set()
 

@@ -19,7 +19,7 @@ const parsePredefinedFilters = (predefinedFilters) => {
 }
 
 const parseActivePredefinedFilter = (predefinedFilters) => {
-  return predefinedFilters[0]?.name
+  return predefinedFilters ? predefinedFilters[0]?.name : null
 }
 
 const parseFilterLabels = (labels) => {
