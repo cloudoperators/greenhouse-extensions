@@ -93,10 +93,10 @@ spec:
       attributes/prometheus:
         actions:
           - action: insert
-            key: nodename
+            key: k8s_node_name
             value: "${KUBE_NODE_NAME}"
           - action: insert
-            key: cluster
+            key: k8s_cluster_name
             value: "${cluster}"
           - action: insert
             key: region
