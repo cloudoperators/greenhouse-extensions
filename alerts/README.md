@@ -36,13 +36,118 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
 
 ### alerts supernova parameters
 
-| Name                    | Description                                                                                                                                                                                                                                                                                                                                                                        | Value          |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| `theme`                 | Override the default theme. Possible values are theme-light or theme-dark (default)                                                                                                                                                                                                                                                                                                | `"theme-dark"` |
-| `endpoint`              | Alertmanager API Endpoint URL `/api/v2`. Should be one of `alerts.alertmanager.ingress.hosts`                                                                                                                                                                                                                                                                                      | `""`           |
-| `silenceExcludedLabels` | SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.The labels must be an array of strings. Example: `["pod", "pod_name", "instance"]`                                                                                                | `[]`           |
-| `filterLabels`          | FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The 'Status' label serves as a default filter, automatically computed from the alert status attribute and will be not overwritten. The labels must be an array of strings. Example: `["app", "cluster", "cluster_type"]`                                     | `[]`           |
-| `silenceTemplates`      | SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title. Example: ```
+<table>
+<tr>
+<th>Name</th>
+<th>Description</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>
+
+`theme`  
+
+</td>
+<td>
+
+Override the default theme. Possible values are theme-light or theme-dark (default)       
+
+</td>
+<td>
+
+ `"theme-dark"`
+ 
+</td>
+</tr>
+<tr>
+<td>
+
+`endpoint`
+
+</td>
+<td>
+
+Alertmanager API Endpoint URL `/api/v2`. Should be one of `alerts.alertmanager.ingress.hosts`
+
+</td>
+<td>
+
+ `""` 
+ 
+</td>
+</tr>
+
+<tr>
+<td>
+
+`silenceExcludedLabels`
+
+</td>
+<td>
+
+SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form.The labels must be an array of strings. Example: `["pod", "pod_name", "instance"]`
+
+</td>
+<td>
+
+`[]`
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`filterLabels` 
+
+</td>
+<td>
+
+FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The 'Status' label serves as a default filter, automatically computed from the alert status attribute and will be not overwritten. The labels must be an array of strings. Example: `["app", "cluster", "cluster_type"]`         
+
+</td>
+<td>
+
+`[]`
+
+</td>
+</tr>
+
+
+<tr>
+<td>
+
+`predefinedFilters`
+
+</td>
+<td>
+
+PredefinedFilters are filters applied through in the UI to differentiate between contexts through matching alerts with regular expressions. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value). Example: ```[{                                          
+      "name": "prod",
+      "displayName": "Productive System",
+      "matchers": {
+        "region": "^prod-.*"
+      }
+    }]```   
+
+</td>
+<td>
+
+`[]`
+
+</td>
+</tr>
+<tr>
+<td>
+
+`silenceTemplates`
+
+</td>
+<td>
+
+SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title. Example: 
+
+```json
 "silenceTemplates": [
     {
       "description": "Description of the silence template",
@@ -53,14 +158,19 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
       "status": "active",
       "title": "Silence"
     }
-  ]``` | `[]`           |
-| `predefinedFilters`     | PredefinedFilters are filters applied through in the UI to differentiate between contexts through matching alerts with regular expressions. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value). Example: ```[{                                          
-      "name": "prod",
-      "displayName": "Productive System",
-      "matchers": {
-        "region": "^prod-.*"
-      }
-    }]```                    | `[]`           |
+  ]
+```
+
+</td>
+<td>
+
+`[]`
+
+</td>
+</tr>
+
+</table>
+
 
 ### Managing Alertmanager configuration
 
