@@ -53,6 +53,9 @@ data:
     @test "Verify creation of the prometheus-{{ .Release.Name }} statefulset" {
         verify "there is 1 statefulset named 'prometheus-{{ .Release.Name }}'"
     }
+    @test "Verify creation of the {{ .Release.Name }}-sd Podmonitor" {
+        verify "there is 1 podmonitor named '{{ .Release.Name }}-sd'"
+    }
 
     @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'prometheuses'"
@@ -65,4 +68,3 @@ data:
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
     }
 {{- end -}}
-    
