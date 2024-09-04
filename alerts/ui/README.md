@@ -137,3 +137,65 @@ If the end user wishes to include any excluded labels as matchers, they can easi
 To set the excluded alert labels:
 
 1. Utilize the app prop `silenceExcludedLabels`, which is used during the setup of the script tag.
+
+### Theme
+
+Override the default `theme`. Possible values are `"theme-light"` or `"theme-dark"` (default)
+
+To set the theme:
+
+1. Utilize the app prop `theme`, which is used during the setup of the script tag.
+
+### Endpoint
+
+`endpoint` sets the Alertmanager API Endpoint URL `/api/v2`. Should be one of `alerts.alertmanager.ingress.hosts`
+
+To set the endpoint:
+
+1. Utilize the app prop `endpoint`, which is used during the setup of the script tag.
+
+### Predefined Filters
+
+`predefinedFilters` are filters applied through in the UI to differentiate between contexts through matching alerts with regular expressions. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value).
+
+Example:
+
+```json
+[
+  {
+    "name": "prod",
+    "displayName": "Productive System",
+    "matchers": {
+      "region": "^prod-.*"
+    }
+  }
+]
+```
+
+To set the predefined Filter:
+
+1. Utilize the app prop `predefinedFilters`, which is used during the setup of the script tag.
+
+### Silence Templates
+
+`silenceTemplates`: SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title.
+
+Example:
+
+```json
+"silenceTemplates": [
+    {
+      "description": "Description of the silence template",
+      "editable_labels": ["region"],
+      "fixed_labels": {
+        "name": "Marvin",
+      },
+      "status": "active",
+      "title": "Silence"
+    }
+  ]
+```
+
+To set the silence templates:
+
+1. Utilize the app prop `silenceTemplates`, which is used during the setup of the script tag.
