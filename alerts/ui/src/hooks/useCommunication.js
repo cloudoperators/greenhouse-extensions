@@ -3,15 +3,47 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect } from "react"
+import { useEffect, useCallback } from "react"
 import { get, watch } from "@cloudoperators/juno-communicator"
-import { useUserActivityActions, useAuthActions } from "./useAppStore"
+import {
+  useUserActivityActions,
+  useAuthActions,
+  useActiveFilters,
+  useFilterActions,
+  useFilterLabels,
+} from "./useAppStore"
 
 const useCommunication = () => {
-  console.log("[supernova] useCommunication setup")
+  console.debug("[supernova] useCommunication setup")
   const { setIsActive } = useUserActivityActions()
-  const { setData: authSetData, setAppLoaded: authSetAppLoaded } =
-    useAuthActions()
+  const { setData: authSetData } = useAuthActions()
+  const activeFilters = useActiveFilters()
+  const { setActiveFilters } = useFilterActions()
+  const filterLabels = useFilterLabels()
+
+  const setAuthData = useCallback(
+    (data) => {
+      if (!data) return
+
+      // set the auth data
+      authSetData(data)
+
+      // The following code exists of historical reasons and should be refactored
+      // We preset the support group filter based on auth data. This should be done
+      // with predefined filters prop
+
+      // check if support group filter is set in activeFilters
+      // activeFilters example: {support_group: Array(1)}
+      if (
+        !activeFilters?.support_group &&
+        data?.auth?.parsed?.supportGroups &&
+        filterLabels?.includes("support_group")
+      ) {
+        setActiveFilters({ support_group: data.auth.parsed.supportGroups })
+      }
+    },
+    [authSetData, filterLabels]
+  )
 
   useEffect(() => {
     // watch for user activity updates messages
@@ -19,7 +51,7 @@ const useCommunication = () => {
     const unwatch = watch(
       "USER_ACTIVITY_UPDATE_DATA",
       (data) => {
-        console.log("got message USER_ACTIVITY_UPDATE_DATA: ", data)
+        console.debug("got message USER_ACTIVITY_UPDATE_DATA: ", data)
         setIsActive(data?.isActive)
       },
       { debug: true }
@@ -28,19 +60,16 @@ const useCommunication = () => {
   }, [setIsActive])
 
   useEffect(() => {
-    if (!authSetData || !authSetAppLoaded) return
+    authSetData({ auth: { parsed: { fullName: "anonymous" } } })
+    if (!setAuthData) return
 
-    get("AUTH_APP_LOADED", authSetAppLoaded)
-    const unwatchLoaded = watch("AUTH_APP_LOADED", authSetAppLoaded)
-
-    get("AUTH_GET_DATA", authSetData)
-    const unwatchUpdate = watch("AUTH_UPDATE_DATA", authSetData)
+    get("AUTH_GET_DATA", setAuthData)
+    const unwatchUpdate = watch("AUTH_UPDATE_DATA", setAuthData)
 
     return () => {
-      if (unwatchLoaded) unwatchLoaded()
       if (unwatchUpdate) unwatchUpdate()
     }
-  }, [authSetData, authSetAppLoaded])
+  }, [setAuthData])
 }
 
 export default useCommunication

@@ -7,7 +7,6 @@ import { useLayoutEffect, useEffect, useState } from "react"
 import { registerConsumer } from "@cloudoperators/juno-url-state-provider-v1"
 import {
   useAuthLoggedIn,
-  useAuthData,
   useFilterLabels,
   useFilterActions,
   useActiveFilters,
@@ -38,7 +37,6 @@ const SILENCE_DETAIL = "sd"
 const useUrlState = () => {
   const [isURLRead, setIsURLRead] = useState(false)
   const loggedIn = useAuthLoggedIn()
-  const authData = useAuthData()
   const {
     setActiveFilters,
     setPausedFilters,
@@ -63,9 +61,9 @@ const useUrlState = () => {
   // useLayoutEffect so this is done before rendering anything
   useLayoutEffect(() => {
     // do not read the url state until the user is logged in and do it just once
-    if (!loggedIn || isURLRead) return
+    if (isURLRead) return
 
-    console.log(
+    console.debug(
       "SUPERNOVA:: setting up state from url with state::",
       urlStateManager.currentState()
     )
@@ -77,18 +75,6 @@ const useUrlState = () => {
     // check if there are active filters in the url state
     if (activeFiltersFromURL && Object.keys(activeFiltersFromURL).length > 0) {
       setActiveFilters(activeFiltersFromURL)
-    } else {
-      // otherwise set the support group filter
-      // we just add this default filter when no other filters are set via URL
-      const label = "support_group"
-      if (
-        authData?.parsed?.supportGroups?.length > 0 &&
-        filterLabels?.length > 0 &&
-        filterLabels.includes(label)
-      ) {
-        // this will also trigger a filterItems() call from the store self
-        setActiveFilters({ [label]: authData.parsed.supportGroups })
-      }
     }
 
     // get paused filters from url state and set it in store
@@ -148,12 +134,12 @@ const useUrlState = () => {
     }
 
     setIsURLRead(true)
-  }, [loggedIn, isURLRead, authData, filterLabels])
+  }, [isURLRead, filterLabels])
 
   // sync URL with the desired states
   useEffect(() => {
     // do not synchronize the states until the url state is read and user logged in
-    if (!loggedIn || !isURLRead) return
+    if (!isURLRead) return
 
     // encode searchTerm before pushing it to the URL to avoid missinterpretation of special characters
     const encodedSearchTerm = btoa(searchTerm)

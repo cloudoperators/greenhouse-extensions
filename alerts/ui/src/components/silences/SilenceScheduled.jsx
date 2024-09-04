@@ -115,7 +115,7 @@ const SilenceScheduled = (props) => {
       .then((data) => {
         setSuccess(data)
 
-        console.log("data", data)
+        console.debug("data", data)
 
         let newSilence = {
           ...silence,

@@ -59,26 +59,26 @@ const useAlertmanagerAPI = (apiEndpoint) => {
 
     alertsWorker.then(({ createWorker, stopWorker }) => {
       const worker = createWorker()
-      console.log("Worker::Setting up ALERTS worker", worker)
+      console.debug("Worker::Setting up ALERTS worker", worker)
 
       // receive messages from worker
       worker.onmessage = (e) => {
         const action = e.data.action
         switch (action) {
           case "ALERTS_UPDATE":
-            console.log("Worker::ALERT_UPDATE::", e.data)
+            console.debug("Worker::ALERT_UPDATE::", e.data)
             setAlertsData({ items: e.data.alerts, counts: e.data.counts })
             break
           case "ALERTS_FETCH_START":
-            console.log("Worker::ALERTS_FETCH_START::")
+            console.debug("Worker::ALERTS_FETCH_START::")
             setAlertsIsUpdating(true)
             break
           case "ALERTS_FETCH_END":
-            console.log("Worker::ALERTS_FETCH_END::")
+            console.debug("Worker::ALERTS_FETCH_END::")
             setAlertsIsUpdating(false)
             break
           case "ALERTS_FETCH_ERROR":
-            console.log("Worker::ALERTS_FETCH_ERROR::", e.data.error)
+            console.debug("Worker::ALERTS_FETCH_ERROR::", e.data.error)
             setAlertsIsUpdating(false)
             // error comes as object string and have to be parsed
             setAlertsError(e.data.error)
@@ -87,21 +87,21 @@ const useAlertmanagerAPI = (apiEndpoint) => {
       }
 
       cleanupAlertsWorker = () => {
-        console.log("Worker::Terminating Alerts Worker")
+        console.debug("Worker::Terminating Alerts Worker")
         return stopWorker()
       }
     })
 
     silencesWorker.then(({ createWorker, stopWorker }) => {
       const worker = createWorker()
-      console.log("Worker::Setting up SILENCES worker")
+      console.debug("Worker::Setting up SILENCES worker")
 
       // receive messages from worker
       worker.onmessage = (e) => {
         const action = e.data.action
         switch (action) {
           case "SILENCES_UPDATE":
-            console.log("Worker::SILENCES_UPDATE::", e.data)
+            console.debug("Worker::SILENCES_UPDATE::", e.data)
             setSilences({
               items: e.data?.silences,
               itemsHash: e.data?.silencesHash,
@@ -109,15 +109,15 @@ const useAlertmanagerAPI = (apiEndpoint) => {
             })
             break
           case "SILENCES_FETCH_START":
-            console.log("Worker::SILENCES_FETCH_START::")
+            console.debug("Worker::SILENCES_FETCH_START::")
             setSilencesIsUpdating(true)
             break
           case "SILENCES_FETCH_END":
-            console.log("Worker::SILENCES_FETCH_END::")
+            console.debug("Worker::SILENCES_FETCH_END::")
             setSilencesIsUpdating(false)
             break
           case "SILENCES_FETCH_ERROR":
-            console.log("Worker::SILENCES_FETCH_ERROR::", e.data.error)
+            console.debug("Worker::SILENCES_FETCH_ERROR::", e.data.error)
             setSilencesIsUpdating(false)
             // error comes as object string and have to be parsed
             setSilencesError(e.data.error)
@@ -126,7 +126,7 @@ const useAlertmanagerAPI = (apiEndpoint) => {
       }
 
       cleanupSilencesWorker = () => {
-        console.log("Worker::Terminating Silences Worker")
+        console.debug("Worker::Terminating Silences Worker")
         return stopWorker()
       }
     })
@@ -190,11 +190,11 @@ const useAlertmanagerAPI = (apiEndpoint) => {
   const localItems = useSilencesLocalItems()
   useEffect(() => {
     if (!localItems) return
-    // if we have no silences locally we don't need to refetch them otherwise 
+    // if we have no silences locally we don't need to refetch them otherwise
     // we will end up in an infinite loop
     if (Object.keys(localItems).length <= 0) return
 
-    // Use setTimeout to delay the worker call delayed by 10s 
+    // Use setTimeout to delay the worker call delayed by 10s
     setTimeout(() => {
       silencesWorker.then(({ createWorker, stopWorker }) => {
         const worker = createWorker()
