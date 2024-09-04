@@ -9,9 +9,11 @@ import { useGlobalsApiEndpoint, useGlobalsActions } from "./useAppStore"
 import { request } from "graphql-request"
 import servicesQuery from "../lib/queries/services"
 import issueMatchesQuery from "../lib/queries/issueMatches"
-import ServiceFilterValuesQuery from "../lib/queries/serviceFilterValues"
-import IssueMatchesFilterValuesQuery from "../lib/queries/issueMatchesFilterValues"
+import serviceFilterValuesQuery from "../lib/queries/serviceFilterValues"
+import issueMatchesFilterValuesQuery from "../lib/queries/issueMatchesFilterValues"
 import componentsQuery from "../lib/queries/components"
+import createAddOwnersMutation from "../lib/queries/createAddOwnersMutation"
+import usersQuery from "../lib/queries/users"
 
 // hook to register query defaults that depends on the queryClient and options
 const useQueryClientFn = () => {
@@ -47,7 +49,7 @@ const useQueryClientFn = () => {
 
     queryClient.setQueryDefaults(["ServiceFilterValues"], {
       queryFn: async ({ queryKey, variables }) => {
-        return await request(endpoint, ServiceFilterValuesQuery(), variables)
+        return await request(endpoint, serviceFilterValuesQuery(), variables)
       },
       staleTime: Infinity, // this do not change often keep it until reload
     })
@@ -56,14 +58,39 @@ const useQueryClientFn = () => {
       queryFn: async ({ queryKey, variables }) => {
         return await request(
           endpoint,
-          IssueMatchesFilterValuesQuery(),
+          issueMatchesFilterValuesQuery(),
           variables
         )
       },
       staleTime: Infinity, // this do not change often keep it until reload
     })
 
-    // set queryClientFnReady to true once
+    queryClient.setQueryDefaults(["Users"], {
+      queryFn: async ({ queryKey }) => {
+        const [_key, options] = queryKey
+        return await request(endpoint, usersQuery(), options)
+      },
+    })
+
+    // Set mutation defaults for addOwnerToService
+    queryClient.setMutationDefaults(["addOwnerToService"], {
+      mutationFn: async ({ serviceId, userIds }) => {
+        const { mutation, variables } = createAddOwnersMutation(
+          serviceId,
+          userIds
+        )
+        mutation.replace(/\\n/g, "").trim()
+        await request(endpoint, mutation, variables)
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["Services"])
+      },
+      onError: (error) => {
+        console.error("Failed to add owners to the service:", error)
+      },
+    })
+
+    // Set queryClientFnReady to true once
     setQueryClientFnReady(true)
   }, [queryClient, endpoint])
 }
