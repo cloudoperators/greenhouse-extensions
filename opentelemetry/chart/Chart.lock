@@ -2,5 +2,7 @@ dependencies:
 - name: opentelemetry-operator
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.64.4
+- name: owner-info
+  repository: oci://keppel.eu-de-1.cloud.sap/ccloud-helm
 digest: sha256:a178237f507fe5500d15b1f53a3088f570d948e5edcb491ce3c782e2339703f8
 generated: "2024-08-01T11:48:18.09113+02:00"
