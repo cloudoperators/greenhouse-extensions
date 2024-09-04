@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 /*import { gql } from "graphql-request"
 
 // A function that dynamically generates a GraphQL mutation for adding multiple owners to a service
