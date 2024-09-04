@@ -4,26 +4,12 @@
  */
 
 import { useEffect } from "react"
-import { broadcast, get, watch } from "@cloudoperators/juno-communicator"
-import {
-  useUserActivityActions,
-  useAuthAppLoaded,
-  useAuthIsProcessing,
-  useAuthError,
-  useAuthLoggedIn,
-  useAuthLastAction,
-  useAuthActions,
-} from "./useAppStore"
-import { AUTH_ACTIONS } from "../lib/createAuthDataSlice"
+import { get, watch } from "@cloudoperators/juno-communicator"
+import { useUserActivityActions, useAuthActions } from "./useAppStore"
 
 const useCommunication = () => {
   console.log("[supernova] useCommunication setup")
   const { setIsActive } = useUserActivityActions()
-  const authAppLoaded = useAuthAppLoaded()
-  const authIsProcessing = useAuthIsProcessing()
-  const authError = useAuthError()
-  const authLoggedIn = useAuthLoggedIn()
-  const authLastAction = useAuthLastAction()
   const { setData: authSetData, setAppLoaded: authSetAppLoaded } =
     useAuthActions()
 
@@ -40,16 +26,6 @@ const useCommunication = () => {
     )
     return unwatch
   }, [setIsActive])
-
-  // allow supernova to login/logout the user. Visible when app is not in embedded mode
-  useEffect(() => {
-    if (!authAppLoaded || authIsProcessing || authError) return
-    if (authLastAction?.name === AUTH_ACTIONS.SIGN_ON && !authLoggedIn) {
-      broadcast("AUTH_LOGIN", "supernova", { debug: false })
-    } else if (authLastAction?.name === AUTH_ACTIONS.SIGN_OUT && authLoggedIn) {
-      broadcast("AUTH_LOGOUT", "supernova")
-    }
-  }, [authAppLoaded, authIsProcessing, authError, authLoggedIn, authLastAction])
 
   useEffect(() => {
     if (!authSetData || !authSetAppLoaded) return

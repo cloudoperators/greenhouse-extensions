@@ -9,26 +9,54 @@ import {
   DataGridRow,
   DataGridHeadCell,
   DataGridCell,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  Stack,
 } from "@cloudoperators/juno-ui-components"
 import HintNotFound from "../shared/HintNotFound"
 import HintLoading from "../shared/HintLoading"
 import ComponentsListItem from "./ComponentsListItem"
 
-const ComponentsList = ({ components, isLoading }) => {
+const ComponentsList = ({ items, isLoading }) => {
   return (
-    <DataGrid columns={3}>
+    <DataGrid minContentColumns={[2, 3]} columns={4}>
       <DataGridRow>
         <DataGridHeadCell>Name</DataGridHeadCell>
         <DataGridHeadCell>Type</DataGridHeadCell>
-        <DataGridHeadCell>Total Number of Versions</DataGridHeadCell>
+        <DataGridHeadCell>
+          <Stack direction="vertical">
+            <Tooltip triggerEvent="hover">
+              <TooltipTrigger>Versions</TooltipTrigger>
+              <TooltipContent>
+                Total Number of Component Versions
+              </TooltipContent>
+            </Tooltip>
+          </Stack>
+        </DataGridHeadCell>
+
+        <DataGridHeadCell>
+          <Stack direction="vertical">
+            <Tooltip triggerEvent="hover">
+              <TooltipTrigger>Instances</TooltipTrigger>
+              <TooltipContent>
+                Total Number of Component Instances
+              </TooltipContent>
+            </Tooltip>
+          </Stack>
+        </DataGridHeadCell>
       </DataGridRow>
-      {isLoading && !components ? (
-        <HintLoading className="my-4" text="Loading components..." />
+      {isLoading && !items ? (
+        <DataGridRow>
+          <DataGridCell colSpan={10}>
+            <HintLoading className="my-4" text="Loading components..." />
+          </DataGridCell>
+        </DataGridRow>
       ) : (
         <>
-          {components?.length > 0 ? (
+          {items?.length > 0 ? (
             <>
-              {components.map((item, index) => (
+              {items.map((item, index) => (
                 <ComponentsListItem
                   key={index}
                   item={item}

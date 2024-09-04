@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from "react"
+import React, { useLayoutEffect } from "react"
 import styles from "./styles.scss"
 import {
   AppShell,
@@ -13,11 +13,13 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { MessagesProvider } from "@cloudoperators/juno-messages-provider"
 import AsyncWorker from "./components/AsyncWorker"
-import StoreProvider, { useActions } from "./components/StoreProvider"
 import TabContext from "./components/tabs/TabContext"
 import { ErrorBoundary } from "react-error-boundary"
+import { useGlobalsActions, StoreProvider } from "./hooks/useAppStore"
+import PanelManager from "./components/shared/PanelManager"
 
-const App = (props) => {
+function App(props = {}) {
+  const { setEmbedded, setApiEndpoint } = useGlobalsActions()
   const preErrorClasses = `
   custom-error-pre
   border-theme-error
@@ -25,6 +27,11 @@ const App = (props) => {
   h-full
   w-full
   `
+
+  useLayoutEffect(() => {
+    setApiEndpoint(props.endpoint)
+    if (props.embedded === "true" || props.embedded === true) setEmbedded(true)
+  }, [])
 
   const fallbackRender = ({ error }) => {
     return (
@@ -50,12 +57,13 @@ const App = (props) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AsyncWorker consumerId={props.id} />
       <AppShell
         pageHeader="Converged Cloud | Heureka"
         embedded={props.embedded === "true" || props.embedded === true}
       >
         <ErrorBoundary fallbackRender={fallbackRender}>
+          <AsyncWorker consumerId={props.id} />
+          <PanelManager />
           <TabContext />
         </ErrorBoundary>
       </AppShell>
@@ -68,6 +76,7 @@ const StyledApp = (props) => {
     <AppShellProvider theme={`${props.theme ? props.theme : "theme-dark"}`}>
       {/* load styles inside the shadow dom */}
       <style>{styles.toString()}</style>
+
       <MessagesProvider>
         <StoreProvider options={props}>
           <App {...props} />

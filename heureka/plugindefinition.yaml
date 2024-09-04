@@ -12,6 +12,10 @@ spec:
   uiApplication:
     name: heureka
     version: "latest"
+  helmChart:
+    name: heureka
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.3.0
   options:
     - name: apiEndpoint
       description: Endpoint URL of the API

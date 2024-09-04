@@ -37,6 +37,10 @@ import SilenceNew from "../silences/SilenceNew"
 import AlertStatus from "./AlertStatus"
 import AlertRegion from "./shared/AlertRegion"
 import AlertSilences from "./AlertSilences"
+import {
+  MessagesProvider,
+  Messages,
+} from "@cloudoperators/juno-messages-provider"
 
 const AlertDetail = () => {
   const alertID = useShowDetailsFor()
@@ -63,86 +67,89 @@ const AlertDetail = () => {
       size="large"
     >
       <PanelBody>
-        <Tabs>
-          <TabList>
-            <Tab>Details</Tab>
-            <Tab>Raw Data</Tab>
-          </TabList>
-          <TabPanel>
-            <Container px={false} py>
-              {!alert ? (
-                isAlertsLoading ? (
-                  <Stack gap="2">
-                    <span>Loading</span>
-                    <Spinner variant="primary" />
-                  </Stack>
+        <MessagesProvider>
+          <Messages className="pb-6 absolute" />
+          <Tabs>
+            <TabList>
+              <Tab>Details</Tab>
+              <Tab>Raw Data</Tab>
+            </TabList>
+            <TabPanel>
+              <Container px={false} py>
+                {!alert ? (
+                  isAlertsLoading ? (
+                    <Stack gap="2">
+                      <span>Loading</span>
+                      <Spinner variant="primary" />
+                    </Stack>
+                  ) : (
+                    "Not found - the alert is probably not firing at the moment"
+                  )
                 ) : (
-                  "Not found - the alert is probably not firing at the moment"
-                )
-              ) : (
-                <>
-                  <DataGrid columns={2}>
-                    <DataGridRow>
-                      <DataGridHeadCell>Status</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertStatus alert={alert} />
-                      </DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Firing Since</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertTimestamp startTimestamp={alert?.startsAt} />
-                      </DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Service</DataGridHeadCell>
-                      <DataGridCell>{alert?.labels?.service}</DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Region</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertRegion
-                          region={alert?.labels?.region}
-                          cluster={alert?.labels?.cluster}
-                        />
-                      </DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Description</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertDescription
-                          description={alert?.annotations?.description}
-                        />
-                      </DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Links</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertLinks alert={alert} />
-                      </DataGridCell>
-                    </DataGridRow>
-                    <DataGridRow>
-                      <DataGridHeadCell>Labels</DataGridHeadCell>
-                      <DataGridCell>
-                        <AlertLabels alert={alert} showAll={true} />
-                      </DataGridCell>
-                    </DataGridRow>
-                  </DataGrid>
+                  <>
+                    <DataGrid columns={2}>
+                      <DataGridRow>
+                        <DataGridHeadCell>Status</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertStatus alert={alert} />
+                        </DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Firing Since</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertTimestamp startTimestamp={alert?.startsAt} />
+                        </DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Service</DataGridHeadCell>
+                        <DataGridCell>{alert?.labels?.service}</DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Region</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertRegion
+                            region={alert?.labels?.region}
+                            cluster={alert?.labels?.cluster}
+                          />
+                        </DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Description</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertDescription
+                            description={alert?.annotations?.description}
+                          />
+                        </DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Links</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertLinks alert={alert} />
+                        </DataGridCell>
+                      </DataGridRow>
+                      <DataGridRow>
+                        <DataGridHeadCell>Labels</DataGridHeadCell>
+                        <DataGridCell>
+                          <AlertLabels alert={alert} showAll={true} />
+                        </DataGridCell>
+                      </DataGridRow>
+                    </DataGrid>
 
-                  <AlertSilences alert={alert} />
-                </>
-              )}
-            </Container>
-          </TabPanel>
+                    <AlertSilences alert={alert} />
+                  </>
+                )}
+              </Container>
+            </TabPanel>
 
-          <TabPanel>
-            <Container px={false} py>
-              <CodeBlock>
-                <JsonViewer data={alert} expanded={true} />
-              </CodeBlock>
-            </Container>
-          </TabPanel>
-        </Tabs>
+            <TabPanel>
+              <Container px={false} py>
+                <CodeBlock>
+                  {alert && <JsonViewer data={alert} expanded={true} />}
+                </CodeBlock>
+              </Container>
+            </TabPanel>
+          </Tabs>
+        </MessagesProvider>
       </PanelBody>
 
       <PanelFooter>

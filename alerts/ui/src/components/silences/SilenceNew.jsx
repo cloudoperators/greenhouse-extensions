@@ -26,6 +26,7 @@ import {
 import { post } from "../../api/client"
 import AlertDescription from "../alerts/shared/AlertDescription"
 import SilenceNewAdvanced from "./SilenceNewAdvanced"
+import { debounce } from "../../helpers"
 import { DateTime } from "luxon"
 import {
   latestExpirationDate,
@@ -103,7 +104,8 @@ const SilenceNew = ({ alert, size, variant }) => {
     return options.items
   }, [expirationDate])
 
-  const onSubmitForm = () => {
+  // debounce to prevent accidental double clicks from creating multiple silences
+  const onSubmitForm = debounce(() => {
     setError(null)
     setSuccess(null)
     const formValidation = validateForm(formState)
@@ -149,7 +151,7 @@ const SilenceNew = ({ alert, size, variant }) => {
       .catch((error) => {
         setError(parseError(error))
       })
-  }
+  }, 200)
 
   const onInputChanged = ({ key, value }) => {
     if (!value) return
@@ -201,7 +203,7 @@ const SilenceNew = ({ alert, size, variant }) => {
 
           {expirationDate && !success && (
             <Message className="mb-6" variant="info">
-              There is already a silence for this alert that expires at{" "}
+              There is already a silence for this alert that expires at
               <b>
                 {DateTime.fromISO(expirationDate).toLocaleString(
                   DateTime.DATETIME_SHORT

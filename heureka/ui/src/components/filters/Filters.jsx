@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo } from "react"
+import React, { useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Stack } from "@cloudoperators/juno-ui-components"
-import { useQueryClientFnReady } from "../StoreProvider"
-
+import {
+  useGlobalsQueryClientFnReady,
+  useFilterActions,
+} from "../../hooks/useAppStore"
 import FilterSelect from "./FilterSelect"
 import FilterPills from "./FilterPills"
 
@@ -18,28 +20,44 @@ const filtersStyles = `
   my-px
 `
 
-const Filters = ({ queryKey }) => {
-  const queryClientFnReady = useQueryClientFnReady()
+const Filters = ({ queryKey, entityName }) => {
+  const queryClientFnReady = useGlobalsQueryClientFnReady()
+  const { setLabels, setFilterLabelValues } = useFilterActions()
 
-  const { isLoading, isFetching, isError, data, error } = useQuery({
+  const { isLoading, data } = useQuery({
     queryKey: [queryKey],
     enabled: !!queryClientFnReady && !!queryKey,
   })
 
   const filters = useMemo(() => {
-    if (!data) return []
-    return data?.__type?.inputFields?.map((field) => ({
-      label: field?.name,
-      kind: field?.type?.kind,
-      ofType: field?.type?.ofType?.name,
-      enumValues: field?.type?.ofType?.enumValues,
-    }))
-  }, [data])
+    //Since there is a custom query to fetch filter labels and values for each entity in API
+    //We need to map the data to the format that the FilterSelect component expects
+    //You can check the response structure of custom query e.g in /lib/queries/serviceFilterValues.js
+    if (!data || !data[queryKey]) return []
+
+    return Object.keys(data[queryKey]).map((key) => {
+      const field = data[queryKey][key]
+      return {
+        label: field.filterName, // Collecting filterName as filterLabel
+        values: field.values, // Collecting values as filterValues
+      }
+    })
+  }, [data, queryKey])
+
+  useEffect(() => {
+    // Set labels and filter values in the store
+    // It is done in this control as the fetch filter label and values is done above here
+    if (filters.length > 0) {
+      const filterLabels = filters.map((filter) => filter.label)
+      setLabels(entityName, filterLabels)
+      setFilterLabelValues(entityName, filters)
+    }
+  }, [filters, setLabels, setFilterLabelValues, entityName])
 
   return (
     <Stack direction="vertical" gap="4" className={`filters ${filtersStyles}`}>
-      <FilterSelect isLoading filters={filters} />
-      {/* <FilterPills /> */}
+      <FilterSelect entityName={entityName} isLoading={isLoading} />
+      <FilterPills entityName={entityName} />
     </Stack>
   )
 }

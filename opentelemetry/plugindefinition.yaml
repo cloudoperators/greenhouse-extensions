@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    name: opentelemetry
+spec:
+    version: 0.3.2
+    displayName: OpenTelemetry
+    description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
+    helmChart:
+        name: opentelemetry-operator
+        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+        version: 0.3.2
+    options:
+        - default: true
+          description: Activates the standard configuration for logs
+          name: openTelemetry.logsCollector.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the standard configuration for metrics 
+          name: openTelemetry.metricsCollector.enabled
+          required: false
+          type: bool
+        - description: Username for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.username
+          required: false
+          type: secret
+        - description: Password for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.password
+          required: false
+          type: secret
+        - description: Endpoint URL for OpenSearch
+          name: openTelemetry.openSearchLogs.endpoint
+          required: false
+          type: string
+        - description: Region label for logging
+          name: openTelemetry.region
+          required: false
+          type: string
+        - description: Cluster label for logging
+          name: openTelemetry.cluster
+          required: false
+          type: string
+        - description: Label for Prometheus Service Monitoring
+          name: openTelemetry.prometheus
+          required: false
+          type: string
+        - default: false
+          description: Activates the pod-monitoring for the Logs Collector
+          name: openTelemetry.podMonitor.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activate to use the CertManager for generating self-signed certificates
+          name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activate to use Helm to create self-signed certificates
+          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activate to recreate the cert after a defined period (certPeriodDays default is 365)
+          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate
+          required: false
+          type: bool
+        - default: false
+          description: Activate to enable Kube-RBAC-Proxy for OpenTelemetry
+          name: opentelemetry-operator.kubeRBACProxy.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activate to enable default rules for monitoring the OpenTelemetry Manager
+          name: opentelemetry-operator.manager.prometheusRule.defaultRules.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activate to enable rules for monitoring the OpenTelemetry Manager
+          name: opentelemetry-operator.manager.prometheusRule.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activate to enable the Service Monitor to ingest the metrics of the OpenTelemetry Collector in Prometheus
+          name: opentelemetry-operator.manager.serviceMonitor.enabled
+          required: false
+          type: bool

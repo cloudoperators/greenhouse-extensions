@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useMemo, useState } from "react"
-
+import React, { useState } from "react"
 import {
   Button,
   InputGroup,
@@ -13,31 +12,37 @@ import {
   Stack,
   SearchInput,
 } from "@cloudoperators/juno-ui-components"
-// import { humanizeString } from "../../lib/utils"
+import {
+  useFilterLabels,
+  useFilterLabelValues,
+  useFilterActions,
+  useActiveFilters,
+  useSearchTerm,
+} from "../../hooks/useAppStore"
+import { humanizeString } from "../../lib/utils"
 
-const FilterSelect = ({ filters }) => {
+const FilterSelect = ({ entityName, isLoading }) => {
   const [filterLabel, setFilterLabel] = useState("")
   const [filterValue, setFilterValue] = useState("")
-  const [resetKey, setResetKey] = useState(Date.now())
 
-  const filterLabels = useMemo(() => {
-    return filters?.map((filter) => filter?.label)
-  }, [filters])
+  const { addActiveFilter, clearActiveFilters, setSearchTerm } =
+    useFilterActions()
+
+  const filterLabels = useFilterLabels(entityName)
+  const filterLabelValues = useFilterLabelValues(entityName)
+  const activeFilters = useActiveFilters(entityName)
+  const searchTerm = useSearchTerm()
 
   const handleFilterAdd = (value) => {
     if (filterLabel && (filterValue || value)) {
-      // add active filter to store
-      addActiveFilter(filterLabel, filterValue || value)
-
-      // reset filterValue
-      setFilterValue("")
-    } else {
-      // TODO: show error -> please select filter/value
+      // Add the active filter to the store
+      addActiveFilter(entityName, filterLabel, filterValue || value)
+      setFilterValue("") // Reset filter value after adding
     }
   }
 
-  const handleFilterLabelChange = (value) => {
-    setFilterLabel(value)
+  const handleFilterLabelChange = (label) => {
+    setFilterLabel(label)
   }
 
   const handleFilterValueChange = (value) => {
@@ -45,21 +50,14 @@ const FilterSelect = ({ filters }) => {
     handleFilterAdd(value)
   }
 
-  const handleSearchChange = (value) => {
-    // debounce setSearchTerm to avoid unnecessary re-renders
+  // TODO: The live search should be implemented after having store update mechanism in place
+  /*const handleSearchChange = (value) => {
+    // Debounce search term to avoid unnecessary re-renders
     const debouncedSearchTerm = setTimeout(() => {
-      setSearchTerm(value.target.value)
-    }, 500)
-
-    // clear timeout if we have a new value
+      setSearchTerm(entityName, value.target.value)
+    }, 500) 
     return () => clearTimeout(debouncedSearchTerm)
-  }
-
-  // const handleKeyDown = (event) => {
-  //   if (event.key === "Enter") {
-  //     handleFilterValueChange()
-  //   }
-  // }
+  }*/
 
   return (
     <Stack alignment="center" gap="8">
@@ -68,58 +66,51 @@ const FilterSelect = ({ filters }) => {
           name="filter"
           className="filter-label-select w-64 mb-0"
           label="Filter"
-          value={filterLabel}
+          value={humanizeString(filterLabel)}
           onChange={(val) => handleFilterLabelChange(val)}
+          disabled={isLoading}
         >
           {filterLabels?.map((filter) => (
             <SelectOption
               value={filter}
-              // label={humanizeString(filter)}
-              label={filter}
+              label={humanizeString(filter)}
               key={filter}
             />
           ))}
         </Select>
-        {/* <Select
+        <Select
           name="filterValue"
           value={filterValue}
           onChange={(value) => handleFilterValueChange(value)}
-          disabled={filterLabelValues[filterLabel] ? false : true}
+          disabled={!filterLabelValues[filterLabel]?.length}
           loading={filterLabelValues[filterLabel]?.isLoading}
           className="filter-value-select w-96 bg-theme-background-lvl-0"
-          key={resetKey}
         >
-          {filterLabelValues[filterLabel]?.values
-            ?.filter(
-              (value) =>
-                // filter out already active values for this label
-                !activeFilters[filterLabel]?.includes(value)
-            )
+          {filterLabelValues[filterLabel] //Ensure already selected values are not displayed in filterValue drop down to avoid duplicate selections
+            ?.filter((value) => !activeFilters[filterLabel]?.includes(value)) // Filter out values that are already active
             .map((value) => (
               <SelectOption value={value} key={value} />
             ))}
         </Select>
-        <Button
-          onClick={() => handleFilterAdd()}
-          icon="filterAlt"
-          className="py-[0.3rem]"
-        /> */}
+        <Button icon="filterAlt" className="py-[0.3rem]" />
       </InputGroup>
-      {/* {activeFilters && Object.keys(activeFilters).length > 0 && (
+      {activeFilters && Object.keys(activeFilters).length > 0 && (
         <Button
           label="Clear all"
-          onClick={() => clearActiveFilters()}
+          onClick={() => clearActiveFilters(entityName)}
           variant="subdued"
         />
-      )} */}
-      {/* <SearchInput
-        placeholder="search term or regular expression"
-        className="w-96 ml-auto"
-        value={searchTerm || ""}
-        onSearch={(value) => setSearchTerm(value)}
-        onClear={() => setSearchTerm(null)}
-        onChange={(value) => handleSearchChange(value)}
-      /> */}
+      )}
+      {entityName === "IssueMatches" && (
+        <SearchInput
+          placeholder="Search term or regular expression"
+          className="w-96 ml-auto"
+          value={searchTerm || ""}
+          onSearch={(value) => setSearchTerm(entityName, value)}
+          onClear={() => setSearchTerm(null)}
+          // onChange={(value) => handleSearchChange(value)}
+        />
+      )}
     </Stack>
   )
 }

@@ -46,8 +46,8 @@ const AlertStatus = ({ alert }) => {
         <div className="text-xs mt-2">
           <Stack direction="vertical">
             <span>Inhibited by:</span>
-            {alert.status.inhibitedBy.map((fingerprint) => (
-              <span>
+            {alert.status.inhibitedBy.map((fingerprint, index) => (
+              <span key={index}>
                 {getAlertByFingerprint(fingerprint)?.annotations?.summary}
               </span>
             ))}

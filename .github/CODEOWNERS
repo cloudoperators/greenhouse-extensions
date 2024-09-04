@@ -4,12 +4,14 @@
 
 /.github/                 @cloudoperators/Administrators
 /.github/workflows/       @cloudoperators/greenhouse-core
-/.github/labeler.yml      @cloudoperators/greenhouse-backend
-/.github/licenserc.yaml   @cloudoperators/greenhouse-backend
-/.github/renovate.json    @cloudoperators/greenhouse-backend
+/.github/labeler.yml      @cloudoperators/greenhouse-core
+/.github/licenserc.yaml   @cloudoperators/greenhouse-core
+/.github/renovate.json    @cloudoperators/greenhouse-core
 
 Makefile                  @cloudoperators/greenhouse-backend
 ct.yaml                   @cloudoperators/greenhouse-backend
+Dockerfile.otel-collector @cloudoperators/greenhouse-observability
+Dockerfile.integration-tests @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
 /docs/                    @cloudoperators/greenhouse-core
 /hack/                    @cloudoperators/greenhouse-backend
@@ -28,9 +30,14 @@ ct.yaml                   @cloudoperators/greenhouse-backend
 /kube-monitoring/         @cloudoperators/greenhouse-observability
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
-/opentelemetry-operator   @cloudoperators/greenhouse-observability
+/opentelemetry/           @cloudoperators/greenhouse-observability
 /plutono                  @cloudoperators/greenhouse-observability 
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 /thanos/                  @cloudoperators/greenhouse-observability
 ui/                       @cloudoperators/greenhouse-frontend
+/heureka/                 @cloudoperators/greenhouse-src @cloudoperators/greenhouse-frontend @dimtas
+/heureka-scanner-k8s-assets/     @cloudoperators/greenhouse-src @dimtas
+/heureka-scanner-keppel/  @cloudoperators/greenhouse-src @dimtas
+/heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
+/openbao/                 @cloudoperators/greenhouse-src @dimtas
