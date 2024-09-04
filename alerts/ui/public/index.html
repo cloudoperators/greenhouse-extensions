@@ -6,8 +6,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" href="favicon.ico" sizes="any"/>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="favicon.ico" sizes="any" />
     <title>Supernova Dev</title>
     <style>
       html {
@@ -28,23 +28,26 @@
     </style>
     <script>
       // automatically reload on build changes
-      new EventSource("/esbuild").addEventListener("change", () => location.reload())
+      new EventSource("/esbuild").addEventListener("change", () =>
+        location.reload()
+      )
     </script>
   </head>
   <body>
-    <script
+    <!-- <script
       defer
       src="https://assets.juno.global.cloud.sap/apps/widget-loader@latest/build/app.js"
       data-name="auth"
       data-version="latest"
       data-props-initial-login="true"
       data-props-mock='{"groups":["organization:test-org", "team:containers","support-group:containers","role:ccloud:admin"]}'
-    ></script>
+      data-props-debug="true"
+    ></script> -->
     <script type="module">
       // appProps are generated in development env and added to the build
       import allProps from "./build/appProps.js"
-      import ("./build/index.js").then((app) => {
-        app.mount(document.getElementById("root"), {props: allProps.appProps})
+      import("./build/index.js").then((app) => {
+        app.mount(document.getElementById("root"), { props: allProps.appProps })
       })
     </script>
     <div id="root"></div>

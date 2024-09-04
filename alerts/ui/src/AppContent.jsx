@@ -30,7 +30,6 @@ const AppContent = () => {
   const { addMessage } = useActions()
 
   // alerts
-  const alertsError = useAlertsError()
   const isAlertsLoading = useAlertsIsLoading()
   const totalCounts = useAlertsTotalCounts()
   const isAlertsUpdating = useAlertsIsUpdating()

@@ -13,7 +13,7 @@ export const parseError = (error) => {
 
   // check if the error is a object containing message
   if (typeof error === "object") {
-    console.log("Error parsing error message::object")
+    console.debug("Error parsing error message::object")
     if (error?.message) {
       errMsg = parseMessage(error?.message)
     }

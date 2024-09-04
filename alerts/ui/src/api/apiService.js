@@ -102,7 +102,7 @@ function ApiService(initialConfig) {
     )
 
     if (config?.debug)
-      console.log(
+      console.debug(
         `ApiService::${config.serviceName || ""}: new config: `,
         config
       )

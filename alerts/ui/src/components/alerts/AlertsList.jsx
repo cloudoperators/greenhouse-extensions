@@ -44,7 +44,7 @@ const AlertsList = () => {
       if (alertsIsLoading || isAddingItems) return
       if (observer.current) observer.current.disconnect()
       observer.current = new IntersectionObserver((entries) => {
-        console.log("IntersectionObserver: callback")
+        console.debug("IntersectionObserver: callback")
         if (entries[0].isIntersecting && visibleAmount <= alertsSorted.length) {
           // setVisibleAmount((prev) => prev + 10)
           clearTimeout(timeoutRef.current)
