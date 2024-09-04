@@ -12,6 +12,12 @@ opentelemetry-operator:
     create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
+    create: true
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      enabled: true
+      recreate: false
   manager:
     collectorImage:
       repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
