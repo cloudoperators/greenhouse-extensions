@@ -15,47 +15,62 @@ const initialFiltersState = {
   searchTerm: "", // the search term used for full-text filtering
 }
 
-const createFiltersSlice = (set, get) => ({
+const parsePredefinedFilters = (predefinedFilters) => {
+  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+    console.warn(
+      "[supernova]::parsePredefinedFilter: predefinedFilters object is not an array"
+    )
+    return null
+  }
+
+  return predefinedFilters
+}
+
+const parseActivePredefinedFilter = (predefinedFilters) => {
+  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+    console.warn(
+      "[supernova]::parseActivePredefinedFilter: predefinedFilters object is not an array"
+    )
+    return null
+  }
+
+  return predefinedFilters[0]?.name
+}
+
+const parseFilterLabels = (labels) => {
+  if (!labels) return state
+
+  // check if labels is an array
+  if (!Array.isArray(labels)) {
+    console.warn("[supernova]::setLabels: labels object is not an array")
+    return state
+  }
+
+  // check if all elements in the array are strings delete the ones that are not
+  if (!labels.every((element) => typeof element === "string")) {
+    console.warn(
+      "[supernova]::setLabels: Some elements of the array are not strings."
+    )
+    labels = labels.filter((element) => typeof element === "string")
+  }
+
+  // merge given labels with the initial, make it unique and sort it alphabetically
+  const uniqueLabels = Array.from(
+    new Set(initialFiltersState.labels.concat(labels))
+  ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+
+  return uniqueLabels
+}
+
+const createFiltersSlice = (set, get, options) => ({
   filters: {
     ...initialFiltersState,
+    predefinedFilters: parsePredefinedFilters(options?.predefinedFilters),
+    activePredefinedFilter: parseActivePredefinedFilter(
+      options?.predefinedFilters
+    ),
+    labels: parseFilterLabels(options?.filterLabels),
     actions: {
-      setLabels: (labels) =>
-        set(
-          (state) => {
-            if (!labels) return state
-
-            // check if labels is an array
-            if (!Array.isArray(labels)) {
-              console.warn(
-                "[supernova]::setLabels: labels object is not an array"
-              )
-              return state
-            }
-
-            // check if all elements in the array are strings delete the ones that are not
-            if (!labels.every((element) => typeof element === "string")) {
-              console.warn(
-                "[supernova]::setLabels: Some elements of the array are not strings."
-              )
-              labels = labels.filter((element) => typeof element === "string")
-            }
-
-            // merge given labels with the initial, make it unique and sort it alphabetically
-            const uniqueLabels = Array.from(
-              new Set(initialFiltersState.labels.concat(labels))
-            ).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-
-            return {
-              filters: {
-                ...state.filters,
-                labels: uniqueLabels,
-              },
-            }
-          },
-          false,
-          "filters.setLabels"
-        ),
-
       setActiveFilters: (activeFilters) => {
         set(
           (state) => {
@@ -193,16 +208,6 @@ const createFiltersSlice = (set, get) => ({
         )
         // after removing a filter: filter items
         get().alerts.actions.filterItems()
-      },
-
-      setPredefinedFilters: (predefinedFilters) => {
-        set(
-          produce((state) => {
-            state.filters.predefinedFilters = predefinedFilters
-          }),
-          false,
-          "filters.setPredefinedFilters"
-        )
       },
 
       setActivePredefinedFilter: (filterName) => {

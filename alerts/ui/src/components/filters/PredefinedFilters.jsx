@@ -31,18 +31,20 @@ const PredefinedFilters = () => {
 
   return (
     <Stack>
-      <TabNavigation
-        activeItem={selectedItem}
-        onActiveItemChange={handleTabSelect}
-      >
-        {predefinedFilters.map((filter) => (
-          <TabNavigationItem
-            key={filter.name}
-            value={filter.name}
-            label={filter.displayName}
-          />
-        ))}
-      </TabNavigation>
+      {predefinedFilters && selectedItem && (
+        <TabNavigation
+          activeItem={selectedItem}
+          onActiveItemChange={handleTabSelect}
+        >
+          {predefinedFilters.map((filter) => (
+            <TabNavigationItem
+              key={filter.name}
+              value={filter.name}
+              label={filter.displayName}
+            />
+          ))}
+        </TabNavigation>
+      )}
       <div className="ml-auto">
         <SilenceScheduledWrapper />
       </div>
