@@ -29,9 +29,9 @@ const validateExcludedLabels = (labels) => {
     !labels.some((element) => typeof element === "string")
   ) {
     console.warn(
-      "[supernova]::setExcludedLabels: labels object is not an array of strings"
+      "[supernova]::validateExcludedLabels: labels object is not an array of strings"
     )
-    return
+    return initialSilencesState.excludedLabels
   }
 
   return labels

@@ -16,7 +16,8 @@ const initialFiltersState = {
 }
 
 const parsePredefinedFilters = (predefinedFilters) => {
-  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+  if (!predefinedFilters) return initialFiltersState.predefinedFilters
+  if (!Array.isArray(predefinedFilters)) {
     console.warn(
       "[supernova]::parsePredefinedFilter: predefinedFilters object is not an array"
     )
@@ -27,14 +28,15 @@ const parsePredefinedFilters = (predefinedFilters) => {
 }
 
 const parseActivePredefinedFilter = (predefinedFilters) => {
-  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+  if (!predefinedFilters) return initialFiltersState.activePredefinedFilter
+  if (!Array.isArray(predefinedFilters)) {
     console.warn(
       "[supernova]::parseActivePredefinedFilter: predefinedFilters object is not an array"
     )
     return initialFiltersState.activePredefinedFilter
   }
 
-  return predefinedFilters[0]?.name
+  return predefinedFilters[0]?.name || null
 }
 
 const parseFilterLabels = (labels) => {
