@@ -14,12 +14,12 @@ opentelemetry-operator:
     failurePolicy: 'Ignore'
   manager:
     collectorImage:
-      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
       #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
       tag: main
       #tag: 0.104.0
     image:
-      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+      repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.104.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
