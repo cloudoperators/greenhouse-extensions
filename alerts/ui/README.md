@@ -140,7 +140,7 @@ To set the excluded alert labels:
 
 ### Theme
 
-Override the default `theme`. Possible values are `"theme-light"` or `"theme-dark"` (default)
+Set this attribute to specify a custom theme for your application. Possible values are `"theme-light"` or `"theme-dark"` (default)
 
 To set the theme:
 
@@ -148,7 +148,7 @@ To set the theme:
 
 ### Endpoint
 
-`endpoint` sets the Alertmanager API Endpoint URL `/api/v2`. Should be one of `alerts.alertmanager.ingress.hosts`
+Sets the Alertmanager API Endpoint URL. Provide the full URL of the Alertmanager API endpoint to which the application will connect.
 
 To set the endpoint:
 
@@ -156,7 +156,7 @@ To set the endpoint:
 
 ### Predefined Filters
 
-`predefinedFilters` are filters applied through in the UI to differentiate between contexts through matching alerts with regular expressions. They are loaded by default when the application is loaded. The format is a list of objects including name, displayname and matchers (containing keys corresponding value).
+Specifies filters to be applied in the UI for distinguishing between contexts by matching alerts with regular expressions. These filters are automatically loaded when the application starts. The format is a list of objects including name, displayname and matchers (containing keys corresponding value).
 
 Example:
 
@@ -178,7 +178,7 @@ To set the predefined Filter:
 
 ### Silence Templates
 
-`silenceTemplates`: SilenceTemplates are used in the Modal (schedule silence) to allow pre-defined silences to be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title.
+Defines pre-configured silences available in the schedule silence modal for setting up maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title.
 
 Example:
 
