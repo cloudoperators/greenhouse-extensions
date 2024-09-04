@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.12.2
+    version: 0.13.0
   options:
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
