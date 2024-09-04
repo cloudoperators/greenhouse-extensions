@@ -13,15 +13,14 @@ import {
   DataGridCell,
   DataGridHeadCell,
   DataGridRow,
-  Select,
-  SelectOption,
+  ComboBox,
+  ComboBoxOption,
 } from "@cloudoperators/juno-ui-components"
-import { request } from "graphql-request"
 import {
   useGlobalsQueryClientFnReady,
   useGlobalsShowServiceDetail,
 } from "../../hooks/useAppStore"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import LoadElement from "../shared/LoadElement"
 import { useActions as messageActions } from "@cloudoperators/juno-messages-provider"
 import { parseError } from "../../helpers"
@@ -30,7 +29,6 @@ import {
   severityString,
   highestSeverity,
 } from "../shared/Helper"
-import createAddOwnersMutation from "../../lib/queries/createAddOwnersMutation" // Import the mutation generator
 
 const ServicesDetail = () => {
   const showServiceDetail = useGlobalsShowServiceDetail()
@@ -53,10 +51,10 @@ const ServicesDetail = () => {
   }, [serviceElem])
 
   const [selectedOwners, setSelectedOwners] = useState([])
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [tempSelectedOwners, setTempSelectedOwners] = useState([])
+  const [newOwner, setNewOwner] = useState(null) // Store the full user object
+  const [showComboBox, setShowComboBox] = useState(false) // State to control ComboBox visibility
 
-  // Pre-populate selected owners in edit mode
+  // Pre-populate selected owners
   useEffect(() => {
     if (service && service.owners?.edges) {
       const preSelectedOwners = service.owners.edges.map((owner) => owner.node)
@@ -64,53 +62,61 @@ const ServicesDetail = () => {
     }
   }, [service])
 
-  // Utilize the mutation for adding owners
-  const addOwnersToService = useMutation({
+  // Mutation for adding an owner
+  const addOwnerMutation = useMutation({
     mutationKey: ["addOwnerToService"],
     enabled: !!queryClientFnReady,
   })
 
-  // Handle selection of owners in edit mode
-  const handleOwnerSelection = (selectedUsers) => {
-    const selectedUsersInfo = selectedUsers.map((selectedUser) => {
-      return users?.data?.Users?.edges?.find(
-        (user) => user?.node?.uniqueUserId === selectedUser
-      ).node
-    })
-    setTempSelectedOwners(selectedUsersInfo)
-  }
+  // Mutation for removing an owner
+  const removeOwnerMutation = useMutation({
+    mutationKey: ["removeOwnerFromService"],
+    enabled: !!queryClientFnReady,
+  })
 
-  const handleEdit = () => {
-    setTempSelectedOwners(selectedOwners)
-    setIsEditMode(true)
-  }
-
-  const handleSave = () => {
-    if (!service || !tempSelectedOwners.length) return
-
-    // Filter out owners already assigned to the service
-    const newOwners = tempSelectedOwners.filter(
-      (owner) => !selectedOwners.some((existing) => existing.id === owner.id)
-    )
-
-    if (!newOwners.length) {
-      setIsEditMode(false) // No new owners to save, just exit edit mode
+  // Add a new owner to the service
+  const handleAddOwner = () => {
+    // Check if the selected user is already in the list of owners
+    if (
+      newOwner &&
+      selectedOwners.some(
+        (owner) => owner.uniqueUserId === newOwner.uniqueUserId
+      )
+    ) {
+      addMessage({ variant: "warning", text: "User is already an owner." })
       return
     }
 
-    // Extract the userIds from newOwners for mutation
-    const userIds = newOwners.map((owner) => owner.id)
+    if (newOwner) {
+      addOwnerMutation.mutate(
+        {
+          serviceId: service.id,
+          userId: newOwner.id, // Send the user `id`, not the uniqueUserId
+        },
+        {
+          onSuccess: () => {
+            setShowComboBox(false)
+            setNewOwner(null)
+          },
+          onError: (error) => {
+            addMessage({
+              variant: "error",
+              text: parseError(error),
+            })
+          },
+        }
+      )
+    }
+  }
 
-    addOwnersToService.mutate(
+  // Remove an owner from the service
+  const handleRemoveOwner = (userId) => {
+    removeOwnerMutation.mutate(
       {
         serviceId: service.id,
-        userIds,
+        userId: userId,
       },
       {
-        onSuccess: () => {
-          setSelectedOwners(tempSelectedOwners) // Save full user info after successful mutation
-          setIsEditMode(false)
-        },
         onError: (error) => {
           addMessage({
             variant: "error",
@@ -121,144 +127,117 @@ const ServicesDetail = () => {
     )
   }
 
-  const handleCancel = () => {
-    setTempSelectedOwners([])
-    setIsEditMode(false)
-    resetMessages()
+  const handleCancelAdd = () => {
+    setShowComboBox(false)
+    setNewOwner(null)
   }
 
   return (
-    <>
-      <Stack direction="vertical" gap="4">
-        <Stack direction="horizontal" alignment="center" distribution="between">
-          <ContentHeading heading="Service Details" />
-          <Stack direction="horizontal" alignment="end" gap="2">
-            {isEditMode ? (
-              <>
-                <Button variant="primary" onClick={handleSave}>
+    <Stack direction="vertical" gap="4">
+      <Stack direction="horizontal" alignment="center" distribution="between">
+        <ContentHeading heading="Service Details" />
+        <Button
+          variant="primary"
+          size="small"
+          onClick={() => setShowComboBox(true)}
+        >
+          Add Owner
+        </Button>
+      </Stack>
+
+      <DataGrid columns={2}>
+        <DataGridRow>
+          <DataGridHeadCell>Owners</DataGridHeadCell>
+          <DataGridCell>
+            <Stack gap="2" wrap={true}>
+              {selectedOwners.length > 0 &&
+                selectedOwners.map((owner, i) => (
+                  <Pill
+                    key={i}
+                    pillValue={owner?.name}
+                    pillValueLabel={owner?.name}
+                    closeable
+                    onClose={() => handleRemoveOwner(owner?.id)}
+                  />
+                ))}
+            </Stack>
+
+            {showComboBox && (
+              <Stack direction="horizontal" gap="2" marginTop="2">
+                <ComboBox
+                  onChange={(selectedUniqueUserId) => {
+                    // Find the full user object based on the uniqueUserId from the ComboBox
+                    const selectedUser = users?.data?.Users?.edges?.find(
+                      (user) => user.node.uniqueUserId === selectedUniqueUserId
+                    )?.node
+                    setNewOwner(selectedUser) // Set the full user object in state
+                  }}
+                >
+                  {users?.data?.Users?.edges?.map((user, i) => (
+                    <ComboBoxOption key={i} value={user?.node?.uniqueUserId}>
+                      {user?.node?.name}
+                    </ComboBoxOption>
+                  ))}
+                </ComboBox>
+                <Button variant="primary" onClick={handleAddOwner}>
                   Save
                 </Button>
-                <Button variant="subdued" onClick={handleCancel}>
+                <Button variant="subdued" onClick={handleCancelAdd}>
                   Cancel
                 </Button>
-              </>
-            ) : (
-              <Button variant="primary" onClick={handleEdit}>
-                Edit
-              </Button>
+              </Stack>
             )}
-          </Stack>
-        </Stack>
-        <DataGrid columns={2}>
-          <DataGridRow>
-            <DataGridHeadCell>Owner</DataGridHeadCell>
+          </DataGridCell>
+        </DataGridRow>
 
+        <DataGridRow>
+          <DataGridHeadCell>Support Group</DataGridHeadCell>
+          <DataGridCell>
+            <LoadElement
+              elem={
+                <ul>
+                  {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
+                </ul>
+              }
+            />
+          </DataGridCell>
+        </DataGridRow>
+      </DataGrid>
+
+      <ContentHeading heading="Component Instances" />
+      <DataGrid columns={4}>
+        <DataGridRow>
+          <DataGridHeadCell>Component</DataGridHeadCell>
+          <DataGridHeadCell>Version</DataGridHeadCell>
+          <DataGridHeadCell>Total Number of Issues</DataGridHeadCell>
+          <DataGridHeadCell>Highest Severity</DataGridHeadCell>
+        </DataGridRow>
+        {!service?.componentInstances?.edges && (
+          <DataGridRow colSpan={4}>
+            <LoadElement />
+          </DataGridRow>
+        )}
+
+        {service?.componentInstances?.edges?.map((componentInstance, i) => (
+          <DataGridRow key={i}>
             <DataGridCell>
-              <LoadElement
-                elem={
-                  isEditMode ? (
-                    <Stack gap="2" wrap={true}>
-                      <Select
-                        multiple
-                        onChange={handleOwnerSelection}
-                        value={tempSelectedOwners.map(
-                          (owner) => owner.uniqueUserId
-                        )}
-                      >
-                        {users?.data?.Users?.edges?.map((user, i) => (
-                          <SelectOption
-                            value={user.node.uniqueUserId}
-                            label={user.node.uniqueUserId}
-                            key={i}
-                          />
-                        ))}
-                      </Select>
-                    </Stack>
-                  ) : (
-                    <Stack gap="2" wrap={true}>
-                      {selectedOwners.length > 0
-                        ? selectedOwners.map((owner, i) => (
-                            <Pill
-                              key={i}
-                              pillKey={owner.uniqueUserId}
-                              pillKeyLabel={owner.uniqueUserId}
-                              pillValue={owner.name}
-                              pillValueLabel={owner.name}
-                            />
-                          ))
-                        : service?.owners?.edges?.map((owner, i) => (
-                            <Pill
-                              key={i}
-                              pillKey={owner.node.uniqueUserId}
-                              pillKeyLabel={owner.node.uniqueUserId}
-                              pillValue={owner.node.name}
-                              pillValueLabel={owner.node.name}
-                            />
-                          ))}
-                    </Stack>
-                  )
-                }
-              />
+              {componentInstance?.node?.componentVersion?.component?.name}
+            </DataGridCell>
+            <DataGridCell>
+              {componentInstance?.node?.componentVersion?.version}
+            </DataGridCell>
+            <DataGridCell>
+              {componentInstance?.node?.issueMatches?.totalCount}
+            </DataGridCell>
+            <DataGridCell>
+              {severityString(
+                highestSeverity(componentInstance?.node?.issueMatches?.edges)
+              )}
             </DataGridCell>
           </DataGridRow>
-
-          <DataGridRow>
-            <DataGridHeadCell>Support Group</DataGridHeadCell>
-
-            <DataGridCell>
-              <LoadElement
-                elem={
-                  <ul>
-                    {listOfCommaSeparatedObjs(service?.supportGroups, "name")}
-                  </ul>
-                }
-              />
-            </DataGridCell>
-          </DataGridRow>
-        </DataGrid>
-        <>
-          <ContentHeading heading="Component Instances" />
-
-          <DataGrid columns={4}>
-            <DataGridRow>
-              <DataGridHeadCell>Component</DataGridHeadCell>
-              <DataGridHeadCell>Version</DataGridHeadCell>
-              <DataGridHeadCell>Total Number of Issues</DataGridHeadCell>
-              <DataGridHeadCell>Highest Severity</DataGridHeadCell>
-            </DataGridRow>
-            {!service?.componentInstances?.edges && (
-              <DataGridRow colSpan={4}>
-                <LoadElement />
-              </DataGridRow>
-            )}
-
-            {service?.componentInstances?.edges?.map((componentInstance, i) => (
-              <DataGridRow key={i}>
-                <DataGridCell>
-                  {componentInstance?.node?.componentVersion?.component?.name}
-                </DataGridCell>
-
-                <DataGridCell>
-                  {componentInstance?.node?.componentVersion?.version}
-                </DataGridCell>
-
-                <DataGridCell>
-                  {componentInstance?.node?.issueMatches?.totalCount}
-                </DataGridCell>
-
-                <DataGridCell>
-                  {severityString(
-                    highestSeverity(
-                      componentInstance?.node?.issueMatches?.edges
-                    )
-                  )}
-                </DataGridCell>
-              </DataGridRow>
-            ))}
-          </DataGrid>
-        </>
-      </Stack>
-    </>
+        ))}
+      </DataGrid>
+    </Stack>
   )
 }
 

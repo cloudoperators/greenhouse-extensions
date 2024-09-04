@@ -12,7 +12,7 @@ import issueMatchesQuery from "../lib/queries/issueMatches"
 import serviceFilterValuesQuery from "../lib/queries/serviceFilterValues"
 import issueMatchesFilterValuesQuery from "../lib/queries/issueMatchesFilterValues"
 import componentsQuery from "../lib/queries/components"
-import createAddOwnersMutation from "../lib/queries/createAddOwnersMutation"
+import addRemoveServiceOwners from "../lib/queries/addRemoveServiceOwners"
 import usersQuery from "../lib/queries/users"
 
 // hook to register query defaults that depends on the queryClient and options
@@ -74,19 +74,37 @@ const useQueryClientFn = () => {
 
     // Set mutation defaults for addOwnerToService
     queryClient.setMutationDefaults(["addOwnerToService"], {
-      mutationFn: async ({ serviceId, userIds }) => {
-        const { mutation, variables } = createAddOwnersMutation(
+      mutationFn: async ({ serviceId, userId }) => {
+        const { mutation, variables } = addRemoveServiceOwners(
           serviceId,
-          userIds
+          userId,
+          "add" // Specify "add" action for adding a user
         )
-        mutation.replace(/\\n/g, "").trim()
         await request(endpoint, mutation, variables)
       },
       onSuccess: () => {
         queryClient.invalidateQueries(["Services"])
       },
       onError: (error) => {
-        console.error("Failed to add owners to the service:", error)
+        console.error("Failed to add owner to the service:", error)
+      },
+    })
+
+    // Set mutation defaults for removeOwnerFromService
+    queryClient.setMutationDefaults(["removeOwnerFromService"], {
+      mutationFn: async ({ serviceId, userId }) => {
+        const { mutation, variables } = addRemoveServiceOwners(
+          serviceId,
+          userId,
+          "remove" // Specify "remove" action for removing a user
+        )
+        await request(endpoint, mutation, variables)
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["Services"])
+      },
+      onError: (error) => {
+        console.error("Failed to remove owner from the service:", error)
       },
     })
 
