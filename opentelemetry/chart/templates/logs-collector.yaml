@@ -200,7 +200,7 @@ spec:
             conditions:
               - resource.attributes["app.label.part-of"] == "ceph-cluster"
             statements:
-              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:remoteaddr} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \[%{HTTPDATE:request_timestamp}\] "%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{NOTSPACE:httpversion}" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} "%{GREEDYDATA:user_agent}" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert"
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:remoteaddr} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \[%{HTTPDATE:request_timestamp}\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert"
 
       k8sattributes:
         auth_type: "serviceAccount"
