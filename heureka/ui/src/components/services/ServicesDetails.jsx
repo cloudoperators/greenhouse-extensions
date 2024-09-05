@@ -163,7 +163,7 @@ const ServicesDetail = () => {
             </Stack>
 
             {showComboBox && (
-              <Stack direction="horizontal" gap="2" marginTop="2">
+              <Stack direction="horizontal" gap="2">
                 <ComboBox
                   onChange={(selectedUniqueUserId) => {
                     // Find the full user object based on the uniqueUserId from the ComboBox
