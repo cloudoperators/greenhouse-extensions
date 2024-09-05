@@ -16,21 +16,21 @@ Components included in this Plugin:
 
 | Name                                                         | Description                                                                                                         | Value                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `fluent-bit.parser`                 | Parser used for container logs. [docker\|cri] labels                                                                      |          "cri"          |
-| `fluent-bit.backend.opensearch.host`                 | Host for the Elastic/OpenSearch HTTP Input                                                                       |                    |
-| `fluent-bit.backend.opensearch.port`                 | Port for the Elastic/OpenSearch HTTP Input                                                                       |                    |
-| `fluent-bit.backend.opensearch.http_user`                 | Username for the Elastic/OpenSearch HTTP Input                                                                       |                    |
-| `fluent-bit.backend.opensearch.http_password`                 | Password for the Elastic/OpenSearch HTTP Input                                                                       |                    |
-| `fluent-bit.backend.opensearch.host`                 | Host for the Elastic/OpenSearch HTTP Input                                                                       |                    |
-| `fluent-bit.filter.additionalValues`                 | list of Key-Value pairs to label logs labels                                                                      |          []          |
-| `fluent-bit.config.inputs`                 | multi-line string containing additional inputs                                                                       |                    |
-| `fluent-bit.config.filters`                 | multi-line string containing additional filters                                                                      |                    |
-| `fluent-bit.config.outputs`                 | multi-line string containing additional outputs                                                                       |                    |
+| `fluent-bit.parser`                                          | Parser used for container logs. [docker\|cri] labels                                                                |           "cri"          |
+| `fluent-bit.backend.opensearch.host`                         | Host for the Elastic/OpenSearch HTTP Input                                                                          |                          |
+| `fluent-bit.backend.opensearch.port`                         | Port for the Elastic/OpenSearch HTTP Input                                                                          |                          |
+| `fluent-bit.backend.opensearch.http_user`                    | Username for the Elastic/OpenSearch HTTP Input                                                                      |                          |
+| `fluent-bit.backend.opensearch.http_password`                | Password for the Elastic/OpenSearch HTTP Input                                                                      |                          |
+| `fluent-bit.backend.opensearch.host`                         | Host for the Elastic/OpenSearch HTTP Input                                                                          |                          |
+| `fluent-bit.filter.additionalValues`                         | list of Key-Value pairs to label logs labels                                                                        |             []           |
+| `fluent-bit.customConfig.inputs`                             | multi-line string containing additional inputs                                                                      |                          |
+| `fluent-bit.customConfig.filters`                            | multi-line string containing additional filters                                                                     |                          |
+| `fluent-bit.customConfig.outputs`                            | multi-line string containing additional outputs                                                                     |                          |
 
 ## Custom Configuration
 
 To add custom configuration to the fluent-bit configuration please check the fluentbit documentation [here](https://docs.fluentbit.io/manual/).
-The `fluent-bit.config.inputs`, `fluent-bit.config.filters` and `fluent-bit.config.outputs` parameters can be used to add custom configuration to the default configuration. The configuration should be added as a multi-line string.
+The `fluent-bit.customConfig.inputs`, `fluent-bit.customConfig.filters` and `fluent-bit.customConfig.outputs` parameters can be used to add custom configuration to the default configuration. The configuration should be added as a multi-line string.
 Inputs are rendered after the default inputs, filters are rendered after the default filters and before the additional values are added. Outputs are rendered after the default outputs.
 The additional values are added to all logs disregaring the source.
 

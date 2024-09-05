@@ -44,7 +44,7 @@ data:
           Strip_Underscores On
           Lowercase      On
 
-{{ if index .Values "fluent-bit" "config" "inputs" }}
+{{ if (( index .Values "fluent-bit" "customConfig").inputs) }}
       @INCLUDE custom-inputs.conf
 {{- end }}
 
@@ -89,11 +89,11 @@ data:
           Merge_Log          On
           Merge_Log_Trim     On
 
-{{ if index .Values "fluent-bit" "config" "filters" }}
+{{ if (( index .Values "fluent-bit" "customConfig").filters) }}
       @INCLUDE custom-filters.conf
 {{- end }}
 
-{{ if index .Values "fluent-bit" "filter" "additionalValues" }}
+{{ if ((index .Values "fluent-bit" "filter").additionalValues) }}
       [FILTER]
           Name record_modifier
           Match *
@@ -120,7 +120,7 @@ data:
           tls.debug {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "debug"}}
 {{- end }}
 
-{{ if index .Values "fluent-bit" "config" "outputs" }}
+{{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
       @INCLUDE custom-outputs.conf
 {{- end }}
 
@@ -131,17 +131,17 @@ data:
           Port            2021
           Add_label       app {{ include "fluent-bit.name" . }}
 
-{{ if index .Values "fluent-bit" "config" "inputs" }}
+{{ if ((index .Values "fluent-bit" "customConfig").inputs) }}
   custom-inputs.conf: |-
    {{- tpl (index .Values "fluent-bit" "config" "inputs") . | nindent 6 }}
 {{- end }}
 
-{{ if index .Values "fluent-bit" "config" "filters" }}
+{{ if ((index .Values "fluent-bit" "customConfig").filters) }}
   custom-filters.conf: |-
    {{- tpl (index .Values "fluent-bit" "config" "filters") . | nindent 6 }}
 {{- end }}
 
-{{ if index .Values "fluent-bit" "config" "outputs" }}
+{{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
   custom-outputs.conf: |-
    {{- tpl (index .Values "fluent-bit" "config" "outputs") . | nindent 6 }}
 {{- end }}

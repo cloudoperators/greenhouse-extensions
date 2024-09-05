@@ -44,15 +44,15 @@ spec:
       description: List of Key-Value-Pairs that are added to all collected logs
       required: false
       type: list
-    - name: fluent-bit.config.inputs
+    - name: fluent-bit.customConfig.inputs
       description: Additional input(s) that are added to the config
       required: false
       type: string
-    - name: fluent-bit.config.filters
+    - name: fluent-bit.customConfig.filters
       description: Additional filter(s) that are added to the config
       required: false
       type: string
-    - name: fluent-bit.config.outputs
+    - name: fluent-bit.customConfig.outputs
       description: Additional output(s) that are added to the config
       required: false
       type: string

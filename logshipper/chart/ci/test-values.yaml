@@ -46,7 +46,7 @@ fluent-bit:
     additionalValues:
       - key: region
         name: qa
-  config:
+  customConfig:
     inputs: |
       [INPUT]
           Name             tail-audit
