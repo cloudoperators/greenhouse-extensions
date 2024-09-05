@@ -20,10 +20,11 @@ opentelemetry-operator:
       recreate: false
   manager:
     collectorImage:
-      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      repository: keppel.eu-de-1.cloud.sap/ccloud/opentelemetry/collector-image
       #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
       #tag: 0.104.0
-      tag: main
+      #tag: main
+      tag: latest
     image:
       repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.104.0
