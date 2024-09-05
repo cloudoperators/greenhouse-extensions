@@ -22,7 +22,7 @@ opentelemetry-operator:
     collectorImage:
       repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
       #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-      tag: 0.107.0
+      tag: 0.104.0
       #tag: main
     image:
       repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-operator/opentelemetry-operator
