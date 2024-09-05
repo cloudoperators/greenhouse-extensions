@@ -15,6 +15,8 @@ import {
   DataGridRow,
   ComboBox,
   ComboBoxOption,
+  Icon,
+  Modal,
 } from "@cloudoperators/juno-ui-components"
 import {
   useGlobalsQueryClientFnReady,
@@ -53,6 +55,7 @@ const ServicesDetail = () => {
   const [selectedOwners, setSelectedOwners] = useState([])
   const [newOwner, setNewOwner] = useState(null) // Store the full user object
   const [showComboBox, setShowComboBox] = useState(false) // State to control ComboBox visibility
+  const [confirmRemoveOwner, setConfirmRemoveOwner] = useState(null) // Store user to confirm removal
 
   // Pre-populate selected owners
   useEffect(() => {
@@ -76,25 +79,19 @@ const ServicesDetail = () => {
 
   // Add a new owner to the service
   const handleAddOwner = () => {
-    // Check if the selected user is already in the list of owners
-    if (
-      newOwner &&
-      selectedOwners.some(
-        (owner) => owner.uniqueUserId === newOwner.uniqueUserId
-      )
-    ) {
-      addMessage({ variant: "warning", text: "User is already an owner." })
-      return
-    }
-
     if (newOwner) {
       addOwnerMutation.mutate(
         {
           serviceId: service.id,
-          userId: newOwner.id, // Send the user `id`, not the uniqueUserId
+          userId: newOwner.id,
         },
         {
           onSuccess: () => {
+            addMessage({
+              variant: "success",
+              text: `${newOwner.name} added as owner.`,
+            })
+            setSelectedOwners((prev) => [...prev, newOwner])
             setShowComboBox(false)
             setNewOwner(null)
           },
@@ -117,6 +114,19 @@ const ServicesDetail = () => {
         userId: userId,
       },
       {
+        onSuccess: () => {
+          const removedUser = selectedOwners.find(
+            (owner) => owner.id === userId
+          )
+          addMessage({
+            variant: "success",
+            text: `${removedUser.name} removed as owner.`,
+          })
+          setSelectedOwners((prev) =>
+            prev.filter((owner) => owner.id !== userId)
+          )
+          setConfirmRemoveOwner(null) // Close the modal
+        },
         onError: (error) => {
           addMessage({
             variant: "error",
@@ -134,50 +144,56 @@ const ServicesDetail = () => {
 
   return (
     <Stack direction="vertical" gap="4">
-      <Stack direction="horizontal" alignment="center" distribution="between">
-        <ContentHeading heading="Service Details" />
-        <Button
-          variant="primary"
-          size="small"
-          onClick={() => setShowComboBox(true)}
-        >
-          Add Owner
-        </Button>
-      </Stack>
+      <ContentHeading heading="Service Details" />
 
       <DataGrid columns={2}>
         <DataGridRow>
-          <DataGridHeadCell>Owners</DataGridHeadCell>
+          <DataGridHeadCell className="min-w-[150px]">Owners</DataGridHeadCell>
           <DataGridCell>
-            <Stack gap="2" wrap={true}>
-              {selectedOwners.length > 0 &&
-                selectedOwners.map((owner, i) => (
-                  <Pill
-                    key={i}
-                    pillValue={owner?.name}
-                    pillValueLabel={owner?.name}
-                    closeable
-                    onClose={() => handleRemoveOwner(owner?.id)}
-                  />
-                ))}
-            </Stack>
+            {!showComboBox && (
+              <Stack gap="2" wrap={true} alignment="center">
+                {selectedOwners.length > 0 &&
+                  selectedOwners.map((owner, i) => (
+                    <Pill
+                      key={i}
+                      pillValue={owner?.name}
+                      pillValueLabel={owner?.name}
+                      closeable
+                      onClose={() => setConfirmRemoveOwner(owner?.id)}
+                    />
+                  ))}
+                <Icon
+                  color="jn-global-text"
+                  icon="addCircle"
+                  onClick={() => setShowComboBox(true)}
+                  className="ml-2"
+                />
+              </Stack>
+            )}
 
             {showComboBox && (
               <Stack direction="horizontal" gap="2">
                 <ComboBox
                   onChange={(selectedUniqueUserId) => {
-                    // Find the full user object based on the uniqueUserId from the ComboBox
                     const selectedUser = users?.data?.Users?.edges?.find(
                       (user) => user.node.uniqueUserId === selectedUniqueUserId
                     )?.node
-                    setNewOwner(selectedUser) // Set the full user object in state
+                    setNewOwner(selectedUser)
                   }}
                 >
-                  {users?.data?.Users?.edges?.map((user, i) => (
-                    <ComboBoxOption key={i} value={user?.node?.uniqueUserId}>
-                      {user?.node?.name}
-                    </ComboBoxOption>
-                  ))}
+                  {users?.data?.Users?.edges
+                    ?.filter(
+                      (user) =>
+                        !selectedOwners.some(
+                          (owner) =>
+                            owner.uniqueUserId === user.node.uniqueUserId
+                        )
+                    )
+                    .map((user, i) => (
+                      <ComboBoxOption key={i} value={user?.node?.uniqueUserId}>
+                        {user?.node?.name}
+                      </ComboBoxOption>
+                    ))}
                 </ComboBox>
                 <Button variant="primary" onClick={handleAddOwner}>
                   Save
@@ -190,8 +206,25 @@ const ServicesDetail = () => {
           </DataGridCell>
         </DataGridRow>
 
+        {/* Modal for remove confirmation */}
+        {confirmRemoveOwner && (
+          <>
+            <Modal
+              cancelButtonLabel="Cancel"
+              confirmButtonLabel="Yes, Proceed"
+              open={!!confirmRemoveOwner}
+              onCancel={() => setConfirmRemoveOwner(null)}
+              onConfirm={() => handleRemoveOwner(confirmRemoveOwner)}
+            >
+              <p>Are you sure you want to remove this owner?</p>
+            </Modal>
+          </>
+        )}
+
         <DataGridRow>
-          <DataGridHeadCell>Support Group</DataGridHeadCell>
+          <DataGridHeadCell className="min-w-[150px]">
+            Support Group
+          </DataGridHeadCell>
           <DataGridCell>
             <LoadElement
               elem={
