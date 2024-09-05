@@ -16,34 +16,37 @@ const initialFiltersState = {
 }
 
 const parsePredefinedFilters = (predefinedFilters) => {
-  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+  if (!predefinedFilters) return initialFiltersState.predefinedFilters
+  if (!Array.isArray(predefinedFilters)) {
     console.warn(
       "[supernova]::parsePredefinedFilter: predefinedFilters object is not an array"
     )
-    return null
+    return initialFiltersState.predefinedFilters
   }
 
   return predefinedFilters
 }
 
 const parseActivePredefinedFilter = (predefinedFilters) => {
-  if (!predefinedFilters || !Array.isArray(predefinedFilters)) {
+  if (!predefinedFilters) return initialFiltersState.activePredefinedFilter
+  if (!Array.isArray(predefinedFilters)) {
     console.warn(
       "[supernova]::parseActivePredefinedFilter: predefinedFilters object is not an array"
     )
-    return null
+    return initialFiltersState.activePredefinedFilter
   }
 
-  return predefinedFilters[0]?.name
+  return predefinedFilters[0]?.name || null
 }
 
 const parseFilterLabels = (labels) => {
-  if (!labels) return state
+  // return the default labels if none are provided
+  if (!labels) return initialFiltersState.labels
 
   // check if labels is an array
   if (!Array.isArray(labels)) {
     console.warn("[supernova]::setLabels: labels object is not an array")
-    return state
+    return initialFiltersState.labels
   }
 
   // check if all elements in the array are strings delete the ones that are not
