@@ -4,6 +4,9 @@
 fluent-bit:
   backend:
     opensearch:
+      enabled: true
+      host: "my.log.sink"
+      port: 9200
       http_user: top-secret
       http_password: top-secret
     audit:
