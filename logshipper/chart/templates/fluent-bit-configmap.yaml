@@ -133,17 +133,17 @@ data:
 
 {{ if ((index .Values "fluent-bit" "customConfig").inputs) }}
   custom-inputs.conf: |-
-   {{- tpl (index .Values "fluent-bit" "config" "inputs") . | nindent 6 }}
+   {{- tpl (index .Values "fluent-bit" "customConfig" "inputs") . | nindent 6 }}
 {{- end }}
 
 {{ if ((index .Values "fluent-bit" "customConfig").filters) }}
   custom-filters.conf: |-
-   {{- tpl (index .Values "fluent-bit" "config" "filters") . | nindent 6 }}
+   {{- tpl (index .Values "fluent-bit" "customConfig" "filters") . | nindent 6 }}
 {{- end }}
 
 {{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
   custom-outputs.conf: |-
-   {{- tpl (index .Values "fluent-bit" "config" "outputs") . | nindent 6 }}
+   {{- tpl (index .Values "fluent-bit" "customConfig" "outputs") . | nindent 6 }}
 {{- end }}
 
   parsers.conf: |-
