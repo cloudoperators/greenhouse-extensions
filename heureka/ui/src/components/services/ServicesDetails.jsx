@@ -56,6 +56,7 @@ const ServicesDetail = () => {
   const [newOwner, setNewOwner] = useState(null) // Store the full user object
   const [showComboBox, setShowComboBox] = useState(false) // State to control ComboBox visibility
   const [confirmRemoveOwner, setConfirmRemoveOwner] = useState(null) // Store user to confirm removal
+  const [ownerToRemove, setOwnerToRemove] = useState(null) // Store owner name to remove
 
   // Pre-populate selected owners
   useEffect(() => {
@@ -63,6 +64,13 @@ const ServicesDetail = () => {
       const preSelectedOwners = service.owners.edges.map((owner) => owner.node)
       setSelectedOwners(preSelectedOwners)
     }
+  }, [service])
+
+  // Hide ComboBox when service details change (new service selected)
+  useEffect(() => {
+    // When the service changes, reset the state to hide ComboBox and ensure read-only mode
+    setShowComboBox(false)
+    setNewOwner(null) // Clear new owner selection as well
   }, [service])
 
   // Mutation for adding an owner
@@ -142,13 +150,19 @@ const ServicesDetail = () => {
     setNewOwner(null)
   }
 
+  // Set owner to remove and show confirmation modal
+  const handleConfirmRemoveOwner = (owner) => {
+    setConfirmRemoveOwner(owner?.id)
+    setOwnerToRemove(owner?.name)
+  }
+
   return (
     <Stack direction="vertical" gap="4">
       <ContentHeading heading="Service Details" />
 
-      <DataGrid columns={2}>
+      <DataGrid minContentColumns={[0]} columns={2}>
         <DataGridRow>
-          <DataGridHeadCell className="min-w-[150px]">Owners</DataGridHeadCell>
+          <DataGridHeadCell nowrap={true}>Owners</DataGridHeadCell>
           <DataGridCell>
             {!showComboBox && (
               <Stack gap="2" wrap={true} alignment="center">
@@ -159,7 +173,7 @@ const ServicesDetail = () => {
                       pillValue={owner?.name}
                       pillValueLabel={owner?.name}
                       closeable
-                      onClose={() => setConfirmRemoveOwner(owner?.id)}
+                      onClose={() => handleConfirmRemoveOwner(owner)}
                     />
                   ))}
                 <Icon
@@ -196,7 +210,7 @@ const ServicesDetail = () => {
                     ))}
                 </ComboBox>
                 <Button variant="primary" onClick={handleAddOwner}>
-                  Save
+                  Add
                 </Button>
                 <Button variant="subdued" onClick={handleCancelAdd}>
                   Cancel
@@ -208,23 +222,21 @@ const ServicesDetail = () => {
 
         {/* Modal for remove confirmation */}
         {confirmRemoveOwner && (
-          <>
-            <Modal
-              cancelButtonLabel="Cancel"
-              confirmButtonLabel="Yes, Proceed"
-              open={!!confirmRemoveOwner}
-              onCancel={() => setConfirmRemoveOwner(null)}
-              onConfirm={() => handleRemoveOwner(confirmRemoveOwner)}
-            >
-              <p>Are you sure you want to remove this owner?</p>
-            </Modal>
-          </>
+          <Modal
+            cancelButtonLabel="Cancel"
+            confirmButtonLabel="Yes, Proceed"
+            open={!!confirmRemoveOwner}
+            onCancel={() => setConfirmRemoveOwner(null)}
+            onConfirm={() => handleRemoveOwner(confirmRemoveOwner)}
+          >
+            <p>
+              Are you sure you want to remove {ownerToRemove} from the owners?
+            </p>
+          </Modal>
         )}
 
         <DataGridRow>
-          <DataGridHeadCell className="min-w-[150px]">
-            Support Group
-          </DataGridHeadCell>
+          <DataGridHeadCell nowrap={true}>Support Group</DataGridHeadCell>
           <DataGridCell>
             <LoadElement
               elem={
