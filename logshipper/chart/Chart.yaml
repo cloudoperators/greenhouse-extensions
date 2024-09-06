@@ -6,7 +6,7 @@ name: logshipper
 description: A Helm chart for deploying fluent-bit with custom config
 
 type: application
-version: 0.2.1
+version: 0.2.2
 appVersion: 3.0.4
 
 dependencies:
