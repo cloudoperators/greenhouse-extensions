@@ -72,7 +72,7 @@ const ServicesDetail = () => {
     setShowComboBox(false)
     setNewOwner(null) // Clear new owner selection as well
     resetMessages()
-  }, [service])
+  }, [service?.id])
 
   // Mutation for adding an owner
   const addOwnerMutation = useMutation({
