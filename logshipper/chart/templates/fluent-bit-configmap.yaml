@@ -27,7 +27,7 @@ data:
           Name             tail
           Path             /var/log/containers/*.log
           Parser           {{ default "cri" ( index .Values "fluent-bit" "parser" ) }}
-          Tag              default_kube.*
+          Tag              default_kube
           Refresh_Interval 5
           Mem_Buf_Limit    50MB
           Skip_Long_Lines  Off
@@ -37,7 +37,7 @@ data:
       [INPUT]
           Name           systemd
           Path           /var/log/journal
-          Tag            default_systemd.*
+          Tag            default_systemd
           Mem_Buf_Limit  5MB
           Read_From_Tail On
           DB             /var/log/fluent-bit-journal.pos.db
@@ -105,7 +105,7 @@ data:
 {{ if index .Values "fluent-bit" "backend" "opensearch" "enabled" }}
       [OUTPUT]
           Name  opensearch
-          Match default.*
+          Match default_*
           Host  {{ index .Values "fluent-bit" "backend" "opensearch" "host" }}
           Port  {{ index .Values "fluent-bit" "backend" "opensearch" "port" }}
           Logstash_Format On
