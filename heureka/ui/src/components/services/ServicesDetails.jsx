@@ -71,6 +71,7 @@ const ServicesDetail = () => {
     // When the service changes, reset the state to hide ComboBox and ensure read-only mode
     setShowComboBox(false)
     setNewOwner(null) // Clear new owner selection as well
+    resetMessages()
   }, [service])
 
   // Mutation for adding an owner
