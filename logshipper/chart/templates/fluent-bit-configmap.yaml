@@ -97,12 +97,12 @@ data:
       [FILTER]
           Name record_modifier
           Match *
-{{- range index .Values "fluent-bit" "filter" "additionalValues" -}}
+{{- range index .Values "fluent-bit" "filter" "additionalValues" }}
           Record {{ .key }} {{ .value }}
-{{- end -}}
-{{- end -}}
+{{- end }}
+{{- end }}
 
-{{- if index .Values "fluent-bit" "backend" "opensearch" "enabled" -}}
+{{ if index .Values "fluent-bit" "backend" "opensearch" "enabled" }}
       [OUTPUT]
           Name  opensearch
           Match default.*
@@ -118,7 +118,7 @@ data:
           tls {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "enabled"}}
           tls.verify {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "verify"}}
           tls.debug {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "debug"}}
-{{- end }}
+{{ end }}
 
 {{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
       @INCLUDE custom-outputs.conf
