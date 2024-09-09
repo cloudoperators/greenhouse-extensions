@@ -90,10 +90,10 @@ spec:
             value: "${KUBE_NODE_NAME}"
           - action: insert
             key: k8s_cluster_name
-            value: ${cluster}
+            value: "${cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
           - action: delete
             key: service_instance_id
           - action: delete
@@ -104,10 +104,10 @@ spec:
         actions:
           - action: insert
             key: k8s.cluster.name
-            value: ${cluster}
+            value: "${cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
           - action: insert
             key: k8s.node.name
             value: "${KUBE_NODE_NAME}"
@@ -119,10 +119,10 @@ spec:
             value: "${KUBE_NODE_NAME}"
           - action: insert
             key: k8s.cluster.name
-            value: "{cluster}
+            value: "${cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
 
       transform/journal:
         error_mode: ignore
