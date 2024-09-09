@@ -1,0 +1,49 @@
+{{- if .Values.testFramework.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "-5" # Installed and upgraded before the test pod
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+data:
+  run.sh: |-
+
+    #!/usr/bin/env bats
+
+    load "/usr/lib/bats/bats-detik/utils"
+    load "/usr/lib/bats/bats-detik/detik"
+
+    DETIK_CLIENT_NAME="kubectl"
+
+    # @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
+    #     verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
+    #     verify "there is 1 service named '{{ .Release.Name }}-operator'"
+    #     try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'"
+    # }
+
+    # @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
+    #     try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}.*' and verify that '.status.phase' is 'Bound'"
+    # }
+
+    # @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
+    #     try "at most 3 times every 5s to get prometheuses named '{{ .Release.Name }}' and verify that '.status.availableReplicas' is more than '0'"
+    # }
+
+    @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
+        verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
+        verify "there is 1 customresourcedefinition named 'alertmanagers'"
+        verify "there is 1 customresourcedefinition named 'podmonitors'"
+        verify "there is 1 customresourcedefinition named 'probes'"
+        verify "there is 1 customresourcedefinition named 'prometheuses'"
+        verify "there is 1 customresourcedefinition named 'prometheusrules'"
+        verify "there is 1 customresourcedefinition named 'prometheusagents'"
+        verify "there is 1 customresourcedefinition named 'servicemonitors'"
+        verify "there is 1 customresourcedefinition named 'scrapeconfigs'"
+        verify "there is 1 customresourcedefinition named 'thanosrulers'"
+    }
+{{- end -}}
