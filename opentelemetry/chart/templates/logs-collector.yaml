@@ -26,20 +26,13 @@ spec:
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
-    - name: username
-      valueFrom:
-        secretKeyRef:
-          name: otel-basic-auth
-          key: username
-    - name: password
-      valueFrom:
-        secretKeyRef:
-          name: otel-basic-auth
-          key: password          
     - name: cluster
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
+  envFrom:
+    - secretRef:
+         name: otel-basic-auth
 {{- if .Values.openTelemetry.podMonitor.enabled }}
   ports:
     - name: prometheus
