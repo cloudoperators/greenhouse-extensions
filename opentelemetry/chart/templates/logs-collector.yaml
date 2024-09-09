@@ -87,7 +87,7 @@ spec:
         actions:
           - action: insert
             key: k8s_node_name
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
           - action: insert
             key: k8s_cluster_name
             value: ${cluster}
@@ -110,13 +110,13 @@ spec:
             value: ${region}
           - action: insert
             key: k8s.node.name
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
 
       resource/k8sevents:
         attributes:
           - action: insert
             key: k8s.node.name
-            value: ${KUBE_NODE_NAME}
+            value: "${KUBE_NODE_NAME}"
           - action: insert
             key: k8s.cluster.name
             value: "{cluster}
