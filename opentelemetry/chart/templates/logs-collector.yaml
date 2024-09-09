@@ -119,10 +119,10 @@ spec:
             value: "${KUBE_NODE_NAME}"
           - action: insert
             key: k8s.cluster.name
-            value: "{cluster}
+            value: "{cluster}"
           - action: insert
             key: region
-            value: ${region}
+            value: "${region}"
 
       transform/journal:
         error_mode: ignore
