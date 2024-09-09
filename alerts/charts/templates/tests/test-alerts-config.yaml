@@ -20,19 +20,16 @@ data:
 
     DETIK_CLIENT_NAME="kubectl"
 
-    # @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
-    #     verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
-    #     verify "there is 1 service named '{{ .Release.Name }}-operator'"
-    #     try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'"
-    # }
+    @test "Verify successful deployment, service and running status of the {{ .Release.Name }}-operator pod" {
+        verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
+        verify "there is 1 service named '{{ .Release.Name }}-operator'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator.*' and verify that '.status.phase' is 'running'"
+    }
 
-    # @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
-    #     try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}.*' and verify that '.status.phase' is 'Bound'"
-    # }
-
-    # @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
-    #     try "at most 3 times every 5s to get prometheuses named '{{ .Release.Name }}' and verify that '.status.availableReplicas' is more than '0'"
-    # }
+    @test "Verify that Alertmanager '{{ .Release.Name }}' is Available and Reconciled" {
+        try "at most 2 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
+        try "at most 2 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
+    }
 
     @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
