@@ -9,7 +9,7 @@ metadata:
     app: logs-collector
 rules:
 - apiGroups: [""]
-  resources: ["pods", "namespaces", "nodes"]
+  resources: ["pods", "namespaces", "nodes", "events"]
   verbs: ["get", "watch", "list"]
 - apiGroups: ["apps"]
   resources: ["replicasets"]
