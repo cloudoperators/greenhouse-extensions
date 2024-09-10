@@ -27,7 +27,7 @@ opentelemetry-operator:
       tag: latest
     image:
       repository: keppel.eu-de-1.cloud.sap/ccloud-ghcr-io-mirror/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.104.0
+      tag: v0.108.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
