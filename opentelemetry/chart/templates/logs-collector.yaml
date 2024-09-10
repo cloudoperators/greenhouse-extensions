@@ -161,39 +161,39 @@ spec:
               - set(attributes["monotonic_timestamp"], cache["__MONOTONIC_TIMESTAMP"])
               - delete_key(attributes, "cache")
 
-      #transform/containerd:
-      #  log_statements:
-      #   context: log
-      #    statements:
-      #      - merge_maps(cache,ExtractPatterns(body,"^(?P<time>[^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^\\s]*) ?(?P<log>.*)$"), "upsert") where body != nil
-      #      - merge_maps(cache,ExtractPatterns(body,"^(?P<time>\\d+/\\d+/\\d+\\s+\\d+:\\d+\\d+) (?P<log>.*)$"), "upsert") where attributes["log_name"]!= "MeshAccessLog" and cache["log"]!= nil and not IsMap(cache["log"])
-      #      - set(body,cache["log"]) where cache["log"] != nil
-      #      - merge_maps(cache,ParseJSON(body), "upsert") where IsMap(body)
-      #      - set(body,cache["message"]) where cache["message"] != nil
-      #      - set(body,cache["msg"]) where cache["msg"] != nil
-      #      - set(severity_text,cache["level"]) where cache["level"] != nil
-      #      - set(severity_text,cache["severity"]) where cache["severity"] != nil
-      #      - set(severity_number,SEVERITY_NUMBER_INFO) where cache["level"] == "INFO"
-      #      - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
-      #      - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
+      transform/containerd:
+        log_statements:
+         context: log
+          statements:
+            - merge_maps(cache,ExtractPatterns(body,"^(?P<time>[^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^\\s]*) ?(?P<log>.*)$"), "upsert") where body != nil
+            - merge_maps(cache,ExtractPatterns(body,"^(?P<time>\\d+/\\d+/\\d+\\s+\\d+:\\d+\\d+) (?P<log>.*)$"), "upsert") where attributes["log_name"]!= "MeshAccessLog" and cache["log"]!= nil and not IsMap(cache["log"])
+            - set(body,cache["log"]) where cache["log"] != nil
+            - merge_maps(cache,ParseJSON(body), "upsert") where IsMap(body)
+            - set(body,cache["message"]) where cache["message"] != nil
+            - set(body,cache["msg"]) where cache["msg"] != nil
+            - set(severity_text,cache["level"]) where cache["level"] != nil
+            - set(severity_text,cache["severity"]) where cache["severity"] != nil
+            - set(severity_number,SEVERITY_NUMBER_INFO) where cache["level"] == "INFO"
+            - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
+            - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
 
-      #transform/ingress:
-      #  error_mode: ignore
-      #  log_statements:
-      #    - context: log
-      #      conditions:
-      #        - resource.attributes["app.label.name"] == "ingress-nginx"
-      #      statements:
-      #        - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:remoteaddr} %{NOTSPACE:ident} %{NOTSPACE:auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:upstream_addr}\\:%{NUMBER:upstream_port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+      transform/ingress:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["app.label.name"] == "ingress-nginx"
+            statements:
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:remoteaddr} %{NOTSPACE:ident} %{NOTSPACE:auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:upstream_addr}\\:%{NUMBER:upstream_port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
 
-      #transform/ceph:
-      #  error_mode: ignore
-      #  log_statements:
-      #    - context: log
-      #      conditions:
-      #        - resource.attributes["app.label.part-of"] == "ceph-cluster"
-      #      statements:
-      #        - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:remoteaddr} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \[%{HTTPDATE:request_timestamp}\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
+      transform/ceph:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["app.label.part-of"] == "ceph-cluster"
+            statements:
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:remoteaddr} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \[%{HTTPDATE:request_timestamp}\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
 
       k8sattributes:
         auth_type: "serviceAccount"
@@ -355,7 +355,7 @@ spec:
       pipelines:
         logs/containerd:
           receivers: [filelog]
-          processors: [k8sattributes,attributes/cluster,batch]
+          processors: [k8sattributes,transform/ingress,transform/ceph,attributes/cluster,batch]
           exporters: [opensearch/logs]
         logs/k8sevents:
           receivers: [k8s_events]
