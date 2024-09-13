@@ -46,5 +46,3 @@ fluent-bit:
     httpGet:
       path: /api/v1/health
       port: prometheus
-
-test: test-value
