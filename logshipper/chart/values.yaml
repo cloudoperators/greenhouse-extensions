@@ -4,7 +4,7 @@
 fluent-bit:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "fluent-bit"
-  hotReload: 
+  hotReload:
     enabled: true
   existingConfigMap: "fluent-bit-config"
   updateStrategy:
