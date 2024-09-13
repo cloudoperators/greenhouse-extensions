@@ -45,7 +45,7 @@ jobs:
 
       - name: Run chart integration tests
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --config ct.yaml
+        run: ct install --config ct-2.yaml
 
       - name: Check version bump
         id: check-bump
