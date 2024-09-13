@@ -15,6 +15,3 @@ cluster:
   clientSecretRef:
     name: super-secret
     key: clientSecret
-
-
-testKey: testValue
