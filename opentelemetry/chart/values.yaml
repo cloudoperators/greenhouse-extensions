@@ -9,7 +9,7 @@ owner-info:
 
 opentelemetry-operator:
   crds:
-    create: true
+    create: false
   admissionWebhooks:
     failurePolicy: 'Ignore'
     create: true
