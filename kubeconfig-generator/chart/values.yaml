@@ -8,5 +8,3 @@ image:
   pullPolicy: IfNotPresent
 swift: {}
 cluster: []
-
-testKey: testValue
