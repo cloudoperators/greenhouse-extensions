@@ -27,25 +27,33 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
 
-      - name: Run chart-testing (list-changed)
+      - name: Run chart-linting (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --config ct.yaml --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run chart-testing (lint)
+      - name: Run chart-linting
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --config ct.yaml --target-branch ${{ github.event.repository.default_branch }}
+        run: ct lint --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }}
+
+      - name: Run chart-testing (list-changed)
+        id: chart-test-list-changed
+        run: |
+          changed=$(ct chart-test-list-changed --config .github/configs/helm-test.yaml --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.chart-test-list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart integration tests
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --config ct.yaml
+        if: steps.chart-test-list-changed.outputs.changed == 'true'
+        run: ct install --config .github/configs/helm-test.yaml
 
       - name: Check version bump
         id: check-bump
