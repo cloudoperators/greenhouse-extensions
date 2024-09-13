@@ -28,7 +28,7 @@ jobs:
         uses: helm/chart-testing-action@v2.6.1
 
       - name: Run chart-linting (list-changed)
-        id: list-changed
+        id: chart-lint-list-changed
         run: |
           changed=$(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
