@@ -7,6 +7,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: kubeconfig-generator
+  labels: 
+    app: kubeconfig-generator
 rules:
 - apiGroups: ["greenhouse.sap"]
   resources:
