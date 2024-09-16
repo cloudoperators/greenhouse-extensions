@@ -9,7 +9,7 @@ metadata:
   annotations:
   name: opentelemetry-collector-logs
   labels:
-    prometheus: "{{ .Values.openTelemetry.prometheus }}"
+    prometheus: infra-frontend
 spec:
   podMetricsEndpoints:
     - interval: 60s
@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.opentelemetry.logs
+      app.kubernetes.io/instance: {{ .Release.Namespace }}.logs
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
