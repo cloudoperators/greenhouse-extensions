@@ -1,4 +1,4 @@
-{{/* 
+{{/*
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
@@ -26,20 +26,13 @@ spec:
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
-    - name: username
-      valueFrom:
-        secretKeyRef:
-          name: otel-basic-auth
-          key: username
-    - name: password
-      valueFrom:
-        secretKeyRef:
-          name: otel-basic-auth
-          key: password          
     - name: cluster
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
+  envFrom:
+    - secretRef:
+         name: otel-basic-auth
 {{- if .Values.openTelemetry.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -85,9 +78,9 @@ spec:
 
     processors:
       batch:
-        send_batch_max_size: 10000
-        timeout: 10s
-        send_batch_size : 400
+        send_batch_max_size: 500
+        timeout: 5s
+        send_batch_size : 10
 
 {{- if .Values.openTelemetry.podMonitor.enabled }}
       attributes/prometheus:
@@ -191,7 +184,8 @@ spec:
             conditions:
               - resource.attributes["app.label.name"] == "ingress-nginx"
             statements:
-              - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:remoteaddr} %{NOTSPACE:ident} %{NOTSPACE:auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:upstream_addr}\\:%{NUMBER:upstream_port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - set(attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower"))
 
       transform/ceph:
         error_mode: ignore
@@ -200,7 +194,8 @@ spec:
             conditions:
               - resource.attributes["app.label.part-of"] == "ceph-cluster"
             statements:
-              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:remoteaddr} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \\[%{HTTPDATE:request_timestamp}\\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{NOTSPACE:httpversion}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:client.address} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \\[%{HTTPDATE:request_timestamp}\\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
+              - set(attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower"))
 
       k8sattributes:
         auth_type: "serviceAccount"
