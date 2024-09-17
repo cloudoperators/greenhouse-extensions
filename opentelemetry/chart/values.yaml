@@ -23,8 +23,8 @@ opentelemetry-operator:
       recreate: false
   manager:
     collectorImage:
-      repository: otel/opentelemetry-collector-contrib
-      tag: 0.108.0
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      tag: sha256-bb7f1d2135e7e5b26d6888fd8a7971b4dc07d81b4c4dad257fffae1e21eb8fcf.sig
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.108.0
