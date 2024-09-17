@@ -8,7 +8,7 @@ owner-info:
   - name: timojohlo
   - name: kuckkuck
   - name: viennaa
-  helm-chart-url: https://github.com/sapcc/helm-charts/tree/master/system/opentelemetry-operator
+  helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
 
 opentelemetry-operator:
   crds:
@@ -23,11 +23,8 @@ opentelemetry-operator:
       recreate: false
   manager:
     collectorImage:
-      repository: keppel.eu-de-1.cloud.sap/ccloud/opentelemetry/collector-image
-      #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-      #tag: 0.104.0
-      #tag: main
-      tag: latest
+      repository: otel/opentelemetry-collector-contrib
+      tag: 0.108.0
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.108.0
@@ -40,6 +37,20 @@ opentelemetry-operator:
     serviceMonitor:
       enabled: true
   kubeRBACProxy:
+    enabled: false
+openTelemetry:
+  OpenSearchLogs:
+    endpoint: DEFINED-DURING-DEPLOYMENT
+    username: DEFINED-DURING-DEPLOYMENT
+    password: DEFINED-DURING-DEPLOYMENT
+  cluster: DEFINED-DURING-DEPLOYMENT
+  region: DEFINED-DURING-DEPLOYMENT
+  logsCollector:
+    enabled: false
+  prometheus: DEFINED-DURING-DEPLOYMENT
+  podMonitor:
+    enabled: false
+  serviceMonitor:
     enabled: false
 testFramework:
   enabled: true

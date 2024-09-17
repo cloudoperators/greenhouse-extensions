@@ -9,7 +9,7 @@ metadata:
   annotations:
   name: opentelemetry-collector-logs
   labels:
-    prometheus: infra-frontend
+    prometheus: "{{ .Values.openTelemetry.prometheus }}"
 spec:
   podMetricsEndpoints:
     - interval: 60s
