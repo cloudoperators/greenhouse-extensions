@@ -12,7 +12,7 @@ owner-info:
 
 opentelemetry-operator:
   crds:
-    create: false
+    create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
     create: true
@@ -25,9 +25,6 @@ opentelemetry-operator:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
       tag: sha256-bb7f1d2135e7e5b26d6888fd8a7971b4dc07d81b4c4dad257fffae1e21eb8fcf.sig
-    image:
-      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.108.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
@@ -38,16 +35,17 @@ opentelemetry-operator:
       enabled: true
   kubeRBACProxy:
     enabled: false
+# Empty variables will fail during rollout
 openTelemetry:
   OpenSearchLogs:
-    endpoint: DEFINED-DURING-DEPLOYMENT
-    username: DEFINED-DURING-DEPLOYMENT
-    password: DEFINED-DURING-DEPLOYMENT
-  cluster: DEFINED-DURING-DEPLOYMENT
-  region: DEFINED-DURING-DEPLOYMENT
+    endpoint:
+    username:
+    password:
+  cluster:
+  region:
   logsCollector:
     enabled: false
-  prometheus: DEFINED-DURING-DEPLOYMENT
+  prometheus:
   podMonitor:
     enabled: false
   serviceMonitor:
