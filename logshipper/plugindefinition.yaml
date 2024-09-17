@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logshipper
 spec:
-  version: 0.1.0
+  version: 0.2.2
   displayName: Fluent-bit Logshipper
   description: Logshipping of container logs and systemd with fluent-bit
   icon: https://raw.githubusercontent.com/fluent/fluent-bit/master/fluentbit_logo.png
   helmChart:
     name: logshipper
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.0
+    version: 0.2.2
   options:
     - name: fluent-bit.parser
       description: Parser used for container logs. [docker|cri]
@@ -21,7 +21,7 @@ spec:
       required: false
       type: string
     - name: fluent-bit.backend.opensearch.host
-      description: Host for the OpenSearch HTTP Input
+      description: Host for the Elastic/OpenSearch HTTP Input
       required: true
       type: string
     - name: fluent-bit.backend.opensearch.port
@@ -44,3 +44,15 @@ spec:
       description: List of Key-Value-Pairs that are added to all collected logs
       required: false
       type: list
+    - name: fluent-bit.customConfig.inputs
+      description: Additional input(s) that are added to the config
+      required: false
+      type: string
+    - name: fluent-bit.customConfig.filters
+      description: Additional filter(s) that are added to the config
+      required: false
+      type: string
+    - name: fluent-bit.customConfig.outputs
+      description: Additional output(s) that are added to the config
+      required: false
+      type: string

@@ -27,7 +27,7 @@ data:
           Name             tail
           Path             /var/log/containers/*.log
           Parser           {{ default "cri" ( index .Values "fluent-bit" "parser" ) }}
-          Tag              kube.*
+          Tag              default_kube
           Refresh_Interval 5
           Mem_Buf_Limit    50MB
           Skip_Long_Lines  Off
@@ -37,16 +37,20 @@ data:
       [INPUT]
           Name           systemd
           Path           /var/log/journal
-          Tag            systemd.*
+          Tag            default_systemd
           Mem_Buf_Limit  5MB
           Read_From_Tail On
           DB             /var/log/fluent-bit-journal.pos.db
           Strip_Underscores On
           Lowercase      On
 
+{{ if (( index .Values "fluent-bit" "customConfig").inputs) }}
+      @INCLUDE custom-inputs.conf
+{{- end }}
+
       [FILTER]
           Name          record_modifier
-          Match         systemd.*
+          Match         default_systemd.*
           Whitelist_key _SYSTEMD_UNIT
           Whitelist_key MESSAGE
           Whitelist_key _PID
@@ -56,7 +60,7 @@ data:
 
       [FILTER]
           Name   modify
-          Match  systemd.*
+          Match  default_systemd.*
           Rename _SYSTEMD_UNIT unit
           Rename MESSAGE log
           Rename _PID pid
@@ -66,18 +70,18 @@ data:
 
       [FILTER]
           Name       record_modifier
-          Match      kube.*
+          Match      default_kube.*
           Remove_key time
           Remove_key ts
 
       [FILTER]
           Name   modify
-          Match  kube.*
+          Match  default_kube.*
           Rename message log
 
       [FILTER]
           Name               kubernetes
-          Match              kube.*
+          Match              default_kube.*
           Kube_Tag_Prefix    kube.var.log.containers.
           Kube_URL           https://kubernetes.default.svc:443
           Kube_CA_File       /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
@@ -85,7 +89,11 @@ data:
           Merge_Log          On
           Merge_Log_Trim     On
 
-{{ if index .Values "fluent-bit" "filter" "additionalValues" }}
+{{ if (( index .Values "fluent-bit" "customConfig").filters) }}
+      @INCLUDE custom-filters.conf
+{{- end }}
+
+{{ if ((index .Values "fluent-bit" "filter").additionalValues) }}
       [FILTER]
           Name record_modifier
           Match *
@@ -97,7 +105,7 @@ data:
 {{ if index .Values "fluent-bit" "backend" "opensearch" "enabled" }}
       [OUTPUT]
           Name  opensearch
-          Match *
+          Match default_*
           Host  {{ index .Values "fluent-bit" "backend" "opensearch" "host" }}
           Port  {{ index .Values "fluent-bit" "backend" "opensearch" "port" }}
           Logstash_Format On
@@ -110,6 +118,10 @@ data:
           tls {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "enabled"}}
           tls.verify {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "verify"}}
           tls.debug {{ index .Values "fluent-bit" "backend" "opensearch" "tls" "debug"}}
+{{ end }}
+
+{{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
+      @INCLUDE custom-outputs.conf
 {{- end }}
 
       [OUTPUT]
@@ -118,6 +130,22 @@ data:
           Host            0.0.0.0
           Port            2021
           Add_label       app {{ include "fluent-bit.name" . }}
+
+{{ if ((index .Values "fluent-bit" "customConfig").inputs) }}
+  custom-inputs.conf: |-
+   {{- tpl (index .Values "fluent-bit" "customConfig" "inputs") . | nindent 6 }}
+{{- end }}
+
+{{ if ((index .Values "fluent-bit" "customConfig").filters) }}
+  custom-filters.conf: |-
+   {{- tpl (index .Values "fluent-bit" "customConfig" "filters") . | nindent 6 }}
+{{- end }}
+
+{{ if ((index .Values "fluent-bit" "customConfig").outputs) }}
+  custom-outputs.conf: |-
+   {{- tpl (index .Values "fluent-bit" "customConfig" "outputs") . | nindent 6 }}
+{{- end }}
+
   parsers.conf: |-
       [PARSER]
           Name cri

@@ -43,7 +43,7 @@ jobs:
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
         if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@v3.5.0
+        uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: 'v2.2.3'
 
@@ -100,6 +100,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # remove untagged images produced for multi platform builds
+          provenance: false
         #  cache-from: type=gha
         #  cache-to: type=gha,mode=max
           platforms: |
