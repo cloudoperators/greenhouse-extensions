@@ -29,10 +29,13 @@ rules:
     resources: ["deployments", "statefulsets"]
     verbs: ["get", "list"]
   - apiGroups: [""]
-    resources: ["pods", "persistentvolumeclaims", "services"]
+    resources: ["pods", "persistentvolumeclaims", "services", "secrets"]
     verbs: ["get", "list"]
   - apiGroups: ["monitoring.coreos.com"]
     resources: ["prometheuses", "podmonitors", "alertmanagers"]
+    verbs: ["get", "list"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["issuers", "certificates"]
     verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
