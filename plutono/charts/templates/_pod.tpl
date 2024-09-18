@@ -1074,6 +1074,12 @@ containers:
       - name: "{{ tpl $key $ }}"
         value: "{{ tpl (print $value) $ }}"
       {{- end }}
+      {{- if not .Values.plutono.ingress.enabled }}
+      - name: PL_SERVER_ROOT_URL
+        value: {{ printf "/api/v1/namespaces/%s/services/http:%s:80/proxy/" .Release.Namespace .Release.Name }}
+      - name: PL_SERVER_SERVE_FROM_SUB_PATH
+        value: "true"
+      {{- end }}
     {{- if or .Values.plutono.envFromSecret (or .Values.plutono.envRenderSecret .Values.plutono.envFromSecrets) .Values.plutono.envFromConfigMaps }}
     envFrom:
       {{- if .Values.plutono.envFromSecret }}
