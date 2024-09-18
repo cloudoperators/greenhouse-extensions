@@ -17,14 +17,13 @@ opentelemetry-operator:
     failurePolicy: 'Ignore'
     create: true
     certManager:
-      enabled: false
-    autoGenerateCert:
       enabled: true
+    autoGenerateCert:
       recreate: false
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-      tag: sha256-bb7f1d2135e7e5b26d6888fd8a7971b4dc07d81b4c4dad257fffae1e21eb8fcf.sig
+      tag: "4072695"
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
@@ -44,12 +43,8 @@ openTelemetry:
   cluster:
   region:
   logsCollector:
-    enabled: false
+    enabled: true
   prometheus:
-  podMonitor:
-    enabled: false
-  serviceMonitor:
-    enabled: false
 testFramework:
   enabled: true
   image:
