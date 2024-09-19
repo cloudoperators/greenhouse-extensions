@@ -244,3 +244,11 @@ alerts:
         #    matchers:
         #      - name: alertname
         #        matchType: "=~"
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent

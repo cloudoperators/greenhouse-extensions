@@ -1,0 +1,62 @@
+{{- if .Values.testFramework.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "-5" # Installed and upgraded before the test pod
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+data:
+  run.sh: |-
+
+    #!/usr/bin/env bats
+
+    load "/usr/lib/bats/bats-detik/utils"
+    load "/usr/lib/bats/bats-detik/detik"
+
+    DETIK_CLIENT_NAME="kubectl"
+
+    @test "Verify successful deployment, service and running status of the {{ .Release.Name }}-operator pod" {
+        verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
+        verify "there is 1 service named '{{ .Release.Name }}-operator'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator.*' and verify that '.status.phase' is 'running'"
+    }
+    @test "Verify that alertmanager is available and reconciled" {
+        try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
+        try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
+    }
+
+    {{- if .Values.alerts.alertmanager.ingress.enabled }}
+    @test "Verify that secret '{{ .Release.Namespace }}-monitoring-ca' is created when ingress is enabled" {
+        verify "there is 1 secret named '{{ .Release.Namespace }}-monitoring-ca'"
+    }
+    {{- end -}}
+
+    {{- if .Values.alerts.alertmanager.ingress.enabled }}
+    {{- if .Capabilities.APIVersions.Has "cert-manager.io/v1" }}
+    @test "Verify that issuer and certificate are created when ingress is enabled and cert-manager crd is available" {
+        verify "there is 1 issuer named '{{ .Release.Namespace }}-monitoring-issuer'"
+        verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-auth'"
+    }
+    {{- end }}
+    {{- end }}
+    
+    {{- if .Values.alerts.crds.enabled }}
+    @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
+        verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
+        verify "there is 1 customresourcedefinition named 'alertmanagers'"
+        verify "there is 1 customresourcedefinition named 'podmonitors'"
+        verify "there is 1 customresourcedefinition named 'probes'"
+        verify "there is 1 customresourcedefinition named 'prometheuses'"
+        verify "there is 1 customresourcedefinition named 'prometheusrules'"
+        verify "there is 1 customresourcedefinition named 'prometheusagents'"
+        verify "there is 1 customresourcedefinition named 'servicemonitors'"
+        verify "there is 1 customresourcedefinition named 'scrapeconfigs'"
+        verify "there is 1 customresourcedefinition named 'thanosrulers'"
+    }
+    {{- end }}
+{{- end -}}
