@@ -3,14 +3,14 @@
 
 apiVersion: v2
 name: plutono
-version: 0.1.3
+version: 0.1.4
 description: Plutono is a fork of Grafana v7.5.17 keeping the Apache License
 type: application
 maintainers:
   - name: Richard Tief (I520251)
     email: richard.tief@sap.com
 name: plutono
-appVersion: v7.5.32
+appVersion: v7.5.33
 sources:
   - ghcr.io/cloudoperators/greenhouse-extensions/charts
 keywords:
