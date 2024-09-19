@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 263,
   "links": [],
   "panels": [
     {
@@ -37,7 +36,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -68,7 +67,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -150,7 +149,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -181,7 +180,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -261,7 +260,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -292,7 +291,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -444,7 +443,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -475,7 +474,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -541,7 +540,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -572,7 +571,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -652,7 +651,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -683,7 +682,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -771,7 +770,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "unit": "short"
@@ -804,7 +803,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -879,7 +878,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "metrics-scaleout",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -910,7 +909,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.33",
+      "pluginVersion": "7.5.32",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1003,5 +1002,5 @@
   "timezone": "",
   "title": "OpenTelemetry Obs",
   "uid": "DLCkaQwIk",
-  "version": 30
+  "version": 1
 }
