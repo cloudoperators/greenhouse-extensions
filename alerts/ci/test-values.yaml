@@ -169,10 +169,8 @@ alerts:
 
     ingress:
       enabled: true
-      crds:
-        enabled: true
       hosts:
-        - alertmanager.{{ .Release.Namespace }}.svc.cluster.local
+        - dummy-host
 
       ## By default, a ca-bundle is deployed to enable tls between Prometheus and Alertmanager
       annotations:
@@ -214,40 +212,6 @@ alerts:
             name: alertmanager-notification-templates
           name: alertmanager-notification-templates
 
-  ## Alertmanager integration with Slack and Webhooks
-  alertmanagerConfig:
-    slack:
-      routes:
-        #  - name: slack-info-route
-        #    channel: slack-info-channel
-        #    webhookURL: https://hooks.slack.com/services/some-id
-        #    matchers:
-        #      - name: severity
-        #        matchType: "="
-        #        value: "info"
-        #  - name: slack-warning-route
-        #    channel: slack-warning-channel
-        #    webhookURL: https://hooks.slack.com/services/some-id
-        #    matchers:
-        #      - name: severity
-        #        matchType: "="
-        #        value: "warning"
-        #  - name: slack-critical-route
-        #    channel: slack-critical-channel
-        #    webhookURL: https://hooks.slack.com/services/some-id
-        #    matchers:
-        #      - name: severity
-        #        matchType: "="
-        #        value: "critical"
-
-
-    webhook:
-      routes:
-        #  - name: webhook-route
-        #    url: https://some-webhook-url
-        #    matchers:
-        #      - name: alertname
-        #        matchType: "=~"
 
 testFramework:
   enabled: true
