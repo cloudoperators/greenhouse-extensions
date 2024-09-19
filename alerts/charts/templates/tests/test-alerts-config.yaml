@@ -46,6 +46,7 @@ data:
     {{- end }}
     {{- end }}
     
+    {{- if .Values.alerts.crds.enabled }}
     @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
         verify "there is 1 customresourcedefinition named 'alertmanagers'"
@@ -58,4 +59,5 @@ data:
         verify "there is 1 customresourcedefinition named 'scrapeconfigs'"
         verify "there is 1 customresourcedefinition named 'thanosrulers'"
     }
+    {{- end }}
 {{- end -}}
