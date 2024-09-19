@@ -26,7 +26,7 @@ data:
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "Verify that Alertmanager is Available and Reconciled" {
+    @test "Verify that alertmanager is available and reconciled" {
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
     }
@@ -39,7 +39,7 @@ data:
 
     {{- if .Values.alerts.alertmanager.ingress.enabled }}
     {{ if .Capabilities.APIVersions.Has "cert-manager.io/v1" }}
-    @test "Verify that Issuer and Certificate are created when ingress is enabled and cert-manager crd is available" {
+    @test "Verify that issuer and certificate are created when ingress is enabled and cert-manager crd is available" {
         verify "there is 1 issuer named '{{ .Release.Namespace }}-monitoring-issuer'"
         verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-auth'"
     }
