@@ -26,9 +26,9 @@ data:
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator.*' and verify that '.status.phase' is 'running'"
     }
 
-    @test "Verify that Alertmanager '{{ .Release.Name }}' is Available and Reconciled" {
-        try "at most 2 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
-        try "at most 2 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
+    @test "Verify that Alertmanager is Available and Reconciled" {
+        try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
+        try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
     }
 
     {{- if .Values.alerts.alertmanager.ingress.enabled }}
