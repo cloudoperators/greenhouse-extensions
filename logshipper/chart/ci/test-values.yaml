@@ -13,6 +13,8 @@ fluent-bit:
       http_user: top-secret-audit
       http_password: top-secret-audit
       host: "audit.test"
+      port: 9200
+      logstash_prefix: "audit"
       tls:
         enabled: true
         verify: true
@@ -48,11 +50,11 @@ fluent-bit:
   filter:
     additionalValues:
       - key: region
-        name: qa
+        value: qa
   customConfig:
     inputs: |
       [INPUT]
-          Name             tail-audit
+          Name             tail
           Path             /var/log/containers/greenhouse-controller*.log
           Parser           cri
           Tag              audit.*
@@ -65,7 +67,7 @@ fluent-bit:
         [FILTER]
             Name               grep
             Match              audit.*
-            Regex              MyAuditLogTag
+            Regex              log_message MyAuditLogTag
     outputs: |
         [OUTPUT]
             Name  audit
@@ -82,4 +84,13 @@ fluent-bit:
             tls {{ index .Values "fluent-bit" "backend" "audit" "tls" "enabled"}}
             tls.verify {{ index .Values "fluent-bit" "backend" "audit" "tls" "verify"}}
             tls.debug {{ index .Values "fluent-bit" "backend" "audit" "tls" "debug"}}
+  extraVolumes:
+    - name: journal  
+      hostPath:
+        path: /var/log/journal
+        type: DirectoryOrCreate  # Ensure the directory is created if it doesn't exist
+  extraVolumeMounts:
+    - name: journal
+      mountPath: /var/log/journal
+      readOnly: true
 prometheusName: foo-bar
