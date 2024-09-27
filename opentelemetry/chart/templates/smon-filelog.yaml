@@ -10,6 +10,7 @@ metadata:
   name: opentelemetry-collector-logs
   labels:
     plugin: "{{ .Values.openTelemetry.prometheus }}"
+    prometheus: "{{ .Values.openTelemetry.prometheus }}"
 spec:
   podMetricsEndpoints:
     - interval: 60s

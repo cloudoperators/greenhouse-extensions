@@ -30,12 +30,6 @@ opentelemetry-operator:
     enabled: false
 # Empty variables will fail during rollout
 openTelemetry:
-  OpenSearchLogs:
-    endpoint:
-    username:
-    password:
-  cluster:
-  region:
   logsCollector:
     enabled: true
   prometheus:
