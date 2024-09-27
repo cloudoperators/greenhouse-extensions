@@ -46,7 +46,6 @@ fluent-bit:
         secretKeyRef:
           name: fluent-bit-secrets
           key: AUDIT_PWD
-
   filter:
     additionalValues:
       - key: region
