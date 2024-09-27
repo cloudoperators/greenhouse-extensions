@@ -6,11 +6,6 @@ opentelemetry-operator:
     create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
-    create: true
-    certManager:
-      enabled:
-    autoGenerateCert:
-      recreate:
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
@@ -20,19 +15,7 @@ opentelemetry-operator:
       tag: v0.108.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
-    prometheusRule:
-      enabled: true
-      defaultRules:
-        enabled: true
-    serviceMonitor:
-      enabled: true
-  kubeRBACProxy:
-    enabled: false
 # Empty variables will fail during rollout
-openTelemetry:
-  logsCollector:
-    enabled: false
-  prometheus:
 testFramework:
   enabled: true
   image:
