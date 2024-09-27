@@ -8,6 +8,8 @@ kind: ServiceMonitor
 metadata:
   annotations:
   name: opentelemetry-collector-metrics
+  labels:
+    prometheus: "{{ .Values.openTelemetry.prometheus }}"
 spec:
   endpoints:
   - port: prometheus

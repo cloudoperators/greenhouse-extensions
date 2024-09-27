@@ -1,11 +1,25 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+owner-info:
+  service: otel
+  support-group: observability
+  maintainers:
+  - name: timojohlo
+  - name: kuckkuck
+  - name: viennaa
+  helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
+
 opentelemetry-operator:
   crds:
-    create: true
+    create: false
   admissionWebhooks:
     failurePolicy: 'Ignore'
+    create: true
+    certManager:
+      enabled: true
+    autoGenerateCert:
+      recreate: false
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
@@ -15,6 +29,16 @@ opentelemetry-operator:
       tag: v0.108.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
+    deploymentAnnotations:
+      vpa-butler.cloud.sap/update-mode: Auto
+    prometheusRule:
+      enabled: true
+      defaultRules:
+        enabled: true
+    serviceMonitor:
+      enabled: true
+  kubeRBACProxy:
+    enabled: false
 # Empty variables will fail during rollout
 testFramework:
   enabled: true
