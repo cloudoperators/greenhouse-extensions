@@ -84,7 +84,7 @@ fluent-bit:
             tls.verify {{ index .Values "fluent-bit" "backend" "audit" "tls" "verify"}}
             tls.debug {{ index .Values "fluent-bit" "backend" "audit" "tls" "debug"}}
   extraVolumes:
-    - name: journal  
+    - name: journal
       hostPath:
         path: /var/log/journal
         type: DirectoryOrCreate  # Ensure the directory is created if it doesn't exist
