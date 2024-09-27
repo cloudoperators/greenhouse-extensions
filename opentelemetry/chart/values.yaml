@@ -9,9 +9,7 @@ opentelemetry-operator:
     create: true
     certManager:
       enabled: true
-      duration: "17280h"
     autoGenerateCert:
-      enabled: false
       recreate: false
   manager:
     collectorImage:
@@ -41,10 +39,6 @@ openTelemetry:
   logsCollector:
     enabled: true
   prometheus:
-  podMonitor:
-    enabled: true
-  serviceMonitor:
-    enabled: false
 testFramework:
   enabled: true
   image:
