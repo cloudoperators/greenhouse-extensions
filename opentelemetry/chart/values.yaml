@@ -8,9 +8,9 @@ opentelemetry-operator:
     failurePolicy: 'Ignore'
     create: true
     certManager:
-      enabled: true
+      enabled:
     autoGenerateCert:
-      recreate: false
+      recreate:
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
@@ -31,7 +31,7 @@ opentelemetry-operator:
 # Empty variables will fail during rollout
 openTelemetry:
   logsCollector:
-    enabled: true
+    enabled: false
   prometheus:
 testFramework:
   enabled: true
