@@ -6,12 +6,17 @@ opentelemetry-operator:
     create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
+    create: true
+    certManager:
+      enabled: true
+      duration: "17280h"
+    autoGenerateCert:
+      enabled: false
+      recreate: false
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-      #repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
-      tag: main
-      #tag: 0.104.0
+      tag: "4072695"
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.108.0
@@ -24,6 +29,21 @@ opentelemetry-operator:
     serviceMonitor:
       enabled: true
   kubeRBACProxy:
+    enabled: false
+# Empty variables will fail during rollout
+openTelemetry:
+  OpenSearchLogs:
+    endpoint:
+    username:
+    password:
+  cluster:
+  region:
+  logsCollector:
+    enabled: true
+  prometheus:
+  podMonitor:
+    enabled: true
+  serviceMonitor:
     enabled: false
 testFramework:
   enabled: true
