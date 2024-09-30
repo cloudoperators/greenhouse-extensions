@@ -40,7 +40,9 @@ opentelemetry-operator:
 openTelemetry:
   logsCollector:
     enabled: false
-    prometheus:
+  metricsCollector:
+    enabled: false
+  prometheus:
 testFramework:
   enabled: true
   image:
