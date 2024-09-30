@@ -27,7 +27,7 @@ opentelemetry-operator:
     serviceMonitor:
       enabled: false
   kubeRBACProxy:
-    enabled: true
+    enabled: false
 openTelemetry:
   openSearchLogs:
     endpoint: test
@@ -38,12 +38,12 @@ openTelemetry:
   logsCollector:
     enabled: true
   metricsCollector:
-    enabled: true
+    enabled: false
   podMonitor:
     enabled: false
   prometheus: test
 testFramework:
-  enabled: true
+  enabled: false
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
