@@ -13,13 +13,6 @@ owner-info:
 opentelemetry-operator:
   crds:
     create: false
-  admissionWebhooks:
-    failurePolicy: 'Ignore'
-    create: true
-    certManager:
-      enabled: true
-    autoGenerateCert:
-      recreate: false
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
