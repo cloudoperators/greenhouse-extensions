@@ -30,13 +30,24 @@ opentelemetry-operator:
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
-      enabled: true
+      enabled: false
       defaultRules:
-        enabled: true
+        enabled: false
     serviceMonitor:
-      enabled: true
+      enabled: false
   kubeRBACProxy:
     enabled: false
+  openTelemetry:
+    logsCollector:
+      enabled: false
+    prometheus:
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent
 # Empty variables will fail during rollout
 testFramework:
   enabled: true
