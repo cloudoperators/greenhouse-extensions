@@ -3,7 +3,7 @@
 
 opentelemetry-operator:
   crds:
-    create: false
+    create: true
   admissionWebhooks:
     failurePolicy: 'Ignore'
     create: false
@@ -21,9 +21,9 @@ opentelemetry-operator:
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
-      enabled: true
+      enabled: false
       defaultRules:
-        enabled: true
+        enabled: false
     serviceMonitor:
       enabled: true
   kubeRBACProxy:
@@ -40,7 +40,7 @@ openTelemetry:
   metricsCollector:
     enabled: true
   podMonitor:
-    enabled: ture
+    enabled: false
   prometheus: test
 testFramework:
   enabled: true
