@@ -29,7 +29,7 @@ opentelemetry-operator:
   kubeRBACProxy:
     enabled: true
 openTelemetry:
-  openSearchlogs:
+  openSearchLogs:
     endpoint: test
     username: test
     password: test
