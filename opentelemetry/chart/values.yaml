@@ -37,14 +37,6 @@ opentelemetry-operator:
       enabled: true
   kubeRBACProxy:
     enabled: false
-openTelemetry:
-  logsCollector:
-    enabled: false
-  metricsCollector:
-    enabled: false
-  podMonitor:
-    enabled: false
-  prometheus:
 testFramework:
   enabled: true
   image:
