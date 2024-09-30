@@ -370,7 +370,8 @@ NOTE: Configure your data sources in your dashboards as variables to keep them p
 dashboards/
 ├── dashboard1.json
 ├── dashboard2.json
-dashboard-json-configmap.yaml
+templates/
+├──dashboard-json-configmap.yaml
 ```
 
 *Helm template to create a configmap for each dashboard:*
