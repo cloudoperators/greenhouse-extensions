@@ -13,8 +13,6 @@ opentelemetry-operator:
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.108.0
-    deploymentAnnotations:
-      vpa-butler.cloud.sap/update-mode: Auto
 # Empty variables will fail during rollout
 testFramework:
   enabled: true
