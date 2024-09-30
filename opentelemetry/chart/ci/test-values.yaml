@@ -13,11 +13,11 @@ opentelemetry-operator:
       recreate: false
   manager:
     collectorImage:
-      repository: test
-      tag: "test"
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      tag: "4072695"
     image:
-      repository: test
-      tag: "1.2.3"
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+      tag: v0.108.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
