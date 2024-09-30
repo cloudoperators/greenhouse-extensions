@@ -48,11 +48,3 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
-# Empty variables will fail during rollout
-testFramework:
-  enabled: true
-  image:
-    registry: ghcr.io
-    repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
-  imagePullPolicy: IfNotPresent
