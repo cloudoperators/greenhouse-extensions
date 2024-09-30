@@ -7,11 +7,11 @@ opentelemetry-operator:
   admissionWebhooks:
     failurePolicy: 'Ignore'
     create: true
-   certManager:
-     enabled: false
-   autoGenerateCert:
-      enabled: true
-      recreate: false
+  certManager:
+    enabled: false
+  autoGenerateCert:
+    enabled: true
+    recreate: false
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
