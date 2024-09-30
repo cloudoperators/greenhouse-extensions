@@ -34,12 +34,12 @@ opentelemetry-operator:
       defaultRules:
         enabled: false
     serviceMonitor:
-      enabled: false
+      enabled: true
   kubeRBACProxy:
     enabled: false
-  openTelemetry:
-    logsCollector:
-      enabled: false
+openTelemetry:
+  logsCollector:
+    enabled: false
     prometheus:
 testFramework:
   enabled: true
