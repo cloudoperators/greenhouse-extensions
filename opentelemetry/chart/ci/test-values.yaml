@@ -10,6 +10,7 @@ opentelemetry-operator:
     certManager:
       enabled: false
     autoGenerateCert:
+      enable: true
       recreate: false
   manager:
     collectorImage:
