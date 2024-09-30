@@ -42,6 +42,8 @@ openTelemetry:
     enabled: false
   metricsCollector:
     enabled: false
+  podMonitor:
+    enabled: false
   prometheus:
 testFramework:
   enabled: true
