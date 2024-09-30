@@ -6,9 +6,9 @@ opentelemetry-operator:
     create: false
   admissionWebhooks:
     failurePolicy: 'Ignore'
-    create: true
+    create: false
     certManager:
-      enabled: true
+      enabled: false
     autoGenerateCert:
       recreate: false
   manager:
