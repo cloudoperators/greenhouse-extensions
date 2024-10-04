@@ -11,6 +11,7 @@ metadata:
 spec:
   mode: deployment
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
+  upgradeStrategy: automatic
   config:
     receivers:
       otlp:
