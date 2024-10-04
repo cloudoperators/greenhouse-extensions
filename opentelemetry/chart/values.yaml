@@ -11,6 +11,7 @@ owner-info:
   helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
 
 opentelemetry-operator:
+  nameOverride: "operator"
   crds:
     create: false
   admissionWebhooks:
