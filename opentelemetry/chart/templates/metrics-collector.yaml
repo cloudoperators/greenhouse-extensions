@@ -10,6 +10,7 @@ metadata:
   name: metrics 
 spec:
   mode: deployment
+  upgradeStrategy: automatic
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   config:
     receivers:
