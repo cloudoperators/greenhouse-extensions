@@ -11,6 +11,7 @@ owner-info:
   helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
 
 opentelemetry-operator:
+  nameOverride: "operator"
   crds:
     create: false
   admissionWebhooks:
@@ -26,7 +27,7 @@ opentelemetry-operator:
       tag: "4072695"
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.108.0
+      tag: v0.109.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
