@@ -39,7 +39,6 @@ spec:
       port: 9999
 {{- end }}
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
-  upgradeStrategy: automatic
   volumeMounts:
   - mountPath: /var/log
     name: varlog
