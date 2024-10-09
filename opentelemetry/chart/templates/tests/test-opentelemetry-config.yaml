@@ -7,7 +7,8 @@ metadata:
   name: {{ .Release.Name }}-test
   namespace: {{ .Release.Namespace }}
   labels:
-    type: integration-test 
+    type: integration-test
+    {{- include "plugin.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "-5"
@@ -24,12 +25,13 @@ data:
     
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
+        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-operator-[a-z0-9]\+-' and verify that '.status.phase' is 'running'" 
     }
 
     @test "Verify successful deployment of the {{ .Release.Name }}-operator service" {
-        verify "there is 1 service named '^{{ .Release.Name }}-operator$'"
+        verify "there is 1 service named '^{{ .Release.Name }}-operator\$'"
     }
+
     {{- if .Values.openTelemetry.logsCollector.enabled }}
     @test "Verify successful deployment and running status of the logs-collector" {
         try "at most 5 times every 10s to get pods named 'logs-collector' and verify that '.status.phase' is 'running'"
@@ -40,7 +42,7 @@ data:
     @test "Verify successful deployment and running status of the metrics-collector" {
         try "at most 5 times every 10s to get pods named 'metrics-collector' and verify that '.status.phase' is 'running'"
     }
-    {{- end -}}
+    {{- end }}
     @test "Verify presence of custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'instrumentations.opentelemetry.io'"
         verify "there is 1 customresourcedefinition named 'opampbridges.opentelemetry.io'"

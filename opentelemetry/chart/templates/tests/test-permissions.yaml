@@ -8,6 +8,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels: 
     type: integration-test
+    {{- include "plugin.labels" . | nindent 4 }} 
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-weight": "-5"

@@ -7,7 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: metrics 
+  name: metrics
+  labels:
+  {{- include "plugin.labels" . | nindent 4 }} 
+  {{- if .Values.customLabels }}
+  {{ toYaml .Values.customLabels | nindent 4 }}
+  {{- end }}
 spec:
   mode: deployment
   image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
