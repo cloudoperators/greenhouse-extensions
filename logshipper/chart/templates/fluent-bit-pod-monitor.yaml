@@ -4,6 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- if .Values.prometheusName -}}
+{{ if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 
@@ -31,4 +32,5 @@ spec:
       relabelings:
         - targetLabel: job
           replacement: fluent-bit-exporter
+{{- end -}}
 {{- end -}}
