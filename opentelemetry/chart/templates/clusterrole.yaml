@@ -8,9 +8,6 @@ metadata:
   labels:
     app: logs-collector
     {{- include "plugin.labels" . | nindent 4 }} 
-    {{- if .Values.customLabels }}
-    {{ toYaml .Values.customLabels | nindent 4 }}
-    {{- end }}
 rules:
 - apiGroups: [""]
   resources: ["pods", "namespaces", "nodes", "events"]

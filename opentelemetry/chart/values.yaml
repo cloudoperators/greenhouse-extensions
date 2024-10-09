@@ -13,6 +13,7 @@ owner-info:
   - name: viennaa
   helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
 
+## custom Labels applied  to servicemonitor, secrets and collectors
 customLabels: {}
 
 opentelemetry-operator:
