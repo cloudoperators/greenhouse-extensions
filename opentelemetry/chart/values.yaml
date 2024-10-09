@@ -13,6 +13,8 @@ owner-info:
   - name: viennaa
   helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
 
+customLabels: {}
+
 opentelemetry-operator:
   nameOverride: "operator"
   crds:
