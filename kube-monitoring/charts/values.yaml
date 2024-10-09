@@ -7,19 +7,10 @@ global:
 ## kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
 
+  ## Create default rules for monitoring the cluster
+  ##
   defaultRules:
-    rules:
-      alertmanager: false
-      kubeControllerManager: false
-      kubeSchedulerAlerting: false
-      kubeSchedulerRecording: false
-      kubeProxy: false
-      windows: false
-
-    disabled:
-      KubeletServerCertificateExpiration: true
-      KubeletClientCertificateExpiration: true
-      KubeClientCertificateExpiration: true
+    create: false
 
   ## Install Prometheus Operator CRDs
   ##
@@ -248,6 +239,13 @@ kubeMonitoring:
       ruleSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
+
+kubernetes-operations:
+  prometheusRules:
+    ruleSelector:
+      - name: plugin
+        value: "{{ $.Release.Name }}"
+
 
 alerts:
   enabled: false
