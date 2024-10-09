@@ -20,5 +20,6 @@ chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
+  - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts
   - opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
