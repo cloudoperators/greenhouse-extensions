@@ -20,6 +20,10 @@ spec:
       description: Labels to add to all resources. This can be used to add a support group or service label to all alerts.
       required: false
       type: map
+    - name: kubeMonitoring.defaultRules.create
+      description: Whether to install the community default rules
+      default: false
+      type: bool
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
       default: false
