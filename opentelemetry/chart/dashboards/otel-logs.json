@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 291,
-  "iteration": 1728542046921,
+  "iteration": 1729071061818,
   "links": [],
   "panels": [
     {
@@ -27,6 +27,622 @@
         "w": 24,
         "x": 0,
         "y": 0
+      },
+      "id": 41,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "text": "",
+              "to": "",
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 11
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "id": 45,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(kube_pod_status_phase{phase=\"Running\", namespace=\"otel\"})\n",
+          "interval": "",
+          "legendFormat": "Running",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Running Pod Status",
+      "type": "stat"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "text": "",
+              "to": "",
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 1
+      },
+      "id": 50,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+          "interval": "",
+          "legendFormat": "Running",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Not Shipping Collectors",
+      "type": "stat"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "text": "",
+              "to": "",
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "id": 47,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(kube_pod_status_phase{phase=\"Failed\", namespace=\"otel\"})\n",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Failed",
+          "refId": "C"
+        }
+      ],
+      "title": "Failed Pod Status",
+      "type": "stat"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "text": "",
+              "to": "",
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 9,
+        "y": 1
+      },
+      "id": 46,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(kube_pod_status_phase{phase=\"Pending\", namespace=\"otel\"})\n",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Pending",
+          "refId": "B"
+        }
+      ],
+      "title": "Pending Pod Status",
+      "type": "stat"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "kube_pod_info{app=\"kube-state-metrics\", app_kubernetes_io_component=\"metrics\", app_kubernetes_io_instance=\"kube-monitoring-scaleout\", app_kubernetes_io_managed_by=\"Helm\", app_kubernetes_io_name=\"kube-state-metrics\", app_kubernetes_io_part_of=\"kube-state-metrics\", app_kubernetes_io_version=\"2.13.0\", ccloud_support_group=\"containers\", cluster=\"s-qa-de-1\", cluster_type=\"scaleout\", container=\"kube-state-metrics\", created_by_kind=\"DaemonSet\", created_by_name=\"logs-collector\", endpoint=\"http\", helm_sh_chart=\"kube-state-metrics-5.25.1\", host_ip=\"10.180.0.148\", host_network=\"false\", instance=\"10.100.0.17:8080\", job=\"kube-monitoring-scaleout-kube-state-metrics\", kubernetes_name=\"kube-monitoring-scaleout-kube-state-metrics\", kubernetes_namespace=\"kube-monitoring\", namespace=\"otel\", node=\"kks-s-qa-de-1-cronus-small-mmrcp\", pod=\"logs-collector-sw99h\", pod_ip=\"10.100.8.34\", priority_class=\"common-payload\", prometheus=\"kube-monitoring/kubernetes\", region=\"qa-de-1\", service=\"kube-monitoring-scaleout-kube-state-metrics\", uid=\"a7de7932-bfd1-4e2e-956c-42844ecb8053\"}"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 494
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pod"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 458
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 245
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "namespace"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 51,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "=",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Running Log Collectors",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "app": true,
+              "app_kubernetes_io_component": true,
+              "app_kubernetes_io_instance": true,
+              "app_kubernetes_io_managed_by": true,
+              "app_kubernetes_io_name": true,
+              "app_kubernetes_io_part_of": true,
+              "app_kubernetes_io_version": true,
+              "ccloud_support_group": true,
+              "cluster": false,
+              "cluster_type": true,
+              "container": true,
+              "created_by_kind": true,
+              "created_by_name": true,
+              "endpoint": true,
+              "helm_sh_chart": true,
+              "host_ip": true,
+              "host_network": true,
+              "instance": true,
+              "job": true,
+              "kubernetes_name": true,
+              "kubernetes_namespace": true,
+              "namespace": false,
+              "node": false,
+              "pod": false,
+              "pod_ip": true,
+              "priority_class": true,
+              "prometheus": true,
+              "region": true,
+              "service": true,
+              "uid": true
+            },
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "kube_pod_info{app=\"kube-state-metrics\", app_kubernetes_io_component=\"metrics\", app_kubernetes_io_instance=\"kube-monitoring-scaleout\", app_kubernetes_io_managed_by=\"Helm\", app_kubernetes_io_name=\"kube-state-metrics\", app_kubernetes_io_part_of=\"kube-state-metrics\", app_kubernetes_io_version=\"2.13.0\", ccloud_support_group=\"containers\", cluster=\"s-qa-de-1\", cluster_type=\"scaleout\", container=\"kube-state-metrics\", created_by_kind=\"DaemonSet\", created_by_name=\"logs-collector\", endpoint=\"http\", helm_sh_chart=\"kube-state-metrics-5.25.1\", host_ip=\"10.180.0.148\", host_network=\"false\", instance=\"10.100.0.17:8080\", job=\"kube-monitoring-scaleout-kube-state-metrics\", kubernetes_name=\"kube-monitoring-scaleout-kube-state-metrics\", kubernetes_namespace=\"kube-monitoring\", namespace=\"otel\", node=\"kks-s-qa-de-1-cronus-small-mmrcp\", pod=\"logs-collector-sw99h\", pod_ip=\"10.100.8.34\", priority_class=\"common-payload\", prometheus=\"kube-monitoring/kubernetes\", region=\"qa-de-1\", service=\"kube-monitoring-scaleout-kube-state-metrics\", uid=\"a7de7932-bfd1-4e2e-956c-42844ecb8053\"}"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 494
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pod"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 458
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 245
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "namespace"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 52,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "7.5.33",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "kube_pod_status_phase{pod=~\".*operator.*\", phase=\"Running\", namespace=\"otel\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "=",
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Running Operators",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "app": true,
+              "app_kubernetes_io_component": true,
+              "app_kubernetes_io_instance": true,
+              "app_kubernetes_io_managed_by": true,
+              "app_kubernetes_io_name": true,
+              "app_kubernetes_io_part_of": true,
+              "app_kubernetes_io_version": true,
+              "ccloud_support_group": true,
+              "cluster": false,
+              "cluster_type": true,
+              "container": true,
+              "created_by_kind": true,
+              "created_by_name": true,
+              "endpoint": true,
+              "helm_sh_chart": true,
+              "host_ip": true,
+              "host_network": true,
+              "instance": true,
+              "job": true,
+              "kubernetes_name": true,
+              "kubernetes_namespace": true,
+              "namespace": false,
+              "node": false,
+              "pod": false,
+              "pod_ip": true,
+              "priority_class": true,
+              "prometheus": true,
+              "region": true,
+              "service": true,
+              "uid": true
+            },
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
       },
       "id": 33,
       "panels": [],
@@ -44,7 +660,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 7
       },
       "id": 35,
       "options": {
@@ -70,7 +686,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 9
       },
       "id": 7,
       "panels": [],
@@ -95,7 +711,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 2,
@@ -196,7 +812,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 4
+        "y": 10
       },
       "hiddenSeries": false,
       "id": 3,
@@ -295,7 +911,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 17
       },
       "hiddenSeries": false,
       "id": 4,
@@ -394,7 +1010,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 17
       },
       "hiddenSeries": false,
       "id": 5,
@@ -483,7 +1099,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 23
       },
       "id": 9,
       "panels": [],
@@ -496,7 +1112,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "${datasource}",
-      "description": "Accepted: count/rate of spans successfully pushed into the pipeline.\nRefused: count/rate of spans that could not be pushed into the pipeline.",
+      "description": "Number of times the batch was sent due to a size trigger. Number of times the batch was sent due to a timeout trigger.",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -504,13 +1120,13 @@
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 24
       },
       "hiddenSeries": false,
-      "id": 10,
+      "id": 13,
       "legend": {
         "alignAsTable": true,
         "avg": false,
@@ -532,7 +1148,6 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "repeat": null,
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
@@ -540,18 +1155,18 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_refused_spans${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_processor_batch_batch_size_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
           "interval": "$minstep",
-          "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
+          "legendFormat": "Batch sent due to a size trigger: {{processor}}",
           "queryType": "randomWalk",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_accepted_spans${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_processor_batch_timeout_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
           "hide": false,
           "interval": "",
-          "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
+          "legendFormat": "Batch sent due to a timeout trigger: {{processor}} {{service_instance_id}}",
           "refId": "B"
         }
       ],
@@ -559,7 +1174,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Spans ${metric:text}",
+      "title": "Batch Metrics 1",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -615,7 +1230,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 24
       },
       "hiddenSeries": false,
       "id": 14,
@@ -714,120 +1329,13 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "${datasource}",
-      "description": "Number of times the batch was sent due to a size trigger. Number of times the batch was sent due to a timeout trigger.",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "fill": 0,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "hiddenSeries": false,
-      "id": 13,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": false,
-        "max": true,
-        "min": true,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.5.33",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_processor_batch_batch_size_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
-          "interval": "$minstep",
-          "legendFormat": "Batch sent due to a size trigger: {{processor}}",
-          "queryType": "randomWalk",
-          "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_processor_batch_timeout_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Batch sent due to a timeout trigger: {{processor}} {{service_instance_id}}",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Batch Metrics 1",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:65",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "$$hashKey": "object:66",
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 34
       },
       "id": 16,
       "panels": [],
@@ -853,7 +1361,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 35
       },
       "hiddenSeries": false,
       "id": 17,
@@ -970,7 +1478,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 35
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1076,7 +1584,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 41
       },
       "id": 21,
       "panels": [],
@@ -1100,7 +1608,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 22,
@@ -1215,7 +1723,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 23,
@@ -1330,7 +1838,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 45
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 24,
@@ -1445,7 +1953,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 51
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 25,
@@ -1562,7 +2070,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 51
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 31,
@@ -1661,7 +2169,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 51
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 27,
@@ -1776,7 +2284,7 @@
         "h": 3,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 54
       },
       "id": 28,
       "options": {
@@ -1820,7 +2328,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 57
       },
       "id": 37,
       "panels": [],
@@ -1846,7 +2354,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 58
       },
       "hiddenSeries": false,
       "id": 38,
@@ -1963,7 +2471,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 61
+        "y": 58
       },
       "hiddenSeries": false,
       "id": 39,
@@ -2068,7 +2576,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 64
       },
       "id": 30,
       "panels": [],
@@ -2078,14 +2586,16 @@
   ],
   "schemaVersion": 27,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "opentelemetry"
+  ],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
+          "selected": true,
+          "text": "metrics-scaleout",
+          "value": "metrics-scaleout"
         },
         "description": null,
         "error": null,
@@ -2117,7 +2627,7 @@
         "auto_count": 30,
         "auto_min": "10s",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "30s",
           "value": "30s"
         },
@@ -2366,5 +2876,5 @@
   "timezone": "",
   "title": "OpenTelemetry Dashboard",
   "uid": "BKf2sowmja",
-  "version": 19
+  "version": 23
 }
