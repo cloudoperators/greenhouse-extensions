@@ -338,7 +338,7 @@ dashboards:
       url: https://raw.githubusercontent.com/user/repository/master/dashboards/dashboard.json
 ```
 
-## Create a dashboard
+## Create a dashboard {#dashboard}
 
 1. Click **Dashboards** in the main menu.
 2. Click **New** and select **New Dashboard**.
