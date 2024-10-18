@@ -22,6 +22,7 @@ The plugin works by factory default with anonymous access enabled. If you use th
 **Step 1: Add your dashboards**
 
 Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-dashboard-config)
+A guide how to create dashboards can be found [here](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#create-a-dashboard).
 
 **Step 2: Add your datasources**
 
@@ -332,11 +333,38 @@ dashboards:
       datasource:
       - name: DS_PROMETHEUS
         value: Prometheus
-      - name: DS_LOKI
-        value: Loki
     local-dashboard:
       url: https://raw.githubusercontent.com/user/repository/master/dashboards/dashboard.json
 ```
+
+## Create a dashboard
+
+1. Click **Dashboards** in the main menu.
+2. Click **New** and select **New Dashboard**.
+3. Click **Add new empty panel**.
+4. **Important:** Add a datasource variable as they are provisioned in the cluster.
+   - Go to **Dashboard settings**.
+   - Click **Variables**.
+   - Click **Add variable**.
+   - General: Configure the variable with a proper **Name** as **Type** `Datasource`.
+   - Data source options: Select the data source **Type** e.g. `Prometheus`.
+   - Click **Update**.
+   - Go back.
+
+5. Develop your panels.
+   - On the **Edit panel** view, choose your desired **Visualization**.
+   - Select the datasource variable you just created.
+   - Write or construct a query in the query language of your data source.
+   - Move and resize the panels as needed.
+6. Optional add a **tag** to the dashboard to easy group them.
+   - Go to **Dashboard settings**.
+   - In the **General** section, add a **Tag**.
+7. Click **Save**. Note that the dashboard is saved in the browser's local storage.
+8. Export the dashboard.
+   - Go to **Dashboard settings**.
+   - Click **JSON Model**.
+   - Copy the JSON model.
+   - Go to your Github repository and create a new JSON file in the `dashboards` directory.
 
 ## BASE64 dashboards
 
