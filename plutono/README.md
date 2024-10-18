@@ -357,7 +357,7 @@ dashboards:
    - Select the datasource variable you just created.
    - Write or construct a query in the query language of your data source.
    - Move and resize the panels as needed.
-6. Optional add a **tag** to the dashboard to easy group them.
+6. Optionally add a **tag** to the dashboard to make grouping easier.
    - Go to **Dashboard settings**.
    - In the **General** section, add a **Tag**.
 7. Click **Save**. Note that the dashboard is saved in the browser's local storage.
