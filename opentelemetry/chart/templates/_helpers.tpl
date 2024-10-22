@@ -8,9 +8,9 @@ Generic plugin name
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
 plugindefinition: opentelemetry
-{{- if $.Values.prometheusRules.ruleSelectors }}
-{{- range $i, $target := $.Values.prometheusRules.ruleSelectors }}
-{{ $target.name | required (printf "$.Values.prometheusRules.ruleSelector.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.prometheusRules.ruleSelector.[%v].value missing" $i)) $ }}
+{{- with $.Values.openTelemetry.prometheus.additionalLabels }}
+  {{- tpl (toYaml . | nindent 4) $ }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if .Values.global.commonLabels }}
