@@ -13,6 +13,7 @@ metadata:
     {{- if .Values.customLabels }}
     {{ toYaml .Values.customLabels | nindent 4 }}
     {{- end }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
 spec:
   podMetricsEndpoints:
     - interval: 60s

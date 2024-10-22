@@ -45,6 +45,10 @@ spec:
           name: openTelemetry.cluster
           required: false
           type: string
+        - description: Label for Prometheus Service Monitoring
+          name: openTelemetry.prometheus.additionalLabels
+          required: false
+          type: map
         - default: false
           description: Activates the pod-monitoring for the Logs Collector
           name: openTelemetry.podMonitor.enabled
