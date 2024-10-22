@@ -13,9 +13,9 @@ Components included in this Plugin:
 
 The Plugin will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default the Plugin will also 
 1. Collect logs via the Filelog Receiver, process and export them to OpenSearch
-    - You can disable the collecting of logs by setting `open_telemetry.LogCollector.enabled` to `false`. 
+    - You can disable the collecting of logs by setting `openTelemetry.LogCollector.enabled` to `false`. 
 2. Collect and expose metrics using a Prometheus interface which defaults to port 8888
-    - You can disable the collecting of metrics by setting `open_telemetry.MetricsCollector.enabled` to `false`. 
+    - You can disable the collecting of metrics by setting `openTelemetry.MetricsCollector.enabled` to `false`. 
 
 Contributors are welcome to provide additional collector configurations. 
 
@@ -35,7 +35,6 @@ Contributors are welcome to provide additional collector configurations.
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
-`openTelemetry.prometheus`               | Label for Prometheus Service Monitoring | string | `false` | 
 `openTelemetry.podMonitor.enabled`       | Activates the pod-monitoring for the LogsCollector | bool | `false` | 
 `opentelemetry-operator.admissionWbhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Activate to use Helm to create self-signed certificates | bool | `false` | 
