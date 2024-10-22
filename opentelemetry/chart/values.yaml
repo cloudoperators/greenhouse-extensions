@@ -16,16 +16,6 @@ owner-info:
 ## custom Labels applied to servicemonitor, secrets and collectors
 customLabels: {}
 
-prometheusRules:
-  ## Enables PrometheusRule resources to be created
-  create: true
-  ## Label selectors for the Prometheus rules to be picked up by Prometheus.
-  ruleSelectors:
-  #  - name: plugin
-  #    value: kube-monitoring
-  #  - name: prometheus
-  #    value: infra
-
 opentelemetry-operator:
   nameOverride: "operator"
   crds:
