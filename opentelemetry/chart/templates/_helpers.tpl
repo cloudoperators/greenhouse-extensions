@@ -7,9 +7,14 @@ Generic plugin name
 
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
-plugindefinition: opentelemetry 
-plugin: {{ $.Release.Name }}
+plugindefinition: opentelemetry
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
+{{- end }}
+{{- end }}
+{{/* Generate prometheus specific labels */}}
+{{- define "plugin.prometheusLabels" -}}
+{{- with $.Values.openTelemetry.prometheus.additionalLabels }}
+{{- tpl (toYaml . ) $ }}
 {{- end }}
 {{- end }}

@@ -35,7 +35,7 @@ Contributors are welcome to provide additional collector configurations.
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
-`openTelemetry.prometheus`               | Label for Prometheus Service Monitoring | string | `false` | 
+`openTelemetry.prometheus.additionalLabels`               | Label for Prometheus Service Monitoring | map | `false` | 
 `openTelemetry.podMonitor.enabled`       | Activates the pod-monitoring for the LogsCollector | bool | `false` | 
 `opentelemetry-operator.admissionWbhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Activate to use Helm to create self-signed certificates | bool | `false` | 
