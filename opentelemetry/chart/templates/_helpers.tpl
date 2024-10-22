@@ -7,8 +7,12 @@ Generic plugin name
 
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
-plugindefinition: opentelemetry 
-plugin: {{ $.Release.Name }}
+plugindefinition: opentelemetry
+{{- if $.Values.prometheusRules.ruleSelectors }}
+{{- range $i, $target := $.Values.prometheusRules.ruleSelectors }}
+{{ $target.name | required (printf "$.Values.prometheusRules.ruleSelector.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.prometheusRules.ruleSelector.[%v].value missing" $i)) $ }}
+{{- end }}
+{{- end }}
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
