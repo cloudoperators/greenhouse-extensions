@@ -42,7 +42,10 @@ openTelemetry:
     enabled: false
   podMonitor:
     enabled: false
-  prometheus: test
+  prometheus: 
+    additionalLabels:
+      testkey1: test1
+      testkey2: test2
 testFramework:
   enabled: false
   image:

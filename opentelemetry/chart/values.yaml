@@ -54,6 +54,11 @@ openTelemetry:
   region:
   logsCollector:
     enabled: true
+  prometheus:
+    ## Label selectors for the Prometheus resources to be picked up by prometheus-operator.
+    additionalLabels:
+    # plugin: kube-monitoring
+    # prometheus: infra
 testFramework:
   enabled: true
   image:

@@ -9,9 +9,7 @@ Generic plugin name
 {{- define "plugin.labels" -}}
 plugindefinition: opentelemetry
 {{- with $.Values.openTelemetry.prometheus.additionalLabels }}
-  {{- tpl (toYaml . | nindent 4) $ }}
-{{- end }}
-{{- end }}
+{{ tpl (toYaml . ) $ }}
 {{- end }}
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
