@@ -4,6 +4,44 @@
   "extends": [
     "config:recommended"
   ],
+  "regexManagers": [
+    {
+      "description": "Bump ingress-nginx version in the plugindefinition",
+      "fileMatch": [
+        "^ingress-nginx.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "kubernetes/ingress-nginx",
+      "extractVersionTemplate": "^helm-chart-(?<version>.*)$"
+    },
+    {
+      "description": "Bump external-dns version in the plugindefinition",
+      "fileMatch": [
+        "^external-dns.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "kubernetes-sigs/external-dns",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Bump disco version in the plugindefinition",
+      "fileMatch": [
+        "^external-dns.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "kubernetes-sigs/external-dns",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+  ],
   "packageRules": [
     {
       "groupName": "github actions",
