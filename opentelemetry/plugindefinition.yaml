@@ -55,7 +55,7 @@ spec:
           name: openTelemetry.prometheus.serviceMonitor.enabled
           required: false
           type: bool
-        - description: Label for Prometheus Service Monitoring
+        - description: Label selector for Prometheus resources to be picked-up by the operator
           name: openTelemetry.prometheus.additionalLabels
           required: false
           type: map
