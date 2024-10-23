@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry
 spec:
-    version: 0.4.1
+    version: 0.4.2
     displayName: OpenTelemetry
     description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.4.1
+        version: 0.4.2
     options:
         - default: true
           description: Activates the standard configuration for logs
@@ -45,15 +45,20 @@ spec:
           name: openTelemetry.cluster
           required: false
           type: string
+        - default: false
+          description: Activates the pod-monitoring for the Logs Collector
+          name: openTelemetry.prometheus.podMonitor.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activates the service-monitoring for the Logs Collector
+          name: openTelemetry.prometheus.serviceMonitor.enabled
+          required: false
+          type: bool
         - description: Label for Prometheus Service Monitoring
           name: openTelemetry.prometheus.additionalLabels
           required: false
           type: map
-        - default: false
-          description: Activates the pod-monitoring for the Logs Collector
-          name: openTelemetry.podMonitor.enabled
-          required: false
-          type: bool
         - default: false
           description: Activate to use the CertManager for generating self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
