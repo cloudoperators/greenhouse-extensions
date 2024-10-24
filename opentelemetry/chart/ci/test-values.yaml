@@ -36,16 +36,10 @@ openTelemetry:
     password: test
   cluster: test
   region: test
-  logsCollector:
-    enabled: true
-  metricsCollector:
-    enabled: false
-  podMonitor:
-    enabled: false
   prometheus:
     additionalLabels:
-      testkey1: test1
-      testkey2: test2
+      key1: value1
+      key2: value2
 testFramework:
   enabled: false
   image:

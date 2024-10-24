@@ -38,7 +38,7 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 9999
@@ -71,7 +71,7 @@ spec:
             field: resource["container.runtime"]
             value: "containerd"
 
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       prometheus/internal:
         config:
           scrape_configs:
@@ -87,7 +87,7 @@ spec:
         timeout: 5s
         send_batch_size : 10
 
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       attributes/prometheus:
         actions:
           - action: insert
@@ -353,7 +353,7 @@ spec:
     service:
       extensions:
         - basicauth
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
           address: 127.0.0.1:8888
@@ -372,7 +372,7 @@ spec:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
           exporters: [opensearch/logs]
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
         metrics/prometheus:
           receivers: [prometheus/internal]
           processors: [attributes/prometheus]

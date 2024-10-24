@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
-{{- if .Values.openTelemetry.podMonitor.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
