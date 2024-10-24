@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 291,
-  "iteration": 1729071061818,
+  "iteration": 1729766555603,
   "links": [],
   "panels": [
     {
@@ -62,7 +62,7 @@
               },
               {
                 "color": "green",
-                "value": 11
+                "value": 1
               }
             ]
           }
@@ -2760,7 +2760,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "opensearch/logs",
           "value": "opensearch/logs"
         },
@@ -2827,7 +2827,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "_total",
           "value": "_total"
         },
