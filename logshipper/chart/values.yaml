@@ -11,6 +11,8 @@ fluent-bit:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 5
+  testFramework:
+    enabled: false
   env:
     - name: OPENSEARCH_USER
       valueFrom:
