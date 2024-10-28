@@ -11,7 +11,7 @@ spec:
   description: Heureka Scanner for Keppel
   helmChart:
     name: heureka-scanner-keppel
-    repository: oci://docker pull ghcr.io/cloudoperators/heureka-scanner-keppel
+    repository: oci://ghcr.io/cloudoperators/heureka-scanner-keppel
     version: main
   options:
     - name: scanner.api_token

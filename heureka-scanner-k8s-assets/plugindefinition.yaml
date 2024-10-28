@@ -11,7 +11,7 @@ spec:
   description: Heureka Scanner for K8s Assets
   helmChart:
     name: heureka-scanner-k8s-assets
-    repository: oci://docker pull ghcr.io/cloudoperators/heureka-scanner-k8s-assets
+    repository: oci://ghcr.io/cloudoperators/heureka-scanner-k8s-assets
     version: main
   options:
     - name: scanner.api_token
