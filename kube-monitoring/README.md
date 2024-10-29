@@ -25,7 +25,9 @@ Components included in this Plugin:
 
 It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
 
-It is intended as a platform that can be extended. Use the following [guide](https://github.com/cloudoperators/greenhouse-extensions/blob/main/kube-monitoring/README.md#extension-of-the-plugin). 
+The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
+
+It is intended as a platform that can be extended by following the [guide](https://github.com/cloudoperators/greenhouse-extensions/blob/main/kube-monitoring/README.md#extension-of-the-plugin). 
 
 Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
 
@@ -240,7 +242,7 @@ spec:
      ...
 ```
 
-The CRDs  `PodMonitor`, `ServiceMonitor` and `ScrapeConfig` allows the definition of a set of target endpoints to be scraped by _Prometheus_. The operator will automatically discover and load the configurations that match labels `plugin: <plugin-name>`.
+The CRDs  `PodMonitor`, `ServiceMonitor`, `Probe` and `ScrapeConfig` allows the definition of a set of target endpoints to be scraped by _Prometheus_. The operator will automatically discover and load the configurations that match labels `plugin: <plugin-name>`.
 
 **Example:**
 ```yaml
