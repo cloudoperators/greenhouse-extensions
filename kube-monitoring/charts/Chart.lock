@@ -1,9 +1,9 @@
 dependencies:
 - name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
-  version: 65.3.1
+  version: 65.3.2
 - name: kubernetes-operations
   repository: https://cloudoperators.github.io/kubernetes-operations
   version: 1.1.0
-digest: sha256:1485417eb983856d8ef2ed1c6c4927fe0e2887a2bf886ee03136489cc7610f8a
-generated: "2024-10-18T11:52:23.903415421Z"
+digest: sha256:f6d8a138a0ca6eb125118bc2f39ffea9e4d0f406d7168a0dc60718124162caa5
+generated: "2024-10-29T10:47:34.227226327Z"
