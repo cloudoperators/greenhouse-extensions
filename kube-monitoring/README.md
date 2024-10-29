@@ -45,6 +45,12 @@ After installation, Greenhouse will provide a generated link to the Prometheus u
 
 ## Configuration
 
+### Global options
+
+| Name                                                         | Description                                                                                                         | Value                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `global.commonLabels`                                        | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. | `true`   
+
 ### Prometheus-operator options
 
 | Name                                                         | Description                                                                                                         | Value                    |
