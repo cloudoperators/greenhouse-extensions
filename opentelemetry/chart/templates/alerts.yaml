@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
-{{- if .Values.prometheusRules.create -}}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.prometheusRules.create }}
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
 apiVersion: monitoring.coreos.com/v1
