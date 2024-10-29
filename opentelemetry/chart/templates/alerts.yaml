@@ -1,0 +1,23 @@
+{{- if .Values.prometheusRules.create -}}
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name $path | replace "/" "-" | trimSuffix "-yaml" | trunc 63 }}
+  labels:
+{{- if $.Values.prometheusRules.labels }}
+{{ toYaml $.Values.prometheusRules.labels | indent 4 }}
+{{- end }}
+{{- if $.Values.prometheusRules.annotations }}
+  annotations:
+{{ toYaml $.Values.prometheusRules.annotations | indent 4 }}
+{{- end }}
+spec:
+{{- with $root -}}
+{{- $content := printf "%s" $bytes }}
+{{ tpl $content . | indent 2 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
