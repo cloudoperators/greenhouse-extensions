@@ -2,7 +2,7 @@
 title: Plutono
 ---
 
-Learn more about the **plutono** Plugin. Use it to install the web dashboarding system [Plutono](https://github.com/credativ/plutono) to collect, correlate, and visualize Prometheus metrics for you Greenhouse cluster.
+Learn more about the **plutono** Plugin. Use it to install the web dashboarding system [Plutono](https://github.com/credativ/plutono) to collect, correlate, and visualize Prometheus metrics for your Greenhouse cluster.
 
 ## Overview 
 
@@ -17,7 +17,7 @@ This guide provides a quick and straightforward way how to use Plutono as a Gree
 - A running and Greenhouse-managed Kubernetes cluster
 - `kube-monitoring` Plugin installed to have at least one Prometheus instance running in the cluster
 
-The plugin works by default with anonymous access enabled. If you use the standard configuration in the kube-monitoring plugin, the data source and some [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations) dashboards are already pre-installed.
+The plugin works by default with anonymous access enabled. If you use the standard configuration in the **kube-monitoring** plugin, the data source and some [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations) dashboards are already pre-installed.
 
 **Step 1: Add your dashboards**
 
