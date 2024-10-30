@@ -2,11 +2,11 @@
 title: Plutono
 ---
 
-Installs the web dashboarding system [Plutono](https://github.com/credativ/plutono) to easily collect, correlate, and visualize Prometheus metrics with dashboards.
+Learn more about the **plutono** Plugin. Use it to install the web dashboarding system [Plutono](https://github.com/credativ/plutono) to collect, correlate, and visualize Prometheus metrics for you Greenhouse cluster.
 
-# Owner
+## Overview 
 
-1. Richard Tief (@richardtief)
+Observability is often required for the operation and automation of service offerings. Plutono provides you with tools to display Prometheus metrics on live dashboards with insightful charts and visualizations. In the Greenhouse context, this complements the **kube-monitoring** plugin, which automatically acts as a Plutono data source which is recognized by Plutono. In addition, the plugin provides a mechanism that automates the lifecycle of datasources and dashboards without having to restart Plutono.
 
 ## Quick Start
 
@@ -17,7 +17,7 @@ This guide provides a quick and straightforward way how to use Plutono as a Gree
 - A running and Greenhouse-managed Kubernetes cluster
 - `kube-monitoring` Plugin installed to have at least one Prometheus instance running in the cluster
 
-The plugin works by factory default with anonymous access enabled. If you use the standard configuration in the kube-monitoring plugin, the data source and some [k8s-monitoring](https://github.com/cloudoperators/k8s-monitoring) dashboards are already pre-installed.
+The plugin works by default with anonymous access enabled. If you use the standard configuration in the kube-monitoring plugin, the data source and some [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations) dashboards are already pre-installed.
 
 **Step 1: Add your dashboards**
 
@@ -35,16 +35,13 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | Parameter                                 | Description                                   | Default                                                 |
 |-------------------------------------------|-----------------------------------------------|---------------------------------------------------------|
 | `plutono.replicas`                                | Number of nodes                               | `1`                                                     |
-| `plutono.podDisruptionBudget.minAvailable`        | Pod disruption minimum available              | `nil`                                                   |
-| `plutono.podDisruptionBudget.maxUnavailable`      | Pod disruption maximum unavailable            | `nil`                                                   |
-| `plutono.podDisruptionBudget.apiVersion`          | Pod disruption apiVersion                     | `nil`                                                   |
 | `plutono.deploymentStrategy`                      | Deployment strategy                           | `{ "type": "RollingUpdate" }`                           |
 | `plutono.livenessProbe`                           | Liveness Probe settings                       | `{ "httpGet": { "path": "/api/health", "port": 3000 } "initialDelaySeconds": 60, "timeoutSeconds": 30, "failureThreshold": 10 }` |
 | `plutono.readinessProbe`                          | Readiness Probe settings                      | `{ "httpGet": { "path": "/api/health", "port": 3000 } }`|
 | `plutono.securityContext`                         | Deployment securityContext                    | `{"runAsUser": 472, "runAsGroup": 472, "fsGroup": 472}`  |
 | `plutono.priorityClassName`                       | Name of Priority Class to assign pods         | `nil`                                                   |
-| `plutono.image.registry`                          | Image registry                                | `docker.io`                                       |
-| `plutono.image.repository`                        | Image repository                              | `plutono/plutono`                                       |
+| `plutono.image.registry`                          | Image registry                                | `ghcr.io`                                       |
+| `plutono.image.repository`                        | Image repository                              | `credativ/plutono`                                       |
 | `plutono.image.tag`                               | Overrides the Plutono image tag whose default is the chart appVersion (`Must be >= 5.0.0`) | ``                                                      |
 | `plutono.image.sha`                               | Image sha (optional)                          | ``                                                      |
 | `plutono.image.pullPolicy`                        | Image pull policy                             | `IfNotPresent`                                          |
@@ -253,23 +250,6 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | `plutono.networkPolicy.egress.enabled`             | Enable the creation of an egress network policy              | `false`   |
 | `plutono.networkPolicy.egress.ports`               | An array of ports to allow for the egress                    | `[]`    |
 | `plutono.enableKubeBackwardCompatibility`          | Enable backward compatibility of kubernetes where pod's definition version below 1.13 doesn't have the enableServiceLinks option  | `false`     |
-
-### Example ingress with path
-
-With plutono 6.3 and above
-
-```yaml
-plutono.ini:
-  server:
-    domain: monitoring.example.com
-    root_url: "%(protocol)s://%(domain)s/plutono"
-    serve_from_sub_path: true
-ingress:
-  enabled: true
-  hosts:
-    - "monitoring.example.com"
-  path: "/plutono"
-```
 
 ### Example of extraVolumeMounts and extraVolumes
 
@@ -601,22 +581,3 @@ Include in the `extraSecretMounts` configuration flag:
     mountPath: /etc/secrets/auth_generic_oauth
     readOnly: true
 ```
-
-### extraSecretMounts using a Container Storage Interface (CSI) provider
-
-This example uses a CSI driver e.g. retrieving secrets using [Azure Key Vault Provider](https://github.com/Azure/secrets-store-csi-driver-provider-azure)
-
-```yaml
-- extraSecretMounts:
-  - name: secrets-store-inline
-    mountPath: /run/secrets
-    readOnly: true
-    csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: "my-provider"
-      nodePublishSecretRef:
-        name: akv-creds
-```
-
