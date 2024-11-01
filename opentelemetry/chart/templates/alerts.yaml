@@ -1,3 +1,4 @@
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.prometheusRules.create }}
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
 apiVersion: monitoring.coreos.com/v1
@@ -20,4 +21,5 @@ spec:
 {{ tpl $content . | indent 2 }}
 {{- end }}
 ---
+{{- end }}
 {{- end }}
