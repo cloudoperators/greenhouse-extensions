@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
 groups:
   - name: operator-alerts
     rules:
@@ -9,8 +6,9 @@ groups:
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
         labels:
+          {{- include "plugin.additionalRuleLabels" . | nindent 6 }}
           severity: warning
-          runbook_url: #tbd
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReconcileErrors.md
         annotations:
           summary: OpenTelemetryCollector Reconciliation
           description: Reconciliation errors for opentelemetrycollector are increasing
@@ -21,8 +19,9 @@ groups:
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
         labels:
+          {{- include "plugin.additionalRuleLabels" . | nindent 6 }}
           severity: warning
-          runbook_url: #tbd
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/WorkqueueDepth.md
         annotations:
           summary: WorkqueueDepth is increasing
           description: Check manager logs for reasons why this might happen

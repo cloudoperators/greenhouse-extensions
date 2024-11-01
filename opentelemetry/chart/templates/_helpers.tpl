@@ -12,9 +12,20 @@ plugindefinition: opentelemetry
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
 {{- end }}
+
 {{/* Generate prometheus specific labels */}}
-{{- define "plugin.prometheusLabels" -}}
-{{- with $.Values.openTelemetry.prometheus.additionalLabels }}
-{{- tpl (toYaml . ) $ }}
+{{- define "plugin.prometheusLabels" }}
+{{- if .Values.openTelemetry.prometheus.additionalLabels }}
+{{- tpl (toYaml .Values.openTelemetry.prometheus.additionalLabels) . }}
+{{- end }}
+{{- if .Values.prometheusRules.labels }}
+{{ tpl (toYaml .Values.prometheusRules.labels) . }}
+{{- end }}
+{{- end }}
+
+{{/* Generate prometheus rule labels for alerts */}}
+{{- define "plugin.additionalRuleLabels" -}}
+{{- if .Values.prometheusRules.additionalRuleLabels }}
+{{- tpl (toYaml .Values.prometheusRules.additionalRuleLabels) . | indent 4 }}
 {{- end }}
 {{- end }}

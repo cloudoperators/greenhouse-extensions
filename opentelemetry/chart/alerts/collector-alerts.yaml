@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
 groups:
   - name: collector-alerts
     rules:
@@ -9,8 +6,9 @@ groups:
         expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"filelog"}[1m])) > 0
         for: 5m
         labels:
+          {{- include "plugin.additionalRuleLabels" . | nindent 6 }}
           severity: warning
-          runbook_url: #tbd
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/FilelogRefusedLogs.md
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
           description: Filelog receiver is increasingly rejecting logs
@@ -21,8 +19,9 @@ groups:
         expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
         for: 5m
         labels:
+          {{- include "plugin.additionalRuleLabels" . | nindent 6 }}
           severity: warning
-          runbook_url: #tbd
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReceiverRefusedMetric.md
         annotations:
           summary: Some metric points have been refused by receiver
           description: Maybe collector has received non standard metric points or it reached some limits
@@ -33,8 +32,9 @@ groups:
         expr: max(rate(otelcol_process_cpu_seconds{}[1m])*100) > 90
         for: 5m
         labels:
+          {{- include "plugin.additionalRuleLabels" . | nindent 6 }}
           severity: warning
-          runbook_url: #tbd
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/HighCPUUsage.md
         annotations:
           summary: High max CPU usage
           description: Collector need to scale up
