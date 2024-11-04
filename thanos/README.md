@@ -2,29 +2,63 @@
 title: Thanos
 ---
 
-# Information
+Learn more about the **Thanos** Plugin. Use it to enable extended metrics retention and querying across Prometheus servers and Greenhouse clusters. 
+
+The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
+
+## Overview
+
+Observability is often required for operation and automation of service offerings. To get the insights provided by an application and the container runtime environment, you need telemetry data in the form of _metrics_ or _logs_ sent to backends such as _Prometheus_ or _OpenSearch_. With the **Thanos** plugin you can scale the _metric_ part of the observability stack horizontally by hooking into the Prometheus provided by the **kube-monitoring** plugin and optionally save your data in the object storage.
+
+In general, Thanos is a set of components that can be used to extend the storage and retrieval of metrics in Prometheus. It allows you to store metrics in a remote object store and query them across multiple Prometheus servers and Greenhouse clusters. This Plugin is intended to provide a set of pre-configured Thanos components that enable a proven composition. At the core, a set of Thanos components is installed that adds long-term storage capability to a single **kube-monitoring** Plugin and makes both current and historical data available again via one Thanos Query component.
 
 This plugin deploys the following Thanos components:
 
-* Query
-* Compact
-* Store
-<!--* Query Frontend-->
-<!--* (Ruler)-->
+* [Thanos Query](https://thanos.io/tip/components/query.md/)
+* [Thanos Store](https://thanos.io/tip/components/store.md/)
+* [Thanos Compactor](https://thanos.io/tip/components/compact.md/)
 
-Requirements (detailed steps below):
-* ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
-* [thanos-sidecar enabled in Prometheus](#kube-monitoring-plugin-enablement) (usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec)).
+Planned components:
+* [Thanos Ruler](https://thanos.io/tip/components/rule.md/)
+* [Thanos Query Frontend](https://thanos.io/tip/components/query.md/)
 
-# Owner
+This Plugin does **not** deploy the following components:
+* [Thanos Sidecar](https://thanos.io/tip/components/sidecar.md/)
+This component is installed in the [kube-monitoring](https://github.com/cloudoperators/greenhouse-extensions/tree/main/kube-monitoring) plugin.
 
-1. Tommy Sauer (@viennaa) 
-2. Richard Tief (@richardtief) 
-3. Martin Vossen (@artherd42) 
+## Note
 
-# Configuration
+It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the Plugin according to your needs.
 
-## Object Store preparation
+Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
+
+## Quick start
+
+This guide provides a quick and straightforward way to use **Thanos** as a Greenhouse Plugin on your Kubernetes cluster. The guide is meant to build the following setup:
+
+![Thanos Architecture](./img/thanos-setup-example.png)
+
+**Prerequisites**
+
+- A running and Greenhouse-onboarded Kubernetes cluster
+- Ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
+- **kube-monitoring** plugin installed. Thanos Sidecar on the Prometheus must be [enabled](#kube-monitoring-plugin-enablement) by providing the required object store credentials. 
+
+**Step 1:**
+
+Create a Kubernetes Secret with your object store credentials following the [Object Store preparation](#object-store-preparation) section.
+
+**Step 2:**
+
+Enable the Thanos Sidecar on the Prometheus in the **kube-monitoring** plugin by providing the required object store credentials. Follow the [kube-monitoring plugin enablement](#kube-monitoring-plugin-enablement) section.
+
+**Step 3:**
+
+Create a Thanos Query Plugin by following the [Thanos Query](#thanos-query) section.
+
+## Configuration
+
+### Object Store preparation
 
 To run Thanos, you need object storage credentials. Get the credentials of your provider and add them to a Kubernetes Secret. The [Thanos documentation](https://thanos.io/tip/thanos/storage.md/) provides a great overview on the different supported store types.
 
@@ -47,8 +81,10 @@ If you've got everything in a file, deploy it in your remote cluster in the name
 kubectl create secret generic $THANOS_PLUGIN_NAME-metrics-objectstore --from-file=thanos.yaml=/path/to/your/file
 ```
 
+### kube-monitoring plugin enablement 
 
-## kube-monitoring plugin enablement 
+(usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec)).
+
 
 Prometheus in kube-monitoring needs to be altered to have a sidecar and ship metrics to the new object store too. You have to provide the Secret you've just created to the (most likely already existing) kube-monitoring plugin. Add this:
 
@@ -61,7 +97,7 @@ spec:
         value: $THANOS_PLUGIN_NAME-metrics-objectstore
 ```
 
-## Thanos Query
+### Thanos Query
 
 This is the real deal now: Define your Thanos Query by creating a plugin.
 
@@ -81,8 +117,8 @@ spec:
   releaseNamespace: kube-monitoring
 ```
 
-## [OPTIONAL] Handling your Prometheus and Thanos Stores.
-### Default Prometheus and Thanos Endpoint
+### [OPTIONAL] Handling your Prometheus and Thanos Stores.
+#### Default Prometheus and Thanos Endpoint
 
 Thanos Query is automatically adding the Prometheus and Thanos endpoints. If you just have a single Prometheus with Thanos enabled this will work out of the box. Details in the next two chapters. See [Standalone Query](#standalone-query) for your own configuration.
 
@@ -100,7 +136,9 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ### Standalone Query
 
-In case you want to have a Query to run with multiple Stores, you can set it to standalone and add your own store list. Set up your plugin like this:
+![Standalone Query](./img/Thanos-Standalone-Query.drawio.png)
+
+In case you want to have a Thanos Query to run with multiple Stores, you can set it to standalone and add your own store list. Set up your plugin like this:
 
 ```yaml
 spec:
@@ -134,9 +172,9 @@ This would enable you to either:
           - thanos-kube-2:10901
     ```
 
-# Operations
+## Operations
 
-## Thanos Compactor
+### Thanos Compactor
 
 If you deploy the plugin with the default values, Thanos compactor will be shipped too and use the same secret (`$THANOS_PLUGIN_NAME-metrics-objectstore`) to retrieve, compact and push back timeseries.
 
