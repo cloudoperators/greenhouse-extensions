@@ -2,14 +2,50 @@
 title: OpenTelemetry
 ---
 
-This Plugin is intended for ingesting, generating, collecting, and exporting telemetry data (metrics, logs, and traces). 
+Learn more about the **opentelemetry** Plugin. Use it to enable the ingestion, collection and export of telemetry signals (logs and metrics) for your Greenhouse cluster.
+
+The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
+
+## Overview
+
+OpenTelemetry is an observability framework and toolkit for creating and managing telemetry data such as metrics, logs and traces. It is vendor and tool agnostic, meaning it can be used with a variety of observability backends, including open source tools such as OpenSearch and Prometheus. 
+The focus of the plugin is on the creation, collection, management and export of telemetry in Kubernetes. 
 
 Components included in this Plugin:
 
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
 - [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
-- ServiceMonitor to ingest the metrics of the OpenTelemetry Collector in Prometheus 
+
+## Note
+
+It is not an observability backend like Jaeger, Prometheus or other commercial providers. The storage and visualization of telemetry is intentionally left to other tools.
+
+Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
+
+## Quick start
+
+This guide provides a quick and straightforward way to use **opentelemetry** as a Greenhouse Plugin on your Kubernetes cluster.
+
+**Prerequisites**
+
+- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
+- For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
+- For metrics, a Prometheus instance to store. If you don't have one, install a [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first.
+
+**Step 1:**
+
+... 
+
+**Step 2:**
+
+...
+
+**Step 3:**
+
+...
+
+## Configuration
 
 The Plugin will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default the Plugin will also 
 1. Collect logs via the Filelog Receiver, process and export them to OpenSearch
@@ -18,12 +54,6 @@ The Plugin will deploy the OpenTelemetry Operator which works as a manager for t
     - You can disable the collecting of metrics by setting `open_telemetry.MetricsCollector.enabled` to `false`. 
 
 Contributors are welcome to provide additional collector configurations. 
-
-# Owner
-
-1. Timo Johner (@timojohlo) 
-2. Olaf Heydorn (@kuckkuck) 
-3. Tommy Sauer (@viennaa) 
 
 ### Parameters
 | Name         | Description          | Type           | required           |
