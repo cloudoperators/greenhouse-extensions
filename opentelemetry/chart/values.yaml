@@ -4,7 +4,7 @@ global:
   ## common labels to apply to all resources
   commonLabels: {}
 
-## C default rules for monitoring the cluster
+## Default rules for monitoring the opentelemetry components
 ##
 prometheusRules:
 
