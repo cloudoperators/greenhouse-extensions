@@ -36,7 +36,7 @@ Contribution is highly appreciated. If you discover bugs or want to add function
 
 This guide provides a quick and straightforward way to use **Thanos** as a Greenhouse Plugin on your Kubernetes cluster. The guide is meant to build the following setup:
 
-![Thanos Architecture](./img/thanos-setup-example.png)
+![Thanos Architecture](./img/Thanos-setup-example.png)
 
 **Prerequisites**
 
@@ -136,9 +136,9 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ### Standalone Query
 
-![Standalone Query](./img/Thanos-Standalone-Query.drawio.png)
+![Standalone Query](./img/Thanos-standalone-query.png)
 
-In case you want to have a Thanos Query to run with multiple Stores, you can set it to standalone and add your own store list. Set up your plugin like this:
+In case you want to achive a Setup like the above and have a Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
 
 ```yaml
 spec:
