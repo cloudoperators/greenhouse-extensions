@@ -40,7 +40,7 @@ This guide provides a quick and straightforward way to use **Thanos** as a Green
 
 **Prerequisites**
 
-- A running and Greenhouse-onboarded Kubernetes cluster
+- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - Ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
 - **kube-monitoring** plugin installed. Thanos Sidecar on the Prometheus must be [enabled](#kube-monitoring-plugin-enablement) by providing the required object store credentials. 
 
@@ -83,9 +83,6 @@ kubectl create secret generic $THANOS_PLUGIN_NAME-metrics-objectstore --from-fil
 
 ### kube-monitoring plugin enablement 
 
-(usually with [Prometheus Operator](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec)).
-
-
 Prometheus in kube-monitoring needs to be altered to have a sidecar and ship metrics to the new object store too. You have to provide the Secret you've just created to the (most likely already existing) kube-monitoring plugin. Add this:
 
 ```yaml
@@ -96,6 +93,8 @@ spec:
       - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.name
         value: $THANOS_PLUGIN_NAME-metrics-objectstore
 ```
+
+Values used here are described in the [Prometheus Operator Spec](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec).
 
 ### Thanos Query
 
@@ -138,7 +137,7 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ![Standalone Query](./img/Thanos-standalone-query.png)
 
-In case you want to achive a Setup like the above and have a Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
+In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
 
 ```yaml
 spec:
