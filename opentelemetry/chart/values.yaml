@@ -12,7 +12,7 @@ prometheusRules:
   create: true
 
   disabled: {}
-    # ReconcileErrors: false
+    # ReconcileErrors: true
 
   ## Labels for PrometheusRules
   labels: {}
