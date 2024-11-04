@@ -56,6 +56,11 @@ spec:
     receivers:
       journald:
         directory: /var/log/journal
+        operators:
+          - id: journal-label
+            type: add
+            field: attributes["log.type"]
+            value: "journald"
 
       k8s_events:
         auth_type: serviceAccount
@@ -117,7 +122,7 @@ spec:
             key: k8s.node.name
             value: "${KUBE_NODE_NAME}"
 
-      resource/k8sevents:
+      attributes/k8sevents:
         attributes:
           - action: insert
             key: k8s.node.name
@@ -128,6 +133,9 @@ spec:
           - action: insert
             key: region
             value: "${region}"
+          - action: insert
+            key: log.type
+            value: "k8sevents"
 
       transform/journal:
         error_mode: ignore
@@ -197,10 +205,10 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["app.label.part-of"] == "ceph-cluster"
+              - resource.attributes["app.label.component"] == "cephobjectstores.ceph.rook.io"
             statements:
-              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp} %{NOTSPACE} %{SPACE} %{NUMBER} %{NOTSPACE}\\:%{SPACE}%{NOTSPACE}\\:%{SPACE}%{IP:client.address} %{NOTSPACE} %{NOTSPACE:project_id}\\$%{NOTSPACE} \\[%{HTTPDATE:request_timestamp}\\] \"%{WORD:request_method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:integer} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
-              - set(attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower"))
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{WORD}\\:(%{SPACE})?%{WORD}\\:(%{SPACE})?%{IP:client.address}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{WORD:project.id}(\\$%{NOTSPACE})?(%{SPACE})?\\[%{HTTPDATE:request.timestamp}\\] \"%{WORD:request.method} \\/(?<bucket>[a-zA-Z0-9._+-]+)\\/%{NOTSPACE:request.path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content.length:int} %{NOTSPACE} \"%{GREEDYDATA:user.agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true),"upsert")
+              - set(attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where cache["network.protocol.name"] != nil
 
       k8sattributes:
         auth_type: "serviceAccount"
@@ -209,8 +217,10 @@ spec:
           node_from_env_var: KUBE_NODE_NAME
         extract:
           metadata:
+            - k8s.namespace.name
             - k8s.pod.name
             - k8s.pod.uid
+            - k8s.pod.ip
             - k8s.pod.start_time
             - k8s.deployment.name
             - k8s.deployment.uid
@@ -226,6 +236,9 @@ spec:
             - k8s.cronjob.name
             - k8s.node.uid
             - k8s.cluster.uid
+            - k8s.container.name
+            - container.image.name
+            - container.image.tag
           labels:
             - tag_name: app.label.ingress-nginx
               key: ingress-nginx
@@ -320,7 +333,7 @@ spec:
               - from: connection
       memory_limiter:
         check_interval: 5s
-        limit_percentage: 70
+        limit_percentage: 80
         spike_limit_percentage: 30
 
     exporters:
