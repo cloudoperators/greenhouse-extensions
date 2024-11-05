@@ -26,6 +26,6 @@ plugindefinition: opentelemetry
 {{/* Generate prometheus rule labels for alerts */}}
 {{- define "plugin.additionalRuleLabels" -}}
 {{- if .Values.prometheusRules.additionalRuleLabels }}
-{{- tpl (toYaml .Values.prometheusRules.additionalRuleLabels) . | indent 4 }}
+{{- tpl (toYaml .Values.prometheusRules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
