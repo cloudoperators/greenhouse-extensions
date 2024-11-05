@@ -59,6 +59,10 @@ spec:
           name: openTelemetry.prometheus.additionalLabels
           required: false
           type: map
+        - description: Additional labels for PrometheusRule alerts
+          name: prometheusRules.additionalRuleLabels
+          required: false
+          type: map
         - default: false
           description: Activate to use the CertManager for generating self-signed certificates
           name: opentelemetry-operator.admissionWebhooks.certManager.enabled
