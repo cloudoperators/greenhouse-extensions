@@ -68,7 +68,7 @@ spec:
       filelog:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
-        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_*]
+        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
         operators:
           - id: container-parser
             type: container
