@@ -10,7 +10,7 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 Observability is often required for operation and automation of service offerings. To get the insights provided by an application and the container runtime environment, you need telemetry data in the form of _metrics_ or _logs_ sent to backends such as _Prometheus_ or _OpenSearch_. With the **kube-monitoring** Plugin, you will be able to cover the _metrics_ part of the observability stack.
 
-This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://cloudoperators.github.io/greenhouse) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
+This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://github.com/cloudoperators/kubernetes-operations) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
 
 Components included in this Plugin:
 
@@ -27,7 +27,7 @@ It is not meant to be a comprehensive package that covers all scenarios. If you 
 
 The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
 
-It is intended as a platform that can be extended by following the [guide](https://github.com/cloudoperators/greenhouse-extensions/blob/main/kube-monitoring/README.md#extension-of-the-plugin). 
+It is intended as a platform that can be extended by following the [guide](#extension-of-the-plugin). 
 
 Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
 
@@ -43,7 +43,7 @@ This guide provides a quick and straightforward way to use **kube-monitoring** a
 
 You can install the `kube-monitoring` package in your cluster by installing it with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
   1. Go to Greenhouse dashboard and select the **Kubernetes Monitoring** plugin from the catalog. Specify the cluster and required option values.
-  2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](https://github.com/cloudoperators/greenhouse-extensions/blob/main/kube-monitoring/README.md#examples).
+  2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
 
 **Step 2:**
 
