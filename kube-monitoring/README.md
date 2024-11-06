@@ -37,7 +37,7 @@ This guide provides a quick and straightforward way how to use **kube-monitoring
 
 **Prerequisites**
 
-- A running and Greenhouse-onboarded Kubernetes cluster
+- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 
 **Step 1:**
 
