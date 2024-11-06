@@ -10,7 +10,7 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 Observability is often required for operation and automation of service offerings. To get the insights provided by an application and the container runtime environment, you need telemetry data in the form of _metrics_ or _logs_ sent to backends such as _Prometheus_ or _OpenSearch_. With the **kube-monitoring** Plugin, you will be able to cover the _metrics_ part of the observability stack.
 
-This Plugin includes a pre-configured package of components that help getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://cloudoperators.github.io/greenhouse) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
+This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://cloudoperators.github.io/greenhouse) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
 
 Components included in this Plugin:
 
@@ -33,7 +33,7 @@ Contribution is highly appreciated. If you discover bugs or want to add function
 
 ## Quick start
 
-This guide provides a quick and straightforward way how to use **kube-monitoring** as a Greenhouse Plugin on your Kubernetes cluster.
+This guide provides a quick and straightforward way to use **kube-monitoring** as a Greenhouse Plugin on your Kubernetes cluster.
 
 **Prerequisites**
 
@@ -51,7 +51,7 @@ After installation, Greenhouse will provide a generated link to the Prometheus u
 
 **Step 3:**
 
- Greenhouse regularly performs integration tests that are bundled with **kube-monitoring**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
+Greenhouse regularly performs integration tests that are bundled with **kube-monitoring**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
 
 ## Configuration
 
@@ -109,7 +109,7 @@ After installation, Greenhouse will provide a generated link to the Prometheus u
 | `kubeMonitoring.prometheus.prometheusSpec.probeSelector`    | Probes to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`                  | `{}`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector`   | scrapeConfigs to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`     | `{}`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.retention`        | How long to retain metrics                                                                                          | `""`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.logLevel`         | Log level for Prometheus be configured in                                                                           | `""`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.logLevel`         | Log level to be configured for Prometheus                                                                           | `""`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.additionalScrapeConfigs` | Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations | `""`                 |
 | `kubeMonitoring.prometheus.prometheusSpec.additionalArgs`   | Allows setting additional arguments for the Prometheus container                                                    | `[]`                 |
 
@@ -224,7 +224,7 @@ spec:
 
 The CRD `PrometheusRule` enables the definition of alerting and recording rules that can be used by _Prometheus_ or _Thanos Rule_ instances. Alerts and recording rules are reconciled and dynamically loaded by the operator without having to restart _Prometheus_ or _Thanos Rule_.
 
-**kube-monitoring** _Prometheus_ will automatically discover and load the rules that are match labels `plugin: <plugin-name>`.
+**kube-monitoring** _Prometheus_ will automatically discover and load the rules that match labels `plugin: <plugin-name>`.
 
 **Example:**
 ```yaml
@@ -242,7 +242,7 @@ spec:
      ...
 ```
 
-The CRDs  `PodMonitor`, `ServiceMonitor`, `Probe` and `ScrapeConfig` allows the definition of a set of target endpoints to be scraped by _Prometheus_. The operator will automatically discover and load the configurations that match labels `plugin: <plugin-name>`.
+The CRDs  `PodMonitor`, `ServiceMonitor`, `Probe` and `ScrapeConfig` allow the definition of a set of target endpoints to be scraped by _Prometheus_. The operator will automatically discover and load the configurations that match labels `plugin: <plugin-name>`.
 
 **Example:**
 ```yaml
