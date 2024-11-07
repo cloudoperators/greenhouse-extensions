@@ -21,6 +21,10 @@ Components included in this Plugin:
 - [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)
 - [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations)
 
+## Architecture
+
+![kube-monitoring](./img/kube-monitoring-setup.png)
+
 ## Note
 
 It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
