@@ -16,7 +16,7 @@ Components included in this Plugin:
 - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager)
 - [Supernova](https://github.com/cloudoperators/juno/tree/main/apps/supernova)
 
-Optionally, [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) can be used to manage _Prometheus_ and _Alertmanager_ instances. Usually, **kube-monitoring** Plugin installs _Prometheus Operator_.
+This Plugin usually is deployed along the **kube-monitoring** Plugin and does not deploy the [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) itself. However, if you are intending to use it stand-alone, you need to explicitly enable the deployment of Prometheus Operator, otherwise it will not work. It can be done in the configuration interface of the plugin.
 
 ## Architecture
 
