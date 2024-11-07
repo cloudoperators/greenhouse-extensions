@@ -39,6 +39,7 @@ This guide provides a quick and straightforward way to use **alerts** as a Green
 **Prerequisites**
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
+- kube-monitoring plugin (which brings in Prometheus Operator) **OR** stand alone: awareness to enable the deployment of Prometheus Operator with this plugin
 
 
 **Step 1:**
