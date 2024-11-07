@@ -9,7 +9,7 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 ## Overview
 
-This Plugin includes a preconfigured _Prometheus Alertmanager_, which is deployed and managed via the _Prometheus_ Operator, and _Supernova_, an advanced user interface for Prometheus Alertmanager. In addition, certificates are automatically generated to ensure _Prometheus_ authentication sending alerts to the Alertmanager as well as Slack notification templates are provided.
+This Plugin includes a preconfigured [_Prometheus Alertmanager_](https://prometheus.io/docs/alerting/latest/alertmanager/), which is deployed and managed via the [_Prometheus_ Operator](https://github.com/prometheus-operator/prometheus-operator), and [_Supernova_](https://github.com/cloudoperators/juno/tree/main/apps/supernova), an advanced user interface for Prometheus Alertmanager. Certificates are automatically generated to enable sending alerts from _Prometheus_ to Alertmanager. These alerts can too be sent as Slack notifications with a provided set of notification templates.
 
 Components included in this Plugin:
 
@@ -22,11 +22,11 @@ Optionally, [Prometheus Operator](https://github.com/prometheus-operator/prometh
 
 ![Alerts Plugin Architecture](./img/Alerts-arch.png)
 
-## Note
+## Disclaimer
 
-It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
+This is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
 
-The Plugin is a depth configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
+The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
 
 It is intended as a platform that can be extended by following the [guide](#managing-alertmanager-configuration). 
 
