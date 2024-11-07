@@ -18,6 +18,10 @@ Components included in this Plugin:
 
 Optionally, [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) can be used to manage _Prometheus_ and _Alertmanager_ instances. Usually, **kube-monitoring** Plugin installs _Prometheus Operator_.
 
+## Architecture
+
+![Alerts Plugin Architecture](./img/Alerts-arch.png)
+
 ## Note
 
 It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
