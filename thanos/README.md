@@ -42,7 +42,7 @@ Contribution is highly appreciated. If you discover bugs or want to add function
 
 ## Quick start
 
-This guide provides a quick and straightforward way to use **Thanos** as a Greenhouse Plugin on your Kubernetes cluster. The guide is meant to build the following setup:
+This guide provides a quick and straightforward way to use **Thanos** as a Greenhouse Plugin on your Kubernetes cluster. The guide is meant to build the following setup.
 
 **Prerequisites**
 
