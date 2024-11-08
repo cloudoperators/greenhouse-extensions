@@ -10,6 +10,8 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 Thanos is a set of components that can be used to extend the storage and retrieval of metrics in Prometheus. It allows you to store metrics in a remote object store and query them across multiple Prometheus servers and Greenhouse clusters. This Plugin is intended to provide a set of pre-configured Thanos components that enable a proven composition. At the core, a set of Thanos components is installed that adds long-term storage capability to a single **kube-monitoring** Plugin and makes both current and historical data available again via one Thanos Query component.
 
+![Thanos Architecture](./img/Thanos-setup-example.png)
+
 The **Thanos Sidecar** is a component that is deployed as a container together with a Prometheus instance. This allows Thanos to optionally upload metrics to the object store and Thanos Query to access Prometheus data via a common, efficient StoreAPI.
 
 The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to block data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data. 
@@ -32,7 +34,7 @@ This Plugin does **not** deploy the following components:
 * [Thanos Sidecar](https://thanos.io/tip/components/sidecar.md/)
 This component is installed in the [kube-monitoring](https://github.com/cloudoperators/greenhouse-extensions/tree/main/kube-monitoring) plugin.
 
-## Note
+## Disclaimer 
 
 It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the Plugin according to your needs.
 
@@ -41,8 +43,6 @@ Contribution is highly appreciated. If you discover bugs or want to add function
 ## Quick start
 
 This guide provides a quick and straightforward way to use **Thanos** as a Greenhouse Plugin on your Kubernetes cluster. The guide is meant to build the following setup:
-
-![Thanos Architecture](./img/Thanos-setup-example.png)
 
 **Prerequisites**
 
