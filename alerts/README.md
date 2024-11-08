@@ -2,15 +2,61 @@
 title: Alerts
 ---
 
-This plugin extension contains [Prometheus Alertmanager](https://github.com/prometheus/alertmanager) via [prometheus-operator](https://github.com/prometheus-operator/prometheus-operator) and [Supernova](https://github.com/sapcc/supernova), the holistic alert management UI.
+Learn more about the **alerts** plugin. Use it to activate Prometheus alert management for your Greenhouse organisation.
 
-# Owner
+The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
-1. Richard Tief (@richardtief)
-2. Tommy Sauer (@viennaa)
-3. Martin Vossen (@artherd42)
 
-### alerts alertmanager parameters
+## Overview
+
+This Plugin includes a preconfigured [_Prometheus Alertmanager_](https://prometheus.io/docs/alerting/latest/alertmanager/), which is deployed and managed via the [_Prometheus_ Operator](https://github.com/prometheus-operator/prometheus-operator), and [_Supernova_](https://github.com/cloudoperators/juno/tree/main/apps/supernova), an advanced user interface for Prometheus Alertmanager. Certificates are automatically generated to enable sending alerts from _Prometheus_ to Alertmanager. These alerts can too be sent as Slack notifications with a provided set of notification templates.
+
+Components included in this Plugin:
+
+- [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager)
+- [Supernova](https://github.com/cloudoperators/juno/tree/main/apps/supernova)
+
+This Plugin usually is deployed along the **kube-monitoring** Plugin and does not deploy the [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) itself. However, if you are intending to use it stand-alone, you need to explicitly enable the deployment of Prometheus Operator, otherwise it will not work. It can be done in the configuration interface of the plugin.
+
+![Alerts Plugin Architecture](https://github.com/cloudoperators/greenhouse-extensions/blob/polish-plugin-docs-alerts-edition/alerts/img/Alerts-arch.png)
+
+## Disclaimer
+
+This is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
+
+The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
+
+It is intended as a platform that can be extended by following the [guide](#managing-alertmanager-configuration). 
+
+Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
+
+## Quick start
+
+This guide provides a quick and straightforward way to use **alerts** as a Greenhouse Plugin on your Kubernetes cluster.
+
+**Prerequisites**
+
+- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
+- kube-monitoring plugin (which brings in Prometheus Operator) **OR** stand alone: awareness to enable the deployment of Prometheus Operator with this plugin
+
+
+**Step 1:**
+
+You can install the `alerts` package in your cluster with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
+  1. Go to Greenhouse dashboard and select the **Alerts** Plugin from the catalog. Specify the cluster and required option values.
+  2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
+
+**Step 2:**
+
+After the installation, you can access the **Supernova** UI by navigating to the `Alerts` tab in the Greenhouse dashboard. 
+
+**Step 3:**
+
+Greenhouse regularly performs integration tests that are bundled with **alerts**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
+
+## Configuration
+
+### Prometheus Alertmanager options
 
 | Name                                                               | Description                                                                                                                | Value   |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------- |
@@ -34,7 +80,7 @@ This plugin extension contains [Prometheus Alertmanager](https://github.com/prom
 | `alerts.defaultRules.labels`                                       | kube-monitoring `plugin: <plugin.name>` to evaluate Alertmanager rules.                                                    | `{}`    |
 | `alerts.alertmanager.alertmanagerSpec.alertmanagerConfiguration`   | AlermanagerConfig to be used as top level configuration                                                                    | `false` |
 
-### alerts supernova parameters
+### Supernova options
 
 `theme`: Override the default theme. Possible values are `"theme-light"` or `"theme-dark"` (default)
 
