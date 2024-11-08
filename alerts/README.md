@@ -18,8 +18,6 @@ Components included in this Plugin:
 
 This Plugin usually is deployed along the **kube-monitoring** Plugin and does not deploy the [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) itself. However, if you are intending to use it stand-alone, you need to explicitly enable the deployment of Prometheus Operator, otherwise it will not work. It can be done in the configuration interface of the plugin.
 
-## Architecture
-
 ![Alerts Plugin Architecture](./img/Alerts-arch.png)
 
 ## Disclaimer
