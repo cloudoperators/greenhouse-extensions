@@ -1,24 +1,69 @@
 ---
-title: Kubernetes monitoring
+title: Kubernetes Monitoring
 ---
 
-This Plugin is intended for monitoring Kubernetes clusters and is preconfigured to collect metrics from all Kubernetes components. It provides a standard set of alerting rules. Many of the useful alerts come from the [kubernetes-mixin](https://monitoring.mixins.dev/) project.
+Learn more about the **kube-monitoring** plugin. Use it to activate Kubernetes monitoring for your Greenhouse cluster. 
+
+The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
+
+## Overview 
+
+Observability is often required for operation and automation of service offerings. To get the insights provided by an application and the container runtime environment, you need telemetry data in the form of _metrics_ or _logs_ sent to backends such as _Prometheus_ or _OpenSearch_. With the **kube-monitoring** Plugin, you will be able to cover the _metrics_ part of the observability stack.
+
+This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://github.com/cloudoperators/kubernetes-operations) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
+
+![kube-monitoring](./img/kube-monitoring-setup.png)
 
 Components included in this Plugin:
 
 - [Prometheus](https://prometheus.io/)
 - [Prometheus Operator](https://prometheus-operator.dev/)
-- Prometheus adapter for Kubernetes metrics APIs (kubelet, apiserver, coredns, etcd)
+- Prometheus target configuration for Kubernetes metrics APIs (e.g. kubelet, apiserver, coredns, etcd)
 - [Prometheus node exporter](https://github.com/prometheus/node_exporter)
 - [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)
+- [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations)
 
-# Owner
+## Disclaimer
 
-1. Richard Tief (@richardtief) 
-2. Tommy Sauer (@viennaa) 
-3. Martin Vossen (@artherd42) 
+It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the plugin according to your needs.
 
-### kube-monitoring prometheus-operator parameters
+The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
+
+It is intended as a platform that can be extended by following the [guide](#extension-of-the-plugin). 
+
+Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
+
+## Quick start
+
+This guide provides a quick and straightforward way to use **kube-monitoring** as a Greenhouse Plugin on your Kubernetes cluster.
+
+**Prerequisites**
+
+- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
+
+**Step 1:**
+
+You can install the `kube-monitoring` package in your cluster by installing it with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
+  1. Go to Greenhouse dashboard and select the **Kubernetes Monitoring** plugin from the catalog. Specify the cluster and required option values.
+  2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
+
+**Step 2:**
+
+After installation, Greenhouse will provide a generated link to the Prometheus user interface. This is done via the annotation `greenhouse.sap/expose: “true”` at the Prometheus `Service` resource.
+
+**Step 3:**
+
+Greenhouse regularly performs integration tests that are bundled with **kube-monitoring**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
+
+## Configuration
+
+### Global options
+
+| Name                                                         | Description                                                                                                         | Value                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `global.commonLabels`                                        | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. | `true`   
+
+### Prometheus-operator options
 
 | Name                                                         | Description                                                                                                         | Value                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
@@ -28,7 +73,7 @@ Components included in this Plugin:
 | `kubeMonitoring.prometheusOperator.prometheusInstanceNamespaces`  | Filter namespaces to look for prometheus-operator Prometheus resources                                        | `[]`                     |
 
 
-### kube-monitoring Kubernetes components scraper configuration
+### Kubernetes component scraper options
 
 | Name                                                         | Description                                                                                                         | Value                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
@@ -44,7 +89,7 @@ Components included in this Plugin:
 | `kubeMonitoring.kubeProxy.enabled`                          | Component scraping kube proxy                                                                                       | `false`                  |
 | `kubeMonitoring.kubeDns.enabled`                            | Component scraping kubeDns. Use either this or coreDns                                                              | `false`                  |
 
-### kube-monitoring Prometheus parameters
+### Prometheus options
 
 | Name                                                         | Description                                                                                                         | Value                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
@@ -60,17 +105,17 @@ Components included in this Plugin:
 | `kubeMonitoring.prometheus.prometheusSpec.scrapeTimeout`    | Number of seconds to wait for target to respond before erroring                                                     | `""`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.evaluationInterval`     | Interval between consecutive evaluations                                                                      | `""`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.externalLabels`   | External labels to add to any time series or alerts when communicating with external systems like Alertmanager      | `{}`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.ruleSelector`     | PrometheusRules to be selected for target discovery. Defaults to `matchLabels: pluginconfig: <kubeMonitoring.fullnameOverride>`         | `{}`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector` | ServiceMonitors to be selected for target discovery. Defaults to `matchLabels: pluginconfig: <kubeMonitoring.fullnameOverride>`   | `{}`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector`     | PodMonitors to be selected for target discovery. Defaults to `matchLabels: pluginconfig: <kubeMonitoring.fullnameOverride>`       | `{}`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.probeSelector`    | Probes to be selected for target discovery. Defaults to `matchLabels: pluginconfig: <kubeMonitoring.fullnameOverride>`                  | `{}`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector`   | scrapeConfigs to be selected for target discovery. Defaults to `matchLabels: pluginconfig: <kubeMonitoring.fullnameOverride>`     | `{}`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.ruleSelector`     | PrometheusRules to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`         | `{}`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector` | ServiceMonitors to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`   | `{}`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector`     | PodMonitors to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`       | `{}`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.probeSelector`    | Probes to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`                  | `{}`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector`   | scrapeConfigs to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`     | `{}`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.retention`        | How long to retain metrics                                                                                          | `""`                     |
-| `kubeMonitoring.prometheus.prometheusSpec.logLevel`         | Log level for Prometheus be configured in                                                                           | `""`                     |
+| `kubeMonitoring.prometheus.prometheusSpec.logLevel`         | Log level to be configured for Prometheus                                                                           | `""`                     |
 | `kubeMonitoring.prometheus.prometheusSpec.additionalScrapeConfigs` | Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations | `""`                 |
 | `kubeMonitoring.prometheus.prometheusSpec.additionalArgs`   | Allows setting additional arguments for the Prometheus container                                                    | `[]`                 |
 
-### kube-monitoring Alertmanager config parameters
+### Alertmanager options
 
 | Name                                          | Description                                                                                                         | Value                    |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
@@ -125,7 +170,7 @@ spec:
 
 Example `Plugin` to deploy Prometheus with the `kube-monitoring` Plugin.
 
-**NOTE:** If you are using kube-monitoring for the first time in your cluster, it is necessary to set `kubeMonitoring.prometheusOperator.enabled` to `true`.
+**NOTE:** If you are using **kube-monitoring** for the first time in your cluster, it is necessary to set `kubeMonitoring.prometheusOperator.enabled` to `true`.
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
@@ -173,4 +218,51 @@ spec:
         secret:
           key: tls.key
           name: tls-<org-name>-prometheus-auth
+```
+
+### Extension of the plugin
+
+**kube-monitoring** can be extended with your own _Prometheus_ alerting rules and target configurations via the Custom Resource Definitions (CRDs) of the _Prometheus_ operator. The user-defined resources to be incorporated with the desired configuration are defined via _label selections_.
+
+The CRD `PrometheusRule` enables the definition of alerting and recording rules that can be used by _Prometheus_ or _Thanos Rule_ instances. Alerts and recording rules are reconciled and dynamically loaded by the operator without having to restart _Prometheus_ or _Thanos Rule_.
+
+**kube-monitoring** _Prometheus_ will automatically discover and load the rules that match labels `plugin: <plugin-name>`.
+
+**Example:**
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: example-prometheus-rule
+  labels:
+    plugin: <metadata.name> 
+    ## e.g plugin: kube-monitoring
+spec:
+ groups:
+   - name: example-group
+     rules:
+     ...
+```
+
+The CRDs  `PodMonitor`, `ServiceMonitor`, `Probe` and `ScrapeConfig` allow the definition of a set of target endpoints to be scraped by _Prometheus_. The operator will automatically discover and load the configurations that match labels `plugin: <plugin-name>`.
+
+**Example:**
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: example-pod-monitor
+  labels:
+    plugin: <metadata.name> 
+    ## e.g plugin: kube-monitoring
+spec:
+  selector:
+    matchLabels:
+      app: example-app
+  namespaceSelector:
+    matchNames:
+      - example-namespace
+  podMetricsEndpoints:
+    - port: http
+  ...
 ```
