@@ -14,11 +14,11 @@ Thanos is a set of components that can be used to extend the storage and retriev
 
 The **Thanos Sidecar** is a component that is deployed as a container together with a Prometheus instance. This allows Thanos to optionally upload metrics to the object store and Thanos Query to access Prometheus data via a common, efficient StoreAPI.
 
-The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to block data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data. 
+The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data. 
 
-The **Thanos Store** also implements the Store API but for historical data in an object store. It acts primarily as an API gateway and therefore does not require large amounts of local storage space.
+The **Thanos Store** also implements the StoreAPI and serves the historical data from an object store. It acts primarily as an API gateway and has no persistence itself.
 
-**Thanos Query** implements the Prometheus HTTP v1 API for querying data in a Thanos cluster via PromQL. In short, it collects the data needed to evaluate the query from the underlying StoreAPIs, evaluates the query and returns the result.
+**Thanos Query** implements the Prometheus HTTP v1 API for querying data in a Thanos cluster via PromQL. In short, it collects the data needed to evaluate the query from the connected StoreAPIs, evaluates the query and returns the result.
 
 This plugin deploys the following Thanos components:
 
