@@ -36,6 +36,7 @@ Contributors are welcome to provide additional collector configurations.
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
 `openTelemetry.prometheus.additionalLabels`               | Label selector for Prometheus resources to be picked-up by the operator | map | `false` | 
+`prometheusRules.additionalRuleLabels`               | Additional labels for PrometheusRule alerts | map | `false` | 
 `openTelemetry.prometheus.serviceMonitor.enabled` | Activates the service-monitoring for the Logs Collector  | bool | `false` | 
 `openTelemetry.prometheus.podMonitor.enabled`       | Activates the pod-monitoring for the Logs Collector | bool | `false` | 
 `openTelemetry-operator.admissionWebhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
