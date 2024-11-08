@@ -12,7 +12,7 @@ Observability is often required for operation and automation of service offering
 
 This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://github.com/cloudoperators/kubernetes-operations) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
 
-![kube-monitoring](./img/kube-monitoring-setup.png)
+![kube-monitoring](https://github.com/cloudoperators/greenhouse-extensions/blob/main/kube-monitoring/img/kube-monitoring-setup.png)
 
 Components included in this Plugin:
 
