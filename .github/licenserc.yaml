@@ -15,8 +15,8 @@ header:
     - 'LICENSES/*.txt'
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/charts/**' # ignore the license for the alerts charts
+    - 'plutono/**' # ignore the license for the plutono charts
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
-    - 'plutono/charts/**' # ignore the license for the plutono charts
     - 'thanos/**' # ignore the license for this directory
     - 'opentelemetry/chart/**' # ignore the license for the opentelemetry chart
     - '**/*.md'
