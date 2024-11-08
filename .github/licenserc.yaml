@@ -17,7 +17,7 @@ header:
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
-    - 'thanos/charts/templates/tests/**' # ignore the license for this file
+    - 'thanos/**' # ignore the license for this directory
     - 'opentelemetry/chart/**' # ignore the license for the opentelemetry chart
     - '**/*.md'
     - 'LICENSE'
