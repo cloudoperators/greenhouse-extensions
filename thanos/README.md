@@ -10,6 +10,14 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 Thanos is a set of components that can be used to extend the storage and retrieval of metrics in Prometheus. It allows you to store metrics in a remote object store and query them across multiple Prometheus servers and Greenhouse clusters. This Plugin is intended to provide a set of pre-configured Thanos components that enable a proven composition. At the core, a set of Thanos components is installed that adds long-term storage capability to a single **kube-monitoring** Plugin and makes both current and historical data available again via one Thanos Query component.
 
+The **Thanos Sidecar** is a component that is deployed as a container together with a Prometheus instance. This allows Thanos to optionally upload metrics to the object store and Thanos Query to access Prometheus data via a common, efficient StoreAPI.
+
+The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to block data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data. 
+
+The **Thanos Store** also implements the Store API but for historical data in an object store. It acts primarily as an API gateway and therefore does not require large amounts of local storage space.
+
+**Thanos Query** implements the Prometheus HTTP v1 API for querying data in a Thanos cluster via PromQL. In short, it collects the data needed to evaluate the query from the underlying StoreAPIs, evaluates the query and returns the result.
+
 This plugin deploys the following Thanos components:
 
 * [Thanos Query](https://thanos.io/tip/components/query.md/)
@@ -175,7 +183,7 @@ This would enable you to either:
 
 If you deploy the plugin with the default values, Thanos compactor will be shipped too and use the same secret (`$THANOS_PLUGIN_NAME-metrics-objectstore`) to retrieve, compact and push back timeseries.
 
-It will use a 100Gi PVC to not extensively occupy ephermeral storage. Depending on the amount of metrics this might be not enought and bigger volumes are needed. It is always safe to delete the compactor volume and increase it as needed. 
+Based on experience, a 100Gi-PVC is used in order not to overload the ephermeral storage of the Kubernetes Nodes. Depending on the configured retention and the amount of metrics, this may not be sufficient and larger volumes may be required. In any case, it is always safe to clear the volume of the compactor and increase it if necessary. 
 
 The object storage costs will be heavily impacted on how granular timeseries are being stored (reference [Downsampling](https://thanos.io/tip/components/compact.md/#downsampling)). These are the pre-configured defaults, you can change them as needed:
 
