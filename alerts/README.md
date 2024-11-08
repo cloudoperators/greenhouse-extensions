@@ -2,7 +2,7 @@
 title: Alerts
 ---
 
-Learn more about the **alerts** plugin. Use it to activate Prometheus alert management for your Greenhouse organisation. 
+Learn more about the **alerts** plugin. Use it to activate Prometheus alert management for your Greenhouse organisation.
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
@@ -42,7 +42,7 @@ This guide provides a quick and straightforward way to use **alerts** as a Green
 
 **Step 1:**
 
-You can install the `alerts` package in your cluster by installing it with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
+You can install the `alerts` package in your cluster with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
   1. Go to Greenhouse dashboard and select the **Alerts** Plugin from the catalog. Specify the cluster and required option values.
   2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
 
