@@ -39,7 +39,7 @@ This guide provides a quick and straightforward way to use **OpenTelemetry** as 
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
-- For metrics, a Prometheus instance to store. If you don't have one, install a [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first.w
+- For metrics, a Prometheus instance to store. If you don't have one, install a [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first.
 
 **Step 1:**
 
