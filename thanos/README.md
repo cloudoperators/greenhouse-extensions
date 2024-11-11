@@ -10,7 +10,7 @@ The main terminologies used in this document can be found in [core-concepts](htt
 
 Thanos is a set of components that can be used to extend the storage and retrieval of metrics in Prometheus. It allows you to store metrics in a remote object store and query them across multiple Prometheus servers and Greenhouse clusters. This Plugin is intended to provide a set of pre-configured Thanos components that enable a proven composition. At the core, a set of Thanos components is installed that adds long-term storage capability to a single **kube-monitoring** Plugin and makes both current and historical data available again via one Thanos Query component.
 
-![Thanos Architecture](./img/Thanos-setup-example.png)
+![Thanos Architecture](img/Thanos-setup-example.png)
 
 The **Thanos Sidecar** is a component that is deployed as a container together with a Prometheus instance. This allows Thanos to optionally upload metrics to the object store and Thanos Query to access Prometheus data via a common, efficient StoreAPI.
 
@@ -141,7 +141,7 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ### Standalone Query
 
-![Standalone Query](./img/Thanos-standalone-query.png)
+![Standalone Query](img/Thanos-standalone-query.png)
 
 In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
 
