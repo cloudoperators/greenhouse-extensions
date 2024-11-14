@@ -19,6 +19,7 @@ on:
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
+      - github-guard/charts/**
 
 
 permissions:

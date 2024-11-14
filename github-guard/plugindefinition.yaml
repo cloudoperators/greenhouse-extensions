@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: github-guard
+spec:
+  version: "0.1.0"
+  displayName: Github Guard
+  description: Manages Github teams, team memberships and repository & team assignments
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/github-guard/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/github-guard/img/logo.png
+  helmChart:
+    name: github-guard
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.1.0
