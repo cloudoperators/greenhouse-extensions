@@ -26,8 +26,8 @@
         "version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
       ],
       "datasourceTemplate": "github-tags",
-      "depNameTemplate": "kubernetes-sigs/external-dns-helm-chart",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "depNameTemplate": "kubernetes-sigs/external-dns",
+      "extractVersionTemplate": "^external-dns-helm-chart-(?<version>.*)$"
     }
   ],
   "packageRules": [
