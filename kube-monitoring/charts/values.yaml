@@ -52,7 +52,7 @@ kubeMonitoring:
     ## Additional labels for PrometheusRule alerts. E.g. support_group and service.
     additionalRuleLabels: {}
 
-  ## Create dashboards for self monitoring Prometheus
+  ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
   ##
   dashboards:
     create: true
