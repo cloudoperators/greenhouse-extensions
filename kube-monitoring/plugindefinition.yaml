@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 2.5.2
+  version: 2.6.0
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -14,15 +14,23 @@ spec:
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.18.2
+    version: 0.19.0
   options:
     - name: global.commonLabels
-      description: Labels to add to all resources. This can be used to add a support group or service label to all alerts.
+      description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
       required: false
       type: map
     - name: kubeMonitoring.defaultRules.create
       description: Whether to install the community default rules
       default: false
+      type: bool
+    - name: kubeMonitoring.default.additionalRuleLabels
+      description: Additional labels that can be added to the Prometheus self-monitoring alerting rules.
+      required: false
+      type: map
+    - name: kubeMonitoring.dashboard.create
+      description: Whether to install the default dashboards for self-monitoring Prometheus
+      default: true
       type: bool
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
