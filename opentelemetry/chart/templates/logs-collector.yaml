@@ -65,7 +65,7 @@ spec:
       k8s_events:
         auth_type: serviceAccount
 
-      filelog:
+      filelog/containerd:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
         exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
@@ -76,6 +76,24 @@ spec:
             type: add
             field: resource["container.runtime"]
             value: "containerd"
+
+      filelog/files:
+        include: [ /var/log/libvirt/qemu/*.log, /var/log/openvswitch/*.log ]
+        include_file_path: true
+        start_at: beginning
+        multiline:
+          line_start_pattern: ^\d{4}-\d{2}-\d{2}
+        operators:
+          - type: regex_parser
+            regex: (?P<logtime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3})
+          - type: time_parser
+            parse_from: attributes.logtime
+            layout: '%Y-%m-%dT%H:%M:%S.%L'
+            layout_type: strptime
+          - id: file-label
+            type: add
+            field: attributes["log.type"]
+            value: "files"
 
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       prometheus/internal:
@@ -391,8 +409,12 @@ spec:
 {{- end }}
       pipelines:
         logs/containerd:
-          receivers: [filelog]
+          receivers: [filelog/containerd]
           processors: [k8sattributes,transform/ingress,transform/ceph_rgw,transform/ceph_osd,attributes/cluster,batch]
+          exporters: [opensearch/logs]
+        logs/files:
+          receivers: [filelog/files]
+          processors: [k8sattributes,transform/files,attributes/cluster,batch]
           exporters: [opensearch/logs]
         logs/k8sevents:
           receivers: [k8s_events]
