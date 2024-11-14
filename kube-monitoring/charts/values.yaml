@@ -22,16 +22,16 @@ kubeMonitoring:
       k8sContainerMemorySwap: false
       k8sContainerResource: false
       k8sContainerMemoryWorkingSetBytes: false
-      k8sPodOwner: true
+      k8sPodOwner: false
       kubeApiserverAvailability: false
       kubeApiserverBurnrate: false
       kubeApiserverHistogram: false
       kubeApiserverSlos: false
       kubeControllerManager: false
-      kubelet: true
+      kubelet: false
       kubeProxy: false
-      kubePrometheusGeneral: true
-      kubePrometheusNodeRecording: true
+      kubePrometheusGeneral: false
+      kubePrometheusNodeRecording: false
       kubernetesApps: false
       kubernetesResources: false
       kubernetesStorage: false
@@ -42,7 +42,7 @@ kubeMonitoring:
       network: false
       node: false
       nodeExporterAlerting: false
-      nodeExporterRecording: true
+      nodeExporterRecording: false
       windows: false
 
       ## Enable useful alerting rules for self-monitoring Prometheus
