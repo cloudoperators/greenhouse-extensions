@@ -25,7 +25,7 @@ Components included in this Plugin:
 
 ## Architecture
 
- TBD: Architecture picture
+![OpenTelemetry Architecture](img/otel-arch.png)
 
 ## Note
 
