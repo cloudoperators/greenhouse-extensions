@@ -276,7 +276,7 @@ spec:
             conditions:
               - resource.attributes["k8s.daemonset.name"] == "nova-hypervisor-agents-compute-kvm"
             statements:
-              - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}%{SPACE}%{NOTSPACE}%{SPACE}%{NOTSPACE}%{SPACE}%{NOTSPACE}%{SPACE}%{NOTSPACE}%{SPACE}%{NOTSPACE}\\]%{SPACE}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
               - set(attributes["config.parsed"], "kvm_nova_agent") where attributes["log_level"] != nil
 
       k8sattributes:
