@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 2.6.1
+  version: 2.6.2
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -21,8 +21,8 @@ spec:
       required: false
       type: map
     - name: kubeMonitoring.defaultRules.create
-      description: Whether to install the community default rules
-      default: false
+      description: Whether to install the default alerting rules for self-monitoring Prometheus
+      default: true
       type: bool
     - name: kubeMonitoring.default.additionalRuleLabels
       description: Additional labels that can be added to the Prometheus self-monitoring alerting rules.
