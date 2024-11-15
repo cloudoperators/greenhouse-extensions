@@ -57,6 +57,11 @@ kubeMonitoring:
   dashboards:
     create: true
 
+    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    plutonoSelectors:
+      - name: plutono-dashboard
+        value: '"true"'
+
   ## Install Prometheus Operator CRDs
   ##
   crds:
