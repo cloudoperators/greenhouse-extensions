@@ -64,7 +64,7 @@ spec:
       type: bool
     - name: alerts.dashboard.create
       description: Whether to install the default dashboards for self-monitoring Prometheus Alertmanger. 
-      default: false
+      default: true
       type: bool
     - name: alerts.alertmanager.ingress.enabled
       description: Enable Alertmanager Ingress.
