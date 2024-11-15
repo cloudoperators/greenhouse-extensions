@@ -2187,11 +2187,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "kube-monitoring-obs-eu-nl-1",
-          "value": "kube-monitoring-obs-eu-nl-1"
-        },
+        "current": {},
         "datasource": "${datasource}",
         "definition": "label_values(prometheus_build_info{job=~\"$prometheus\"}, job)",
         "description": null,
