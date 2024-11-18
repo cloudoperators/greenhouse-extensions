@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.3.1
+  version: 2.3.2
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -15,7 +15,7 @@ spec:
   helmChart:
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.15.1
+    version: 0.15.2
   uiApplication:
     name: supernova
     version: "latest"
@@ -61,6 +61,10 @@ spec:
       description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
       default: true
       required: false
+      type: bool
+    - name: alerts.dashboard.create
+      description: Whether to install the default dashboards for self-monitoring Prometheus Alertmanger. 
+      default: true
       type: bool
     - name: alerts.alertmanager.ingress.enabled
       description: Enable Alertmanager Ingress.
