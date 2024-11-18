@@ -178,49 +178,6 @@ opensearchCluster:
     # - registryKeySecretName
     imagePullPolicy: IfNotPresent
     resources: {}
-    # requests:
-    #   memory: "1Gi"
-    #   cpu: "500m"
-    # limits:
-    #   memory: "1Gi"
-    #   cpu: "500m"
-  nodePools:
-    - component: masters
-      diskSize: "30Gi"
-      replicas: 1
-      roles:
-        - "master"
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "500m"
-        limits:
-          memory: "2Gi"
-          cpu: "500m"
-    - component: client
-      diskSize: "30Gi"
-      replicas: 1
-      roles:
-        - "client"
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "500m"
-        limits:
-          memory: "2Gi"
-          cpu: "500m"
-    - component: data
-      diskSize: "30Gi"
-      replicas: 3
-      roles:
-        - "data"
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "500m"
-        limits:
-          memory: "2Gi"
-          cpu: "500m"
   security:
     tls:
       transport:
