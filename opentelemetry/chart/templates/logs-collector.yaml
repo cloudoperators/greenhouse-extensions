@@ -197,22 +197,6 @@ spec:
               - set(attributes["monotonic_timestamp"], cache["__MONOTONIC_TIMESTAMP"])
               - delete_key(attributes, "cache")
 
-      transform/containerd:
-        log_statements:
-          - context: log
-            statements:
-              - merge_maps(cache,ExtractPatterns(body,"^(?P<time>[^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^\\s]*) ?(?P<log>.*)$"), "upsert") where body != nil
-              - merge_maps(cache,ExtractPatterns(body,"^(?P<time>\\d+/\\d+/\\d+\\s+\\d+:\\d+\\d+) (?P<log>.*)$"), "upsert") where attributes["log_name"]!= "MeshAccessLog" and cache["log"]!= nil and not IsMap(cache["log"])
-              - set(body,cache["log"]) where cache["log"] != nil
-              - merge_maps(cache,ParseJSON(body), "upsert") where IsMap(body)
-              - set(body,cache["message"]) where cache["message"] != nil
-              - set(body,cache["msg"]) where cache["msg"] != nil
-              - set(severity_text,cache["level"]) where cache["level"] != nil
-              - set(severity_text,cache["severity"]) where cache["severity"] != nil
-              - set(severity_number,SEVERITY_NUMBER_INFO) where cache["level"] == "INFO"
-              - set(severity_number,SEVERITY_NUMBER_INFO) where cache["severity"] == "info"
-              - set(attributes["loggerName"],cache["loggerName"]) where cache["loggerName"] != nil
-
       transform/ingress:
         error_mode: ignore
         log_statements:
