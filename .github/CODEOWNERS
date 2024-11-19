@@ -42,3 +42,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /heureka-scanner-keppel/  @cloudoperators/greenhouse-src @dimtas
 /heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
+/github-guard/            @cloudoperators/greenhouse-backend @onuryilmaz
