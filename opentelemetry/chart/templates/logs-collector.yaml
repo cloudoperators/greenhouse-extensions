@@ -137,7 +137,7 @@ spec:
         actions:
           - action: insert
             key: k8s.cluster.name
-            value: ${cluster}"
+            value: ${cluster}
           - action: insert
             key: region
             value: ${region}
@@ -394,7 +394,7 @@ spec:
 
     exporters:
       debug:
-        verbosity: detailed
+        verbosity: warn
       opensearch/logs:
         http:
           auth:
