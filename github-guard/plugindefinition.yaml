@@ -14,4 +14,4 @@ spec:
   helmChart:
     name: github-guard
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.0
+    version: 0.1.1
