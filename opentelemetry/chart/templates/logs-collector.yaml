@@ -146,7 +146,7 @@ spec:
             value: ${KUBE_NODE_NAME}
 
       attributes/k8sevents:
-        attributes:
+        actions:
           - action: insert
             key: k8s.node.name
             value: ${KUBE_NODE_NAME}
