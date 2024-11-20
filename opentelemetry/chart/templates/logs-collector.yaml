@@ -394,7 +394,7 @@ spec:
 
     exporters:
       debug:
-        verbosity: warn
+        verbosity: basic
       opensearch/logs:
         http:
           auth:
