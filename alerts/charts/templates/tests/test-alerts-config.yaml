@@ -19,12 +19,14 @@ data:
     load "/usr/lib/bats/bats-detik/detik"
 
     DETIK_CLIENT_NAME="kubectl"
-
+    {{- if .Values.alerts.prometheusOperator.enabled }}
     @test "Verify successful deployment, service and running status of the {{ .Release.Name }}-operator pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
         verify "there is 1 service named '{{ .Release.Name }}-operator'"
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator.*' and verify that '.status.phase' is 'running'"
     }
+    {{- end }}
+    
     @test "Verify that alertmanager is available and reconciled" {
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
