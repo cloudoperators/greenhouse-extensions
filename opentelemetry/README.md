@@ -79,7 +79,7 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 `openTelemetry.prometheus.serviceMonitor.enabled` | Activates the service-monitoring for the Logs Collector  | bool | `false` | 
 `openTelemetry.prometheus.podMonitor.enabled`       | Activates the pod-monitoring for the Logs Collector | bool | `false` | 
 `openTelemetry.prometheus.rules.create`       | Enables PrometheusRule resources to be created | bool | `false` | 
-`openTelemetry.prometheus.rules.disabled`       | Map of PrometheusRules to disable | map | `false` | 
+`openTelemetry.prometheus.rules.disabled`       | List of PrometheusRules to disable | map | `false` | 
 `openTelemetry.prometheus.rules.labels`       | Labels for PrometheusRules | map | `false` | 
 `openTelemetry.prometheus.rules.annotations`       | Annotations for PrometheusRules | map | `false` | 
 `openTelemetry.prometheus.rules.additionalRuleLabels`       | Additional labels for PrometheusRule alerts,  | map | `false` | 
