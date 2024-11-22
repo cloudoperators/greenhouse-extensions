@@ -1,52 +1,23 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-global:
-  ## common labels to apply to all resources
-  commonLabels: {}
 
-## Default rules for monitoring the opentelemetry components
-##
-prometheusRules:
+## common labels to apply to all resources
+commonLabels: {}
 
-  ## Enables PrometheusRule resources to be created
-  create: true
-
-  disabled: {}
-    # ReconcileErrors: true
-
-  ## Labels for PrometheusRules
-  labels: {}
-
-  ## Annotations for PrometheusRules
-  annotations: {}
-
-  ## Additional labels for PrometheusRule alerts
-  ## This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule
-  additionalRuleLabels:
-    # support_group: support
-    # service: my-service
-
-owner-info:
-  service: otel
-  support-group: observability
-  maintainers:
-  - name: timojohlo
-  - name: kuckkuck
-  - name: viennaa
-  helm-chart-url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry
-
-## custom Labels applied to servicemonitor, secrets and collectors
-customLabels: {}
-
+# opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
 opentelemetry-operator:
   nameOverride: "operator"
+
+  # The required CRDs used by this dependency are version-controlled in this repository under ./crds.
+  # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
   crds:
     create: false
   admissionWebhooks:
     failurePolicy: 'Ignore'
-    create: true
+
+    # If cert-manager should be used, the CRDs for cert-manager needs to exists before otel installs cert-manager.
     certManager:
-      enabled: true
+      enabled: false
     autoGenerateCert:
       recreate: false
   manager:
@@ -58,17 +29,17 @@ opentelemetry-operator:
       tag: v0.110.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
-    prometheusRule:
-      enabled: false
-      defaultRules:
-        enabled: false
     serviceMonitor:
       enabled: true
   kubeRBACProxy:
     enabled: false
+
 # Empty variables will fail during rollout
 openTelemetry:
-  OpenSearchLogs:
+  ## custom Labels applied to servicemonitor, secrets and collectors
+  customLabels: {}
+
+  openSearchLogs:
     endpoint:
     username:
     password:
@@ -78,6 +49,7 @@ openTelemetry:
     enabled: true
   metricsCollector:
     enabled: false
+
   prometheus:
     serviceMonitor:
       enabled: true
@@ -87,6 +59,27 @@ openTelemetry:
     additionalLabels: {}
     # plugin: kube-monitoring
     # prometheus: infra
+
+    ## Default rules for monitoring the opentelemetry components
+    rules:
+      ## Enables PrometheusRule resources to be created
+      create: true
+
+      # PrometheusRules to disable
+      disabled: {}
+
+      ## Labels for PrometheusRules
+      labels: {}
+
+      ## Annotations for PrometheusRules
+      annotations: {}
+
+      ## Additional labels for PrometheusRule alerts
+      ## This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule
+      additionalRuleLabels:
+        # support_group: support
+        # service: my-service
+
 testFramework:
   enabled: true
   image:

@@ -10,8 +10,8 @@ metadata:
   name: opentelemetry-collector-metrics
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
-    {{- if .Values.customLabels }}
-    {{ toYaml .Values.customLabels | nindent 4 }}
+    {{- if .Values.openTelemetry.customLabels }}
+    {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
     {{- end }}
     {{- include "plugin.prometheusLabels" . | nindent 4 }}
 spec:
@@ -27,7 +27,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.opentelemetry.metrics
+      app.kubernetes.io/instance: {{ .Release.Namespace }}.openTelemetry.metrics
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
