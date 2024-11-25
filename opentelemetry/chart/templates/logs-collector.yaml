@@ -10,8 +10,8 @@ metadata:
   name: logs
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
-  {{- if .Values.customLabels }}
-  {{ toYaml .Values.customLabels | nindent 4 }}
+  {{- if .Values.openTelemetry.customLabels }}
+  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
   {{- end }}
 spec:
   mode: daemonset
