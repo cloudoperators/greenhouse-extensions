@@ -17,13 +17,13 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.config.github
+    - jsonPath: .spec.github
       name: Github
       type: string
-    - jsonPath: .spec.config.organization
+    - jsonPath: .spec.organization
       name: Organization
       type: string
-    - jsonPath: .spec.config.team
+    - jsonPath: .spec.team
       name: Team
       type: string
     - jsonPath: .status.teamStatus
