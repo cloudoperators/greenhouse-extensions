@@ -83,3 +83,27 @@ app.kubernetes.io/version: {{ . | quote }}
 release: {{ .Release.Name }}
 {{- end }}
 {{- end }}
+
+{{/* Generate basic labels */}}
+{{ define "kube-monitoring.labels" }}
+{{- $path := index . 0 -}}
+{{- $root := index . 1 -}}
+plugindefinition: kube-monitoring
+plugin: {{ $root.Release.Name }}
+{{- if $root.Values.global.commonLabels }}
+{{ tpl (toYaml $root.Values.global.commonLabels) . }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+release: {{ $root.Release.Name | quote }}
+{{- end }}
+
+{{- define "kube-monitoring.dashboardSelectorLabels" }}
+{{- $path := index . 0 -}}
+{{- $root := index . 1 -}}
+plugin: {{ $root.Release.Name }}
+{{- if $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
+{{- range $i, $target := $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
+{{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
+{{- end }}
+{{- end }}
+{{- end }}

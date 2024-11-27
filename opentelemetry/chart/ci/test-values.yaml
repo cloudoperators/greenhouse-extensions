@@ -29,6 +29,7 @@ opentelemetry-operator:
       enabled: false
   kubeRBACProxy:
     enabled: false
+
 openTelemetry:
   openSearchLogs:
     endpoint: test
@@ -36,10 +37,20 @@ openTelemetry:
     password: test
   cluster: test
   region: test
+  logsCollector:
+    enabled: true
+  metricsCollector:
+    enabled: false
   prometheus:
     additionalLabels:
       key1: value1
       key2: value2
+
+    rules:
+      create: true
+      disabled:
+        - FilelogRefusedLogs
+
 testFramework:
   enabled: false
   image:

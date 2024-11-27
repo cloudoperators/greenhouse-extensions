@@ -19,6 +19,7 @@ on:
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
+      - github-guard/charts/**
 
 
 permissions:
@@ -60,6 +61,8 @@ jobs:
             chartName: service-proxy
           - chartDir: thanos/charts
             chartName: thanos
+          - chartDir: github-guard/charts
+            chartName: github-guard
 
 
     steps:

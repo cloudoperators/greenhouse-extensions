@@ -45,6 +45,16 @@ alerts:
       prometheusOperator: false
       windows: false
 
+  ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
+  ##
+  dashboards:
+    create: true
+
+    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    plutonoSelectors:
+      - name: plutono-dashboard
+        value: '"true"'
+
   ## Flag to disable all the kubernetes component scrapers
   ##
   kubernetesServiceMonitors:
@@ -113,6 +123,11 @@ alerts:
     ## Deploy alertmanager
     ##
     enabled: true
+
+    ## Enable access to Alertmanager disabled features.
+    ##
+    enableFeatures:
+      - receiver-name-in-metrics
 
     ## Alertmanager configuration directives
     ## ref: https://prometheus.io/docs/alerting/configuration/#configuration-file

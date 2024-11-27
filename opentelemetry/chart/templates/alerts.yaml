@@ -1,4 +1,4 @@
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.prometheusRules.create }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.create }}
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
 apiVersion: monitoring.coreos.com/v1
@@ -8,12 +8,12 @@ metadata:
   labels:
     {{- include "plugin.labels" $root | nindent 4 }}
     {{- include "plugin.prometheusLabels" $root | nindent 4 }}
-{{- if $.Values.prometheusRules.labels }}
-{{ toYaml $.Values.prometheusRules.labels | indent 4 }}
+{{- if $.Values.openTelemetry.prometheus.rules.labels }}
+{{ toYaml $.Values.openTelemetry.prometheus.rules.labels | indent 4 }}
 {{- end }}
-{{- if $.Values.prometheusRules.annotations }}
+{{- if $.Values.openTelemetry.prometheus.rules.annotations }}
   annotations:
-{{ toYaml $.Values.prometheusRules.annotations | indent 4 }}
+{{ toYaml $.Values.openTelemetry.prometheus.rules.annotations | indent 4 }}
 {{- end }}
 spec:
 {{- with $root -}}

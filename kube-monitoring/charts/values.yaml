@@ -7,10 +7,60 @@ global:
 ## kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
 
-  ## Create default rules for monitoring the cluster
+  ## Create open source community rules for monitoring the cluster
   ##
   defaultRules:
-    create: false
+    create: true
+    rules:
+      alertmanager: false
+      etcd: false
+      configReloaders: false
+      general: false
+      k8sContainerCpuUsageSecondsTotal: false
+      k8sContainerMemoryCache: false
+      k8sContainerMemoryRss: false
+      k8sContainerMemorySwap: false
+      k8sContainerResource: false
+      k8sContainerMemoryWorkingSetBytes: false
+      k8sPodOwner: false
+      kubeApiserverAvailability: false
+      kubeApiserverBurnrate: false
+      kubeApiserverHistogram: false
+      kubeApiserverSlos: false
+      kubeControllerManager: false
+      kubelet: false
+      kubeProxy: false
+      kubePrometheusGeneral: false
+      kubePrometheusNodeRecording: false
+      kubernetesApps: false
+      kubernetesResources: false
+      kubernetesStorage: false
+      kubernetesSystem: false
+      kubeSchedulerAlerting: false
+      kubeSchedulerRecording: false
+      kubeStateMetrics: false
+      network: false
+      node: false
+      nodeExporterAlerting: false
+      nodeExporterRecording: false
+      windows: false
+
+      ## Enable useful alerting rules for self-monitoring Prometheus
+      prometheus: true
+      prometheusOperator: true
+
+    ## Additional labels for PrometheusRule alerts. E.g. support_group and service.
+    additionalRuleLabels: {}
+
+  ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
+  ##
+  dashboards:
+    create: true
+
+    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    plutonoSelectors:
+      - name: plutono-dashboard
+        value: '"true"'
 
   ## Install Prometheus Operator CRDs
   ##
