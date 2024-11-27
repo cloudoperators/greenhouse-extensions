@@ -13,7 +13,7 @@ spec:
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
   helmChart:
     name: kube-monitoring
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    repository: "local/plugin/perses"
     version: 0.19.1
   options:
     - name: global.commonLabels
