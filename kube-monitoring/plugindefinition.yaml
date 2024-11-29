@@ -77,7 +77,7 @@ spec:
       required: false
       type: string
     - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.key
-      description: 
+      description:
       required: false
       type: string
     - name: kubeMonitoring.prometheus.service.additionalPorts
@@ -88,3 +88,8 @@ spec:
         targetPort: grpc
       required: false
       type: list
+    - name: kubeMonitoring.prometheus.persesDatasource
+      description: Whether to create a datasource for Perses
+      default: false
+      required: false
+      type: bool
