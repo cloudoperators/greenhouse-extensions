@@ -46,6 +46,10 @@ ruler:
   
   queryEndpoints:
 
+  queries:
+  
+  additionalFlags:
+
   resources:
 
   externalUrl: "https://"
