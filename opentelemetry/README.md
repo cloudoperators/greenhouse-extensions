@@ -25,7 +25,7 @@ Components included in this Plugin:
 
 ## Architecture
 
- TBD: Architecture picture
+![OpenTelemetry Architecture](img/otel-arch.png)
 
 ## Note
 
@@ -39,7 +39,7 @@ This guide provides a quick and straightforward way to use **OpenTelemetry** as 
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
-- For metrics, a Prometheus instance to store. If you don't have one, install a [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first.
+- To gather metrics, you **must** have a Prometheus instance in the onboarded cluster for storage and for managing Prometheus specific CRDs. If you don not have an instance, install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first. 
 
 **Step 1:**
 
@@ -75,10 +75,15 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
 `openTelemetry.prometheus.additionalLabels`               | Label selector for Prometheus resources to be picked-up by the operator | map | `false` | 
-`prometheusRules.additionalRuleLabels`               | Additional labels for PrometheusRule alerts | map | `false` | 
+`openTelemetry.prometheus.rules.additionalRuleLabels`               | Additional labels for PrometheusRule alerts | map | `false` | 
 `openTelemetry.prometheus.serviceMonitor.enabled` | Activates the service-monitoring for the Logs Collector  | bool | `false` | 
 `openTelemetry.prometheus.podMonitor.enabled`       | Activates the pod-monitoring for the Logs Collector | bool | `false` | 
-`openTelemetry-operator.admissionWebhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
+`openTelemetry.prometheus.rules.create`       | Enables PrometheusRule resources to be created | bool | `false` | 
+`openTelemetry.prometheus.rules.disabled`       | List of PrometheusRules to disable | map | `false` | 
+`openTelemetry.prometheus.rules.labels`       | Labels for PrometheusRules | map | `false` | 
+`openTelemetry.prometheus.rules.annotations`       | Annotations for PrometheusRules | map | `false` | 
+`openTelemetry.prometheus.rules.additionalRuleLabels`       | Additional labels for PrometheusRule alerts,  | map | `false` | 
+`opentelemetry-operator.admissionWebhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Activate to use Helm to create self-signed certificates | bool | `false` | 
 `opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate` | Activate to recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
 `opentelemetry-operator.kubeRBACProxy.enabled` | Activate to enable Kube-RBAC-Proxy for OpenTelemetry | bool | `false` | 

@@ -4,6 +4,6 @@ dependencies:
   version: 65.4.0
 - name: kubernetes-operations
   repository: https://cloudoperators.github.io/kubernetes-operations
-  version: 1.1.4
-digest: sha256:ee905256026c1c628917c0ddc9535db304ca0040c9d77793646096dfa01cdc19
-generated: "2024-11-14T15:53:16.443213+01:00"
+  version: 1.1.5
+digest: sha256:256395b5d7325365eb2b58df1dacef45eb2b80c10bf77b39a02cffbfea516334
+generated: "2024-11-26T13:36:39.195544+01:00"

@@ -1,7 +1,5 @@
-{{/* 
-SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-SPDX-License-Identifier: Apache-2.0
-*/}}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -19,13 +17,13 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.config.github
+    - jsonPath: .spec.github
       name: Github
       type: string
-    - jsonPath: .spec.config.organization
+    - jsonPath: .spec.organization
       name: Organization
       type: string
-    - jsonPath: .spec.config.team
+    - jsonPath: .spec.team
       name: Team
       type: string
     - jsonPath: .status.teamStatus

@@ -1,10 +1,8 @@
-{{/* 
-SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-SPDX-License-Identifier: Apache-2.0
-*/}}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
   name: {{ include "github-guard-greenhouse.fullname" . }}-manager-role
   labels:
@@ -15,8 +13,6 @@ rules:
   resources:
   - githuborganizations
   verbs:
-  - create
-  - delete
   - get
   - list
   - patch
@@ -39,6 +35,30 @@ rules:
 - apiGroups:
   - githubguard.sap
   resources:
+  - githubs
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - githubs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - githubs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
   - githubteamrepositories
   verbs:
   - get
@@ -49,8 +69,6 @@ rules:
   resources:
   - githubteams
   verbs:
-  - create
-  - delete
   - get
   - list
   - patch
@@ -78,9 +96,25 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - greenhouse.sap
+  resources:
+  - teammemberships
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: {{ include "github-guard-greenhouse.fullname" . }}-manager-rolebinding
   labels:
@@ -90,7 +124,7 @@ metadata:
   {{- include "github-guard-greenhouse.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: Role
   name: '{{ include "github-guard-greenhouse.fullname" . }}-manager-role'
 subjects:
 - kind: ServiceAccount

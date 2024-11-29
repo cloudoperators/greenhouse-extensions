@@ -8,8 +8,8 @@ Generic plugin name
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
 plugindefinition: opentelemetry
-{{- if .Values.global.commonLabels }}
-{{ tpl (toYaml .Values.global.commonLabels) . }}
+{{- if .Values.commonLabels }}
+{{ tpl (toYaml .Values.commonLabels) . }}
 {{- end }}
 {{- end }}
 
@@ -18,14 +18,14 @@ plugindefinition: opentelemetry
 {{- if .Values.openTelemetry.prometheus.additionalLabels }}
 {{- tpl (toYaml .Values.openTelemetry.prometheus.additionalLabels) . }}
 {{- end }}
-{{- if .Values.prometheusRules.labels }}
-{{ tpl (toYaml .Values.prometheusRules.labels) . }}
+{{- if .Values.openTelemetry.prometheus.rules.labels }}
+{{ tpl (toYaml .Values.openTelemetry.prometheus.rules.labels) . }}
 {{- end }}
 {{- end }}
 
 {{/* Generate prometheus rule labels for alerts */}}
 {{- define "plugin.additionalRuleLabels" -}}
-{{- if .Values.prometheusRules.additionalRuleLabels }}
-{{- tpl (toYaml .Values.prometheusRules.additionalRuleLabels) . }}
+{{- if .Values.openTelemetry.prometheus.rules.additionalRuleLabels }}
+{{- tpl (toYaml .Values.openTelemetry.prometheus.rules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
