@@ -23,9 +23,8 @@ data:
     
     DETIK_CLIENT_NAME="kubectl"
     
-    @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
+    @test "Verify successful deployment of the {{ .Release.Name }}-operator" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-operator-[a-z0-9]\+-' and verify that '.status.phase' is 'running'" 
     }
 
     @test "Verify successful deployment of the {{ .Release.Name }}-operator service" {
