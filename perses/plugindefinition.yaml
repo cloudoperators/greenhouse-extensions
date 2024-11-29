@@ -9,9 +9,9 @@ spec:
     docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
     helmChart:
-        name: perses
-        repository: 'local/plugin/perses'
-        version: 0.7.2
+        name: local/plugins/perses/charts
+        repository: ''
+        version: ''
     options:
         - default: json
           description: config.database.file.extension
