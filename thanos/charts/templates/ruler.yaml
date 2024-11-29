@@ -5,7 +5,6 @@ metadata:
   name: {{ include "release.name" . }}-ruler
   labels:
     app.kubernetes.io/name: {{ include "release.name" . }}-ruler
-    helm.sh/chart: {{ include "prometheus-thanos.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     {{- include "plugin.labels" . | nindent 4 }}
