@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry
 spec:
-    version: 0.6.0
+    version: 0.6.1
     displayName: OpenTelemetry
     description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.6.0
+        version: 0.6.1
     options:
         - default: true
           description: Activates the standard configuration for logs
