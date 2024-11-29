@@ -2,10 +2,57 @@
 # SPDX-License-Identifier: Apache-2.0
 
 global:
+  clusterType:
 
+  region:
   ## Labels to apply to all resources
   ##
   commonLabels: {}
+
+# Create RBAC resources.
+rbac:
+  create: true
+
+# ServiceAccount to use for the Thanos.
+# Note that a ServiceAccount with name `default` cannot be created.
+# Instead the generated name will be used.
+serviceAccount:
+  create: true
+
+ruler:
+  enabled: true
+
+  annotations:
+
+  deploymentLabels: {} 
+
+  serviceLabels:
+  
+  paused:
+
+  logLevel:
+
+  externalPrefix:
+
+  evaluationInterval:
+
+  externalClusterLabels:
+    enabled:
+
+  alertmanagers:
+    hosts:
+    authentication:
+      enabled:
+  
+  queryEndpoints:
+
+  resources:
+
+  externalUrl: "https://"
+
+  retention: true
+  image:
+    pullPolicy: "IfNotPresent"
 
 thanos:
   image:
