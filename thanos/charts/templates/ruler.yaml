@@ -30,6 +30,9 @@ spec:
         {{- with .Values.ruler.additionalLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
+        region: {{ .Values.global.region }}
+        cluster: {{ .Values.global.cluster }}
+        cluster_type: {{ .Values.global.clusterType }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "10902"
