@@ -1,0 +1,275 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    name: perses
+spec:
+    version: 0.1.0
+    displayName: Perses
+    description: "Perses is a dashboard tooling to visualize observability data from Prometheus/Thanos/Jaeger"
+    docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
+    helmChart:
+        name: local/plugins/perses/charts
+        repository: ''
+        version: ''
+    options:
+        - default: json
+          description: config.database.file.extension
+          name: config.database.file.extension
+          required: false
+          type: string
+        - default: /perses
+          description: config.database.file.folder
+          name: config.database.file.folder
+          required: false
+          type: string
+        - default: /etc/perses/provisioning
+          description: config.provisioning.folders.0
+          name: config.provisioning.folders.0
+          required: false
+          type: string
+        - default: 10s
+          description: config.provisioning.interval
+          name: config.provisioning.interval
+          required: false
+          type: string
+        - default: /etc/perses/cue/schemas/datasources
+          description: config.schemas.datasources_path
+          name: config.schemas.datasources_path
+          required: false
+          type: string
+        - default: 5m
+          description: config.schemas.interval
+          name: config.schemas.interval
+          required: false
+          type: string
+        - default: /etc/perses/cue/schemas/panels
+          description: config.schemas.panels_path
+          name: config.schemas.panels_path
+          required: false
+          type: string
+        - default: /etc/perses/cue/schemas/queries
+          description: config.schemas.queries_path
+          name: config.schemas.queries_path
+          required: false
+          type: string
+        - default: /etc/perses/cue/schemas/variables
+          description: config.schemas.variables_path
+          name: config.schemas.variables_path
+          required: false
+          type: string
+        - default: lax
+          description: config.security.cookie.same_site
+          name: config.security.cookie.same_site
+          required: false
+          type: string
+        - default: false
+          description: config.security.cookie.secure
+          name: config.security.cookie.secure
+          required: false
+          type: bool
+        - default: false
+          description: config.security.enableAuth
+          name: config.security.enableAuth
+          required: false
+          type: bool
+        - default: false
+          description: config.security.readOnly
+          name: config.security.readOnly
+          required: false
+          type: bool
+        - default: ""
+          description: fullnameOverride
+          name: fullnameOverride
+          required: false
+          type: string
+        - default: persesdev/perses
+          description: image.name
+          name: image.name
+          required: false
+          type: string
+        - default: IfNotPresent
+          description: image.pullPolicy
+          name: image.pullPolicy
+          required: false
+          type: string
+        - default: ""
+          description: image.version
+          name: image.version
+          required: false
+          type: string
+        - default: false
+          description: ingress.enabled
+          name: ingress.enabled
+          required: false
+          type: bool
+        - default: perses.local
+          description: ingress.hosts.0
+          name: ingress.hosts.0
+          required: false
+          type: string
+        - default: ""
+          description: ingress.ingressClassName
+          name: ingress.ingressClassName
+          required: false
+          type: string
+        - default: /
+          description: ingress.path
+          name: ingress.path
+          required: false
+          type: string
+        - default: Prefix
+          description: ingress.pathType
+          name: ingress.pathType
+          required: false
+          type: string
+        - default: true
+          description: livenessProbe.enabled
+          name: livenessProbe.enabled
+          required: false
+          type: bool
+        - default: 5
+          description: livenessProbe.failureThreshold
+          name: livenessProbe.failureThreshold
+          required: false
+          type: int
+        - default: 10
+          description: livenessProbe.initialDelaySeconds
+          name: livenessProbe.initialDelaySeconds
+          required: false
+          type: int
+        - default: 60
+          description: livenessProbe.periodSeconds
+          name: livenessProbe.periodSeconds
+          required: false
+          type: int
+        - default: 1
+          description: livenessProbe.successThreshold
+          name: livenessProbe.successThreshold
+          required: false
+          type: int
+        - default: 5
+          description: livenessProbe.timeoutSeconds
+          name: livenessProbe.timeoutSeconds
+          required: false
+          type: int
+        - default: info
+          description: logLevel
+          name: logLevel
+          required: false
+          type: string
+        - default: ""
+          description: nameOverride
+          name: nameOverride
+          required: false
+          type: string
+        - default: ReadWriteOnce
+          description: persistence.accessModes.0
+          name: persistence.accessModes.0
+          required: false
+          type: string
+        - default: false
+          description: persistence.enabled
+          name: persistence.enabled
+          required: false
+          type: bool
+        - default: 2000
+          description: persistence.securityContext.fsGroup
+          name: persistence.securityContext.fsGroup
+          required: false
+          type: int
+        - default: 8Gi
+          description: persistence.size
+          name: persistence.size
+          required: false
+          type: string
+        - default: true
+          description: readinessProbe.enabled
+          name: readinessProbe.enabled
+          required: false
+          type: bool
+        - default: 5
+          description: readinessProbe.failureThreshold
+          name: readinessProbe.failureThreshold
+          required: false
+          type: int
+        - default: 5
+          description: readinessProbe.initialDelaySeconds
+          name: readinessProbe.initialDelaySeconds
+          required: false
+          type: int
+        - default: 10
+          description: readinessProbe.periodSeconds
+          name: readinessProbe.periodSeconds
+          required: false
+          type: int
+        - default: 1
+          description: readinessProbe.successThreshold
+          name: readinessProbe.successThreshold
+          required: false
+          type: int
+        - default: 5
+          description: readinessProbe.timeoutSeconds
+          name: readinessProbe.timeoutSeconds
+          required: false
+          type: int
+        - default: 1
+          description: replicas
+          name: replicas
+          required: false
+          type: int
+        - default: 8080
+          description: service.port
+          name: service.port
+          required: false
+          type: int
+        - default: http
+          description: service.portName
+          name: service.portName
+          required: false
+          type: string
+        - default: 8080
+          description: service.targetPort
+          name: service.targetPort
+          required: false
+          type: int
+        - default: ClusterIP
+          description: service.type
+          name: service.type
+          required: false
+          type: string
+        - default: true
+          description: serviceAccount.create
+          name: serviceAccount.create
+          required: false
+          type: bool
+        - default: ""
+          description: serviceAccount.name
+          name: serviceAccount.name
+          required: false
+          type: string
+        - default: false
+          description: sidecar.enabled
+          name: sidecar.enabled
+          required: false
+          type: bool
+        - default: kiwigrid/k8s-sidecar
+          description: sidecar.image.repository
+          name: sidecar.image.repository
+          required: false
+          type: string
+        - default: 1.28.0
+          description: sidecar.image.tag
+          name: sidecar.image.tag
+          required: false
+          type: string
+        - default: perses.dev/resource
+          description: sidecar.label
+          name: sidecar.label
+          required: false
+          type: string
+        - default: "true"
+          description: sidecar.labelValue
+          name: sidecar.labelValue
+          required: false
+          type: string

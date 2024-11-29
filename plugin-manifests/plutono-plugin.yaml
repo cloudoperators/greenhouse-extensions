@@ -1,0 +1,46 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: plutono
+  namespace: demo
+spec:
+  clusterName: kind-greenhouse-remote
+  disabled: false
+  displayName: Plutono
+  optionValues:
+  - name: plutono.service.labels
+    value:
+      greenhouse.sap/expose: "true"
+  - name: global.greenhouse.clusterNames
+    value:
+    - garden-heureka--heureka-dev-external
+    - garden-heureka--heureka-main-external
+    - obs-eu-de-1
+    - obs-eu-nl-1
+  - name: global.greenhouse.teamNames
+    value:
+    - baremetal
+    - ccloud-admin
+    - cluster-admin
+    - compute-storage-api
+    - containers
+    - core
+    - email
+    - foundation
+    - identity
+    - image
+    - infraautomation
+    - network-api
+    - observability
+    - plugin-admin
+    - solutiondevelopment
+    - storage
+    - tailscale
+  - name: global.greenhouse.organizationName
+    value: ccloud
+  - name: global.greenhouse.clusterName
+    value: obs-eu-de-1
+  - name: global.greenhouse.baseDomain
+    value: greenhouse-qa.eu-nl-1.cloud.sap
+  pluginDefinition: plutono
+  releaseNamespace: kube-monitoring
