@@ -1,0 +1,63 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: kube-monitoring-demo
+  namespace: demo
+spec:
+  clusterName: kind-greenhouse-remote
+  disabled: false
+  displayName: kube monitoring demo
+  optionValues:
+    - name: alerts.enabled
+      value: false
+    - name: kubeMonitoring.defaultRules.create
+      value: false
+    - name: kubeMonitoring.prometheus.ingress.enabled
+      value: false
+    - name: kubeMonitoring.prometheus.prometheusSpec.externalLabels
+      value:
+        cluster: "{{ .Values.global.greenhouse.clusterName }}"
+        cluster_type: '{{ (split "-" .Values.global.greenhouse.clusterName)._0 }}'
+        organization: ccloud
+        region: "{{ .Values.global.greenhouse.clusterName | trunc -7 }}"
+    - name: kubeMonitoring.prometheus.prometheusSpec.externalUrl
+      value:
+        https://kube-monitoring-{{ .Values.global.greenhouse.clusterName }}-prometheus--ccloud--{{
+        .Values.global.greenhouse.clusterName }}.ccloud.greenhouse-qa.eu-nl-1.cloud.sap
+    - name: kubeMonitoring.prometheus.prometheusSpec.retention
+      value: 30d
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage
+      value: 100Gi
+    - name: kubeMonitoring.prometheus.persesDatasource
+      value: true
+    - name: kubeMonitoring.prometheus.service.additionalPorts
+      value:
+        - name: grpc
+          port: 10901
+          protocol: TCP
+          targetPort: grpc
+    - name: global.greenhouse.clusterNames
+      value:
+        - obs-eu-de-1
+        - obs-eu-nl-1
+    - name: global.greenhouse.teamNames
+      value:
+        - baremetal
+        - compute-storage-api
+        - containers
+        - core
+        - email
+        - foundation
+        - identity
+        - image
+        - infraautomation
+        - network-api
+        - observability
+        - solutiondevelopment
+        - storage
+    - name: global.greenhouse.organizationName
+      value: ccloud
+    - name: global.greenhouse.clusterName
+      value: obs-eu-de-1
+  pluginDefinition: kube-monitoring
+  releaseNamespace: kube-monitoring

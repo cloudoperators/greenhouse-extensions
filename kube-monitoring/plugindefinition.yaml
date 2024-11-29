@@ -12,9 +12,9 @@ spec:
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
   helmChart:
-    name: kube-monitoring
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.19.2
+    name: 'local/plugins/kube-monitoring/charts'
+    repository: ''
+    version: ''
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.

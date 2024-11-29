@@ -862,7 +862,7 @@
         }
       }
     ],
-    "duration": "1h",
+    "duration": "5m",
     "refreshInterval": "0s"
   }
 }

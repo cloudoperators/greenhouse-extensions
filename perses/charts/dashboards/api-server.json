@@ -568,7 +568,7 @@
         }
       }
     ],
-    "duration": "12h",
+    "duration": "5m",
     "refreshInterval": "0s"
   }
 }
