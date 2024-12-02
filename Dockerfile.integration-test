@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.11.0
+FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.11.1
 
 ARG KUBECTL_VERSION=v1.30.3
 
