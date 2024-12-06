@@ -23,7 +23,7 @@ jobs:
       max-parallel: 6
       matrix:
         include:
-          - Dockerfiles: Dockerfile.integration-test
+          - Dockerfiles: Dockerfile.integration-tests
             Imagename: greenhouse-extensions-integration-test
           - Dockerfiles: Dockerfile.otel-collector
             Imagename: opentelemetry-collector-contrib
@@ -133,7 +133,7 @@ jobs:
       max-parallel: 6
       matrix:
         include:
-          - Dockerfiles: Dockerfile.integration-test
+          - Dockerfiles: Dockerfile.integration-tests
             Imagename: greenhouse-extensions-integration-test
           - Dockerfiles: Dockerfile.otel-collector
             Imagename: opentelemetry-collector-contrib
