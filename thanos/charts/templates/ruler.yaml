@@ -1,0 +1,99 @@
+{{- if .Values.ruler.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "release.name" . }}-ruler
+  labels:
+    app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.ruler.deploymentLabels }}
+    {{ toYaml .Values.ruler.deploymentLabels | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.ruler.replicaCount }}
+  updateStrategy:
+    type: {{ .Values.ruler.updateStrategy }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ include "release.name" . }}-ruler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        prometheus-thanos-peer: "true"
+        {{- with .Values.ruler.additionalLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        region: {{ .Values.global.region }}
+        cluster: {{ .Values.global.cluster }}
+        cluster_type: {{ .Values.global.clusterType }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10902"
+    spec:
+      serviceAccount: {{ include "release.name" . }}-ruler
+      containers:
+        - name: {{ .Chart.Name }}-ruler
+          imagePullPolicy: {{ .Values.ruler.image.pullPolicy }}
+          image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+          args:
+          - rule
+          - --data-dir=/data
+          - --log.level={{ .Values.ruler.logLevel }}
+          - --eval-interval={{ .Values.ruler.evalInterval }}
+          - --rule-file={{ .Values.ruler.ruleFile }}
+          - --alertmanagers.url={{ .Values.ruler.alertmanagerUrl }}
+          - --query={{ include "release.name" . }}-querier:10902
+          {{- range .Values.ruler.queries }}
+          - --query={{ . }}
+          {{- end }}
+          {{- if .Values.ruler.objStoreType }}
+          - |
+            --objstore.config=type: {{ .Values.ruler.objStoreType }}
+            config:
+            {{- toYaml .Values.ruler.objStoreConfig | nindent 14 }}
+          {{ else if .Values.ruler.objStoreConfigFile }}
+          - --objstore.config-file={{ .Values.ruler.objStoreConfigFile }}
+          {{- end }}
+          {{- range $key, $value := .Values.ruler.additionalFlags }}
+          - "--{{ $key }}{{if $value }}={{ $value }}{{end}}"
+          {{- end }}
+          - --label=ruler_cluster="{{ .Values.ruler.clusterName }}"
+          - --label=replica="$(POD_NAME)"
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: http
+              containerPort: 10902
+              protocol: TCP
+            - name: grpc
+              containerPort: 10901
+              protocol: TCP
+          resources: 
+            {{- toYaml .Values.ruler.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /etc/thanos-ruler
+            name: config
+          - mountPath: /etc/thanos-ruler/external
+            name: external-config-volume
+          - mountPath: /data
+            name: storage-volume
+      volumes:
+      - name: external-config-volume
+        emptyDir: {}
+      - configMap:
+          name: {{ include "release.name" . }}-ruler
+        name: config
+      {{- with .Values.ruler.volumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end }}
