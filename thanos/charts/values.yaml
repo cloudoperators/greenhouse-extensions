@@ -19,45 +19,6 @@ rbac:
 serviceAccount:
   create: true
 
-ruler:
-  enabled: true
-
-  annotations:
-
-  deploymentLabels: {} 
-
-  serviceLabels:
-  
-  paused:
-
-  logLevel:
-
-  externalPrefix:
-
-  evaluationInterval:
-
-  externalClusterLabels:
-    enabled:
-
-  alertmanagers:
-    hosts:
-    authentication:
-      enabled:
-  
-  queryEndpoints:
-
-  queries:
-  
-  additionalFlags:
-
-  resources:
-
-  externalUrl: "https://"
-
-  retention: true
-  image:
-    pullPolicy: "IfNotPresent"
-
 thanos:
   image:
     repository: quay.io/thanos/thanos
@@ -112,6 +73,12 @@ thanos:
 
     annotations:
 
+    chunkPoolSize:
+
+    indexCacheSize:
+
+    logLevel:
+
   compactor:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
     enabled: true
@@ -153,6 +120,45 @@ thanos:
       # GiB
       size:
       labels: []
+  
+  ruler:
+    enabled: true
+
+    replicas:
+
+    annotations:
+
+    deploymentLabels: {} 
+
+    serviceLabels:
+    
+    paused:
+
+    logLevel:
+
+    externalPrefix:
+
+    evaluationInterval:
+
+    externalClusterLabels:
+      enabled:
+
+    alertmanagers:
+      hosts:
+      authentication:
+        enabled:
+    
+    queryEndpoints:
+
+    queries:
+    
+    additionalFlags:
+
+    additionalLabels:
+
+    externalUrl: "https://"
+
+    retention: true
 
 testFramework:
   enabled: true
