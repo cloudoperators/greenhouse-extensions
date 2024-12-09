@@ -1,0 +1,85 @@
+{{- if .Values.thanos.ruler.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.ruler.deploymentLabels }}
+    {{ toYaml .Values.thanos.ruler.deploymentLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-ruler
+spec:
+  replicas: {{ default 1 .Values.thanos.ruler.replicas }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ include "release.name" . }}-ruler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        prometheus-thanos-peer: "true"
+        {{- with .Values.ruler.additionalLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        region: {{ .Values.global.region }}
+        cluster_type: {{ .Values.global.clusterType }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10902"
+    spec:
+      serviceAccount: {{ include "release.name" . }}-ruler
+      containers:
+        - name: {{ .Chart.Name }}-ruler
+          imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+          image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+          args:
+          - rule
+          - --data-dir=/data
+          - --log.level={{ .Values.ruler.logLevel }}
+          - --eval-interval={{ .Values.ruler.evalInterval }}
+          - --rule-file={{ .Values.ruler.ruleFile }}
+          - --alertmanagers.url={{ .Values.ruler.alertmanagerUrl }}
+          - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
+          - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
+          - --query={{ include "release.name" . }}-query:10902
+          - --objstore.config-file=/etc/config/thanos.yaml
+          ports:
+            - name: http
+              containerPort: 10902
+              protocol: TCP
+            - name: grpc
+              containerPort: 10901
+              protocol: TCP
+          volumeMounts:
+          - mountPath: /etc/thanos-ruler
+            name: config
+          - mountPath: /etc/thanos-ruler/external
+            name: external-config-volume
+          - mountPath: /data
+            name: storage-volume
+          - mountPath: /etc/config/
+          name: objectstore-secret
+          readOnly: true
+      volumes:
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore 
+      - name: external-config-volume
+        emptyDir: {}
+      - configMap:
+          name: {{ include "release.name" . }}-ruler
+        name: config
+      {{- with .Values.thanos.ruler.volumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end }}
