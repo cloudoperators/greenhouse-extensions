@@ -2,6 +2,9 @@
 title: Perses
 ---
 
+> [!WARNING]
+> This plugin is in beta and please report any bugs by creating an issue [here](https://github.com/cloudoperators/greenhouse-extensions/issues/new/choose).
+
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
@@ -12,8 +15,6 @@ title: Perses
 - [Add Dashboards as ConfigMaps](#add-dashboards-as-configmaps)
     - [Recommended folder structure for dashboards](#recommended-folder-structure-for-dashboards)
 
-> [!WARNING]
-> This plugin is in beta and please report any bugs by creating an issue in this [GitHub repository](https://github.com/cloudoperators/greenhouse-extensions/issues/new/choose).
 
 Learn more about the **Perses** Plugin. Use it to visualize Prometheus/Thanos metrics for your Greenhouse remote cluster.
 
@@ -47,7 +48,7 @@ The plugin works by default with anonymous access enabled. This plugin comes wit
 
 Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `perses.dev/resource: "true"` and imports them into Perses. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. Please [refer this section](https://github.com/cloudoperators/greenhouse-extensions/blob/main/perses/README.md#example-dashboard-and-datasource-config) for more information.
 
-A guide on how to create custom dashboards on the UI can be found [here](https://github.com/cloudoperators/greenhouse-extensions/blob/main/perses/README.md#create-a-custom-dashboard).
+A guide on how to create custom dashboards on the UI can be found [here](#create-a-custom-dashboard).
 
 ## Configuration
 
