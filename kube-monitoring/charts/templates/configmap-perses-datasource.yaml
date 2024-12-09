@@ -9,10 +9,9 @@ metadata:
 data:
   {{ printf "%s-%s" $.Release.Name "perses-datasource.json" }}: |
     {
-      "kind": "Datasource",
+      "kind": "GlobalDatasource",
       "metadata": {
         "name": "{{ printf "%s-%s" $.Release.Name "prometheus" }}",
-        "project": "default"
       },
       "spec": {
         "default": true,
