@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 2.6.2
+  version: 2.6.5
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.19.1
+    version: 0.19.2
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
@@ -24,7 +24,7 @@ spec:
       description: Whether to install the default alerting rules for self-monitoring Prometheus
       default: true
       type: bool
-    - name: kubeMonitoring.default.additionalRuleLabels
+    - name: kubeMonitoring.defaultRules.additionalRuleLabels
       description: Additional labels that can be added to the Prometheus self-monitoring alerting rules.
       required: false
       type: map
@@ -86,5 +86,5 @@ spec:
         port: 10901
         protocol: TCP
         targetPort: grpc
-      required: true
+      required: false
       type: list
