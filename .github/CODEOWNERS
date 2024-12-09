@@ -12,7 +12,7 @@
 Makefile                  @cloudoperators/greenhouse-backend
 ct.yaml                   @cloudoperators/greenhouse-backend
 Dockerfile.otel-collector @cloudoperators/greenhouse-observability
-Dockerfile.integration-tests @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
 /docs/                    @cloudoperators/greenhouse-core
 /hack/                    @cloudoperators/greenhouse-backend
