@@ -2,8 +2,18 @@
 title: Perses
 ---
 
+## Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Disclaimer](#disclaimer)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Create a custom dashboard](#create-a-custom-dashboard)
+- [Add Dashboards as ConfigMaps](#add-dashboards-as-configmaps)
+    - [Recommended folder structure for dashboards](#recommended-folder-structure-for-dashboards)
+
 > [!WARNING]
-> This plugin is in beta and please report any issues by creating an issue in this [GitHub repository](https://github.com/cloudoperators/greenhouse-extensions/issues/new/choose).
+> This plugin is in beta and please report any bugs by creating an issue in this [GitHub repository](https://github.com/cloudoperators/greenhouse-extensions/issues/new/choose).
 
 Learn more about the **Perses** Plugin. Use it to visualize Prometheus/Thanos metrics for your Greenhouse remote cluster.
 
@@ -58,13 +68,13 @@ A guide on how to create custom dashboards on the UI can be found [here](https:/
    - See the next section for detailed instructions on how and where to paste the copied dashboard JSON model.
 
 
-## Sidecar for dashboards and datasources
+## Add Dashboards as ConfigMaps
 
 By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 seconds.
 
 A recommendation is to use one configmap per dashboard. This way, you can easily manage the dashboards in your git repository.
 
-#### Example Dashboard and Datasource config:
+#### Recommended folder structure for dashboards
 
 *Folder structure:*
 ```bash
