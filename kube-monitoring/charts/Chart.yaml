@@ -8,7 +8,7 @@ maintainers:
 name: kube-monitoring
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.19.2
+version: 0.19.3
 # prometheus-operator app version
 appVersion: v0.77.1
 keywords:
