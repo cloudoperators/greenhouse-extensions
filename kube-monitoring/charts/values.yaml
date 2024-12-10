@@ -220,7 +220,7 @@ kubeMonitoring:
     # Deploys a Plutono datasource config Secret for this Prometheus
     plutonoDatasource: true
 
-    # Deploys a Perses datasource Configmap for this Prometheus
+    # Deploys a Perses datasource ConfigMap for this Prometheus
     persesDatasource: false
 
     prometheusSpec:
