@@ -5,7 +5,7 @@ metadata:
 spec:
     version: 0.1.0
     displayName: Perses
-    description: "Perses is a dashboard tooling to visualize observability data from Prometheus/Thanos/Jaeger"
+    description: "Perses is a dashboard tooling to visualize metrics and traces produced by observability tools such as Prometheus/Thanos/Jaeger"
     docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/perses/README.md
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/perses/logo.png
     helmChart:
