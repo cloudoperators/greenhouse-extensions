@@ -24,6 +24,7 @@ spec:
       description: Whether to install the default alerting rules for self-monitoring Prometheus
       default: true
       type: bool
+      required: false
     - name: kubeMonitoring.defaultRules.additionalRuleLabels
       description: Additional labels that can be added to the Prometheus self-monitoring alerting rules.
       required: false
@@ -32,6 +33,7 @@ spec:
       description: Whether to install the default dashboards for self-monitoring Prometheus
       default: true
       type: bool
+      required: false
     - name: kubeMonitoring.prometheus.ingress.enabled
       description: Ingress exposes prometheus outside the cluster
       default: false
@@ -90,6 +92,6 @@ spec:
       type: list
     - name: kubeMonitoring.prometheus.persesDatasource
       description: Whether to create a datasource for Perses
-      default: false
+      default: true
       required: false
       type: bool

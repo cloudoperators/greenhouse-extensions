@@ -221,7 +221,7 @@ kubeMonitoring:
     plutonoDatasource: true
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
-    persesDatasource: false
+    persesDatasource: true
 
     prometheusSpec:
 
