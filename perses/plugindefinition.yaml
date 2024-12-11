@@ -11,7 +11,7 @@ spec:
     helmChart:
         name: perses
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: '0.7.2'
+        version: '0.7.4'
     options:
         - default: true
           description: "Deploys a sidecar container to watch all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: true`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and reflected in Perses within 10 seconds"
