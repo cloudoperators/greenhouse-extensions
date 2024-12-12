@@ -1,0 +1,92 @@
+mode: daemonset
+
+# extraVolumeMounts:
+#   - mountPath: /var/log
+#     name: varlog
+#     readOnly: true
+# extraVolumes:
+#   - name: varlog
+#     hostPath:
+#       path: /var/log
+
+#presets:
+#  logsCollection:
+#    enabled: true
+
+clusterRole:
+  create: true
+  rules:
+    - apiGroups:
+      - 'events'
+      resources:
+      - 'pods'
+      - 'nodes'
+      verbs:
+      - 'get'
+      - 'list'
+      - 'watch'
+image:
+ #repository: otel/opentelemetry-collector-k8s
+ repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+ tag: main
+config:
+  exporters:
+    otlphttp:
+      endpoint: http://load-recv.app:8080
+      logs_endpoint: http://load-recv.app:8080/
+      encoding: json
+      compression: none
+      tls:
+        insecure: true
+        #cert_file: certs/cert.pem
+        #key_file: certs/cert-key.pem
+
+  extensions:
+    health_check: {}
+  processors:
+    batch: {}
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+  receivers:
+    filelog/containerd:
+      include_file_path: true
+      include: [ /var/log/* ]
+      exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
+      operators:
+        - id: only-load-gen
+          type: filter
+          expr: 'k8s.container.name == "load-gen"'
+        #- id: parser-containerd
+        #  type: add
+        #  field: resource["container.runtime"]
+        #  value: "containerd"
+        #- id: container-label
+        #  type: add
+        #  field: attributes["log.type"]
+        #  value: "containerd"
+
+    #k8s_events:
+    #  namespaces: [default, app]
+    #journald:
+    #  directory: /var/log/
+    #  units:
+    #    - ssh
+    #    - kubelet
+    #    - docker
+    #    - containerd
+    #  priority: info
+  service:
+    telemetry:
+    extensions:
+      - health_check
+    pipelines:
+      logs:
+        exporters: [otlphttp]
+        processors: [memory_limiter, batch]
+        receivers: [filelog/containerd]
+
+presets:
+  logsCollection:
+    enabled: true
