@@ -1,4 +1,4 @@
-{{- if .Values.thanos.ruler.enabled -}}
+# {{ if .Values.thanos.ruler.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -27,7 +27,7 @@ spec:
         app.kubernetes.io/name: {{ include "release.name" . }}-ruler
         app.kubernetes.io/instance: {{ .Release.Name }}
         prometheus-thanos-peer: "true"
-        {{- with .Values.ruler.additionalLabels }}
+        {{- with .Values.thanos.ruler.additionalLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
         region: {{ .Values.global.region }}
@@ -44,14 +44,13 @@ spec:
           args:
           - rule
           - --data-dir=/data
-          - --log.level={{ .Values.ruler.logLevel }}
-          - --eval-interval={{ .Values.ruler.evalInterval }}
-          - --rule-file={{ .Values.ruler.ruleFile }}
-          - --alertmanagers.url={{ .Values.ruler.alertmanagerUrl }}
+          - --log.level={{ .Values.thanos.ruler.logLevel }}
+          - --eval-interval={{ .Values.thanos.ruler.evalInterval }}
+          - --rule-file={{ .Values.thanos.ruler.ruleFile }}
+          - --alertmanagers.url={{ .Values.thanos.ruler.alertmanagerUrl }}
           - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
           - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
           - --query={{ include "release.name" . }}-query:10902
-          - --objstore.config-file=/etc/config/thanos.yaml
           ports:
             - name: http
               containerPort: 10902
@@ -82,4 +81,4 @@ spec:
       {{- with .Values.thanos.ruler.volumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
-{{- end }}
+# {{- end }}

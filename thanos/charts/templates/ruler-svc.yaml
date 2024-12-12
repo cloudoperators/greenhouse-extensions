@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-{{ if .Values.ruler.enabled }}
+{{ if .Values.thanos.ruler.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,8 +12,8 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.ruler.serviceLabels }}
-    {{ toYaml .Values.ruler.serviceLabels | nindent 4 }}
+    {{- if .Values.thanos.ruler.serviceLabels }}
+    {{ toYaml .Values.thanos.ruler.serviceLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-ruler
 spec:
