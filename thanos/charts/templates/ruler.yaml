@@ -11,7 +11,7 @@ metadata:
   name: {{ include "release.name" . }}-ruler
 spec:
   replicas: {{ default 1 .Values.thanos.ruler.replicas }}
-  strategy:
+  updateStrategy:
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
@@ -43,14 +43,22 @@ spec:
           image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
           args:
           - rule
-          - --data-dir=/data
+          - --data-dir=/thanos/data
           - --log.level={{ .Values.thanos.ruler.logLevel }}
           - --eval-interval={{ .Values.thanos.ruler.evalInterval }}
-          - --rule-file={{ .Values.thanos.ruler.ruleFile }}
-          - --alertmanagers.url={{ .Values.thanos.ruler.alertmanagerUrl }}
-          - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
-          - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
+          - --tsdb.retention=24h
+          - --rule-file=/etc/thanos/rules/*/*.yaml
           - --query={{ include "release.name" . }}-query:10902
+          - --label=thanos_ruler_replica="$(POD_NAME)"
+          - --label=cluster="qa-de-1"
+          - --label=cluster_type="metal"
+          - --label=region="qa-de-1"
+          - --alert.label-drop=thanos_ruler_replica
+          - --alertmanagers.config-file=/etc/thanos/config/alertmanager-config/alertManagerConfig.yaml
+          - --web.external-prefix=/ruler
+          - --web.route-prefix=/ruler
+          - --alert.query-url=https://metrics.metal.qa-de-1.cloud.sap
+          - --http.config=/etc/thanos/web_config/web-config.yaml
           ports:
             - name: http
               containerPort: 10902
@@ -59,26 +67,32 @@ spec:
               containerPort: 10901
               protocol: TCP
           volumeMounts:
-          - mountPath: /etc/thanos-ruler
-            name: config
-          - mountPath: /etc/thanos-ruler/external
-            name: external-config-volume
-          - mountPath: /data
-            name: storage-volume
-          - mountPath: /etc/config/
-          name: objectstore-secret
-          readOnly: true
+          - mountPath: /etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+            name: {{ include "release.name" . }}-rulefiles
+          - mountPath: /etc/thanos/config/alertmanager-config
+            name: alertmanager-config
+          - mountPath: /etc/thanos/web_config/web-config.yaml
+            name: web-config
+          - mountPath: /etc/thanos/secrets/thanos-metal-ruler-alertmanager-sso-cert
+            name: {{ include "release.name" . }}-alertmanager-sso-cert
+          - mountPath: /thanos/data
+          name: data
       volumes:
-      - name: objectstore-secret
+      - name: alertmanager-config
         secret:
           defaultMode: 420
-          secretName: {{ include "release.name" . }}-metrics-objectstore 
-      - name: external-config-volume
+          secretName: {{ include "release.name" . }}-alertmanager-config
+      - name: web-config
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-web-config
+      - name: {{ include "release.name" . }}-alertmanager-sso-cert
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-ruler-alertmanager-sso-cert
+      - name: {{ include "release.name" . }}-rulefiles #what if multiple replicas ?
+        configMap:
+            name: {{ include "release.name" . }}-rulerrulefiles
+      - name: data
         emptyDir: {}
-      - configMap:
-          name: {{ include "release.name" . }}-ruler
-        name: config
-      {{- with .Values.thanos.ruler.volumes }}
-      {{- toYaml . | nindent 6 }}
-      {{- end }}
 # {{- end }}

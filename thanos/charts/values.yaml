@@ -123,7 +123,7 @@ thanos:
   
   ruler:
     enabled: true
-
+    
     replicas:
 
     annotations:
@@ -138,7 +138,7 @@ thanos:
 
     externalPrefix:
 
-    evaluationInterval:
+    evalInterval: 30s
 
     externalClusterLabels:
       enabled:
