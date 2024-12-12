@@ -197,6 +197,71 @@ kubeMonitoring:
       - services=[*]
       - statefulsets=[*]
 
+  ## Service discovery configuration
+  ##
+  serviceDiscovery:
+
+    ## Configuration for the Prometheus Operator to discover pods
+    ##
+    pods:
+      enabled: true
+
+      ## Endpoints of the selected pods to be monitored
+      ## https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#podmetricsendpoint
+      ##
+      podMetricsEndpoints:
+          ## Monitor Pods with the following port name
+        - port: metrics
+
+          ## RelabelConfigs to apply to samples before scraping
+          ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+          ##
+          relabelings: []
+          # - sourceLabels: [__meta_kubernetes_pod_node_name]
+          #   separator: ;
+          #   regex: ^(.*)$
+          #   targetLabel: nodename
+          #   replacement: $1
+          #   action: replace
+
+          ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+          ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+          ##
+          metricRelabelings: []
+          # - action: keep
+          #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
+          #   sourceLabels: [__name__]
+
+      ## Pod label for use in assembling a job name of the form <label value>-<port>
+      ## If no label is specified, the pod endpoint name is used.
+      ##
+      jobLabel: ""
+
+      ## Namespaces from which pods are selected
+      ##
+      namespaceSelector:
+        ## Match any namespace
+        ##
+        any: true
+
+        ## Explicit list of namespace names to select
+        ##
+        # matchNames: []
+
+      ## Example which selects all Pods to be monitored
+      ## with label "monitoredby" with values any of "example-pod-1" or "example-pod-2"
+      selector:
+        matchExpressions: []
+
+        ## label selector for pods
+        ##
+        matchLabels:
+          greenhouse/scrape: "true"
+
+      ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+      ##
+      # sampleLimit: 0
+
   ## Configuration for the Prometheus instance
   ##
   prometheus:

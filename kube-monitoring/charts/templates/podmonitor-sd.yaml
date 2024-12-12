@@ -1,0 +1,27 @@
+{{- if and .Values.kubeMonitoring.prometheus.enabled .Values.kubeMonitoring.serviceDiscovery.pods.enabled }}
+{{- $values := .Values.kubeMonitoring.serviceDiscovery.pods }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ $.Release.Name }}-pod-sd
+  labels:
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }}
+spec:
+  {{- include "servicemonitor.scrapeLimits" . | nindent 2 }}
+  podMetricsEndpoints:
+{{ tpl (toYaml $values.podMetricsEndpoints) . | indent 4 }}
+  {{- if $values.jobLabel }}
+  jobLabel: {{ $values.pods.jobLabel }}
+  {{- end }}
+  namespaceSelector:
+{{ toYaml $values.namespaceSelector | indent 4 }}
+  selector:
+{{ toYaml $values.selector | indent 4 }}
+  {{- if $values.podTargetLabels }}
+  podTargetLabels:
+{{ toYaml $values.podTargetLabels | indent 4 }}
+  {{- end }}
+  {{- if $values.sampleLimit }}
+  sampleLimit: {{ $values.sampleLimit }}
+  {{- end }}
+{{- end }}
