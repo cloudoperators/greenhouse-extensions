@@ -104,4 +104,4 @@ jobs:
             tags: pr-${{ env.PR_NUMBER }}
             packages: ${{ github.repository }}/charts/*
             expand-packages: true
-            token: ${{ secrets.CLOUOPERATOR_REPO_WRITE_DELETE_TOKEN }}
+            token: ${{ secrets.CLOUDOPERATOR_REPO_WRITE_DELETE_TOKEN }}
