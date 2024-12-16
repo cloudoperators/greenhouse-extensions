@@ -1,0 +1,39 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-gen-deployment
+  namespace: app
+  labels:
+    name: go-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: go-gen
+  template:
+    metadata:
+      labels:
+        name: go-gen
+    spec:
+      containers:
+        - name: load-gen
+          image: load-gen:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: load-gen
+  namespace: app
+spec:
+  selector:
+    name: go-gen
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
