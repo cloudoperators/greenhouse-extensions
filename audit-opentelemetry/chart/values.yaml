@@ -1,100 +1,77 @@
-mode: daemonset
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 
-# extraVolumeMounts:
-#   - mountPath: /var/log
-#     name: varlog
-#     readOnly: true
-# extraVolumes:
-#   - name: varlog
-#     hostPath:
-#       path: /var/log
+## common labels to apply to all resources
+commonLabels: {}
 
-#presets:
-#  logsCollection:
-#    enabled: true
+# Empty variables will fail during rollout
+openTelemetry:
+  ## custom Labels applied to servicemonitor, secrets and collectors
+  customLabels: {}
 
-clusterRole:
-  create: true
-  rules:
-    - apiGroups:
-      - 'events'
-      resources:
-      - 'pods'
-      - 'nodes'
-      verbs:
-      - 'get'
-      - 'list'
-      - 'watch'
-image:
- #repository: otel/opentelemetry-collector-k8s
- repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
- tag: main
-config:
-  exporters:
-    otlphttp:
-      endpoint: http://load-recv.app:8080
-      logs_endpoint: http://load-recv.app:8080/
-      encoding: json
-      compression: none
-      tls:
-        insecure: true
-        #cert_file: certs/cert.pem
-        #key_file: certs/cert-key.pem
-
-  extensions:
-    health_check: {}
-
-    transform/files:
-      error_mode: ignore
-      log_statements:
-        - context: log
-          statements:
-            - set( "[sap][cc][audit][source], "audit") # we need this label somewhere https://github.com/sapcc/helm-charts/blob/master/system/audit-logs/vendor/logstash-audit-external/templates/_logstash.conf.tpl#L163C27-L163C51 
-
-  processors:
-    batch: {}
-    memory_limiter:
-      check_interval: 5s
-      limit_percentage: 80
-      spike_limit_percentage: 25
-  receivers:
-    filelog/containerd:
-      include_file_path: true
-      include: [ /var/log/* ]
-      exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
-      operators:
-        - id: only-load-gen
-          type: filter
-          expr: 'k8s.container.name == "load-gen"'
-        #- id: parser-containerd
-        #  type: add
-        #  field: resource["container.runtime"]
-        #  value: "containerd"
-        #- id: container-label
-        #  type: add
-        #  field: attributes["log.type"]
-        #  value: "containerd"
-
-    #k8s_events:
-    #  namespaces: [default, app]
-    #journald:
-    #  directory: /var/log/
-    #  units:
-    #    - ssh
-    #    - kubelet
-    #    - docker
-    #    - containerd
-    #  priority: info
-  service:
-    telemetry:
-    extensions:
-      - health_check
-    pipelines:
-      logs:
-        exporters: [otlphttp]
-        processors: [memory_limiter, batch]
-        receivers: [filelog/containerd]
-
-presets:
-  logsCollection:
+  cluster:
+  region:
+  logsCollector:
     enabled: true
+  metricsCollector:
+    enabled: false
+
+  prometheus:
+    serviceMonitor:
+      enabled: false
+    podMonitor:
+      enabled: false
+    ## Label selectors for the Prometheus resources to be picked up by prometheus-operator.
+    additionalLabels: {}
+    # plugin: kube-monitoring
+    # prometheus: infra
+
+    ## Default rules for monitoring the opentelemetry components
+    rules:
+      ## Enables PrometheusRule resources to be created
+      create: true
+
+      # PrometheusRules to disable
+      disabled: []
+
+      ## Labels for PrometheusRules
+      labels: {}
+
+      ## Annotations for PrometheusRules
+      annotations: {}
+
+      ## Additional labels for PrometheusRule alerts
+      ## This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule
+      additionalRuleLabels:
+        # support_group: support
+        # service: my-service
+
+# opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
+opentelemetry-operator:
+  nameOverride: "operator"
+
+  # The required CRDs used by this dependency are version-controlled in this repository under ./crds.
+  # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
+  crds:
+    create: false
+  admissionWebhooks:
+    failurePolicy: 'Ignore'
+
+    # If cert-manager should be used, the CRDs for cert-manager needs to exists before otel installs cert-manager.
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      recreate: false
+  manager:
+    collectorImage:
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      tag: main
+    image:
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+      tag: v0.114.1
+    deploymentAnnotations:
+      vpa-butler.cloud.sap/update-mode: Auto
+    serviceMonitor:
+      enabled: false
+  kubeRBACProxy:
+    enabled: false
