@@ -43,6 +43,14 @@ config:
 
   extensions:
     health_check: {}
+
+    transform/files:
+      error_mode: ignore
+      log_statements:
+        - context: log
+          statements:
+            - set( "[sap][cc][audit][source], "audit") # we need this label somewhere https://github.com/sapcc/helm-charts/blob/master/system/audit-logs/vendor/logstash-audit-external/templates/_logstash.conf.tpl#L163C27-L163C51 
+
   processors:
     batch: {}
     memory_limiter:
