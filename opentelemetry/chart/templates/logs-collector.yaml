@@ -310,10 +310,6 @@ spec:
         table:
           - statement: route() where attributes["container.runtime"] =="containerd"
             pipelines: [logs/containerd]
-          - statement: route() where IsMatch(attributes["config.parsed"], "kvm.*")
-            pipelines: [logs/kvm]
-          - statement: route() where IsMatch(attributes["config.parsed"], "ceph.*")
-            pipelines: [logs/ceph]
 
     service:
       extensions:
