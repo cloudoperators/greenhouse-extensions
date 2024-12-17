@@ -69,6 +69,7 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 25
+
       transform/files:
         error_mode: ignore
         log_statements:
@@ -105,54 +106,4 @@ spec:
           exporters: [otlphttp]
           processors: [memory_limiter,batch, transform/files]
           receivers: [filelog]
-#     exporters:
-#       otlphttp:
-#         endpoint: http://load-recv.app:8080
-#         logs_endpoint: http://load-recv.app:8080/
-#         encoding: json
-#         compression: none
-#         tls:
-#           insecure: true # FIXME: needs to be secure at some point   
-#     extensions:
-#       health_check: {}
-
-#       memory_limiter:
-#         check_interval: 5s
-#         limit_percentage: 80
-#         spike_limit_percentage: 25
-#     receivers:
-#       filelog/containerd:
-#         include_file_path: true
-#         include: [ /var/log/* ]
-#         exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
-#         #operators:
-#         #  - id: only-load-gen
-#         #    type: filter
-#         #    expr: 'k8s.container.name == "load-gen"'
-#           #- id: parser-containerd
-#           #  type: add
-#           #  field: resource["container.runtime"]
-#           #  value: "containerd"
-#           #- id: container-label
-#           #  type: add
-#           #  field: attributes["log.type"]
-#           #  value: "containerd"
-
-#       #k8s_events:
-#       #  namespaces: [default, app]
-#       #journald:
-#       #  directory: /var/log/
-#       #  units:
-#       #    - ssh
-#       #    - kubelet
-#       #    - docker
-#       #    - containerd
-#       #  priority: info
-#     service:
-#       telemetry:
-#       pipelines:
-#         logs:
-#           exporters: [otlphttp]
-#           processors: [memory_limiter, batch]
-#           receivers: [filelog/containerd]
 {{- end }}
