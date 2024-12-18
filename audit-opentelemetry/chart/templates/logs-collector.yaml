@@ -1,0 +1,109 @@
+{{/*
+SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+{{- if .Values.openTelemetry.logsCollector.enabled }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: logs
+  labels:
+  {{- include "plugin.labels" . | nindent 4 }} 
+  {{- if .Values.openTelemetry.customLabels }}
+  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+  {{- end }}
+spec:
+  mode: daemonset
+  hostNetwork: true
+  tolerations:
+  - operator: Exists
+  env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    - name: KUBE_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: cluster
+      value: "{{ .Values.openTelemetry.cluster }}"
+    - name: region
+      value: "{{ .Values.openTelemetry.region }}"
+  envFrom:
+    - secretRef:
+         name: otel-basic-auth
+  image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
+  volumeMounts:
+  - mountPath: /var/log
+    name: varlog
+    readOnly: true
+  volumes:
+  - name: varlog
+    hostPath:
+      path: /var/log
+  config:
+    exporters:
+      debug: {}
+      otlphttp:
+        compression: none
+        encoding: json
+        endpoint: http://load-recv.app:8080
+        logs_endpoint: http://load-recv.app:8080/
+        tls:
+          insecure: true
+
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+
+    processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+
+      transform/files:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+            - set(attributes["sap.cc.audit.source"], "audit") # we need this label somewhere https://github.com/sapcc/helm-charts/blob/master/system/audit-logs/vendor/logstash-audit-external/templates/_logstash.conf.tpl#L163C27-L163C51
+
+
+    receivers:
+      filelog:
+        exclude:
+        - /var/log/pods/default_my-opentelemetry-collector*_*/opentelemetry-collector/*.log
+        include:
+        - /var/log/*
+        - /var/log/pods/*/load-gen/*.log
+        include_file_path: true
+        #operators:
+        #- expr: k8s.container.name == "load-gen"
+        #  id: only-load-gen
+        #  type: filter
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:14250
+          thrift_compact:
+            endpoint: ${env:MY_POD_IP}:6831
+          thrift_http:
+            endpoint: ${env:MY_POD_IP}:14268
+    service:
+      extensions:
+      - health_check
+      pipelines:
+        logs:
+          exporters: [otlphttp]
+          processors: [memory_limiter,batch, transform/files]
+          receivers: [filelog]
+{{- end }}
