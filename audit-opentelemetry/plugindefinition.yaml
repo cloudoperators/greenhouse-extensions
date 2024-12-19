@@ -4,11 +4,11 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: opentelemetry
+    name: opentelemetry-audit
 spec:
     version: 0.6.1
-    displayName: OpenTelemetry
-    description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
+    displayName: OpenTelemetry for Audit Logs
+    description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator

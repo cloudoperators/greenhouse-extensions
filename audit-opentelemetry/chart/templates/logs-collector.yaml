@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: logs
+  name: audit-logs
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
   {{- if .Values.openTelemetry.customLabels }}
@@ -37,7 +37,7 @@ spec:
       value: "{{ .Values.openTelemetry.region }}"
   envFrom:
     - secretRef:
-         name: otel-basic-auth
+         name: otel-audit-basic-auth
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -68,7 +68,7 @@ spec:
       filelog/containerd:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
-        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
+        exclude: [ /var/log/pods/otel-audit_logs-*, /var/log/pods/logs_* ]
         operators:
           - id: container-parser
             type: container

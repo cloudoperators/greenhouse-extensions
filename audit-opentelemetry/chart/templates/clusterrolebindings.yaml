@@ -4,15 +4,16 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: logs-collector
+  name: audit-logs-collector
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: logs-collector
+    app: audit-logs-collector
     {{- include "plugin.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: logs-collector
+  name: audit-logs-collector
 subjects:
   - kind: ServiceAccount
-    name: logs-collector
+    name: audit-logs-collector
     namespace: {{ .Release.Namespace }}
