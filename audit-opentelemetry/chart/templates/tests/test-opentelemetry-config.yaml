@@ -33,8 +33,8 @@ data:
     }
 
     {{- if .Values.openTelemetry.logsCollector.enabled }}
-    @test "Verify successful deployment and running status of the logs-collector" {
-        try "at most 5 times every 10s to get pods named 'logs-collector' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the audit-logs-collector" {
+        try "at most 5 times every 10s to get pods named 'audit-logs-collector' and verify that '.status.phase' is 'running'"
     }
     {{- end -}}
 
