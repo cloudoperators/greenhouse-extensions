@@ -248,8 +248,7 @@ kubeMonitoring:
         ##
         # matchNames: []
 
-      ## Example which selects all Pods to be monitored
-      ## with label "monitoredby" with values any of "example-pod-1" or "example-pod-2"
+      ## Custom definition to pick up specific pods with an expression.
       selector:
         matchExpressions: []
 
