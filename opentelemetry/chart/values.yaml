@@ -26,7 +26,7 @@ opentelemetry-operator:
       tag: main
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.114.1
+      tag: v0.116.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     serviceMonitor:
