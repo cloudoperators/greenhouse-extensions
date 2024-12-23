@@ -1,0 +1,98 @@
+# {{ if .Values.thanos.ruler.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.ruler.deploymentLabels }}
+    {{ toYaml .Values.thanos.ruler.deploymentLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-ruler
+spec:
+  replicas: {{ default 1 .Values.thanos.ruler.replicas }}
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ include "release.name" . }}-ruler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        prometheus-thanos-peer: "true"
+        {{- with .Values.thanos.ruler.additionalLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        region: {{ .Values.global.region }}
+        cluster_type: {{ .Values.global.clusterType }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10902"
+    spec:
+      serviceAccount: {{ include "release.name" . }}-ruler
+      containers:
+        - name: {{ .Chart.Name }}-ruler
+          imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+          image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+          args:
+          - rule
+          - --data-dir=/thanos/data
+          - --log.level={{ .Values.thanos.ruler.logLevel }}
+          - --eval-interval={{ .Values.thanos.ruler.evalInterval }}
+          - --tsdb.retention=24h
+          - --rule-file=/etc/thanos/rules/*/*.yaml
+          - --query={{ include "release.name" . }}-query:10902
+          - --label=thanos_ruler_replica="$(POD_NAME)"
+          - --label=cluster="qa-de-1"
+          - --label=cluster_type="metal"
+          - --label=region="qa-de-1"
+          - --alert.label-drop=thanos_ruler_replica
+          - --alertmanagers.config-file=/etc/thanos/config/alertmanager-config/alertManagerConfig.yaml
+          - --web.external-prefix=/ruler
+          - --web.route-prefix=/ruler
+          - --alert.query-url=https://metrics.metal.qa-de-1.cloud.sap
+          - --http.config=/etc/thanos/web_config/web-config.yaml
+          ports:
+            - name: http
+              containerPort: 10902
+              protocol: TCP
+            - name: grpc
+              containerPort: 10901
+              protocol: TCP
+          volumeMounts:
+          - mountPath: /etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+            name: {{ include "release.name" . }}-rulefiles
+          - mountPath: /etc/thanos/config/alertmanager-config
+            name: alertmanager-config
+          - mountPath: /etc/thanos/web_config/web-config.yaml
+            name: web-config
+          - mountPath: /etc/thanos/secrets/thanos-metal-ruler-alertmanager-sso-cert
+            name: {{ include "release.name" . }}-alertmanager-sso-cert
+          - mountPath: /thanos/data
+          name: data
+      volumes:
+      - name: alertmanager-config
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-alertmanager-config
+      - name: web-config
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-web-config
+      - name: {{ include "release.name" . }}-alertmanager-sso-cert
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-ruler-alertmanager-sso-cert
+      - name: {{ include "release.name" . }}-rulefiles #what if multiple replicas ?
+        configMap:
+            name: {{ include "release.name" . }}-rulerrulefiles
+      - name: data
+        emptyDir: {}
+# {{- end }}
