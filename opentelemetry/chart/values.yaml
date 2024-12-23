@@ -47,9 +47,12 @@ openTelemetry:
   region:
   logsCollector:
     enabled: true
+    kvmConfig:
+      enabled: true
+    cephConfig:
+      enabled: true
   metricsCollector:
     enabled: false
-
   prometheus:
     serviceMonitor:
       enabled: true
