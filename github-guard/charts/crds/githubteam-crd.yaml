@@ -66,6 +66,13 @@ spec:
                       distributionListID:
                         type: string
                     type: object
+                  ldapGroup:
+                    properties:
+                      group:
+                        type: string
+                      ldapGroupProvider:
+                        type: string
+                    type: object
                 type: object
               github:
                 type: string
