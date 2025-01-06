@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.thanos.ruler.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "release.name" . }}-rulefiles
+  labels:
+    app.kubernetes.io/name: {{ include "release.name" . }}-ruler
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  default.rules.yaml: |
+    {}
+{{- end }}

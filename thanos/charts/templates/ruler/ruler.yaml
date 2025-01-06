@@ -1,4 +1,7 @@
-# {{ if .Values.thanos.ruler.enabled }}
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{ if .Values.thanos.ruler.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -13,14 +16,13 @@ spec:
   replicas: {{ default 1 .Values.thanos.ruler.replicas }}
   updateStrategy:
     rollingUpdate:
-      maxSurge: 25%
       maxUnavailable: 25%
     type: RollingUpdate
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "release.name" . }}-ruler
       app.kubernetes.io/instance: {{ .Release.Name }}
-  serviceName: {{ include "release.name" . }}-ruler
+  #serviceName: {{ include "release.name" . }}-ruler
   template:
     metadata:
       labels:
@@ -30,35 +32,27 @@ spec:
         {{- with .Values.thanos.ruler.additionalLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
-        region: {{ .Values.global.region }}
-        cluster_type: {{ .Values.global.clusterType }}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "10902"
     spec:
-      serviceAccount: {{ include "release.name" . }}-ruler
+      serviceAccount: {{ include "release.name" . }}
       containers:
         - name: {{ .Chart.Name }}-ruler
-          imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
           args:
           - rule
           - --data-dir=/thanos/data
           - --log.level={{ .Values.thanos.ruler.logLevel }}
           - --eval-interval={{ .Values.thanos.ruler.evalInterval }}
+          - --reload-url=http://localhost:10902/ruler/-/reload
           - --tsdb.retention=24h
           - --rule-file=/etc/thanos/rules/*/*.yaml
           - --query={{ include "release.name" . }}-query:10902
-          - --label=thanos_ruler_replica="$(POD_NAME)"
-          - --label=cluster="qa-de-1"
-          - --label=cluster_type="metal"
-          - --label=region="qa-de-1"
           - --alert.label-drop=thanos_ruler_replica
-          - --alertmanagers.config-file=/etc/thanos/config/alertmanager-config/alertManagerConfig.yaml
+          # - --alertmanagers.config-file=/etc/thanos/config/alertmanager-config/alertManagerConfig.yaml
           - --web.external-prefix=/ruler
           - --web.route-prefix=/ruler
-          - --alert.query-url=https://metrics.metal.qa-de-1.cloud.sap
-          - --http.config=/etc/thanos/web_config/web-config.yaml
+          # - --alert.query-url=https://metrics.metal.qa-de-1.cloud.sap
+          # - --http.config=/etc/thanos/web_config/web-config.yaml
           ports:
             - name: http
               containerPort: 10902
@@ -66,33 +60,63 @@ spec:
             - name: grpc
               containerPort: 10901
               protocol: TCP
+          livenessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /-/healthy
+              port: 10902
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
           volumeMounts:
           - mountPath: /etc/thanos/rules/{{ include "release.name" . }}-rulefiles
             name: {{ include "release.name" . }}-rulefiles
           - mountPath: /etc/thanos/config/alertmanager-config
             name: alertmanager-config
-          - mountPath: /etc/thanos/web_config/web-config.yaml
-            name: web-config
+          # - mountPath: /etc/thanos/web_config/web-config.yaml
+          #   name: web-config
           - mountPath: /etc/thanos/secrets/thanos-metal-ruler-alertmanager-sso-cert
             name: {{ include "release.name" . }}-alertmanager-sso-cert
+          - mountPath: /etc/thanos/config/alertmanager-config/alertManagerConfig.yaml
+            name: alertmanager-config
           - mountPath: /thanos/data
-          name: data
+            name: data
+        - name: config-reloader
+          imagePullPolicy: IfNotPresent
+          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.75.1
+          args:
+          - --listen-address=:8080
+          #- --web-config-file=/etc/thanos/web_config/web-config.yaml
+          - --reload-url=http://127.0.0.1:10902/ruler/-/reload
+          #- --watched-dir=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+          - --config-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+          - --config-envsubst-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+          - --watch-interval=1m
+          command:
+          - /bin/prometheus-config-reloader
+          ports:
+          - containerPort: 8080
+            name: reloader-web
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+            name: {{ include "release.name" . }}-rulefiles
       volumes:
       - name: alertmanager-config
         secret:
           defaultMode: 420
           secretName: {{ include "release.name" . }}-alertmanager-config
-      - name: web-config
-        secret:
-          defaultMode: 420
-          secretName: {{ include "release.name" . }}-web-config
       - name: {{ include "release.name" . }}-alertmanager-sso-cert
         secret:
           defaultMode: 420
           secretName: {{ include "release.name" . }}-ruler-alertmanager-sso-cert
       - name: {{ include "release.name" . }}-rulefiles #what if multiple replicas ?
         configMap:
-            name: {{ include "release.name" . }}-rulerrulefiles
+            name: {{ include "release.name" . }}-rulefiles
       - name: data
         emptyDir: {}
-# {{- end }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+{{- end }}
