@@ -1,6 +1,3 @@
-{{- define "kvm.labels" }}
-
-{{- end }}
 {{- define "kvm.receiver" }}
 filelog/kvm_logs:
   include: [ /var/log/libvirt/qemu/*.log, /var/log/openvswitch/*.log ]
