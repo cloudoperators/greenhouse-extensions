@@ -43,7 +43,6 @@ spec:
           - --data-dir=/thanos/data
           - --log.level={{ .Values.thanos.ruler.logLevel }}
           - --eval-interval={{ .Values.thanos.ruler.evalInterval }}
-          - --reload-url=http://localhost:10902/ruler/-/reload
           - --tsdb.retention=24h
           - --rule-file=/etc/thanos/rules/*/*.yaml
           - --query={{ include "release.name" . }}-query:10902
@@ -91,8 +90,8 @@ spec:
           #- --web-config-file=/etc/thanos/web_config/web-config.yaml
           - --reload-url=http://127.0.0.1:10902/ruler/-/reload
           #- --watched-dir=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
-          - --config-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
-          - --config-envsubst-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
+          - --config-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles/default.rules.yaml
+          #- --config-envsubst-file=/etc/thanos/rules/{{ include "release.name" . }}-rulefiles
           - --watch-interval=1m
           command:
           - /bin/prometheus-config-reloader
