@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ThanosRuler
+metadata:
+  name: operated # better solution ?
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.ruler.labels }}
+    {{ toYaml .Values.thanos.ruler.labels | nindent 4 }}
+    {{- end }}
+spec:
+  image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+  ruleSelector:
+    matchLabels:
+      role: my-thanos-rules # to edit
+  queryEndpoints:
+    - {{ include "release.name" . }}-query:10902
+  alertmanagersConfig:
+    key: alertManagerConfig.yaml #must match key value in secret
+    name: {{ include "release.name" . }}-alertmanager-config #secret name with the config

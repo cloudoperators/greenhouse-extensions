@@ -99,10 +99,18 @@ spec:
         runAsUser: 1000
         runAsGroup: 3000
         fsGroup: 2000
+      {{ if .Values.testFramework.enabled -}}
       volumes:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "release.name" . }}-metrics-objectstore 
+          secretName: test-object-store-secret
+      {{ else }}
+      volumes:
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore
+      {{ end }} 
       - name: data
         emptyDir: {}

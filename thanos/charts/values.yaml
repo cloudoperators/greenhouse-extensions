@@ -118,6 +118,8 @@ thanos:
   ruler:
     enabled: true
 
+    labels:
+
     replicas:
 
     annotations:
