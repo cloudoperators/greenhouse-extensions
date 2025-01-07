@@ -2,5 +2,14 @@ thanos:
   objectStoreSecretVolume:
     - name: objectstore-secret
       secret:
-      defaultMode: 420
-      secretName: test-object-store-secret
+        defaultMode: 420
+        secretName: test-object-store-secret
+
+prometheus-operator:
+  prometheusOperator:
+    enabled: true
+  crds:
+    enabled: true
+
+testFramework:
+  enabled: true

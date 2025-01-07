@@ -169,7 +169,7 @@ prometheus-operator:
 
   ## Install Prometheus Operator CRDs
   crds:
-    enabled: true
+    enabled: false
 
   windowsMonitoring:
   ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
@@ -204,7 +204,7 @@ prometheus-operator:
   ## Manages Prometheus and Alertmanager components
   prometheusOperator:
     ## Deploy prometheus-operator
-    enabled: true
+    enabled: false
 
   ## Configuration for alertmanager
   ## ref: https://prometheus.io/docs/alerting/alertmanager/
