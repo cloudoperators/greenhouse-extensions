@@ -18,3 +18,8 @@ keywords:
   - thanos
   - storage
   - metrics
+dependencies:
+  - name: kube-prometheus-stack
+    alias: prometheus-operator
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 65.4.0

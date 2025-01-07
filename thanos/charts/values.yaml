@@ -159,6 +159,122 @@ thanos:
 
     retention: true
 
+# kube-prometheus-stack configuration scoped to thanos ruler
+prometheus-operator:
+  ## Create default rules for monitoring the cluster
+  defaultRules:
+    create: true
+    rules:
+      alertmanager: false
+      etcd: false
+      configReloaders: false
+      general: false
+      k8sContainerCpuUsageSecondsTotal: false
+      k8sContainerMemoryCache: false
+      k8sContainerMemoryRss: false
+      k8sContainerMemorySwap: false
+      k8sContainerResource: false
+      k8sPodOwner: false
+      kubeApiserverAvailability: false
+      kubeApiserverBurnrate: false
+      kubeApiserverHistogram: false
+      kubeApiserverSlos: false
+      kubeControllerManager: false
+      kubelet: false
+      kubeProxy: false
+      kubePrometheusGeneral: false
+      kubePrometheusNodeRecording: false
+      kubernetesApps: false
+      kubernetesResources: false
+      kubernetesStorage: false
+      kubernetesSystem: false
+      kubeSchedulerAlerting: false
+      kubeSchedulerRecording: false
+      kubeStateMetrics: false
+      network: false
+      node: false
+      nodeExporterAlerting: false
+      nodeExporterRecording: false
+      prometheus: false
+      prometheusOperator: true
+      windows: false
+
+  ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
+  ##
+  dashboards:
+    create: false
+
+  ## Flag to disable all the kubernetes component scrapers
+  ##
+  kubernetesServiceMonitors:
+    enabled: false
+
+  ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
+  ##
+  cleanPrometheusOperatorObjectNames: true
+
+  ## Install Prometheus Operator CRDs
+  ##
+  crds:
+    enabled: true
+
+  windowsMonitoring:
+  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
+    enabled: false
+
+  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  ##
+  grafana:
+    enabled: false
+
+  ## Configuration for thanosRuler
+  ## ref: https://thanos.io/tip/components/rule.md/
+  ##
+  thanosRuler:
+
+    ## Deploy thanosRuler
+    ##
+    enabled: false
+
+  ## Configuration for the Prometheus instance
+  ##
+  prometheus:
+
+    ## Deploy Prometheus
+    ##
+    enabled: false
+
+  ## Deploy node exporter as a daemonset to all nodes
+  ##
+  nodeExporter:
+    ## Deploy prometheus node-exporter
+    ##
+    enabled: false
+
+  ## Component scraping kube state metrics
+  ##
+  kubeStateMetrics:
+    ## Deploy kube-state-metrics subchart
+    enabled: false
+
+  ## Manages Prometheus and Alertmanager components
+  ##
+  prometheusOperator:
+    ## Deploy prometheus-operator
+    enabled: true
+
+  ## Configuration for alertmanager
+  ## ref: https://prometheus.io/docs/alerting/alertmanager/
+  ##
+  alertmanager:
+
+    ## Deploy alertmanager
+    ##
+    enabled: false
+
+    ingress:
+      enabled: false
+
 testFramework:
   enabled: true
   image:
