@@ -6,16 +6,6 @@ global:
   ##
   commonLabels: {}
 
-# Create RBAC resources.
-rbac:
-  create: true
-
-# ServiceAccount to use for the Thanos.
-# Note that a ServiceAccount with name `default` cannot be created.
-# Instead the generated name will be used.
-serviceAccount:
-  create: true
-
 thanos:
   image:
     repository: quay.io/thanos/thanos
