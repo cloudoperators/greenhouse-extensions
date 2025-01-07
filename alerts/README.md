@@ -219,7 +219,7 @@ alertmanagerConfiguration:
 Greenhouse onboarded Prometheus installations need to communicate with the Alertmanager component to enable advanced processing of alerts. The Alertmanager Ingress requires a TLS certificate to be configured and trusted by Prometheus to ensure the communication. There are various ways in which you can generate/configure the required TLS certificate.
 
   - You can use an automatically generated self-signed certificate by setting `alerts.auth.autoGenerateCert.enabled` to `true`. Helm will create a self-signed cert and a secret for you.
-  - You can use your own generated self-signed certificate by setting both `alerts.auth.autoGenerateCert.enabled` to `false`. You should provide the necessary values to `alerts.auth.certFile`, `alerts.auth.keyFile`, and `alerts.auth.caFile`.
+  - You can use your own generated self-signed certificate by setting `alerts.auth.autoGenerateCert.enabled` to `false`. You should provide the necessary values to `alerts.auth.certFile`, `alerts.auth.keyFile`, and `alerts.auth.caFile`.
   - You can also sideload custom certificate by disabling `alerts.auth.autoGenerateCert.enabled` to `false` while setting your custom cert secret name in `alerts.auth.secretName`
 
 ## Examples
