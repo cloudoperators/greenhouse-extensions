@@ -1,5 +1,5 @@
 apiVersion: v2
-name: perses-plugin
+name: perses
 description: A Helm chart for Perses
 icon: https://avatars.githubusercontent.com/u/77209215?s=200&v=4
 type: application
