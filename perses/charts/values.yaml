@@ -2,7 +2,8 @@ global:
 
   ## Labels to apply to all resources
   ##
-  commonLabels:
+  commonLabels: {}
+
 perses:
   # Default values for perses.
   # This is a YAML-formatted file.
