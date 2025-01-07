@@ -190,37 +190,34 @@ perses:
     # -- Annotations for the PVC
     annotations: {}
   
-  # -- Configure the ingress resource that allows you to access Thanos Query Frontend
-  # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+# -- Configure the ingress resource that allows you to access Thanos Query Frontend
+# ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
     # -- Enable ingress controller resource
     enabled: false
   
     # -- Default host for the ingress resource
     hosts:
-    - perses.local
-  
+      - host: perses.local
+        paths:
+          - path: /
+            pathType: Prefix
+
     # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
     # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
     # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
     #
     ingressClassName: ""
-  
+
     # -- Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
     # For a full list of possible ingress annotations, please see
     # ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
     annotations: {}
-  
-    # -- Ingress path
-    path: /
-  
-    # -- Ingress path type
-    pathType: Prefix
-  
+
     # -- Ingress TLS configuration
     tls: []
-  #    - secretName: ingress-cert
-  #      hosts: []
+#    - secretName: ingress-cert
+#      hosts: []
   
   # -- Configure datasources
   # DEPRECATED: This field will be removed in the future release. Please use the 'sidecar' configuration to provision datasources.
@@ -237,13 +234,14 @@ perses:
     #       spec:
     #         directUrl: https://prometheus.demo.do.prometheus.io
 
-greenhouse:
-  defaultDashboards:
-    enabled: true
   testFramework:
     enabled: true
     image:
       registry: ghcr.io
       repository: cloudoperators/greenhouse-extensions-integration-test
       tag: main
-    imagePullPolicy: IfNotPresent    
+    imagePullPolicy: IfNotPresent
+greenhouse:
+  defaultDashboards:
+    enabled: true
+
