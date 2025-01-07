@@ -27,6 +27,12 @@ thanos:
   # used across the stack
   httpAddress:
 
+  objectStoreSecretVolume:
+    - name: objectstore-secret
+      secret:
+        defaultMode: 420
+        secretName: thanos-metrics-objectstore
+
   query:
     replicas:
     # defaults to info
@@ -120,45 +126,6 @@ thanos:
 
     labels:
 
-    replicas:
-
-    annotations:
-
-    deploymentLabels: {}
-
-    serviceLabels:
-
-    paused:
-
-    config:
-
-    logLevel: info
-
-    externalPrefix:
-
-    evalInterval: 30s
-
-    externalClusterLabels:
-      enabled:
-
-    alertmanagers:
-      hosts:
-      authentication:
-        ssoCert: "a"
-        ssoKey: "a"
-
-    queryEndpoints:
-
-    queries:
-
-    additionalFlags:
-
-    additionalLabels:
-
-    externalUrl: "https://"
-
-    retention: true
-
 # kube-prometheus-stack configuration scoped to thanos ruler
 prometheus-operator:
   ## Create default rules for monitoring the cluster
@@ -200,21 +167,17 @@ prometheus-operator:
       windows: false
 
   ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
-  ##
   dashboards:
     create: false
 
   ## Flag to disable all the kubernetes component scrapers
-  ##
   kubernetesServiceMonitors:
     enabled: false
 
   ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
-  ##
   cleanPrometheusOperatorObjectNames: true
 
   ## Install Prometheus Operator CRDs
-  ##
   crds:
     enabled: true
 
@@ -223,55 +186,41 @@ prometheus-operator:
     enabled: false
 
   ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
-  ##
   grafana:
     enabled: false
 
   ## Configuration for thanosRuler
   ## ref: https://thanos.io/tip/components/rule.md/
-  ##
   thanosRuler:
-
     ## Deploy thanosRuler
-    ##
     enabled: false
 
   ## Configuration for the Prometheus instance
-  ##
   prometheus:
 
     ## Deploy Prometheus
-    ##
     enabled: false
 
   ## Deploy node exporter as a daemonset to all nodes
-  ##
   nodeExporter:
     ## Deploy prometheus node-exporter
-    ##
     enabled: false
 
   ## Component scraping kube state metrics
-  ##
   kubeStateMetrics:
     ## Deploy kube-state-metrics subchart
     enabled: false
 
   ## Manages Prometheus and Alertmanager components
-  ##
   prometheusOperator:
     ## Deploy prometheus-operator
     enabled: true
 
   ## Configuration for alertmanager
   ## ref: https://prometheus.io/docs/alerting/alertmanager/
-  ##
   alertmanager:
-
     ## Deploy alertmanager
-    ##
     enabled: false
-
     ingress:
       enabled: false
 

@@ -1,0 +1,6 @@
+thanos:
+  objectStoreSecretVolume:
+    - name: objectstore-secret
+      secret:
+      defaultMode: 420
+      secretName: test-object-store-secret

@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ThanosRuler
 metadata:
-  name: operated # better solution ?
+  name: operated # better solution, can't be empty ? thanos-ruler-<name>
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
@@ -16,5 +16,5 @@ spec:
   queryEndpoints:
     - {{ include "release.name" . }}-query:10902
   alertmanagersConfig:
-    key: alertManagerConfig.yaml #must match key value in secret
-    name: {{ include "release.name" . }}-alertmanager-config #secret name with the config
+    key: alertManagerConfig.yaml # KeyName for alert manager config yaml
+    name: {{ include "release.name" . }}-alertmanager-config # SecretName containing alert manager config
