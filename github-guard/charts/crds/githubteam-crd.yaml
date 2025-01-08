@@ -57,6 +57,23 @@ spec:
           spec:
             description: GithubTeamSpec defines the desired state of GithubTeam
             properties:
+              externalMemberProvider:
+                properties:
+                  distributionList:
+                    properties:
+                      distributionListAPI:
+                        type: string
+                      distributionListID:
+                        type: string
+                    type: object
+                  ldapGroup:
+                    properties:
+                      group:
+                        type: string
+                      ldapGroupProvider:
+                        type: string
+                    type: object
+                type: object
               github:
                 type: string
               greenhouseTeam:
