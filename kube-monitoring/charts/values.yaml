@@ -284,6 +284,9 @@ kubeMonitoring:
     # Deploys a Plutono datasource config Secret for this Prometheus
     plutonoDatasource: true
 
+    # Deploys a Perses datasource ConfigMap for this Prometheus
+    persesDatasource: true
+
     prometheusSpec:
 
       ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage

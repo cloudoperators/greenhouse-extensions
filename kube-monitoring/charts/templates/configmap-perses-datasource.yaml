@@ -1,0 +1,31 @@
+{{- if .Values.kubeMonitoring.prometheus.persesDatasource }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name "perses-datasource" }}
+  labels:
+    perses.dev/resource: "true"
+    {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+data:
+  {{ printf "%s-%s" $.Release.Name "perses-datasource.json" }}: |
+    {
+      "kind": "GlobalDatasource",
+      "metadata": {
+        "name": "{{ printf "%s-%s" $.Release.Name "prometheus" }}",
+      },
+      "spec": {
+        "default": true,
+        "plugin": {
+          "kind": "PrometheusDatasource",
+          "spec": {
+            "proxy": {
+              "kind": "HTTPProxy",
+              "spec": {
+                "url": "{{ printf "http://%s-prometheus.%s.svc:9090" $.Release.Name $.Release.Namespace }}"
+              }
+            }
+          }
+        }
+      }
+    }
+{{- end }}
