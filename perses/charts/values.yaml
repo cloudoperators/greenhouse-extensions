@@ -46,7 +46,8 @@ perses:
     # -- Annotations to add to the service
     annotations: {}
     # -- Labeles to add to the service
-    labels: {}
+    labels:
+      greenhouse.sap/expose: "true"
     # -- Service Type
     type: "ClusterIP"
     # -- Service Port Name
