@@ -108,6 +108,8 @@ thanos:
     enabled: true
     labels:
 
+    alertLabels:
+
 # kube-prometheus-stack configuration scoped to thanos ruler
 prometheus-operator:
   ## Create default rules for monitoring the cluster

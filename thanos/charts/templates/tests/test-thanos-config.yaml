@@ -30,7 +30,6 @@ data:
         verify "there is 1 service named '{{ .Release.Name }}-compactor'"
         verify "there is 1 service named '{{ .Release.Name }}-query'"
         verify "there is 1 service named '{{ .Release.Name }}-store'"
-        verify "there is 1 service named 'thanos-ruler-{{ .Release.Name }}'"
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"

@@ -18,3 +18,8 @@ spec:
   alertmanagersConfig:
     key: alertManagerConfig.yaml # Key name for alert manager config yaml
     name: {{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
+  # The labels to add to any alert when communicating with Alertmanager
+  labels:
+    {{ toYaml .Values.thanos.ruler.alertLabels | nindent 4 }}
+  # Select rules from all namespaces.
+  ruleNamespaceSelector: {}

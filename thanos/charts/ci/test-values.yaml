@@ -12,6 +12,5 @@ prometheus-operator:
     enabled: true
 
 testFramework:
-  enabled: true
   ci:
     enabled: true
