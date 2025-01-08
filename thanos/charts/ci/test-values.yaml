@@ -3,7 +3,7 @@ thanos:
     - name: objectstore-secret
       secret:
         defaultMode: 420
-        secretName: test-object-store-secret
+        secretName: thanos-metrics-objectstore
 
 prometheus-operator:
   prometheusOperator:
@@ -13,3 +13,5 @@ prometheus-operator:
 
 testFramework:
   enabled: true
+  ci:
+    enabled: true

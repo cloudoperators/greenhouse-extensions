@@ -41,4 +41,8 @@ data:
         try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
     }
 
+    # To debug
+    @test "Verify successful creation and population of rules for {{ .Release.Name }} Ruler" {
+        try "at most 3 times every 5s  to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that 'data' matches '.+'"
+    }
 {{- end -}}

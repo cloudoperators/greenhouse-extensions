@@ -28,25 +28,4 @@ spec:
       configMap:
         name: {{ .Release.Name }}-test
   restartPolicy: Never
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: test-object-store-secret
-data:
-  thanos.yaml: >-
-    dHlwZTogRklMRVNZU1RFTQpjb25maWc6CiAgZGlyZWN0b3J5OiAiL3Rlc3QiCnByZWZpeDogIiIKCgogICMga3ViZWN0bCBjcmVhdGUgc2VjcmV0IGdlbmVyaWMgb2JqZWN0LXN0b3JlLXNlY3JldCAtLWZyb20tZmlsZT10aGFub3MueWFtbD0uL3Rlc3Qtc2VjcmV0LnlhbWwgLW4gZGVtbwo=
-type: Opaque
----
-apiVersion: v1
-kind: Secret
-type: Opaque
-
-metadata:
-  name: {{ include "release.name" . }}-alertmanager-config
-  labels:
-    thanos: {{ include "release.name" . }}
-
-data:
-  alertManagerConfig.yaml: ""
 {{- end -}}

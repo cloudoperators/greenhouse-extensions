@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ThanosRuler
 metadata:
-  name: operated # better solution, can't be empty ? thanos-ruler-<name>
+  name: operated # better solution ? can't be empty. thanos-ruler-<name>
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
@@ -12,7 +12,7 @@ spec:
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
   ruleSelector:
     matchLabels:
-      role: my-thanos-rules # to edit
+      thanos: thanos
   queryEndpoints:
     - {{ include "release.name" . }}-query:10902
   alertmanagersConfig:
