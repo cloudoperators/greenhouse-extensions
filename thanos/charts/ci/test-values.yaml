@@ -1,10 +1,3 @@
-thanos:
-  objectStoreSecretVolume:
-    - name: objectstore-secret
-      secret:
-        defaultMode: 420
-        secretName: thanos-metrics-objectstore
-
 prometheus-operator:
   prometheusOperator:
     enabled: true
