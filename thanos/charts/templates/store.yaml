@@ -100,6 +100,9 @@ spec:
         runAsGroup: 3000
         fsGroup: 2000
       volumes:
-      {{- toYaml .Values.thanos.objectStoreSecretVolume | nindent 6 }}
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore
       - name: data
         emptyDir: {}

@@ -85,7 +85,10 @@ spec:
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       volumes:
-      {{- toYaml .Values.thanos.objectStoreSecretVolume | nindent 6 }}
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "release.name" . }}-metrics-objectstore
       - name: data-volume
         persistentVolumeClaim:
           claimName: {{ include "release.name" . }}-compactor

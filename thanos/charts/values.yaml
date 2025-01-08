@@ -16,13 +16,6 @@ thanos:
   # used across the stack
   httpAddress:
 
-  # Default object store volume
-  objectStoreSecretVolume:
-    - name: objectstore-secret
-      secret:
-        defaultMode: 420
-        secretName: thanos-metrics-objectstore
-
   query:
     replicas:
     # defaults to info
@@ -119,7 +112,7 @@ thanos:
 prometheus-operator:
   ## Create default rules for monitoring the cluster
   defaultRules:
-    create: true
+    create: false
     rules:
       alertmanager: false
       etcd: false
@@ -152,7 +145,7 @@ prometheus-operator:
       nodeExporterAlerting: false
       nodeExporterRecording: false
       prometheus: false
-      prometheusOperator: true
+      prometheusOperator: false
       windows: false
 
   ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
@@ -164,7 +157,7 @@ prometheus-operator:
     enabled: false
 
   ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
-  cleanPrometheusOperatorObjectNames: true
+  cleanPrometheusOperatorObjectNames: false
 
   ## Install Prometheus Operator CRDs
   crds:
@@ -221,4 +214,4 @@ testFramework:
   imagePullPolicy: IfNotPresent
   ## Configuration for CI pipeline
   ci:
-    enabled: true
+    enabled: false
