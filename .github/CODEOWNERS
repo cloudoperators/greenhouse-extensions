@@ -33,7 +33,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
 /opentelemetry/           @cloudoperators/greenhouse-observability
 /plutono                  @cloudoperators/greenhouse-observability
-/perses                  @cloudoperators/greenhouse-observability
+/perses                   @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 /thanos/                  @cloudoperators/greenhouse-observability
