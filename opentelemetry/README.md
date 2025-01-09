@@ -55,7 +55,13 @@ The package will deploy the OpenTelemetry Operator which works as a manager for 
 - Journald events from systemd journal
 - its own metrics
 
-You can disable the collection of logs by setting `open_telemetry.LogCollector.enabled` to `false`. The same is true for disabling metrics: `open_telemetry.MetricsCollector.enabled` to `false`. 
+You can disable the collection of logs by setting `openTelemetry.logCollector.enabled` to `false`. The same is true for disabling the collection of metrics by setting `openTelemetry.metricsCollector.enabled` to `false`.
+The `logsCollector` comes with a standard set of log-processing, such as adding cluster information and common labels for Journald events.
+In addition we provide default pipelines for common log types. Currently the following log types have default configurations that can be enabled (requires `logsCollector.enabled` to `true`):
+  1. KVM: `openTelemetry.logsCollector.kvmConfig`: Logs from Kernel-based Virtual Machines (KVMs) providing insights into virtualization activities, resource usage, and system performance
+  2. Ceph:`openTelemetry.logsCollector.cephConfig`: Logs from Ceph storage systems, capturing information about cluster operations, performance metrics, and health status
+  
+These default configurations provide common labels and Grok parsing for logs emitted through the respective services.
 
 Based on the backend selection the telemetry data will be exporter to the backend.
 
@@ -67,8 +73,10 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 
 | Name         | Description          | Type           | required           |
 | ------------ | -------------------- |---------------- | ------------------ | 
-`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false`
-`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false`
+`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false` |
+`openTelemetry.logsCollector.kvmConfig.enabled`    | Activates the configuration for KVM logs (requires logsCollector to be enabled) | bool | `false` |
+`openTelemetry.logsCollector.cephConfig.enabled`    | Activates the configuration for Ceph logs (requires logsCollector to be enabled) | bool | `false` |
+`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false` |
 `openTelemetry.openSearchLogs.username` | Username for OpenSearch endpoint | secret | `false` |
 `openTelemetry.openSearchLogs.password` | Password for OpenSearch endpoint | secret | `false` | 
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
