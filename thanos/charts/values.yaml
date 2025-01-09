@@ -13,9 +13,9 @@ thanos:
     # defaults to .Chart.appVersion
     tag:
     # defaults to IfNotPresent
-    pullPolicy: 
+    pullPolicy:
   grpcAddress:
-  # used across the stack 
+  # used across the stack
   httpAddress:
 
   query:
@@ -36,9 +36,9 @@ thanos:
       routePrefix:
 
     additionalArgs: []
-      #- something.route-foo=/lol 
+      # - something.route-foo=/lol
 
-    deploymentLabels: {} 
+    deploymentLabels: {}
 
     containerLabels:
 
@@ -46,17 +46,18 @@ thanos:
 
     annotations:
 
-    stores: [] 
+    stores: []
 
   store:
+    enabled: true
     # adding additional arguments
     additionalArgs: []
 
-    deploymentLabels: {} 
+    deploymentLabels: {}
 
     containerLabels:
 
-    #TODO use
+    # TODO use
     serviceLabels:
 
     annotations:
@@ -65,7 +66,7 @@ thanos:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
     enabled: true
     # TODO: store secret needs to be present and can not be provisioned automatically
-    
+
     logLevel:
 
     containerLabels: []
@@ -74,7 +75,7 @@ thanos:
 
     labels: []
     annotations: []
- 
+
     # adding additional arguments
     additionalArgs: []
 
@@ -93,7 +94,7 @@ thanos:
       # seconds
       cleanupInterval:
 
-      # seconds 
+      # seconds
       waitInterval:
 
     volume:
