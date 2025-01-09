@@ -18,7 +18,7 @@ spec:
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
   ruleSelector:
     matchLabels:
-      thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default "release.name" . }} # Label for fetching rules
+      thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }} # Label for fetching rules
   queryEndpoints:
     - {{ include "release.name" . }}-query:10902
   alertmanagersConfig:
