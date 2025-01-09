@@ -16,6 +16,7 @@ on:
       - logshipper/chart/**
       - obenbao/charts/**
       - opentelemetry/chart/**
+      - perses/charts/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
@@ -55,6 +56,8 @@ jobs:
             chartName: openbao
           - chartDir: opentelemetry/chart
             chartName: opentelemetry-operator
+          - chartDir: perses/charts
+            chartName: perses
           - chartDir: plutono/charts
             chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
