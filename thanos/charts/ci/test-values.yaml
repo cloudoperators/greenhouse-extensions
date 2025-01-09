@@ -13,3 +13,7 @@ prometheus-operator:
 testFramework:
   ci:
     enabled: true
+
+thanos:
+  ruler:
+    matchLabel: thanos
