@@ -26,22 +26,24 @@ data:
         verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
         verify "there is 1 deployment named '{{ .Release.Name }}-query'"
         verify "there is 1 deployment named '{{ .Release.Name }}-store'"
-        verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
         verify "there is 1 service named '{{ .Release.Name }}-compactor'"
         verify "there is 1 service named '{{ .Release.Name }}-query'"
         verify "there is 1 service named '{{ .Release.Name }}-store'"
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
-        try "at most 4 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
     }
+
+    {{ if .Values.thanos.ruler.enabled }}
+    @test "Verify Thanos Ruler" {
+        verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
+        verify "there is 1 service named 'thanos-ruler-operated"
+        try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
+        try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.metadata.labels.thanos-ruler-name' matches '{{ .Release.Name }}'"
+    }
+    {{ end }}
 
     @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
         try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
     }
-    
-    @test "Verify successful addition of labels for {{ .Release.Name }} Ruler configmap" {
-      try "at most 3 times every 5s  to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.metadata.labels.thanos-ruler-name' matches '{{ .Release.Name }}'"
-    }
-
 {{- end -}}

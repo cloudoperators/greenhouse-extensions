@@ -106,13 +106,26 @@ thanos:
 
   ruler:
     enabled: true
+
     labels:
 
     alertLabels:
 
-# kube-prometheus-stack configuration scoped to thanos ruler
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent
+  ## only TRUE for CI ! see test-ci.yaml
+  ci:
+    enabled: false
+
+# Only used for TESTING !!!
+# The kube-monitoring plugin is taking care of deploying the Prometheus Operator
+# Thanos Plugin leverages it for its CI
 prometheus-operator:
-  ## Create default rules for monitoring the cluster
   defaultRules:
     create: false
     rules:
@@ -149,71 +162,28 @@ prometheus-operator:
       prometheus: false
       prometheusOperator: false
       windows: false
-
-  ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
   dashboards:
     create: false
-
-  ## Flag to disable all the kubernetes component scrapers
   kubernetesServiceMonitors:
     enabled: false
-
-  ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
   cleanPrometheusOperatorObjectNames: false
-
-  ## Install Prometheus Operator CRDs
   crds:
     enabled: false
-
   windowsMonitoring:
-  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
     enabled: false
-
-  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
   grafana:
     enabled: false
-
-  ## Configuration for thanosRuler
-  ## ref: https://thanos.io/tip/components/rule.md/
   thanosRuler:
-    ## Deploy thanosRuler
     enabled: false
-
-  ## Configuration for the Prometheus instance
   prometheus:
-    ## Deploy Prometheus
     enabled: false
-
-  ## Deploy node exporter as a daemonset to all nodes
   nodeExporter:
-    ## Deploy prometheus node-exporter
     enabled: false
-
-  ## Component scraping kube state metrics
   kubeStateMetrics:
-    ## Deploy kube-state-metrics subchart
     enabled: false
-
-  ## Manages Prometheus and Alertmanager components
   prometheusOperator:
-    ## Deploy prometheus-operator
     enabled: false
-
-  ## Configuration for alertmanager
-  ## ref: https://prometheus.io/docs/alerting/alertmanager/
   alertmanager:
-    ## Deploy alertmanager
     enabled: false
     ingress:
       enabled: false
-
-testFramework:
-  enabled: true
-  image:
-    registry: ghcr.io
-    repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
-  imagePullPolicy: IfNotPresent
-  ## Configuration for CI pipeline
-  ci:
-    enabled: false
