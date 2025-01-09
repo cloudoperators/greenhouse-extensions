@@ -1,4 +1,10 @@
 prometheus-operator:
+  defaultRules:
+    create: true
+    rules:
+      prometheusOperator: true
+    labels:
+      thanos-ruler: thanos
   prometheusOperator:
     enabled: true
   crds:
