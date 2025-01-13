@@ -57,8 +57,8 @@ data:
 
         url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
 
-        response=$(curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url})
-        [ "$response" == "OK" ]
+        run curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url}
+        [ "$status" -eq "0" ]
     }
     {{- end }}
 
