@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.4.0
+  version: 2.4.1
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -64,6 +64,7 @@ spec:
     - name: alerts.auth.autoGenerateCert.certPeriodDays
       description: Cert period time in days. The default is 365 days.
       default: 365
+      type: int
     - name: alerts.defaultRules.create
       description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
       default: true
