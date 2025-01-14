@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: metrics
+  name: audit-logs-metrics
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
   {{- if .Values.openTelemetry.customLabels }}

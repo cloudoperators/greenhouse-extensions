@@ -39,8 +39,8 @@ data:
     {{- end -}}
 
     {{- if .Values.openTelemetry.metricsCollector.enabled }}
-    @test "Verify successful deployment and running status of the metrics-collector" {
-        try "at most 5 times every 10s to get pods named 'metrics-collector' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the audit-logs-metrics-collector" {
+        try "at most 5 times every 10s to get pods named 'audit-logs-metrics-collector' and verify that '.status.phase' is 'running'"
     }
     {{- end }}
     @test "Verify presence of custom resource definitions (CRDs) for {{ .Release.Name }}" {
