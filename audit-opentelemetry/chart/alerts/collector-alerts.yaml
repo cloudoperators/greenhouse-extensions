@@ -1,5 +1,5 @@
 groups:
-  - name: collector-alerts
+  - name: autid-collector-alerts
     rules:
   {{- if not (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.disabled) }}
       - alert: FilelogRefusedLogs
@@ -7,7 +7,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/FilelogRefusedLogs.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-opentelemetry/playbooks/FilelogRefusedLogs.md #FIXME: add playbook entry to docs
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
@@ -20,7 +20,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReceiverRefusedMetric.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-opentelemetry/playbooks/ReceiverRefusedMetric.md #FIXME: add playbook entry to docs
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Some metric points have been refused by receiver
@@ -33,7 +33,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/HighCPUUsage.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-opentelemetry/playbooks/HighCPUUsage.md #FIXME: add playbook entry to docs
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: High max CPU usage

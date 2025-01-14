@@ -1,5 +1,5 @@
 groups:
-  - name: operator-alerts
+  - name: audit-operator-alerts
     rules:
   {{- if not (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.disabled) }}
       - alert: ReconcileErrors

@@ -7,7 +7,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   annotations:
-  name: opentelemetry-audit-collector-metrics
+  name: audit-opentelemetry-collector-metrics
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- if .Values.openTelemetry.customLabels }}
@@ -26,7 +26,7 @@ spec:
         action: labeldrop
   selector:
     matchLabels:
-      app.kubernetes.io/component: opentelemetry-audit-collector
+      app.kubernetes.io/component: audit-opentelemetry-collector
       app.kubernetes.io/instance: {{ .Release.Namespace }}.openTelemetry.metrics
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
