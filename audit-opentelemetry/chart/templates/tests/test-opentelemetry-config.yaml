@@ -32,13 +32,13 @@ data:
         verify "there is 1 service named '^{{ .Release.Name }}-operator\$'"
     }
 
-    {{- if .Values.openTelemetry.logsCollector.enabled }}
+    {{- if .Values.audit-openTelemetry.logsCollector.enabled }}
     @test "Verify successful deployment and running status of the audit-logs-collector" {
         try "at most 5 times every 10s to get pods named 'audit-logs-collector' and verify that '.status.phase' is 'running'"
     }
     {{- end -}}
 
-    {{- if .Values.openTelemetry.metricsCollector.enabled }}
+    {{- if .Values.audit-openTelemetry.metricsCollector.enabled }}
     @test "Verify successful deployment and running status of the audit-logs-metrics-collector" {
         try "at most 5 times every 10s to get pods named 'audit-logs-metrics-collector' and verify that '.status.phase' is 'running'"
     }
