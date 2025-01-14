@@ -35,7 +35,7 @@ opentelemetry-operator:
     enabled: false
 
 # Empty variables will fail during rollout
-openTelemetry:
+audit-openTelemetry:
   ## custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
 
