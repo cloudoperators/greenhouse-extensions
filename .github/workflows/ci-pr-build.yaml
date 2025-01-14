@@ -103,7 +103,7 @@ jobs:
         - name: Delete PR container image tag
           uses: dataaxiom/ghcr-cleanup-action@v1
           with:
-            tags: pr-${{ env.PR_NUMBER }}
+            tags: ${{ env.PR_NUMBER }}-pr
             packages: ${{ github.repository }}/charts/*
             expand-packages: true
             token: ${{ secrets.CLOUDOPERATOR_REPO_WRITE_DELETE_TOKEN }}
