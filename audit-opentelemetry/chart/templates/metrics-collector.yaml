@@ -3,15 +3,15 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if .Values.audit-openTelemetry.metricsCollector.enabled }}
+{{- if .Values.auditOpenTelemetry.metricsCollector.enabled }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: audit-logs-metrics
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
-  {{- if .Values.audit-openTelemetry.customLabels }}
-  {{ toYaml .Values.audit-openTelemetry.customLabels | nindent 4 }}
+  {{- if .Values.auditOpenTelemetry.customLabels }}
+  {{ toYaml .Values.auditOpenTelemetry.customLabels | nindent 4 }}
   {{- end }}
 spec:
   mode: deployment
