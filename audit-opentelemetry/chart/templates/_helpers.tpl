@@ -15,17 +15,17 @@ plugindefinition: audit-opentelemetry
 
 {{/* Generate prometheus specific labels */}}
 {{- define "plugin.prometheusLabels" }}
-{{- if .Values.audit-openTelemetry.prometheus.additionalLabels }}
-{{- tpl (toYaml .Values.audit-openTelemetry.prometheus.additionalLabels) . }}
+{{- if .Values.auditOpenTelemetry.prometheus.additionalLabels }}
+{{- tpl (toYaml .Values.auditOpenTelemetry.prometheus.additionalLabels) . }}
 {{- end }}
-{{- if .Values.audit-openTelemetry.prometheus.rules.labels }}
-{{ tpl (toYaml .Values.audit-openTelemetry.prometheus.rules.labels) . }}
+{{- if .Values.auditOpenTelemetry.prometheus.rules.labels }}
+{{ tpl (toYaml .Values.auditOpenTelemetry.prometheus.rules.labels) . }}
 {{- end }}
 {{- end }}
 
 {{/* Generate prometheus rule labels for alerts */}}
 {{- define "plugin.additionalRuleLabels" -}}
-{{- if .Values.audit-openTelemetry.prometheus.rules.additionalRuleLabels }}
-{{- tpl (toYaml .Values.audit-openTelemetry.prometheus.rules.additionalRuleLabels) . }}
+{{- if .Values.auditOpenTelemetry.prometheus.rules.additionalRuleLabels }}
+{{- tpl (toYaml .Values.auditOpenTelemetry.prometheus.rules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
