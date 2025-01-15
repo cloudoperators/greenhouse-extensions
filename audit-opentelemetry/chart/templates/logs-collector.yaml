@@ -32,9 +32,9 @@ spec:
           apiVersion: v1
           fieldPath: status.podIP
     - name: cluster
-      value: "{{ .Values.auditOpenTelemetry.cluster }}"
+      value: "{{ required "Missing required .Values.auditOpenTelemetry.cluster" .Values.auditOpenTelemetry.cluster }}"
     - name: region
-      value: "{{ .Values.auditOpenTelemetry.region }}"
+      value: "{{ required "Missing required .Values.auditOpenTelemetry.region" .Values.auditOpenTelemetry.region }}"
   envFrom:
     - secretRef:
          name: otel-audit-basic-auth
