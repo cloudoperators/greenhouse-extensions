@@ -22,20 +22,27 @@ data:
 
     DETIK_CLIENT_NAME="kubectl"
 
-    @test "Verify successful deployment and running status of {{ .Release.Name }} compactor, query and store" {
-        verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
+    @test "Verify {{ .Release.Name }} Query" {
         verify "there is 1 deployment named '{{ .Release.Name }}-query'"
-        verify "there is 1 deployment named '{{ .Release.Name }}-store'"
-        verify "there is 1 service named '{{ .Release.Name }}-compactor'"
         verify "there is 1 service named '{{ .Release.Name }}-query'"
-        verify "there is 1 service named '{{ .Release.Name }}-store'"
-        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
     }
 
-    @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
-        try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
+    {{ if .Values.thanos.store.enabled }}
+    @test "Verify {{ .Release.Name }} Store" {
+      verify "there is 1 deployment named '{{ .Release.Name }}-store'"
+      verify "there is 1 service named '{{ .Release.Name }}-store'"
+      try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
     }
+    {{ end }}
+
+    {{ if .Values.thanos.compactor.enabled }}
+    @test "Verify {{ .Release.Name }} Compactor" {
+      verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
+      verify "there is 1 service named '{{ .Release.Name }}-compactor'"
+      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
+    }
+    {{ end }}
 
 {{- end -}}

@@ -16,6 +16,7 @@ chart-dirs:
   - service-proxy/charts/1.0.0
   - logshipper
   - opentelemetry
+  - thanos
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
