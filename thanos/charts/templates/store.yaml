@@ -103,6 +103,6 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "release.name" . }}-metrics-objectstore 
+          secretName: {{ include "release.name" . }}-metrics-objectstore
       - name: data
         emptyDir: {}
