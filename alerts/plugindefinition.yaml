@@ -13,9 +13,9 @@ spec:
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
   helmChart:
-    name: alerts
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.16.1
+    name: local/plugins/alerts/charts
+    repository: '' # oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: '' # 0.16.1
   uiApplication:
     name: supernova
     version: "latest"

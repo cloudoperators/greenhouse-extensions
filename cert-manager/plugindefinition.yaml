@@ -12,9 +12,9 @@ spec:
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
   icon: https://raw.githubusercontent.com/cert-manager/cert-manager/master/logo/logo.png
   helmChart:
-    name: cert-manager
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.11.0
+    name: local/plugins/cert-manager/charts/v1.11.0/cert-manager
+    repository: '' # oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: '' # 1.11.0
   options:
     - name: cert-manager.installCRDs
       description: Whether to install CRDs
