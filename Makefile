@@ -2,7 +2,14 @@
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # Detect ARCH (AMD64 or ARM64)
-ARCH := $(shell uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/' -e 's/arm64/arm64/')
+UNAME_P := $(shell uname -p)
+ARCH :=
+ifeq ($(UNAME_P),x86_64)
+	ARCH =amd64
+endif
+ifneq ($(filter arm%,$(UNAME_P)),)
+	ARCH = arm64
+endif
 
 
 ## tools versions
