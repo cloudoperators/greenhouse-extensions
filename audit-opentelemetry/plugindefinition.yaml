@@ -9,12 +9,17 @@ spec:
     version: 0.0.1
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
-    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.1
+        version: 0.7.0
     options:
+        - default: true
+          description: Use for audit logs only
+          name: openTelemetry.auditLogsOnly.enabled
+          required: true
+          type: bool
         - default: true
           description: Activates the standard configuration for logs
           name: openTelemetry.logsCollector.enabled
