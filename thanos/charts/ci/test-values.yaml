@@ -1,8 +1,6 @@
 prometheus-operator:
   defaultRules:
     create: true
-    rules:
-      prometheusOperator: true
     labels:
       thanos-ruler: thanos
   prometheusOperator:
@@ -10,9 +8,8 @@ prometheus-operator:
   crds:
     enabled: true
 
-testFramework:
-  ci:
-    enabled: true
+ci:
+  enabled: true
 
 thanos:
   ruler:

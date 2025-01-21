@@ -1,4 +1,4 @@
-{{- if .Values.testFramework.ci.enabled -}}
+{{- if .Values.ci.enabled -}}
 apiVersion: v1
 kind: Secret
 metadata:
