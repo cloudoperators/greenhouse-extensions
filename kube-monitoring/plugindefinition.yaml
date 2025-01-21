@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.20.1
+    version: 0.21.0
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.

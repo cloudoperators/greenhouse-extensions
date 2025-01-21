@@ -15,7 +15,7 @@ spec:
   helmChart:
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.16.1
+    version: 0.17.0
   uiApplication:
     name: supernova
     version: "latest"
