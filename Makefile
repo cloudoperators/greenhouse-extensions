@@ -52,5 +52,5 @@ generate-documentation:
 	hack/generate-catalog-markdown
 
 .PHONY: local-plugin-definitions
-generate-kustomization: kustomize yq
+local-plugin-definitions: kustomize yq
 	hack/local-plugin-definitions
