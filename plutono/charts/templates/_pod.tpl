@@ -1076,7 +1076,7 @@ containers:
       {{- end }}
       {{- if not .Values.plutono.ingress.enabled }}
       - name: PL_SERVER_ROOT_URL
-        value: {{ printf "/api/v1/namespaces/%s/services/http:%s:80/proxy/" .Release.Namespace .Release.Name }}
+        value: {{ printf "/api/v1/namespaces/%s/services/%s:80/proxy/" .Release.Namespace .Release.Name }}
       - name: PL_SERVER_SERVE_FROM_SUB_PATH
         value: "true"
       {{- end }}
