@@ -52,5 +52,5 @@ generate-documentation:
 	hack/generate-catalog-markdown
 
 .PHONY: generate-kustomization
-generate-kustomization: yq
+generate-kustomization: kustomize yq
 	hack/generate-kustomization
