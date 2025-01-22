@@ -51,6 +51,6 @@ $(YQ): $(LOCALBIN)
 generate-documentation:
 	hack/generate-catalog-markdown
 
-.PHONY: generate-kustomization
+.PHONY: local-plugin-definitions
 generate-kustomization: kustomize yq
-	hack/generate-kustomization
+	hack/local-plugin-definitions
