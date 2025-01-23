@@ -18,7 +18,7 @@ Components included in this Plugin:
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
     - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
-    - [k8events Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
+    - [k8sevents Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
     - [journald Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
     - [prometheus/internal](https://opentelemetry.io/docs/collector/internal-telemetry/)
 - [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
@@ -39,6 +39,7 @@ This guide provides a quick and straightforward way to use **OpenTelemetry** as 
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
+- We recommend a running cert-manager in the cluster before installing the OpenTelemetry Plugin
 - To gather metrics, you **must** have a Prometheus instance in the onboarded cluster for storage and for managing Prometheus specific CRDs. If you don not have an instance, install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first. 
 
 **Step 1:**
