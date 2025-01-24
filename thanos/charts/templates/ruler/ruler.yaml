@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
+{{ if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ThanosRuler
 metadata:
@@ -29,4 +29,16 @@ spec:
     {{ toYaml .Values.thanos.ruler.alertLabels | nindent 4 }}
   # Select rules from all namespaces.
   ruleNamespaceSelector: {}  
+{{ if .Values.thanos.ruler.alertmanagers.authentication.enabled }}
+  containers:
+    - name: thanos-ruler
+      volumeMounts:
+        - mountPath: /etc/thanos/secrets/thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
+          name: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
+          readOnly: true
+  volumes:
+    - name: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
+      secret:
+        secretName: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
+{{ end }}
 {{ end }}

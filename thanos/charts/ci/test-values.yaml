@@ -14,3 +14,9 @@ ci:
 thanos:
   ruler:
     matchLabel: thanos
+    alertmanagers:
+      authentication:
+        enabled: true
+        ssoCert:
+        ssoKey:
+      hosts:

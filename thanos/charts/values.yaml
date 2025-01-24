@@ -113,6 +113,13 @@ thanos:
 
     matchLabel:
 
+    alertmanagers:
+      authentication:
+        enabled: true
+        ssoCert:
+        ssoKey:
+      hosts:
+
 testFramework:
   enabled: true
   image:
