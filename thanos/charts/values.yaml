@@ -46,9 +46,11 @@ thanos:
 
     annotations:
 
+    # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
 
   store:
+    # if this is a standalone Thanos Query, we wouldn't want a store.
     enabled: true
     # adding additional arguments
     additionalArgs: []
