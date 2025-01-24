@@ -84,4 +84,4 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: string
-    version: 0.2.2
+    version: 0.2.3

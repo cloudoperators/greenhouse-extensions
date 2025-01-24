@@ -114,6 +114,7 @@ thanos:
     matchLabel:
 
     alertmanagers:
+      enabled: true
       authentication:
         enabled: true
         ssoCert:
