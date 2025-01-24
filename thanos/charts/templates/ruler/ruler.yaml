@@ -25,7 +25,7 @@ spec:
   {{ if .Values.thanos.ruler.alertmanagers.enabled }}
   alertmanagersConfig:
     key: alertManagerConfig.yaml # Key name for alert manager config yaml
-    name: {{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
+    name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
   {{ end }}
   # The labels to add to any alert when communicating with Alertmanager
   labels:
