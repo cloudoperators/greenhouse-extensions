@@ -1,7 +1,5 @@
-{{/* 
-SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-SPDX-License-Identifier: Apache-2.0
-*/}}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 
 {{ if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
 apiVersion: monitoring.coreos.com/v1
@@ -9,14 +7,12 @@ kind: ThanosRuler
 metadata:
   # FullName = thanos-ruler-<name>
   name: {{ include "release.name" . }}
-  labels:
-    {{- include "plugin.labels" . | nindent 4 }}
-    {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.ruler.labels }}
-    {{ toYaml .Values.thanos.ruler.labels | nindent 4 }}
-    {{- end }}
 spec:
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+  podMetadata:
+    labels:
+      {{- include "plugin.labels" . | nindent 6 }}
+      {{- include "thanos.labels" . | nindent 6 }}
   ruleSelector:
     matchLabels:
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
@@ -27,9 +23,6 @@ spec:
     key: alertManagerConfig.yaml # Key name for alert manager config yaml
     name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
   {{ end }}
-  # The labels to add to any alert when communicating with Alertmanager
-  labels:
-    {{ toYaml .Values.thanos.ruler.alertLabels | nindent 4 }}
   # Select rules from all namespaces.
   ruleNamespaceSelector: {}  
   {{ if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
