@@ -78,11 +78,11 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 `openTelemetry.logsCollector.kvmConfig.enabled`    | Activates the configuration for KVM logs (requires logsCollector to be enabled) | bool | `false` |
 `openTelemetry.logsCollector.cephConfig.enabled`    | Activates the configuration for Ceph logs (requires logsCollector to be enabled) | bool | `false` |
 `openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false` |
-`openTelemetry.openSearchLogs.failover_username_a` | Username for OpenSearch endpoint | secret | `false` |
-`openTelemetry.openSearchLogs.failover_password_a` | Password for OpenSearch endpoint | secret | `false` | 
-`openTelemetry.openSearchLogs.failover_username_b` | Second Username (as a failover) for OpenSearch endpoint | secret | `false` |
-`openTelemetry.openSearchLogs.failover_password_b` | Second Password (as a failover) for OpenSearch endpoint | secret | `false` |
-`openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
+`openTelemetry.openSearchLogs.failover_username_a` | Username for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.failover_password_a` | Password for OpenSearch endpoint | secret | `true` | 
+`openTelemetry.openSearchLogs.failover_username_b` | Second Username (as a failover) for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.failover_password_b` | Second Password (as a failover) for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | string | `true` | 
 `openTelemetry.openSearchLogs.index` | Name for OpenSearch index      | string | `false` | 
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
