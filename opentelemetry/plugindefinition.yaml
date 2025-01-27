@@ -38,7 +38,7 @@ spec:
         - description: Username for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_username_a
           required: true
-          type: secret
+          type: string
         - description: Password for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_password_a
           required: true
@@ -54,7 +54,7 @@ spec:
         - description: Endpoint URL for OpenSearch
           name: openTelemetry.openSearchLogs.endpoint
           required: false
-          type: secret
+          type: string
         - description: Name for OpenSearch index
           name: openTelemetry.openSearchLogs.index
           required: false
