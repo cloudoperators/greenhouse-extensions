@@ -36,11 +36,19 @@ spec:
           required: false
           type: bool
         - description: Username for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.username
+          name: openTelemetry.openSearchLogs.failover_username_a
           required: true
           type: secret
         - description: Password for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.password
+          name: openTelemetry.openSearchLogs.failover_password_a
+          required: true
+          type: secret
+        - description: Second Username (as a failover) for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.failover_username_b
+          required: true
+          type: secret
+        - description: Second Password (as a failover) for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.failover_password_b
           required: true
           type: secret
         - description: Endpoint URL for OpenSearch
