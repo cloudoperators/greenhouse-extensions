@@ -9,6 +9,10 @@ metadata:
   name: {{ include "release.name" . }}
 spec:
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+  {{- if .Values.thanos.ruler.externalPrefix }}
+  externalPrefix: {{ .Values.thanos.ruler.externalPrefix }}
+  routePrefix: {{ .Values.thanos.ruler.externalPrefix }}
+  {{- end }}
   podMetadata:
     labels:
       {{- include "plugin.labels" . | nindent 6 }}
