@@ -81,6 +81,7 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 `openTelemetry.openSearchLogs.username` | Username for OpenSearch endpoint | secret | `false` |
 `openTelemetry.openSearchLogs.password` | Password for OpenSearch endpoint | secret | `false` | 
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 
+`openTelemetry.openSearchLogs.index` | Name for OpenSearch index      | string | `false` | 
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
 `openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
 `openTelemetry.prometheus.additionalLabels`               | Label selector for Prometheus resources to be picked-up by the operator | map | `false` | 

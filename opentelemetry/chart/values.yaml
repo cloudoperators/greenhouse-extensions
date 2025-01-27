@@ -43,6 +43,7 @@ openTelemetry:
     endpoint:
     username:
     password:
+    index:
   cluster:
   region:
   logsCollector:
