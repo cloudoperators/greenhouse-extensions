@@ -117,9 +117,9 @@ plutono:
   testFramework:
     enabled: true
     image:
-      registry: "docker.io"
-      repository: bats/bats
-      tag: "1.11.0"
+      registry: "ghcr.io"
+      repository: cloudoperators/greenhouse-extensions-integration-test
+      tag: main
     imagePullPolicy: IfNotPresent
     securityContext: {}
     resources: {}
