@@ -1,0 +1,23 @@
+prometheus-operator:
+  defaultRules:
+    create: true
+    labels:
+      thanos-ruler: thanos
+  prometheusOperator:
+    enabled: true
+  crds:
+    enabled: true
+
+ci:
+  enabled: true
+
+thanos:
+  ruler:
+    matchLabel: thanos
+    alertmanagers:
+      enabled: true
+      authentication:
+        enabled: true
+        ssoCert: xxx
+        ssoKey: xxx
+      hosts:
