@@ -3,18 +3,23 @@
 
 apiVersion: v2
 description: Base chart for thanos monitoring deployments
-icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png 
+icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png
 type: application
 maintainers:
   - name: viennaa
   - name: richardtief
-name: thanos 
+name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.1.3
+version: 0.1.4
 # thanos-release
 appVersion: v0.35.0
 keywords:
   - thanos
   - storage
   - metrics
+dependencies:
+  - name: kube-prometheus-stack
+    alias: prometheus-operator
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 68.3.0
