@@ -28,7 +28,7 @@ data:
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
     }
 
-    {{ if .Values.thanos.store.enabled }}
+    {{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
     @test "Verify {{ .Release.Name }} Store" {
       verify "there is 1 deployment named '{{ .Release.Name }}-store'"
       verify "there is 1 service named '{{ .Release.Name }}-store'"
@@ -36,7 +36,7 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.thanos.compactor.enabled }}
+    {{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
     @test "Verify {{ .Release.Name }} Compactor" {
       verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
       verify "there is 1 service named '{{ .Release.Name }}-compactor'"
@@ -45,7 +45,7 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.thanos.ruler.enabled }}
+    {{ if and .Values.thanos.ruler.enabled (not .Values.thanos.query.standalone) }}
     @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
         verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
         verify "there is 1 service named 'thanos-ruler-operated'"
