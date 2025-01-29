@@ -84,4 +84,9 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: string
-    version: 0.2.3
+        - default: false
+          description: Thanos ruler Alertmanager auth toggle
+          name: thanos.ruler.alertmanagers.authentication.enabled
+          required: false
+          type: string
+    version: 0.2.4
