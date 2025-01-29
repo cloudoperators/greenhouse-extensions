@@ -20,9 +20,20 @@ spec:
         - name: tests
           mountPath: /tests
           readOnly: true
+        {{- if and .Values.alerts.auth.autoGenerateCert.enabled (.Capabilities.APIVersions.Has "cert-manager.io/v1") }}
+        - name: tls-cert
+          mountPath: /tls-assets
+          readOnly: true
+        {{- end }}
   volumes:
     - name: tests
       configMap:
         name: {{ .Release.Name }}-test
+    {{- if and .Values.alerts.auth.autoGenerateCert.enabled (.Capabilities.APIVersions.Has "cert-manager.io/v1") }} 
+    - name: tls-cert
+      secret:
+        defaultMode: 420
+        secretName: {{ print "tls-%s-prometheus-auth" $.Release.Namespace }} 
+    {{- end }}
   restartPolicy: Never
 {{- end -}}

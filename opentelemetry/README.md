@@ -18,7 +18,7 @@ Components included in this Plugin:
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
     - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
-    - [k8events Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
+    - [k8sevents Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
     - [journald Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
     - [prometheus/internal](https://opentelemetry.io/docs/collector/internal-telemetry/)
 - [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
@@ -39,6 +39,7 @@ This guide provides a quick and straightforward way to use **OpenTelemetry** as 
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
+- We recommend a running cert-manager in the cluster before installing the OpenTelemetry Plugin
 - To gather metrics, you **must** have a Prometheus instance in the onboarded cluster for storage and for managing Prometheus specific CRDs. If you don not have an instance, install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first. 
 
 **Step 1:**
@@ -55,7 +56,13 @@ The package will deploy the OpenTelemetry Operator which works as a manager for 
 - Journald events from systemd journal
 - its own metrics
 
-You can disable the collection of logs by setting `open_telemetry.LogCollector.enabled` to `false`. The same is true for disabling metrics: `open_telemetry.MetricsCollector.enabled` to `false`. 
+You can disable the collection of logs by setting `openTelemetry.logCollector.enabled` to `false`. The same is true for disabling the collection of metrics by setting `openTelemetry.metricsCollector.enabled` to `false`.
+The `logsCollector` comes with a standard set of log-processing, such as adding cluster information and common labels for Journald events.
+In addition we provide default pipelines for common log types. Currently the following log types have default configurations that can be enabled (requires `logsCollector.enabled` to `true`):
+  1. KVM: `openTelemetry.logsCollector.kvmConfig`: Logs from Kernel-based Virtual Machines (KVMs) providing insights into virtualization activities, resource usage, and system performance
+  2. Ceph:`openTelemetry.logsCollector.cephConfig`: Logs from Ceph storage systems, capturing information about cluster operations, performance metrics, and health status
+  
+These default configurations provide common labels and Grok parsing for logs emitted through the respective services.
 
 Based on the backend selection the telemetry data will be exporter to the backend.
 
@@ -67,8 +74,10 @@ Greenhouse regularly performs integration tests that are bundled with **OpenTele
 
 | Name         | Description          | Type           | required           |
 | ------------ | -------------------- |---------------- | ------------------ | 
-`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false`
-`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false`
+`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false` |
+`openTelemetry.logsCollector.kvmConfig.enabled`    | Activates the configuration for KVM logs (requires logsCollector to be enabled) | bool | `false` |
+`openTelemetry.logsCollector.cephConfig.enabled`    | Activates the configuration for Ceph logs (requires logsCollector to be enabled) | bool | `false` |
+`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false` |
 `openTelemetry.openSearchLogs.username` | Username for OpenSearch endpoint | secret | `false` |
 `openTelemetry.openSearchLogs.password` | Password for OpenSearch endpoint | secret | `false` | 
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | secret | `false` | 

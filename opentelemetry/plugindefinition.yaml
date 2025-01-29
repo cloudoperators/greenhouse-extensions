@@ -6,18 +6,28 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry
 spec:
-    version: 0.6.1
+    version: 0.7.2
     displayName: OpenTelemetry
     description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.6.1
+        version: 0.7.2
     options:
         - default: true
           description: Activates the standard configuration for logs
           name: openTelemetry.logsCollector.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the configuration for KVM logs (requires logsCollector enabled)
+          name: openTelemetry.logsCollector.kvmConfig.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the configuration for Ceph logs (requires logsCollector enabled)
+          name: openTelemetry.logsCollector.cephConfig.enabled
           required: false
           type: bool
         - default: true
@@ -81,7 +91,7 @@ spec:
           name: openTelemetry.manager.collectorImage.repository
           required: false
           type: string
-        - default: "4072695"
+        - default: "main"
           description: openTelemetry.manager.collectorImage.tag
           name: openTelemetry.manager.collectorImage.tag
           required: false

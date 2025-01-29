@@ -22,7 +22,7 @@ perses:
     name: "persesdev/perses"
   
     # -- Overrides the image tag whose default is the chart appVersion.
-    version: ""
+    version: "v0.50.0"
   
     # -- Default image pull policy
     pullPolicy: IfNotPresent
@@ -103,12 +103,15 @@ perses:
   config:
     # -- Annotations for config
     annotations: {}
+
+    # With this config, the Perses app will be served with the path <api_prefix>/api
+    # api_prefix: "/perses"
   
     security:
       # -- Configure Perses instance as readonly
-      readOnly: false
+      readonly: false
       # -- Enable Authentication
-      enableAuth: false
+      enable_auth: false
       # -- cookie config
       cookie:
         same_site: lax
@@ -126,10 +129,11 @@ perses:
       interval: "5m"
   
     # -- Important dashboards list
-    important_dashboards:
-      []
-      # - project: "perses"
-      #   dashboard: "Demo"
+    frontend:
+      important_dashboards:
+        []
+        # - project: "perses"
+        #   dashboard: "Demo"
   
     # -- Database config based on data base type
     database:
@@ -138,8 +142,7 @@ perses:
         folder: /perses
         extension: json
       # -- SQL Config
-      sql:
-        {}
+      # sql:
         # user: "user"
         # password: "password"
         # net: "tcp"

@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 global:
-
   ## Labels to apply to all resources
-  ##
   commonLabels: {}
 
 thanos:
@@ -64,6 +62,12 @@ thanos:
 
     annotations:
 
+    chunkPoolSize:
+
+    indexCacheSize:
+
+    logLevel:
+
   compactor:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
     enabled: true
@@ -106,6 +110,23 @@ thanos:
       size:
       labels: []
 
+  ruler:
+    enabled: true
+
+    labels:
+
+    alertLabels:
+
+    matchLabel:
+
+    alertmanagers:
+      enabled: true
+      authentication:
+        enabled: true
+        ssoCert:
+        ssoKey:
+      hosts:
+
 testFramework:
   enabled: true
   image:
@@ -113,3 +134,37 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+# Only used for TESTING !!! see test-values.yaml
+# The kube-monitoring plugin is taking care of deploying the Prometheus Operator
+# Thanos Plugin leverages it for its CI
+ci:
+  enabled: false
+prometheus-operator:
+  defaultRules:
+    create: false
+  dashboards:
+    create: false
+  kubernetesServiceMonitors:
+    enabled: false
+  cleanPrometheusOperatorObjectNames: false
+  crds:
+    enabled: false
+  windowsMonitoring:
+    enabled: false
+  grafana:
+    enabled: false
+  thanosRuler:
+    enabled: false
+  prometheus:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  prometheusOperator:
+    enabled: false
+  alertmanager:
+    enabled: false
+    ingress:
+      enabled: false

@@ -27,6 +27,10 @@ jobs:
             chartName: alerts
           - chartDir: cert-manager/charts/v1.11.0/cert-manager
             chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.11.5/cert-manager
+            chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.16.2/cert-manager
+            chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
@@ -103,7 +107,7 @@ jobs:
         - name: Delete PR container image tag
           uses: dataaxiom/ghcr-cleanup-action@v1
           with:
-            tags: pr-${{ env.PR_NUMBER }}
+            tags: ${{ env.PR_NUMBER }}-pr
             packages: ${{ github.repository }}/charts/*
             expand-packages: true
             token: ${{ secrets.CLOUDOPERATOR_REPO_WRITE_DELETE_TOKEN }}

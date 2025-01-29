@@ -45,4 +45,12 @@ data:
     }
     {{ end }}
 
+    {{ if .Values.thanos.ruler.enabled }}
+    @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
+        verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
+        verify "there is 1 service named 'thanos-ruler-operated'"
+        try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
+        try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.data' matches '.*yaml.*'"
+    }
+    {{ end }}
 {{- end -}}

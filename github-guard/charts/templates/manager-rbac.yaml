@@ -97,6 +97,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - githubguard.sap
+  resources:
+  - githubaccountlinks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - ""
   resources:
   - secrets

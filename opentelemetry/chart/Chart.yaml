@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: v2
-appVersion: v0.114.0
+appVersion: v0.116.0
 name: opentelemetry-operator
-version: 0.6.1
+version: 0.7.2
 description: OpenTelemetry Operator Helm chart for Kubernetes
 icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e9e3ac0c8817cb/projects/opentelemetry/icon/color/opentelemetry-icon-color.png
 type: application
