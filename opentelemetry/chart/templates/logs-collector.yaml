@@ -35,6 +35,8 @@ spec:
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
+    - name: index
+      value: "{{ .Values.openTelemetry.openSearchLogs.index }}"
   envFrom:
     - secretRef:
          name: otel-basic-auth
@@ -148,6 +150,17 @@ spec:
           - action: insert
             key: log.type
             value: "k8sevents"
+
+      attributes/failover_username_a:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_a}
+      attributes/failover_username_b:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_b}
 
       transform/journal:
         error_mode: ignore
@@ -288,28 +301,45 @@ spec:
     exporters:
       debug:
         verbosity: basic
-      opensearch/logs:
+      opensearch/failover_a:
         http:
           auth:
-            authenticator: basicauth
+            authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: ${username}-datastream
+        logs_index: ${index}-datastream
+      opensearch/failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: ${index}-datastream
         
       prometheus:
         endpoint: 0.0.0.0:9999
 
     extensions:
-      basicauth:
+      basicauth/failover_a:
         client_auth:
-          username: ${username}
-          password: ${password}
+          username: ${failover_username_a}
+          password: ${failover_password_a}
+      basicauth/failover_b:
+        client_auth:
+          username: ${failover_username_b}
+          password: ${failover_password_b}
 
     connectors:
       forward: {}
-
+      failover:
+        priority_levels:
+          - [logs/failover_a]
+          - [logs/failover_b]
+        retry_interval: 2m
+        retry_gap: 30s
+        max_retries: 0
     service:
       extensions:
-        - basicauth
+        - basicauth/failover_a
+        - basicauth/failover_b
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
@@ -320,7 +350,15 @@ spec:
         logs/forward:
           receivers: [forward]
           processors: [batch]
-          exporters: [opensearch/logs]
+          exporters: [failover]
+        logs/failover_a:
+          receivers: [failover]
+          processors: [attributes/failover_username_a]
+          exporters: [opensearch/failover_a]
+        logs/failover_b:
+          receivers: [failover]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/failover_b]
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress]
