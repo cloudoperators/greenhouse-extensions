@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 global:
-
   ## Labels to apply to all resources
-  ##
   commonLabels: {}
 
 thanos:
@@ -13,9 +11,9 @@ thanos:
     # defaults to .Chart.appVersion
     tag:
     # defaults to IfNotPresent
-    pullPolicy: 
+    pullPolicy:
   grpcAddress:
-  # used across the stack 
+  # used across the stack
   httpAddress:
 
   query:
@@ -36,36 +34,39 @@ thanos:
       routePrefix:
 
     additionalArgs: []
-      #- something.route-foo=/lol 
-
-    deploymentLabels: {} 
-
+      # - something.route-foo=/lol
+    deploymentLabels: {}
     containerLabels:
 
     serviceLabels:
 
     annotations:
 
-    stores: [] 
+    stores: []
 
   store:
     # adding additional arguments
     additionalArgs: []
 
-    deploymentLabels: {} 
+    deploymentLabels: {}
 
     containerLabels:
 
-    #TODO use
+    # TODO use
     serviceLabels:
 
     annotations:
+
+    chunkPoolSize:
+
+    indexCacheSize:
+
+    logLevel:
 
   compactor:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
     enabled: true
     # TODO: store secret needs to be present and can not be provisioned automatically
-    
     logLevel:
 
     containerLabels: []
@@ -74,7 +75,7 @@ thanos:
 
     labels: []
     annotations: []
- 
+
     # adding additional arguments
     additionalArgs: []
 
@@ -93,7 +94,7 @@ thanos:
       # seconds
       cleanupInterval:
 
-      # seconds 
+      # seconds
       waitInterval:
 
     volume:
@@ -103,6 +104,23 @@ thanos:
       size:
       labels: []
 
+  ruler:
+    enabled: true
+
+    labels:
+
+    alertLabels:
+
+    matchLabel:
+
+    alertmanagers:
+      enabled: true
+      authentication:
+        enabled: true
+        ssoCert:
+        ssoKey:
+      hosts:
+
 testFramework:
   enabled: true
   image:
@@ -110,3 +128,37 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+# Only used for TESTING !!! see test-values.yaml
+# The kube-monitoring plugin is taking care of deploying the Prometheus Operator
+# Thanos Plugin leverages it for its CI
+ci:
+  enabled: false
+prometheus-operator:
+  defaultRules:
+    create: false
+  dashboards:
+    create: false
+  kubernetesServiceMonitors:
+    enabled: false
+  cleanPrometheusOperatorObjectNames: false
+  crds:
+    enabled: false
+  windowsMonitoring:
+    enabled: false
+  grafana:
+    enabled: false
+  thanosRuler:
+    enabled: false
+  prometheus:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  kubeStateMetrics:
+    enabled: false
+  prometheusOperator:
+    enabled: false
+  alertmanager:
+    enabled: false
+    ingress:
+      enabled: false
