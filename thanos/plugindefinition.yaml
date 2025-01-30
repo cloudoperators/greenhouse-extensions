@@ -69,6 +69,21 @@ spec:
           name: thanos.query.standalone
           required: false
           type: bool
+        - default: true
+          description: Enable Thanos Store
+          name: thanos.store.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Enable Thanos Compactor
+          name: thanos.compactor.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Enable Thanos Ruler
+          name: thanos.ruler.enabled
+          required: false
+          type: bool
         - default: [] 
           description: Automatically filled if Query is not standalone. If multiple Prometheis are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
           name: thanos.query.stores
