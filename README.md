@@ -45,6 +45,10 @@ The *README.md* describes the overall Plugin functionality and highlights config
 the *plugin.yaml* specifies the front- and backend of a Plugin and its configuration options using the Greenhouse Plugin CRD.
 An optional *charts* directory defines the backend for a Plugin as a Helm chart and the *ui* directory the frontend part which can be seen in the Greenhouse UI.
 
+### Local development
+
+Please check [Local development](./docs/local-development.md) for details on how to develop and test Greenhouse extensions locally.
+
 ### Walkthrough
 
 See the [walkthrough guide](./docs/extension.md) and the [local development environment](./dev-env/README.md) for details on how to create new Greenhouse extensions.

@@ -1,3 +1,6 @@
+# ignore local dependencies
+bin/
+
 # act artifacts needed for testing workflows
 .secrets
 .env
@@ -5,3 +8,5 @@ act_*.json
 
 .DS_Store
 
+# ignore IntelliJ IDEA files
+.idea
