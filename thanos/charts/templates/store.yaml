@@ -87,7 +87,12 @@ spec:
           name: data
       initContainers:
       - name: init-permissions
-        image: busybox
+        {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
+        {{- if .Values.thanos.initChownData.image.sha }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+        {{- else }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}"
+        {{- end }}
         command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
         securityContext:
           runAsUser: 0
