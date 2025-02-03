@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up chart-linting and chart-testing
-        uses: helm/chart-testing-action@v2.6.1
+        uses: helm/chart-testing-action@v2.7.0
 
       - name: Run chart-linting (list-changed)
         id: list-changed
@@ -49,7 +49,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.chart-test-list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.10.0
+        uses: helm/kind-action@v1.12.0
 
       - name: Run chart integration tests
         if: steps.chart-test-list-changed.outputs.changed == 'true'
