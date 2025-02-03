@@ -126,9 +126,9 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 ## Service Discovery
 
-The **kube-monitoring** Plugin uses a PodMonitor to automatically discover the Prometheus metrics of the Kubernetes Pods in any Namespace. The PodMonitor is configured to detect the metrics endpoint of the pods with the port name `metrics` **and** the label `greenhouse/scrape: “true”`.
+The **kube-monitoring** Plugin uses a PodMonitor to automatically discover the Prometheus metrics of the Kubernetes Pods in any Namespace. The PodMonitor is configured to detect the metrics endpoint of the Pods with the port name `metrics` **and** the annotation `greenhouse/scrape: “true”`.
 
-*Important*: The label needs to be added manually to have the pod scraped and the port name needs to match.
+*Note:* The annotations needs to be added manually to have the pod scraped and the port name needs to match.
 
 ## Examples
 
