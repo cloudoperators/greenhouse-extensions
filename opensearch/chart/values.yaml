@@ -28,11 +28,11 @@ opensearch-operator:
     extraEnv: []
     resources:
       limits:
-        cpu: 200m
-        memory: 500Mi
+        cpu: "200m"
+        memory: "500Mi"
       requests:
-        cpu: 100m
-        memory: 350Mi
+        cpu: "100m"
+        memory: "350Mi"
 
     livenessProbe:
       failureThreshold: 3
@@ -98,11 +98,11 @@ opensearch-operator:
           - ALL
     resources:
       limits:
-        cpu: 50m
-        memory: 50Mi
+        cpu: "50m"
+        memory: "50Mi"
       requests:
-        cpu: 25m
-        memory: 25Mi
+        cpu: "25m"
+        memory: "25Mi"
 
     livenessProbe:
       failureThreshold: 3

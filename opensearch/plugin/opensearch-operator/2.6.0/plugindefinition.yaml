@@ -12,9 +12,9 @@ spec:
     icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
     helmChart:
         #name: opensearch-operator
-        name: helm-charts/opensearch-operator-2.6.0.tgz
-        repository:
-        version: 2.6.0
+        name: local/plugins/opensearch/chart/
+        repository: ""
+        version: "" #2.6.0
     options:
         - default: ""
           description: opensearch-operator.fullnameOverride
