@@ -206,6 +206,9 @@ kubeMonitoring:
     pods:
       enabled: true
 
+      ## To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
+      limitToPrometheusTargets: true
+
       ## Monitor Pods with the following port name
       port: metrics
 
@@ -243,15 +246,6 @@ kubeMonitoring:
         ## Explicit list of namespace names to select
         ##
         # matchNames: []
-
-      ## Custom definition to pick up specific pods with an expression.
-      selector:
-        matchExpressions: []
-
-        ## label selector for pods
-        ##
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
       ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
       ##
