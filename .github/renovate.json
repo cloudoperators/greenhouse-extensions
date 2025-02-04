@@ -101,6 +101,9 @@
       "minimumReleaseAge": "14 days"
     },
     {
+      "matchManagers": [
+        "helmv3"
+      ],
       "ignorePaths": [
         "**/cert-manager/charts/**"
       ]
