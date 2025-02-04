@@ -97,6 +97,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - githubguard.sap
+  resources:
+  - githubaccountlinks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - ""
   resources:
   - secrets
@@ -112,6 +120,54 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - distributionlistapis
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - distributionlistapis/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - distributionlistapis/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - ldapgroupproviders
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - ldapgroupproviders/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - ldapgroupproviders/status
+  verbs:
+  - get
+  - patch
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -4,8 +4,9 @@
   "extends": [
     "config:recommended"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "description": "Bump ingress-nginx version in the plugindefinition",
       "fileMatch": [
         "^ingress-nginx.plugindefinition.yaml$"
@@ -18,6 +19,7 @@
       "extractVersionTemplate": "^helm-chart-(?<version>.*)$"
     },
     {
+      "customType": "regex",
       "description": "Bump external-dns version in the plugindefinition",
       "fileMatch": [
         "^external-dns.plugindefinition.yaml$"
@@ -28,35 +30,65 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "kubernetes-sigs/external-dns",
       "extractVersionTemplate": "^external-dns-helm-chart-(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump cert-manager version in the plugindefinition",
+      "fileMatch": [
+        "^cert-manager.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "cert-manager/cert-manager",
+      "extractVersionTemplate": "^(?<version>.*)$"
     }
   ],
   "packageRules": [
     {
       "groupName": "github actions",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["major", "minor"],
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
       "extends": [
         "helpers:pinGitHubActionDigests"
       ],
       "minimumReleaseAge": "14 days"
     },
     {
-      "matchManagers": ["helmv3"],
-      "matchUpdateTypes": ["patch"],
+      "matchManagers": [
+        "helmv3"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "minimumReleaseAge": "7 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "patch"
     },
     {
-      "matchManagers": ["helmv3"],
-      "matchUpdateTypes": ["minor"],
+      "matchManagers": [
+        "helmv3"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "minor"
     },
     {
-      "matchManagers": ["helmv3"],
-      "matchUpdateTypes": ["major"],
+      "matchManagers": [
+        "helmv3"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "major"
@@ -67,6 +99,14 @@
         "npm"
       ],
       "minimumReleaseAge": "14 days"
+    },
+    {
+      "matchManagers": [
+        "helmv3"
+      ],
+      "ignorePaths": [
+        "**/cert-manager/charts/**"
+      ]
     }
   ],
   "separateMinorPatch": true

@@ -12,7 +12,7 @@
 Makefile                  @cloudoperators/greenhouse-backend
 ct.yaml                   @cloudoperators/greenhouse-backend
 Dockerfile.otel-collector @cloudoperators/greenhouse-observability
-Dockerfile.integration-tests @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
 /docs/                    @cloudoperators/greenhouse-core
 /hack/                    @cloudoperators/greenhouse-backend
@@ -32,7 +32,8 @@ Dockerfile.integration-tests @cloudoperators/greenhouse-core @cloudoperators/gre
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
 /opentelemetry/           @cloudoperators/greenhouse-observability
-/plutono                  @cloudoperators/greenhouse-observability 
+/plutono                  @cloudoperators/greenhouse-observability
+/perses                   @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 /thanos/                  @cloudoperators/greenhouse-observability

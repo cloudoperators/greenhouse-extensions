@@ -17,15 +17,18 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.config.github
+    - jsonPath: .spec.github
       name: Github
       type: string
-    - jsonPath: .spec.config.organization
+    - jsonPath: .spec.organization
       name: Organization
       type: string
     - jsonPath: .status.orgStatus
       name: Org Status
       type: string
+    - jsonPath: .status.timestamp
+      name: Last Change
+      type: date
     name: v1
     schema:
       openAPIV3Schema:

@@ -124,6 +124,12 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | `alerts.alertmanager.tlsConfig.cert`          | TLS certificate for communication with Alertmanager                                                                 | `Secret`                 |
 | `alerts.alertmanager.tlsConfig.key`           | TLS key for communication with Alertmanager                                                                         | `Secret`                 |
 
+## Service Discovery
+
+The **kube-monitoring** Plugin uses a PodMonitor to automatically discover the Prometheus metrics of the Kubernetes Pods in any Namespace. The PodMonitor is configured to detect the metrics endpoint of the Pods with the port name `metrics` **and** the annotation `greenhouse/scrape: “true”`.
+
+*Note:* The annotations needs to be added manually to have the pod scraped and the port name needs to match.
+
 ## Examples
 
 ### Deploy kube-monitoring into a remote cluster

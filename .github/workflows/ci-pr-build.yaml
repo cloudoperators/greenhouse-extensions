@@ -1,0 +1,113 @@
+name: Package Helm Chart and publish to GitHub Packages
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - closed
+      - unlabeled
+
+env:
+  REGISTRY: ghcr.io
+  ACTIONS_RUNNER_DEBUG: false
+  PR_NUMBER: ${{ github.event.number }}
+
+jobs:
+  helm-release:
+    permissions:
+      packages: write
+      contents: read
+    runs-on: [ default ]
+    if: contains(github.event.pull_request.labels.*.name,'pr-build-chart')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - chartDir: alerts/charts
+            chartName: alerts
+          - chartDir: cert-manager/charts/v1.11.0/cert-manager
+            chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.11.5/cert-manager
+            chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.16.2/cert-manager
+            chartName: cert-manager
+          - chartDir: exposed-services/charts/v1.0.0/exposed-service
+            chartName: exposed-services
+          - chartDir: exposed-services/charts/v2.0.0/exposed-service
+            chartName: exposed-services
+          - chartDir: kube-monitoring/charts
+            chartName: kube-monitoring
+          - chartDir: kubeconfig-generator/chart
+            chartName: kubeconfig-generator 
+          - chartDir: logshipper/chart
+            chartName: logshipper
+          - chartDir: openbao/charts/openbao
+            chartName: openbao
+          - chartDir: opentelemetry/chart
+            chartName: opentelemetry-operator
+          - chartDir: perses/charts
+            chartName: perses
+          - chartDir: plutono/charts
+            chartName: plutono
+          - chartDir: service-proxy/charts/1.0.0/service-proxy
+            chartName: service-proxy
+          - chartDir: thanos/charts
+            chartName: thanos
+          - chartDir: github-guard/charts
+            chartName: github-guard
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.2.0
+
+      - uses: actions/setup-python@v5
+        with:
+            python-version: 3.9
+            check-latest: true
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            ${{ matrix.chartDir }}/**
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: steps.changed-files.outputs.all_changed_files != ''
+        uses: docker/login-action@v3
+        with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Charts to GHCR
+        if: steps.changed-files.outputs.all_changed_files != ''
+        run: |
+          helm package ${{ matrix.chartDir }} -d ${{ matrix.chartDir }} --version ${{ env.PR_NUMBER }}-pr
+          PKG_NAME=`ls ${{ matrix.chartDir }}/*.tgz`
+          helm push ${PKG_NAME} oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/
+
+  cleanup-pr-tag:
+    permissions:
+      packages: write
+    if: contains(github.event.pull_request.labels.*.name,'cleanup-pr-chart') || github.event_name.types == 'closed'
+    runs-on: [ default ]
+    steps:
+        - name: Delete PR container image tag
+          uses: dataaxiom/ghcr-cleanup-action@v1
+          with:
+            tags: ${{ env.PR_NUMBER }}-pr
+            packages: ${{ github.repository }}/charts/*
+            expand-packages: true
+            token: ${{ secrets.CLOUDOPERATOR_REPO_WRITE_DELETE_TOKEN }}

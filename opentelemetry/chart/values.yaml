@@ -23,10 +23,10 @@ opentelemetry-operator:
   manager:
     collectorImage:
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-      tag: "4072695"
+      tag: main
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.110.0
+      tag: v0.116.0
     deploymentAnnotations:
       vpa-butler.cloud.sap/update-mode: Auto
     serviceMonitor:
@@ -41,15 +41,21 @@ openTelemetry:
 
   openSearchLogs:
     endpoint:
-    username:
-    password:
+    failover_username_a:
+    failover_password_a:
+    failover_username_b:
+    failover_password_b:
+    index:
   cluster:
   region:
   logsCollector:
     enabled: true
+    kvmConfig:
+      enabled: true
+    cephConfig:
+      enabled: true
   metricsCollector:
     enabled: false
-
   prometheus:
     serviceMonitor:
       enabled: true

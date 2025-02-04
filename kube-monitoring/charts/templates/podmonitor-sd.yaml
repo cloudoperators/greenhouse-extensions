@@ -1,0 +1,47 @@
+{{- if and .Values.kubeMonitoring.prometheus.enabled .Values.kubeMonitoring.serviceDiscovery.pods.enabled }}
+{{- $values := .Values.kubeMonitoring.serviceDiscovery.pods }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ $.Release.Name }}-pod-sd
+  labels:
+    {{- include "kube-prometheus-stack.labels" . | nindent 4 }}
+spec:
+  podMetricsEndpoints:
+    - port: {{ $values.port }}
+      relabelings:
+        - action: keep
+          sourceLabels:
+            - __meta_kubernetes_pod_annotation_greenhouse_scrape
+          regex: "true"
+        - action: labelmap
+          regex: '__meta_kubernetes_pod_label_(.+)'
+        - sourceLabels:
+            - __meta_kubernetes_namespace
+          targetLabel: namespace
+        - sourceLabels:
+            - __meta_kubernetes_pod_name
+          targetLabel: pod
+        {{- if $values.additionalRelabelings }}
+        {{- tpl (toYaml $values.additionalRelabelings) . | nindent 8 }}
+        {{- end }}
+        {{- include "kubeMonitoring.defaultRelabelConfig" . | nindent 8 }}
+      {{- if $values.additionalMetricRelabelings }}
+      metricRelabelings:
+        {{- tpl (toYaml $values.additionalMetricRelabelings) . | nindent 8 }}
+      {{- end }}
+{{- if $values.jobLabel }}
+  jobLabel: {{ $values.pods.jobLabel }}
+{{- end }}
+  namespaceSelector:
+{{ toYaml $values.namespaceSelector | indent 4 }}
+  selector:
+{{ tpl (toYaml $values.selector) . | indent 4 }}
+  {{- if $values.podTargetLabels }}
+  podTargetLabels:
+{{ toYaml $values.podTargetLabels | indent 4 }}
+  {{- end }}
+  {{- if $values.sampleLimit }}
+  sampleLimit: {{ $values.sampleLimit }}
+  {{- end }}
+{{- end }}

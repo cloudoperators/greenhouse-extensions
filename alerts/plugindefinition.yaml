@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.3.3
+  version: 2.5.0
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -15,7 +15,7 @@ spec:
   helmChart:
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.15.3
+    version: 0.17.0
   uiApplication:
     name: supernova
     version: "latest"
@@ -41,7 +41,7 @@ spec:
       description: "PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, display name and matchers (map containing matchers as name and expression pairs)"
       required: false
       type: list
-
+    # prometheus-operator options
     - name: alerts.prometheusOperator.enabled
       description: Deploy Prometheus Operator if kube-monitoring has not already installed it once.
       required: false
@@ -53,18 +53,36 @@ spec:
       default: false
       type: bool
     # alertmanager options
-    - name: alerts.alertmanager.enabled
-      description: Deploy Alertmanager. Deactivate if you bring your own Alertmanager.
-      required: true
+    - name: alerts.auth.secretName
+      description: Use custom secret for Alertmanager authentication
+      required: false
+      type: string
+    - name: alerts.auth.autoGenerateCert.enabled
+      description: TLS Certificate Option 1 - Use Helm to automatically generate self-signed certificate.
+      required: false
       type: bool
+    - name: alerts.auth.autoGenerateCert.certPeriodDays
+      description: Cert period time in days. The default is 365 days.
+      default: 365
+      type: int
     - name: alerts.defaultRules.create
       description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
       default: true
       required: false
       type: bool
+    - name: alerts.defaultRules.labels
+      description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
+      default:
+        plugin: kube-monitoring
+      required: false
+      type: map
     - name: alerts.dashboard.create
       description: Whether to install the default dashboards for self-monitoring Prometheus Alertmanger. 
       default: true
+      type: bool
+    - name: alerts.alertmanager.enabled
+      description: Deploy Alertmanager. Deactivate if you bring your own Alertmanager.
+      required: true
       type: bool
     - name: alerts.alertmanager.ingress.enabled
       description: Enable Alertmanager Ingress.
@@ -77,12 +95,6 @@ spec:
       type: list
     - name: alerts.alertmanager.serviceMonitor.additionalLabels
       description: Additional ServiceMonitor labels. Name of the kube-monitoring Plugin to monitor Alertmanager.
-      default:
-        plugin: kube-monitoring
-      required: false
-      type: map
-    - name: alerts.defaultRules.labels
-      description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
       default:
         plugin: kube-monitoring
       required: false

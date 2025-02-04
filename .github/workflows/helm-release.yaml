@@ -16,6 +16,7 @@ on:
       - logshipper/chart/**
       - obenbao/charts/**
       - opentelemetry/chart/**
+      - perses/charts/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
@@ -41,6 +42,10 @@ jobs:
             chartName: alerts
           - chartDir: cert-manager/charts/v1.11.0/cert-manager
             chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.11.5/cert-manager
+            chartName: cert-manager
+          - chartDir: cert-manager/charts/v1.16.2/cert-manager
+            chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
@@ -55,6 +60,8 @@ jobs:
             chartName: openbao
           - chartDir: opentelemetry/chart
             chartName: opentelemetry-operator
+          - chartDir: perses/charts
+            chartName: perses
           - chartDir: plutono/charts
             chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy

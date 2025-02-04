@@ -197,6 +197,66 @@ kubeMonitoring:
       - services=[*]
       - statefulsets=[*]
 
+  ## Service discovery configuration
+  ##
+  serviceDiscovery:
+
+    ## Configuration for the Prometheus Operator to discover pods
+    ##
+    pods:
+      enabled: true
+
+      ## Monitor Pods with the following port name
+      port: metrics
+
+      ## RelabelConfigs to apply to samples before scraping
+      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+      ##
+      additionalRelabelings: []
+      # - sourceLabels: [__meta_kubernetes_pod_node_name]
+      #   separator: ;
+      #   regex: ^(.*)$
+      #   targetLabel: nodename
+      #   replacement: $1
+      #   action: replace
+
+      ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+      ##
+      additionalMetricRelabelings: []
+      # - action: keep
+      #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
+      #   sourceLabels: [__name__]
+
+      ## Pod label for use in assembling a job name of the form <label value>-<port>
+      ## If no label is specified, the pod endpoint name is used.
+      ##
+      jobLabel: ""
+
+      ## Namespaces from which pods are selected
+      ##
+      namespaceSelector:
+        ## Match any namespace
+        ##
+        any: true
+
+        ## Explicit list of namespace names to select
+        ##
+        # matchNames: []
+
+      ## Custom definition to pick up specific pods with an expression.
+      selector:
+        matchExpressions: []
+
+        ## label selector for pods
+        ##
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+
+      ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+      ##
+      # sampleLimit: 0
+
   ## Configuration for the Prometheus instance
   ##
   prometheus:
@@ -219,6 +279,9 @@ kubeMonitoring:
 
     # Deploys a Plutono datasource config Secret for this Prometheus
     plutonoDatasource: true
+
+    # Deploys a Perses datasource ConfigMap for this Prometheus
+    persesDatasource: true
 
     prometheusSpec:
 
