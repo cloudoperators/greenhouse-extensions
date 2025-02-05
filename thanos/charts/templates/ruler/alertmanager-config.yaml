@@ -1,4 +1,4 @@
-{{ if .Values.thanos.ruler.alertmanagers.enabled }}
+{{ if and .Values.thanos.ruler.alertmanagers.enabled .Values.thanos.ruler.enabled (not .Values.thanos.query.standalone) }}
 apiVersion: v1
 kind: Secret
 metadata:
