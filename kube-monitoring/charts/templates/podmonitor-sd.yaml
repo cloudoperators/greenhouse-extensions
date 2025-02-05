@@ -31,7 +31,7 @@ spec:
         {{- if $values.additionalRelabelings }}
         {{- tpl (toYaml $values.additionalRelabelings) . | nindent 8 }}
         {{- end }}
-        {{- include "kubeMonitoring.defaultRelabelConfig" . | nindent 8 }}
+        {{- include "kubeMonitoring.defaultRelabelConfig" . | replace "target_label" "targetLabel" | nindent 8 }}
       {{- if $values.additionalMetricRelabelings }}
       metricRelabelings:
         {{- tpl (toYaml $values.additionalMetricRelabelings) . | nindent 8 }}

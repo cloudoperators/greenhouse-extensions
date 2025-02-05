@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+{{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -21,3 +22,4 @@ spec:
   resources:
     requests:
       storage: {{ default "100Gi" .Values.thanos.compactor.volume.size }}
+{{ end }}
