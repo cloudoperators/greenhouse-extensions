@@ -26,5 +26,4 @@ spec:
     protocol: TCP
     targetPort: http
   selector:
-    app.kubernetes.io/managed-by: {{ include "release.name" . }}
-    app.kubernetes.io/name: ruler
+    app.kubernetes.io/name: thanos-ruler
