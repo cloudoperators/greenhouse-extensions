@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: oauth2-proxy
+  name: {{ include "oauth2-proxy.fullname" . }}
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      k8s-app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        k8s-app: oauth2-proxy
+    spec:
+      containers:
+      - args:
+        - --provider=oidc
+        - --email-domain=*
+        - --provider-display-name={{ .Values.oauth2proxy.providerDisplayName | default ( printf "%s %s" .Values.global.greenhouse.organizationName "OIDC Provider") }}
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --redirect-url=oauth2/callback
+        - --oidc-issuer-url={{ required "oauth2proxy.issuerURL" .Values.oauth2proxy.issuerURL }}
+        - --scope= "openid email groups"
+        - --pass-user-headers=true
+        - --set-xauthrequest=true
+        - --whitelist-domain= {{ required ".domain missing" $.Values.domain }}
+        - --cookie-name={{ .Values.oauth2proxy.cookieName | default "_oauth2_proxy" }}
+        - --cookie-domain= {{ required ".domain missing" $.Values.domain }}
+        - --cookie-expire={{ .Values.oauth2proxy.cookieExpire | default "12h0m0s" }}
+        - --oidc-email-claim=email
+        - --allowed-group=organization:{{ required "global.greenhouse.organizationName" .Values.global.greenhouse.organizationName }}
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "oauth2proxy.clientIDRef.secret" .Values.oauth2proxy.clientIDRef.secret }}
+              key: {{ required "oauth2proxy.clientIDRef.key" .Values.oauth2proxy.clientIDRef.key }}
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "oauth2proxy.clientSecretRef.secret" .Values.oauth2proxy.clientSecretRef.secret }}
+              key: {{ required "oauth2proxy.clientIDRef.key" .Values.oauth2proxy.clientSecretRef.key }}
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "oauth2proxy.cookieSecretRef.secret" .Values.oauth2proxy.cookieSecretRef.secret }}
+              key: {{ required "oauth2proxy.cookieSecretRef.key" .Values.oauth2proxy.cookieSecretRef.key }}
+        image: {{ required "oauth2proxy.image.registry" .Values.oauth2proxy.image.registry }}/{{ required "oauth2proxy.image.repository" .Values.oauth2proxy.image.repository }}:{{ required "oauth2proxy.image.version" .Values.oauth2proxy.image.version }}
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 30
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ping
+            port: 4180
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: oauth2-proxy
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: 
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30

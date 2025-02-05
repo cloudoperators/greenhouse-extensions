@@ -37,3 +37,10 @@ ingress:
   annotations:
     kubernetes.io/tls-acme: "true"
     disco: "true"
+
+oauth2proxy:
+  image:
+    registry: "docker.io"
+    repository: "bitnami/oauth2-proxy"
+    version: "7.6.0"
+  providerDisplayName: ""

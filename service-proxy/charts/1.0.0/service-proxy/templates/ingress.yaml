@@ -14,6 +14,9 @@ metadata:
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/start 
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/auth 
+    nginx.ingress.kubernetes.io/service-upstream: "true"
   {{- end }}
 spec:
   {{- if .Values.ingress.className }}
@@ -21,10 +24,10 @@ spec:
   {{- end }}
   tls:
   - hosts:
-      - "*.{{ required ".domain missing" .Values.domain }}"
+      - "*.{{ required ".domain missing" $.Values.domain }}"
     secretName: {{ $fullName }}-tls
   rules:
-  - host: "*.{{ required ".domain missing" .Values.domain }}"
+  - host: "*.{{ required ".domain missing" $.Values.domain }}"
     http:
       paths:
         - path: /

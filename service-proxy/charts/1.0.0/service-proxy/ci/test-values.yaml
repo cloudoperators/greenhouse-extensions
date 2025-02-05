@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+global:
+  greenhouse:
+    organizationName: demo
+domain: demo.cloud.tld
+
+oauth2proxy:
+  issuerURL: https://idp.tld
+  clientIDRef:
+    secret: "client-secret"
+    key: clientid
+  clientSecretRef:
+    secret: "client-secret"
+    key: clientsecret
+  cookieSecretRef:
+    secret: "cookie-secret"
+    key: "cookie"
