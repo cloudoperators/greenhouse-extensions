@@ -122,11 +122,17 @@ thanos:
   ruler:
     enabled: true
 
+    annotations:
+
+    externalPrefix: /ruler
+
     labels:
 
     alertLabels:
 
     matchLabel:
+
+    serviceLabels:
 
     alertmanagers:
       enabled: true
