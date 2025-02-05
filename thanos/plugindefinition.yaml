@@ -10,7 +10,7 @@ spec:
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.1.6
+        version: 0.1.7
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -118,4 +118,4 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
-    version: 0.2.6
+    version: 0.2.7

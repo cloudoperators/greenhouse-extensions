@@ -134,8 +134,6 @@ thanos:
 
     labels:
 
-    externalPrefix: /ruler
-
     alertLabels:
 
     matchLabel:
