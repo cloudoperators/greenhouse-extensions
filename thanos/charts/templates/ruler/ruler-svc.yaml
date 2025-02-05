@@ -26,5 +26,4 @@ spec:
     protocol: TCP
     targetPort: http
   selector:
-    app.kubernetes.io/managed-by: prometheus-operator
     app.kubernetes.io/name: thanos-ruler
