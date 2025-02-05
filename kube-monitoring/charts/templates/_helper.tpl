@@ -85,7 +85,7 @@ release: {{ .Release.Name }}
 {{- end }}
 
 {{/* Generate basic labels */}}
-{{ define "kube-monitoring.labels" }}
+{{ define "kubeMonitoring.labels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
 plugindefinition: kube-monitoring
@@ -97,13 +97,23 @@ app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 release: {{ $root.Release.Name | quote }}
 {{- end }}
 
-{{- define "kube-monitoring.dashboardSelectorLabels" }}
+{{- define "kubeMonitoring.dashboardSelectorLabels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
 plugin: {{ $root.Release.Name }}
 {{- if $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
 {{- range $i, $target := $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
 {{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- define "kubeMonitoring.defaultRelabelConfig" -}}
+{{- if .Values.kubeMonitoring.prometheus.prometheusSpec.externalLabels }}
+{{- range $key, $value := .Values.kubeMonitoring.prometheus.prometheusSpec.externalLabels }}
+- action: replace
+  target_label: {{ $key }}
+  replacement: "{{ tpl $value $ }}"
 {{- end }}
 {{- end }}
 {{- end }}
