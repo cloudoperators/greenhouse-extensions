@@ -5,6 +5,9 @@ global:
   ## Labels to apply to all resources
   commonLabels: {}
 
+  # -- Overrides the registry globally for all images
+  imageRegistry: null
+
 thanos:
   image:
     repository: quay.io/thanos/thanos
@@ -15,6 +18,18 @@ thanos:
   grpcAddress:
   # used across the stack
   httpAddress:
+
+  ## Init container to set permissions
+  initChownData:
+
+    ## initChownData container image
+    ##
+    image:
+      # -- The Docker registry
+      registry: docker.io
+      repository: library/busybox
+      tag: "stable"
+      sha: ""
 
   query:
     replicas:
@@ -35,16 +50,21 @@ thanos:
 
     additionalArgs: []
       # - something.route-foo=/lol
+
     deploymentLabels: {}
+
     containerLabels:
 
     serviceLabels:
 
     annotations:
 
+    # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
 
   store:
+    # if this is a standalone Thanos Query, we wouldn't want a store.
+    enabled: true
     # adding additional arguments
     additionalArgs: []
 
@@ -67,6 +87,7 @@ thanos:
     # if this is a standalone Thanos Query, we wouldn't want a compactor
     enabled: true
     # TODO: store secret needs to be present and can not be provisioned automatically
+
     logLevel:
 
     containerLabels: []
@@ -107,11 +128,17 @@ thanos:
   ruler:
     enabled: true
 
+    annotations:
+
+    externalPrefix: /ruler
+
     labels:
 
     alertLabels:
 
     matchLabel:
+
+    serviceLabels:
 
     alertmanagers:
       enabled: true

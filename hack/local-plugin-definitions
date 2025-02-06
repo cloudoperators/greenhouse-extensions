@@ -1,0 +1,132 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Paths
+YQ="./bin/yq"  # Use yq from bin folder
+KUSTOMIZE="./bin/kustomize"  # Use kustomize from bin folder
+GENERATED_DIR="bin/.generated"
+BASE_KUSTOMIZATION="${GENERATED_DIR}/kustomization.yaml"
+SOURCE_KUSTOMIZATION="kustomization.yaml"
+
+# Ensure the output directory exists
+mkdir -p $GENERATED_DIR
+
+# extract plugin names from root kustomization.yaml
+extract_plugin_names() {
+  $YQ -r '.resources[]' "$SOURCE_KUSTOMIZATION" | sed 's#/plugindefinition.yaml$##'
+}
+
+# initialize kustomization.yaml to generate the local catalog
+# note: _all.yaml is a temporary file that will be removed after the local catalog is generated
+initialize_kustomization() {
+  cat <<EOF > "$BASE_KUSTOMIZATION"
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - _all.yaml
+patches: []
+EOF
+}
+
+# generate YAML block for patches
+generate_patch_file() {
+  local plugin="$1"
+  local patch_file
+  patch_file=$(mktemp)
+
+  cat <<EOF > "$patch_file"
+|-
+  - op: replace
+    path: /spec/helmChart/version
+    value: ""
+  - op: replace
+    path: /spec/helmChart/repository
+    value: ""
+  - op: replace
+    path: /spec/helmChart/name
+    value: "local/plugins/$plugin"
+EOF
+
+  echo "$patch_file"
+}
+
+# add patches in kustomization.yaml to replace the helmChart values with local values
+add_patches() {
+  local plugin_names
+  plugin_names=$(extract_plugin_names)
+
+  for plugin in $plugin_names; do
+    patch_file=$(generate_patch_file "$plugin")
+
+    # Use `load()` to correctly insert the YAML patch block
+    $YQ -i ".patches += [{
+      \"target\": {
+        \"kind\": \"PluginDefinition\",
+        \"name\": \"$plugin\"
+      },
+      \"patch\": load(\"$patch_file\")
+    }]" "$BASE_KUSTOMIZATION"
+
+    rm -f "$patch_file"
+  done
+}
+
+# build the local catalog using kustomize and extract each resource into its own file
+build_local_catalog() {
+  # build all resources using kustomize
+  $KUSTOMIZE build . > $GENERATED_DIR/_all.yaml
+  # build all in one local catalog from the initialized bin/.generated/kustomization.yaml
+  $KUSTOMIZE build $GENERATED_DIR > $GENERATED_DIR/_local_catalog.yaml
+
+  # extract all metadata names from _local_catalog.yaml
+  $YQ -N e 'select(.metadata.name) | .metadata.name' $GENERATED_DIR/_local_catalog.yaml | while read -r name; do
+    # extract and write each specific resource using its metadata.name
+    $YQ -N e "select(.metadata.name == \"$name\")" $GENERATED_DIR/_local_catalog.yaml > $GENERATED_DIR/"$name.yaml"
+  done
+
+  # clean up temporary files
+  rm -f $GENERATED_DIR/_all.yaml $GENERATED_DIR/_local_catalog.yaml
+}
+
+# prepare a local kustomization.yaml to easily apply the generated catalog
+prepare_local_kustomization() {
+  cat <<EOF > "$BASE_KUSTOMIZATION"
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: []
+EOF
+}
+
+# extract name of plugindefinitions from root kustomization.yaml to populate the resources array with "<plugin-name>.yaml"
+# kubectl apply -k bin/.generated
+add_resources() {
+  local plugin_names
+  plugin_names=$(extract_plugin_names)
+
+  for plugin in $plugin_names; do
+    $YQ -i ".resources += [\"$plugin.yaml\"]" "$BASE_KUSTOMIZATION"
+  done
+}
+
+# Main Execution (Ordered execution)
+initialize_kustomization #1
+add_patches #2
+build_local_catalog #3
+prepare_local_kustomization #4
+add_resources #5
+
+echo "✅ Successfully generated $BASE_KUSTOMIZATION!"

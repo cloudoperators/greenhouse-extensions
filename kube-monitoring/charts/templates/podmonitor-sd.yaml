@@ -7,16 +7,44 @@ metadata:
   labels:
     {{- include "kube-prometheus-stack.labels" . | nindent 4 }}
 spec:
-  {{- include "servicemonitor.scrapeLimits" . | nindent 2 }}
   podMetricsEndpoints:
-{{ tpl (toYaml $values.podMetricsEndpoints) . | indent 4 }}
-  {{- if $values.jobLabel }}
+    - port: {{ $values.port }}
+      relabelings:
+        - action: keep
+          sourceLabels:
+            - __meta_kubernetes_pod_annotation_greenhouse_scrape
+          regex: "true"
+        {{- if $values.limitToPrometheusTargets }}
+        - action: keep
+          sourceLabels:
+            - __meta_kubernetes_pod_annotation_greenhouse_target
+          regex: {{ $.Release.Name | quote }}
+        {{- end }}
+        - action: labelmap
+          regex: '__meta_kubernetes_pod_label_(.+)'
+        - sourceLabels:
+            - __meta_kubernetes_namespace
+          targetLabel: namespace
+        - sourceLabels:
+            - __meta_kubernetes_pod_name
+          targetLabel: pod
+        {{- if $values.additionalRelabelings }}
+        {{- tpl (toYaml $values.additionalRelabelings) . | nindent 8 }}
+        {{- end }}
+        {{- include "kubeMonitoring.defaultRelabelConfig" . | replace "target_label" "targetLabel" | nindent 8 }}
+      {{- if $values.additionalMetricRelabelings }}
+      metricRelabelings:
+        {{- tpl (toYaml $values.additionalMetricRelabelings) . | nindent 8 }}
+      {{- end }}
+{{- if $values.jobLabel }}
   jobLabel: {{ $values.pods.jobLabel }}
-  {{- end }}
+{{- end }}
   namespaceSelector:
 {{ toYaml $values.namespaceSelector | indent 4 }}
   selector:
-{{ toYaml $values.selector | indent 4 }}
+    matchExpressions:
+      - key: do-not-select
+        operator: DoesNotExist
   {{- if $values.podTargetLabels }}
   podTargetLabels:
 {{ toYaml $values.podTargetLabels | indent 4 }}

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -87,7 +88,12 @@ spec:
           name: data
       initContainers:
       - name: init-permissions
-        image: busybox
+        {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
+        {{- if .Values.thanos.initChownData.image.sha }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+        {{- else }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}"
+        {{- end }}
         command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
         securityContext:
           runAsUser: 0
@@ -106,3 +112,4 @@ spec:
           secretName: {{ include "release.name" . }}-metrics-objectstore
       - name: data
         emptyDir: {}
+{{ end }}
