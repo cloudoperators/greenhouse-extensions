@@ -95,3 +95,8 @@ spec:
       default: true
       required: false
       type: bool
+    - name: blackboxExporter
+      description: Deploys the Prometheus exporter for blackbox testing
+      default: false
+      required: false
+      type: bool
