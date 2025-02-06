@@ -371,5 +371,5 @@ testFramework:
     tag: main
   imagePullPolicy: IfNotPresent
 
-blackBoxExporter:
+blackboxExporter:
   enabled: false
