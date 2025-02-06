@@ -9,43 +9,6 @@
       "name": "Kubernetes Node"
     },
     "panels": {
-      "0": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Cores"
-          },
-          "plugin": {
-            "kind": "StatChart",
-            "spec": {
-              "calculation": "mean",
-              "thresholds": {
-                "steps": [
-                  {
-                    "color": "rgb(255, 255, 255)",
-                    "value": 0
-                  }
-                ]
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "",
-                    "query": "count without(cpu, mode) (node_cpu_seconds_total{mode=\"idle\", node=~\"$server.*\"})",
-                    "seriesNameFormat": ""
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
       "1": {
         "kind": "Panel",
         "spec": {
@@ -57,7 +20,7 @@
             "spec": {
               "calculation": "last-number",
               "format": {
-                "unit": "decimal"
+                "unit": "bytes"
               }
             }
           },
@@ -88,7 +51,7 @@
             "spec": {
               "calculation": "last-number",
               "format": {
-                "unit": "decimal"
+                "unit": "bytes"
               }
             }
           },
@@ -115,23 +78,13 @@
             "name": "CPU Used"
           },
           "plugin": {
-            "kind": "GaugeChart",
+            "kind": "StatChart",
             "spec": {
               "calculation": "last-number",
               "format": {
                 "unit": "percent"
               },
-              "thresholds": {
-                "steps": [
-                  {
-                    "value": 50
-                  },
-                  {
-                    "color": "#ff0000",
-                    "value": 80
-                  }
-                ]
-              }
+              "sparkline": {}
             }
           },
           "queries": [
@@ -162,7 +115,7 @@
             "spec": {
               "calculation": "last-number",
               "format": {
-                "unit": "weeks"
+                "unit": "seconds"
               }
             }
           },
@@ -173,7 +126,7 @@
                 "plugin": {
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
-                    "query": "time() - node_boot_time_seconds{node=~\"$test\"}",
+                    "query": "time() - node_boot_time_seconds{node=~\"$server\"}",
                     "seriesNameFormat": ""
                   }
                 }
@@ -194,7 +147,8 @@
               "calculation": "last-number",
               "format": {
                 "unit": "percent-decimal"
-              }
+              },
+              "sparkline": {}
             }
           },
           "queries": [
@@ -270,6 +224,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "bytes"
+                }
               }
             }
           },
@@ -340,6 +301,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "bytes"
+                }
               }
             }
           },
@@ -417,6 +385,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "percent-decimal"
+                }
               }
             }
           },
@@ -486,6 +461,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "connectNulls": false
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "bytes/sec"
+                }
               }
             }
           },
@@ -603,6 +585,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "milliseconds"
+                }
               }
             }
           },
@@ -696,19 +685,10 @@
         "spec": {
           "items": [
             {
-              "x": 0,
-              "y": 0,
-              "width": 4,
-              "height": 4,
-              "content": {
-                "$ref": "#/spec/panels/0"
-              }
-            },
-            {
               "x": 4,
               "y": 0,
               "width": 4,
-              "height": 4,
+              "height": 6,
               "content": {
                 "$ref": "#/spec/panels/1"
               }
@@ -717,7 +697,7 @@
               "x": 8,
               "y": 0,
               "width": 4,
-              "height": 4,
+              "height": 6,
               "content": {
                 "$ref": "#/spec/panels/2"
               }
@@ -726,7 +706,7 @@
               "x": 12,
               "y": 0,
               "width": 4,
-              "height": 4,
+              "height": 6,
               "content": {
                 "$ref": "#/spec/panels/3"
               }
@@ -735,7 +715,7 @@
               "x": 16,
               "y": 0,
               "width": 4,
-              "height": 4,
+              "height": 6,
               "content": {
                 "$ref": "#/spec/panels/4"
               }
@@ -744,14 +724,14 @@
               "x": 20,
               "y": 0,
               "width": 4,
-              "height": 4,
+              "height": 6,
               "content": {
                 "$ref": "#/spec/panels/5"
               }
             },
             {
               "x": 0,
-              "y": 4,
+              "y": 0,
               "width": 4,
               "height": 6,
               "content": {
@@ -759,8 +739,17 @@
               }
             },
             {
+              "x": 0,
+              "y": 6,
+              "width": 4,
+              "height": 9,
+              "content": {
+                "$ref": "#/spec/panels/9"
+              }
+            },
+            {
               "x": 4,
-              "y": 4,
+              "y": 6,
               "width": 6,
               "height": 9,
               "content": {
@@ -769,7 +758,7 @@
             },
             {
               "x": 10,
-              "y": 4,
+              "y": 6,
               "width": 14,
               "height": 11,
               "content": {
@@ -778,17 +767,8 @@
             },
             {
               "x": 0,
-              "y": 10,
-              "width": 4,
-              "height": 8,
-              "content": {
-                "$ref": "#/spec/panels/9"
-              }
-            },
-            {
-              "x": 4,
-              "y": 13,
-              "width": 6,
+              "y": 15,
+              "width": 10,
               "height": 12,
               "content": {
                 "$ref": "#/spec/panels/10"
@@ -796,7 +776,7 @@
             },
             {
               "x": 10,
-              "y": 15,
+              "y": 17,
               "width": 14,
               "height": 10,
               "content": {
@@ -805,7 +785,7 @@
             },
             {
               "x": 0,
-              "y": 25,
+              "y": 27,
               "width": 24,
               "height": 10,
               "content": {
@@ -814,7 +794,7 @@
             },
             {
               "x": 0,
-              "y": 35,
+              "y": 37,
               "width": 12,
               "height": 8,
               "content": {
@@ -823,7 +803,7 @@
             },
             {
               "x": 12,
-              "y": 35,
+              "y": 37,
               "width": 12,
               "height": 8,
               "content": {
@@ -832,7 +812,7 @@
             },
             {
               "x": 0,
-              "y": 43,
+              "y": 45,
               "width": 12,
               "height": 8,
               "content": {
@@ -841,7 +821,7 @@
             },
             {
               "x": 12,
-              "y": 43,
+              "y": 45,
               "width": 12,
               "height": 8,
               "content": {
@@ -897,7 +877,6 @@
       }
     ],
     "duration": "6h",
-    "refreshInterval": "0s",
-    "datasources": {}
+    "refreshInterval": "0s"
   }
 }
