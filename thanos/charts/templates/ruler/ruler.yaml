@@ -13,6 +13,7 @@ spec:
   externalPrefix: {{ .Values.thanos.ruler.externalPrefix }}
   routePrefix: {{ .Values.thanos.ruler.externalPrefix }}
   {{- end }}
+  portName: http
   podMetadata:
     labels:
       {{- include "plugin.labels" . | nindent 6 }}
