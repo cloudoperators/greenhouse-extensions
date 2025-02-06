@@ -65,6 +65,13 @@
               "visual": {
                 "areaOpacity": 0.3,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "requests/sec"
+                }
               }
             }
           },
@@ -101,6 +108,13 @@
                 "areaOpacity": 0.3,
                 "connectNulls": false,
                 "stack": "all"
+              },
+              "yAxis": {
+                "show": true,
+                "label": "",
+                "format": {
+                  "unit": "requests/sec"
+                }
               }
             }
           },
@@ -134,8 +148,8 @@
                 "position": "bottom"
               },
               "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
+                "areaOpacity": 0.3,
+                "stack": "all"
               },
               "yAxis": {
                 "format": {
@@ -174,8 +188,8 @@
                 "position": "bottom"
               },
               "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -569,6 +583,7 @@
       }
     ],
     "duration": "12h",
-    "refreshInterval": "0s"
+    "refreshInterval": "0s",
+    "datasources": {}
   }
 }
