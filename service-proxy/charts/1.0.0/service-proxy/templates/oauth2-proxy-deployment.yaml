@@ -26,15 +26,16 @@ spec:
         - --http-address=0.0.0.0:4180
         - --redirect-url=oauth2/callback
         - --oidc-issuer-url={{ required "oauth2proxy.issuerURL" .Values.oauth2proxy.issuerURL }}
-        - --scope= "openid email groups"
+        - --scope="openid email groups"
         - --pass-user-headers=true
         - --set-xauthrequest=true
-        - --whitelist-domain= {{ required ".domain missing" $.Values.domain }}
+        - --whitelist-domain={{ required ".domain missing" $.Values.domain | trimPrefix $.Values.global.greenhouse.organizationName }}
         - --cookie-name={{ .Values.oauth2proxy.cookieName | default "_oauth2_proxy" }}
-        - --cookie-domain= {{ required ".domain missing" $.Values.domain }}
+        - --cookie-domain={{ required ".domain missing" $.Values.domain | trimPrefix $.Values.global.greenhouse.organizationName }}
         - --cookie-expire={{ .Values.oauth2proxy.cookieExpire | default "12h0m0s" }}
         - --oidc-email-claim=email
-        - --allowed-group=organization:{{ required "global.greenhouse.organizationName" .Values.global.greenhouse.organizationName }}
+        - --cookie-csrf-per-request=true
+        - --cookie-csrf-expire=5m
         env:
         - name: OAUTH2_PROXY_CLIENT_ID
           valueFrom:
