@@ -206,31 +206,30 @@ kubeMonitoring:
     pods:
       enabled: true
 
-      ## Endpoints of the selected pods to be monitored
-      ## https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#podmetricsendpoint
+      ## To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
+      limitToPrometheusTargets: true
+
+      ## Monitor Pods with the following port name
+      port: metrics
+
+      ## RelabelConfigs to apply to samples before scraping
+      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
       ##
-      podMetricsEndpoints:
-          ## Monitor Pods with the following port name
-        - port: metrics
+      additionalRelabelings: []
+      # - sourceLabels: [__meta_kubernetes_pod_node_name]
+      #   separator: ;
+      #   regex: ^(.*)$
+      #   targetLabel: nodename
+      #   replacement: $1
+      #   action: replace
 
-          ## RelabelConfigs to apply to samples before scraping
-          ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-          ##
-          relabelings: []
-          # - sourceLabels: [__meta_kubernetes_pod_node_name]
-          #   separator: ;
-          #   regex: ^(.*)$
-          #   targetLabel: nodename
-          #   replacement: $1
-          #   action: replace
-
-          ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
-          ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-          ##
-          metricRelabelings: []
-          # - action: keep
-          #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
-          #   sourceLabels: [__name__]
+      ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+      ##
+      additionalMetricRelabelings: []
+      # - action: keep
+      #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
+      #   sourceLabels: [__name__]
 
       ## Pod label for use in assembling a job name of the form <label value>-<port>
       ## If no label is specified, the pod endpoint name is used.
@@ -247,15 +246,6 @@ kubeMonitoring:
         ## Explicit list of namespace names to select
         ##
         # matchNames: []
-
-      ## Custom definition to pick up specific pods with an expression.
-      selector:
-        matchExpressions: []
-
-        ## label selector for pods
-        ##
-        matchLabels:
-          greenhouse/scrape: "true"
 
       ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
       ##

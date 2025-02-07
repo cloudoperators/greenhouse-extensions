@@ -1,21 +1,20 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.store.annotations }}
+  {{- if .Values.thanos.ruler.annotations }}
   annotations:
-    {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+    {{ toYaml .Values.thanos.ruler.annotations | nindent 8 }}
   {{- end }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.store.serviceLabels }}
-    {{ toYaml .Values.thanos.store.serviceLabels | nindent 4 }}
+    {{- if .Values.thanos.ruler.serviceLabels }}
+    {{ toYaml .Values.thanos.ruler.serviceLabels | nindent 4 }}
     {{- end }}
-  name: {{ include "release.name" . }}-store
+  name: {{ include "release.name" . }}-ruler
 spec:
   ports:
   - name: grpc
@@ -27,6 +26,4 @@ spec:
     protocol: TCP
     targetPort: http
   selector:
-    app.kubernetes.io/managed-by: {{ include "release.name" . }}
-    app.kubernetes.io/name: store
-{{ end }}
+    app.kubernetes.io/name: thanos-ruler

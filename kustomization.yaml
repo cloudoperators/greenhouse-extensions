@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+resources:
+  - alerts/plugindefinition.yaml
+  - cert-manager/plugindefinition.yaml
+  - exposed-services/plugindefinition.yaml
+  - external-dns/plugindefinition.yaml
+  - github-guard/plugindefinition.yaml
+  - ingress-nginx/plugindefinition.yaml
+  - kube-monitoring/plugindefinition.yaml
+  - openbao/plugindefinition.yaml
+  - opentelemetry/plugindefinition.yaml
+  - perses/plugindefinition.yaml
+  - plutono/plugindefinition.yaml
+  - service-proxy/plugindefinition.yaml
+  - teams2slack/plugindefinition.yaml
+  - thanos/plugindefinition.yaml

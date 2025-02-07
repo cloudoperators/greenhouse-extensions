@@ -8,4 +8,4 @@ metadata:
 
 data:
   config.yaml: {{ include (print $.Template.BasePath "/_alertmanager-config.yaml.tpl") . | b64enc }}
-  relabelConfig.yaml: {{ include (print $.Template.BasePath "/_alertmanager_relabel.yaml.tpl") . | b64enc }}
+  relabelConfig.yaml: {{ include "kubeMonitoring.defaultRelabelConfig" . | b64enc }}
