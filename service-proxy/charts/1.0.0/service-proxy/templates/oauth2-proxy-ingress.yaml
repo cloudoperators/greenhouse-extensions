@@ -15,7 +15,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: oauth2-proxy.{{ required ".domain missing" $.Values.domain }}
+  - host: auth-proxy.{{ required ".domain missing" $.Values.domain }}
     http:
       paths:
       - backend:
@@ -27,5 +27,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - oauth2-proxy.{{ required ".domain missing" $.Values.domain }}
+    - auth-proxy.{{ required ".domain missing" $.Values.domain }}
     secretName: {{ $fullName }}-tls
