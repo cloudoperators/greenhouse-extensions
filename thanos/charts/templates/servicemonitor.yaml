@@ -8,7 +8,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ include "release.name" . }}
   labels:
-    {{ toYaml .Values.thanos.serviceMonitorLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.serviceMonitorLabels | nindent 4 }}
 
 spec:
   selector:

@@ -19,7 +19,7 @@ thanos:
   # used across the stack
   httpAddress:
 
-  serviceMonitorLabels: 
+  serviceMonitorLabels:
 
   ## Init container to set permissions
   initChownData:
