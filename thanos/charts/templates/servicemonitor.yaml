@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+{{ if .Values.thanos.serviceMonitorLabels }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 
 metadata:
   name: {{ include "release.name" . }}
   labels:
-    plugin: kube-monitoring-NAMESPACE
+    {{ toYaml .Values.thanos.serviceMonitorLabels | nindent 4 }}
 
 spec:
   selector:
@@ -17,3 +18,4 @@ spec:
   endpoints:
   - path: /metrics
     port: http
+{{ end }}

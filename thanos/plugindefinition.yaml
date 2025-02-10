@@ -42,6 +42,10 @@ spec:
           name: thanos.query.autoDownsampling
           required: false
           type: bool
+        - description: Needed to create a ServiceMonitor for Thanos to expose metrics to Prometheus
+          name: thanos.serviceMonitorLabels
+          required: false
+          type: map
         - default: null
           description: Thanos log level for Query
           name: thanos.query.logLevel
