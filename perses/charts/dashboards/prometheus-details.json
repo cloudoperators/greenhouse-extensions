@@ -16,18 +16,8 @@
             "name": "Prometheus version"
           },
           "plugin": {
-            "kind": "StatChart",
-            "spec": {
-              "calculation": "mean",
-              "thresholds": {
-                "steps": [
-                  {
-                    "color": "rgb(247, 247, 247)",
-                    "value": 0
-                  }
-                ]
-              }
-            }
+            "kind": "TimeSeriesTable",
+            "spec": {}
           },
           "queries": [
             {
@@ -55,17 +45,9 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "max",
+              "calculation": "last",
               "format": {
                 "unit": "seconds"
-              },
-              "thresholds": {
-                "steps": [
-                  {
-                    "color": "rgb(255, 255, 255)",
-                    "value": 0
-                  }
-                ]
               }
             }
           },
@@ -185,12 +167,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -220,12 +202,19 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "percent-decimal"
+                },
+                "label": "",
+                "show": true
               }
             }
           },
@@ -255,12 +244,19 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                },
+                "label": "",
+                "show": true
               }
             }
           },
@@ -290,12 +286,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -325,12 +321,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -360,12 +356,19 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                },
+                "label": "",
+                "show": true
               }
             }
           },
@@ -395,13 +398,20 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3,
-                "connectNulls": false
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "connectNulls": false,
+                "stack": "all"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                },
+                "label": "",
+                "show": true
               }
             }
           },
@@ -431,12 +441,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -466,12 +476,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -501,12 +511,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -549,12 +559,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -584,12 +594,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -632,12 +642,19 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "seconds"
+                },
+                "label": "",
+                "show": true
               }
             }
           },
@@ -668,8 +685,8 @@
             "kind": "TimeSeriesChart",
             "spec": {
               "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -712,12 +729,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -786,12 +803,12 @@
           "plugin": {
             "kind": "TimeSeriesChart",
             "spec": {
-              "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
-              },
               "legend": {
                 "position": "bottom"
+              },
+              "visual": {
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },
@@ -835,8 +852,8 @@
             "kind": "TimeSeriesChart",
             "spec": {
               "visual": {
-                "stack": "all",
-                "areaOpacity": 0.3
+                "areaOpacity": 0.3,
+                "stack": "all"
               }
             }
           },

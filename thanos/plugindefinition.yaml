@@ -10,7 +10,7 @@ spec:
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.1.5
+        version: 0.1.10
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -60,13 +60,28 @@ spec:
         - default: 
             greenhouse.sap/expose: "true"
             greenhouse.sap/exposeNamedPort: "http"
-          description: Needed for exposing Thanos to the service proxy. UI is accessible via http, exposing this particular port.
+          description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
           name: thanos.query.serviceLabels
           required: false
           type: map
         - default: false
           description: Removes standard Thanos endpoints for overarching Queries 
           name: thanos.query.standalone
+          required: false
+          type: bool
+        - default: true
+          description: Enable Thanos Store
+          name: thanos.store.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Enable Thanos Compactor
+          name: thanos.compactor.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Enable Thanos Ruler
+          name: thanos.ruler.enabled
           required: false
           type: bool
         - default: [] 
@@ -84,6 +99,13 @@ spec:
           name: thanos.query.web.routePrefix
           required: false
           type: string
+        - default: 
+            greenhouse.sap/expose: "true"
+            greenhouse.sap/exposeNamedPort: http
+          description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
+          name: thanos.ruler.serviceLabels
+          required: false
+          type: map
         - default: false
           description: Thanos ruler Alertmanager auth toggle
           name: thanos.ruler.alertmanagers.authentication.enabled
@@ -97,4 +119,4 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
-    version: 0.2.5
+    version: 0.2.10
