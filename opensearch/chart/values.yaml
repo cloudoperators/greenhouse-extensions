@@ -5,15 +5,15 @@ owner-info:
   service: opensearch
   support-group: observability
   maintainers:
-  - name: timojohlo
-  - name: kuckkuck
-  - name: joluc
+    - name: timojohlo
+    - name: kuckkuck
+    - name: joluc
   helm-chart-url: https://github.com/sapcc/helm-charts/system/opensearch-operator
 
 opensearch-operator:
   namespace: "opensearch-logs"
-  nameOverride: ""
-  fullnameOverride: ""
+  nameOverride: "opensearch-operator"
+  fullnameOverride: "opensearch-operator"
 
   podAnnotations: {}
   podLabels: {}
@@ -28,11 +28,11 @@ opensearch-operator:
     extraEnv: []
     resources:
       limits:
-        cpu: "200m"
-        memory: "500Mi"
+        cpu: 200m
+        memory: 500Mi
       requests:
-        cpu: "100m"
-        memory: "350Mi"
+        cpu: 100m
+        memory: 350Mi
 
     livenessProbe:
       failureThreshold: 3
@@ -73,7 +73,7 @@ opensearch-operator:
     dnsBase: cluster.local
 
     # Log level of the operator. Possible values: debug, info, warn, error
-    loglevel: info
+    loglevel: debug
 
     # If a watchNamespace is specified, the manager's cache will be restricted to
     # watch objects in the desired namespace. Defaults is to watch all namespaces.
@@ -98,11 +98,11 @@ opensearch-operator:
           - ALL
     resources:
       limits:
-        cpu: "50m"
-        memory: "50Mi"
+        cpu: 50m
+        memory: 50Mi
       requests:
-        cpu: "25m"
-        memory: "25Mi"
+        cpu: 25m
+        memory: 25Mi
 
     livenessProbe:
       failureThreshold: 3
@@ -136,16 +136,8 @@ opensearch-operator:
   ## If false, ClusterRoleBindings will be used
   useRoleBindings: false
 
-  testFramework:
-    enabled: false
-    image:
-      registry: ghcr.io
-      repository: cloudoperators/greenhouse-extensions-integration-test
-      tag: main
-    imagePullPolicy: IfNotPresent
 
 opensearch-cluster:
-
   nameOverride: ""
   fullnameOverride: ""
 
@@ -383,43 +375,30 @@ opensearch-cluster:
 
     # -- Opensearch nodes configuration
     nodePools:
-      - component: masters
+      - component: main
         diskSize: "30Gi"
-        replicas: 1
+        replicas: 3
         roles:
-          - "master"
+          - "cluster_manager"
         resources:
           requests:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "500m"
       - component: data
         diskSize: "30Gi"
-        replicas: 3
+        replicas: 2
         roles:
           - "data"
         resources:
           requests:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "2Gi"
+            memory: "1Gi"
             cpu: "500m"
-      - component: client
-        diskSize: "30Gi"
-        replicas: 1
-        roles:
-          - "client"
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "500m"
-
     # Opensearch security configuration
     security:
       config:
@@ -434,8 +413,8 @@ opensearch-cluster:
   #       name: "secret-name"
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
-        securityConfigSecret: {}
-  #        name: "secret-name"
+        securityConfigSecret:
+          name: "custom-security-config"
 
       # Configure tls usage for transport and http interface
       tls:
@@ -478,7 +457,6 @@ opensearch-cluster:
           # different secret provide it via the caSecret field
           secret: {}
   #            name: "secret-name"
-
 
     # Opensearch Ingress configuration
     ingress:
@@ -531,62 +509,77 @@ opensearch-cluster:
 
   # -- List of OpensearchRole. Check values.yaml file for examples.
   roles:
-    - name: greenhouse
+    - name: "logs"
       clusterPermissions:
-        - "cluster_monitor"
-        - "cluster_composite_ops"
-        - "cluster:admin/ingest/pipeline/put"
-        - "cluster:admin/ingest/pipeline/get"
-        - "indices:admin/template/get"
-        - "cluster_manage_index_templates"
-        - "cluster:admin/opensearch/ml/predict"
+        - cluster_composite_ops
+        - cluster_monitor
       indexPermissions:
         - indexPatterns:
-            - "greenhouse-*"
+            - logs*
           allowedActions:
-            - "indices:admin/template/get"
-            - "indices:admin/template/put"
-            - "indices:admin/mapping/put"
-            - "indices:admin/create"
-            - "indices:data/write/bulk*"
-            - "indices:data/write/index"
-      tenantPermissions: []
+            - index
+            - read
+  #  - name: "example-role"
+  #    clusterPermissions:
+  #      - cluster_composite_ops
+  #      - cluster_monitor
+  #    allowedActions:
+  #      - index
+  #      - read
+  #  - name: "example-role-for-index-pattern"
+  #    clusterPermissions:
+  #      - cluster_composite_ops
+  #      - cluster_monitor
+  #    indexPermissions:
+  #      - indexPatterns:
+  #          - logs*
+  #        allowedActions:
+  #          - index
+  #          - read
+  #  - name: "example-role-with-tenant-scope"
+  #    clusterPermissions:
+  #      - cluster_composite_ops
+  #      - cluster_monitor
+  #    allowedActions:
+  #      - index
+  #      - read
+  #    tenantPermissions:
+  #      allowedActions:
+  #        - "*"
+  #      tenantPatterns:
+  #        - "*"
 
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
-    - name: "greenhouse"
-      secretName: "logs-user-credentials-secret"
-      secretKey: "greenhouse"
-      backendRoles:
-        - "greenhouse"
-      opendistroSecurityRoles: []
-
+    - name: "logs"
+      secretName: "logs-user-password"
+      secretKey: "password"
+      backendRoles: []
+      opendistroSecurityRoles:
+        - "logs"
+  #  - name: "example-user"
+  #    secretName: "example-secret"
+  #    secretKey: "password-key"
+  #    backendRoles: []
+  #    opendistroSecurityRoles:
+  #      - example-role
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
   usersRoleBinding:
-    - name: greenhouse-role-binding
+    - name: "logs-access"
       users:
-        - greenhouse
+        - "logs"
       roles:
-        - greenhouse
-      backendRoles: []
-
-
-#   enabled: true
-#   bindings:
-#     - name: "admin-role-binding"
-#       roles:
-#         - "admin"
-#       backendRoles:
-#         - "CC_IAS_TEAM_SUPERVISION"
-#       users:
-#         - "adminuser"
-#     - name: "greenhouse-role-binding"
-#       roles:
-#         - "greenhouse"
-#       users:
-#         - "greenhouse"
+        - "logs"
+  #  - name: admin_access
+  #    users:
+  #      - example-user
+  #      - example-user2
+  #    roles:
+  #      - example-role
+  #    backendRoles:
+  #      - example-backend-role
 
 
   # -- List of additional tenants. Check values.yaml file for examples.
@@ -637,26 +630,17 @@ opensearch-cluster:
   #    _meta: {} # optional
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  ismPolicies:
-    - name: 31d-log-retention
-      defaultState: ingest
-      description: "Simple 31d log retention"
-      states:
-        - name: ingest
-          actions: []
-          transitions:
-            - stateName: "delete"
-              conditions:
-                minIndexAge: "31d"
-        - name: delete
-          actions:
-            - delete: {}
-            - retry:
-                count: 3
-                backoff: exponential
-                delay: 1m
-          transitions: []
-      ismTemplate: # optional
-        priority: 0
-        indexPatterns:
-          - "greenhouse-*"
+  ismPolicies: []
+  #  - name: example-policy
+  #    defaultState: hot
+  #    description: Example policy
+  #    states:
+  #      - name: hot
+  #        actions:
+  #          - replicaCount:
+  #              numberOfReplicas: 1
+  #        transitions: []
+  #    ismTemplate: # optional
+  #      priority: 0
+  #      indexPatterns:
+  #        - "example-index-pattern*"
