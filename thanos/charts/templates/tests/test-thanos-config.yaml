@@ -55,7 +55,7 @@ data:
     {{ end }}
 
     {{ if .Values.thanos.serviceMonitorLabels }}
-    @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
+    @test "Verify succesful creation of ServiceMonitor" {
       verify "there is 1 servicemonitor named '{{ .Release.Name }}'"
     }
     {{ end }}
