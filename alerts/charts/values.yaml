@@ -3,7 +3,7 @@ global:
   ##
   commonLabels: {}
 
-  ## Additional caCert to add to the CA bundle 
+  ## Additional caCert to add to the CA bundle
   ##
   caCert: ""
 
