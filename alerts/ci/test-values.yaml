@@ -6,3 +6,5 @@ alerts:
       enabled: true
       hosts:
         - dummy-host
+  certManager:
+    enabled: false
