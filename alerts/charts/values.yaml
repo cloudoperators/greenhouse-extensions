@@ -10,7 +10,7 @@ global:
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
-  # Use certmanager to generate webhook certs
+  # Use certmanager to generate alertmanager certs
   certManager:
     enabled: true
     # self-signed root certificate
