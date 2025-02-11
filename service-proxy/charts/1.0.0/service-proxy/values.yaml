@@ -39,6 +39,7 @@ ingress:
     disco: "true"
 
 oauth2proxy:
+  enabled: false
   image:
     registry: "docker.io"
     repository: "bitnami/oauth2-proxy"
