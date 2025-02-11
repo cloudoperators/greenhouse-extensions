@@ -1,0 +1,64 @@
+{{- if .Values.alerts.certManager.enabled -}}
+{{- if not .Values.alerts.certManager.issuerRef -}}
+# Create a selfsigned Issuer in order to create a root CA certificate for
+# signing alertmanager serving certificates
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-issuer
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  selfSigned: {}
+---
+# Generate a CA Certificate used to sign certificates for the alertmanager
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-root-cert
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  secretName: {{ include "kube-prometheus-stack.fullname" . }}-root-cert
+  duration: {{ .Values.alerts.certManager.rootCert.duration | default "43800h0m0s" | quote }}
+  issuerRef:
+    name: {{ include "kube-prometheus-stack.fullname" . }}-issuer
+  commonName: "ca.alerts.greenhouse"
+  isCA: true
+---
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-root-issuer
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  ca:
+    secretName: {{ include "kube-prometheus-stack.fullname" . }}-root-cert
+{{- end }}
+---
+# generate a server certificate for the alertmanager to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-cert
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  secretName: {{ include "kube-prometheus-stack.fullname" . }}-cert
+  duration: {{ .Values.alerts.certManager.admissionCert.duration | default "8760h0m0s" | quote }}
+  issuerRef:
+    {{- if .Values.alerts.certManager.issuerRef }}
+    {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
+    {{- else }}
+    name: {{ include "kube-prometheus-stack.fullname" . }}-root-issuer
+    {{- end }}
+  dnsNames:
+  - {{ include "kube-prometheus-stack.fullname" . }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}.svc
+{{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts }}
+{{ toYaml .Values.alerts.alertmanager.ingress.hosts | indent 2 }}
+{{- end }}
+{{- end -}}
