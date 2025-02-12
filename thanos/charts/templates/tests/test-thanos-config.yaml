@@ -54,7 +54,7 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.thanos.serviceMonitorLabels }}
+    {{ if .Values.thanos.serviceMonitor.selfMonitor }}
     @test "Verify succesful creation of ServiceMonitor" {
       verify "there is 1 servicemonitor named '{{ .Release.Name }}'"
     }

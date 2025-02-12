@@ -1,14 +1,11 @@
-# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
-{{ if .Values.thanos.serviceMonitorLabels }}
+{{ if .Values.thanos.serviceMonitor.selfMonitor }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 
 metadata:
   name: {{ include "release.name" . }}
   labels:
-    {{- toYaml .Values.thanos.serviceMonitorLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.serviceMonitor.additionalLabels | nindent 4 }}
 
 spec:
   selector:
