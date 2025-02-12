@@ -22,7 +22,7 @@ thanos:
   serviceMonitor:
     ## If true, create a serviceMonitor for Thanos components
     ##
-    selfMonitor: false
+    selfMonitor: true
 
     ## Labels for ServiceMonitor
     additionalLabels: {}
