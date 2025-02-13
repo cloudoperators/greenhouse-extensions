@@ -33,6 +33,9 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "persistentvolumeclaims", "services", "configmaps"]
     verbs: ["get", "list"]
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

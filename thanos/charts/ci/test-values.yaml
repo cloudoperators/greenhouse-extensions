@@ -5,6 +5,8 @@ prometheus-operator:
       thanos-ruler: thanos
   prometheusOperator:
     enabled: true
+    serviceMonitor:
+      selfMonitor: false
   crds:
     enabled: true
 

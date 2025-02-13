@@ -1,0 +1,18 @@
+{{ if .Values.thanos.serviceMonitor.selfMonitor }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+
+metadata:
+  name: {{ include "release.name" . }}
+  labels:
+    {{- toYaml .Values.thanos.serviceMonitor.additionalLabels | nindent 4 }}
+
+spec:
+  selector:
+    matchLabels:
+      plugin: {{ include "release.name" . }}
+
+  endpoints:
+  - path: /metrics
+    port: http
+{{ end }}
