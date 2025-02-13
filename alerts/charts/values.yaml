@@ -7,6 +7,12 @@ global:
   ##
   caCert: ""
 
+  ## common greenhouse values to use
+  ##
+  greenhouse:
+    # base domain of the greenhouse organisation
+    baseDomain:
+
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
