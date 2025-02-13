@@ -23,9 +23,9 @@ data:
     DETIK_CLIENT_NAME="kubectl"
 
     @test "Verify {{ .Release.Name }} Query" {
-        verify "there is 1 deployment named '{{ .Release.Name }}-query'"
-        verify "there is 1 service named '{{ .Release.Name }}-query'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
+      verify "there is 1 deployment named '{{ .Release.Name }}-query'"
+      verify "there is 1 service named '{{ .Release.Name }}-query'"
+      try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
     }
 
     {{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
@@ -47,10 +47,16 @@ data:
 
     {{ if and .Values.thanos.ruler.enabled (not .Values.thanos.query.standalone) }}
     @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
-        verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
-        verify "there is 1 service named 'thanos-ruler-operated'"
-        try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
-        try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.data' matches '.*yaml.*'"
+      verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
+      verify "there is 1 service named 'thanos-ruler-operated'"
+      try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.data' matches '.*yaml.*'"
+    }
+    {{ end }}
+
+    {{ if .Values.thanos.serviceMonitor.selfMonitor }}
+    @test "Verify succesful creation of ServiceMonitor" {
+      verify "there is 1 servicemonitor named '{{ .Release.Name }}'"
     }
     {{ end }}
 {{- end -}}
