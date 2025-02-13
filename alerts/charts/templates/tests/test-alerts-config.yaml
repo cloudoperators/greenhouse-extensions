@@ -49,11 +49,11 @@ data:
     }
     {{- end }}
 
-    {{- if and .Values.alerts.auth.autoGenerateCert.enabled .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts (.Capabilities.APIVersions.Has "cert-manager.io/v1") }}
-    @test "Verify certificate creation and validation against the API endpoint of the alert manager" {
+    {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+    @test "Generated server certificate for the Prometheus Alertmanager to use" {
         verify "there is 1 issuer named '{{ .Release.Namespace }}-monitoring-issuer'"
-        verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-auth'"
-        verify "there is 1 secret named 'tls-{{ .Release.Namespace }}-prometheus-auth'"
+        verify "there is 1 certificate named '{{ include "kube-prometheus-stack.fullname" . }}-cert'"
+        verify "there is 1 secret named '{{ include "kube-prometheus-stack.fullname" . }}-cert'"
 
         url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
 
