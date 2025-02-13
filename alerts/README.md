@@ -84,6 +84,9 @@ Greenhouse regularly performs integration tests that are bundled with **alerts**
 
 ### cert-manager options
 
+
+| Name                                                               | Description                                                                                                                | Value   |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `alerts.certManager.enabled`                                       | Creates `jetstack/cert-manager` resources to generate Issuer and Certificates for Prometheus authentication.               | `true`  |
 | `alerts.certManager.rootCert.duration`                             | Duration, how long the root certificate is valid.                                                                          | `"5y"`  |
 | `alerts.certManager.admissionCert.duration`                        | Duration, how long the admission certificate is valid.                                                                     | `"1y"`  |
