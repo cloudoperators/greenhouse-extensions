@@ -129,4 +129,3 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
-    version: 0.2.11
