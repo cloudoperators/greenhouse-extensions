@@ -60,7 +60,10 @@ Greenhouse regularly performs integration tests that are bundled with **alerts**
 
 | Name                                                               | Description                                                                                                                | Value   |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `global.caCert`                                                    | Additional caCert to add to the CA bundle                                                                                  | `""`    |
 | `alerts.commonLabels`                                              | Labels to apply to all resources                                                                                           | `{}`    |
+| `alerts.defaultRules.create`                                       | Creates community Alertmanager alert rules.                                                                                | `true`  |
+| `alerts.defaultRules.labels`                                       | kube-monitoring `plugin: <plugin.name>` to evaluate Alertmanager rules.                                                    | `{}`    |
 | `alerts.alertmanager.enabled`                                      | Deploy Prometheus Alertmanager                                                                                             | `true`  |
 | `alerts.alertmanager.annotations`                                  | Annotations for Alertmanager                                                                                               | `{}`    |
 | `alerts.alertmanager.config`                                       | Alertmanager configuration directives.                                                                                     | `{}`    |
@@ -76,18 +79,15 @@ Greenhouse regularly performs integration tests that are bundled with **alerts**
 | `alerts.alertmanager.alertmanagerConfig.webhook.routes[].name`     | Name of the webhook route.                                                                                                 | `""`    |
 | `alerts.alertmanager.alertmanagerConfig.webhook.routes[].url`      | Webhook url to post alerts to.                                                                                             | `""`    |
 | `alerts.alertmanager.alertmanagerConfig.webhook.routes[].matchers` | List of matchers that the alert's label should match. matchType <string>, name <string>, regex <boolean>, value <string>   | `[]`    |
-
-| `alerts.auth.secretName`                                           | Use custom secret for Alertmanager authentication                                                                          | `""`    |
-| `alerts.auth.autoGenerateCert.enabled`                             | TLS Certificate Option 1: Use Helm to automatically generate self-signed certificate.                                      | `true`  |
-| `alerts.auth.autoGenerateCert.recreate`                            | If set to true, new key/certificate is generated on Helm upgrade.                                                          | `false` |
-| `alerts.auth.autoGenerateCert.certPeriodDays`                      | Cert period time in days. The default is 365 days.                                                                         | `365`   |
-| `alerts.auth.certFile`                                             | Path to your own PEM-encoded certificate.                                                                                  | `""`   |
-| `alerts.auth.keyFile`                                              | Path to your own PEM-encoded private key.                                                                                  | `""`   |
-| `alerts.auth.caFile`                                               | Path to CA cert.                                                                                                           | `""`   |
-
-| `alerts.defaultRules.create`                                       | Creates community Alertmanager alert rules.                                                                                | `true`  |
-| `alerts.defaultRules.labels`                                       | kube-monitoring `plugin: <plugin.name>` to evaluate Alertmanager rules.                                                    | `{}`    |
 | `alerts.alertmanager.alertmanagerSpec.alertmanagerConfiguration`   | AlermanagerConfig to be used as top level configuration                                                                    | `false` |
+| `alerts.alertmanager.alertmanagerConfig.webhook.routes[].matchers` | List of matchers that the alert's label should match. matchType <string>, name <string>, regex <boolean>, value <string>   | `[]`    |
+
+### cert-manager options
+
+| `alerts.certManager.enabled`                                       | Creates `jetstack/cert-manager` resources to generate Issuer and Certificates for Prometheus authentication.               | `true`  |
+| `alerts.certManager.rootCert.duration`                             | Duration, how long the root certificate is valid.                                                                          | `"5y"`  |
+| `alerts.certManager.admissionCert.duration`                        | Duration, how long the admission certificate is valid.                                                                     | `"1y"`  |
+| `alerts.certManager.issuerRef.name`                                | Name of the existing Issuer to use.                                                                                        | `""`    |
 
 ### Supernova options
 
@@ -216,11 +216,9 @@ alertmanagerConfiguration:
 
 ## TLS Certificate Requirement
 
-Greenhouse onboarded Prometheus installations need to communicate with the Alertmanager component to enable advanced processing of alerts. The Alertmanager Ingress requires a TLS certificate to be configured and trusted by Prometheus to ensure the communication. There are various ways in which you can generate/configure the required TLS certificate.
+Greenhouse onboarded Prometheus installations need to communicate with the Alertmanager component to enable processing of alerts. If an Alertmanager Ingress is enabled, this requires a TLS certificate to be configured and trusted by Alertmanger to ensure the communication. To enable automatic self-signed TLS certificate provisioning via cert-manager by setting the `alerts.certManager.enabled` value to true.
 
-  - You can use an automatically generated self-signed certificate by setting `alerts.auth.autoGenerateCert.enabled` to `true`. Helm will create a self-signed cert and a secret for you.
-  - You can use your own generated self-signed certificate by setting `alerts.auth.autoGenerateCert.enabled` to `false`. You should provide the necessary values to `alerts.auth.certFile`, `alerts.auth.keyFile`, and `alerts.auth.caFile`.
-  - You can also sideload custom certificate by disabling `alerts.auth.autoGenerateCert.enabled` to `false` while setting your custom cert secret name in `alerts.auth.secretName`
+Note: Prerequisite of this feature is a installed [jetstack/cert-manager](https://github.com/jetstack/cert-manager) which can be implemented via the Greenhouse [cert-manager](https://github.com/cloudoperators/greenhouse-extensions/tree/main/cert-manager) Plugin.
 
 ## Examples
 
