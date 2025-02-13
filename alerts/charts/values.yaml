@@ -24,7 +24,7 @@ alerts:
       duration: ""  # default to be 5y
     admissionCert:
       duration: ""  # default to be 1y
-    issuerRef:
+    issuerRef: {}
     #   name: "issuer"
     #   kind: "ClusterIssuer"
 
