@@ -80,6 +80,6 @@ spec:
     {{- end }}
   dnsNames:
 {{- if .Values.global.greenhouse.baseDomain }}
-    - {{ printf "*.s%" .Values.global.greenhouse.baseDomain }}
+  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
 {{- end }}
 {{- end -}}
