@@ -216,7 +216,7 @@ alertmanagerConfiguration:
 
 ## TLS Certificate Requirement
 
-Greenhouse onboarded Prometheus installations need to communicate with the Alertmanager component to enable processing of alerts. If an Alertmanager Ingress is enabled, this requires a TLS certificate to be configured and trusted by Alertmanger to ensure the communication. To enable automatic self-signed TLS certificate provisioning via cert-manager by setting the `alerts.certManager.enabled` value to true.
+Greenhouse onboarded Prometheus installations need to communicate with the Alertmanager component to enable processing of alerts. If an Alertmanager Ingress is enabled, this requires a TLS certificate to be configured and trusted by Alertmanger to ensure the communication. To enable automatic self-signed TLS certificate provisioning via cert-manager, set the `alerts.certManager.enabled` value to `true`.
 
 Note: Prerequisite of this feature is a installed [jetstack/cert-manager](https://github.com/jetstack/cert-manager) which can be implemented via the Greenhouse [cert-manager](https://github.com/cloudoperators/greenhouse-extensions/tree/main/cert-manager) Plugin.
 
