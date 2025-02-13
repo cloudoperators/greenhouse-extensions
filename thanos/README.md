@@ -25,9 +25,9 @@ This plugin deploys the following Thanos components:
 * [Thanos Query](https://thanos.io/tip/components/query.md/)
 * [Thanos Store](https://thanos.io/tip/components/store.md/)
 * [Thanos Compactor](https://thanos.io/tip/components/compact.md/)
+* [Thanos Ruler](https://thanos.io/tip/components/rule.md/)
 
 Planned components:
-* [Thanos Ruler](https://thanos.io/tip/components/rule.md/)
 * [Thanos Query Frontend](https://thanos.io/tip/components/query.md/)
 
 This Plugin does **not** deploy the following components:
@@ -121,6 +121,27 @@ spec:
   clusterName: $YOUR_CLUSTER_NAME 
   releaseNamespace: kube-monitoring
 ```
+
+### Thanos Ruler
+#### Configuration
+##### Alertmanager
+eg. of Plugin setup with Thanos Ruler using Alertmanager
+```yaml
+    - name: thanos.ruler.enabled
+      value: true
+    - name: thanos.ruler.alertmanagers.enabled
+      value: true
+    - name: thanos.ruler.alertmanagers.authentication.ssoCert
+      valueFrom:
+        secret:
+          key: <keyName>
+          name: <secretName>
+    - name: thanos.ruler.alertmanagers.authentication.ssoKey
+      valueFrom:
+        secret:
+          key: <keyName>
+          name: <secretName>
+  ```
 
 ### [OPTIONAL] Handling your Prometheus and Thanos Stores.
 #### Default Prometheus and Thanos Endpoint
