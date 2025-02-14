@@ -35,7 +35,7 @@ metadata:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
   ca:
-    secretName: {{ .Release.Namespace }}-root-cert
+    secretName: {{ .Release.Namespace  }}-prometheus-root-cert
 {{- end }}
 ---
 # generate a server certificate for the alertmanager to use
