@@ -19,6 +19,15 @@ thanos:
   # used across the stack
   httpAddress:
 
+  serviceMonitor:
+    ## If true, create a serviceMonitor for Thanos components
+    ##
+    selfMonitor: true
+
+    ## Labels for ServiceMonitor
+    additionalLabels: {}
+
+
   ## Init container to set permissions
   initChownData:
 

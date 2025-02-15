@@ -1,0 +1,85 @@
+{{- if .Values.alerts.certManager.enabled -}}
+{{- if not .Values.alerts.certManager.issuerRef -}}
+# Create a selfsigned Issuer in order to create a root CA certificate for the org
+# signing alertmanager serving certificates
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Release.Namespace }}-prometheus-issuer
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  selfSigned: {}
+---
+# Generate a CA Certificate used to sign certificates for the alertmanager
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Release.Namespace }}-prometheus-root-cert
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  secretName: {{ .Release.Namespace  }}-prometheus-root-cert
+  duration: {{ .Values.alerts.certManager.rootCert.duration | default "43800h0m0s" | quote }}
+  issuerRef:
+    name: {{ .Release.Namespace }}-prometheus-issuer
+  commonName: "ca.prometheus.greenhouse"
+  isCA: true
+---
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Release.Namespace }}-prometheus-root-issuer
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  ca:
+    secretName: {{ .Release.Namespace  }}-prometheus-root-cert
+{{- end }}
+---
+# generate a server certificate for the alertmanager to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" . }}-cert
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  secretName: tls-{{ include "kube-prometheus-stack.fullname" . }}-cert
+  duration: {{ .Values.alerts.certManager.admissionCert.duration | default "8760h0m0s" | quote }}
+  issuerRef:
+    {{- if .Values.alerts.certManager.issuerRef }}
+    {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
+    {{- else }}
+    name: {{ .Release.Namespace }}-root-issuer
+    {{- end }}
+  dnsNames:
+  - {{ include "kube-prometheus-stack.fullname" . }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}.svc
+{{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts }}
+{{ toYaml .Values.alerts.alertmanager.ingress.hosts | indent 2 }}
+{{- end }}
+---
+# generate a shared client certificate for prometheus to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-{{ .Release.Namespace }}-cert
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  secretName: tls-prometheus-{{ .Release.Namespace }}
+  duration: {{ .Values.alerts.certManager.admissionCert.duration | default "8760h0m0s" | quote }}
+  issuerRef:
+    {{- if .Values.alerts.certManager.issuerRef }}
+    {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
+    {{- else }}
+    name: {{ .Release.Namespace }}-root-issuer
+    {{- end }}
+  dnsNames:
+{{- if .Values.global.greenhouse.baseDomain }}
+  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
+{{- end }}
+{{- end -}}
