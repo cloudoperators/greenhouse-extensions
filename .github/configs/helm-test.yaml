@@ -12,8 +12,10 @@ chart-dirs:
   - plutono
   - thanos
   - opentelemetry
+  - perses
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
   - opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - perses=https://perses.github.io/helm-charts
