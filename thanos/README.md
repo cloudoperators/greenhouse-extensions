@@ -123,24 +123,38 @@ spec:
 ```
 
 ### Thanos Ruler
+To enable Thanos Ruler component creation (Thanos Ruler is disabled by default)
+
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.ruler.enabled
+    value: true
+```
+
 #### Configuration
 ##### Alertmanager
+For Thanos Ruler to communicate with Alertmanager we need to enbale the approprite configuration and provide Plugin with secret/key names containing
+necessary SSO key and certificate.
+
 eg. of Plugin setup with Thanos Ruler using Alertmanager
 ```yaml
-    - name: thanos.ruler.enabled
-      value: true
-    - name: thanos.ruler.alertmanagers.enabled
-      value: true
-    - name: thanos.ruler.alertmanagers.authentication.ssoCert
-      valueFrom:
-        secret:
-          key: <keyName>
-          name: <secretName>
-    - name: thanos.ruler.alertmanagers.authentication.ssoKey
-      valueFrom:
-        secret:
-          key: <keyName>
-          name: <secretName>
+spec:
+  optionsValues:
+  - name: thanos.ruler.enabled
+    value: true
+  - name: thanos.ruler.alertmanagers.enabled
+    value: true
+  - name: thanos.ruler.alertmanagers.authentication.ssoCert
+    valueFrom:
+      secret:
+        key: <keyName>
+        name: <secretName>
+  - name: thanos.ruler.alertmanagers.authentication.ssoKey
+    valueFrom:
+      secret:
+        key: <keyName>
+        name: <secretName>
   ```
 
 ### [OPTIONAL] Handling your Prometheus and Thanos Stores.
@@ -198,6 +212,14 @@ This would enable you to either:
           - thanos-kube-2:10901
     ```
 
+### Disable Individual Thanos Components
+It is possible to disable certain Thanos components for your deployment. To do so add the necessary configuration to your Plugin (currently it is not possible to disable the query component)
+```yaml
+- name: thanos.store.enabled
+  value: false
+- name: thanos.compactor.enabled
+  value: false
+```
 ## Operations
 
 ### Thanos Compactor
@@ -212,4 +234,20 @@ The object storage costs will be heavily impacted on how granular timeseries are
 raw: 777600s (90d)
 5m: 777600s (90d)
 1h: 157680000 (5y)
+```
+
+### Thanos ServiceMonitor
+
+To enable the creation of a ServiceMonitor for our Thanos components we can use the Thanos plugin configuration.
+
+**NOTE**: you will have to provide the serviceMonitorSelector matchLabels of your prometheus instance. In the greenhouse context this should look like 'plugin: \<prometheusPluginName\>'
+
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.ruler.serviceMonitor.selfMonitor
+      value: true
+  - name: thanos.ruler.serviceMonitor.additionalLabels
+      value:
+        plugin: <prometheusPluginName>
 ```
