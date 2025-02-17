@@ -12,7 +12,7 @@ thanos:
   image:
     repository: quay.io/thanos/thanos
     # defaults to .Chart.appVersion
-    tag:
+    tag: v0.37.2
     # defaults to IfNotPresent
     pullPolicy:
   grpcAddress:

@@ -43,19 +43,6 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "cert-manager/cert-manager",
       "extractVersionTemplate": "^(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump thanos version in the plugindefinition",
-      "fileMatch": [
-        "^thanos.charts.Chart.yaml$"
-      ],
-      "matchStrings": [
-        "appVersion:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "thanos-io/thanos",
-      "extractVersionTemplate": "^(?<version>.*)$"
     }
   ],
   "packageRules": [

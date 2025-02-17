@@ -65,7 +65,7 @@ spec:
         - --store=prometheus-operated:10901
         - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
