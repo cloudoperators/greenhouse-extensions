@@ -11,7 +11,7 @@ header:
   paths-ignore:
     - '.github/**'
     - '*Dockerfile*'
-    - '.reuse/dep5'
+    - 'REUSE.toml'
     - 'LICENSES/*.txt'
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/**' # ignore the license for the alerts charts
