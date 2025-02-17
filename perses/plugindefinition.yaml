@@ -3,7 +3,7 @@ kind: PluginDefinition
 metadata:
   name: perses
 spec:
-  version: 0.10.0
+  version: 0.4.0
   displayName: Perses
   description: "Perses is a dashboard tooling to visualize metrics and traces produced by observability tools such as Prometheus/Thanos/Jaeger"
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/perses/README.md
