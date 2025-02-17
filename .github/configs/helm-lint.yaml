@@ -17,6 +17,7 @@ chart-dirs:
   - logshipper
   - opentelemetry
   - thanos
+  - perses
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
@@ -24,3 +25,4 @@ chart-repos:
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts
   - opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - perses=https://perses.github.io/helm-charts

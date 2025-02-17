@@ -43,6 +43,19 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "cert-manager/cert-manager",
       "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump perses dependency, chart version, and appVersion in Chart.yaml",
+      "fileMatch": ["^perses/charts/Chart.yaml$"],
+      "matchStrings": [
+        "dependencies:\\s*-\\s*name:\\s*perses\\s*repository:\\s*https://perses.github.io/helm-charts\\s*version:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)",
+        "version:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)",
+        "appVersion:\\s*\"(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "perses/helm-charts",
+      "extractVersionTemplate": "^(?<version>.*)$"
     }
   ],
   "packageRules": [
