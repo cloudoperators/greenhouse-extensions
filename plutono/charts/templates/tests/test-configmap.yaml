@@ -7,15 +7,12 @@ kind: ConfigMap
 metadata:
   name: {{ include "plutono.fullname" . }}-test
   namespace: {{ include "plutono.namespace" . }}
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
   labels:
     {{- include "plutono.labels" . | nindent 4 }}
 data:
   run.sh: |-
     @test "Test Health" {
-      url="http://{{ include "plutono.fullname" . }}/api/health"
+      url="http://{{ include "plutono.fullname" . }}/api/akshay"
 
       code=$(wget --server-response --spider --timeout 90 --tries 10 ${url} 2>&1 | awk '/^  HTTP/{print $2}')
       [ "$code" == "200" ]
