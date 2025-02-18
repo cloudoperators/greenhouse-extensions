@@ -1,6 +1,6 @@
 {{- if .Values.testFramework.enabled -}}
 apiVersion: v1
-kind: Job
+kind: Pod
 metadata: 
   name: {{ .Release.Name }}-test
   namespace: {{ .Release.Namespace }}
