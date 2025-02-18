@@ -12,7 +12,7 @@ metadata:
 data:
   run.sh: |-
     @test "Test Health" {
-      url="http://{{ include "plutono.fullname" . }}/api/akshay"
+      url="http://{{ include "plutono.fullname" . }}/api/health"
 
       code=$(wget --server-response --spider --timeout 90 --tries 10 ${url} 2>&1 | awk '/^  HTTP/{print $2}')
       [ "$code" == "200" ]
