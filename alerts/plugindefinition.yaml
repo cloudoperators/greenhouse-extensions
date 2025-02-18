@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.6.0
+  version: 2.7.4
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -15,11 +15,15 @@ spec:
   helmChart:
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.18.0
+    version: 0.19.4
   uiApplication:
     name: supernova
     version: "latest"
   options:
+    - name: global.caCert
+      description: Additional caCert to add to the CA bundle
+      required: false
+      type: secret
     # supernova options
     - name: endpoint
       description: Alertmanager API Endpoint URL
@@ -52,19 +56,13 @@ spec:
       required: false
       default: false
       type: bool
-    # alertmanager options
-    - name: alerts.auth.secretName
-      description: Use custom secret for Alertmanager authentication
-      required: false
-      type: string
-    - name: alerts.auth.autoGenerateCert.enabled
-      description: TLS Certificate Option 1 - Use Helm to automatically generate self-signed certificate.
-      required: false
+    # cert-manager options
+    - name: alerts.certManager.enabled
+      description: Needs the `cert-manager` Plugin installed first. Creates `jetstack/cert-manager` resources to generate Issuer and Certificates for Prometheus authentication.
+      required: true
+      default: true
       type: bool
-    - name: alerts.auth.autoGenerateCert.certPeriodDays
-      description: Cert period time in days. The default is 365 days.
-      default: 365
-      type: int
+    # alertmanager options
     - name: alerts.defaultRules.create
       description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
       default: true

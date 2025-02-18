@@ -1,5 +1,4 @@
 global:
-
   ## Labels to apply to all resources
   ##
   commonLabels: {}
@@ -8,28 +7,29 @@ perses:
   # Default values for perses.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
-  
+
   # -- Override name of the chart used in Kubernetes object names.
   nameOverride: ""
-  
+
   # -- Override fully qualified app name
   fullnameOverride: ""
-  
+
   ## Image of Perses
   ##
   image:
     # -- Perses image repository and name
     name: "persesdev/perses"
-  
+
     # -- Overrides the image tag whose default is the chart appVersion.
-    version: "v0.50.0"
-  
+    version: ""
+
     # -- Default image pull policy
     pullPolicy: IfNotPresent
-  
-  additionalLabels: {}
+
+  additionalLabels:
+    {}
     # app: perses
-  
+
   # -- Service account for Perses to use.
   serviceAccount:
     # -- Specifies whether a service account should be created
@@ -39,7 +39,7 @@ perses:
     # -- The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
-  
+
   # -- Expose the Perses service to be accessed from outside the cluster (LoadBalancer service).
   # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
   service:
@@ -56,17 +56,17 @@ perses:
     port: 8080
     # -- Perses running port
     targetPort: 8080
-  
+
   # -- Statefulset Annotations
   annotations: {}
-  
+
   # -- Number of pod replicas.
   replicas: 1
-  
+
   # -- Log level for Perses be configured in
   # available options "panic", "error", "warning", "info", "debug", "trace"
   logLevel: info
-  
+
   # -- Liveness probe configuration
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   livenessProbe:
@@ -76,7 +76,7 @@ perses:
     timeoutSeconds: 5
     successThreshold: 1
     failureThreshold: 5
-  
+
   # -- Readiness probe configuration
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   readinessProbe:
@@ -86,18 +86,18 @@ perses:
     timeoutSeconds: 5
     successThreshold: 1
     failureThreshold: 5
-  
+
   # -- Additional volumes on the output StatefulSet definition.
   volumes: []
-  
+
   # -- Additional VolumeMounts on the output StatefulSet definition.
   volumeMounts: []
-  
+
   # -- Resource limits & requests.
   # Update according to your own use case as these values might be too low for a typical deployment.
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
-  
+
   # -- Perses configuration file
   # ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md
   config:
@@ -106,7 +106,7 @@ perses:
 
     # With this config, the Perses app will be served with the path <api_prefix>/api
     api_prefix: "/perses"
-  
+
     security:
       # -- Configure Perses instance as readonly
       readonly: false
@@ -119,7 +119,7 @@ perses:
         # [ same_site: < enum | possibleValue = 'strict' | 'lax' | 'none' > | default = lax ]
         # Set to true if you host Perses behind HTTPS. Default is false
         # [ secure: <boolean> | default = false ]
-  
+
     # -- Schemas paths
     schemas:
       panels_path: "/etc/perses/cue/schemas/panels"
@@ -127,14 +127,14 @@ perses:
       datasources_path: "/etc/perses/cue/schemas/datasources"
       variables_path: "/etc/perses/cue/schemas/variables"
       interval: "5m"
-  
+
     # -- Important dashboards list
     frontend:
       important_dashboards:
         []
         # - project: "perses"
         #   dashboard: "Demo"
-  
+
     # -- Database config based on data base type
     database:
       # -- file system configs
@@ -143,63 +143,63 @@ perses:
         extension: json
       # -- SQL Config
       # sql:
-        # user: "user"
-        # password: "password"
-        # net: "tcp"
-        # addr: "localhost:3306"
-        # db_name: "perses"
-        # allow_native_passwords: true
-  
+      # user: "user"
+      # password: "password"
+      # net: "tcp"
+      # addr: "localhost:3306"
+      # db_name: "perses"
+      # allow_native_passwords: true
+
     # -- provisioning config
     provisioning:
       folders:
-      - /etc/perses/provisioning
+        - /etc/perses/provisioning
       interval: 10s
-  
+
   # --  Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning
   sidecar:
     # -- Enable the sidecar container for ConfigMap provisioning
     enabled: true
-    image: 
+    image:
       # -- Container image repository for the sidecar
       repository: kiwigrid/k8s-sidecar
       # -- Container image tag for the sidecar
       tag: 1.28.0
-    # -- Label key to watch for ConfigMaps containing Perses resources  
+    # -- Label key to watch for ConfigMaps containing Perses resources
     label: "perses.dev/resource"
     # -- Label value to watch for ConfigMaps containing Perses resources
     labelValue: "true"
-  
+
   # -- Persistence parameters
   persistence:
     # -- If disabled, it will use a emptydir volume
     enabled: false
-  
+
     # -- Specify the `storageClass` to provision the volume for the PVC. If you don't specify a `storageClass`, a default `storageClass` will be used.
     # storageClass: ""
-  
+
     # -- PVC Access Modes for data volume
     accessModes:
       - ReadWriteOnce
-  
+
     # -- PVC Storage Request for data volume
     size: 8Gi
-  
+
     # -- Security context for the PVC when persistence is enabled
     securityContext:
       fsGroup: 2000
-  
+
     # -- Labels for the PVC
     labels: {}
     # -- Annotations for the PVC
     annotations: {}
-  
-# -- Configure the ingress resource that allows you to access Thanos Query Frontend
-# ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+
+  # -- Configure the ingress resource that allows you to access Thanos Query Frontend
+  # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
     # -- Enable ingress controller resource
     enabled: false
-  
+
     # -- Default host for the ingress resource
     hosts:
       - host: perses.local
@@ -220,9 +220,9 @@ perses:
 
     # -- Ingress TLS configuration
     tls: []
-#    - secretName: ingress-cert
-#      hosts: []
-  
+  #    - secretName: ingress-cert
+  #      hosts: []
+
   # -- Configure datasources
   # DEPRECATED: This field will be removed in the future release. Please use the 'sidecar' configuration to provision datasources.
   # ref: https://github.com/perses/perses/blob/90beed356243208f14cf2249bebb6f6222cb77ae/docs/datasource.md
@@ -248,4 +248,3 @@ perses:
 greenhouse:
   defaultDashboards:
     enabled: true
-
