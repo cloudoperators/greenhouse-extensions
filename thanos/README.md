@@ -123,7 +123,9 @@ spec:
 ```
 
 ### Thanos Ruler
-To enable Thanos Ruler component creation (Thanos Ruler is disabled by default)
+Thanos Ruler evaluates Prometheus rules against choosen query API. This allows evaluation of rules using metrics from different Prometheus instances.
+
+To enable Thanos Ruler component creation (Thanos Ruler is disabled by default) you have to set:
 
 ```yaml
 spec:
@@ -134,10 +136,9 @@ spec:
 
 #### Configuration
 ##### Alertmanager
-For Thanos Ruler to communicate with Alertmanager we need to enbale the approprite configuration and provide Plugin with secret/key names containing
-necessary SSO key and certificate.
+For Thanos Ruler to communicate with Alertmanager we need to enable the appropriate configuration and provide secret/key names containing necessary SSO key and certificate to the Plugin.
 
-eg. of Plugin setup with Thanos Ruler using Alertmanager
+Example of Plugin setup with Thanos Ruler using Alertmanager
 ```yaml
 spec:
   optionsValues:
@@ -148,13 +149,13 @@ spec:
   - name: thanos.ruler.alertmanagers.authentication.ssoCert
     valueFrom:
       secret:
-        key: <keyName>
-        name: <secretName>
+        key: $KEY_NAME
+        name: $SECRET_NAME
   - name: thanos.ruler.alertmanagers.authentication.ssoKey
     valueFrom:
       secret:
-        key: <keyName>
-        name: <secretName>
+        key: $KEY_NAME
+        name: $SECRET_NAME
   ```
 
 ### [OPTIONAL] Handling your Prometheus and Thanos Stores.
@@ -220,6 +221,13 @@ It is possible to disable certain Thanos components for your deployment. To do s
 - name: thanos.compactor.enabled
   value: false
 ```
+
+| Thanos Component | Enabled by default	 | Deactivatable | Flag |
+|---|---|---|---|
+| Query | True | False | n/a |
+| Store | True | True | thanos.store.enabled |
+| Compactor | True | True | thanos.compactor.enabled |
+| Ruler | False | True | thanos.ruler.enabled |
 ## Operations
 
 ### Thanos Compactor
@@ -238,9 +246,11 @@ raw: 777600s (90d)
 
 ### Thanos ServiceMonitor
 
-To enable the creation of a ServiceMonitor for our Thanos components we can use the Thanos plugin configuration.
+ServiceMonitor configures Prometheus to scrape metrics from all the deployed Thanos components.
 
-**NOTE**: you will have to provide the serviceMonitorSelector matchLabels of your prometheus instance. In the greenhouse context this should look like 'plugin: \<prometheusPluginName\>'
+To enable the creation of a ServiceMonitor we can use the Thanos Plugin configuration.
+
+**NOTE**: You have to provide the serviceMonitorSelector matchLabels of your Prometheus instance. In the greenhouse context this should look like 'plugin: $PROMETHEUS_PLUGIN_NAME'
 
 ```yaml
 spec:
@@ -249,5 +259,5 @@ spec:
       value: true
   - name: thanos.ruler.serviceMonitor.additionalLabels
       value:
-        plugin: <prometheusPluginName>
+        plugin: $PROMETHEUS_PLUGIN_NAME
 ```
