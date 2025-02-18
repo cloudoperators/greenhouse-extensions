@@ -125,6 +125,8 @@ spec:
 ### Thanos Ruler
 Thanos Ruler evaluates Prometheus rules against choosen query API. This allows evaluation of rules using metrics from different Prometheus instances.
 
+![Thanos Ruler](img/Thanos-Standalone-Query+Ruler.png)
+
 To enable Thanos Ruler component creation (Thanos Ruler is disabled by default) you have to set:
 
 ```yaml
