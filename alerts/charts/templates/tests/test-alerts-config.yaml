@@ -51,7 +51,7 @@ data:
         verify "there is 1 issuer named '{{ .Release.Namespace }}-prometheus-issuer'"
         verify "there is 1 issuer named '{{ .Release.Namespace }}-prometheus-root-issuer'"
         verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-root-cert'"
-        verify "there is 1 certificate named '{{ include "kube-prometheus-stack.fullname" . }}-cert'"
+        verify "there is 1 certificate named '{{ .Release.Name }}-alertmanager-cert'"
         verify "there is 1 certificate named 'prometheus-{{ .Release.Namespace }}-cert'"
         verify "there is 1 secret named '{{ .Release.Namespace  }}-prometheus-root-cert'"
         verify "there is 1 secret named 'tls-prometheus-{{ .Release.Namespace }}'"
