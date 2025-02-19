@@ -5,7 +5,7 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: '{{ .Release.Namespace }}-prometheus-issuer'
+  name: '{{ .Release.Namespace }}-alerts-issuer'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
@@ -15,14 +15,14 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: '{{ .Release.Namespace }}-prometheus-root-cert'
+  name: '{{ .Release.Namespace }}-alerts-root-cert'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
-  secretName: {{ .Release.Namespace  }}-prometheus-root-cert
+  secretName: tls-alerts-{{ .Release.Namespace  }}-root
   duration: {{ .Values.alerts.certManager.rootCert.duration | default "43800h0m0s" | quote }}
   issuerRef:
-    name: {{ .Release.Namespace }}-prometheus-issuer
+    name: {{ .Release.Namespace }}-alerts-issuer
   commonName: "ca.prometheus.greenhouse"
   isCA: true
 ---
@@ -30,29 +30,29 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: '{{ .Release.Namespace }}-prometheus-root-issuer'
+  name: '{{ .Release.Namespace }}-alerts-root-issuer'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
   ca:
-    secretName: {{ .Release.Namespace  }}-prometheus-root-cert
+    secretName: tls-alerts-{{ .Release.Namespace  }}-root-ca
 {{- end }}
 ---
 # generate a server certificate for the alertmanager to use
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: '{{ .Release.Name }}-alertmanager-cert'
+  name: alertmanager-{{ .Release.Namespace }}-cert
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
-  secretName: tls-{{ include "kube-prometheus-stack.fullname" . }}-cert
+  secretName: tls-alertmanager-{{ .Release.Namespace }}
   duration: {{ .Values.alerts.certManager.admissionCert.duration | default "8760h0m0s" | quote }}
   issuerRef:
     {{- if .Values.alerts.certManager.issuerRef }}
     {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
     {{- else }}
-    name: {{ .Release.Namespace }}-prometheus-root-issuer
+    name: {{ .Release.Namespace }}-alerts-root-issuer
     {{- end }}
   dnsNames:
   - {{ include "kube-prometheus-stack.fullname" . }}
@@ -76,7 +76,7 @@ spec:
     {{- if .Values.alerts.certManager.issuerRef }}
     {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
     {{- else }}
-    name: {{ .Release.Namespace }}-prometheus-root-issuer
+    name: {{ .Release.Namespace }}-alerts-root-issuer
     {{- end }}
   dnsNames:
 {{- if .Values.global.greenhouse.baseDomain }}
