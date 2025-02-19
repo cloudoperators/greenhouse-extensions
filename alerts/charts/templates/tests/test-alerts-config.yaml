@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     type: integration-test
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
 data:
   run.sh: |-
 
@@ -47,12 +48,15 @@ data:
 
     {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
     @test "Generated server certificate for the Prometheus Alertmanager to use" {
-        verify "there is 1 issuer named '{{ .Release.Namespace }}-monitoring-issuer'"
+        verify "there is 1 issuer named '{{ .Release.Namespace }}-prometheus-issuer'"
+        verify "there is 1 issuer named '{{ .Release.Namespace }}-prometheus-root-issuer'"
+        verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-root-cert'"
         verify "there is 1 certificate named '{{ include "kube-prometheus-stack.fullname" . }}-cert'"
-        verify "there is 1 secret named '{{ include "kube-prometheus-stack.fullname" . }}-cert'"
+        verify "there is 1 certificate named 'prometheus-{{ .Release.Namespace }}-cert'"
+        verify "there is 1 secret named '{{ .Release.Namespace  }}-prometheus-root-cert'"
+        verify "there is 1 secret named 'tls-prometheus-{{ .Release.Namespace }}'"
 
         url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
-
         run curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url}
         [ "$status" -eq "0" ]
     }
