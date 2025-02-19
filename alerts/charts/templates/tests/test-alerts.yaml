@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     type: integration-test
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
@@ -33,7 +34,7 @@ spec:
     - name: tls-cert
       secret:
         defaultMode: 420
-        secretName: {{ print "tls-%s-prometheus-auth" $.Release.Namespace }} 
+        secretName: tls-prometheus-{{ .Release.Namespace }} 
   {{- end }}
   restartPolicy: Never
 {{- end -}}
