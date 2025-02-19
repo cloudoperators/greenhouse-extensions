@@ -10,7 +10,7 @@ owner-info:
     - name: joluc
   helm-chart-url: https://github.com/sapcc/helm-charts/system/opensearch-operator
 
-opensearch-operator:
+opensearchOperator:
   namespace: "opensearch-logs"
   nameOverride: "opensearch-operator"
   fullnameOverride: "opensearch-operator"
@@ -80,7 +80,7 @@ opensearch-operator:
     watchNamespace:
 
   # Install the Custom Resource Definitions with Helm
-  installCRDs: false
+  installCRDs: true
 
   serviceAccount:
     # Specifies whether a service account should be created
@@ -137,7 +137,7 @@ opensearch-operator:
   useRoleBindings: false
 
 
-opensearch-cluster:
+opensearchCluster:
   nameOverride: ""
   fullnameOverride: ""
 
@@ -218,7 +218,8 @@ opensearch-cluster:
   #        insecureSkipVerify: true
 
       # -- List of Opensearch plugins to install
-      pluginsList: []
+      pluginsList:
+        - "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"
 
       # -- Opensearch pod security context configuration
       podSecurityContext: {}
@@ -273,7 +274,7 @@ opensearch-cluster:
     # OpenSearchCluster additional services
     confMgmt:
       # -- Enable nodes to be safely removed from the cluster
-      smartScaler: false
+      smartScaler: true
 
     # OpenSearchCluster dashboards configuration
     dashboards:

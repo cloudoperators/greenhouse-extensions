@@ -8,4 +8,5 @@ metadata:
   namespace: opensearch-logs
 type: Opaque
 data:
-  internal_users.yml: dXNlcnM6CiAgYWRtaW46CiAgICBoYXNoOiAiJDJhJDEyJFZjQ0RnMm5EazA3SkdOMHJqR2JNLkFkNDFxVlIvWUZKY2dIcDBVR25zNUpEeW12Li5UT0ciCiAgICByZXNlcnZlZDogdHJ1ZQogICAgZGVzY3JpcHRpb246ICJBZG1pbiB1c2VyIgogICAgcm9sZXM6CiAgICAgIC0gYWRtaW4KICAga2liYW5hc2VydmVyOgogICAgaGFzaDogIiQyYSQxMiQ0QWNnQXQzeHdPV2FkQTVzNWJsTDZldjM5T1hETmhtT2VzRW9vMzNlWnRycTJOMFlyVTNILiIKICAgIHJlc2VydmVkOiB0cnVlCiAgICBkZXNjcmlwdGlvbjogIk9wZW5TZWFyY2ggRGFzaGJvYXJkcyB1c2VyIgogICAgcm9sZXM6CiAgICAgIC0ga2liYW5hc2VydmVyCg==
+  internal_users.yml: {{ include (print .Template.BasePath  "/config/_internal_users.yml.tpl") . | b64enc }}
+  config.yml: {{ include (print .Template.BasePath  "/config/_config.yml.tpl") . | b64enc }}

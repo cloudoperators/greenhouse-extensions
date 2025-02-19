@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: opensearch
+spec:
+  version: 2.6.0
+  displayName: OpenSearch
+  description: Search and observability suite that brings order to unstructured data at scale.
+  icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
+  helmChart:
+    name: opensearch
+    repository: ""
+    version: 2.6.0
+  options:
+    - default: false
+      description: opensearchOperator.fullnameOverride
+      name: opensearchOperator.fullnameOverride
+      required: false
+      type: string
+    - default: true
+      description: opensearchOperator.installCRDs
+      name: opensearchOperator.installCRDs
+      required: false
+      type: bool
+    - default: ""
+      description: opensearchOperator.nameOverride
+      name: opensearchOperator.nameOverride
+      required: false
+      type: string
+    - default: opensearch-logs
+      description: opensearchOperator.namespace
+      name: opensearchOperator.namespace
+      required: false
+      type: string
+    - default: true
+      description: opensearchOperator.serviceAccount.create
+      name: opensearchOperator.serviceAccount.create
+      required: false
+      type: bool
+    - default: true
+      description: opensearchCluster.dashboards.enable
+      name: opensearchCluster.dashboards.enable
+      required: false
+      type: bool
+    - default: true
+      description: opensearchCluster.enabled
+      name: opensearchCluster.enabled
+      required: false
+      type: bool
