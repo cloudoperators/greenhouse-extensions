@@ -5,7 +5,7 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ .Release.Namespace }}-prometheus-issuer
+  name: '{{ .Release.Namespace }}-prometheus-issuer'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
@@ -15,7 +15,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ .Release.Namespace }}-prometheus-root-cert
+  name: '{{ .Release.Namespace }}-prometheus-root-cert'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
@@ -30,7 +30,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ .Release.Namespace }}-prometheus-root-issuer
+  name: '{{ .Release.Namespace }}-prometheus-root-issuer'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
@@ -42,7 +42,7 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ include "kube-prometheus-stack.fullname" . }}-cert
+  name: '{{ .Release.Name }}-alertmanager-cert'
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
@@ -52,7 +52,7 @@ spec:
     {{- if .Values.alerts.certManager.issuerRef }}
     {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
     {{- else }}
-    name: {{ .Release.Namespace }}-root-issuer
+    name: {{ .Release.Namespace }}-prometheus-root-issuer
     {{- end }}
   dnsNames:
   - {{ include "kube-prometheus-stack.fullname" . }}
@@ -76,7 +76,7 @@ spec:
     {{- if .Values.alerts.certManager.issuerRef }}
     {{- toYaml .Values.alerts.certManager.issuerRef | nindent 4 }}
     {{- else }}
-    name: {{ .Release.Namespace }}-root-issuer
+    name: {{ .Release.Namespace }}-prometheus-root-issuer
     {{- end }}
   dnsNames:
 {{- if .Values.global.greenhouse.baseDomain }}
