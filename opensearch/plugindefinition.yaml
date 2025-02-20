@@ -12,7 +12,7 @@ spec:
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
-    repository: ""
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 2.6.0
   options:
     - default: false
