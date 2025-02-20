@@ -7,10 +7,6 @@ metadata:
   labels:
     type: integration-test  
     {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 data:
   run.sh: |-
 

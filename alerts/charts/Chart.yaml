@@ -8,7 +8,7 @@ maintainers:
 name: alerts
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.19.4
+version: 0.19.7
 keywords:
   - prometheus-alertmanager
 dependencies:
