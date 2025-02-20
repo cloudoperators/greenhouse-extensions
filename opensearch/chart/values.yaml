@@ -390,7 +390,7 @@ opensearchCluster:
             cpu: "500m"
       - component: data
         diskSize: "30Gi"
-        replicas: 2
+        replicas: 1
         roles:
           - "data"
         resources:
@@ -400,13 +400,26 @@ opensearchCluster:
           limits:
             memory: "1Gi"
             cpu: "500m"
+      - component: client
+        diskSize: "30Gi"
+        replicas: 1
+        roles:
+          - "client"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
     # Opensearch security configuration
     security:
       config:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
-        adminCredentialsSecret: {}
-  #        name: "secret-name"
+        adminCredentialsSecret:
+          name: "user-admin-password"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -520,6 +533,16 @@ opensearchCluster:
           allowedActions:
             - index
             - read
+    - name: "admin"
+      clusterPermissions:
+        - "*"
+      indexPermissions:
+        - indexPatterns:
+            - "*"
+          allowedActions:
+            - index
+            - read
+
   #  - name: "example-role"
   #    clusterPermissions:
   #      - cluster_composite_ops
@@ -553,17 +576,25 @@ opensearchCluster:
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
-      secretName: "logs-user-password"
+      secretName: "user-logs-password"
+      secretKey: "password"
+      backendRoles:
+        - "logs"
+#      opendistroSecurityRoles:
+#        - "logs"
+    - name: "admin"
+      secretName: "user-admin-password"
+      secretKey: "password"
+      backendRoles:
+        - "admin"
+#      opendistroSecurityRoles:
+#        - "admin"
+    - name: "kibanaserver"
+      secretName: "user-kibanaserver-password"
       secretKey: "password"
       backendRoles: []
-      opendistroSecurityRoles:
-        - "logs"
-  #  - name: "example-user"
-  #    secretName: "example-secret"
-  #    secretKey: "password-key"
-  #    backendRoles: []
-  #    opendistroSecurityRoles:
-  #      - example-role
+#      opendistroSecurityRoles:
+#        - "kibanaserver"
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
@@ -573,6 +604,11 @@ opensearchCluster:
         - "logs"
       roles:
         - "logs"
+    - name: "admin-access"
+      users:
+        - "admin"
+      roles:
+        - "admin"
   #  - name: admin_access
   #    users:
   #      - example-user
