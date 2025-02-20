@@ -11,7 +11,7 @@ owner-info:
   helm-chart-url: https://github.com/sapcc/helm-charts/system/opensearch-operator
 
 opensearchOperator:
-  namespace: "opensearch-logs"
+  namespace: ""
   nameOverride: "opensearch-operator"
   fullnameOverride: "opensearch-operator"
 

@@ -58,22 +58,15 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 
 ## Configuration
 
-| Name                                      | Description                                              | Type  | Required |
-|-------------------------------------------|----------------------------------------------------------|--------|----------|
-| `openSearch.cluster.name`                 | Name of the OpenSearch cluster                          | string | `true`   |
-| `openSearch.cluster.version`              | OpenSearch version to deploy                           | string | `true`   |
-| `openSearch.cluster.replicas.master`      | Number of master nodes                                 | int    | `false`  |
-| `openSearch.cluster.replicas.data`        | Number of data nodes                                   | int    | `false`  |
-| `openSearch.cluster.replicas.dashboards`  | Number of OpenSearch Dashboards nodes                 | int    | `false`  |
-| `openSearch.security.username`            | Admin username for OpenSearch authentication          | secret | `true`   |
-| `openSearch.security.password`            | Admin password for OpenSearch authentication          | secret | `true`   |
-| `openSearch.security.roles`               | User role mappings                                    | map    | `false`  |
-| `openSearch.index.ismPolicy.enabled`      | Enable index lifecycle management                     | bool   | `false`  |
-| `openSearch.index.ismPolicy.policy`       | Custom ISM policy for index management                | map    | `false`  |
-| `openSearch.index.template.enabled`       | Enable index templates                               | bool   | `false`  |
-| `openSearch.index.template.definition`    | Custom index template definition                     | map    | `false`  |
-| `openSearch.monitoring.prometheus.enabled` | Enable Prometheus monitoring                         | bool   | `false`  |
-| `openSearch.monitoring.serviceMonitor`    | Deploy a ServiceMonitor for Prometheus integration   | bool   | `false`  |
+| Name                                          | Description                                     | Type   | Required | Default         |
+|-----------------------------------------------|-------------------------------------------------|--------|----------|-----------------|
+| `opensearchOperator.fullnameOverride`         | opensearchOperator.fullnameOverride             | string | false    | false           |
+| `opensearchOperator.installCRDs`              | opensearchOperator.installCRDs                  | bool   | false    | true            |
+| `opensearchOperator.nameOverride`             | opensearchOperator.nameOverride                 | string | false    | ""              |
+| `opensearchOperator.namespace`                | opensearchOperator.namespace                    | string | false    | opensearch-logs |
+| `opensearchOperator.serviceAccount.create`    | opensearchOperator.serviceAccount.create        | bool   | false    | true            |
+| `opensearchCluster.dashboards.enable`         | opensearchCluster.dashboards.enable             | bool   | false    | true            |
+| `opensearchCluster.enabled`                   | opensearchCluster.enabled                       | bool   | false    | true            |
 
 ## Usage
 

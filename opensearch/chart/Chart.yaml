@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: v2
@@ -15,9 +15,11 @@ sources:
   - https://github.com/opensearch-project/opensearch-k8s-operator
 appVersion: 2.6.0
 dependencies:
-  - name: opensearchOperator
+  - name: opensearch-operator
+    alias: opensearchOperator
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/ # TODO: Move to -> oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 2.7.0
-  - name: opensearchCluster
+  - name: opensearch-cluster
+    alias: opensearchCluster
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/ # TODO: Move to -> oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 3.0.0
