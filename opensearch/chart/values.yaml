@@ -80,7 +80,7 @@ opensearchOperator:
     watchNamespace:
 
   # Install the Custom Resource Definitions with Helm
-  installCRDs: true
+  installCRDs: false
 
   serviceAccount:
     # Specifies whether a service account should be created
