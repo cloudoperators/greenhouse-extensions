@@ -11,9 +11,7 @@ maintainers:
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.2.1
-# thanos-release
-appVersion: v0.37.2
+version: 0.2.3
 keywords:
   - thanos
   - storage
