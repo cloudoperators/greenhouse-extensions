@@ -19,7 +19,7 @@ metadata:
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
-  secretName: tls-alerts-{{ .Release.Namespace  }}-root
+  secretName: tls-alerts-{{ .Release.Namespace  }}-root-ca
   duration: {{ .Values.alerts.certManager.rootCert.duration | default "43800h0m0s" | quote }}
   issuerRef:
     name: {{ .Release.Namespace }}-alerts-issuer
