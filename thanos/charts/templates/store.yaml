@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
 {{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
 apiVersion: apps/v1
 kind: Deployment
@@ -50,7 +47,7 @@ spec:
         {{- range .Values.thanos.store.additionalArgs }}
         - {{ . }}
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
