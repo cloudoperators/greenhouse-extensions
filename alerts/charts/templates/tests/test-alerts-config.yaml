@@ -48,13 +48,13 @@ data:
 
     {{- if .Values.alerts.certManager.enabled }}
     @test "Generated server certificates for the Prometheus Alertmanager to use" {
-        verify "there is 1 issuer named '{{ .Release.Namespace }}-alerts-issuer'"
-        verify "there is 1 issuer named '{{ .Release.Namespace }}-alerts-root-issuer'"
-        verify "there is 1 certificate named '{{ .Release.Namespace }}-alerts-root-cert'"
-        verify "there is 1 certificate named 'alertmanager-{{ .Release.Namespace }}-cert'"
-        verify "there is 1 certificate named 'prometheus-{{ .Release.Namespace }}-cert'"
-        verify "there is 1 secret named 'tls-alertmanager-{{ .Release.Namespace }}'"
-        verify "there is 1 secret named 'tls-prometheus-{{ .Release.Namespace }}'"
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-issuer$'"
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-root-issuer$'"
+        verify "there is 1 certificate named '^{{ .Release.Namespace }}-alerts-root-cert$'"
+        verify "there is 1 certificate named '^alertmanager-{{ .Release.Namespace }}-cert$'"
+        verify "there is 1 certificate named '^prometheus-{{ .Release.Namespace }}-cert$'"
+        verify "there is 1 secret named '^tls-alertmanager-{{ .Release.Namespace }}$'"
+        verify "there is 1 secret named '^tls-prometheus-{{ .Release.Namespace }}$'"
     }
     {{- end }}
 
