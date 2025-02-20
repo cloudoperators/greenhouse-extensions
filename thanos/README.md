@@ -125,7 +125,7 @@ spec:
 ### Thanos Ruler
 Thanos Ruler evaluates Prometheus rules against choosen query API. This allows evaluation of rules using metrics from different Prometheus instances.
 
-![Thanos Ruler](img/Thanos-Standalone-Query+Ruler.png)
+![Thanos Ruler](img/thanos_ruler.png)
 
 To enable Thanos Ruler component creation (Thanos Ruler is disabled by default) you have to set:
 
@@ -179,7 +179,7 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ### Standalone Query
 
-![Standalone Query](img/Thanos-standalone-query.png)
+![Standalone Query](img/thanos_standalone_query.png)
 
 In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
 
