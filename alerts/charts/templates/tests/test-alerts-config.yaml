@@ -46,7 +46,7 @@ data:
     }
     {{- end }}
 
-    {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+    {{- if .Values.alerts.certManager.enabled }}
     @test "Generated server certificate for the Prometheus Alertmanager to use" {
         verify "there is 1 issuer named '{{ .Release.Namespace }}-alerts-issuer'"
         verify "there is 1 issuer named '{{ .Release.Namespace }}-alerts-root-issuer'"
@@ -55,8 +55,11 @@ data:
         verify "there is 1 certificate named 'prometheus-{{ .Release.Namespace }}-cert'"
         verify "there is 1 secret named 'tls-alertmanager-{{ .Release.Namespace }}'"
         verify "there is 1 secret named 'tls-prometheus-{{ .Release.Namespace }}'"
+    }
 
+    {{- if  and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
         url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
+
         run curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url}
         [ "$status" -eq "0" ]
     }
