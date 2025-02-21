@@ -370,3 +370,6 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+blackboxExporter:
+  enabled: false
