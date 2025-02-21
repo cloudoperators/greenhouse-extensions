@@ -300,8 +300,7 @@ kubeMonitoring:
       ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
       ## with the new list of secrets.
       secrets:
-        - "tls-prometheus-{{ .Release.Name }}-cert"
-        - "tls-prometheus-{{ .Release.Namespace }}"
+        - "tls-prometheus-{{ .Release.Name }}"
 
       storageSpec:
         volumeClaimTemplate:
@@ -357,8 +356,6 @@ kubernetes-operations:
 ## Configures Prometheus Alertmanager
 alerts:
   enabled: false
-  # Creates a dummy Secret to ensure standalone testing
-  dummySecret: false
   alertmanagers:
     hosts: []
     ## Overrides tls certificate to authenticate with Alertmanager
