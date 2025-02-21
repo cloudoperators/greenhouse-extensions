@@ -300,7 +300,7 @@ kubeMonitoring:
       ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
       ## with the new list of secrets.
       secrets:
-        - "tls-prometheus-{{ .Release.Name }}"
+        - "tls-prometheus-{{ .Release.Name }}-cert"
         - "tls-prometheus-{{ .Release.Namespace }}"
 
       storageSpec:
