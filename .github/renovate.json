@@ -67,6 +67,19 @@
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump perses version in the plugindefinition",
+      "fileMatch": [
+        "^perses.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        ".*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "perses/helm-charts",
+      "extractVersionTemplate": "^perses-(?<version>.*)$"
     }
   ],
   "packageRules": [
