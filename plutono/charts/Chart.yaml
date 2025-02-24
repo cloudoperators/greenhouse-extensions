@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: plutono
-version: 0.2.1
+version: 0.2.2
 description: Plutono is a fork of Grafana v7.5.17 keeping the Apache License
 type: application
 maintainers:
