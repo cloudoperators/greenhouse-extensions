@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Secret
 
 metadata:
-  name: kube-monitoring-alertmanager-config
+  name: {{ .Release.Name }}-alertmanager-config
   labels:
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 
 data:
-  config.yaml: {{ include (print $.Template.BasePath "/_alertmanager-config.yaml.tpl") . | b64enc }}
+  config.yaml: {{ tpl (include (print $.Template.BasePath "/_alertmanager-config.yaml.tpl") .) . | b64enc }}
   relabelConfig.yaml: {{ include "kubeMonitoring.defaultRelabelConfig" . | b64enc }}
