@@ -63,11 +63,10 @@
         "^alerts.plugindefinition.yaml$"
       ],
       "matchStrings": [
-        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
       ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "greenhouse-extensions/charts/alerts",
-      "extractVersionTemplate": "^(?<version>.*)$"
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "helm"
     }
   ],
   "packageRules": [
