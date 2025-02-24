@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 global:
-  ## Labels to apply to all resources
+  # -- Labels to apply to all resources
+  # @default -- the chart will add some internal labels automatically
   commonLabels: {}
 
   # -- Overrides the registry globally for all images
@@ -165,11 +166,13 @@ testFramework:
     tag: main
   imagePullPolicy: IfNotPresent
 
+# @ignored
 # Only used for TESTING !!! see test-values.yaml
 # The kube-monitoring plugin is taking care of deploying the Prometheus Operator
 # Thanos Plugin leverages it for its CI
 ci:
   enabled: false
+# @ignored
 prometheus-operator:
   defaultRules:
     create: false
