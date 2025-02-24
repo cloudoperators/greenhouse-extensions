@@ -58,7 +58,7 @@ local-plugin-definitions: kustomize yq
 PLUGIN ?= "default"
 .PHONY: generate-readme $(PLUGIN)
 generate-readme: $(PLUGIN)
-	cd ./$(PLUGIN)
-	ls
-	helm-docs -o ../README.md
+	if [ -d "./$(PLUGIN)" ]; then\
+		cd ./$(PLUGIN); helm-docs -o ../README.md -t ./README.md.gotmpl;\
+	fi
 	
