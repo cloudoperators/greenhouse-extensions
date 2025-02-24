@@ -54,3 +54,11 @@ generate-documentation:
 .PHONY: local-plugin-definitions
 local-plugin-definitions: kustomize yq
 	hack/local-plugin-definitions
+
+PLUGIN ?= "default"
+.PHONY: generate-readme $(PLUGIN)
+generate-readme: $(PLUGIN)
+	cd ./$(PLUGIN)
+	ls
+	helm-docs -o ../README.md
+	
