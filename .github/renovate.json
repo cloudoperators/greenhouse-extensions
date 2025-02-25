@@ -43,6 +43,43 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "cert-manager/cert-manager",
       "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump kube-monitoring version in the plugindefinition",
+      "fileMatch": [
+        "^kube-monitoring.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump alerts version in the plugindefinition",
+      "fileMatch": [
+        "^alerts.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump perses version in the plugindefinition",
+      "fileMatch": [
+        "^perses.plugindefinition.yaml$"
+      ],
+      "matchStrings": [
+        ".*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "perses/helm-charts",
+      "extractVersionTemplate": "^perses-(?<version>.*)$"
     }
   ],
   "packageRules": [

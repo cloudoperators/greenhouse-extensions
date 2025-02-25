@@ -23,6 +23,10 @@ The longest name that gets created adds and extra 37 characters, so truncation s
 {{- printf "%s-%s" $.Release.Name "node-exporter" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "prometheus-blackbox-exporter.fullname" -}}
+{{- printf "%s-%s" $.Release.Name "blackbox-exporter" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/* Generate basic labels */}}
 {{ define "kube-prometheus-stack.labels" }}
 plugindefinition: kube-monitoring
@@ -60,7 +64,7 @@ release: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Common labels
+Common node-exporter labels
 */}}
 {{- define "prometheus-node-exporter.labels" -}}
 plugindefinition: kube-monitoring
@@ -72,6 +76,31 @@ helm.sh/chart: {{ include "prometheus-node-exporter.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/component: metrics
 app.kubernetes.io/part-of: {{ include "prometheus-node-exporter.name" . }}
+{{ include "prometheus-node-exporter.selectorLabels" . }}
+{{- with .Chart.AppVersion }}
+app.kubernetes.io/version: {{ . | quote }}
+{{- end }}
+{{- with .Values.podLabels }}
+{{ toYaml . }}
+{{- end }}
+{{- if .Values.releaseLabel }}
+release: {{ .Release.Name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "prometheus-blackbox-exporter.labels" -}}
+plugindefinition: kube-monitoring
+plugin: {{ $.Release.Name }}
+{{- if .Values.global.commonLabels }}
+{{ tpl (toYaml .Values.global.commonLabels) . }}
+{{- end }}
+helm.sh/chart: {{ include "prometheus-blackbox-exporter.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: metrics
+app.kubernetes.io/part-of: {{ include "prometheus-blackbox-exporter.name" . }}
 {{ include "prometheus-node-exporter.selectorLabels" . }}
 {{- with .Chart.AppVersion }}
 app.kubernetes.io/version: {{ . | quote }}
