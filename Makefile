@@ -11,7 +11,6 @@ ifneq ($(filter arm%,$(UNAME_P)),)
 	ARCH = arm64
 endif
 
-
 ## tools versions
 KUSTOMIZE_VERSION ?= 5.5.0 # Update to the latest version as needed
 YQ_VERSION ?= v4.45.1  # Update to the latest version as needed
@@ -25,6 +24,7 @@ YQ ?= $(LOCALBIN)/yq
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
+HELM_DOCS_REPO ?= github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 
 ## Download `kustomize` locally if necessary
 .PHONY: kustomize
@@ -46,6 +46,14 @@ $(YQ): $(LOCALBIN)
 	fi
 	test -s $(LOCALBIN)/yq || curl -L $(YQ_INSTALL_SCRIPT) -o $(LOCALBIN)/yq && chmod +x $(LOCALBIN)/yq
 
+## Download `helm-docs` locally if necessary
+.PHONY: helm-docs
+helm-docs:
+	@if test -x $(LOCALBIN)/helm-docs; then \
+	echo "$(LOCALBIN)/helm-docs is not expected. Removing it before installing."; \
+	rm -rf $(LOCALBIN)/helm-docs; \
+	fi
+	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO)
 
 .PHONY: generate-documentation
 generate-documentation:
@@ -55,10 +63,17 @@ generate-documentation:
 local-plugin-definitions: kustomize yq
 	hack/local-plugin-definitions
 
-PLUGIN ?= "default"
-.PHONY: generate-readme $(PLUGIN)
-generate-readme: $(PLUGIN)
+PLUGIN ?= "None"
+.PHONY: generate-readme
+generate-readme: helm-docs $(PLUGIN)
+	if [ $(PLUGIN) == "None" ]; then\
+		exit 1;\
+	fi;\
+	
 	if [ -d "./$(PLUGIN)" ]; then\
-		cd ./$(PLUGIN); helm-docs -o ../README.md -t ./README.md.gotmpl;\
+		cd ./$(PLUGIN); ../bin/helm-docs -o ../README.md -t ./README.md.gotmpl;\
+	else \
+		echo "Error: The specified plugin directory '$(PLUGIN)' does not exist in this repository. Please check the plugin name and try again."; \
+		exit 1; \
 	fi
 	
