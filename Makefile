@@ -65,11 +65,12 @@ local-plugin-definitions: kustomize yq
 
 PLUGIN ?= "None"
 .PHONY: generate-readme
-generate-readme: helm-docs $(PLUGIN)
+generate-readme: helm-docs
 	if [ $(PLUGIN) == "None" ]; then\
+		echo "Please specify target plugin. make generate-readme PLUGIN=<plugin_name>"; \
 		exit 1;\
 	fi;\
-	
+
 	if [ -d "./$(PLUGIN)" ]; then\
 		cd ./$(PLUGIN); ../bin/helm-docs -o ../README.md -t ./README.md.gotmpl;\
 	else \
