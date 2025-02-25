@@ -25,9 +25,9 @@ This plugin deploys the following Thanos components:
 * [Thanos Query](https://thanos.io/tip/components/query.md/)
 * [Thanos Store](https://thanos.io/tip/components/store.md/)
 * [Thanos Compactor](https://thanos.io/tip/components/compact.md/)
+* [Thanos Ruler](https://thanos.io/tip/components/rule.md/)
 
 Planned components:
-* [Thanos Ruler](https://thanos.io/tip/components/rule.md/)
 * [Thanos Query Frontend](https://thanos.io/tip/components/query.md/)
 
 This Plugin does **not** deploy the following components:
@@ -122,6 +122,44 @@ spec:
   releaseNamespace: kube-monitoring
 ```
 
+### Thanos Ruler
+Thanos Ruler evaluates Prometheus rules against choosen query API. This allows evaluation of rules using metrics from different Prometheus instances.
+
+![Thanos Ruler](img/thanos_ruler.png)
+
+To enable Thanos Ruler component creation (Thanos Ruler is disabled by default) you have to set:
+
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.ruler.enabled
+    value: true
+```
+
+#### Configuration
+##### Alertmanager
+For Thanos Ruler to communicate with Alertmanager we need to enable the appropriate configuration and provide secret/key names containing necessary SSO key and certificate to the Plugin.
+
+Example of Plugin setup with Thanos Ruler using Alertmanager
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.ruler.enabled
+    value: true
+  - name: thanos.ruler.alertmanagers.enabled
+    value: true
+  - name: thanos.ruler.alertmanagers.authentication.ssoCert
+    valueFrom:
+      secret:
+        key: $KEY_NAME
+        name: $SECRET_NAME
+  - name: thanos.ruler.alertmanagers.authentication.ssoKey
+    valueFrom:
+      secret:
+        key: $KEY_NAME
+        name: $SECRET_NAME
+  ```
+
 ### [OPTIONAL] Handling your Prometheus and Thanos Stores.
 #### Default Prometheus and Thanos Endpoint
 
@@ -141,7 +179,7 @@ If you just have one occurence of this Thanos plugin dpeloyed, the default optio
 
 ### Standalone Query
 
-![Standalone Query](img/Thanos-standalone-query.png)
+![Standalone Query](img/thanos_standalone_query.png)
 
 In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
 
@@ -177,6 +215,21 @@ This would enable you to either:
           - thanos-kube-2:10901
     ```
 
+### Disable Individual Thanos Components
+It is possible to disable certain Thanos components for your deployment. To do so add the necessary configuration to your Plugin (currently it is not possible to disable the query component)
+```yaml
+- name: thanos.store.enabled
+  value: false
+- name: thanos.compactor.enabled
+  value: false
+```
+
+| Thanos Component | Enabled by default	 | Deactivatable | Flag |
+|---|---|---|---|
+| Query | True | False | n/a |
+| Store | True | True | thanos.store.enabled |
+| Compactor | True | True | thanos.compactor.enabled |
+| Ruler | False | True | thanos.ruler.enabled |
 ## Operations
 
 ### Thanos Compactor
@@ -191,6 +244,24 @@ The object storage costs will be heavily impacted on how granular timeseries are
 raw: 777600s (90d)
 5m: 777600s (90d)
 1h: 157680000 (5y)
+```
+
+### Thanos ServiceMonitor
+
+ServiceMonitor configures Prometheus to scrape metrics from all the deployed Thanos components.
+
+To enable the creation of a ServiceMonitor we can use the Thanos Plugin configuration.
+
+**NOTE**: You have to provide the serviceMonitorSelector matchLabels of your Prometheus instance. In the greenhouse context this should look like 'plugin: $PROMETHEUS_PLUGIN_NAME'
+
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.ruler.serviceMonitor.selfMonitor
+      value: true
+  - name: thanos.ruler.serviceMonitor.additionalLabels
+      value:
+        plugin: $PROMETHEUS_PLUGIN_NAME
 ```
 
 {{ template "chart.valuesSection" . }}

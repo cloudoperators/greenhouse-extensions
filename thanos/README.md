@@ -263,6 +263,7 @@ spec:
       value:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -337,4 +338,3 @@ spec:
 | thanos.store.indexCacheSize | string | `nil` |  |
 | thanos.store.logLevel | string | `nil` |  |
 | thanos.store.serviceLabels | string | `nil` |  |
-
