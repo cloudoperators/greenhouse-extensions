@@ -36,7 +36,7 @@ This guide provides a quick and straightforward way to deploy **prometheus** as 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 
 - Installed prometheus-operator and it's custom resource definitions (CRDs). As a foundation we recommend installing the `kube-monitoring` plugin first in your cluster to provide the prometheus-operator and it's CRDs. There are two paths to do it:
-  1. Go to Greenhouse dashboard and select the **Kubernetes Monitoring** plugin from the catalog. Specify the cluster and required option values.
+  1. Go to Greenhouse dashboard and select the **Prometheus** plugin from the catalog. Specify the cluster and required option values.
   2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
 
 **Step 1:**
@@ -150,12 +150,12 @@ spec:
       valueFrom:
         secret:
           key: tls.crt
-          name: tls-<org-name>-prometheus-auth
+          name: tls-prometheus-<org-name>
     - name: alerts.alertmanagers.tlsConfig.key
       valueFrom:
         secret:
           key: tls.key
-          name: tls-<org-name>-prometheus-auth
+          name: tls-prometheus-<org-name>
 ```
 
 ### Extension of the plugin
