@@ -50,10 +50,10 @@ $(YQ): $(LOCALBIN)
 .PHONY: helm-docs
 helm-docs:
 	@if test -x $(LOCALBIN)/helm-docs; then \
-	echo "$(LOCALBIN)/helm-docs is not expected. Removing it before installing."; \
-	rm -rf $(LOCALBIN)/helm-docs; \
-	fi
-	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO)
+		echo "$(LOCALBIN)/helm-docs is not expected. Removing it before installing."; \
+		rm -rf $(LOCALBIN)/helm-docs; \
+	fi;
+	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO);
 
 .PHONY: generate-documentation
 generate-documentation:
@@ -63,18 +63,16 @@ generate-documentation:
 local-plugin-definitions: kustomize yq
 	hack/local-plugin-definitions
 
-PLUGIN ?= "None"
 .PHONY: generate-readme
 generate-readme: helm-docs
-	if [ $(PLUGIN) == "None" ]; then\
-		echo "Please specify target plugin. make generate-readme PLUGIN=<plugin_name>"; \
-		exit 1;\
-	fi;\
-
-	if [ -d "./$(PLUGIN)" ]; then\
-		cd ./$(PLUGIN); ../bin/helm-docs -o ../README.md -t ./README.md.gotmpl;\
+	@PLUGIN=$(PLUGIN); \
+	if [ -d "./$$PLUGIN" ] && [ "$$PLUGIN" != "" ]; then\
+		echo "Generating README for $$PLUGIN..."; \
+		cd ./$$PLUGIN; ../bin/helm-docs -o ../README.md -t ./README.md.gotmpl; \
+		echo "README generation complete!"; \
 	else \
-		echo "Error: The specified plugin directory '$(PLUGIN)' does not exist in this repository. Please check the plugin name and try again."; \
+		echo "Error: Plugin directory '$$PLUGIN' does not exist"; \
+		echo "Available plugins:"; \
+		ls -d */ | sed 's#/##' | sed 's/LICENSES//' || echo "No plugin directories found"; \
 		exit 1; \
 	fi
-	
