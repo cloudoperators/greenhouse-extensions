@@ -18,6 +18,7 @@ chart-dirs:
   - opentelemetry
   - thanos
   - perses
+  - prometheus
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
