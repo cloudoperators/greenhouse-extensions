@@ -17,7 +17,7 @@ header:
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts
     - 'perses/**' # ignore the license for the perses charts
-    - 'prometheus/**' # ignore the license for the perses charts
+    - 'prometheus/**' # ignore the license for the prometheus charts
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
     - 'thanos/**' # ignore the license for this directory
     - 'opentelemetry/**' # ignore the license for the opentelemetry charts
