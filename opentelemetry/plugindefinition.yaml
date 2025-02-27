@@ -31,6 +31,11 @@ spec:
           required: false
           type: bool
         - default: true
+          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
+          name: openTelemetry.logsCollector.failover.enabled
+          required: false
+          type: bool
+        - default: true
           description: Activates the standard configuration for metrics 
           name: openTelemetry.metricsCollector.enabled
           required: false
@@ -45,11 +50,11 @@ spec:
           type: secret
         - description: Second Username (as a failover) for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_username_b
-          required: true
+          required: false
           type: secret
         - description: Second Password (as a failover) for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_password_b
-          required: true
+          required: false
           type: secret
         - description: Endpoint URL for OpenSearch
           name: openTelemetry.openSearchLogs.endpoint

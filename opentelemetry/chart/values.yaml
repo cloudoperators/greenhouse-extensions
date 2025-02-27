@@ -50,6 +50,8 @@ openTelemetry:
   region:
   logsCollector:
     enabled: true
+    failover:
+      enabled: true
     kvmConfig:
       enabled: true
     cephConfig:

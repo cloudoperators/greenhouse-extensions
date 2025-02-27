@@ -156,11 +156,10 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-      attributes/failover_username_b:
-        actions:
-          - action: insert
-            key: failover_username_opensearch
-            value: ${failover_username_b}
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+    {{- include "failover.attributes" . | nindent 6 -}}
+{{- end }}
+
 
       transform/journal:
         error_mode: ignore
