@@ -12,8 +12,9 @@ ifneq ($(filter arm%,$(UNAME_P)),)
 endif
 
 ## tools versions
-KUSTOMIZE_VERSION ?= 5.5.0 # Update to the latest version as needed
-YQ_VERSION ?= v4.45.1  # Update to the latest version as needed
+KUSTOMIZE_VERSION ?= 5.5.0
+YQ_VERSION ?= v4.45.1
+HELM_DOCS_VERSION ?= 1.14.2
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
@@ -25,7 +26,6 @@ YQ ?= $(LOCALBIN)/yq
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
 HELM_DOCS_REPO ?= github.com/norwoodj/helm-docs/cmd/helm-docs
-HELM_DOCS_VERSION ?= 1.14.2
 
 ## Download `kustomize` locally if necessary
 .PHONY: kustomize

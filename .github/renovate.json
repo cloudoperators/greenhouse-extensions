@@ -106,6 +106,19 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "mikefarah/yq",
       "extractVersionTemplate": "^((?<version>.?(?:\\d+\\.){0,2}\\d+))"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump helm-docs version in the Makefile",
+      "fileMatch": [
+        "^Makefile$"
+      ],
+      "matchStrings": [
+        "HELM_DOCS_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "norwoodj/helm-docs",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ],
   "packageRules": [
