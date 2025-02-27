@@ -80,6 +80,32 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "perses/helm-charts",
       "extractVersionTemplate": "^perses-(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump kustomize version in the Makefile",
+      "fileMatch": [
+        "^Makefile$"
+      ],
+      "matchStrings": [
+        "KUSTOMIZE_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "kubernetes-sigs/kustomize",
+      "extractVersionTemplate": "^kustomize/v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump yq version in the Makefile",
+      "fileMatch": [
+        "^Makefile$"
+      ],
+      "matchStrings": [
+        "YQ_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "mikefarah/yq",
+      "extractVersionTemplate": "^((?<version>.?(?:\\d+\\.){0,2}\\d+))"
     }
   ],
   "packageRules": [
