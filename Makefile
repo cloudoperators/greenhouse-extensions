@@ -24,7 +24,8 @@ YQ ?= $(LOCALBIN)/yq
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
-HELM_DOCS_REPO ?= github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+HELM_DOCS_REPO ?= github.com/norwoodj/helm-docs/cmd/helm-docs
+HELM_DOCS_VERSION ?= 1.14.2
 
 ## Download `kustomize` locally if necessary
 .PHONY: kustomize
@@ -53,7 +54,7 @@ helm-docs:
 		echo "$(LOCALBIN)/helm-docs is not expected. Removing it before installing."; \
 		rm -rf $(LOCALBIN)/helm-docs; \
 	fi;
-	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO);
+	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO)@v$(HELM_DOCS_VERSION);
 
 .PHONY: generate-documentation
 generate-documentation:
