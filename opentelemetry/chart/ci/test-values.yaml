@@ -42,6 +42,8 @@ openTelemetry:
   region: test
   logsCollector:
     enabled: true
+    failover:
+      enabled: false
   metricsCollector:
     enabled: false
   prometheus:
