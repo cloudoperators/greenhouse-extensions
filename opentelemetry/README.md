@@ -82,11 +82,12 @@ The **OpenTelemetry** Plugin comes with a [Failover Connector](https://github.co
 `openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false` |
 `openTelemetry.logsCollector.kvmConfig.enabled`    | Activates the configuration for KVM logs (requires logsCollector to be enabled) | bool | `false` |
 `openTelemetry.logsCollector.cephConfig.enabled`    | Activates the configuration for Ceph logs (requires logsCollector to be enabled) | bool | `false` |
+`openTelemetry.logsCollector.failover.enabled`      | Activates the failover mechanism  for shipping logs via a fallback user if the first users' credentials have expired | bool | `false` |
 `openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false` |
 `openTelemetry.openSearchLogs.failover_username_a` | Username for OpenSearch endpoint | secret | `true` |
 `openTelemetry.openSearchLogs.failover_password_a` | Password for OpenSearch endpoint | secret | `true` | 
-`openTelemetry.openSearchLogs.failover_username_b` | Second Username (as a failover) for OpenSearch endpoint | secret | `true` |
-`openTelemetry.openSearchLogs.failover_password_b` | Second Password (as a failover) for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.failover_username_b` | Second Username (as a failover) for OpenSearch endpoint | secret | `false` |
+`openTelemetry.openSearchLogs.failover_password_b` | Second Password (as a failover) for OpenSearch endpoint | secret | `false` |
 `openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | string | `true` | 
 `openTelemetry.openSearchLogs.index` | Name for OpenSearch index      | string | `false` | 
 `openTelemetry.region`                   | Region label for logging         | string | `false` |
