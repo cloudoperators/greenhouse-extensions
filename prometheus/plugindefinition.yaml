@@ -1,0 +1,132 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: prometheus
+spec:
+  version: 0.1.0
+  displayName: Prometheus
+  description: Native deployment of Prometheus managed by the prometheus-operator
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/prometheus/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/prometheus/logo.png
+  helmChart:
+    name: kube-monitoring
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.25.2
+  options:
+    - name: global.commonLabels
+      description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
+      required: false
+      type: map
+    - name: kubeMonitoring.defaultRules.create
+      description: Whether to install the default alerting rules for self-monitoring Prometheus
+      default: true
+      type: bool
+      required: false
+    - name: kubeMonitoring.defaultRules.additionalRuleLabels
+      description: Additional labels that can be added to the Prometheus self-monitoring alerting rules.
+      required: false
+      type: map
+    - name: kubeMonitoring.dashboard.create
+      description: Whether to install the default dashboards for self-monitoring Prometheus
+      default: true
+      type: bool
+      required: false
+    - name: kubeMonitoring.prometheus.ingress.enabled
+      description: Ingress exposes prometheus outside the cluster
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.prometheus.ingress.hosts
+      description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
+      required: false
+      type: list
+    - name: kubeMonitoring.prometheus.prometheusSpec.retention
+      description: How long to retain metrics
+      default: "14d"
+      required: true
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage
+      description: How large the persistent volume should be to house the prometheus database
+      default: 50Gi
+      required: true
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName
+      description: The storage class to use for the persistent volume.
+      required: false
+      type: string
+    - name: alerts.enabled
+      description: Whether the Alerts Plugin is configured
+      default: false
+      required: true
+      type: bool
+    - name: alerts.alertmanagers.hosts
+      description: List of Alertmanager hosts Prometheus can send alerts to.
+      required: false
+      type: list
+    - name: alerts.alertmanagers.tlsConfig.cert
+      description: TLS certificate for communication with Alertmanager
+      required: false
+      type: secret
+    - name: alerts.alertmanagers.tlsConfig.key
+      description: TLS key for communication with Alertmanager
+      required: false
+      type: secret
+    - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.name
+      description: The name of the Kubernetes Secret containing the Thanos object storage configuration.
+      required: false
+      type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret.key
+      description: The key within the specified Kubernetes Secret that contains the Thanos object storage configuration.
+      required: false
+      type: string
+    - name: kubeMonitoring.prometheus.service.additionalPorts
+      default:
+      - name: grpc
+        port: 10901
+        protocol: TCP
+        targetPort: grpc
+      required: false
+      type: list
+    - name: kubeMonitoring.prometheus.persesDatasource
+      description: Whether to create a datasource for Perses
+      default: true
+      required: false
+      type: bool
+    # Whether to install prometheus-operator and it's CRDs
+    - name: kubeMonitoring.prometheusOperator.enabled
+      description: Manages Prometheus and Alertmanager components
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.crds.enabled
+      description: Install Prometheus Operator CRDs
+      default: false
+      required: false
+      type: bool
+    # Disable all Kubernetes component scrapers
+    - name: kubeMonitoring.kubernetesServiceMonitors.enabled
+      description: Flag to disable all the kubernetes component scrapers
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.kubeStateMetrics.enabled
+      description: Component scraping kube state metrics
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.nodeExporter.enabled
+      description: Deploy node exporter as a daemonset to all nodes
+      default: false
+      required: false
+      type: bool
+    - name: kubernetes-operations.prometheusRules.create
+      description: Default Kubernetes operations rules for monitoring the cluster 
+      default: false
+      required: false
+      type: bool
+    - name: kubernetes-operations.dashboards.create
+      description: Default Kubernetes operations dashboards for monitoring the cluster 
+      default: false
+      required: false
+      type: bool
+
