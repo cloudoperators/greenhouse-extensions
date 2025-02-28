@@ -1,14 +1,14 @@
 name: "Helm lint and tests"
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
 
 env:
   REGISTRY: ghcr.io
-  
+
 jobs:
   helm-lint-test:
-    runs-on: [ default ]
+    runs-on: [default]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,19 +27,26 @@ jobs:
       - name: Set up chart-linting and chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
-      - name: Run chart-linting (list-changed)
+      - name: List changed charts for linting
         id: list-changed
         run: |
-          changed=$(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
+          changed_charts=$(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed_charts" ]]; then
+            echo "Charts that changed: $changed_charts"
+            echo "docs_update_needed=true" >> "$GITHUB_OUTPUT"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # Debug: Output changed charts
+      - name: Debug - Output changed charts
+        run: |
+          echo "docs_update_needed=${{ steps.list-changed.outputs.docs_update_needed }}"
 
       - name: Run chart-linting
         if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }}
 
-      - name: Run chart-testing (list-changed)
+      - name: List changed charts for testing
         id: chart-test-list-changed
         run: |
           changed=$(ct list-changed --config .github/configs/helm-test.yaml --target-branch ${{ github.event.repository.default_branch }})
@@ -80,4 +87,3 @@ jobs:
               body: ':warning: Chart `oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/${{ steps.check-bump.outputs.chart }}:${{ steps.check-bump.outputs.chart_version }}` already exists in OCI registry. Please increment the chart version.'
             })
             core.setFailed(`Action failed with error: Chart version bump required`);
-            

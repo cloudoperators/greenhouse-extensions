@@ -3,6 +3,7 @@ global:
   ##
   commonLabels: {}
 
+testKey: testValue
 perses:
   # Default values for perses.
   # This is a YAML-formatted file.
