@@ -9,20 +9,25 @@ spec:
     version: 0.0.1
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
-    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-opentelemetry/logo.png
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.7.0
+        version: 0.7.5
     options:
-        - default: true
-          description: Use for audit logs only
-          name: openTelemetry.auditLogsOnly.enabled
-          required: true
-          type: bool
         - default: true
           description: Activates the standard configuration for logs
           name: openTelemetry.logsCollector.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the configuration for KVM logs (requires logsCollector enabled)
+          name: openTelemetry.logsCollector.kvmConfig.enabled
+          required: false
+          type: bool
+        - default: true
+          description: Activates the configuration for Ceph logs (requires logsCollector enabled)
+          name: openTelemetry.logsCollector.cephConfig.enabled
           required: false
           type: bool
         - default: true
@@ -31,15 +36,27 @@ spec:
           required: false
           type: bool
         - description: Username for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.username
+          name: openTelemetry.openSearchLogs.failover_username_a
           required: true
           type: secret
         - description: Password for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.password
+          name: openTelemetry.openSearchLogs.failover_password_a
+          required: true
+          type: secret
+        - description: Second Username (as a failover) for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.failover_username_b
+          required: true
+          type: secret
+        - description: Second Password (as a failover) for OpenSearch endpoint
+          name: openTelemetry.openSearchLogs.failover_password_b
           required: true
           type: secret
         - description: Endpoint URL for OpenSearch
           name: openTelemetry.openSearchLogs.endpoint
+          required: false
+          type: string
+        - description: Name for OpenSearch index
+          name: openTelemetry.openSearchLogs.index
           required: false
           type: string
         - description: Region label for logging
@@ -86,7 +103,7 @@ spec:
           name: openTelemetry.manager.collectorImage.repository
           required: false
           type: string
-        - default: "4072695"
+        - default: "main"
           description: openTelemetry.manager.collectorImage.tag
           name: openTelemetry.manager.collectorImage.tag
           required: false
