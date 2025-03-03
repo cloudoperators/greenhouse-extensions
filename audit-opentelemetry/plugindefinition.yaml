@@ -11,9 +11,9 @@ spec:
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
-        name: opentelemetry-operator
+        name: audit-opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.7.5
+        version: 0.0.1
     options:
         - default: true
           description: Activates the standard configuration for logs
@@ -87,7 +87,7 @@ spec:
           type: map
         - default: true
           description: Activate to use the CertManager for generating self-signed certificates
-          name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          name: audit-opentelemetry-operator.admissionWebhooks.certManager.enabled
           type: bool
         - description: Additional labels for PrometheusRule alerts
           name: openTelemetry.prometheus.rules.additionalRuleLabels
@@ -95,7 +95,7 @@ spec:
           type: map
         - default: false
           description: Activate to use Helm to create self-signed certificates
-          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          name: audit-opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
           required: false
           type: bool
         - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
