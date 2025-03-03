@@ -83,3 +83,4 @@ jobs:
             echo "No README.md changes detected."
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "Checking if README.md files were modified..."
