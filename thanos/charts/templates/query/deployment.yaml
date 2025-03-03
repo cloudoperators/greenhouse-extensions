@@ -47,25 +47,26 @@ spec:
         {{- if .Values.thanos.query.autoDownsampling }}
         - --query.auto-downsampling
         {{- end }}
-        - --query.replica-label={{ default "prometheus_replica" .Values.thanos.query.replicaLabel }}
+        - --query.replica-label={{ default "prometheus_replica" }}
         - {{ default "--web.external-prefix=/thanos" .Values.thanos.query.web.externalPrefix }}
         - {{ default "--web.route-prefix=/thanos" .Values.thanos.query.web.routePrefix }}
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}
-        {{/* Technically it is possible to add stores and have the default stores all together.*/}}
-        {{/* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
-        {{- if and (empty .Values.thanos.query.stores) (.Values.thanos.query.standalone) }}
-        {{- fail "WARNING Thanos Query will have not data. Either unset thanos.query.standalone or specify thanos.query.stores." -}}
-        {{- end }}
-        {{- range .Values.thanos.query.stores }}
-        - --store={{ . }}
-        {{- end }}
-        {{- if not .Values.thanos.query.standalone }}
-        - --store=prometheus-operated:10901
-        - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
-        {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
+        # {{/* Technically it is possible to add stores and have the default stores all together.*/}}
+        # {{/* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
+        # {{- if and (empty .Values.thanos.query.stores) (.Values.thanos.query.standalone) }}
+        # {{- fail "WARNING Thanos Query will have not data. Either unset thanos.query.standalone or specify thanos.query.stores." -}}
+        # {{- end }}
+        # {{- range .Values.thanos.query.stores }}
+        # - --store={{ . }}
+        # {{- end }}
+        # {{- if not .Values.thanos.query.standalone }}
+        # - --store=prometheus-operated:10901
+        # - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
+        # {{- end }}
+        - --endpoint.sd-config-file=/etc/thanos/sd-config
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
@@ -97,3 +98,10 @@ spec:
           timeoutSeconds: 5
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
+      volumeMounts:
+        - name: sd-config
+          mountPath: /etc/thanos/sd-config
+    volumes:
+      - name: sd-config
+        configMap:
+          name: {{ include "release.name" . }}-sd-config
