@@ -38,13 +38,15 @@ jobs:
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring
           - chartDir: kubeconfig-generator/chart
-            chartName: kubeconfig-generator 
+            chartName: kubeconfig-generator
           - chartDir: logshipper/chart
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
           - chartDir: opentelemetry/chart
             chartName: opentelemetry-operator
+          - chartDir: opensearch/chart
+            chartName: opensearch
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts
