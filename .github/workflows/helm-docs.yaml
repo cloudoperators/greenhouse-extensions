@@ -71,7 +71,7 @@ jobs:
             echo "No plugins to check for README changes."
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
             exit 0
-          f  
+          fi
           echo "Checking if README.md files were modified..."
           modified_readmes=$(git diff --name-only | grep README.md || true  
           if [[ -n "$modified_readmes" ]]; then
