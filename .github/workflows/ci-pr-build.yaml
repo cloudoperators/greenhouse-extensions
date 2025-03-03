@@ -26,6 +26,8 @@ jobs:
         include:
           - chartDir: alerts/charts
             chartName: alerts
+          - chartDir: audit-opentelemetry/chart
+            chartName: audit-opentelemetry-operator
           - chartDir: cert-manager/charts/v1.11.0/cert-manager
             chartName: cert-manager
           - chartDir: cert-manager/charts/v1.11.5/cert-manager

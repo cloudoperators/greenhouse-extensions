@@ -7,6 +7,7 @@ target-branch: main
 validate-maintainers: false
 check-version-increment: false
 chart-dirs:
+  - audit-opentelemetry
   - alerts
   - kube-monitoring
   - plutono
@@ -15,6 +16,7 @@ chart-dirs:
   - perses
   - prometheus
 chart-repos:
+  - audit-opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
