@@ -1,8 +1,8 @@
 ---
-title: OpenTelemetry for Audit Logs
+title: Audit Logs Plugin
 ---
 
-Learn more about the **OpenTelemetry** Plugin. Use it to enable the ingestion, collection and export of audit relevant telemetry signals (logs and metrics) for your Greenhouse cluster.
+Learn more about the **Audit Logs** Plugin. Use it to enable the ingestion, collection and export of audit relevant telemetry signals (logs and metrics) for your Greenhouse cluster.
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
