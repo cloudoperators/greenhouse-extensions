@@ -37,10 +37,20 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Debug: Output changed charts
-      - name: Debug - Output changed charts
+      # Generate README.md using helm-docs (Docker version)
+      - name: Generate README.md using helm-docs
+        if: steps.list-changed.outputs.docs_update_needed == 'true'
         run: |
-          echo "docs_update_needed=${{ steps.list-changed.outputs.docs_update_needed }}"
+          echo "Generating README.md using helm-docs..."
+          docker run --rm --volume "$(pwd):/helm-docs" -u $(id -u) jnorwood/helm-docs:1.14.2
+          echo "README.md generation completed."
+
+      # Debug: Check if README.md files were updated
+      - name: Debug - List updated README.md files
+        if: steps.list-changed.outputs.docs_update_needed == 'true'
+        run: |
+          echo "Checking for modified README.md files..."
+          git status --short | grep README.md || echo "No README changes detected."
 
       - name: Run chart-linting
         if: steps.list-changed.outputs.changed == 'true'
