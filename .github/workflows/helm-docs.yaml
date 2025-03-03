@@ -76,9 +76,9 @@ jobs:
           modified_readmes=$(git diff --name-only | grep README.md || true  
           if [[ -n "$modified_readmes" ]]; then
             echo "Modified README.md files: $modified_readmes"
-            updated_plugins=$(echo "$modified_readmes" | cut -d'/' -f1 | sort -u | tr '\n' ' ')
+            updated_plugins=$(echo "$modified_readmes" | awk -F'/' '{print $1}' | sort -u | tr '\n' ' ')
             echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "updated_plugins=$updated_plugins" >> "$GITHUB_OUTPUT"
+            echo "updated_plugins=${updated_plugins}" >> "$GITHUB_OUTPUT"
           else
             echo "No README.md changes detected."
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
