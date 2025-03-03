@@ -63,25 +63,23 @@ jobs:
           done
           echo "README.md generation completed."
 
-          - name: Check for README.md Changes
-          id: check-readme
-          run: |
-            changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
-            if [[ -z "$changed_plugins" ]]; then
-              echo "No plugins to check for README changes."
-              echo "needs_update=false" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-
-            echo "Checking if README.md files were modified..."
-            modified_readmes=$(git diff --name-only | grep README.md || true)
-
-            if [[ -n "$modified_readmes" ]]; then
-              echo "Modified README.md files: $modified_readmes"
-              updated_plugins=$(echo "$modified_readmes" | cut -d'/' -f1 | sort -u | tr '\n' ' ')
-              echo "needs_update=true" >> "$GITHUB_OUTPUT"
-              echo "updated_plugins=$updated_plugins" >> "$GITHUB_OUTPUT"
-            else
-              echo "No README.md changes detected."
-              echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            fi
+      - name: Check for README.md Changes
+        id: check-readme
+        run: |
+          changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
+          if [[ -z "$changed_plugins" ]]; then
+            echo "No plugins to check for README changes."
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          f  
+          echo "Checking if README.md files were modified..."
+          modified_readmes=$(git diff --name-only | grep README.md || true  
+          if [[ -n "$modified_readmes" ]]; then
+            echo "Modified README.md files: $modified_readmes"
+            updated_plugins=$(echo "$modified_readmes" | cut -d'/' -f1 | sort -u | tr '\n' ' ')
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+            echo "updated_plugins=$updated_plugins" >> "$GITHUB_OUTPUT"
+          else
+            echo "No README.md changes detected."
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+          fi
