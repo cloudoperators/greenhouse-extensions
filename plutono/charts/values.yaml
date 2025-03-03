@@ -1218,3 +1218,6 @@ plutono:
   # Alternatively, if you wish to allow secret values to be exposed in the rendered plutono.ini configmap,
   # you can disable this check by setting assertNoLeakedSecrets to false.
   assertNoLeakedSecrets: true
+
+
+testKey: testValue
