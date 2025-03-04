@@ -28,10 +28,8 @@ thanos:
     ## Labels for ServiceMonitor
     additionalLabels: {}
 
-
   ## Init container to set permissions
   initChownData:
-
     ## initChownData container image
     ##
     image:
@@ -58,7 +56,8 @@ thanos:
       externalPrefix:
       routePrefix:
 
-    additionalArgs: []
+    additionalArgs:
+      []
       # - something.route-foo=/lol
 
     deploymentLabels: {}
@@ -201,3 +200,5 @@ prometheus-operator:
     enabled: false
     ingress:
       enabled: false
+
+dummyKey: dummyValue
