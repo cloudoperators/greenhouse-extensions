@@ -156,11 +156,10 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-      attributes/failover_username_b:
-        actions:
-          - action: insert
-            key: failover_username_opensearch
-            value: ${failover_username_b}
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+    {{- include "failover.attributes" . | nindent 6 -}}
+{{- end }}
+
 
       transform/journal:
         error_mode: ignore
@@ -307,13 +306,9 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-      opensearch/failover_b:
-        http:
-          auth:
-            authenticator: basicauth/failover_b
-          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: ${index}-datastream
-        
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+    {{- include "failover.exporter" . | nindent 6 -}}
+{{- end }}
       prometheus:
         endpoint: 0.0.0.0:9999
 
@@ -322,24 +317,28 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-      basicauth/failover_b:
-        client_auth:
-          username: ${failover_username_b}
-          password: ${failover_password_b}
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+    {{- include "failover.extension" . | nindent 6 -}}
+{{- end }}
+
 
     connectors:
       forward: {}
       failover:
         priority_levels:
           - [logs/failover_a]
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
           - [logs/failover_b]
+{{- end }}
         retry_interval: 2m
         retry_gap: 30s
         max_retries: 0
     service:
       extensions:
         - basicauth/failover_a
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
         - basicauth/failover_b
+{{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
@@ -355,10 +354,9 @@ spec:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-        logs/failover_b:
-          receivers: [failover]
-          processors: [attributes/failover_username_b]
-          exporters: [opensearch/failover_b]
+{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+    {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress]

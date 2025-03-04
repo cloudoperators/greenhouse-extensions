@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: opentelemetry
 spec:
-    version: 0.7.5
+    version: 0.7.6
     displayName: OpenTelemetry
     description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
         name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.7.5
+        version: 0.7.6
     options:
         - default: true
           description: Activates the standard configuration for logs
@@ -28,6 +28,11 @@ spec:
         - default: true
           description: Activates the configuration for Ceph logs (requires logsCollector enabled)
           name: openTelemetry.logsCollector.cephConfig.enabled
+          required: false
+          type: bool
+        - default: false
+          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
+          name: openTelemetry.logsCollector.failover.enabled
           required: false
           type: bool
         - default: true
@@ -45,11 +50,11 @@ spec:
           type: secret
         - description: Second Username (as a failover) for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_username_b
-          required: true
+          required: false
           type: secret
         - description: Second Password (as a failover) for OpenSearch endpoint
           name: openTelemetry.openSearchLogs.failover_password_b
-          required: true
+          required: false
           type: secret
         - description: Endpoint URL for OpenSearch
           name: openTelemetry.openSearchLogs.endpoint
