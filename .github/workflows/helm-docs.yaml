@@ -21,11 +21,6 @@ jobs:
         with:
           go-version: 1.22.0
 
-      # - name: Set up environment
-      #   run: |
-      #     echo "Setting up environment..."
-      #     sudo apt-get update && sudo apt-get install -y make
-
       - name: Detect Changed Plugins
         id: changed-plugins
         run: |
@@ -98,3 +93,29 @@ jobs:
             fi
           done
           exit 1
+
+      - name: Post PR comment if README is outdated
+        if: steps.check-readme.outputs.needs_update == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            const changedPlugins = "${{ steps.changed-plugins.outputs.changed_plugins }}".split(" ");
+            const pluginCommands = changedPlugins
+              .filter(plugin => `[[ -f "${plugin}/README.md.gotmpl" ]]`)
+              .map(plugin => `make generate-readme PLUGIN=${plugin}`)
+              .join("\n");
+            const comment = `⚠️ The README.md for one or more plugins is outdated. Please run the following commands and update this PR:
+            \n\n${pluginCommands}
+            \n\nEnsure the README is up to date before merging.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
