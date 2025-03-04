@@ -94,7 +94,7 @@ jobs:
             });
 
             const outdated_plugins = "${{ steps.generate-readme.outputs.outdated_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
-            if (filteredPlugins.length === 0) return;
+            if (outdated_plugins.length === 0) return;
 
             const pluginCommands = outdated_plugins
               .map(plugin => `make generate-readme PLUGIN=${plugin}`)
