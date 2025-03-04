@@ -86,4 +86,13 @@ jobs:
           done
 
           echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
-          echo "the value of needs_update is: $needs_update"
+
+      - name: Fail if README.md is outdated
+        if: steps.check-readme.outputs.needs_update == 'true'
+        run: |
+          changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
+          echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
+          for plugin in $changed_plugins; do
+            echo "make generate-readme PLUGIN=$plugin"
+          done
+          exit 1
