@@ -59,6 +59,12 @@ jobs:
           for plugin in $filtered_plugins; do
             echo "Processing $plugin..."
             make generate-readme PLUGIN=$plugin
+
+          if git diff --quiet -- "$plugin/README.md"; then
+            echo "README.md for $plugin is already up-to-date."
+          else
+            echo "README.md for $plugin has changed."
+          fi
           done
           echo "README.md generation completed."
 
