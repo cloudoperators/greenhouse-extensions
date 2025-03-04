@@ -136,7 +136,7 @@ jobs:
 
             // Check if there is already an "All README.md files are up to date" comment
             const existingComment = comments.find(comment =>
-              comment.body.includes("Great job keeping documentation up to date! 🎉📖")
+              comment.body.includes("Great job keeping documentation up to date!")
             );
 
             if (!existingComment) {
