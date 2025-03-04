@@ -89,7 +89,9 @@ jobs:
           filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
           for plugin in $filtered_plugins; do
-            echo "make generate-readme PLUGIN=$plugin"
+            if [[ -n "$plugin" ]]; then
+              echo "make generate-readme PLUGIN=$plugin"
+            fi
           done
           exit 1
 
@@ -104,16 +106,18 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
-            const filteredPlugins = "${{ steps.changed-plugins.outputs.filtered_plugins }}".split(" ");
-            const pluginCommands = filteredPlugins
-              .map(plugin => `make generate-readme PLUGIN=${plugin}`)
-              .join("\n");
-            const comment = `⚠️ The README.md for one or more plugins is outdated. Please run the following commands and update this PR:
-            \n\n${pluginCommands}
-            \n\nEnsure the README is up to date before merging.`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: comment
-            });
+            const filteredPlugins = "${{ steps.changed-plugins.outputs.filtered_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
+            if (filteredPlugins.length > 0) {
+              const pluginCommands = filteredPlugins
+                .map(plugin => `make generate-readme PLUGIN=${plugin}`)
+                .join("\n");
+              const comment = `⚠️ The README.md for one or more plugins is outdated. Please run the following command(s) and update this PR:
+              \n\n${pluginCommands}
+              \n\nEnsure the README is up to date before merging.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
