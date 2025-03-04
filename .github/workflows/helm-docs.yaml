@@ -77,9 +77,7 @@ jobs:
           outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
           for plugin in $outdated_plugins; do
-            if [[ -n "$plugin" ]]; then
               echo "make generate-readme PLUGIN=$plugin"
-            fi
           done
           exit 1
 
