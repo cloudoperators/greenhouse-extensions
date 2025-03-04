@@ -106,18 +106,18 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
-            
+
             const filteredPlugins = "${{ steps.changed-plugins.outputs.filtered_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
             if (filteredPlugins.length === 0) return;
-            
+
             const pluginCommands = filteredPlugins
               .map(plugin => `make generate-readme PLUGIN=${plugin}`)
               .join("\n");
-            
+
             const newComment = `⚠️ **Action Required: Update Your README.md!** 📜🚀\n\n📌 The README.md for one or more plugins is outdated due to changes in *values.yaml*. Please update it by running the following command(s):\n\n\`\`\`sh\n${pluginCommands}\n\`\`\`\n\n✅ Once you've done that, commit the updated README and push it to this branch.`;
-            
+
             const existingComment = comments.find(comment => comment.body.includes("**Action Required: Update Your README.md!**"));
-            
+
             if (existingComment) {
               // Update existing comment
               await github.rest.issues.updateComment({
@@ -133,5 +133,28 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
                 body: newComment
+              });
+            }
+
+      - name: Post PR Comment if README is Up-to-Date
+        if: success() && steps.check-readme.outputs.needs_update == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const existingComment = comments.find(comment => comment.body.includes("**Action Required: Update Your README.md!**"));
+
+            if (existingComment) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: "✅ All README.md files are up to date! Great job keeping documentation up tp date! 🎉📖"
               });
             }
