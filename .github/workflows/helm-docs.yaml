@@ -74,3 +74,16 @@ jobs:
           fi
           echo "Checking if README.md files were modified..."
           echo "The changed plugins are: $changed_plugins"
+
+          needs_update=false
+          for plugin in $changed_plugins; do
+            if [[ -f "$plugin/README.md.gotmpl" ]]; then
+              if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
+                echo "README.md for $plugin is outdated."
+                needs_update=true
+              fi
+            fi
+          done
+
+          echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
+          echo "the value of needs_update is: $needs_update"
