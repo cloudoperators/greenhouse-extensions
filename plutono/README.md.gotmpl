@@ -1,0 +1,42 @@
+---
+title: Plutono
+---
+
+Learn more about the **plutono** Plugin. Use it to install the web dashboarding system [Plutono](https://github.com/credativ/plutono) to collect, correlate, and visualize Prometheus metrics for your Greenhouse cluster.
+
+The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
+
+## Overview 
+
+Observability is often required for the operation and automation of service offerings. Plutono provides you with tools to display Prometheus metrics on live dashboards with insightful charts and visualizations. In the Greenhouse context, this complements the **kube-monitoring** plugin, which automatically acts as a Plutono data source which is recognized by Plutono. In addition, the Plugin provides a mechanism that automates the lifecycle of datasources and dashboards without having to restart Plutono.
+
+![Plutono Architecture](img/Plutono-arch.png)
+
+## Disclaimer
+
+This is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the Plugin according to your needs.
+
+Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
+
+## Quick Start
+
+This guide provides a quick and straightforward way how to use Plutono as a Greenhouse Plugin on your Kubernetes cluster.
+
+**Prerequisites**
+
+- A running and Greenhouse-managed Kubernetes cluster
+- `kube-monitoring` Plugin installed to have at least one Prometheus instance running in the cluster
+
+The plugin works by default with anonymous access enabled. If you use the standard configuration in the **kube-monitoring** plugin, the data source and some [kubernetes-operations](https://github.com/cloudoperators/kubernetes-operations) dashboards are already pre-installed.
+
+**Step 1: Add your dashboards**
+
+Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-dashboard-config)
+
+A guide on how to create dashboards can be found [here](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#create-a-dashboard).
+
+**Step 2: Add your datasources**
+
+Data sources are selected from `Secrets` across namespaces. The plugin searches for `Secrets` with the label `plutono-dashboard: "true"` and imports them into Plutono. The `Secrets` should contain valid datasource configuration YAML. [Example](https://github.com/cloudoperators/greenhouse-extensions/blob/main/plutono/README.md#example-datasource-config)
+
+{{ template "chart.valuesSection" . }}
