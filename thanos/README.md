@@ -268,6 +268,7 @@ spec:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| dummyKey | string | `"dummyValue"` |  |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | testFramework.enabled | bool | `true` |  |
