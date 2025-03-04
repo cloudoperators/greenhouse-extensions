@@ -57,7 +57,6 @@ jobs:
           fi
 
           echo "Generating README.md for modified plugins..."
-          needs_update=false
           for plugin in $filtered_plugins; do
             echo "Processing $plugin..."
             make generate-readme PLUGIN=$plugin
@@ -70,6 +69,16 @@ jobs:
             outdated_plugins+="$plugin "
           fi
           done
+
+      - name: Check for README.md Changes
+        id: check-readme
+        run: |
+          outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
+          if [[ -z "$outdated_plugins" ]]; then
+            echo "No plugins to check for README changes."
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
 
       # - name: Check for README.md Changes
@@ -94,7 +103,7 @@ jobs:
       #     echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
 
       - name: Fail if README.md is outdated
-        if: steps.generate-readme.outputs.outdated_plugins != ''
+        if: steps.generate-readme.outputs.needs_update == 'true'
         run: |
           outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
