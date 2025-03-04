@@ -15,15 +15,14 @@ global:
 
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
-
   # Use certmanager to generate alertmanager certs
   certManager:
     enabled: true
     # self-signed root certificate
     rootCert:
-      duration: ""  # default to be 5y
+      duration: "" # default to be 5y
     admissionCert:
-      duration: ""  # default to be 1y
+      duration: "" # default to be 1y
     issuerRef: {}
     #   name: "issuer"
     #   kind: "ClusterIssuer"
@@ -92,7 +91,7 @@ alerts:
     enabled: true
 
   windowsMonitoring:
-  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
+    ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
     enabled: false
 
   ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
@@ -104,16 +103,13 @@ alerts:
   ## ref: https://thanos.io/tip/components/rule.md/
   ##
   thanosRuler:
-
     ## Deploy thanosRuler
     ##
     enabled: false
 
-
   ## Configuration for the Prometheus instance
   ##
   prometheus:
-
     ## Deploy Prometheus
     ##
     enabled: false
@@ -141,7 +137,6 @@ alerts:
   ## ref: https://prometheus.io/docs/alerting/alertmanager/
   ##
   alertmanager:
-
     ## Deploy alertmanager
     ##
     enabled: true
@@ -160,25 +155,25 @@ alerts:
         resolve_timeout: 5m
       inhibit_rules:
         - source_matchers:
-            - 'severity = critical'
+            - "severity = critical"
           target_matchers:
-            - 'severity =~ warning|info'
+            - "severity =~ warning|info"
           equal:
-            - 'namespace'
-            - 'alertname'
+            - "namespace"
+            - "alertname"
         - source_matchers:
-            - 'severity = warning'
+            - "severity = warning"
           target_matchers:
-            - 'severity = info'
+            - "severity = info"
           equal:
-            - 'namespace'
-            - 'alertname'
+            - "namespace"
+            - "alertname"
         - source_matchers:
-            - 'alertname = InfoInhibitor'
+            - "alertname = InfoInhibitor"
           target_matchers:
-            - 'severity = info'
+            - "severity = info"
           equal:
-            - 'namespace'
+            - "namespace"
       route:
         group_by:
           - organization
@@ -189,20 +184,19 @@ alerts:
         group_interval: 5m
         repeat_interval: 12h
         continue: false
-        receiver: 'null'
+        receiver: "null"
         routes:
           - matchers:
-            - alertname =~ "Watchdog|InfoInhibitor"
+              - alertname =~ "Watchdog|InfoInhibitor"
             receiver: "null"
             continue: false
 
       receivers:
-        - name: 'null'
+        - name: "null"
 
       templates:
-        - '/etc/alertmanager/config/*.tmpl'
-        - '/etc/alertmanager/notification-templates/*.tmpl'
-
+        - "/etc/alertmanager/config/*.tmpl"
+        - "/etc/alertmanager/notification-templates/*.tmpl"
 
     ingress:
       enabled: false
@@ -223,7 +217,6 @@ alerts:
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerspec
 
     alertmanagerSpec:
-
       ## Defines the strategy used by AlertmanagerConfig objects to match alerts.
       ##
       alertmanagerConfigMatcherStrategy:
@@ -273,7 +266,6 @@ alerts:
         #        matchType: "="
         #        value: "critical"
 
-
     webhook:
       routes:
         #  - name: webhook-route
@@ -289,3 +281,5 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+dummyKey: dummyValue
