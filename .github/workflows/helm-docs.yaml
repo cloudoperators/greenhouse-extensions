@@ -147,6 +147,4 @@ jobs:
                 issue_number: context.issue.number,
                 body: "✅ All README.md files are up to date! Great job keeping documentation up to date! 🎉📖"
               });
-            } else {
-              echo "The comment has already been posted. So ignoring this step."
             }
