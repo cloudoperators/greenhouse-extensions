@@ -52,6 +52,7 @@ jobs:
           filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
           if [[ -z "$filtered_plugins" ]]; then
             echo "No plugins need README generation."
+            echo "outdated_plugins=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -66,6 +67,7 @@ jobs:
           else
             echo "README.md for $plugin has changed."
             needs_update=true
+            outdated_plugins+="$plugin "
           fi
           done
           echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
@@ -92,11 +94,11 @@ jobs:
       #     echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
 
       - name: Fail if README.md is outdated
-        if: steps.generate-readme.outputs.needs_update == 'true'
+        if: steps.generate-readme.outputs.outdated_plugins != ''
         run: |
-          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
+          outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
-          for plugin in $filtered_plugins; do
+          for plugin in $outdated_plugins; do
             if [[ -n "$plugin" ]]; then
               echo "make generate-readme PLUGIN=$plugin"
             fi
@@ -115,7 +117,7 @@ jobs:
               issue_number: context.issue.number
             });
 
-            const filteredPlugins = "${{ steps.changed-plugins.outputs.filtered_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
+            const filteredPlugins = "${{ steps.changed-plugins.outputs.outdated_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
             if (filteredPlugins.length === 0) return;
 
             const pluginCommands = filteredPlugins
