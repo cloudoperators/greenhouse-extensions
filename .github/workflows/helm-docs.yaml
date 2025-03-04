@@ -134,13 +134,17 @@ jobs:
               issue_number: context.issue.number
             });
 
-            const existingComment = comments.find(comment => comment.body.includes("**Action Required: Update Your README.md!**"));
+            // Check if there is already an "All README.md files are up to date" comment
+            const existingComment = comments.find(comment =>
+              comment.body.includes("Great job keeping documentation up to date! 🎉📖")
+            );
 
-            if (existingComment) {
+            if (!existingComment) {
+              // If no existing comment, create one
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                body: "✅ README.md files are now up to date! Great job keeping the documentation up to date! 🚀📖"
+                body: "✅ All README.md files are up to date! Great job keeping documentation up to date! 🎉📖"
               });
             }
