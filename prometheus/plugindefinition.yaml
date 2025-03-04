@@ -1,18 +1,14 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-  name: kube-monitoring
+  name: prometheus
 spec:
-  version: 2.12.2
-  displayName: Kubernetes monitoring
-  description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
-  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
-  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
+  version: 0.1.0
+  displayName: Prometheus
+  description: Native deployment of Prometheus managed by the prometheus-operator
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/prometheus/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/prometheus/logo.png
   helmChart:
-    # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/kube-monitoring
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.25.2
@@ -85,10 +81,10 @@ spec:
       type: string
     - name: kubeMonitoring.prometheus.service.additionalPorts
       default:
-        - name: grpc
-          port: 10901
-          protocol: TCP
-          targetPort: grpc
+      - name: grpc
+        port: 10901
+        protocol: TCP
+        targetPort: grpc
       required: false
       type: list
     - name: kubeMonitoring.prometheus.persesDatasource
@@ -96,8 +92,41 @@ spec:
       default: true
       required: false
       type: bool
-    - name: blackboxExporter.enabled
-      description: Deploys the Prometheus exporter for blackbox testing
+    # Whether to install prometheus-operator and it's CRDs
+    - name: kubeMonitoring.prometheusOperator.enabled
+      description: Manages Prometheus and Alertmanager components
       default: false
       required: false
       type: bool
+    - name: kubeMonitoring.crds.enabled
+      description: Install Prometheus Operator CRDs
+      default: false
+      required: false
+      type: bool
+    # Disable all Kubernetes component scrapers
+    - name: kubeMonitoring.kubernetesServiceMonitors.enabled
+      description: Flag to disable all the kubernetes component scrapers
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.kubeStateMetrics.enabled
+      description: Component scraping kube state metrics
+      default: false
+      required: false
+      type: bool
+    - name: kubeMonitoring.nodeExporter.enabled
+      description: Deploy node exporter as a daemonset to all nodes
+      default: false
+      required: false
+      type: bool
+    - name: kubernetes-operations.prometheusRules.create
+      description: Default Kubernetes operations rules for monitoring the cluster 
+      default: false
+      required: false
+      type: bool
+    - name: kubernetes-operations.dashboards.create
+      description: Default Kubernetes operations dashboards for monitoring the cluster 
+      default: false
+      required: false
+      type: bool
+

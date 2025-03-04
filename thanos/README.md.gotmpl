@@ -2,7 +2,7 @@
 title: Thanos
 ---
 
-Learn more about the **Thanos** Plugin. Use it to enable extended metrics retention and querying across Prometheus servers and Greenhouse clusters.
+Learn more about the **Thanos** Plugin. Use it to enable extended metrics retention and querying across Prometheus servers and Greenhouse clusters. 
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
@@ -14,7 +14,7 @@ Thanos is a set of components that can be used to extend the storage and retriev
 
 The **Thanos Sidecar** is a component that is deployed as a container together with a Prometheus instance. This allows Thanos to optionally upload metrics to the object store and Thanos Query to access Prometheus data via a common, efficient StoreAPI.
 
-The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data.
+The **Thanos Compact** component applies the Prometheus 2.0 Storage Engine compaction process to data uploaded to the object store. The Compactor is also responsible for applying the configured retention and downsampling of the data. 
 
 The **Thanos Store** also implements the StoreAPI and serves the historical data from an object store. It acts primarily as an API gateway and has no persistence itself.
 
@@ -34,7 +34,7 @@ This Plugin does **not** deploy the following components:
 * [Thanos Sidecar](https://thanos.io/tip/components/sidecar.md/)
 This component is installed in the [kube-monitoring](https://github.com/cloudoperators/greenhouse-extensions/tree/main/kube-monitoring) plugin.
 
-## Disclaimer
+## Disclaimer 
 
 It is not meant to be a comprehensive package that covers all scenarios. If you are an expert, feel free to configure the Plugin according to your needs.
 
@@ -48,7 +48,7 @@ This guide provides a quick and straightforward way to use **Thanos** as a Green
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - Ready to use credentials for a [compatible object store](https://thanos.io/tip/thanos/storage.md/)
-- **kube-monitoring** plugin installed. Thanos Sidecar on the Prometheus must be [enabled](#kube-monitoring-plugin-enablement) by providing the required object store credentials.
+- **kube-monitoring** plugin installed. Thanos Sidecar on the Prometheus must be [enabled](#kube-monitoring-plugin-enablement) by providing the required object store credentials. 
 
 **Step 1:**
 
@@ -87,7 +87,7 @@ If you've got everything in a file, deploy it in your remote cluster in the name
 kubectl create secret generic $THANOS_PLUGIN_NAME-metrics-objectstore --from-file=thanos.yaml=/path/to/your/file
 ```
 
-### kube-monitoring plugin enablement
+### kube-monitoring plugin enablement 
 
 Prometheus in kube-monitoring needs to be altered to have a sidecar and ship metrics to the new object store too. You have to provide the Secret you've just created to the (most likely already existing) kube-monitoring plugin. Add this:
 
@@ -108,7 +108,7 @@ This is the real deal now: Define your Thanos Query by creating a plugin.
 
 **NOTE1:** `$THANOS_PLUGIN_NAME` needs to be consistent with your secret created earlier.
 
-**NOTE2:** The `releaseNamespace` needs to be the same as to where kube-monitoring resides. By default this is kube-monitoring.
+**NOTE2:** The `releaseNamespace` needs to be the same as to where kube-monitoring resides. By default this is kube-monitoring. 
 
 ```yaml
 apiVersion: greenhouse.sap/v1alpha1
@@ -118,7 +118,7 @@ metadata:
 spec:
   pluginDefinition: thanos
   disabled: false
-  clusterName: $YOUR_CLUSTER_NAME
+  clusterName: $YOUR_CLUSTER_NAME 
   releaseNamespace: kube-monitoring
 ```
 
@@ -198,10 +198,10 @@ This would enable you to either:
       optionsValues:
       - name: thanos.query.stores
         value:
-          - thanos-kube-1-store:10901
-          - thanos-kube-2-store:10901
-          - kube-monitoring-1-prometheus:10901
-          - kube-monitoring-2-prometheus:10901
+          - thanos-kube-1-store:10901 
+          - thanos-kube-2-store:10901 
+          - kube-monitoring-1-prometheus:10901 
+          - kube-monitoring-2-prometheus:10901 
     ```
 * query multiple Thanos Queries with a single Query
   Note that there is no `-store` suffix here in this case.
@@ -236,7 +236,7 @@ It is possible to disable certain Thanos components for your deployment. To do s
 
 If you deploy the plugin with the default values, Thanos compactor will be shipped too and use the same secret (`$THANOS_PLUGIN_NAME-metrics-objectstore`) to retrieve, compact and push back timeseries.
 
-Based on experience, a 100Gi-PVC is used in order not to overload the ephermeral storage of the Kubernetes Nodes. Depending on the configured retention and the amount of metrics, this may not be sufficient and larger volumes may be required. In any case, it is always safe to clear the volume of the compactor and increase it if necessary.
+Based on experience, a 100Gi-PVC is used in order not to overload the ephermeral storage of the Kubernetes Nodes. Depending on the configured retention and the amount of metrics, this may not be sufficient and larger volumes may be required. In any case, it is always safe to clear the volume of the compactor and increase it if necessary. 
 
 The object storage costs will be heavily impacted on how granular timeseries are being stored (reference [Downsampling](https://thanos.io/tip/components/compact.md/#downsampling)). These are the pre-configured defaults, you can change them as needed:
 
@@ -264,77 +264,4 @@ spec:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
 
-## Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
-| global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
-| testFramework.enabled | bool | `true` |  |
-| testFramework.image.registry | string | `"ghcr.io"` |  |
-| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` |  |
-| testFramework.image.tag | string | `"main"` |  |
-| testFramework.imagePullPolicy | string | `"IfNotPresent"` |  |
-| thanos.compactor.additionalArgs | list | `[]` |  |
-| thanos.compactor.annotations | list | `[]` |  |
-| thanos.compactor.compact.cleanupInterval | string | `nil` |  |
-| thanos.compactor.compact.concurrency | string | `nil` |  |
-| thanos.compactor.compact.waitInterval | string | `nil` |  |
-| thanos.compactor.consistencyDelay | string | `nil` |  |
-| thanos.compactor.containerLabels | list | `[]` |  |
-| thanos.compactor.enabled | bool | `true` |  |
-| thanos.compactor.httpGracePeriod | string | `nil` |  |
-| thanos.compactor.labels | list | `[]` |  |
-| thanos.compactor.logLevel | string | `nil` |  |
-| thanos.compactor.retentionResolution1h | string | `nil` |  |
-| thanos.compactor.retentionResolution5m | string | `nil` |  |
-| thanos.compactor.retentionResolutionRaw | string | `nil` |  |
-| thanos.compactor.serviceLabels | string | `nil` |  |
-| thanos.compactor.volume.enabled | string | `nil` |  |
-| thanos.compactor.volume.labels | list | `[]` |  |
-| thanos.compactor.volume.size | string | `nil` |  |
-| thanos.grpcAddress | string | `nil` |  |
-| thanos.httpAddress | string | `nil` |  |
-| thanos.image.pullPolicy | string | `nil` |  |
-| thanos.image.repository | string | `"quay.io/thanos/thanos"` |  |
-| thanos.image.tag | string | `"v0.37.2"` |  |
-| thanos.initChownData.image.registry | string | `"docker.io"` | The Docker registry |
-| thanos.initChownData.image.repository | string | `"library/busybox"` |  |
-| thanos.initChownData.image.sha | string | `""` |  |
-| thanos.initChownData.image.tag | string | `"stable"` |  |
-| thanos.query.additionalArgs | list | `[]` |  |
-| thanos.query.annotations | string | `nil` |  |
-| thanos.query.autoDownsampling | bool | `true` |  |
-| thanos.query.containerLabels | string | `nil` |  |
-| thanos.query.deploymentLabels | object | `{}` |  |
-| thanos.query.logLevel | string | `nil` |  |
-| thanos.query.replicaLabels | string | `nil` |  |
-| thanos.query.replicas | string | `nil` |  |
-| thanos.query.serviceLabels | string | `nil` |  |
-| thanos.query.standalone | bool | `false` |  |
-| thanos.query.stores | list | `[]` |  |
-| thanos.query.web.externalPrefix | string | `nil` |  |
-| thanos.query.web.routePrefix | string | `nil` |  |
-| thanos.ruler.alertLabels | string | `nil` |  |
-| thanos.ruler.alertmanagers.authentication.enabled | bool | `true` |  |
-| thanos.ruler.alertmanagers.authentication.ssoCert | string | `nil` |  |
-| thanos.ruler.alertmanagers.authentication.ssoKey | string | `nil` |  |
-| thanos.ruler.alertmanagers.enabled | bool | `true` |  |
-| thanos.ruler.alertmanagers.hosts | string | `nil` |  |
-| thanos.ruler.annotations | string | `nil` |  |
-| thanos.ruler.enabled | bool | `true` |  |
-| thanos.ruler.externalPrefix | string | `"/ruler"` |  |
-| thanos.ruler.labels | string | `nil` |  |
-| thanos.ruler.matchLabel | string | `nil` |  |
-| thanos.ruler.serviceLabels | string | `nil` |  |
-| thanos.serviceMonitor.additionalLabels | object | `{}` |  |
-| thanos.serviceMonitor.selfMonitor | bool | `true` |  |
-| thanos.store.additionalArgs | list | `[]` |  |
-| thanos.store.annotations | string | `nil` |  |
-| thanos.store.chunkPoolSize | string | `nil` |  |
-| thanos.store.containerLabels | string | `nil` |  |
-| thanos.store.deploymentLabels | object | `{}` |  |
-| thanos.store.enabled | bool | `true` |  |
-| thanos.store.indexCacheSize | string | `nil` |  |
-| thanos.store.logLevel | string | `nil` |  |
-| thanos.store.serviceLabels | string | `nil` |  |
+{{ template "chart.valuesSection" . }}
