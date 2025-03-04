@@ -30,53 +30,54 @@ jobs:
           if [[ -z "$changed_values" ]]; then
             echo "No values.yaml changes detected."
             echo "changed_plugins=" >> "$GITHUB_OUTPUT"
+            echo "filtered_plugins=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Extract plugin names from the changed values.yaml paths 
           changed_plugins=$(echo "$changed_values" | cut -d'/' -f1 | sort -u | tr '\n' ' ')
-          echo "Plugins with changed values.yaml: $changed_plugins"
-          echo "changed_plugins=$changed_plugins" >> "$GITHUB_OUTPUT"
+          filtered_plugins=""
+          for plugin in $changed_plugins; do
+            if [[ -f "$plugin/README.md.gotmpl" ]]; then
+              filtered_plugins+="$plugin "
+            fi
+          done
+
+          echo "Plugins with changed values.yaml and README.md.gotmpl: $filtered_plugins"
+          echo "changed_plugins=$filtered_plugins" >> "$GITHUB_OUTPUT"
+          echo "filtered_plugins=$filtered_plugins" >> "$GITHUB_OUTPUT"
 
       - name: Generate README.md using Helm Docs
         id: generate-readme
         run: |
-          changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
-          if [[ -z "$changed_plugins" ]]; then
+          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
+          if [[ -z "$filtered_plugins" ]]; then
             echo "No plugins need README generation."
             exit 0
           fi
 
-          echo "Generating README.md for modified plugins with template..."
-          for plugin in $changed_plugins; do
-            if [[ -f "$plugin/README.md.gotmpl" ]]; then
-              echo "Processing $plugin..."
-              make generate-readme PLUGIN=$plugin
-            else
-              echo "Skipping $plugin - README.md.gotmpl not found."
-            fi
+          echo "Generating README.md for modified plugins..."
+          for plugin in $filtered_plugins; do
+            echo "Processing $plugin..."
+            make generate-readme PLUGIN=$plugin
           done
           echo "README.md generation completed."
 
       - name: Check for README.md Changes
         id: check-readme
         run: |
-          changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
-          if [[ -z "$changed_plugins" ]]; then
+          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
+          if [[ -z "$filtered_plugins" ]]; then
             echo "No plugins to check for README changes."
             echo "needs_update=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "Checking if README.md files were modified..."
-          echo "The changed plugins are: $changed_plugins"
 
+          echo "Checking if README.md files were modified..."
           needs_update=false
-          for plugin in $changed_plugins; do
-            if [[ -f "$plugin/README.md.gotmpl" ]]; then
-              if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
-                echo "README.md for $plugin is outdated."
-                needs_update=true
-              fi
+          for plugin in $filtered_plugins; do
+            if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
+              echo "README.md for $plugin is outdated."
+              needs_update=true
             fi
           done
 
@@ -85,12 +86,10 @@ jobs:
       - name: Fail if README.md is outdated
         if: steps.check-readme.outputs.needs_update == 'true'
         run: |
-          changed_plugins="${{ steps.changed-plugins.outputs.changed_plugins }}"
+          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
-          for plugin in $changed_plugins; do
-            if [[ -f "$plugin/README.md.gotmpl" ]]; then
-              echo "make generate-readme PLUGIN=$plugin"
-            fi
+          for plugin in $filtered_plugins; do
+            echo "make generate-readme PLUGIN=$plugin"
           done
           exit 1
 
@@ -105,9 +104,8 @@ jobs:
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
-            const changedPlugins = "${{ steps.changed-plugins.outputs.changed_plugins }}".split(" ");
-            const pluginCommands = changedPlugins
-              .filter(plugin => `[[ -f "${plugin}/README.md.gotmpl" ]]`)
+            const filteredPlugins = "${{ steps.changed-plugins.outputs.filtered_plugins }}".split(" ");
+            const pluginCommands = filteredPlugins
               .map(plugin => `make generate-readme PLUGIN=${plugin}`)
               .join("\n");
             const comment = `⚠️ The README.md for one or more plugins is outdated. Please run the following commands and update this PR:
