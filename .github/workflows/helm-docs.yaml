@@ -69,7 +69,7 @@ jobs:
           fi
           done
           echo "outdated_plugins=$outdated_plugins" >> "$GITHUB_OUTPUT"
-          echo "the outdated plugins are: $outdated_plugins"
+          echo "The plugins that require README.md update are: $outdated_plugins"
 
       - name: Fail if README.md is outdated
         if: steps.generate-readme.outputs.outdated_plugins != ''
