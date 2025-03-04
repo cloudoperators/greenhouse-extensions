@@ -155,6 +155,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                body: "✅ All README.md files are up to date! Great job keeping documentation up tp date! 🎉📖"
+                body: "✅ All README.md files are up to date! Great job keeping documentation up to date! 🎉📖"
               });
             }
