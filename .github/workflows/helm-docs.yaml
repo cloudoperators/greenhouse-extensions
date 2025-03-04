@@ -56,6 +56,7 @@ jobs:
           fi
 
           echo "Generating README.md for modified plugins..."
+          needs_update=false
           for plugin in $filtered_plugins; do
             echo "Processing $plugin..."
             make generate-readme PLUGIN=$plugin
@@ -64,33 +65,34 @@ jobs:
             echo "README.md for $plugin is already up-to-date."
           else
             echo "README.md for $plugin has changed."
+            needs_update=true
           fi
           done
-          echo "README.md generation completed."
-
-      - name: Check for README.md Changes
-        id: check-readme
-        run: |
-          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
-          if [[ -z "$filtered_plugins" ]]; then
-            echo "No plugins to check for README changes."
-            echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "Checking if README.md files were modified..."
-          needs_update=false
-          for plugin in $filtered_plugins; do
-            if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
-              echo "README.md for $plugin is outdated."
-              needs_update=true
-            fi
-          done
-
           echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
 
+      # - name: Check for README.md Changes
+      #   id: check-readme
+      #   run: |
+      #     filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
+      #     if [[ -z "$filtered_plugins" ]]; then
+      #       echo "No plugins to check for README changes."
+      #       echo "needs_update=false" >> "$GITHUB_OUTPUT"
+      #       exit 0
+      #     fi
+
+      #     echo "Checking if README.md files were modified..."
+      #     needs_update=false
+      #     for plugin in $filtered_plugins; do
+      #       if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
+      #         echo "README.md for $plugin is outdated."
+      #         needs_update=true
+      #       fi
+      #     done
+
+      #     echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
+
       - name: Fail if README.md is outdated
-        if: steps.check-readme.outputs.needs_update == 'true'
+        if: steps.generate-readme.outputs.needs_update == 'true'
         run: |
           filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
@@ -102,7 +104,7 @@ jobs:
           exit 1
 
       - name: Post or Update PR Comment if README is outdated
-        if: failure() && steps.check-readme.outputs.needs_update == 'true'
+        if: failure() && steps.generate-readme.outputs.needs_update == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -143,7 +145,7 @@ jobs:
             }
 
       - name: Post PR Comment if README is Up-to-Date
-        if: success() && steps.check-readme.outputs.needs_update == 'false'
+        if: success() && steps.generate-readme.outputs.needs_update == 'false'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
