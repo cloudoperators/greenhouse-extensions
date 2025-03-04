@@ -74,7 +74,7 @@ jobs:
       - name: Fail if README.md is outdated
         if: steps.generate-readme.outputs.outdated_plugins != ''
         run: |
-          outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
+          outdated_plugins="${{ steps.generate-readme.outputs.outdated_plugins }}"
           echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
           for plugin in $outdated_plugins; do
               echo "make generate-readme PLUGIN=$plugin"
@@ -93,10 +93,10 @@ jobs:
               issue_number: context.issue.number
             });
 
-            const filteredPlugins = "${{ steps.changed-plugins.outputs.outdated_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
+            const outdated_plugins = "${{ steps.generate-readme.outputs.outdated_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
             if (filteredPlugins.length === 0) return;
 
-            const pluginCommands = filteredPlugins
+            const pluginCommands = outdated_plugins
               .map(plugin => `make generate-readme PLUGIN=${plugin}`)
               .join("\n");
 
