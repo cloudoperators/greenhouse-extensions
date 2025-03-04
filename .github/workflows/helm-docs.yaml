@@ -68,40 +68,8 @@ jobs:
             outdated_plugins+="$plugin "
           fi
           done
-
           echo "outdated_plugins=$outdated_plugins" >> "$GITHUB_OUTPUT"
-
-      # - name: Check for README.md Changes
-      #   id: check-readme
-      #   run: |
-      #     outdated_plugins="${{ steps.changed-plugins.outputs.outdated_plugins }}"
-      #     if [[ -z "$outdated_plugins" ]]; then
-      #       echo "No plugins to check for README changes."
-      #       echo "needs_update=false" >> "$GITHUB_OUTPUT"
-      #       exit 0
-      #     fi
-      #     echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
-
-      # - name: Check for README.md Changes
-      #   id: check-readme
-      #   run: |
-      #     filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
-      #     if [[ -z "$filtered_plugins" ]]; then
-      #       echo "No plugins to check for README changes."
-      #       echo "needs_update=false" >> "$GITHUB_OUTPUT"
-      #       exit 0
-      #     fi
-
-      #     echo "Checking if README.md files were modified..."
-      #     needs_update=false
-      #     for plugin in $filtered_plugins; do
-      #       if ! git diff --quiet origin/${{ github.event.repository.default_branch }} -- "$plugin/README.md"; then
-      #         echo "README.md for $plugin is outdated."
-      #         needs_update=true
-      #       fi
-      #     done
-
-      #     echo "needs_update=$needs_update" >> "$GITHUB_OUTPUT"
+          echo "the outdated plugins are: $outdated_plugins"
 
       - name: Fail if README.md is outdated
         if: steps.generate-readme.outputs.outdated_plugins != ''
