@@ -111,7 +111,7 @@ jobs:
               const pluginCommands = filteredPlugins
                 .map(plugin => `make generate-readme PLUGIN=${plugin}`)
                 .join("\n");
-              const comment = `⚠️ **Action Required: Update Your README.md!** 📜🚀\n\n📌 The README.md for one or more plugins is outdated due to changes in *values.yaml*. Please update it by running the following command(s):\n\n\`\`\`sh\n${pluginCommands}\n\`\`\`\n\n✅ Once you've done that, commit the updated README and push it to this PR.\n\n💡 *Keeping documentation up to date ensures clarity and consistency for everyone!* 🛠️✨`;
+              const comment = `⚠️ **Action Required: Update Your README.md!** 📜\n\n📌 The README.md for one or more plugins is outdated due to changes in *values.yaml*. Please update it by running the following command(s):\n\n\`\`\`sh\n${pluginCommands}\n\`\`\`\n\n✅ Once you've done that, commit the updated README and push it to this branch.`;
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
