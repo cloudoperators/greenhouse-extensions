@@ -2,6 +2,7 @@ name: "Helm Docs Check"
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - "**/*/values.yaml"
       - "**/*/*/values.yaml"
@@ -19,7 +20,7 @@ jobs:
       - name: Set up go environment
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.0
+          go-version: 'stable'
 
       - name: Detect Changed Plugins
         id: changed-plugins
