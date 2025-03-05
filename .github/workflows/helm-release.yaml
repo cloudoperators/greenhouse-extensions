@@ -7,6 +7,7 @@ on:
         - main
     paths:
       - .github/workflows/helm-release.yaml
+      - audit-opentelemetry/chart/**
       - alerts/charts/**
       - cert-manager/charts/v1.11.0/cert-manager/**
       - exposed-services/charts/v1.0.0/exposed-service/**
@@ -40,6 +41,8 @@ jobs:
         include:
           - chartDir: alerts/charts
             chartName: alerts
+          - chartDir: audit-opentelemetry/chart
+            chartName: audit-opentelemetry-operator
           - chartDir: cert-manager/charts/v1.11.0/cert-manager
             chartName: cert-manager
           - chartDir: cert-manager/charts/v1.11.5/cert-manager
