@@ -72,7 +72,7 @@ thanos:
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
 
-    # Configure the ingress resource that allows you to access Thanos Query 
+    # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
     ingress:
       # Create an ingress object for the GRPC service
@@ -102,7 +102,7 @@ thanos:
         tls: []
       #    - secretName: ingress-cert
       #      hosts: []
-      
+
     # used for cross cluster TLS
     tls:
       ## Use existing Secret in the same namespace containing the certificates and private keys
