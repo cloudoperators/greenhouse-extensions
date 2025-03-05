@@ -82,6 +82,7 @@ spec:
         - description: Existing Secret containing the tls certificates and private keys
           name: thanos.query.tls.secretName
           required: false
+          type: string
         - default: true
           description: Enable Thanos Store
           name: thanos.store.enabled
