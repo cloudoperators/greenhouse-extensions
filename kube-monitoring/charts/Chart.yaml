@@ -8,7 +8,7 @@ maintainers:
 name: kube-monitoring
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.25.2
+version: 0.26.0
 keywords:
   - operator
   - prometheus
@@ -17,7 +17,7 @@ dependencies:
   - name: kube-prometheus-stack
     alias: kubeMonitoring
     repository: https://prometheus-community.github.io/helm-charts
-    version: 69.3.3
+    version: 69.7.3
   - name: kubernetes-operations
     repository: https://cloudoperators.github.io/kubernetes-operations
     version: 1.1.6
