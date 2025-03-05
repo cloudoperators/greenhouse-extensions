@@ -583,7 +583,7 @@
       }
     ],
     "duration": "12h",
-    "refreshInterval": "0s",
+    "refreshInterval": "1m",
     "datasources": {}
   }
 }
