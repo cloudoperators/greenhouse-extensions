@@ -12,7 +12,7 @@ ifneq ($(filter arm%,$(UNAME_P)),)
 endif
 
 ## tools versions
-KUSTOMIZE_VERSION ?= 5.5.0
+KUSTOMIZE_VERSION ?= 5.6.0
 YQ_VERSION ?= v4.45.1
 HELM_DOCS_VERSION ?= 1.14.2
 
