@@ -102,6 +102,18 @@ thanos:
         tls: []
       #    - secretName: ingress-cert
       #      hosts: []
+      
+    # used for cross cluster TLS
+    tls:
+      ## Use existing Secret in the same namespace containing the certificates and private keys
+      ## This will take precedence
+      secretName: ""
+
+      ## Specify certificates and private keys
+      data: {}
+        # caCert:
+        # tlsCert:
+        # tlsKey:
 
   store:
     # if this is a standalone Thanos Query, we wouldn't want a store.
