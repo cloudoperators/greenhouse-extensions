@@ -101,12 +101,12 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
-        {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
-          volumeMounts:
-            - mountPath: /etc/tls/client
-              name: tls-certificate
-              readOnly: true
-        {{- end }}
+      {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        volumeMounts:
+          - mountPath: /etc/tls/client
+            name: tls-certificate
+            readOnly: true
+      {{- end }}
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
     {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
