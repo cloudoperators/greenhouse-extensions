@@ -83,6 +83,23 @@ thanos:
         # caCert:
         # tlsCert:
         # tlsKey:
+    
+    ## Expose Thanos Query as a Plutono datasource
+    ##
+    plutonoDatasource:
+      create: false
+
+      ## Label selectors for the Plutono sidecar to detect this datasource.
+      selector: {}
+        # plutono-global: '"true"'
+
+    ## Expose Thanos Query as a Perses datasource
+    persesDatasource:
+      create: false
+
+      ## Label selectors for the Plutono sidecar to detect this datasource.
+      selector: {}
+        # perses-global: '"true"'
 
   store:
     # if this is a standalone Thanos Query, we wouldn't want a store.
