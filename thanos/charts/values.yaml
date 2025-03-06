@@ -169,6 +169,9 @@ thanos:
         ssoCert:
         ssoKey:
       hosts:
+    
+  query-frontend:
+    enabled: false
 
 testFramework:
   enabled: true
