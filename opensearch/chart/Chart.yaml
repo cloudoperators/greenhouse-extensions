@@ -17,9 +17,9 @@ appVersion: 2.6.0
 dependencies:
   - name: opensearch-operator
     alias: opensearchOperator
-    repository: https://opensearch-project.github.io/opensearch-k8s-operator/ # TODO: Move to -> oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    repository: https://opensearch-project.github.io/opensearch-k8s-operator/
     version: 2.7.0
   - name: opensearch-cluster
     alias: opensearchCluster
-    repository: https://opensearch-project.github.io/opensearch-k8s-operator/ # TODO: Move to -> oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    repository: https://opensearch-project.github.io/opensearch-k8s-operator/
     version: 3.0.0
