@@ -22,6 +22,7 @@ data:
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
         verify "there is 1 service named '{{ .Release.Name }}-operator'"
         verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-operator'"
+        # try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
     }
     {{- end }}
     

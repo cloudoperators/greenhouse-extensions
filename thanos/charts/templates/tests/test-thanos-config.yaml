@@ -21,14 +21,14 @@ data:
     @test "Verify {{ .Release.Name }} Query" {
       verify "there is 1 deployment named '{{ .Release.Name }}-query'"
       verify "there is 1 service named '{{ .Release.Name }}-query'"
-      verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-query'"
+      try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
     }
 
     {{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
     @test "Verify {{ .Release.Name }} Store" {
       verify "there is 1 deployment named '{{ .Release.Name }}-store'"
       verify "there is 1 service named '{{ .Release.Name }}-store'"
-      verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-store'"
+      try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
     }
     {{ end }}
 
@@ -36,8 +36,8 @@ data:
     @test "Verify {{ .Release.Name }} Compactor" {
       verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
       verify "there is 1 service named '{{ .Release.Name }}-compactor'"
-      verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-compactor'"
-      verify "'.status.phase' is 'Bound' for persistentvolumeclaims named '{{ .Release.Name }}-compactor'"
+      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
     }
     {{ end }}
 
@@ -46,8 +46,8 @@ data:
       verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
       verify "there is 1 service named '{{ .Release.Name }}-ruler'"
       verify "there is 1 thanosruler named '{{ .Release.Name }}'"
-      verify "'.status.phase' is 'running' for pods named 'thanos-ruler-{{ .Release.Name }}'"
-      verify "'.data' matches '.*yaml.*' for configmaps named '.*(ruler)+.*(rulefiles)+.*'"
+      try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.data' matches '.*yaml.*'"
     }
     {{ else }}
     @test "Verify that no Thanos Ruler ressource is created" {
