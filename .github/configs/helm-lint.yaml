@@ -15,6 +15,7 @@ chart-dirs:
   - kubeconfig-generator
   - service-proxy/charts/1.0.0
   - logshipper
+  - opensearch
   - opentelemetry
   - thanos
 chart-repos:
@@ -23,4 +24,5 @@ chart-repos:
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts
+  - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
   - opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
