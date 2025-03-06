@@ -1,15 +1,6 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-owner-info:
-  service: opensearch
-  support-group: observability
-  maintainers:
-    - name: timojohlo
-    - name: kuckkuck
-    - name: joluc
-  helm-chart-url: https://github.com/sapcc/helm-charts/system/opensearch-operator
-
 opensearchOperator:
   namespace: ""
   nameOverride: "opensearch-operator"
