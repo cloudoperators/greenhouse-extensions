@@ -21,22 +21,23 @@ data:
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
         verify "there is 1 service named '{{ .Release.Name }}-operator'"
-        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
+        verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-operator'"
+        # try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
     }
     {{- end }}
     
     {{- if .Values.kubeMonitoring.prometheus.enabled }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-prometheus service and pod" {
         verify "there is 1 service named '{{ .Release.Name }}-prometheus'"
-        try "at most 2 times every 5s to get pods named 'prometheus-{{ .Release.Name }}' and verify that 'status' is 'running'"
+        verify "'.status.phase' is 'running' for pods named 'prometheus-{{ .Release.Name }}'"
     }
 
         @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
-        try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}.*' and verify that '.status.phase' is 'Bound'"
+        verify "'.status.phase' is 'Bound' for persistentvolumeclaims named '{{ .Release.Name }}.*'"
     }
 
         @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
-        try "at most 3 times every 5s to get prometheuses named '{{ .Release.Name }}' and verify that '.status.availableReplicas' is more than '0'"
+        verify "'.status.availableReplicas' is '1' for prometheuses named '{{ .Release.Name }}'"
     }
 
     @test "Verify creation of the prometheus-{{ .Release.Name }} statefulset" {
@@ -47,14 +48,14 @@ data:
     {{- if .Values.kubeMonitoring.nodeExporter.enabled }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-node-exporter pod" {
         verify "there is 1 service named '{{ .Release.Name }}-node-exporter'"
-        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-node-exporter.*' and verify that '.status.phase' is 'running'"
+        verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-node-exporter.*'"
     }
     {{- end }}
 
     {{- if .Values.kubeMonitoring.kubeStateMetrics.enabled }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-kube-state-metrics pod" {
         verify "there is 1 service named '{{ .Release.Name }}-kube-state-metrics'"
-        try "at most 3 times every 10s to get pods named '{{ .Release.Name }}-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
+        verify "'.status.phase' is 'running' for pods named '{{ .Release.Name }}-kube-state-metrics.*'"
     }
     {{- end }}
     
