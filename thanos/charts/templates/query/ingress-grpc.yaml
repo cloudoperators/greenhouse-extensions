@@ -22,7 +22,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "release.name" . }}-query
+                name: {{ include "release.name" $ }}-query
                 port:
                   name: grpc
           {{- end }}
