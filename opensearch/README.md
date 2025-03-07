@@ -61,27 +61,12 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Name                                          | Description                                           | Type   | Required | Default                     |
 |-----------------------------------------------|-------------------------------------------------------|--------|----------|-----------------------------|
 | `opensearchOperator.fullnameOverride`         | opensearchOperator.fullnameOverride                   | string | false    | false                       |
-| `opensearchOperator.installCRDs`              | opensearchOperator.installCRDs                        | bool   | false    | true                        |
+| `opensearchOperator.installCRDs`              | opensearchOperator.installCRDs                        | bool   | false    | false                       |
 | `opensearchOperator.nameOverride`             | opensearchOperator.nameOverride                       | string | false    | ""                          |
 | `opensearchOperator.namespace`                | opensearchOperator.namespace                          | string | false    | opensearch-logs             |
 | `opensearchOperator.serviceAccount.create`    | opensearchOperator.serviceAccount.create              | bool   | false    | true                        |
 | `opensearchCluster.dashboards.enable`         | opensearchCluster.dashboards.enable                   | bool   | false    | true                        |
 | `opensearchCluster.enabled`                   | opensearchCluster.enabled                             | bool   | false    | true                        |
-| `opensearchCluster.users[0].name`             | Override for logs user's name                         | string | false    | logs                        |
-| `opensearchCluster.users[0].pass`             | Override for logs user's password                     | string | false    | logs                        |
-| `opensearchCluster.users[0].secretName`       | Override for logs user's secretName                   | string | false    | user-logs-password          |
-| `opensearchCluster.users[0].secretKey`        | Override for logs user's secretKey                    | string | false    | password                    |
-| `opensearchCluster.users[0].backendRoles`     | Override for logs user's backendRoles (list)          | list   | false    | [ "logs" ]                  |
-| `opensearchCluster.users[1].name`             | Override for admin user's name                        | string | false    | admin                       |
-| `opensearchCluster.users[1].pass`             | Override for admin user's password                    | string | false    | admin                       |
-| `opensearchCluster.users[1].secretName`       | Override for admin user's secretName                  | string | false    | user-admin-password         |
-| `opensearchCluster.users[1].secretKey`        | Override for admin user's secretKey                   | string | false    | password                    |
-| `opensearchCluster.users[1].backendRoles`     | Override for admin user's backendRoles (list)         | list   | false    | [ "admin" ]                 |
-| `opensearchCluster.users[2].name`             | Override for kibanaserver user's name                 | string | false    | kibanaserver                |
-| `opensearchCluster.users[2].pass`             | Override for kibanaserver user's password             | string | false    | kibanaserver                |
-| `opensearchCluster.users[2].secretName`       | Override for kibanaserver user's secretName           | string | false    | user-kibanaserver-password  |
-| `opensearchCluster.users[2].secretKey`        | Override for kibanaserver user's secretKey            | string | false    | password                    |
-| `opensearchCluster.users[2].backendRoles`     | Override for kibanaserver user's backendRoles (list)  | list   | false    | []                          |
 
 ## Usage
 
