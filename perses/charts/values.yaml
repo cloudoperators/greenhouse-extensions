@@ -1,6 +1,6 @@
 global:
-  ## Labels to apply to all resources
-  ##
+  # -- Labels to add to all resources.
+  # This can be used to add a `support_group` or `service` label to all resources and alerting rules.
   commonLabels: {}
 
 perses:
@@ -14,8 +14,7 @@ perses:
   # -- Override fully qualified app name
   fullnameOverride: ""
 
-  ## Image of Perses
-  ##
+  # -- Image of Perses
   image:
     # -- Perses image repository and name
     name: "persesdev/perses"
@@ -98,7 +97,7 @@ perses:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
 
-  # -- Perses configuration file
+  # Perses configuration file
   # ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md
   config:
     # -- Annotations for config
@@ -141,14 +140,6 @@ perses:
       file:
         folder: /perses
         extension: json
-      # -- SQL Config
-      # sql:
-      # user: "user"
-      # password: "password"
-      # net: "tcp"
-      # addr: "localhost:3306"
-      # db_name: "perses"
-      # allow_native_passwords: true
 
     # -- provisioning config
     provisioning:
@@ -160,11 +151,6 @@ perses:
   sidecar:
     # -- Enable the sidecar container for ConfigMap provisioning
     enabled: true
-    image:
-      # -- Container image repository for the sidecar
-      repository: kiwigrid/k8s-sidecar
-      # -- Container image tag for the sidecar
-      tag: 1.30.1
     # -- Label key to watch for ConfigMaps containing Perses resources
     label: "perses.dev/resource"
     # -- Label value to watch for ConfigMaps containing Perses resources
@@ -194,7 +180,7 @@ perses:
     # -- Annotations for the PVC
     annotations: {}
 
-  # -- Configure the ingress resource that allows you to access Thanos Query Frontend
+  # -- Configure the ingress resource that allows you to access Perses Frontend
   # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
     # -- Enable ingress controller resource
@@ -222,29 +208,7 @@ perses:
     tls: []
   #    - secretName: ingress-cert
   #      hosts: []
-
-  # -- Configure datasources
-  # DEPRECATED: This field will be removed in the future release. Please use the 'sidecar' configuration to provision datasources.
-  # ref: https://github.com/perses/perses/blob/90beed356243208f14cf2249bebb6f6222cb77ae/docs/datasource.md
-  datasources:
-    []
-    # - kind: GlobalDatasource
-    #   metadata:
-    #     name: PrometheusDemoBrowser
-    #   spec:
-    #     default: true
-    #     plugin:
-    #       kind: PrometheusDatasource
-    #       spec:
-    #         directUrl: https://prometheus.demo.do.prometheus.io
-
-  testFramework:
-    enabled: true
-    image:
-      registry: ghcr.io
-      repository: cloudoperators/greenhouse-extensions-integration-test
-      tag: main
-    imagePullPolicy: IfNotPresent
+# -- By setting this to true, You will get some default dashboards
 greenhouse:
   defaultDashboards:
     enabled: true
