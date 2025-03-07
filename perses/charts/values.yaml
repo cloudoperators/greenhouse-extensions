@@ -14,8 +14,7 @@ perses:
   # -- Override fully qualified app name
   fullnameOverride: ""
 
-  ## Image of Perses
-  ##
+  # -- Image of Perses
   image:
     # -- Perses image repository and name
     name: "persesdev/perses"
@@ -98,7 +97,7 @@ perses:
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
 
-  # -- Perses configuration file
+  # Perses configuration file
   # ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md
   config:
     # -- Annotations for config

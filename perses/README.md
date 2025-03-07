@@ -56,8 +56,8 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
-| perses.config | object | `{"annotations":{},"api_prefix":"/perses","database":{"file":{"extension":"json","folder":"/perses"}},"frontend":{"important_dashboards":[]},"provisioning":{"folders":["/etc/perses/provisioning"]},"schemas":{"datasources_path":"/etc/perses/cue/schemas/datasources","interval":"5m","panels_path":"/etc/perses/cue/schemas/panels","queries_path":"/etc/perses/cue/schemas/queries","variables_path":"/etc/perses/cue/schemas/variables"},"security":{"cookie":{"same_site":"lax","secure":false},"enable_auth":false,"readonly":false}}` | Perses configuration file ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md |
 | perses.config.annotations | object | `{}` | Annotations for config |
+| perses.config.api_prefix | string | `"/perses"` |  |
 | perses.config.database | object | `{"file":{"extension":"json","folder":"/perses"}}` | Database config based on data base type |
 | perses.config.database.file | object | `{"extension":"json","folder":"/perses"}` | file system configs |
 | perses.config.frontend | object | `{"important_dashboards":[]}` | Important dashboards list |
@@ -67,6 +67,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
 | perses.config.security.readonly | bool | `false` | Configure Perses instance as readonly |
 | perses.fullnameOverride | string | `""` | Override fully qualified app name |
+| perses.image | object | `{"name":"persesdev/perses","pullPolicy":"IfNotPresent","version":""}` | Image of Perses |
 | perses.image.name | string | `"persesdev/perses"` | Perses image repository and name |
 | perses.image.pullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | perses.image.version | string | `""` | Overrides the image tag whose default is the chart appVersion. |
