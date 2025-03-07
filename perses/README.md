@@ -52,8 +52,8 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.commonLabels | object | `{}` |  |
-| greenhouse.defaultDashboards.enabled | bool | `true` |  |
+| global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
+| greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config | object | `{"annotations":{},"api_prefix":"/perses","database":{"file":{"extension":"json","folder":"/perses"}},"frontend":{"important_dashboards":[]},"provisioning":{"folders":["/etc/perses/provisioning"]},"schemas":{"datasources_path":"/etc/perses/cue/schemas/datasources","interval":"5m","panels_path":"/etc/perses/cue/schemas/panels","queries_path":"/etc/perses/cue/schemas/queries","variables_path":"/etc/perses/cue/schemas/variables"},"security":{"cookie":{"same_site":"lax","secure":false},"enable_auth":false,"readonly":false}}` | Perses configuration file ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md |
@@ -104,11 +104,6 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
-| perses.testFramework.enabled | bool | `true` |  |
-| perses.testFramework.image.registry | string | `"ghcr.io"` |  |
-| perses.testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` |  |
-| perses.testFramework.image.tag | string | `"main"` |  |
-| perses.testFramework.imagePullPolicy | string | `"IfNotPresent"` |  |
 | perses.volumeMounts | list | `[]` | Additional VolumeMounts on the output StatefulSet definition. |
 | perses.volumes | list | `[]` | Additional volumes on the output StatefulSet definition. |
 
