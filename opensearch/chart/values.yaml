@@ -567,6 +567,7 @@ opensearchCluster:
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
+      pass: logs" # Overriden via plugin
       secretName: "user-logs-password"
       secretKey: "password"
       backendRoles:
@@ -574,6 +575,7 @@ opensearchCluster:
 #      opendistroSecurityRoles:
 #        - "logs"
     - name: "admin"
+      pass: "admin" # Overriden via plugin
       secretName: "user-admin-password"
       secretKey: "password"
       backendRoles:
@@ -581,6 +583,7 @@ opensearchCluster:
 #      opendistroSecurityRoles:
 #        - "admin"
     - name: "kibanaserver"
+      pass: "kibanaserver" # Overriden via plugin
       secretName: "user-kibanaserver-password"
       secretKey: "password"
       backendRoles: []

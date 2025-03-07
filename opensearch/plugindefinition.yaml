@@ -50,3 +50,80 @@ spec:
       name: opensearchCluster.enabled
       required: false
       type: bool
+    - default: logs
+      description: Override for logs user's name at opensearchCluster.users[0].name
+      name: opensearchCluster.users[0].name
+      required: false
+      type: string
+    - default: logs
+      description: Override for logs user's password at opensearchCluster.users[0].pass
+      name: opensearchCluster.users[0].pass
+      required: false
+      type: string
+    - default: user-logs-password
+      description: Override for logs user's secretName at opensearchCluster.users[0].secretName
+      name: opensearchCluster.users[0].secretName
+      required: false
+      type: string
+    - default: password
+      description: Override for logs user's secretKey at opensearchCluster.users[0].secretKey
+      name: opensearchCluster.users[0].secretKey
+      required: false
+      type: string
+    - default:
+        - logs
+      description: Override for logs user's backendRoles at opensearchCluster.users[0].backendRoles
+      name: opensearchCluster.users[0].backendRoles
+      required: false
+      type: list
+    - default: admin
+      description: Override for admin user's name at opensearchCluster.users[1].name
+      name: opensearchCluster.users[1].name
+      required: false
+      type: string
+    - default: admin
+      description: Override for admin user's password at opensearchCluster.users[1].pass
+      name: opensearchCluster.users[1].pass
+      required: false
+      type: string
+    - default: user-admin-password
+      description: Override for admin user's secretName at opensearchCluster.users[1].secretName
+      name: opensearchCluster.users[1].secretName
+      required: false
+      type: string
+    - default: password
+      description: Override for admin user's secretKey at opensearchCluster.users[1].secretKey
+      name: opensearchCluster.users[1].secretKey
+      required: false
+      type: string
+    - default:
+        - admin
+      description: Override for admin user's backendRoles at opensearchCluster.users[1].backendRoles
+      name: opensearchCluster.users[1].backendRoles
+      required: false
+      type: list
+    - default: kibanaserver
+      description: Override for kibanaserver user's name at opensearchCluster.users[2].name
+      name: opensearchCluster.users[2].name
+      required: false
+      type: string
+    - default: kibanaserver
+      description: Override for kibanaserver user's password at opensearchCluster.users[2].pass
+      name: opensearchCluster.users[2].pass
+      required: false
+      type: string
+    - default: user-kibanaserver-password
+      description: Override for kibanaserver user's secretName at opensearchCluster.users[2].secretName
+      name: opensearchCluster.users[2].secretName
+      required: false
+      type: string
+    - default: password
+      description: Override for kibanaserver user's secretKey at opensearchCluster.users[2].secretKey
+      name: opensearchCluster.users[2].secretKey
+      required: false
+      type: string
+    - default: []
+      description: Override for kibanaserver user's backendRoles at opensearchCluster.users[2].backendRoles
+      name: opensearchCluster.users[2].backendRoles
+      required: false
+      type: list
