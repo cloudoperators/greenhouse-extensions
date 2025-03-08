@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: cert-manager
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.11.0
+    version: 1.11.5
   options:
     - name: cert-manager.installCRDs
       description: Whether to install CRDs
