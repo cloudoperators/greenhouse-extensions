@@ -1,0 +1,25 @@
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.create }}
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name $path | replace "/" "-" | trimSuffix "-yaml" | trunc 63 }}
+  labels:
+    {{- include "plugin.labels" $root | nindent 4 }}
+    {{- include "plugin.prometheusLabels" $root | nindent 4 }}
+{{- if $.Values.openTelemetry.prometheus.rules.labels }}
+{{ toYaml $.Values.openTelemetry.prometheus.rules.labels | indent 4 }}
+{{- end }}
+{{- if $.Values.openTelemetry.prometheus.rules.annotations }}
+  annotations:
+{{ toYaml $.Values.openTelemetry.prometheus.rules.annotations | indent 4 }}
+{{- end }}
+spec:
+{{- with $root -}}
+{{- $content := printf "%s" $bytes }}
+{{ tpl $content . | indent 2 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
