@@ -2,7 +2,7 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "open-telemetry",
-    "project": "playground"
+    "project": "default"
   },
   "spec": {
     "display": {
