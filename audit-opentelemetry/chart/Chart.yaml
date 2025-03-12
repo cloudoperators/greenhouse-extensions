@@ -16,6 +16,7 @@ maintainers:
 sources:
 - https://github.com/cloudoperators/greenhouse-extensions
 dependencies:
-- name: audit-opentelemetry-operator
+- name: opentelemetry-operator
+  alias: audit-opentelemetry-operator
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.74.2
