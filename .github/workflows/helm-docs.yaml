@@ -20,7 +20,7 @@ jobs:
       - name: Set up go environment
         uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
+          go-version: "stable"
 
       - name: Detect Changed Plugins
         id: changed-plugins
@@ -146,20 +146,5 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: outdatedComment.id
-              });
-            }     
-
-            // Check if there is already an "All README.md files are up to date" comment
-            const successComment = comments.find(comment =>
-              comment.body.includes("Great job keeping documentation up to date!")
-            );
-
-            if (!successComment) {
-              // If no existing comment, create one
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: "✅ All README.md files are up to date! Great job keeping documentation up to date! 🎉📖"
               });
             }
