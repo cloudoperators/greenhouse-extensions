@@ -44,8 +44,8 @@ jobs:
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
-          - chartDir: opentelemetry/chart
-            chartName: opentelemetry-operator
+          - chartDir: logs-opentelemetry/chart
+            chartName: logs-opentelemetry-operator
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts

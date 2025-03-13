@@ -2,12 +2,12 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.serviceMonitor.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
   annotations:
-  name: opentelemetry-collector-metrics
+  name: opentelemetry-collector-logs
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- if .Values.openTelemetry.customLabels }}
@@ -15,19 +15,16 @@ metadata:
     {{- end }}
     {{- include "plugin.prometheusLabels" . | nindent 4 }}
 spec:
-  endpoints:
-  - port: prometheus
-    relabelings:
-      - regex: pod
-        action: labeldrop
-  - port: monitoring
-    relabelings:
-      - regex: pod
-        action: labeldrop
+  podMetricsEndpoints:
+    - interval: 60s
+      scrapeTimeout: 50s
+      path: /metrics
+      scheme: http
+      port: prometheus
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.openTelemetry.metrics
-      app.kubernetes.io/managed-by: opentelemetry-operator
+      app.kubernetes.io/instance: {{ .Release.Namespace }}.logs
+      app.kubernetes.io/managed-by: logs-opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
