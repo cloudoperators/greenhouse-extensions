@@ -72,6 +72,74 @@ thanos:
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
 
+    # Configure the ingress resource that allows you to access Thanos Query
+    # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+    ingress:
+      # -- Enable ingress controller resource
+      enabled: false
+
+      # -- Default host for the ingress resource
+      hosts:
+        - host: thanos.local
+          paths:
+            - path: /
+              pathType: Prefix
+
+      # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+      # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+      # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+      #
+      ingressClassName: ""
+
+      # -- Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+      # For a full list of possible ingress annotations, please see
+      # ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+      annotations: {}
+
+      # -- Ingress TLS configuration
+      tls: []
+      #    - secretName: ingress-cert
+      #      hosts: []
+      # Create an ingress object for the GRPC service
+      grpc:
+        # -- Enable ingress controller resource.(GRPC)
+        enabled: false
+
+        # -- Default host for the ingress resource.(GRPC)
+        hosts:
+          - host: thanos.local
+            paths:
+              - path: /
+                pathType: Prefix
+
+        # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)(GRPC)
+        # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+        # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+        #
+        ingressClassName: ""
+
+        # -- Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations.
+        # For a full list of possible ingress annotations, please see
+        # ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+        annotations: {}
+
+        # -- Ingress TLS configuration. (GRPC)
+        tls: []
+        #    - secretName: ingress-cert
+        #      hosts: []
+
+    # used for cross cluster TLS
+    tls:
+      ## Use existing Secret in the same namespace containing the certificates and private keys
+      ## This will take precedence
+      secretName: ""
+
+      ## Specify certificates and private keys
+      data: {}
+        # caCert:
+        # tlsCert:
+        # tlsKey:
+
   store:
     # if this is a standalone Thanos Query, we wouldn't want a store.
     enabled: true

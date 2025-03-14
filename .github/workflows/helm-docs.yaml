@@ -1,0 +1,150 @@
+name: "Helm Docs Check"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*/values.yaml"
+      - "**/*/*/values.yaml"
+
+jobs:
+  helm-docs-check:
+    runs-on: [default]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Detect Changed Plugins
+        id: changed-plugins
+        run: |
+          echo "Detecting changed values.yaml files..."
+          changed_values=$(git diff --name-only origin/${{ github.event.repository.default_branch }} HEAD | grep "/values.yaml" || true)
+
+          if [[ -z "$changed_values" ]]; then
+            echo "No values.yaml changes detected."
+            echo "changed_plugins=" >> "$GITHUB_OUTPUT"
+            echo "filtered_plugins=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed_plugins=$(echo "$changed_values" | cut -d'/' -f1 | sort -u | tr '\n' ' ')
+          filtered_plugins=""
+          for plugin in $changed_plugins; do
+            if [[ -f "$plugin/README.md.gotmpl" ]]; then
+              filtered_plugins+="$plugin "
+            fi
+          done
+
+          echo "Plugins with changed values.yaml and README.md.gotmpl: $filtered_plugins"
+          echo "changed_plugins=$filtered_plugins" >> "$GITHUB_OUTPUT"
+          echo "filtered_plugins=$filtered_plugins" >> "$GITHUB_OUTPUT"
+
+      - name: Generate README.md using Helm Docs
+        id: generate-readme
+        run: |
+          filtered_plugins="${{ steps.changed-plugins.outputs.filtered_plugins }}"
+          if [[ -z "$filtered_plugins" ]]; then
+            echo "No plugins need README generation."
+            echo "outdated_plugins=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Generating README.md for modified plugins..."
+          for plugin in $filtered_plugins; do
+            echo "Processing $plugin..."
+            make generate-readme PLUGIN=$plugin
+
+          if git diff --quiet -- "$plugin/README.md"; then
+            echo "README.md for $plugin is already up-to-date."
+          else
+            echo "README.md for $plugin has changed."
+            outdated_plugins+="$plugin "
+          fi
+          done
+          echo "outdated_plugins=$outdated_plugins" >> "$GITHUB_OUTPUT"
+          echo "The plugins that require README.md update are: $outdated_plugins"
+
+      - name: Fail if README.md is outdated
+        if: steps.generate-readme.outputs.outdated_plugins != ''
+        run: |
+          outdated_plugins="${{ steps.generate-readme.outputs.outdated_plugins }}"
+          echo "README.md is outdated. Please run the following command for each affected plugin and update the PR:"
+          for plugin in $outdated_plugins; do
+              echo "make generate-readme PLUGIN=$plugin"
+          done
+          exit 1
+
+      - name: Post or Update PR Comment if README is outdated
+        if: failure() && steps.generate-readme.outputs.outdated_plugins != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const outdated_plugins = "${{ steps.generate-readme.outputs.outdated_plugins }}".split(" ").filter(plugin => plugin.trim() !== "");
+            if (outdated_plugins.length === 0) return;
+
+            const pluginCommands = outdated_plugins
+              .map(plugin => `make generate-readme PLUGIN=${plugin}`)
+              .join("\n");
+
+            const newComment = `⚠️ **Action Required: Update Your README.md!** 📜🚀\n\n📌 The README.md for one or more plugins is outdated due to changes in *values.yaml*. Please update it by running the following command(s):\n\n\`\`\`sh\n${pluginCommands}\n\`\`\`\n\n✅ Once you've done that, commit the updated README and push it to this branch.`;
+
+            const existingComment = comments.find(comment => comment.body.includes("**Action Required: Update Your README.md!**"));
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: newComment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: newComment
+              });
+            }
+
+      - name: Post PR Comment if README is Up-to-Date
+        if: success() && steps.generate-readme.outputs.outdated_plugins == ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            // Find the outdated README.md warning comment
+            const outdatedComment = comments.find(comment =>
+              comment.body.includes("⚠️ **Action Required: Update Your README.md!**")
+            );
+
+            if (outdatedComment) {
+              // Delete the outdated comment
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: outdatedComment.id
+              });
+            }
