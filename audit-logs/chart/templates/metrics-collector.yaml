@@ -15,7 +15,7 @@ metadata:
   {{- end }}
 spec:
   mode: deployment
-  image: {{ index .Values "audit-opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "audit-opentelemetry-operator" "manager" "collectorImage" "tag" }}
+  image: {{ index .Values "audit-logs-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "audit-logs-operator" "manager" "collectorImage" "tag" }}
   config:
     receivers:
       otlp:

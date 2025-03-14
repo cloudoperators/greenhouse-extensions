@@ -5,7 +5,7 @@
 commonLabels: {}
 
 # opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
-audit-opentelemetry-operator:
+audit-logs-operator:
   nameOverride: "operator"
 
   # The required CRDs used by this dependency are version-controlled in this repository under ./crds.

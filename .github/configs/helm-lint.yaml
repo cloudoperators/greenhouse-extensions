@@ -8,7 +8,7 @@ validate-maintainers: false
 check-version-increment: false
 chart-dirs:
   - alerts
-  - audit-opentelemetry
+  - audit-logs
   - cert-manager/charts/v1.11.0
   - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
@@ -22,7 +22,7 @@ chart-dirs:
   - prometheus
   - plutono
 chart-repos:
-  - audit-opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
