@@ -1,0 +1,41 @@
+groups:
+  - name: collector-alerts
+    rules:
+  {{- if not (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: FilelogRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"filelog"}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/FilelogRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Logs are not successfully pushed into the filelog-receiver
+          description: Filelog receiver is increasingly rejecting logs
+  {{- end }}
+
+  {{- if not (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: ReceiverRefusedMetric
+        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReceiverRefusedMetric.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Some metric points have been refused by receiver
+          description: Maybe collector has received non standard metric points or it reached some limits
+  {{- end }}
+
+  {{- if not (has "HighCPUUsage" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: HighCPUUsage
+        expr: max(rate(otelcol_process_cpu_seconds{}[1m])*100) > 90
+        for: 5m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/HighCPUUsage.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: High max CPU usage
+          description: Collector need to scale up
+  {{- end }}

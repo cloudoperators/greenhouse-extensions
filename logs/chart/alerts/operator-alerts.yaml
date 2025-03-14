@@ -1,0 +1,28 @@
+groups:
+  - name: operator-alerts
+    rules:
+  {{- if not (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: ReconcileErrors
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReconcileErrors.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OpenTelemetryCollector Reconciliation
+          description: Reconciliation errors for opentelemetrycollector are increasing
+  {{- end }}
+
+  {{- if not (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: WorkqueueDepth
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/WorkqueueDepth.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: WorkqueueDepth is increasing
+          description: Check manager logs for reasons why this might happen
+  {{- end }}
