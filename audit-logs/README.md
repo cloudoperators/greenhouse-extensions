@@ -2,15 +2,15 @@
 title: Audit Logs Plugin
 ---
 
-Learn more about the **Audit Logs** Plugin. Use it to enable the ingestion, collection and export of audit relevant telemetry signals (logs and metrics) for your Greenhouse cluster.
+Learn more about the **Audit Logs** Plugin. Use it to enable the ingestion, collection and export of audit relevant logs for your Greenhouse cluster.
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
 ## Overview
 
-OpenTelemetry is an observability framework and toolkit for creating and managing telemetry data such as metrics, logs and traces. Unlike other observability tools, OpenTelemetry is vendor and tool agnostic, meaning it can be used with a variety of observability backends, including open source tools such as _OpenSearch_ and _Prometheus_. 
+OpenTelemetry is an observability framework and toolkit for creating and managing telemetry data such as metrics, logs and traces. OpenTelemetry is vendor and tool agnostic, meaning it can be used with a variety of observability backends. 
 
-The focus of the Plugin is to provide easy-to-use configurations for common use cases of receiving, processing and exporting telemetry data in Kubernetes. The storage and visualization of the same is intentionally left to other tools.
+The Audit Logs Plugin provides easy-to-use configurations for receiving, processing and exporting audit logs in Kubernetes. By default this plugin exports the audit logs to [OpenSearch](https://opensearch.org) for storage.
 
 Components included in this Plugin:
 
@@ -34,78 +34,72 @@ It is the intention to add more configuration over time and contributions of you
 
 ## Quick Start
 
-This guide provides a quick and straightforward way to use **OpenTelemetry** as a Greenhouse Plugin on your Kubernetes cluster.
+This guide provides a quick and straightforward way to use the **Audit Logs Plugin** as a Greenhouse Plugin on your Kubernetes cluster.
 
 **Prerequisites**
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
-- For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
-- We recommend a running cert-manager in the cluster before installing the OpenTelemetry Plugin
-- To gather metrics, you **must** have a Prometheus instance in the onboarded cluster for storage and for managing Prometheus specific CRDs. If you don not have an instance, install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first. 
+- A log data-sink to store the audit-logs (e.g. OpenSearch). If you don't have one, reach out to your observability team to get access to one.
+- We recommend a running cert-manager in the cluster before installing the Audit Logs Plugin
+- To gather metrics from the audit logs collectors, you **must** install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first; it will install the necessary CRDs for, and install an instance of, the prometheus-operator.
 
 **Step 1:**
 
-You can install the `OpenTelemetry` package in your cluster by installing it with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle do it for you automatically. For the latter, you can either:
-  1. Go to Greenhouse dashboard and select the **OpenTelemetry** Plugin from the catalog. Specify the cluster and required option values.
-  2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
+You can install the `Audit Logs` plugin in your cluster with [Helm](https://helm.sh/docs/helm/helm_install) manually. 
+
+Otherwise you can let the Greenhouse platform lifecycle do it for you automatically:
+  1. Go to Greenhouse dashboard and select the **Audit Logs Plugin** from the catalog.
+  1. Specify the cluster.
+  1. Set the required option values.
+  1. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
 
 **Step 2:**
 
-The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting metrics and logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
+The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting openTelemetry. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
+
 - Files via the Filelog Receiver
 - Kubernetes Events from the Kubernetes API server
 - Journald events from systemd journal
-- its own metrics
+- Its own metrics
 
-You can disable the collection of logs by setting `openTelemetry.logCollector.enabled` to `false`. The same is true for disabling the collection of metrics by setting `openTelemetry.metricsCollector.enabled` to `false`.
-The `logsCollector` comes with a standard set of log-processing, such as adding cluster information and common labels for Journald events.
-In addition we provide default pipelines for common log types. Currently the following log types have default configurations that can be enabled (requires `logsCollector.enabled` to `true`):
-  1. KVM: `openTelemetry.logsCollector.kvmConfig`: Logs from Kernel-based Virtual Machines (KVMs) providing insights into virtualization activities, resource usage, and system performance
-  2. Ceph:`openTelemetry.logsCollector.cephConfig`: Logs from Ceph storage systems, capturing information about cluster operations, performance metrics, and health status
-  
-These default configurations provide common labels and Grok parsing for logs emitted through the respective services.
-
-Based on the backend selection the telemetry data will be exporter to the backend.
+You can disable the collection of logs by setting `openTelemetry.logCollector.enabled` to `false`.  The `logsCollector` comes with a standard set of log-processing, such as adding cluster information and common labels for Journald events.
 
 **Step 3:**
 
-Greenhouse regularly performs integration tests that are bundled with **OpenTelemetry**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard. 
+Greenhouse regularly performs integration tests that are bundled with **Audit Logs**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
 
 ## Failover Connector
 
-The **OpenTelemetry** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
+The **Audit Logs Plugin** comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the preferred user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
 
 ## Configuration
 
 | Name         | Description          | Type           | required           |
 | ------------ | -------------------- |---------------- | ------------------ | 
-`openTelemetry.logsCollector.enabled`    | Activates the standard configuration for logs | bool | `false` |
-`openTelemetry.logsCollector.kvmConfig.enabled`    | Activates the configuration for KVM logs (requires logsCollector to be enabled) | bool | `false` |
-`openTelemetry.logsCollector.cephConfig.enabled`    | Activates the configuration for Ceph logs (requires logsCollector to be enabled) | bool | `false` |
-`openTelemetry.metricsCollector.enabled` | Activates the standard configuration for metrics | bool | `false` |
-`openTelemetry.openSearchLogs.failover_username_a` | Username for OpenSearch endpoint | secret | `true` |
-`openTelemetry.openSearchLogs.failover_password_a` | Password for OpenSearch endpoint | secret | `true` | 
-`openTelemetry.openSearchLogs.failover_username_b` | Second Username (as a failover) for OpenSearch endpoint | secret | `true` |
-`openTelemetry.openSearchLogs.failover_password_b` | Second Password (as a failover) for OpenSearch endpoint | secret | `true` |
-`openTelemetry.openSearchLogs.endpoint` | Endpoint URL for OpenSearch      | string | `true` | 
-`openTelemetry.openSearchLogs.index` | Name for OpenSearch index      | string | `false` | 
-`openTelemetry.region`                   | Region label for logging         | string | `false` |
-`openTelemetry.cluster`                  | Cluster label for logging        | string | `false` |
-`openTelemetry.prometheus.additionalLabels`               | Label selector for Prometheus resources to be picked-up by the operator | map | `false` | 
-`openTelemetry.prometheus.rules.additionalRuleLabels`               | Additional labels for PrometheusRule alerts | map | `false` | 
-`openTelemetry.prometheus.serviceMonitor.enabled` | Activates the service-monitoring for the Logs Collector  | bool | `false` | 
-`openTelemetry.prometheus.podMonitor.enabled`       | Activates the pod-monitoring for the Logs Collector | bool | `false` | 
-`openTelemetry.prometheus.rules.create`       | Enables PrometheusRule resources to be created | bool | `false` | 
-`openTelemetry.prometheus.rules.disabled`       | List of PrometheusRules to disable | map | `false` | 
-`openTelemetry.prometheus.rules.labels`       | Labels for PrometheusRules | map | `false` | 
-`openTelemetry.prometheus.rules.annotations`       | Annotations for PrometheusRules | map | `false` | 
-`openTelemetry.prometheus.rules.additionalRuleLabels`       | Additional labels for PrometheusRule alerts,  | map | `false` | 
-`opentelemetry-operator.admissionWebhooks.certManager.enabled` | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
-`opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled` | Activate to use Helm to create self-signed certificates | bool | `false` | 
-`opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate` | Activate to recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
-`opentelemetry-operator.kubeRBACProxy.enabled` | Activate to enable Kube-RBAC-Proxy for OpenTelemetry | bool | `false` | 
-`opentelemetry-operator.manager.prometheusRule.defaultRules.enabled` | Activate to enable default rules for monitoring the OpenTelemetry Manager | bool | `false` | 
-`opentelemetry-operator.manager.prometheusRule.enabled` | Activate to enable rules for monitoring the OpenTelemetry Manager | bool | `false` | 
+`openTelemetry.cluster`                                  | Cluster label for logging        | string | `false` |
+`openTelemetry.auditLogsCollector.enabled`                    | Activates the standard configuration for logs | bool | `false` |
+`openTelemetry.openSearchLogs.endpoint`                  | Endpoint URL for OpenSearch      | string | `true` | 
+`openTelemetry.openSearchLogs.failover_password_a`       | Password for OpenSearch endpoint | secret | `true` | 
+`openTelemetry.openSearchLogs.failover_password_b`       | Second Password (as a failover) for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.failover_username_a`       | Username for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.failover_username_b`       | Second Username (as a failover) for OpenSearch endpoint | secret | `true` |
+`openTelemetry.openSearchLogs.index`                     | Name for OpenSearch index      | string | `false` | 
+`openTelemetry.prometheus.additionalLabels`              | Label selector for Prometheus resources to be picked-up by the operator | map | `false` | 
+`openTelemetry.prometheus.podMonitor.enabled`            | Activates the pod-monitoring for the Logs Collector | bool | `false` | 
+`openTelemetry.prometheus.rules.additionalRuleLabels`    | Additional labels for PrometheusRule alerts | map | `false` | 
+`openTelemetry.prometheus.rules.additionalRuleLabels`    | Additional labels for PrometheusRule alerts,  | map | `false` | 
+`openTelemetry.prometheus.rules.annotations`             | Annotations for PrometheusRules | map | `false` | 
+`openTelemetry.prometheus.rules.create`                  | Enables PrometheusRule resources to be created | bool | `false` | 
+`openTelemetry.prometheus.rules.disabled`                | List of PrometheusRules to disable | map | `false` | 
+`openTelemetry.prometheus.rules.labels`                  | Labels for PrometheusRules | map | `false` | 
+`openTelemetry.prometheus.serviceMonitor.enabled`        | Activates the service-monitoring for the Logs Collector  | bool | `false` | 
+`openTelemetry.region`                                   | Region label for logging         | string | `false` |
+`audit-logs-operator.admissionWebhooks.autoGenerateCert.enabled`  | Activate to use Helm to create self-signed certificates | bool | `false` | 
+`audit-logs-operator.admissionWebhooks.autoGenerateCert.recreate` | Activate to recreate the cert after a defined period (certPeriodDays default is 365) | bool | `false` | 
+`audit-logs-operator.admissionWebhooks.certManager.enabled`       | Activate to use the CertManager for generating self-signed certificates | bool | `false` | 
+`audit-logs-operator.kubeRBACProxy.enabled`          | Activate to enable Kube-RBAC-Proxy for audit-logs | bool | `false` | 
+`audit-logs-operator.manager.prometheusRule.defaultRules.enabled` | Activate to enable default rules for monitoring the audit-logs Manager | bool | `false` | 
+`audit-logs-operator.manager.prometheusRule.enabled` | Activate to enable rules for monitoring the OpenTelemetry Manager | bool | `false` | 
 
 ### Examples
 

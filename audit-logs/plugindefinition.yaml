@@ -17,17 +17,7 @@ spec:
     options:
         - default: true
           description: Activates the standard configuration for logs
-          name: openTelemetry.logsCollector.enabled
-          required: false
-          type: bool
-        - default: true
-          description: Activates the configuration for KVM logs (requires logsCollector enabled)
-          name: openTelemetry.logsCollector.kvmConfig.enabled
-          required: false
-          type: bool
-        - default: true
-          description: Activates the configuration for Ceph logs (requires logsCollector enabled)
-          name: openTelemetry.logsCollector.cephConfig.enabled
+          name: openTelemetry.auditLogsCollector.enabled
           required: false
           type: bool
         - default: true

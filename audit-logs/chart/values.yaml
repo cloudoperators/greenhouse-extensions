@@ -50,19 +50,15 @@ openTelemetry:
   region:
   logsCollector:
     enabled: true
-    kvmConfig:
-      enabled: true
-    cephConfig:
-      enabled: true
   metricsCollector:
     enabled: false
   prometheus:
+    ## Label selectors for the Prometheus resources to be picked up by prometheus-operator.
+    additionalLabels: {}
     serviceMonitor:
       enabled: true
     podMonitor:
       enabled: true
-    ## Label selectors for the Prometheus resources to be picked up by prometheus-operator.
-    additionalLabels: {}
     # plugin: kube-monitoring
     # prometheus: infra
 

@@ -30,7 +30,7 @@ audit-logs-operator:
   kubeRBACProxy:
     enabled: false
 
-openTelemetry:
+auditLogs:
   openSearchLogs:
     endpoint: test
     failover_username_a: test
