@@ -61,7 +61,7 @@ spec:
         {{- end }}
         # --store.sd-files will be deprecated in next release. Correct flag will be --endpoint.sd-config-file
         - --store.sd-files=/etc/thanos/sd-config/endpoint-targets.yaml
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
