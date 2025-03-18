@@ -55,7 +55,7 @@ Otherwise you can let the Greenhouse platform lifecycle do it for you automatica
 
 **Step 2:**
 
-The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting openTelemetry. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
+The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting audit logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
 
 - Files via the Filelog Receiver
 - Kubernetes Events from the Kubernetes API server
@@ -77,7 +77,7 @@ The **Audit Logs Plugin** comes with a [Failover Connector](https://github.com/o
 | Name         | Description          | Type           | required           |
 | ------------ | -------------------- |---------------- | ------------------ | 
 `openTelemetry.cluster`                                  | Cluster label for logging        | string | `false` |
-`openTelemetry.auditLogsCollector.enabled`                    | Activates the standard configuration for logs | bool | `false` |
+`openTelemetry.logsCollector.enabled`                    | Activates the standard configuration for logs | bool | `false` |
 `openTelemetry.openSearchLogs.endpoint`                  | Endpoint URL for OpenSearch      | string | `true` | 
 `openTelemetry.openSearchLogs.failover_password_a`       | Password for OpenSearch endpoint | secret | `true` | 
 `openTelemetry.openSearchLogs.failover_password_b`       | Second Password (as a failover) for OpenSearch endpoint | secret | `true` |

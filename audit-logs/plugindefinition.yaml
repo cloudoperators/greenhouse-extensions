@@ -17,7 +17,7 @@ spec:
     options:
         - default: true
           description: Activates the standard configuration for logs
-          name: openTelemetry.auditLogsCollector.enabled
+          name: openTelemetry.logsCollector.enabled
           required: false
           type: bool
         - default: true
