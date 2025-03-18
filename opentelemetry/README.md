@@ -81,7 +81,7 @@ The **OpenTelemetry** Plugin comes with a [Failover Connector](https://github.co
 |-----|------|---------|-------------|
 | commonLabels | object | `{}` | common labels to apply to all resources |
 | openTelemetry.cluster | string | `nil` |  |
-| openTelemetry.customLabels | object | `{}` |  |
+| openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig.enabled | bool | `true` |  |
 | openTelemetry.logsCollector.enabled | bool | `true` |  |
 | openTelemetry.logsCollector.failover.enabled | bool | `true` |  |
@@ -93,16 +93,19 @@ The **OpenTelemetry** Plugin comes with a [Failover Connector](https://github.co
 | openTelemetry.openSearchLogs.failover_username_a | string | `nil` |  |
 | openTelemetry.openSearchLogs.failover_username_b | string | `nil` |  |
 | openTelemetry.openSearchLogs.index | string | `nil` |  |
-| openTelemetry.prometheus.additionalLabels | object | `{}` |  |
+| openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor.enabled | bool | `true` |  |
-| openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` |  |
-| openTelemetry.prometheus.rules.annotations | object | `{}` |  |
-| openTelemetry.prometheus.rules.create | bool | `true` |  |
-| openTelemetry.prometheus.rules.disabled | list | `[]` |  |
-| openTelemetry.prometheus.rules.labels | object | `{}` |  |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"disabled":[],"labels":{}}` | Default rules for monitoring the opentelemetry components |
+| openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule |
+| openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules |
+| openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created |
+| openTelemetry.prometheus.rules.disabled | list | `[]` | PrometheusRules to disable |
+| openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules |
 | openTelemetry.prometheus.serviceMonitor.enabled | bool | `true` |  |
 | openTelemetry.region | string | `nil` |  |
 | opentelemetry-operator | object | `{"admissionWebhooks":{"autoGenerateCert":{"recreate":false},"certManager":{"enabled":false},"failurePolicy":"Ignore"},"crds":{"create":false},"kubeRBACProxy":{"enabled":false},"manager":{"collectorImage":{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"main"},"deploymentAnnotations":{"vpa-butler.cloud.sap/update-mode":"Auto"},"image":{"repository":"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator","tag":"v0.116.0"},"serviceMonitor":{"enabled":true}},"nameOverride":"operator"}` | opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency. |
+| opentelemetry-operator.admissionWebhooks.certManager | object | `{"enabled":false}` | If cert-manager should be used, the CRDs for cert-manager needs to exists before otel installs cert-manager. |
+| opentelemetry-operator.crds | object | `{"create":false}` | This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md). |
 | testFramework.enabled | bool | `true` |  |
 | testFramework.image.registry | string | `"ghcr.io"` |  |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` |  |
