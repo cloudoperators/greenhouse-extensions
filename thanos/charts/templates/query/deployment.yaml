@@ -53,6 +53,12 @@ spec:
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}
+        {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        - --grpc-client-tls-ca=/etc/tls/client/ca.crt
+        - --grpc-client-tls-cert=/etc/tls/client/tls.crt
+        - --grpc-client-tls-key=/etc/tls/client/tls.key
+        - --grpc-client-tls-secure
+        {{- end }}
         # --store.sd-files will be deprecated in next release. Correct flag will be --endpoint.sd-config-file
         - --store.sd-files=/etc/thanos/sd-config/endpoint-targets.yaml
         image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
