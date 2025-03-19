@@ -44,7 +44,7 @@ jobs:
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
-          - chartDir: logs/chart
+          - chartDir: logs/charts
             chartName: logs-operator
           - chartDir: perses/charts
             chartName: perses

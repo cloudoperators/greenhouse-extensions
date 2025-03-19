@@ -15,7 +15,7 @@ on:
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
       - obenbao/charts/**
-      - logs/chart/**
+      - logs/charts/**
       - perses/charts/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
@@ -58,7 +58,7 @@ jobs:
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
-          - chartDir: logs/chart
+          - chartDir: logs/charts
             chartName: logs-operator
           - chartDir: perses/charts
             chartName: perses
