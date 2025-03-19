@@ -1,6 +1,6 @@
 dependencies:
 - name: perses
   repository: https://perses.github.io/helm-charts
-  version: 0.12.1
-digest: sha256:107c5d73d74c0cdac8b2a526fa8d2546c0c71d4f9384983ec44eb97a3c42bc87
-generated: "2025-03-19T11:10:51.092025+01:00"
+  version: 0.12.2
+digest: sha256:a6a6a0a72c8ca535f0bb435f442164eb7e802559494427226a94c026dfc64e34
+generated: "2025-03-19T14:09:37.598596+01:00"
