@@ -224,6 +224,9 @@ alerts:
 
     alertmanagerSpec:
 
+      # Name of the governing service
+      serviceName: "{{ $.Release.Name }}-alertmanager"
+
       ## Defines the strategy used by AlertmanagerConfig objects to match alerts.
       ##
       alertmanagerConfigMatcherStrategy:
