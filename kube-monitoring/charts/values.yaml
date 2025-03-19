@@ -279,6 +279,9 @@ kubeMonitoring:
 
     prometheusSpec:
 
+      # Name of the governing service
+      serviceName: "{{ $.Release.Name }}-prometheus"
+
       ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage
       ## them separately from the helm deployment, you can use this section.
       ## Expected values are the secret name and key
