@@ -664,7 +664,7 @@
       },
       "id": 35,
       "options": {
-        "content": "<center>\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/\">\nGreenhouse Documentation\n</a> | \n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/reference/catalog/opentelemetry/\">\nGreenhouse OpenTelemetry Plugin Documentation\n</a> |\n\n<a target=\"_blank\" \nhref=\"https://github.com/cloudoperators/greenhouse-extensions\">\nGreenhouse Extensions GitHub Repository\n</a> | \n\n<a target=\"_blank\" \nhref=\"https://opentelemetry.io/docs/\">\nOpenTelemetry Documentation\n</a> \n</center>",
+        "content": "<center>\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/\">\nGreenhouse Documentation\n</a> | \n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/reference/catalog/logs/\">\nGreenhouse Logs Plugin Documentation\n</a> |\n\n<a target=\"_blank\" \nhref=\"https://github.com/cloudoperators/greenhouse-extensions\">\nGreenhouse Extensions GitHub Repository\n</a> | \n\n<a target=\"_blank\" \nhref=\"https://opentelemetry.io/docs/\">\nOpenTelemetry Documentation\n</a> \n</center>",
         "mode": "html"
       },
       "pluginVersion": "7.5.33",
@@ -2874,7 +2874,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "OpenTelemetry Dashboard",
+  "title": "OpenTelemetry Logs Dashboard",
   "uid": "BKf2sowmja",
   "version": 23
 }
