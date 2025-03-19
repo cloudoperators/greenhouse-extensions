@@ -779,7 +779,7 @@ plutono:
       enabled: true
       # specify organization name that should be used for unauthenticated users
       org_role: Admin
-      
+
   ## plutono Authentication can be enabled with the following values on plutono.ini
    # server:
         # The full public facing url you use in browser, used for redirects and emails
