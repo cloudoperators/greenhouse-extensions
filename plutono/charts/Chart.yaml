@@ -9,7 +9,7 @@ maintainers:
   - name: richardtief
   - name: ibakshay
 sources:
-  - ghcr.io/cloudoperators/greenhouse-extensions/charts
+  - https://github.com/cloudoperators/greenhouse-extensions
 keywords:
   - visualization
   - querying
