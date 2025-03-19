@@ -7,7 +7,7 @@ Generic plugin name
 
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
-plugindefinition: opentelemetry
+plugindefinition: logs
 {{- if .Values.commonLabels }}
 {{ tpl (toYaml .Values.commonLabels) . }}
 {{- end }}

@@ -25,6 +25,6 @@ spec:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
       app.kubernetes.io/instance: {{ .Release.Namespace }}.logs
-      app.kubernetes.io/managed-by: opentelemetry-operator
+      app.kubernetes.io/managed-by: logs-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
