@@ -6,6 +6,7 @@ This following table provides an overview of the currently available Plugins in 
 | Plugin | Description | Version |
 | -------- | ------- | ------- |
 | alerts|The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI|1.2.5|
+| audit-logs|This Plugin is intended for ingesting, generating, collecting, and exporting audit relevant logs |0.0.1|
 | cert-manager|Automated certificate management in Kubernetes|1.1.0|
 | digicert-issuer|Extensions to the cert-manager for DigiCert support|1.2.0|
 | disco|Automated DNS management using the Designate Ingress CNAME operator (DISCO)|1.0.0|

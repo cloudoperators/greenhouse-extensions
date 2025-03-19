@@ -3,6 +3,7 @@
 
 resources:
   - alerts/plugindefinition.yaml
+  - audit-logs/plugindefinition.yaml
   - cert-manager/plugindefinition.yaml
   - exposed-services/plugindefinition.yaml
   - external-dns/plugindefinition.yaml
