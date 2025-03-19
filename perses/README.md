@@ -126,7 +126,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 
 ## Add Dashboards as ConfigMaps
 
-By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 seconds.
+By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 minutes.
 
 A recommendation is to use one configmap per dashboard. This way, you can easily manage the dashboards in your git repository.
 
