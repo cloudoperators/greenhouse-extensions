@@ -26,7 +26,7 @@ jobs:
         include:
           - chartDir: alerts/charts
             chartName: alerts
-          - chartDir: audit-logs/chart
+          - chartDir: audit-logs/charts
             chartName: audit-logs-operator
           - chartDir: cert-manager/charts/v1.11.0/cert-manager
             chartName: cert-manager
