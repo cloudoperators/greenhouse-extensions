@@ -94,7 +94,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | logs-operator.manager.image.tag | string | `"v0.120.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | logs-operator.manager.serviceMonitor | object | `{"enabled":true}` | Enable serviceMonitor for Prometheus metrics scrape |
 | logs-operator.nameOverride | string | `"operator"` | Provide a name in place of the default name `opentelemetry-operator`. |
-| openTelemetry.cluster | string | `nil` | Cluster label for Logging  |
+| openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":true}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
