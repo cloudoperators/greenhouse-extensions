@@ -10,7 +10,7 @@ logs-operator:
   nameOverride: "operator"
 
   crds:
-    #This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
+    # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
     # --  The required CRDs used by this dependency are version-controlled in this repository under ./crds. If you want to use the upstream CRDs, set this variable to `true``.
     create: false
   admissionWebhooks:
@@ -61,7 +61,7 @@ openTelemetry:
     failover_password_b:
     # -- Name for OpenSearch index
     index:
-  # -- Cluster label for Logging 
+  # -- Cluster label for Logging
   cluster:
   # -- Region label for Logging
   region:
