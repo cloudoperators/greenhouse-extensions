@@ -20,7 +20,7 @@ header:
     - 'prometheus/**' # ignore the license for the prometheus charts
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
     - 'thanos/**' # ignore the license for this directory
-    - 'opentelemetry/**' # ignore the license for the opentelemetry charts
+    - 'logs/**' # ignore the license for the opentelemetry charts
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'

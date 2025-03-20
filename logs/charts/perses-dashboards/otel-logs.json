@@ -6,7 +6,7 @@
   },
   "spec": {
     "display": {
-      "name": "OpenTelemetry Dashboard"
+      "name": "OpenTelemetry Logs Dashboard"
     },
     "panels": {
       "0_0": {
@@ -525,7 +525,7 @@
           "plugin": {
             "kind": "Markdown",
             "spec": {
-              "text": "<center>\n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/\">\nGreenhouse Documentation\n</a> \n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/reference/catalog/opentelemetry/\">\nGreenhouse OpenTelemetry Plugin Documentation\n</a>\n\n<a target=\"_blank\" \nhref=\"https://github.com/cloudoperators/greenhouse-extensions\">\nGreenhouse Extensions GitHub Repository\n</a> \n\n<a target=\"_blank\" \nhref=\"https://opentelemetry.io/docs/\">\nOpenTelemetry Documentation\n</a> \n</center>"
+              "text": "<center>\n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/\">\nGreenhouse Documentation\n</a> \n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/reference/catalog/logs/\">\nGreenhouse Logs Plugin Documentation\n</a>\n\n<a target=\"_blank\" \nhref=\"https://github.com/cloudoperators/greenhouse-extensions\">\nGreenhouse Extensions GitHub Repository\n</a> \n\n<a target=\"_blank\" \nhref=\"https://opentelemetry.io/docs/\">\nOpenTelemetry Documentation\n</a> \n</center>"
             }
           },
           "queries": [

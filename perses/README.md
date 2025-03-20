@@ -101,7 +101,8 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | perses.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | perses.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| perses.sidecar | object | `{"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
+| perses.sidecar | object | `{"allNamespaces":true,"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
+| perses.sidecar.allNamespaces | bool | `true` | check for configmaps from all namespaces. When set to false, it will only check for configmaps in the same namespace as the Perses instance |
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
@@ -125,7 +126,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 
 ## Add Dashboards as ConfigMaps
 
-By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 seconds.
+By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 minutes.
 
 A recommendation is to use one configmap per dashboard. This way, you can easily manage the dashboards in your git repository.
 
