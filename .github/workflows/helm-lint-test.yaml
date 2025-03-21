@@ -41,7 +41,7 @@ jobs:
 
       - name: Run chart integration tests
         if: steps.chart-list-changed.outputs.changed == 'true'
-        run: ct lint-and-install --config .github/configs/helm-test.yaml
+        run: ct lint-and-install --config .github/configs/helm-lint-test.yaml
 
       - name: Check version bump
         id: check-bump
