@@ -1,14 +1,14 @@
 name: "Helm lint and tests"
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
 
 env:
   REGISTRY: ghcr.io
-  
+
 jobs:
   helm-lint-test:
-    runs-on: [ default ]
+    runs-on: [default]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -27,37 +27,25 @@ jobs:
       - name: Set up chart-linting and chart-testing
         uses: helm/chart-testing-action@0d28d3144d3a25ea2cc349d6e59901c4ff469b3b # v2.7.0
 
-      - name: Run chart-linting (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Run chart-linting
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }}
-
       - name: Run chart-testing (list-changed)
-        id: chart-test-list-changed
+        id: chart-list-changed
         run: |
-          changed=$(ct list-changed --config .github/configs/helm-test.yaml --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --config .github/configs/helm-lint-test.yaml --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create kind cluster
-        if: steps.chart-test-list-changed.outputs.changed == 'true'
+        if: steps.chart-list-changed.outputs.changed == 'true'
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
 
       - name: Run chart integration tests
-        if: steps.chart-test-list-changed.outputs.changed == 'true'
-        run: ct install --config .github/configs/helm-test.yaml
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: ct lint-and-install --config .github/configs/helm-test.yaml
 
       - name: Check version bump
         id: check-bump
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.chart-list-changed.outputs.changed == 'true'
         continue-on-error: true
         run: |
           for chart in $(ct list-changed --config .github/configs/helm-lint.yaml --target-branch ${{ github.event.repository.default_branch }}); do
@@ -80,4 +68,3 @@ jobs:
               body: ':warning: Chart `oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/${{ steps.check-bump.outputs.chart }}:${{ steps.check-bump.outputs.chart_version }}` already exists in OCI registry. Please increment the chart version.'
             })
             core.setFailed(`Action failed with error: Chart version bump required`);
-            
