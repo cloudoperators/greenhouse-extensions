@@ -4,16 +4,16 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: opentelemetry
+    name: logs
 spec:
-    version: 0.7.7
-    displayName: OpenTelemetry
-    description: Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
+    version: 0.8.0
+    displayName: Logs
+    description: Observability framework for instrumenting, generating, collecting, and exporting logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
     helmChart:
-        name: opentelemetry-operator
+        name: logs-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.7.7
+        version: 0.8.0
     options:
         - default: true
           description: Activates the standard configuration for logs
@@ -92,7 +92,7 @@ spec:
           type: map
         - default: true
           description: Activate to use the CertManager for generating self-signed certificates
-          name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+          name: logs-operator.admissionWebhooks.certManager.enabled
           type: bool
         - description: Additional labels for PrometheusRule alerts
           name: openTelemetry.prometheus.rules.additionalRuleLabels
@@ -100,7 +100,7 @@ spec:
           type: map
         - default: false
           description: Activate to use Helm to create self-signed certificates
-          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
+          name: logs-operator.admissionWebhooks.autoGenerateCert.enabled
           required: false
           type: bool
         - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
