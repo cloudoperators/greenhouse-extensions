@@ -7,7 +7,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReconcileErrors.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OpenTelemetryCollector Reconciliation
@@ -20,7 +20,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/WorkqueueDepth.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: WorkqueueDepth is increasing
