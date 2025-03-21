@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "release.name" . }}-sd-config
+data:
+  endpoint-targets.yaml: |-
+    - targets:
+{{- /* Technically it is possible to add stores and have the default stores all together.*/}}
+{{- /* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
+{{- if and (empty .Values.thanos.query.stores) (.Values.thanos.query.standalone) }}
+{{- fail "WARNING Thanos Query will have no data. Either unset thanos.query.standalone or specify thanos.query.stores." -}}
+{{- end }}
+{{- range .Values.thanos.query.stores }}
+      - {{ . }}
+{{- end -}}
+{{- if not .Values.thanos.query.standalone }}
+      - prometheus-operated:10901
+      - {{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
+{{- end -}}
