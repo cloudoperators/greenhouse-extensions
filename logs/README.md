@@ -75,8 +75,6 @@ Greenhouse regularly performs integration tests that are bundled with the **Logs
 
 The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
 
-## Configuration
-
 ## Values
 
 | Key | Type | Default | Description |
