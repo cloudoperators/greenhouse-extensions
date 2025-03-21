@@ -9,7 +9,7 @@ spec:
     version: 0.8.1
     displayName: Logs
     description: Observability framework for instrumenting, generating, collecting, and exporting logs.
-    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opentelemetry/logo.png
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
     helmChart:
         name: logs-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
