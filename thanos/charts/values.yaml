@@ -70,7 +70,7 @@ thanos:
     annotations:
 
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
-    stores: []
+    stores: [prometheus-operated:10901, prometheus-operated:10901]
 
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
@@ -222,8 +222,8 @@ thanos:
       enabled: true
       authentication:
         enabled: true
-        ssoCert:
-        ssoKey:
+        ssoCert: base64
+        ssoKey: base64
       hosts:
 
 testFramework:
