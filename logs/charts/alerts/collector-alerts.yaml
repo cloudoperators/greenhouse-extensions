@@ -7,7 +7,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/FilelogRefusedLogs.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
@@ -20,7 +20,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/ReceiverRefusedMetric.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Some metric points have been refused by receiver
@@ -33,9 +33,22 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opentelemetry/playbooks/HighCPUUsage.md
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/HighCPUUsage.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: High max CPU usage
           description: Collector need to scale up
+  {{- end }}
+
+  {{- if not (has "LogsOTelLogsMissing" .Values.openTelemetry.prometheus.rules.disabled) }}
+      - alert: LogsOTelLogsMissing
+        expr: sum by (region, k8s_node_name, pod, exporter) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
+        for: 120m
+        labels:
+          severity: warning
+          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel is not shipping logs
+          description: 'otel-logs on {{`{{ $labels.k8s_node_name }}`}} in {{`{{ $labels.region }}`}} is not shipping logs to {{`{{ $labels.exporter }}`}}. Please check.'
   {{- end }}
