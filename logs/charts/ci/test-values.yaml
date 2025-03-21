@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-opentelemetry-operator:
+logs-operator:
   crds:
     create: false
   admissionWebhooks:
@@ -19,8 +19,6 @@ opentelemetry-operator:
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.114.1
-    deploymentAnnotations:
-      vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
       enabled: false
       defaultRules:

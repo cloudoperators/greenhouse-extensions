@@ -12,13 +12,13 @@ jobs:
     runs-on: [default]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up go environment
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5
         with:
           go-version: "stable"
 
@@ -84,7 +84,7 @@ jobs:
 
       - name: Post or Update PR Comment if README is outdated
         if: failure() && steps.generate-readme.outputs.outdated_plugins != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -125,7 +125,7 @@ jobs:
 
       - name: Post PR Comment if README is Up-to-Date
         if: success() && steps.generate-readme.outputs.outdated_plugins == ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
