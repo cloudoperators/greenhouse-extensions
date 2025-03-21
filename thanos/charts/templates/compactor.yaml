@@ -5,8 +5,8 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.compactor.labels }}
-    {{ toYaml .Values.thanos.compactor.labels | nindent 4 }}
+    {{- if .Values.thanos.compactor.deploymentLabels }}
+    {{ toYaml .Values.thanos.compactor.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-compactor
 spec:
