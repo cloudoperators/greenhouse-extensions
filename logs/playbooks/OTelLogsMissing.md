@@ -3,7 +3,7 @@ title: Logs are Missing
 weight: 20
 ---
 
-# Root Cause Analysis
+## Root Cause Analysis
 
 Determine if the lack of sent logs is expected:
 - Check if the Plugin is up and running via the Greenhouse Dashboard.
