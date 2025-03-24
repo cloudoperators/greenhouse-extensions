@@ -318,7 +318,7 @@ kubeMonitoring:
                 storage: 50Gi
 
       ## How long to retain metrics
-      retention: 10d
+      ## retention: 10d
 
       ## ServiceMonitors to be selected for target discovery.
       ## If {}, select all ServiceMonitors
