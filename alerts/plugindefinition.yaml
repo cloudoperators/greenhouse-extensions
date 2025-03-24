@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.7.10
+  version: 2.8.1
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -16,7 +16,7 @@ spec:
     # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/alerts
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.20.2
+    version: 0.21.1
   uiApplication:
     name: supernova
     version: "latest"

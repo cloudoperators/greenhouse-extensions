@@ -11,29 +11,32 @@ global:
 
 thanos:
   image:
+    # -- Thanos image repository
     repository: quay.io/thanos/thanos
-    # defaults to .Chart.appVersion
+    # -- Thanos image tag
     tag: v0.37.2
-    # defaults to IfNotPresent
-    pullPolicy:
+    # -- Thanos image pull policy
+    pullPolicy: IfNotPresent
+
+  # -- GRPC-address used across the stack
+  # @default -- 0.0.0.0:10901
   grpcAddress:
-  # used across the stack
+
+  # -- HTTP-address used across the stack
+  # @default -- 0.0.0.0:10902
   httpAddress:
 
   serviceMonitor:
-    ## If true, create a serviceMonitor for Thanos components
-    ##
+    # -- Create a serviceMonitor for Thanos components
     selfMonitor: true
 
-    ## Labels for ServiceMonitor
-    additionalLabels: {}
+    # -- Labels to add to the ServiceMonitor
+    labels: {}
 
-
-  ## Init container to set permissions
+  # @ignored
+  # Init container to set permissions
   initChownData:
-
-    ## initChownData container image
-    ##
+    # initChownData container image
     image:
       # -- The Docker registry
       registry: docker.io
@@ -42,32 +45,41 @@ thanos:
       sha: ""
 
   query:
+    # -- Number of Thanos Query replicas to deploy
     replicas:
-    # defaults to info
+
+    # -- Thanos Query log level
+    # @default -- info
     logLevel:
 
     # Disables standard prometheus-operated and Thanos Store endpoints
     # To be used for overarching Thanos Queries with custom endpoint lists
     standalone: false
 
-    # arguments in general
+    # -- Set Thanos Query --query.auto-downsampling
     autoDownsampling: true
-    replicaLabels:
+
+    replicaLabel:
 
     web:
       externalPrefix:
       routePrefix:
 
+    # -- Adding additional arguments to Thanos Query
     additionalArgs: []
       # - something.route-foo=/lol
 
+    # -- Labels to add to the Thanos Query deployment
     deploymentLabels: {}
 
-    containerLabels:
+    # -- Labels to add to the Thanos Query container
+    containerLabels: {}
 
-    serviceLabels:
+    # -- Labels to add to the Thanos Query service
+    serviceLabels: {}
 
-    annotations:
+    # -- Annotations to add to the Thanos Query ressources
+    annotations: {}
 
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
@@ -141,92 +153,138 @@ thanos:
         # tlsKey:
 
   store:
-    # if this is a standalone Thanos Query, we wouldn't want a store.
+    # -- Enable Thanos Store component
     enabled: true
-    # adding additional arguments
+
+    # -- Adding additional arguments to Thanos Store
     additionalArgs: []
 
+    # -- Labels to add to the Thanos Store deployment
     deploymentLabels: {}
 
-    containerLabels:
+    # -- Labels to add to the Thanos Store container
+    containerLabels: {}
 
-    # TODO use
-    serviceLabels:
+    # -- Labels to add to the Thanos Store service
+    serviceLabels: {}
 
-    annotations:
+    # -- Annotations to add to the Thanos Store ressources
+    annotations: {}
 
+    # -- Set Thanos Store chunk-pool-size
+    # @default -- 4GB
     chunkPoolSize:
 
+    # -- Set Thanos Store index-cache-size
+    # @default -- 1GB
     indexCacheSize:
 
+    # -- Thanos Store log level
+    # @default -- info
     logLevel:
 
   compactor:
-    # if this is a standalone Thanos Query, we wouldn't want a compactor
+    # -- Enable Thanos Compactor component
     enabled: true
+
     # TODO: store secret needs to be present and can not be provisioned automatically
 
+    # -- Thanos Compactor log level
+    # @default -- info
     logLevel:
 
-    containerLabels: []
+    # -- Labels to add to the Thanos Compactor deployment
+    deploymentLabels: {}
 
-    serviceLabels:
+    # -- Labels to add to the Thanos Compactor container
+    containerLabels: {}
 
-    labels: []
-    annotations: []
+    # -- Labels to add to the Thanos Compactor service
+    serviceLabels: {}
 
-    # adding additional arguments
+    # -- Annotations to add to the Thanos Compactor ressources
+    annotations: {}
+
+    # -- Adding additional arguments to Thanos Compactor
     additionalArgs: []
 
+    # -- Set Thanos Compactor http-grace-period
+    # @default -- 120s
     httpGracePeriod:
+
+    # -- Set Thanos Compactor consistency-delay
+    # @default -- 1800s
     consistencyDelay:
 
-    # retention values in seconds
+    # -- Set Thanos Compactor retention.resolution-raw
+    # @default -- 7776000s
     retentionResolutionRaw:
+    # -- Set Thanos Compactor retention.resolution-5m
+    # @default -- 7776000s
     retentionResolution5m:
+    # -- Set Thanos Compactor retention.resolution-1h
+    # @default -- 157680000s
     retentionResolution1h:
 
     compact:
-      # int
+      # -- Set Thanos Compactor compact.concurrency
+      # @default -- 1
       concurrency:
 
-      # seconds
+      # -- Set Thanos Compactor compact.cleanup-interval
+      # @default -- 1800s
       cleanupInterval:
 
-      # seconds
+      # -- Set Thanos Compactor wait-interval
+      # @default -- 900s
       waitInterval:
 
     volume:
-      # bool
-      enabled:
-      # GiB
+      # -- Set Thanos Compactor PersistentVolumeClaim size in Gi
+      # @default -- 100Gi
       size:
+
+      # -- Labels to add to the Thanos Compactor PVC ressource
       labels: []
 
   ruler:
-    enabled: true
+    # -- Enable Thanos Ruler components
+    enabled: false
 
-    annotations:
+    # -- Annotations to add to the Thanos Ruler ressources
+    annotations: {}
 
+    # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
-    labels:
+    # -- Labels to add to the Thanos Ruler deployment
+    labels: {}
 
-    alertLabels:
+    # -- Labels to add to the Thanos Ruler service
+    serviceLabels: {}
 
+    # -- TO DO
     matchLabel:
 
-    serviceLabels:
-
+    # -- Configures the list of Alertmanager endpoints to send alerts to.
+    # The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager.
+    # @default -- nil
     alertmanagers:
+      # -- Enable Thanos Ruler Alertmanager config
       enabled: true
       authentication:
+        # -- Enable Alertmanager authentication for Thanos Ruler
         enabled: true
+        # -- SSO Cert for Alertmanager authentication
         ssoCert:
+        # -- SSO Key for Alertmanager authentication
         ssoKey:
+      # -- List of hosts endpoints to send alerts to
       hosts:
 
+# @ignored
 testFramework:
+  # -- Enable Thanos test framework
   enabled: true
   image:
     registry: ghcr.io
