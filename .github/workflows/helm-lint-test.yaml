@@ -30,14 +30,39 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: chart-list-changed
         run: |
-          changed=$(ct list-changed --config .github/configs/helm-lint-test.yaml --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
+          changed_charts=$(ct list-changed --config .github/configs/helm-lint-test.yaml --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed_charts" ]]; then
+            echo "DEBUG: changed_charts=$changed_charts"
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "$changed_charts" > changed_charts.txt
           fi
 
       - name: Create kind cluster
         if: steps.chart-list-changed.outputs.changed == 'true'
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
+
+      - name: Install dependencies for changed charts if needed
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          for chart in $(cat changed_charts.txt); do
+          plugin_dir=$(dirname "$chart")
+          if [[ -f "${plugin_dir}/test-dependencies.yaml" ]]; then
+              echo "Found dependencies for plugin $plugin_dir. Installing..."
+              for dep in $(yq eval '.dependencies[]' "${plugin_dir}/test-dependencies.yaml"); do
+                echo "Installing dependency: $dep"
+                if [[ ! -d "$dep/charts" ]]; then
+                  echo "❌ Dependency '$dep' not found (expected ./$dep/charts)" >&2
+                  exit 1
+                fi
+                # helm upgrade --install "$dep" "./$dep" --wait || {
+                helm upgrade --install "$dep" "./$dep/charts" --wait || {
+                  echo "❌ Helm install failed for dependency '$dep'" >&2
+                  exit 1
+                }
+              done
+          fi
+            echo "the plugin dir is $plugin_dir"
+          done
 
       - name: Run chart integration tests
         if: steps.chart-list-changed.outputs.changed == 'true'

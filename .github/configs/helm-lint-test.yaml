@@ -6,6 +6,8 @@ remote: origin
 target-branch: main
 validate-maintainers: false
 check-version-increment: false
+namespace: default
+release-label: "app.kubernetes.io/instance"
 chart-dirs:
   - alerts
   - cert-manager/charts/v1.11.0
