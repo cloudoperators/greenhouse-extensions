@@ -316,7 +316,7 @@ kubeMonitoring:
             resources:
               requests:
                 storage: 50Gi
-      
+
       ## How long to retain metrics
       retention: 10d
 
