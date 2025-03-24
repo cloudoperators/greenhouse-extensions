@@ -2,9 +2,7 @@ apiVersion: v2
 description: A Helm chart for installing the jetstack/cert-manager.
 name: cert-manager
 version: 1.16.2
-maintainers:
-  - name: ivogoman
-  - name: kengou
+
 dependencies:
   - name: cert-manager
     repository: https://charts.jetstack.io
