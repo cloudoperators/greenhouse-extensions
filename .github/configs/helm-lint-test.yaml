@@ -4,7 +4,7 @@
 # See https://github.com/helm/chart-testing#configuration
 remote: origin
 target-branch: main
-validate-maintainers: false
+validate-maintainers: true
 check-version-increment: false
 namespace: default
 release-label: "app.kubernetes.io/instance"
