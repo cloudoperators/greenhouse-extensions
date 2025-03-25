@@ -6,16 +6,16 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 2.6.0
+  version: 1.0.0
   displayName: OpenSearch
   description: Search and observability suite that brings order to unstructured data at scale.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 2.6.0
+    version: 1.0.0
   options:
-    - default: false
+    - default: ""
       description: opensearchOperator.fullnameOverride
       name: opensearchOperator.fullnameOverride
       required: false
