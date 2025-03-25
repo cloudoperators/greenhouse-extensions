@@ -18,7 +18,6 @@ chart-dirs:
   - service-proxy/charts/1.0.0
   - logshipper
   - logs
-  - audit-logs
   - thanos
   - perses
   - prometheus
