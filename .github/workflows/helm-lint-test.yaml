@@ -46,7 +46,7 @@ jobs:
           for chart in $(cat changed_charts.txt); do
           plugin_dir=$(dirname "$chart")
           if [[ -f "${plugin_dir}/test-dependencies.yaml" ]]; then
-              echo "🔍 Found dependencies for plugin $plugin_dir. Installing..."
+              echo "🔍 Found dependent plugin(s) for plugin $plugin_dir. Installing..."
               for dep in $(yq eval '.dependencies[]' "${plugin_dir}/test-dependencies.yaml"); do
                 echo "📦 Installing dependent plugin: $dep ⏳"
                 if [[ ! -d "$dep/charts" ]]; then
