@@ -44,11 +44,6 @@ spec:
       description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
       required: false
       type: list
-    - name: kubeMonitoring.prometheus.prometheusSpec.retention
-      description: How long to retain metrics
-      default: "10d"
-      required: false
-      type: string
     - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage
       description: How large the persistent volume should be to house the prometheus database
       default: 50Gi
