@@ -20,7 +20,6 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 # The following paths are owned by the respective maintainers
 /alerts/                  @cloudoperators/greenhouse-observability
 /cert-manager/            @cloudoperators/greenhouse-backend
-/example-plugin/                 @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
 /doop/                    @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
@@ -31,9 +30,10 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /kube-monitoring/         @cloudoperators/greenhouse-observability
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
-/opentelemetry/           @cloudoperators/greenhouse-observability
+/logs/                    @cloudoperators/greenhouse-observability
 /plutono                  @cloudoperators/greenhouse-observability
 /perses                   @cloudoperators/greenhouse-observability
+/prometheus               @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend @databus23 
 /teams2slack/             @cloudoperators/greenhouse-backend @voigts 
 /thanos/                  @cloudoperators/greenhouse-observability

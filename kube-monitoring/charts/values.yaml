@@ -262,7 +262,7 @@ kubeMonitoring:
     ingress:
       enabled: false
 
-      ## By default, a ca-bundle is deployed to enable tls between Prometheus and Alertmanager
+      ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
       annotations:
         disco: "true"
         kubernetes.io/tls-acme: "true"
@@ -284,7 +284,7 @@ kubeMonitoring:
       ## Expected values are the secret name and key
       ## Cannot be used with additionalAlertManagerConfigs
       additionalAlertManagerConfigsSecret:
-        name: kube-monitoring-alertmanager-config
+        name: "{{ $.Release.Name }}-alertmanager-config"
         key: config.yaml
 
       ## If additional alert relabel configurations are already deployed in a single secret, or you want to manage
@@ -292,7 +292,7 @@ kubeMonitoring:
       ## Expected values are the secret name and key
       ## Cannot be used with additionalAlertRelabelConfigs
       additionalAlertRelabelConfigsSecret:
-        name: kube-monitoring-alertmanager-config
+        name: "{{ $.Release.Name }}-alertmanager-config"
         key: relabelConfig.yaml
 
       ## Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
@@ -300,7 +300,7 @@ kubeMonitoring:
       ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
       ## with the new list of secrets.
       secrets:
-        - tls-prometheus-alertmanager-auth
+        - "tls-prometheus-{{ .Release.Name }}"
 
       storageSpec:
         volumeClaimTemplate:
@@ -316,6 +316,9 @@ kubeMonitoring:
             resources:
               requests:
                 storage: 50Gi
+
+      ## How long to retain metrics
+      ## retention: 10d
 
       ## ServiceMonitors to be selected for target discovery.
       ## If {}, select all ServiceMonitors
@@ -353,11 +356,12 @@ kubernetes-operations:
       - name: plugin
         value: "{{ $.Release.Name }}"
 
-
+## Configures Prometheus Alertmanager
 alerts:
   enabled: false
   alertmanagers:
     hosts: []
+    ## Overrides tls certificate to authenticate with Alertmanager
     tlsConfig:
       cert: ""
       key: ""
@@ -369,3 +373,6 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+blackboxExporter:
+  enabled: false

@@ -11,9 +11,7 @@ maintainers:
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.1.10
-# thanos-release
-appVersion: v0.35.0
+version: 0.5.2
 keywords:
   - thanos
   - storage
@@ -22,4 +20,4 @@ dependencies:
   - name: kube-prometheus-stack
     alias: prometheus-operator
     repository: https://prometheus-community.github.io/helm-charts
-    version: 68.3.0
+    version: 70.1.1

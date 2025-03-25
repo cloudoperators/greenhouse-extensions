@@ -11,16 +11,17 @@ header:
   paths-ignore:
     - '.github/**'
     - '*Dockerfile*'
-    - '.reuse/dep5'
+    - 'REUSE.toml'
     - 'LICENSES/*.txt'
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts
     - 'perses/**' # ignore the license for the perses charts
+    - 'prometheus/**' # ignore the license for the prometheus charts
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
     - 'thanos/**' # ignore the license for this directory
     - 'opensearch/**' # ignore the license for the opensearch charts
-    - 'opentelemetry/**' # ignore the license for the opentelemetry charts
+    - 'logs/**' # ignore the license for the opentelemetry charts
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'

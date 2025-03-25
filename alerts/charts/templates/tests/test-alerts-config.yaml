@@ -6,10 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     type: integration-test
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-weight": "-5" # Installed and upgraded before the test pod
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
 data:
   run.sh: |-
 
@@ -49,12 +46,20 @@ data:
     }
     {{- end }}
 
-    {{- if and .Values.alerts.auth.autoGenerateCert.enabled .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts (.Capabilities.APIVersions.Has "cert-manager.io/v1") }}
-    @test "Verify certificate creation and validation against the API endpoint of the alert manager" {
-        verify "there is 1 issuer named '{{ .Release.Namespace }}-monitoring-issuer'"
-        verify "there is 1 certificate named '{{ .Release.Namespace }}-prometheus-auth'"
-        verify "there is 1 secret named 'tls-{{ .Release.Namespace }}-prometheus-auth'"
+    {{- if .Values.alerts.certManager.enabled }}
+    @test "Generated server certificates for the Prometheus Alertmanager to use" {
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-issuer$'"
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-root-issuer$'"
+        verify "there is 1 certificate named '^{{ .Release.Namespace }}-alerts-root-cert$'"
+        verify "there is 1 certificate named '^alertmanager-{{ .Release.Namespace }}-cert$'"
+        verify "there is 1 certificate named '^prometheus-{{ .Release.Namespace }}-cert$'"
+        verify "there is 1 secret named '^tls-alertmanager-{{ .Release.Namespace }}$'"
+        verify "there is 1 secret named '^tls-prometheus-{{ .Release.Namespace }}$'"
+    }
+    {{- end }}
 
+    {{- if  and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+    @test "Verify the availability of the Alertmanager API by using the certificates created" {
         url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
 
         run curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url}

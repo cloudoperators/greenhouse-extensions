@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 global:
-  ## Labels to apply to all resources
+  # -- Labels to apply to all resources
+  # @default -- the chart will add some internal labels automatically
   commonLabels: {}
 
   # -- Overrides the registry globally for all images
@@ -10,20 +11,32 @@ global:
 
 thanos:
   image:
+    # -- Thanos image repository
     repository: quay.io/thanos/thanos
-    # defaults to .Chart.appVersion
-    tag:
-    # defaults to IfNotPresent
-    pullPolicy:
+    # -- Thanos image tag
+    tag: v0.37.2
+    # -- Thanos image pull policy
+    pullPolicy: IfNotPresent
+
+  # -- GRPC-address used across the stack
+  # @default -- 0.0.0.0:10901
   grpcAddress:
-  # used across the stack
+
+  # -- HTTP-address used across the stack
+  # @default -- 0.0.0.0:10902
   httpAddress:
 
-  ## Init container to set permissions
-  initChownData:
+  serviceMonitor:
+    # -- Create a serviceMonitor for Thanos components
+    selfMonitor: true
 
-    ## initChownData container image
-    ##
+    # -- Labels to add to the ServiceMonitor
+    labels: {}
+
+  # @ignored
+  # Init container to set permissions
+  initChownData:
+    # initChownData container image
     image:
       # -- The Docker registry
       registry: docker.io
@@ -32,123 +45,246 @@ thanos:
       sha: ""
 
   query:
+    # -- Number of Thanos Query replicas to deploy
     replicas:
-    # defaults to info
+
+    # -- Thanos Query log level
+    # @default -- info
     logLevel:
 
     # Disables standard prometheus-operated and Thanos Store endpoints
     # To be used for overarching Thanos Queries with custom endpoint lists
     standalone: false
 
-    # arguments in general
+    # -- Set Thanos Query --query.auto-downsampling
     autoDownsampling: true
-    replicaLabels:
+
+    replicaLabel:
 
     web:
       externalPrefix:
       routePrefix:
 
+    # -- Adding additional arguments to Thanos Query
     additionalArgs: []
       # - something.route-foo=/lol
 
+    # -- Labels to add to the Thanos Query deployment
     deploymentLabels: {}
 
-    containerLabels:
+    # -- Labels to add to the Thanos Query container
+    containerLabels: {}
 
-    serviceLabels:
+    # -- Labels to add to the Thanos Query service
+    serviceLabels: {}
 
-    annotations:
+    # -- Annotations to add to the Thanos Query ressources
+    annotations: {}
 
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
     stores: []
 
+    # Configure the ingress resource that allows you to access Thanos Query
+    # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+    ingress:
+      # -- Enable ingress controller resource
+      enabled: false
+
+      # -- Default host for the ingress resource
+      hosts:
+        - host: thanos.local
+          paths:
+            - path: /
+              pathType: Prefix
+
+      # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
+      # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+      # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+      #
+      ingressClassName: ""
+
+      # -- Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations.
+      # For a full list of possible ingress annotations, please see
+      # ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+      annotations: {}
+
+      # -- Ingress TLS configuration
+      tls: []
+      #    - secretName: ingress-cert
+      #      hosts: []
+      # Create an ingress object for the GRPC service
+      grpc:
+        # -- Enable ingress controller resource.(GRPC)
+        enabled: false
+
+        # -- Default host for the ingress resource.(GRPC)
+        hosts:
+          - host: thanos.local
+            paths:
+              - path: /
+                pathType: Prefix
+
+        # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)(GRPC)
+        # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
+        # ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+        #
+        ingressClassName: ""
+
+        # -- Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations.
+        # For a full list of possible ingress annotations, please see
+        # ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+        annotations: {}
+
+        # -- Ingress TLS configuration. (GRPC)
+        tls: []
+        #    - secretName: ingress-cert
+        #      hosts: []
+
+    # used for cross cluster TLS
+    tls:
+      ## Use existing Secret in the same namespace containing the certificates and private keys
+      ## This will take precedence
+      secretName: ""
+
+      ## Specify certificates and private keys
+      data: {}
+        # caCert:
+        # tlsCert:
+        # tlsKey:
+
   store:
-    # if this is a standalone Thanos Query, we wouldn't want a store.
+    # -- Enable Thanos Store component
     enabled: true
-    # adding additional arguments
+
+    # -- Adding additional arguments to Thanos Store
     additionalArgs: []
 
+    # -- Labels to add to the Thanos Store deployment
     deploymentLabels: {}
 
-    containerLabels:
+    # -- Labels to add to the Thanos Store container
+    containerLabels: {}
 
-    # TODO use
-    serviceLabels:
+    # -- Labels to add to the Thanos Store service
+    serviceLabels: {}
 
-    annotations:
+    # -- Annotations to add to the Thanos Store ressources
+    annotations: {}
 
+    # -- Set Thanos Store chunk-pool-size
+    # @default -- 4GB
     chunkPoolSize:
 
+    # -- Set Thanos Store index-cache-size
+    # @default -- 1GB
     indexCacheSize:
 
+    # -- Thanos Store log level
+    # @default -- info
     logLevel:
 
   compactor:
-    # if this is a standalone Thanos Query, we wouldn't want a compactor
+    # -- Enable Thanos Compactor component
     enabled: true
+
     # TODO: store secret needs to be present and can not be provisioned automatically
 
+    # -- Thanos Compactor log level
+    # @default -- info
     logLevel:
 
-    containerLabels: []
+    # -- Labels to add to the Thanos Compactor deployment
+    deploymentLabels: {}
 
-    serviceLabels:
+    # -- Labels to add to the Thanos Compactor container
+    containerLabels: {}
 
-    labels: []
-    annotations: []
+    # -- Labels to add to the Thanos Compactor service
+    serviceLabels: {}
 
-    # adding additional arguments
+    # -- Annotations to add to the Thanos Compactor ressources
+    annotations: {}
+
+    # -- Adding additional arguments to Thanos Compactor
     additionalArgs: []
 
+    # -- Set Thanos Compactor http-grace-period
+    # @default -- 120s
     httpGracePeriod:
+
+    # -- Set Thanos Compactor consistency-delay
+    # @default -- 1800s
     consistencyDelay:
 
-    # retention values in seconds
+    # -- Set Thanos Compactor retention.resolution-raw
+    # @default -- 7776000s
     retentionResolutionRaw:
+    # -- Set Thanos Compactor retention.resolution-5m
+    # @default -- 7776000s
     retentionResolution5m:
+    # -- Set Thanos Compactor retention.resolution-1h
+    # @default -- 157680000s
     retentionResolution1h:
 
     compact:
-      # int
+      # -- Set Thanos Compactor compact.concurrency
+      # @default -- 1
       concurrency:
 
-      # seconds
+      # -- Set Thanos Compactor compact.cleanup-interval
+      # @default -- 1800s
       cleanupInterval:
 
-      # seconds
+      # -- Set Thanos Compactor wait-interval
+      # @default -- 900s
       waitInterval:
 
     volume:
-      # bool
-      enabled:
-      # GiB
+      # -- Set Thanos Compactor PersistentVolumeClaim size in Gi
+      # @default -- 100Gi
       size:
+
+      # -- Labels to add to the Thanos Compactor PVC ressource
       labels: []
 
   ruler:
-    enabled: true
+    # -- Enable Thanos Ruler components
+    enabled: false
 
-    annotations:
+    # -- Annotations to add to the Thanos Ruler ressources
+    annotations: {}
 
+    # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
-    labels:
+    # -- Labels to add to the Thanos Ruler deployment
+    labels: {}
 
-    alertLabels:
+    # -- Labels to add to the Thanos Ruler service
+    serviceLabels: {}
 
+    # -- TO DO
     matchLabel:
 
-    serviceLabels:
-
+    # -- Configures the list of Alertmanager endpoints to send alerts to.
+    # The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager.
+    # @default -- nil
     alertmanagers:
+      # -- Enable Thanos Ruler Alertmanager config
       enabled: true
       authentication:
+        # -- Enable Alertmanager authentication for Thanos Ruler
         enabled: true
+        # -- SSO Cert for Alertmanager authentication
         ssoCert:
+        # -- SSO Key for Alertmanager authentication
         ssoKey:
+      # -- List of hosts endpoints to send alerts to
       hosts:
 
+# @ignored
 testFramework:
+  # -- Enable Thanos test framework
   enabled: true
   image:
     registry: ghcr.io
@@ -156,11 +292,13 @@ testFramework:
     tag: main
   imagePullPolicy: IfNotPresent
 
+# @ignored
 # Only used for TESTING !!! see test-values.yaml
 # The kube-monitoring plugin is taking care of deploying the Prometheus Operator
 # Thanos Plugin leverages it for its CI
 ci:
   enabled: false
+# @ignored
 prometheus-operator:
   defaultRules:
     create: false

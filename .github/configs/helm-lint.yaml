@@ -16,8 +16,11 @@ chart-dirs:
   - service-proxy/charts/1.0.0
   - logshipper
   - opensearch
-  - opentelemetry
+  - logs
   - thanos
+  - perses
+  - prometheus
+  - plutono
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
@@ -25,4 +28,5 @@ chart-repos:
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts
   - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
-  - opentelemetry=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - perses=https://perses.github.io/helm-charts

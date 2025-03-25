@@ -3,34 +3,30 @@ global:
   ##
   commonLabels: {}
 
+  ## Additional caCert to add to the CA bundle
+  ##
+  caCert: ""
+
+  ## common greenhouse values to use
+  ##
+  greenhouse:
+    # base domain of the greenhouse organisation
+    baseDomain:
+
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
-  ## Authentication configuration for Alertmanager
-  ##
-  auth:
-
-    ## Use existing secret for Alertmanager authentication
-    secretName: ""
-
-    ## TLS Certificate Option 1: Use Helm to automatically generate self-signed certificate.
-    autoGenerateCert:
-      enabled: true
-      # If set to true, new key/certificate is generated on helm upgrade.
-      recreate: false
-      # Cert period time in days. The default is 365 days.
-      certPeriodDays: 365
-
-    ## TLS Certificate Option 2: Use your own self-signed certificate.
-    ## The chart reads the contents of the file paths with the helm .Files.Get function.
-    ## Refer to this doc https://helm.sh/docs/chart_template_guide/accessing_files/ to understand
-    ## limitations of file paths accessible to the chart.
-    ## Path to your own PEM-encoded certificate.
-    certFile: ""
-    ## Path to your own PEM-encoded private key.
-    keyFile: ""
-    ## Path to the CA cert.
-    caFile: ""
+  # Use certmanager to generate alertmanager certs
+  certManager:
+    enabled: true
+    # self-signed root certificate
+    rootCert:
+      duration: ""  # default to be 5y
+    admissionCert:
+      duration: ""  # default to be 1y
+    issuerRef: {}
+    #   name: "issuer"
+    #   kind: "ClusterIssuer"
 
   ## Create default rules for monitoring the cluster
   ##

@@ -65,7 +65,13 @@ spec:
         - --store=prometheus-operated:10901
         - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag | default .Chart.AppVersion }}"
+        {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        - --grpc-client-tls-ca=/etc/tls/client/ca.crt
+        - --grpc-client-tls-cert=/etc/tls/client/tls.crt
+        - --grpc-client-tls-key=/etc/tls/client/tls.key
+        - --grpc-client-tls-secure
+        {{- end }}
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
@@ -95,5 +101,18 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
+      {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        volumeMounts:
+          - mountPath: /etc/tls/client
+            name: tls-certificate
+            readOnly: true
+      {{- end }}
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
+    {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+      volumes:
+        - name: tls-certificate
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.thanos.query.tls.secretName | default (printf "%s-tls" .Release.Name) }}
+    {{- end }}

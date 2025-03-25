@@ -6,11 +6,12 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
+    version: 0.5.2
     description: thanos
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.1.10
+        version: 0.5.2
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -42,6 +43,15 @@ spec:
           name: thanos.query.autoDownsampling
           required: false
           type: bool
+        - default: false
+          description: Enable serviceMonitor for Thanos components
+          name: thanos.serviceMonitor.selfMonitor
+          required: false
+          type: bool
+        - description: ServiceMonitor labels for Thanos to expose metrics to Prometheus
+          name: thanos.serviceMonitor.additionalLabels
+          required: false
+          type: map
         - default: null
           description: Thanos log level for Query
           name: thanos.query.logLevel
@@ -69,6 +79,10 @@ spec:
           name: thanos.query.standalone
           required: false
           type: bool
+        - description: Existing Secret containing the tls certificates and private keys
+          name: thanos.query.tls.secretName
+          required: false
+          type: string
         - default: true
           description: Enable Thanos Store
           name: thanos.store.enabled
@@ -119,4 +133,3 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
-    version: 0.2.10

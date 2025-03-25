@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+global:
+  greenhouse:
+    baseDomain: example.com
+
+alerts:
+  alertmanager:
+    ingress:
+      enabled: true
+      hosts:
+        - dummy-host
+  certManager:
+    enabled: false

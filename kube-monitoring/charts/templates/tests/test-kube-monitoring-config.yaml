@@ -7,10 +7,6 @@ metadata:
   labels:
     type: integration-test  
     {{- include "kube-prometheus-stack.labels" . | nindent 4 }} 
-  annotations:
-    "helm.sh/hook": test
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 data:
   run.sh: |-
 
@@ -20,40 +16,47 @@ data:
     load "/usr/lib/bats/bats-detik/detik"
     
     DETIK_CLIENT_NAME="kubectl"
-    
+
+    {{- if .Values.kubeMonitoring.prometheusOperator.enabled }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
         verify "there is 1 service named '{{ .Release.Name }}-operator'"
         try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-operator' and verify that '.status.phase' is 'running'" 
     }
-
+    {{- end }}
+    
+    {{- if .Values.kubeMonitoring.prometheus.enabled }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }}-prometheus service and pod" {
         verify "there is 1 service named '{{ .Release.Name }}-prometheus'"
         try "at most 2 times every 5s to get pods named 'prometheus-{{ .Release.Name }}' and verify that 'status' is 'running'"
     }
 
-    @test "Verify successful deployment and running status of the {{ .Release.Name }}-node-exporter pod" {
-        verify "there is 1 service named '{{ .Release.Name }}-node-exporter'"
-        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-node-exporter.*' and verify that '.status.phase' is 'running'"
-    }
-
-    @test "Verify successful deployment and running status of the {{ .Release.Name }}-kube-state-metrics pod" {
-        verify "there is 1 service named '{{ .Release.Name }}-kube-state-metrics'"
-        try "at most 3 times every 10s to get pods named '{{ .Release.Name }}-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
-    }
-
-    @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
+        @test "Verify successful creation and bound status of {{ .Release.Name }} persistent volume claims" {
         try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}.*' and verify that '.status.phase' is 'Bound'"
     }
 
-    @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
+        @test "Verify successful creation and available replicas of {{ .Release.Name }} Prometheus resource" {
         try "at most 3 times every 5s to get prometheuses named '{{ .Release.Name }}' and verify that '.status.availableReplicas' is more than '0'"
     }
 
     @test "Verify creation of the prometheus-{{ .Release.Name }} statefulset" {
         verify "there is 1 statefulset named 'prometheus-{{ .Release.Name }}'"
     }
+    {{- end }}
 
+    {{- if .Values.kubeMonitoring.nodeExporter.enabled }}
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-node-exporter pod" {
+        verify "there is 1 service named '{{ .Release.Name }}-node-exporter'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-node-exporter.*' and verify that '.status.phase' is 'running'"
+    }
+    {{- end }}
+
+    {{- if .Values.kubeMonitoring.kubeStateMetrics.enabled }}
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-kube-state-metrics pod" {
+        verify "there is 1 service named '{{ .Release.Name }}-kube-state-metrics'"
+        try "at most 3 times every 10s to get pods named '{{ .Release.Name }}-kube-state-metrics.*' and verify that '.status.phase' is 'running'"
+    }
+    {{- end }}
     
     {{- if and .Values.kubeMonitoring.prometheus.enabled .Values.kubeMonitoring.serviceDiscovery.pods.enabled }}
     @test "Verify creation of the {{ .Release.Name }}-pod-sd Podmonitor" {
@@ -61,6 +64,7 @@ data:
     }
     {{- end }}
 
+    {{- if .Values.kubeMonitoring.crds.enabled }}
     @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'prometheuses'"
         verify "there is 1 customresourcedefinition named 'podmonitors'"
@@ -71,4 +75,5 @@ data:
         verify "there is 1 customresourcedefinition named 'alertmanagers'"
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
     }
+    {{- end }}
 {{- end -}}

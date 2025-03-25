@@ -6,15 +6,16 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 2.9.1
+  version: 3.1.2
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/logo.png
   helmChart:
+    # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/kube-monitoring
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.22.1
+    version: 1.1.2
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
@@ -43,11 +44,6 @@ spec:
       description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
       required: false
       type: list
-    - name: kubeMonitoring.prometheus.prometheusSpec.retention
-      description: How long to retain metrics
-      default: "14d"
-      required: true
-      type: string
     - name: kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage
       description: How large the persistent volume should be to house the prometheus database
       default: 50Gi
@@ -84,14 +80,19 @@ spec:
       type: string
     - name: kubeMonitoring.prometheus.service.additionalPorts
       default:
-      - name: grpc
-        port: 10901
-        protocol: TCP
-        targetPort: grpc
+        - name: grpc
+          port: 10901
+          protocol: TCP
+          targetPort: grpc
       required: false
       type: list
     - name: kubeMonitoring.prometheus.persesDatasource
       description: Whether to create a datasource for Perses
       default: true
+      required: false
+      type: bool
+    - name: blackboxExporter.enabled
+      description: Deploys the Prometheus exporter for blackbox testing
+      default: false
       required: false
       type: bool
