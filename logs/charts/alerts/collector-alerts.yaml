@@ -42,7 +42,7 @@ groups:
 
   {{- if not (has "LogsOTelLogsMissing" .Values.openTelemetry.prometheus.rules.disabled) }}
       - alert: LogsOTelLogsMissing
-        expr: sum by (region, k8s_node_name, pod, exporter) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
+        expr: sum by (region, k8s_node_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
         for: 120m
         labels:
           severity: warning
