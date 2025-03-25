@@ -24,6 +24,7 @@ spec:
   ruleSelector:
     matchLabels:
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
+  serviceName: {{ include "release.name" . }}-ruler
   queryEndpoints:
     - {{ include "release.name" . }}-query:10902
   {{ if .Values.thanos.ruler.alertmanagers.enabled }}
