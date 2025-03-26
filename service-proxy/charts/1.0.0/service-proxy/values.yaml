@@ -43,5 +43,5 @@ oauth2proxy:
   image:
     registry: "docker.io"
     repository: "bitnami/oauth2-proxy"
-    version: "7.6.0"
+    version: "7.8.2"
   providerDisplayName: ""
