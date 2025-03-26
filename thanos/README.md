@@ -271,7 +271,7 @@ spec:
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |
-| thanos.compactor.annotations | object | `{}` | Annotations to add to the Thanos Compactor ressources |
+| thanos.compactor.annotations | object | `{}` | Annotations to add to the Thanos Compactor resources |
 | thanos.compactor.compact.cleanupInterval | string | 1800s | Set Thanos Compactor compact.cleanup-interval |
 | thanos.compactor.compact.concurrency | string | 1 | Set Thanos Compactor compact.concurrency |
 | thanos.compactor.compact.waitInterval | string | 900s | Set Thanos Compactor wait-interval |
@@ -285,7 +285,7 @@ spec:
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
-| thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC ressource |
+| thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
 | thanos.grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
@@ -293,7 +293,7 @@ spec:
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
 | thanos.image.tag | string | `"v0.37.2"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
-| thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query ressources |
+| thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` |  |
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
 | thanos.query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
@@ -308,6 +308,10 @@ spec:
 | thanos.query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
+| thanos.query.persesDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
+| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `nil` |  |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
@@ -323,7 +327,7 @@ spec:
 | thanos.ruler.alertmanagers.authentication.ssoKey | string | `nil` | SSO Key for Alertmanager authentication |
 | thanos.ruler.alertmanagers.enabled | bool | `true` | Enable Thanos Ruler Alertmanager config |
 | thanos.ruler.alertmanagers.hosts | string | `nil` | List of hosts endpoints to send alerts to |
-| thanos.ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler ressources |
+| thanos.ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler resources |
 | thanos.ruler.enabled | bool | `false` | Enable Thanos Ruler components |
 | thanos.ruler.externalPrefix | string | `"/ruler"` | Set Thanos Ruler external prefix |
 | thanos.ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
@@ -332,7 +336,7 @@ spec:
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor |
 | thanos.serviceMonitor.selfMonitor | bool | `true` | Create a serviceMonitor for Thanos components |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
-| thanos.store.annotations | object | `{}` | Annotations to add to the Thanos Store ressources |
+| thanos.store.annotations | object | `{}` | Annotations to add to the Thanos Store resources |
 | thanos.store.chunkPoolSize | string | 4GB | Set Thanos Store chunk-pool-size |
 | thanos.store.containerLabels | object | `{}` | Labels to add to the Thanos Store container |
 | thanos.store.deploymentLabels | object | `{}` | Labels to add to the Thanos Store deployment |

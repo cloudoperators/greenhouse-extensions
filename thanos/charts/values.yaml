@@ -78,7 +78,7 @@ thanos:
     # -- Labels to add to the Thanos Query service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Query ressources
+    # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
     # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
@@ -151,21 +151,24 @@ thanos:
         # caCert:
         # tlsCert:
         # tlsKey:
-    
+
     ## Expose Thanos Query as a Plutono datasource
     ##
     plutonoDatasource:
+      # -- Creates a Perses datasource for standalone Thanos Query
       create: false
 
-      ## Label selectors for the Plutono sidecar to detect this datasource.
+      # -- Label selectors for the Plutono sidecar to detect this datasource.
       selector: {}
         # plutono-global: '"true"'
 
     ## Expose Thanos Query as a Perses datasource
+    ##
     persesDatasource:
+      # -- Creates a Perses datasource for standalone Thanos Query
       create: false
 
-      ## Label selectors for the Plutono sidecar to detect this datasource.
+      # -- Label selectors for the Perses sidecar to detect this datasource.
       selector: {}
         # perses-global: '"true"'
 
@@ -185,7 +188,7 @@ thanos:
     # -- Labels to add to the Thanos Store service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Store ressources
+    # -- Annotations to add to the Thanos Store resources
     annotations: {}
 
     # -- Set Thanos Store chunk-pool-size
@@ -219,7 +222,7 @@ thanos:
     # -- Labels to add to the Thanos Compactor service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Compactor ressources
+    # -- Annotations to add to the Thanos Compactor resources
     annotations: {}
 
     # -- Adding additional arguments to Thanos Compactor
@@ -261,14 +264,14 @@ thanos:
       # @default -- 100Gi
       size:
 
-      # -- Labels to add to the Thanos Compactor PVC ressource
+      # -- Labels to add to the Thanos Compactor PVC resource
       labels: []
 
   ruler:
     # -- Enable Thanos Ruler components
     enabled: false
 
-    # -- Annotations to add to the Thanos Ruler ressources
+    # -- Annotations to add to the Thanos Ruler resources
     annotations: {}
 
     # -- Set Thanos Ruler external prefix
