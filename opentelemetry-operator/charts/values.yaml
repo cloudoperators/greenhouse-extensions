@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
+opentelemetry-operator:
+
+  # -- additional labels to apply to all resources.
+  additionalLabels: {}
+
+  # -- Provide a name in place of the default name `opentelemetry-operator`.
+  nameOverride: "operator"
+
+  crds:
+    # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
+    # --  The required CRDs used by this dependency are version-controlled in this repository under ./crds. If you want to use the upstream CRDs, set this variable to `true``.
+    create: false
+  admissionWebhooks:
+    # -- Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server.
+    failurePolicy: 'Ignore'
+
+    # If cert-manager should be used, the CRDs for cert-manager needs to exists before OpenTelemetry installs cert-manager.
+    # -- Activate to use the CertManager for generating self-signed certificates.
+    certManager:
+      enabled: false
+    # -- Activate to use Helm to create self-signed certificates.
+    autoGenerateCert:
+    # -- Activate to recreate the cert after a defined period (certPeriodDays default is 365).
+      recreate: false
+  manager:
+    collectorImage:
+    # -- overrides the default image repository for the OpenTelemetry Collector image.
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    # -- overrides the default image tag for the OpenTelemetry Collector image.
+      tag: main
+    image:
+    # -- overrides the default image repository for the OpenTelemetry Operator image.
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+    # -- overrides the default tag repository for the OpenTelemetry Operator image.
+      tag: v0.120.0
+    # -- Enable serviceMonitor for Prometheus metrics scrape
+    serviceMonitor:
+      enabled: true
+  # -- the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API.
+  kubeRBACProxy:
+    enabled: false
