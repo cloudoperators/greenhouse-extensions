@@ -53,7 +53,6 @@ jobs:
                   echo "❌ Dependency '$dep' not found (expected ./$dep/charts)" >&2
                   exit 1
                 fi
-                # helm upgrade --install "$dep" "./$dep" --wait || {
                 helm upgrade --install "$dep" "./$dep/charts" --wait || {
                   echo "💥 Helm install failed for dependency '$dep'" >&2
                   exit 1
