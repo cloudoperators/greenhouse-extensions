@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-opensearchOperator:
+operator:
   namespace: ""
   nameOverride: "opensearch-operator"
   fullnameOverride: "opensearch-operator"
@@ -77,7 +77,7 @@ opensearchOperator:
     # Specifies whether a service account should be created
     create: true
     # Override the service account name. Defaults to opensearch-operator-controller-manager
-    name: ""
+    name: "opensearch-operator-controller-manager"
 
   kubeRbacProxy:
     enable: true
@@ -128,7 +128,7 @@ opensearchOperator:
   useRoleBindings: false
 
 
-opensearchCluster:
+cluster:
   nameOverride: ""
   fullnameOverride: ""
 
@@ -239,7 +239,7 @@ opensearchCluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 2.3.0
+      version: 2.18.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -349,7 +349,7 @@ opensearchCluster:
       tolerations: []
 
       # -- dashboards version
-      version: 2.3.0
+      version: 2.18.0
 
     # initHelper configuration
     initHelper:
@@ -409,8 +409,8 @@ opensearchCluster:
       config:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
-        adminCredentialsSecret:
-          name: "user-admin-password"
+        adminCredentialsSecret:  {}
+         # name: "admin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -419,7 +419,7 @@ opensearchCluster:
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
         securityConfigSecret:
-          name: "custom-security-config"
+          name: ""
 
       # Configure tls usage for transport and http interface
       tls:
@@ -567,21 +567,24 @@ opensearchCluster:
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
-      secretName: "logs-password"
+      password: ""
+      secretName: "logs-credentials"
       secretKey: "password"
       backendRoles:
         - "logs"
 #      opendistroSecurityRoles:
 #        - "logs"
     - name: "admin"
-      secretName: "admin-password"
+      password: ""
+      secretName: "admin-credentials"
       secretKey: "password"
       backendRoles:
         - "admin"
 #      opendistroSecurityRoles:
 #        - "admin"
     - name: "kibanaserver"
-      secretName: "kibanaserver-password"
+      password: ""
+      secretName: "kibanaserver-credentials"
       secretKey: "password"
       backendRoles: []
 #      opendistroSecurityRoles:
