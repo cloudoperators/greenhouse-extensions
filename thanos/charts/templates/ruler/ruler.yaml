@@ -17,6 +17,7 @@ spec:
   routePrefix: {{ .Values.thanos.ruler.externalPrefix }}
   {{- end }}
   portName: http
+  serviceName: {{ include "release.name" . }}-ruler
   podMetadata:
     labels:
       {{- include "plugin.labels" . | nindent 6 }}
