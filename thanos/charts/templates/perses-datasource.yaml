@@ -1,0 +1,34 @@
+{{- if and .Values.thanos.query.standalone .Values.thanos.query.persesDatasource.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name "perses-datasource" }}
+  labels:
+{{ include "plugin.labels" . | indent 4 }}
+{{ include "thanos.labels" . | indent 4 }}
+{{- with .Values.thanos.query.persesDatasource.selector }}
+{{ toYaml . | indent 4}}
+{{- end }}
+data:
+  {{ printf "%s-%s" $.Release.Name "perses-datasource.json" }}: |
+    {
+      "kind": "GlobalDatasource",
+      "metadata": {
+        "name": "{{ printf "%s-%s" $.Release.Name "query" }}",
+      },
+      "spec": {
+        "default": true,
+        "plugin": {
+          "kind": "PrometheusDatasource",
+          "spec": {
+            "proxy": {
+              "kind": "HTTPProxy",
+              "spec": {
+                "url": "{{ printf "http://%s-query.%s.svc:10902/thanos" $.Release.Name $.Release.Namespace }}"
+              }
+            }
+          }
+        }
+      }
+    }
+{{- end }}
