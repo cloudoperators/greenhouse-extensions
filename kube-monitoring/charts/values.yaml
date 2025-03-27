@@ -8,7 +8,7 @@ global:
 kubeMonitoring:
 
   ## Create open source community rules for monitoring the cluster
-  ##
+  # @ignored
   defaultRules:
     create: true
     rules:
@@ -116,6 +116,7 @@ kubeMonitoring:
   kubelet:
     enabled: true
 
+    # @ignored
     serviceMonitor:
       cAdvisorMetricRelabelings:
         # Drop less useful container CPU metrics.
@@ -157,7 +158,7 @@ kubeMonitoring:
           action: labeldrop
 
   ## Configuration for prometheus-node-exporter subchart
-  ##
+  ## @ignored
   prometheus-node-exporter:
     prometheus:
       monitor:
@@ -179,7 +180,7 @@ kubeMonitoring:
       - --collector.mountstats
 
   ## Configuration for kube-state-metrics subchart
-  ##
+  ## @ignored
   kube-state-metrics:
     metricLabelsAllowlist:
       - cronjobs=[*]
