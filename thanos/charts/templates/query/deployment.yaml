@@ -94,6 +94,11 @@ spec:
         volumeMounts:
         - name: sd-config
           mountPath: /etc/thanos/sd-config
+      {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        - mountPath: /etc/tls/client
+          name: tls-certificate
+          readOnly: true
+      {{- end }}
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       volumes:
@@ -101,15 +106,10 @@ spec:
           configMap:
             name: {{ include "release.name" . }}-sd-config
       {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
-        volumeMounts:
-          - mountPath: /etc/tls/client
-            name: tls-certificate
-            readOnly: true
-      {{- end }}
-    {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
-      volumes:
         - name: tls-certificate
           secret:
             defaultMode: 420
             secretName: {{ .Values.thanos.query.tls.secretName | default (printf "%s-tls" .Release.Name) }}
-    {{- end }}
+      {{- end }}
+
+
