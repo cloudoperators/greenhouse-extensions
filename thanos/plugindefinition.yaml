@@ -83,6 +83,22 @@ spec:
           name: thanos.query.tls.secretName
           required: false
           type: string
+        - description: Expose Thanos Query as a Plutono datasource
+          name: thanos.query.plutonoDatasource.create
+          required: false
+          type: bool
+        - description: Label selectors for the Plutono sidecar to detect this datasource
+          name: thanos.query.plutonoDatasource.selector
+          required: false
+          type: map
+        - description: Expose Thanos Query as a Perses datasource
+          name: thanos.query.persesDatasource.create
+          required: false
+          type: bool
+        - description: Label selectors for the Perses sidecar to detect this datasource
+          name: thanos.query.persesDatasource.selector
+          required: false
+          type: map
         - default: true
           description: Enable Thanos Store
           name: thanos.store.enabled
