@@ -53,18 +53,8 @@ spec:
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}
-        {{/* Technically it is possible to add stores and have the default stores all together.*/}}
-        {{/* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
-        {{- if and (empty .Values.thanos.query.stores) (.Values.thanos.query.standalone) }}
-        {{- fail "WARNING Thanos Query will have not data. Either unset thanos.query.standalone or specify thanos.query.stores." -}}
-        {{- end }}
-        {{- range .Values.thanos.query.stores }}
-        - --store={{ . }}
-        {{- end }}
-        {{- if not .Values.thanos.query.standalone }}
-        - --store=prometheus-operated:10901
-        - --store={{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}
-        {{- end }}
+        # --store.sd-files will be deprecated in next release. Correct flag will be --endpoint.sd-config-file (available with v0.38)
+        - --store.sd-files=/etc/thanos/sd-config/endpoint-targets.yaml
         {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
         - --grpc-client-tls-ca=/etc/tls/client/ca.crt
         - --grpc-client-tls-cert=/etc/tls/client/tls.crt
@@ -101,6 +91,15 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
+        volumeMounts:
+        - name: sd-config
+          mountPath: /etc/thanos/sd-config
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: sd-config
+          configMap:
+            name: {{ include "release.name" . }}-sd-config
       {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
         volumeMounts:
           - mountPath: /etc/tls/client

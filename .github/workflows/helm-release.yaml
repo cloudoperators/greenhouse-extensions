@@ -8,7 +8,7 @@ on:
     paths:
       - .github/workflows/helm-release.yaml
       - alerts/charts/**
-      - cert-manager/charts/v1.11.0/cert-manager/**
+      - cert-manager/charts/**
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
       - kube-monitoring/charts/**
@@ -40,11 +40,7 @@ jobs:
         include:
           - chartDir: alerts/charts
             chartName: alerts
-          - chartDir: cert-manager/charts/v1.11.0/cert-manager
-            chartName: cert-manager
-          - chartDir: cert-manager/charts/v1.11.5/cert-manager
-            chartName: cert-manager
-          - chartDir: cert-manager/charts/v1.16.2/cert-manager
+          - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
             chartName: exposed-services
