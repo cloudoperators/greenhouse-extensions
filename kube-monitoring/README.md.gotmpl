@@ -2,15 +2,15 @@
 title: Kubernetes Monitoring
 ---
 
-Learn more about the **kube-monitoring** plugin. Use it to activate Kubernetes monitoring for your Greenhouse cluster.
+Learn more about the **kube-monitoring** plugin. Use it to activate Kubernetes monitoring for your Greenhouse cluster. 
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
-## Overview
+## Overview 
 
 Observability is often required for operation and automation of service offerings. To get the insights provided by an application and the container runtime environment, you need telemetry data in the form of _metrics_ or _logs_ sent to backends such as _Prometheus_ or _OpenSearch_. With the **kube-monitoring** Plugin, you will be able to cover the _metrics_ part of the observability stack.
 
-This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://github.com/cloudoperators/kubernetes-operations) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box.
+This Plugin includes a pre-configured package of components that help make getting started easy and efficient. At its core, an automated and managed _Prometheus_ installation is provided using the _prometheus-operator_. This is complemented by Prometheus target configuration for the most common Kubernetes components providing metrics by default. In addition, [Cloud operators](https://github.com/cloudoperators/kubernetes-operations) curated _Prometheus_ alerting rules and _Plutono_ dashboards are included to provide a comprehensive monitoring solution out of the box. 
 
 ![kube-monitoring](img/kube-monitoring-setup.png)
 
@@ -29,7 +29,7 @@ It is not meant to be a comprehensive package that covers all scenarios. If you 
 
 The Plugin is a deeply configured [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md) Helm chart which helps to keep track of versions and community updates.
 
-It is intended as a platform that can be extended by following the [guide](#extension-of-the-plugin).
+It is intended as a platform that can be extended by following the [guide](#extension-of-the-plugin). 
 
 Contribution is highly appreciated. If you discover bugs or want to add functionality to the plugin, then pull requests are always welcome.
 
@@ -61,7 +61,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 | Name                                                         | Description                                                                                                         | Value                    |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| `global.commonLabels`                                        | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. | `true`  
+| `global.commonLabels`                                        | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. | `true`   
 
 ### Prometheus-operator options
 
@@ -71,6 +71,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | `kubeMonitoring.prometheusOperator.alertmanagerInstanceNamespaces`| Filter namespaces to look for prometheus-operator Alertmanager resources                                      | `[]`                     |
 | `kubeMonitoring.prometheusOperator.alertmanagerConfigNamespaces`  | Filter namespaces to look for prometheus-operator AlertmanagerConfig resources                                | `[]`                     |
 | `kubeMonitoring.prometheusOperator.prometheusInstanceNamespaces`  | Filter namespaces to look for prometheus-operator Prometheus resources                                        | `[]`                     |
+
 
 ### Kubernetes component scraper options
 
@@ -127,12 +128,12 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 The **kube-monitoring** Plugin provides a PodMonitor to automatically discover the Prometheus metrics of the Kubernetes Pods in any Namespace. The PodMonitor is configured to detect the `metrics` endpoint of the Pods if the following annotations are set:
 
-```yaml
+```yaml 
 metadata:
   annotations:
     greenhouse/scrape: “true”
     greenhouse/target: <kube-monitoring plugin name>
-```
+``` 
 
 *Note:* The annotations needs to be added manually to have the pod scraped and the port name needs to match.
 
@@ -247,7 +248,7 @@ kind: PrometheusRule
 metadata:
   name: example-prometheus-rule
   labels:
-    plugin: <metadata.name>
+    plugin: <metadata.name> 
     ## e.g plugin: kube-monitoring
 spec:
  groups:
@@ -265,7 +266,7 @@ kind: PodMonitor
 metadata:
   name: example-pod-monitor
   labels:
-    plugin: <metadata.name>
+    plugin: <metadata.name> 
     ## e.g plugin: kube-monitoring
 spec:
   selector:
@@ -279,160 +280,4 @@ spec:
   ...
 ```
 
-## Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| alerts.alertmanagers.hosts | list | `[]` |  |
-| alerts.alertmanagers.tlsConfig.cert | string | `""` |  |
-| alerts.alertmanagers.tlsConfig.key | string | `""` |  |
-| alerts.enabled | bool | `false` |  |
-| blackboxExporter.enabled | bool | `false` |  |
-| global.commonLabels | object | `{}` |  |
-| kubeMonitoring.alertmanager.enabled | bool | `false` |  |
-| kubeMonitoring.cleanPrometheusOperatorObjectNames | bool | `true` |  |
-| kubeMonitoring.crds.enabled | bool | `true` |  |
-| kubeMonitoring.dashboards.create | bool | `true` |  |
-| kubeMonitoring.dashboards.plutonoSelectors[0].name | string | `"plutono-dashboard"` |  |
-| kubeMonitoring.dashboards.plutonoSelectors[0].value | string | `"\"true\""` |  |
-| kubeMonitoring.defaultRules.additionalRuleLabels | object | `{}` |  |
-| kubeMonitoring.defaultRules.create | bool | `true` |  |
-| kubeMonitoring.defaultRules.rules.alertmanager | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.configReloaders | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.etcd | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.general | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerCpuUsageSecondsTotal | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerMemoryCache | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerMemoryRss | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerMemorySwap | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerMemoryWorkingSetBytes | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sContainerResource | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.k8sPodOwner | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeApiserverAvailability | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeApiserverBurnrate | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeApiserverHistogram | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeApiserverSlos | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeControllerManager | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubePrometheusGeneral | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubePrometheusNodeRecording | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeProxy | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeSchedulerAlerting | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeSchedulerRecording | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubeStateMetrics | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubelet | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubernetesApps | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubernetesResources | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubernetesStorage | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.kubernetesSystem | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.network | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.node | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.nodeExporterAlerting | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.nodeExporterRecording | bool | `false` |  |
-| kubeMonitoring.defaultRules.rules.prometheus | bool | `true` |  |
-| kubeMonitoring.defaultRules.rules.prometheusOperator | bool | `true` |  |
-| kubeMonitoring.defaultRules.rules.windows | bool | `false` |  |
-| kubeMonitoring.grafana.enabled | bool | `false` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[0] | string | `"cronjobs=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[10] | string | `"pods=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[11] | string | `"secrets=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[12] | string | `"services=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[13] | string | `"statefulsets=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[1] | string | `"daemonsets=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[2] | string | `"deployments=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[3] | string | `"endpoints=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[4] | string | `"ingresses=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[5] | string | `"jobs=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[6] | string | `"namespaces=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[7] | string | `"nodes=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[8] | string | `"persistentvolumes=[*]"` |  |
-| kubeMonitoring.kube-state-metrics.metricLabelsAllowlist[9] | string | `"persistentvolumeclaims=[*]"` |  |
-| kubeMonitoring.kubeControllerManager.enabled | bool | `false` |  |
-| kubeMonitoring.kubeProxy.enabled | bool | `false` |  |
-| kubeMonitoring.kubeScheduler.enabled | bool | `false` |  |
-| kubeMonitoring.kubelet.enabled | bool | `true` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[0].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[0].regex | string | `"container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[0].sourceLabels[0] | string | `"__name__"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[1].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[1].regex | string | `"container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[1].sourceLabels[0] | string | `"__name__"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[2].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[2].regex | string | `"container_memory_(mapped_file|swap)"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[2].sourceLabels[0] | string | `"__name__"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[3].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[3].regex | string | `"container_(file_descriptors|tasks_state|threads_max)"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[3].sourceLabels[0] | string | `"__name__"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[4].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[4].regex | string | `"container_spec.*"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[4].sourceLabels[0] | string | `"__name__"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[5].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[5].regex | string | `".+;"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[5].sourceLabels[0] | string | `"id"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[5].sourceLabels[1] | string | `"pod"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[6].action | string | `"replace"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[6].regex | string | `"^/system\\.slice/(.+)\\.service$"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[6].replacement | string | `"${1}"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[6].sourceLabels[0] | string | `"id"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[6].targetLabel | string | `"systemd_service_name"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[7].action | string | `"drop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[7].regex | string | `"^$"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[7].sourceLabels[0] | string | `"container"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[8].action | string | `"labeldrop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[8].regex | string | `"^id$"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[9].action | string | `"labeldrop"` |  |
-| kubeMonitoring.kubelet.serviceMonitor.cAdvisorMetricRelabelings[9].regex | string | `"^name$"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[0] | string | `"--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[1] | string | `"--collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|bpf|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tmpfs|tracefs)$$"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[2] | string | `"--collector.systemd.enable-task-metrics"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[3] | string | `"--collector.systemd.enable-restarts-metrics"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[4] | string | `"--collector.systemd.enable-start-time-metrics"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[5] | string | `"--collector.processes"` |  |
-| kubeMonitoring.prometheus-node-exporter.extraArgs[6] | string | `"--collector.mountstats"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].action | string | `"replace"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].regex | string | `"^(.*)$"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].replacement | string | `"$1"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].separator | string | `";"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].sourceLabels[0] | string | `"__meta_kubernetes_pod_node_name"` |  |
-| kubeMonitoring.prometheus-node-exporter.prometheus.monitor.relabelings[0].targetLabel | string | `"node"` |  |
-| kubeMonitoring.prometheus.ingress.annotations."kubernetes.io/tls-acme" | string | `"true"` |  |
-| kubeMonitoring.prometheus.ingress.annotations."nginx.ingress.kubernetes.io/auth-tls-secret" | string | `"{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"` |  |
-| kubeMonitoring.prometheus.ingress.annotations."nginx.ingress.kubernetes.io/auth-tls-verify-client" | string | `"true"` |  |
-| kubeMonitoring.prometheus.ingress.annotations."nginx.ingress.kubernetes.io/auth-tls-verify-depth" | string | `"3"` |  |
-| kubeMonitoring.prometheus.ingress.annotations.disco | string | `"true"` |  |
-| kubeMonitoring.prometheus.ingress.enabled | bool | `false` |  |
-| kubeMonitoring.prometheus.ingress.ingressClassName | string | `"nginx"` |  |
-| kubeMonitoring.prometheus.persesDatasource | bool | `true` |  |
-| kubeMonitoring.prometheus.plutonoDatasource | bool | `true` |  |
-| kubeMonitoring.prometheus.prometheusSpec.additionalAlertManagerConfigsSecret.key | string | `"config.yaml"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.additionalAlertManagerConfigsSecret.name | string | `"{{ $.Release.Name }}-alertmanager-config"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.additionalAlertRelabelConfigsSecret.key | string | `"relabelConfig.yaml"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.additionalAlertRelabelConfigsSecret.name | string | `"{{ $.Release.Name }}-alertmanager-config"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.probeSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.ruleSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.secrets[0] | string | `"tls-prometheus-{{ .Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.labels.app | string | `"{{ $.Release.Name }}-prometheus"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.labels.plugin | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.labels.plugindefinition | string | `"kube-monitoring"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.name | string | `"{{ $.Release.Name }}"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] | string | `"ReadWriteOnce"` |  |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage | string | `"50Gi"` |  |
-| kubeMonitoring.prometheus.service.labels."greenhouse.sap/expose" | string | `"true"` |  |
-| kubeMonitoring.serviceDiscovery.pods.additionalMetricRelabelings | list | `[]` |  |
-| kubeMonitoring.serviceDiscovery.pods.additionalRelabelings | list | `[]` |  |
-| kubeMonitoring.serviceDiscovery.pods.enabled | bool | `true` |  |
-| kubeMonitoring.serviceDiscovery.pods.jobLabel | string | `""` |  |
-| kubeMonitoring.serviceDiscovery.pods.limitToPrometheusTargets | bool | `true` |  |
-| kubeMonitoring.serviceDiscovery.pods.namespaceSelector.any | bool | `true` |  |
-| kubeMonitoring.serviceDiscovery.pods.port | string | `"metrics"` |  |
-| kubeMonitoring.thanosRuler.enabled | bool | `false` |  |
-| kubeMonitoring.windowsMonitoring.enabled | bool | `false` |  |
-| kubernetes-operations.prometheusRules.ruleSelector[0].name | string | `"plugin"` |  |
-| kubernetes-operations.prometheusRules.ruleSelector[0].value | string | `"{{ $.Release.Name }}"` |  |
-| testFramework.enabled | bool | `true` |  |
-| testFramework.image.registry | string | `"ghcr.io"` |  |
-| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` |  |
-| testFramework.image.tag | string | `"main"` |  |
-| testFramework.imagePullPolicy | string | `"IfNotPresent"` |  |
+{{ template "chart.valuesSection" . }}
