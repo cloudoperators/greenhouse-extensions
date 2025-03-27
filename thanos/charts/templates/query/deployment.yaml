@@ -106,8 +106,6 @@ spec:
             name: tls-certificate
             readOnly: true
       {{- end }}
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
     {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
       volumes:
         - name: tls-certificate
