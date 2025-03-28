@@ -209,7 +209,7 @@ cluster:
   #        insecureSkipVerify: true
 
       # -- List of Opensearch plugins to install
-      pluginsList: {}
+      pluginsList: []
 
       # -- Opensearch pod security context configuration
       podSecurityContext: {}

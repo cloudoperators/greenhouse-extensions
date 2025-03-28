@@ -106,7 +106,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{}` | Override the tlsConfig of the generated ServiceMonitor |
-| cluster.cluster.general.pluginsList | object | `{}` | List of Opensearch plugins to install |
+| cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
 | cluster.cluster.general.podSecurityContext | object | `{}` | Opensearch pod security context configuration |
 | cluster.cluster.general.securityContext | object | `{}` | Opensearch securityContext |
 | cluster.cluster.general.serviceAccount | string | `""` | Opensearch serviceAccount name. If Service Account doesn't exist it could be created by setting `serviceAccount.create` and `serviceAccount.name` |
