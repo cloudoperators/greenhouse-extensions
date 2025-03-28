@@ -1,13 +1,14 @@
 global:
 
-  ## Labels to apply to all resources
-  ##
+  # -- Labels to apply to all resources
+  # This can be used to add a `support_group` or `service` label to all resources and alerting rules.
+  # @section -- Global Options
   commonLabels: {}
 
-## kube-prometheus-stack configuration scoped to kube-monitoring
+# kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
 
-  ## Create open source community rules for monitoring the cluster
+  # Create open source community rules for monitoring the cluster
   # @ignored
   defaultRules:
     create: true
@@ -52,6 +53,47 @@ kubeMonitoring:
     ## Additional labels for PrometheusRule alerts. E.g. support_group and service.
     additionalRuleLabels: {}
 
+  kubernetesServiceMonitors:
+    # -- Flag to disable all the Kubernetes component scrapers
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeApiServer:
+    # -- Component scraping the kube API server
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  coreDns:
+    # -- Component scraping coreDns. Use either this or kubeDns
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeEtcd:
+    # -- Component scraping etcd
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeStateMetrics:
+    # -- Component scraping kube state metrics
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  nodeExporter:
+    # -- Deploy node exporter as a daemonset to all nodes
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeControllerManager:
+    # -- Component scraping the kube controller manager
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeScheduler:
+    # -- Component scraping kube scheduler
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeProxy:
+    # -- Component scraping kube proxy
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeDns:
+    # -- Component scraping kubeDns. Use either this or coreDns
+    # @section -- Kubernetes component scraper options
+    enabled: false
+    
   ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
   ##
   dashboards:
@@ -61,6 +103,20 @@ kubeMonitoring:
     plutonoSelectors:
       - name: plutono-dashboard
         value: '"true"'
+
+  prometheusOperator:
+    # -- Manages Prometheus and Alertmanager components
+    # @section -- Prometheus-operator options
+    enabled: true
+    # -- Filter namespaces to look for prometheus-operator Alertmanager resources
+    # @section -- Prometheus-operator options
+    alertmanagerInstanceNamespaces: []
+    # -- Filter namespaces to look for prometheus-operator AlertmanagerConfig resources
+    # @section -- Prometheus-operator options
+    alertmanagerConfigNamespaces: []
+    # -- Filter namespaces to look for prometheus-operator Prometheus resources
+    # @section -- Prometheus-operator options
+    prometheusInstanceNamespaces: []
 
   ## Install Prometheus Operator CRDs
   ##
@@ -98,24 +154,10 @@ kubeMonitoring:
     ##
     enabled: false
 
-  ## Component scraping the kube controller manager
-  ##
-  kubeControllerManager:
-    enabled: false
-
-  ## Component scraping kube proxy
-  ##
-  kubeProxy:
-    enabled: false
-
-  ## Component scraping kube scheduler
-  ##
-  kubeScheduler:
-    enabled: false
-
   kubelet:
+    # -- Component scraping the kubelet and kubelet-hosted cAdvisor
+    # @section -- Kubernetes component scraper options
     enabled: true
-
     # @ignored
     serviceMonitor:
       cAdvisorMetricRelabelings:
@@ -255,13 +297,23 @@ kubeMonitoring:
   ## Configuration for the Prometheus instance
   ##
   prometheus:
+    # -- Deploy a Prometheus instance
+    # @section -- Prometheus options
+    enabled: true
+
+    # -- Annotations for Prometheus
+    # @section -- Prometheus options
+    annotations: {}
+
     service:
       # Add the label to expose the service via Greenhouse.
       labels:
         greenhouse.sap/expose: "true"
 
     ingress:
-      enabled: false
+      # -- Deploy Prometheus Ingress
+      # @section -- Prometheus options
+      enabled: true
 
       ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
       annotations:
@@ -270,7 +322,14 @@ kubeMonitoring:
         nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
         nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
-      ingressClassName: nginx
+
+      # -- Must be provided if Ingress is enabled
+      # @section -- Prometheus options
+      hosts: []
+
+      # -- Specifies the ingress-controller
+      # @section -- Prometheus options
+      ingressClassname: nginx
 
     # Deploys a Plutono datasource config Secret for this Prometheus
     plutonoDatasource: true
@@ -303,6 +362,40 @@ kubeMonitoring:
       secrets:
         - "tls-prometheus-{{ .Release.Name }}"
 
+      ## How long to retain metrics
+      ## retention: 10d
+
+      # -- ServiceMonitors to be selected for target discovery.
+      # If {}, select all ServiceMonitors
+      # @default { matchLabels: { plugin: <metadata.name> } }
+      # @section -- Prometheus options
+      serviceMonitorSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- PodMonitors to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      podMonitorSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- Probes to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      probeSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- scrapeConfigs to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      scrapeConfigSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- PrometheusRules to be selected for target discovery. 
+      # If {}, select all PrometheusRules
+      # @default { matchLabels: { plugin: <metadata.name> } }
+      # @section -- Prometheus options
+      
+      ruleSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+
       storageSpec:
         volumeClaimTemplate:
           metadata:
@@ -314,42 +407,51 @@ kubeMonitoring:
           spec:
             accessModes:
               - ReadWriteOnce
+            # -- How large the persistent volume should be to house the Prometheus database. Default 50Gi.
+            # @section -- Prometheus options
             resources:
               requests:
                 storage: 50Gi
+            # -- The storage class to use for the persistent volume
+            # @section -- Prometheus options
+            storageClassName: ""
 
-      ## How long to retain metrics
-      ## retention: 10d
+      # -- Interval between consecutive scrapes. Defaults to 30s
+      # @section -- Prometheus options
+      scrapeInterval: ""
 
-      ## ServiceMonitors to be selected for target discovery.
-      ## If {}, select all ServiceMonitors
-      serviceMonitorSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## PodMonitors to be selected for target discovery.
-      ## If {}, select all PodMonitors
-      ##
-      podMonitorSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## Probes to be selected for target discovery.
-      ## If {}, select all Probes
-      ##
-      probeSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## scrapeConfigs to be selected for target discovery.
-      ## If {}, select all scrapeConfigs
-      ##
-      scrapeConfigSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## PrometheusRules to be selected for target discovery.
-      ## If {}, select all PrometheusRules
-      ##
-      ruleSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- Number of seconds to wait for target to respond before erroring
+      # @section -- Prometheus options
+      scrapeTimeout: ""
+
+      # -- Interval between consecutive evaluations
+      # @section -- Prometheus options
+      evaluationInterval: ""
+
+      # -- External labels to add to any time series or alerts when communicating with external systems like Alertmanager
+      # @section -- Prometheus options
+      externalLabels: {}
+
+      # -- How long to retain metrics
+      # @section -- Prometheus options
+      retention: ""
+
+      # -- Log level to be configured for Prometheus
+      # @section -- Prometheus options
+      logLevel: ""
+
+      # -- Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations
+      # @section -- Prometheus options
+      additionalScrapeConfigs: ""
+
+      # -- Allows setting additional arguments for the Prometheus container
+      # @section -- Prometheus options
+      additionalArgs: []
+
+    tlsConfig:
+      # -- CA certificate to verify technical clients at Prometheus Ingress
+      # @section -- Prometheus options
+      caCert: Secret
 
 kubernetes-operations:
   prometheusRules:

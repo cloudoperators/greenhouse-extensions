@@ -55,7 +55,7 @@ After installation, Greenhouse will provide a generated link to the Prometheus u
 
 Greenhouse regularly performs integration tests that are bundled with **kube-monitoring**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
 
-## Configuration
+{{ template "chart.valuesSection" . }}
 
 ### Global options
 
@@ -279,5 +279,3 @@ spec:
     - port: http
   ...
 ```
-
-{{ template "chart.valuesSection" . }}
