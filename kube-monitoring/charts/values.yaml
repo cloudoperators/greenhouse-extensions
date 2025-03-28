@@ -1,7 +1,8 @@
 global:
 
-  ## Labels to apply to all resources
-  ##
+  # --  Labels to add to all resources. 
+  # This can be used to add a support_group or service label to all resources and alerting rules.
+  # @section -- Global Configuration
   commonLabels: {}
 
 ## kube-prometheus-stack configuration scoped to kube-monitoring
@@ -12,44 +13,112 @@ kubeMonitoring:
   defaultRules:
     create: true
     rules:
+      # -- Enable alertmanager rules for monitoring Alertmanager
+      # @section -- Default Rules
       alertmanager: false
+      # -- Enable etcd rules for monitoring etcd
+      # @section -- Default Rules
       etcd: false
+      # -- Enable rules for monitoring Prometheus config reloaders
+      # @section -- Default Rules
       configReloaders: false
+      # -- Enable general rules for cluster monitoring
+      # @section -- Default Rules
       general: false
+      # -- Enable rules for monitoring container CPU usage
+      # @section -- Default Rules
       k8sContainerCpuUsageSecondsTotal: false
+      # -- Enable rules for monitoring container memory cache usage
+      # @section -- Default Rules
       k8sContainerMemoryCache: false
+      # -- Enable rules for monitoring container memory RSS usage
+      # @section -- Default Rules
       k8sContainerMemoryRss: false
+      # -- Enable rules for monitoring container memory swap usage
+      # @section -- Default Rules
       k8sContainerMemorySwap: false
+      # -- Enable rules for monitoring container resource usage
+      # @section -- Default Rules
       k8sContainerResource: false
+      # -- Enable rules for monitoring container memory working set bytes
+      # @section -- Default Rules
       k8sContainerMemoryWorkingSetBytes: false
+      # -- Enable rules for monitoring pod owner relationships
+      # @section -- Default Rules
       k8sPodOwner: false
+      # -- Enable rules for monitoring API server availability
+      # @section -- Default Rules
       kubeApiserverAvailability: false
+      # -- Enable rules for monitoring API server burn rate
+      # @section -- Default Rules
       kubeApiserverBurnrate: false
+      # -- Enable histogram rules for API server
+      # @section -- Default Rules
       kubeApiserverHistogram: false
+      # -- Enable SLO rules for API server
+      # @section -- Default Rules
       kubeApiserverSlos: false
+      # -- Enable rules for monitoring the kube-controller-manager
+      # @section -- Default Rules
       kubeControllerManager: false
+      # -- Enable rules for monitoring kubelet
+      # @section -- Default Rules
       kubelet: false
+      # -- Enable rules for monitoring kube-proxy
+      # @section -- Default Rules
       kubeProxy: false
+      # -- Enable general rules for kube-prometheus
+      # @section -- Default Rules
       kubePrometheusGeneral: false
+      # -- Enable node recording rules for kube-prometheus
+      # @section -- Default Rules
       kubePrometheusNodeRecording: false
+      # -- Enable rules for monitoring Kubernetes applications
+      # @section -- Default Rules
       kubernetesApps: false
+      # -- Enable rules for monitoring Kubernetes resources
+      # @section -- Default Rules
       kubernetesResources: false
+      # -- Enable rules for monitoring Kubernetes storage
+      # @section -- Default Rules
       kubernetesStorage: false
+      # -- Enable rules for monitoring Kubernetes system components
+      # @section -- Default Rules
       kubernetesSystem: false
+      # -- Enable alerting rules for kube-scheduler
+      # @section -- Default Rules
       kubeSchedulerAlerting: false
+      # -- Enable recording rules for kube-scheduler
+      # @section -- Default Rules
       kubeSchedulerRecording: false
+      # -- Enable rules for monitoring kube-state-metrics
+      # @section -- Default Rules
       kubeStateMetrics: false
+      # -- Enable rules for monitoring network-related metrics
+      # @section -- Default Rules
       network: false
+      # -- Enable rules for monitoring node-related metrics
+      # @section -- Default Rules
       node: false
+      # -- Enable alerting rules for node-exporter
+      # @section -- Default Rules
       nodeExporterAlerting: false
+      # -- Enable recording rules for node-exporter
+      # @section -- Default Rules
       nodeExporterRecording: false
+      # -- Enable rules for monitoring Windows-specific metrics
+      # @section -- Default Rules
       windows: false
 
-      ## Enable useful alerting rules for self-monitoring Prometheus
+      # -- Enable useful alerting rules for self-monitoring Prometheus
+      # @section -- Default Rules
       prometheus: true
+      # -- Enable useful alerting rules for self-monitoring Prometheus Operator
+      # @section -- Default Rules
       prometheusOperator: true
 
-    ## Additional labels for PrometheusRule alerts. E.g. support_group and service.
+    # -- Additional labels for PrometheusRule alerts. E.g. support_group and service.
+    # @section -- Default Rules
     additionalRuleLabels: {}
 
   ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
@@ -197,24 +266,27 @@ kubeMonitoring:
       - services=[*]
       - statefulsets=[*]
 
-  ## Service discovery configuration
+  ## Service Discovery Configuration
   ##
   serviceDiscovery:
 
-    ## Configuration for the Prometheus Operator to discover pods
-    ##
+
     pods:
+      # -- Enable pod discovery
+      # @section -- Service Discovery
       enabled: true
 
-      ## To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
+      # -- To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
+      # @section -- Service Discovery
       limitToPrometheusTargets: true
 
-      ## Monitor Pods with the following port name
+      # -- Monitor Pods with the following port name
+      # @section -- Service Discovery
       port: metrics
 
-      ## RelabelConfigs to apply to samples before scraping
-      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-      ##
+      #-- RelabelConfigs to apply to samples before scraping
+      # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+      # @section -- Service Discovery
       additionalRelabelings: []
       # - sourceLabels: [__meta_kubernetes_pod_node_name]
       #   separator: ;
@@ -223,21 +295,21 @@ kubeMonitoring:
       #   replacement: $1
       #   action: replace
 
-      ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+      # -- MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-      ##
+      # @section -- Service Discovery
       additionalMetricRelabelings: []
       # - action: keep
       #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
       #   sourceLabels: [__name__]
 
-      ## Pod label for use in assembling a job name of the form <label value>-<port>
-      ## If no label is specified, the pod endpoint name is used.
-      ##
+      # --  Pod label for use in assembling a job name of the form <label value>-<port>
+      #  If no label is specified, the pod endpoint name is used.
+      # @section -- Service Discovery
       jobLabel: ""
 
-      ## Namespaces from which pods are selected
-      ##
+      # -- Namespaces from which pods are selected
+      # @section -- Service Discovery
       namespaceSelector:
         ## Match any namespace
         ##
@@ -255,11 +327,14 @@ kubeMonitoring:
   ##
   prometheus:
     service:
-      # Add the label to expose the service via Greenhouse.
+      # -- Add the label to expose the Prometheus service via Greenhouse.
+      # @section -- Prometheus
       labels:
         greenhouse.sap/expose: "true"
 
     ingress:
+      # --  Deploy Prometheus Ingess
+      # @section -- Prometheus
       enabled: false
 
       ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
@@ -269,12 +344,16 @@ kubeMonitoring:
         nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
         nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
+      # -- Specifies the ingress-controller
+      # @section -- Prometheus
       ingressClassName: nginx
 
-    # Deploys a Plutono datasource config Secret for this Prometheus
+    # -- Deploys a Plutono datasource config Secret for this Prometheus
+    # @section -- Prometheus
     plutonoDatasource: true
 
-    # Deploys a Perses datasource ConfigMap for this Prometheus
+    # -- Deploys a Perses datasource ConfigMap for this Prometheus
+    # @section -- Prometheus
     persesDatasource: true
 
     prometheusSpec:
@@ -315,37 +394,40 @@ kubeMonitoring:
               - ReadWriteOnce
             resources:
               requests:
+                  # -- How large the persistent volume should be to house the prometheus database.
+                  # @section -- Prometheus
                 storage: 50Gi
 
       ## How long to retain metrics
       ## retention: 10d
 
-      ## ServiceMonitors to be selected for target discovery.
-      ## If {}, select all ServiceMonitors
+      # -- ServiceMonitors to be selected for target discovery.
+      # If {}, it will select all ServiceMonitors
+      # @section -- Prometheus
       serviceMonitorSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
-      ## PodMonitors to be selected for target discovery.
-      ## If {}, select all PodMonitors
-      ##
+      # -- PodMonitors to be selected for target discovery.
+      # If {}, it will select all PodMonitors
+      # @section -- Prometheus
       podMonitorSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
-      ## Probes to be selected for target discovery.
-      ## If {}, select all Probes
-      ##
+      # -- Probes to be selected for target discovery.
+      # If {}, it will select all Probes
+      # @section -- Prometheus
       probeSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
-      ## scrapeConfigs to be selected for target discovery.
-      ## If {}, select all scrapeConfigs
-      ##
+      # -- scrapeConfigs to be selected for target discovery.
+      # If {}, it will select all scrapeConfigs
+      # @section -- Prometheus
       scrapeConfigSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
-      ## PrometheusRules to be selected for target discovery.
-      ## If {}, select all PrometheusRules
-      ##
+      # -- PrometheusRules to be selected for target discovery.
+      # If {}, it will select all PrometheusRules
+      # @section -- Prometheus
       ruleSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
@@ -358,12 +440,21 @@ kubernetes-operations:
 
 ## Configures Prometheus Alertmanager
 alerts:
+  # -- Enable Alertmanager
+  # @section -- Alertmanager
   enabled: false
   alertmanagers:
+    # -- List of Alertmanager hosts Prometheus can send alerts to
+    # @section -- Alertmanager
     hosts: []
-    ## Overrides tls certificate to authenticate with Alertmanager
+    # -- Overrides tls certificate to authenticate with Alertmanager
+    # @section -- Alertmanager
     tlsConfig:
+      # -- TLS certificate for communication with Alertmanager
+      # @section -- Alertmanager
       cert: ""
+      # -- TLS key for communication with Alertmanager
+      # @section -- Alertmanager
       key: ""
 
 testFramework:
