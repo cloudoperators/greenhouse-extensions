@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: logshipper
 spec:
-  version: 0.4.1
+  version: 0.4.2
   displayName: Fluent-bit Logshipper
   description: Logshipping of container logs and systemd with fluent-bit
   icon: https://raw.githubusercontent.com/fluent/fluent-bit/master/fluentbit_logo.png
