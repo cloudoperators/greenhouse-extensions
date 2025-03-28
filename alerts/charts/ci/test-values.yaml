@@ -7,8 +7,8 @@ global:
 alerts:
   alertmanager:
     ingress:
-      enabled: true
+      enabled: false
       hosts:
         - dummy-host
   certManager:
-    enabled: false
+    enabled: true
