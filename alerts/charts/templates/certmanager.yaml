@@ -58,6 +58,9 @@ spec:
   - {{ include "kube-prometheus-stack.fullname" . }}
   - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}
   - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}.svc
+{{- if .Values.global.greenhouse.baseDomain }}
+  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
+{{- end }}
 {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts }}
 {{ toYaml .Values.alerts.alertmanager.ingress.hosts | indent 2 }}
 {{- end }}
@@ -79,6 +82,9 @@ spec:
     name: {{ .Release.Namespace }}-alerts-root-issuer
     {{- end }}
   dnsNames:
+  - {{ include "kube-prometheus-stack.fullname" . }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}
+  - {{ include "kube-prometheus-stack.fullname" . }}.{{ .Release.Namespace }}.svc
 {{- if .Values.global.greenhouse.baseDomain }}
   - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
 {{- end }}
