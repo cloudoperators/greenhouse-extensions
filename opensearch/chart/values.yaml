@@ -3,7 +3,7 @@
 
 operator:
   namespace: ""
-  nameOverride: "opensearch-operator"
+  nameOverride: ""
   fullnameOverride: "opensearch-operator"
 
   podAnnotations: {}
@@ -193,13 +193,13 @@ cluster:
       # Monitoring configuration. Check [documentation](https://github.com/Opster/opensearch-k8s-operator/blob/main/docs/userguide/main.md#adding-opensearch-monitoring-to-your-cluster) how to configure it.
       monitoring:
         # -- Enable cluster monitoring
-        enable: false
+        enable: true
 
         # -- Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it.
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: ""
+        pluginUrl: "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -209,8 +209,7 @@ cluster:
   #        insecureSkipVerify: true
 
       # -- List of Opensearch plugins to install
-      pluginsList:
-        - "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"
+      pluginsList: {}
 
       # -- Opensearch pod security context configuration
       podSecurityContext: {}

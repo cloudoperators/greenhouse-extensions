@@ -15,38 +15,41 @@ spec:
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.0.1
   options:
-    - default: ""
-      description: opensearchOperator.fullnameOverride
-      name: opensearchOperator.fullnameOverride
+    - name: operator.fullnameOverride
+      description: "Override the full name of the operator. Use this to customize resource naming."
+      default: "opensearch-operator"
       required: false
       type: string
-    - default: true
-      description: opensearchOperator.installCRDs
-      name: opensearchOperator.installCRDs
+    - name: operator.installCRDs
+      description: "Enable or disable installation of the Custom Resource Definitions (CRDs) required by the operator."
+      default: false
       required: false
       type: bool
-    - default: ""
-      description: opensearchOperator.nameOverride
-      name: opensearchOperator.nameOverride
+    - name: operator.kubeRbacProxy.enable
+      description: "Toggle the kube-rbac-proxy to secure the operator's endpoints."
+      default: true
+      required: false
+      type: bool
+    - name: opensearchOperator.serviceAccount.create
+      description: "Determine whether a new service account should be created for the OpenSearch operator."
+      default: true
+      required: false
+      type: bool
+    - name: opensearchOperator.serviceAccount.name
+      description: "Specify the name of the service account used by the OpenSearch operator. Only change if creating a new account."
+      default: "opensearch-operator-controller-manager"
       required: false
       type: string
-    - default: opensearch-logs
-      description: opensearchOperator.namespace
-      name: opensearchOperator.namespace
+    - name: cluster.fullnameOverride
+      description: "Override the full name of the OpenSearch cluster. Defaults to the release name if left blank."
       required: false
       type: string
-    - default: true
-      description: opensearchOperator.serviceAccount.create
-      name: opensearchOperator.serviceAccount.create
+    - name: cluster.serviceAccount.create
+      description: "Control whether to create a service account for the OpenSearch cluster. Set to false to use an existing account."
+      default: false
       required: false
       type: bool
-    - default: true
-      description: opensearchCluster.dashboards.enable
-      name: opensearchCluster.dashboards.enable
+    - name: cluster.monitoring.pluginUrl
+      description: "Provide a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
       required: false
-      type: bool
-    - default: true
-      description: opensearchCluster.enabled
-      name: opensearchCluster.enabled
-      required: false
-      type: bool
+      type: string

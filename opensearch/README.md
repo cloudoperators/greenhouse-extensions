@@ -78,7 +78,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | cluster.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
-| cluster.cluster.dashboards.labels | object | `{}` | dashboards labels |
+| cluster.cluster.dashboards.labels | object | `{"greenhouse.sap/expose":"true"}` | dashboards labels |
 | cluster.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
 | cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | cluster.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
@@ -101,12 +101,12 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | cluster.cluster.general.keystore | list | `[]` | Populate opensearch keystore before startup |
-| cluster.cluster.general.monitoring.enable | bool | `false` | Enable cluster monitoring |
+| cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `""` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{}` | Override the tlsConfig of the generated ServiceMonitor |
-| cluster.cluster.general.pluginsList | list | `["https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"]` | List of Opensearch plugins to install |
+| cluster.cluster.general.pluginsList | object | `{}` | List of Opensearch plugins to install |
 | cluster.cluster.general.podSecurityContext | object | `{}` | Opensearch pod security context configuration |
 | cluster.cluster.general.securityContext | object | `{}` | Opensearch securityContext |
 | cluster.cluster.general.serviceAccount | string | `""` | Opensearch serviceAccount name. If Service Account doesn't exist it could be created by setting `serviceAccount.create` and `serviceAccount.name` |
@@ -213,7 +213,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.manager.resources.requests.memory | string | `"350Mi"` |  |
 | operator.manager.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | operator.manager.watchNamespace | string | `nil` |  |
-| operator.nameOverride | string | `"opensearch-operator"` |  |
+| operator.nameOverride | string | `""` |  |
 | operator.namespace | string | `""` |  |
 | operator.nodeSelector | object | `{}` |  |
 | operator.podAnnotations | object | `{}` |  |
