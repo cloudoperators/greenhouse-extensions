@@ -15,6 +15,7 @@ on:
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
       - obenbao/charts/**
+      - opensearch/chart/**
       - logs/charts/**
       - perses/charts/**
       - plutono/charts/**
@@ -49,11 +50,13 @@ jobs:
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring
           - chartDir: kubeconfig-generator/chart
-            chartName: kubeconfig-generator 
+            chartName: kubeconfig-generator
           - chartDir: logshipper/chart
             chartName: logshipper
           - chartDir: openbao/charts/openbao
             chartName: openbao
+          - chartDir: opensearch/chart
+            chartName: opensearch
           - chartDir: logs/charts
             chartName: logs-operator
           - chartDir: perses/charts
@@ -102,7 +105,7 @@ jobs:
         with:
           files: |
             ${{ matrix.chartDir }}/**
-    
+
       - name: Check if Helm chart with same version already exists
         id: check-chart
         if: steps.changed-files.outputs.all_changed_files != ''
