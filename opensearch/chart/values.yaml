@@ -297,7 +297,8 @@ cluster:
       imagePullSecrets: []
 
       # -- dashboards labels
-      labels: {}
+      labels:
+        greenhouse.sap/expose: "true"
 
       # -- dashboards pod node selectors
       nodeSelector: {}
@@ -409,7 +410,7 @@ cluster:
       config:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
-        adminCredentialsSecret:  {}
+        adminCredentialsSecret: {}
          # name: "admin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
