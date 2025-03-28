@@ -71,7 +71,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.commonLabels | object | `{}` | Labels to add to all resources.  This can be used to add a support_group or service label to all resources and alerting rules. |
+| global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a support_group or service label to all resources and alerting rules. |
 
 ### Default Rules
 
@@ -134,6 +134,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | kubeMonitoring.serviceDiscovery.pods.additionalMetricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples after scraping, but before ingestion. # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig |
+| kubeMonitoring.serviceDiscovery.pods.additionalRelabelings | list | `[]` | RelabelConfigs to apply to samples before scraping ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig |
 | kubeMonitoring.serviceDiscovery.pods.enabled | bool | `true` | Enable pod discovery |
 | kubeMonitoring.serviceDiscovery.pods.jobLabel | string | `""` | Pod label for use in assembling a job name of the form <label value>-<port>  If no label is specified, the pod endpoint name is used. |
 | kubeMonitoring.serviceDiscovery.pods.limitToPrometheusTargets | bool | `true` | To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target |
@@ -230,7 +231,6 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.labels.plugindefinition | string | `"kube-monitoring"` |  |
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.metadata.name | string | `"{{ $.Release.Name }}"` |  |
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] | string | `"ReadWriteOnce"` |  |
-| kubeMonitoring.serviceDiscovery.pods.additionalRelabelings | list | `[]` |  |
 | kubeMonitoring.thanosRuler.enabled | bool | `false` |  |
 | kubeMonitoring.windowsMonitoring.enabled | bool | `false` |  |
 | kubernetes-operations.prometheusRules.ruleSelector[0].name | string | `"plugin"` |  |

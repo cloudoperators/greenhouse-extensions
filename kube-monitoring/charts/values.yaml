@@ -1,6 +1,6 @@
 global:
 
-  # --  Labels to add to all resources. 
+  # --  Labels to add to all resources.
   # This can be used to add a support_group or service label to all resources and alerting rules.
   # @section -- Global Configuration
   commonLabels: {}
@@ -284,7 +284,7 @@ kubeMonitoring:
       # @section -- Service Discovery
       port: metrics
 
-      #-- RelabelConfigs to apply to samples before scraping
+      # -- RelabelConfigs to apply to samples before scraping
       # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
       # @section -- Service Discovery
       additionalRelabelings: []
