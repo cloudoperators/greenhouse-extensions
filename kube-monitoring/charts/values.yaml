@@ -307,7 +307,7 @@ kubeMonitoring:
     # -- Annotations for Prometheus
     # @section -- Prometheus options
     annotations: {}
-    
+
     # Move to plugindef ?
     # @ignored
     service:
