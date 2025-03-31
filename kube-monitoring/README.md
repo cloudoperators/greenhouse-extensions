@@ -94,7 +94,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 |-----|------|---------|-------------|
 | kubeMonitoring.prometheus.annotations | object | `{}` | Annotations for Prometheus |
 | kubeMonitoring.prometheus.enabled | bool | `true` | Deploy a Prometheus instance |
-| kubeMonitoring.prometheus.ingress.enabled | bool | `true` | Deploy Prometheus Ingress |
+| kubeMonitoring.prometheus.ingress.enabled | bool | `false` | Deploy Prometheus Ingress |
 | kubeMonitoring.prometheus.ingress.hosts | list | `[]` | Must be provided if Ingress is enabled |
 | kubeMonitoring.prometheus.ingress.ingressClassname | string | `"nginx"` | Specifies the ingress-controller |
 | kubeMonitoring.prometheus.prometheusSpec.additionalArgs | list | `[]` | Allows setting additional arguments for the Prometheus container |
