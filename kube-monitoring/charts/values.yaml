@@ -425,9 +425,6 @@ kubeMonitoring:
             resources:
               requests:
                 storage: 50Gi
-            # -- The storage class to use for the persistent volume
-            # @section -- Prometheus options
-            storageClassName: gluster
 
       # -- Interval between consecutive scrapes. Defaults to 30s
       # @section -- Prometheus options
