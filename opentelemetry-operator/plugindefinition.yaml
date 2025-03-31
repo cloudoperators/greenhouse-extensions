@@ -24,4 +24,3 @@ spec:
         name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
         required: false
         type: bool
-      
