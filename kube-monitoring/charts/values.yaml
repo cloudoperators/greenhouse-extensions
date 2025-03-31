@@ -95,12 +95,12 @@ kubeMonitoring:
     enabled: false
 
   ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
-  ##
+  # @ignored
   dashboards:
-# @ignored
     create: true
 
     ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    # @ignored
     plutonoSelectors:
       - name: plutono-dashboard
         value: '"true"'
@@ -120,12 +120,12 @@ kubeMonitoring:
     prometheusInstanceNamespaces: []
 
   ## Install Prometheus Operator CRDs
-  ##
+  # @ignored
   crds:
     enabled: true
 
   ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
-  ##
+  # @ignored
   cleanPrometheusOperatorObjectNames: true
 
   # @ignored
@@ -135,7 +135,7 @@ kubeMonitoring:
 
   ## Configuration for alertmanager
   ## ref: https://prometheus.io/docs/alerting/alertmanager/
-  ##
+  # @ignored
   alertmanager:
 
     ## Deploy alertmanager
@@ -143,7 +143,7 @@ kubeMonitoring:
     enabled: false
 
   ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
-  ##
+  # @ignored
   grafana:
     enabled: false
 
@@ -403,7 +403,6 @@ kubeMonitoring:
       # If {}, select all PrometheusRules
       # @default { matchLabels: { plugin: <metadata.name> } }
       # @section -- Prometheus options
-
       ruleSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"

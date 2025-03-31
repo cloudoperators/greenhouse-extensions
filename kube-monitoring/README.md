@@ -105,6 +105,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector | object | `{"matchLabels":{"plugin":"{{ $.Release.Name }}"}}` | PodMonitors to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }` |
 | kubeMonitoring.prometheus.prometheusSpec.probeSelector | object | `{"matchLabels":{"plugin":"{{ $.Release.Name }}"}}` | Probes to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }` |
 | kubeMonitoring.prometheus.prometheusSpec.retention | string | `""` | How long to retain metrics |
+| kubeMonitoring.prometheus.prometheusSpec.ruleSelector | object | `{"matchLabels":{"plugin":"{{ $.Release.Name }}"}}` | PrometheusRules to be selected for target discovery. If {}, select all PrometheusRules @default { matchLabels: { plugin: <metadata.name> } } |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector | object | `{"matchLabels":{"plugin":"{{ $.Release.Name }}"}}` | scrapeConfigs to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }` |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeInterval | string | `""` | Interval between consecutive scrapes. Defaults to 30s |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeTimeout | string | `""` | Number of seconds to wait for target to respond before erroring |
@@ -119,18 +120,6 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheusOperator.alertmanagerInstanceNamespaces | list | `[]` | Filter namespaces to look for prometheus-operator Alertmanager resources |
 | kubeMonitoring.prometheusOperator.enabled | bool | `true` | Manages Prometheus and Alertmanager components |
 | kubeMonitoring.prometheusOperator.prometheusInstanceNamespaces | list | `[]` | Filter namespaces to look for prometheus-operator Prometheus resources |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| kubeMonitoring.alertmanager.enabled | bool | `false` |  |
-| kubeMonitoring.cleanPrometheusOperatorObjectNames | bool | `true` |  |
-| kubeMonitoring.crds.enabled | bool | `true` |  |
-| kubeMonitoring.dashboards.plutonoSelectors[0].name | string | `"plutono-dashboard"` |  |
-| kubeMonitoring.dashboards.plutonoSelectors[0].value | string | `"\"true\""` |  |
-| kubeMonitoring.grafana.enabled | bool | `false` |  |
-| kubeMonitoring.prometheus.prometheusSpec.ruleSelector.matchLabels.plugin | string | `"{{ $.Release.Name }}"` |  |
 
 ## Service Discovery
 
