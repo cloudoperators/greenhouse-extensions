@@ -423,7 +423,7 @@ kubeMonitoring:
             # @section -- Prometheus options
             resources:
               requests:
-                Gi
+                storage: 50Gi
             # -- The storage class to use for the persistent volume
             # @section -- Prometheus options
             storageClassName: ""
