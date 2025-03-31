@@ -407,9 +407,9 @@ kubeMonitoring:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
-      # @ignored
       storageSpec:
         volumeClaimTemplate:
+          # @ignored
           metadata:
             labels:
               plugindefinition: kube-monitoring
@@ -417,6 +417,7 @@ kubeMonitoring:
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
           spec:
+            # @ignored
             accessModes:
               - ReadWriteOnce
             # -- How large the persistent volume should be to house the Prometheus database. Default 50Gi.
@@ -426,7 +427,7 @@ kubeMonitoring:
                 storage: 50Gi
             # -- The storage class to use for the persistent volume
             # @section -- Prometheus options
-            storageClassName: ""
+            storageClassName: gluster
 
       # -- Interval between consecutive scrapes. Defaults to 30s
       # @section -- Prometheus options
