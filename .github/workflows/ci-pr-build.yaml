@@ -46,6 +46,8 @@ jobs:
             chartName: openbao
           - chartDir: logs/charts
             chartName: logs-operator
+          - chartDir: opentelemetry-operator/charts
+            chartName: opentelemetry-operator
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts

@@ -21,6 +21,7 @@ header:
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
     - 'thanos/**' # ignore the license for this directory
     - 'logs/**' # ignore the license for the opentelemetry charts
+    - 'opentelemetry-operator/**'
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'

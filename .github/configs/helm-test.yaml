@@ -12,6 +12,7 @@ chart-dirs:
   - plutono
   - thanos
   - logs
+  - opentelemetry-operator
   - perses
   - prometheus
   - cert-manager
