@@ -93,10 +93,11 @@ kubeMonitoring:
     # -- Component scraping kubeDns. Use either this or coreDns
     # @section -- Kubernetes component scraper options
     enabled: false
-    
+
   ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
   ##
   dashboards:
+# @ignored
     create: true
 
     ## Label selectors for the Plutono dashboards to be picked up by Plutono.
@@ -127,6 +128,7 @@ kubeMonitoring:
   ##
   cleanPrometheusOperatorObjectNames: true
 
+  # @ignored
   windowsMonitoring:
   ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
     enabled: false
@@ -147,7 +149,7 @@ kubeMonitoring:
 
   ## Configuration for thanosRuler
   ## ref: https://thanos.io/tip/components/rule.md/
-  ##
+  # @ignored
   thanosRuler:
 
     ## Deploy thanosRuler
@@ -242,6 +244,7 @@ kubeMonitoring:
 
   ## Service discovery configuration
   ##
+  # @ignored
   serviceDiscovery:
 
     ## Configuration for the Prometheus Operator to discover pods
@@ -304,7 +307,9 @@ kubeMonitoring:
     # -- Annotations for Prometheus
     # @section -- Prometheus options
     annotations: {}
-
+    
+    # Move to plugindef ?
+    # @ignored
     service:
       # Add the label to expose the service via Greenhouse.
       labels:
@@ -316,6 +321,8 @@ kubeMonitoring:
       enabled: true
 
       ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
+      # Move to plugindef ?
+      # @ignored
       annotations:
         disco: "true"
         kubernetes.io/tls-acme: "true"
@@ -332,9 +339,11 @@ kubeMonitoring:
       ingressClassname: nginx
 
     # Deploys a Plutono datasource config Secret for this Prometheus
+    # @ignored
     plutonoDatasource: true
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
+    # @ignored
     persesDatasource: true
 
     prometheusSpec:
@@ -343,6 +352,7 @@ kubeMonitoring:
       ## them separately from the helm deployment, you can use this section.
       ## Expected values are the secret name and key
       ## Cannot be used with additionalAlertManagerConfigs
+      # @ignored
       additionalAlertManagerConfigsSecret:
         name: "{{ $.Release.Name }}-alertmanager-config"
         key: config.yaml
@@ -351,6 +361,7 @@ kubeMonitoring:
       ## them separately from the helm deployment, you can use this section.
       ## Expected values are the secret name and key
       ## Cannot be used with additionalAlertRelabelConfigs
+      # @ignored
       additionalAlertRelabelConfigsSecret:
         name: "{{ $.Release.Name }}-alertmanager-config"
         key: relabelConfig.yaml
@@ -359,6 +370,7 @@ kubeMonitoring:
       ## The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
       ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
       ## with the new list of secrets.
+      # @ignored
       secrets:
         - "tls-prometheus-{{ .Release.Name }}"
 
@@ -387,15 +399,16 @@ kubeMonitoring:
       scrapeConfigSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
-      # -- PrometheusRules to be selected for target discovery. 
+      # -- PrometheusRules to be selected for target discovery.
       # If {}, select all PrometheusRules
       # @default { matchLabels: { plugin: <metadata.name> } }
       # @section -- Prometheus options
-      
+
       ruleSelector:
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
+      # @ignored
       storageSpec:
         volumeClaimTemplate:
           metadata:
@@ -411,7 +424,7 @@ kubeMonitoring:
             # @section -- Prometheus options
             resources:
               requests:
-                storage: 50Gi
+                Gi
             # -- The storage class to use for the persistent volume
             # @section -- Prometheus options
             storageClassName: ""
@@ -453,6 +466,7 @@ kubeMonitoring:
       # @section -- Prometheus options
       caCert: Secret
 
+# @ignored
 kubernetes-operations:
   prometheusRules:
     ruleSelector:
@@ -461,14 +475,22 @@ kubernetes-operations:
 
 ## Configures Prometheus Alertmanager
 alerts:
+  # -- To send alerts to Alertmanager
+  # @section -- Alertmanager options
   enabled: false
   alertmanagers:
+    # -- List of Alertmanager hostsd alerts to
+    # @section -- Alertmanager options
     hosts: []
     ## Overrides tls certificate to authenticate with Alertmanager
     tlsConfig:
+      # -- TLS certificate for communication with Alertmanager
+      # @section -- Alertmanager options
       cert: ""
+      # -- TLS key for communication with Alertmanager
+      # @section -- Alertmanager options
       key: ""
-
+# @ignored
 testFramework:
   enabled: true
   image:
@@ -477,5 +499,6 @@ testFramework:
     tag: main
   imagePullPolicy: IfNotPresent
 
-blackboxExporter:
+# @ignored
+blackboxporter:
   enabled: false
