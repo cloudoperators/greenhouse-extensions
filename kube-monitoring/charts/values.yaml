@@ -318,7 +318,7 @@ kubeMonitoring:
     ingress:
       # -- Deploy Prometheus Ingress
       # @section -- Prometheus options
-      enabled: true
+      enabled: false
 
       ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
       # Move to plugindef ?
