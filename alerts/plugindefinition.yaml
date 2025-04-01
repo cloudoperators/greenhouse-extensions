@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 2.8.3
+  version: 2.9.1
   weight: 0
   displayName: Alerts
   description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
@@ -16,7 +16,7 @@ spec:
     # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/alerts
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.21.3
+    version: 0.22.1
   uiApplication:
     name: supernova
     version: "latest"
@@ -63,6 +63,10 @@ spec:
       required: true
       default: true
       type: bool
+    - name: alerts.caCert
+      description: CA cert of this release to add to the CA bundle
+      required: false
+      type: secret
     # alertmanager options
     - name: alerts.defaultRules.create
       description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.

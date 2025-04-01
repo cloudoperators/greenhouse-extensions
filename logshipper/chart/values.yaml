@@ -30,6 +30,7 @@ fluent-bit:
           fieldPath: spec.nodeName
   backend:
     opensearch:
+      enabled: false
       logstash_prefix: systemd
       tls:
         enabled: "On"
