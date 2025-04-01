@@ -16,6 +16,9 @@ global:
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
+  ## ca cert which is created with this release
+  caCert: ""
+
   # Use certmanager to generate alertmanager certs
   certManager:
     enabled: true
