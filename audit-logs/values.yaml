@@ -1,0 +1,20 @@
+auditLogs:
+  openSearchLogs:
+    failover_username_a: 
+    failover_password_a: 
+    failover_username_b: 
+    failover_password_b: 
+    endpoint: 
+    index: 
+  cluster: 
+  region: 
+  collectorImage:
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    tag: main
+  prometheus:
+    podMonitor:
+      enabled: false
+    serviceMonitor:
+      enabled: false
+  
+

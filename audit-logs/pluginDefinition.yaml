@@ -1,0 +1,66 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+    name: audit-logs
+spec:
+    version: 0.0.1
+    displayName: OpenTelemetry for Audit Logs
+    description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
+    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
+    helmChart:
+        name: audit-logs
+        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+        version: 0.0.1
+    options:
+        - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+          description: Collector image repository
+          name: auditLogs.collectorImage.repository
+          required: false
+          type: string
+        - default: "main"
+          description: Collector image tag
+          name: auditLogs.collectorImage.tag
+          required: false
+          type: string
+        - description: Endpoint URL for OpenSearch
+          name: auditLogs.openSearchLogs.endpoint
+          required: false
+          type: string
+        - description: Username for OpenSearch endpoint
+          name: auditLogs.openSearchLogs.failover_username_a
+          required: false
+          type: string
+        - description: Password for OpenSearch endpoint
+          name: auditLogs.openSearchLogs.failover_password_a
+          required: true
+          type: secret
+        - description: Second Username (as a failover) for OpenSearch endpoint
+          name: auditLogs.openSearchLogs.failover_username_b
+          required: false
+          type: secret
+        - description: Second Username (as a failover) for OpenSearch endpoint
+          name: auditLogs.openSearchLogs.failover_password_b
+          required: false
+          type: secret  
+        - description: auditLogs.openSearchLogs.index
+          name: auditLogs.openSearchLogs.index
+          required: false
+          type: string
+        - default: false
+          description: auditLogs.prometheus.podMonitor.enabled
+          name: auditLogs.prometheus.podMonitor.enabled
+          required: false
+          type: bool
+        - default: false
+          description: auditLogs.prometheus.serviceMonitor.enabled
+          name: auditLogs.prometheus.serviceMonitor.enabled
+          required: false
+          type: bool
+        - description: Region label for logging
+          name: auditLogs.region
+          required: false
+          type: string
+        - description: Cluster label for logging
+          name: auditLogs.cluster
+          required: false
+          type: string
