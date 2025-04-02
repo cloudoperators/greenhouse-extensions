@@ -10,19 +10,6 @@ prometheus-operator:
   crds:
     enabled: true
 
-kubeMonitoring:
-  prometheus:
-    enabled: true
-    serviceMonitor:
-      enabled: false
-    prometheusSpec:
-      thanos:
-        secret:
-          type: FILESYSTEM
-          config:
-            directory: "/test"
-          prefix: ""
-
 ci:
   enabled: true
 
