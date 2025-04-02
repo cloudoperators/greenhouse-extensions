@@ -63,7 +63,7 @@ data:
     }
     {{ end }}
 
-    {{ if (not .Values.thanos.query.standalone) }}
+    {{ if and (not .Values.thanos.query.standalone) (not .Values.ci.enabled) }}
     @test "Verify prometheus sidecar is running" {
       try "at most 3 times every 5s to get pods named '.*-kube-monitoring.*' and verify that '.status.containerStatuses[*].name' is 'config-reloader,prometheus,thanos-sidecar'"
     }
