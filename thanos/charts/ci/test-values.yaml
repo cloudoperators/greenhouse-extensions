@@ -9,7 +9,7 @@ prometheus-operator:
       selfMonitor: false
   crds:
     enabled: true
-    
+
 kubeMonitoring:
   prometheus:
     enabled: true
