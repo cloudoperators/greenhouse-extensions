@@ -19,8 +19,6 @@ logs-operator:
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.114.1
-    deploymentAnnotations:
-      vpa-butler.cloud.sap/update-mode: Auto
     prometheusRule:
       enabled: false
       defaultRules:
