@@ -54,12 +54,12 @@ jobs:
                   exit 1
                 fi
                 if [[ -n $(yq eval '.values' "${plugin_dir}/test-dependencies.yaml") ]]; then
-                  helm upgrade --install "$dep" "./$dep/charts" -v <(yq eval '.values' ${plugin_dir}/test-dependencies.yaml) --wait || {
+                  helm upgrade --install "$dep" "./$dep/charts" --values <(yq eval '.values' ${plugin_dir}/test-dependencies.yaml) --wait || {
                   echo "💥 Helm install failed for dependency '$dep'" >&2
                   exit 1
                 }
                 else
-                helm upgrade --install "$dep" "./$dep/charts" --wait || {
+                  helm upgrade --install "$dep" "./$dep/charts" --wait || {
                   echo "💥 Helm install failed for dependency '$dep'" >&2
                   exit 1
                 }
