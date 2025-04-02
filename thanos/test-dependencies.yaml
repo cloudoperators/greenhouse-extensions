@@ -1,2 +1,15 @@
 dependencies:
   - kube-monitoring
+values:
+  kubeMonitoring:
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: false
+      prometheusSpec:
+        thanos:
+          secret:
+            type: FILESYSTEM
+            config:
+              directory: "/test"
+            prefix: ""
