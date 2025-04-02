@@ -8,8 +8,5 @@ values:
         enabled: false
       prometheusSpec:
         thanos:
-          secret:
-            type: FILESYSTEM
-            config:
-              directory: "/test"
-            prefix: ""
+          objectStorageConfig:
+            secret: {}
