@@ -73,10 +73,10 @@ openTelemetry:
       enabled: true
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
-      enabled: true
+      enabled: false
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
-      enabled: true
+      enabled: false
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false

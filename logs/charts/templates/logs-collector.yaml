@@ -357,10 +357,12 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
 {{- end }}
+{{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress]
           exporters: [forward]
+{{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
 {{- end }}
