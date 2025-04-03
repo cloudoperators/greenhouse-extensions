@@ -53,10 +53,17 @@ jobs:
                   echo "❌ Dependency '$dep' not found (expected ./$dep/charts)" >&2
                   exit 1
                 fi
-                helm upgrade --install "$dep" "./$dep/charts" --wait || {
+                if [[ -n $(yq eval '.values' "${plugin_dir}/test-dependencies.yaml") ]]; then
+                  helm upgrade --install "$dep" "./$dep/charts" --values <(yq eval '.values' ${plugin_dir}/test-dependencies.yaml) --wait || {
                   echo "💥 Helm install failed for dependency '$dep'" >&2
                   exit 1
                 }
+                else
+                  helm upgrade --install "$dep" "./$dep/charts" --wait || {
+                  echo "💥 Helm install failed for dependency '$dep'" >&2
+                  exit 1
+                }
+                fi
               done
           else
               echo "ℹ️ No test-dependencies.yaml found for plugin '$plugin_dir'. Skipping..."
