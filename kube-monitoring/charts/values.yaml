@@ -417,6 +417,9 @@ kubeMonitoring:
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
           spec:
+            # -- The storage class to use for the persistent volume.
+            # @section -- Prometheus options
+            storageClassName: ""
             # @ignored
             accessModes:
               - ReadWriteOnce
