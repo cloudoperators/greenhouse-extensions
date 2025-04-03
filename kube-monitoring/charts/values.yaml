@@ -403,7 +403,7 @@ kubeMonitoring:
           spec:
             # -- The storage class to use for the persistent volume.
             # @section -- Prometheus options
-            storageClassName: "default"
+            storageClassName: default
             # @ignored
             accessModes:
               - ReadWriteOnce
