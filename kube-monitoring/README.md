@@ -111,7 +111,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheus.prometheusSpec.scrapeTimeout | string | `""` | Number of seconds to wait for target to respond before erroring |
 | kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector | object | `{"matchLabels":{"plugin":"{{ $.Release.Name }}"}}` | ServiceMonitors to be selected for target discovery. If {}, select all ServiceMonitors @default { matchLabels: { plugin: <metadata.name> } } |
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources | object | `{"requests":{"storage":"50Gi"}}` | How large the persistent volume should be to house the Prometheus database. Default 50Gi. |
-| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName | string | `""` | The storage class to use for the persistent volume. |
+| kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName | string | `"default"` | The storage class to use for the persistent volume. |
 | kubeMonitoring.prometheus.tlsConfig.caCert | string | `"Secret"` | CA certificate to verify technical clients at Prometheus Ingress |
 
 ### Prometheus-operator options
