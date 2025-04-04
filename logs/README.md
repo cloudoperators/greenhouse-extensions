@@ -94,10 +94,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | logs-operator.nameOverride | string | `"operator"` | Provide a name in place of the default name `opentelemetry-operator`. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.logsCollector.cephConfig | object | `{"enabled":true}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
-| openTelemetry.logsCollector.kvmConfig | object | `{"enabled":true}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
