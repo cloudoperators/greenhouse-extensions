@@ -18,4 +18,4 @@ dependencies:
 - name: opentelemetry-operator
   alias: logs-operator
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.83.0
+  version: 0.83.1
