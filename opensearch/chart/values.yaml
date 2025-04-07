@@ -193,7 +193,7 @@ cluster:
       # Monitoring configuration. Check [documentation](https://github.com/Opster/opensearch-k8s-operator/blob/main/docs/userguide/main.md#adding-opensearch-monitoring-to-your-cluster) how to configure it.
       monitoring:
         # -- Enable cluster monitoring
-        enable: true
+        enable: false
 
         # -- Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it.
         monitoringUserSecret: ""
@@ -410,7 +410,7 @@ cluster:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
         adminCredentialsSecret: {}
-         # name: "admin-credentials"
+        #  name: "admin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -418,8 +418,8 @@ cluster:
   #       name: "secret-name"
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
-        securityConfigSecret:
-          name: ""
+        securityConfigSecret: {}
+        #  name: "custom-security-config"
 
       # Configure tls usage for transport and http interface
       tls:
@@ -514,25 +514,36 @@ cluster:
 
   # -- List of OpensearchRole. Check values.yaml file for examples.
   roles:
-    - name: "logs"
+    - name: "logs-role"
       clusterPermissions:
-        - cluster_composite_ops
-        - cluster_monitor
+        - "cluster_monitor"
+        - "cluster_composite_ops"
+        - "cluster:admin/ingest/pipeline/put"
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template/get"
+        - "cluster_manage_index_templates"
       indexPermissions:
         - indexPatterns:
-            - logs*
+            - "logs-*"
+            - "logs-datastream"
           allowedActions:
-            - index
-            - read
-    - name: "admin"
-      clusterPermissions:
-        - "*"
-      indexPermissions:
-        - indexPatterns:
-            - "*"
-          allowedActions:
-            - index
-            - read
+            - "indices:admin/template/get"
+            - "indices:admin/template/put"
+            - "indices:admin/mapping/put"
+            - "indices:admin/create"
+            - "indices:data/write/bulk*"
+            - "indices:data/write/index"
+            - "indices:data/read*"
+            - "indices:monitor*"
+            - "indices_all"
+    #- name: "admin-role"
+    #  clusterPermissions:
+    #    - "*"
+    #  indexPermissions:
+    #    - indexPatterns:
+    #        - "*"
+    #      allowedActions:
+    #        - "*"
 
   #  - name: "example-role"
   #    clusterPermissions:
@@ -567,28 +578,18 @@ cluster:
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
-      password: ""
+      password: "" # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
-      backendRoles:
-        - "logs"
-#      opendistroSecurityRoles:
-#        - "logs"
-    - name: "admin"
-      password: ""
-      secretName: "admin-credentials"
-      secretKey: "password"
-      backendRoles:
-        - "admin"
-#      opendistroSecurityRoles:
-#        - "admin"
-    - name: "kibanaserver"
-      password: ""
-      secretName: "kibanaserver-credentials"
-      secretKey: "password"
       backendRoles: []
-#      opendistroSecurityRoles:
-#        - "kibanaserver"
+      opendistroSecurityRoles:
+        - "logs-role"
+   # - name: "admin"
+   #   password: "admin" # If not set, a random password will be generated
+   #   secretName: "admin-credentials"
+   #   secretKey: "password"
+   #   opendistroSecurityRoles:
+   #     - "admin-role"
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
@@ -597,21 +598,12 @@ cluster:
       users:
         - "logs"
       roles:
-        - "logs"
-    - name: "admin-access"
-      users:
-        - "admin"
-      roles:
-        - "admin"
-  #  - name: admin_access
+        - "logs-role"
+  #  - name: "admin-access"
   #    users:
-  #      - example-user
-  #      - example-user2
+  #      - "admin"
   #    roles:
-  #      - example-role
-  #    backendRoles:
-  #      - example-backend-role
-
+  #      - "admin-role"
 
   # -- List of additional tenants. Check values.yaml file for examples.
   tenants: []
@@ -649,7 +641,27 @@ cluster:
   #      description: example description
 
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
-  indexTemplates: []
+  indexTemplates:
+    - name: logs-index-template
+      indexPatterns:
+        - "logs*"
+      templateSpec:
+        settings:
+          index:
+            number_of_shards: 1
+            number_of_replicas: 1
+            refresh_interval: 1s
+        mappings:
+          properties:
+            "@timestamp":
+              type: date
+            message:
+              type: text
+      dataStream:
+        timestamp_field:
+          name: "@timestamp"
+      priority: 200
+
   #  - name: example-index-template
   #    indexPatterns:
   #      - "logs-2020-01-*"
@@ -661,7 +673,29 @@ cluster:
   #    _meta: {} # optional
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  ismPolicies: []
+  ismPolicies:
+    - name: logs-rollover-policy
+      defaultState: hot
+      description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"
+      states:
+        - name: hot
+          actions:
+            - rollover:
+                minIndexAge: "7d"
+                minSize: "30gb"
+                minDocCount: 50000000
+          transitions:
+            - stateName: delete
+              conditions:
+                minIndexAge: "30d"
+        - name: delete
+          actions:
+            - delete: {}
+          transitions: []
+      ismTemplate:
+        indexPatterns:
+          - "logs-*"
+        priority: 100
   #  - name: example-policy
   #    defaultState: hot
   #    description: Example policy
