@@ -695,5 +695,5 @@ cluster:
           transitions: []
       ismTemplate:
         indexPatterns:
-          - "logs-*"
+          - "logs*"
         priority: 100
