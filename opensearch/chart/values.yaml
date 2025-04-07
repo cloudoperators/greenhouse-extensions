@@ -193,20 +193,20 @@ cluster:
       # Monitoring configuration. Check [documentation](https://github.com/Opster/opensearch-k8s-operator/blob/main/docs/userguide/main.md#adding-opensearch-monitoring-to-your-cluster) how to configure it.
       monitoring:
         # -- Enable cluster monitoring
-        enable: false
+        enable: true
 
         # -- Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it.
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"
+        pluginUrl: "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.1/prometheus-exporter-2.19.1.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
 
         # -- Override the tlsConfig of the generated ServiceMonitor
-        tlsConfig: {}
-  #        insecureSkipVerify: true
+        tlsConfig:
+          insecureSkipVerify: true
 
       # -- List of Opensearch plugins to install
       pluginsList: []
@@ -238,7 +238,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 2.18.0
+      version: 2.19.1
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -349,7 +349,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 2.18.0
+      version: 2.19.1
 
     # initHelper configuration
     initHelper:
