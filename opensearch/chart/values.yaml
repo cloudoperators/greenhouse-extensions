@@ -524,8 +524,7 @@ cluster:
         - "cluster_manage_index_templates"
       indexPermissions:
         - indexPatterns:
-            - "logs-*"
-            - "logs-datastream"
+            - "logs*"
           allowedActions:
             - "indices:admin/template/get"
             - "indices:admin/template/put"
@@ -536,14 +535,14 @@ cluster:
             - "indices:data/read*"
             - "indices:monitor*"
             - "indices_all"
-    #- name: "admin-role"
-    #  clusterPermissions:
-    #    - "*"
-    #  indexPermissions:
-    #    - indexPatterns:
-    #        - "*"
-    #      allowedActions:
-    #        - "*"
+  #  - name: "admin-role"
+  #    clusterPermissions:
+  #      - "*"
+  #    indexPermissions:
+  #      - indexPatterns:
+  #          - "*"
+  #        allowedActions:
+  #          - "*"
 
   #  - name: "example-role"
   #    clusterPermissions:
@@ -584,12 +583,12 @@ cluster:
       backendRoles: []
       opendistroSecurityRoles:
         - "logs-role"
-   # - name: "admin"
-   #   password: "admin" # If not set, a random password will be generated
-   #   secretName: "admin-credentials"
-   #   secretKey: "password"
-   #   opendistroSecurityRoles:
-   #     - "admin-role"
+  #  - name: "admin"
+  #    password: "admin" # If not set, a random password will be generated
+  #    secretName: "admin-credentials"
+  #    secretKey: "password"
+  #    opendistroSecurityRoles:
+  #      - "admin-role"
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
@@ -640,8 +639,9 @@ cluster:
   #    _meta: # optional
   #      description: example description
 
+  indexTemplates: []
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
-  indexTemplates:
+  indexTemplatesWorkAround: # Switch back to indexTemplates after fix of https://github.com/opensearch-project/opensearch-k8s-operator/issues/990
     - name: logs-index-template
       indexPatterns:
         - "logs*"
@@ -661,16 +661,6 @@ cluster:
         timestamp_field:
           name: "@timestamp"
       priority: 200
-
-  #  - name: example-index-template
-  #    indexPatterns:
-  #      - "logs-2020-01-*"
-  #    composedOf: # optional
-  #      - example-component-template
-  #    priority: 100 # optional
-  #    templateSpec: {} # optional
-  #    version: 1 # optional
-  #    _meta: {} # optional
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
   ismPolicies:
@@ -696,16 +686,3 @@ cluster:
         indexPatterns:
           - "logs-*"
         priority: 100
-  #  - name: example-policy
-  #    defaultState: hot
-  #    description: Example policy
-  #    states:
-  #      - name: hot
-  #        actions:
-  #          - replicaCount:
-  #              numberOfReplicas: 1
-  #        transitions: []
-  #    ismTemplate: # optional
-  #      priority: 0
-  #      indexPatterns:
-  #        - "example-index-pattern*"
