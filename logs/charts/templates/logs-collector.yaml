@@ -212,16 +212,6 @@ spec:
     {{- include "ceph.transform" . | nindent 6 -}}
 {{- end }}
 
-      transform/files:
-        error_mode: ignore
-        log_statements:
-          - context: log
-            conditions:
-              - resource.attributes["log.type"] == "files"
-            statements:
-              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{GREEDYDATA:log}", true), "upsert")
-              - set(log.attributes["config.parsed"], "files") where log.attributes["log_level"] != nil
-
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.transform" . | nindent 6 -}}
 {{- end }}
