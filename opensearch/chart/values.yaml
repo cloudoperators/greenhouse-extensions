@@ -418,8 +418,8 @@ cluster:
   #       name: "secret-name"
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
-        securityConfigSecret:
-          name: ""
+        securityConfigSecret: {}
+  #       name: ""
 
       # Configure tls usage for transport and http interface
       tls:
@@ -514,81 +514,52 @@ cluster:
 
   # -- List of OpensearchRole. Check values.yaml file for examples.
   roles:
-    - name: "logs"
+    - name: "logs-role"
       clusterPermissions:
-        - cluster_composite_ops
-        - cluster_monitor
+        - "cluster_monitor"
+        - "cluster_composite_ops"
+        - "cluster:admin/ingest/pipeline/put"
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template/get"
+        - "cluster_manage_index_templates"
       indexPermissions:
         - indexPatterns:
-            - logs*
+            - "logs*"
           allowedActions:
-            - index
-            - read
-    - name: "admin"
-      clusterPermissions:
-        - "*"
-      indexPermissions:
-        - indexPatterns:
-            - "*"
-          allowedActions:
-            - index
-            - read
+            - "indices:admin/template/get"
+            - "indices:admin/template/put"
+            - "indices:admin/mapping/put"
+            - "indices:admin/create"
+            - "indices:data/write/bulk*"
+            - "indices:data/write/index"
+            - "indices:data/read*"
+            - "indices:monitor*"
+            - "indices_all"
 
-  #  - name: "example-role"
+  #  - name: "admin-role"
   #    clusterPermissions:
-  #      - cluster_composite_ops
-  #      - cluster_monitor
-  #    allowedActions:
-  #      - index
-  #      - read
-  #  - name: "example-role-for-index-pattern"
-  #    clusterPermissions:
-  #      - cluster_composite_ops
-  #      - cluster_monitor
+  #      - "*"
   #    indexPermissions:
   #      - indexPatterns:
-  #          - logs*
+  #          - "*"
   #        allowedActions:
-  #          - index
-  #          - read
-  #  - name: "example-role-with-tenant-scope"
-  #    clusterPermissions:
-  #      - cluster_composite_ops
-  #      - cluster_monitor
-  #    allowedActions:
-  #      - index
-  #      - read
-  #    tenantPermissions:
-  #      allowedActions:
-  #        - "*"
-  #      tenantPatterns:
-  #        - "*"
+  #          - "*"
 
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
-      password: ""
+      password: "" # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
-      backendRoles:
-        - "logs"
-#      opendistroSecurityRoles:
-#        - "logs"
-    - name: "admin"
-      password: ""
-      secretName: "admin-credentials"
-      secretKey: "password"
-      backendRoles:
-        - "admin"
-#      opendistroSecurityRoles:
-#        - "admin"
-    - name: "kibanaserver"
-      password: ""
-      secretName: "kibanaserver-credentials"
-      secretKey: "password"
       backendRoles: []
-#      opendistroSecurityRoles:
-#        - "kibanaserver"
+      opendistroSecurityRoles:
+        - "logs-role"
+  #  - name: "admin"
+  #    password: "admin" # If not set, a random password will be generated
+  #    secretName: "admin-credentials"
+  #    secretKey: "password"
+  #    opendistroSecurityRoles:
+  #      - "admin-role"
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
@@ -597,21 +568,12 @@ cluster:
       users:
         - "logs"
       roles:
-        - "logs"
-    - name: "admin-access"
-      users:
-        - "admin"
-      roles:
-        - "admin"
-  #  - name: admin_access
+        - "logs-role"
+  #  - name: "admin-access"
   #    users:
-  #      - example-user
-  #      - example-user2
+  #      - "admin"
   #    roles:
-  #      - example-role
-  #    backendRoles:
-  #      - example-backend-role
-
+  #      - "admin-role"
 
   # -- List of additional tenants. Check values.yaml file for examples.
   tenants: []
