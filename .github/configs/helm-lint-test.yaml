@@ -4,11 +4,13 @@
 # See https://github.com/helm/chart-testing#configuration
 remote: origin
 target-branch: main
-validate-maintainers: false
-check-version-increment: false
+validate-maintainers: true
+check-version-increment: true
+namespace: default
+release-label: "app.kubernetes.io/instance"
 chart-dirs:
   - alerts
-  - cert-manager/charts/v1.11.0
+  - cert-manager
   - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
   - kube-monitoring
