@@ -93,7 +93,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `true` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | string | `nil` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"2.18.0"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"2.19.1"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -101,11 +101,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | cluster.cluster.general.keystore | list | `[]` | Populate opensearch keystore before startup |
-| cluster.cluster.general.monitoring.enable | bool | `false` | Enable cluster monitoring |
+| cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.18.0/prometheus-exporter-2.18.0.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.1/prometheus-exporter-2.19.1.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
-| cluster.cluster.general.monitoring.tlsConfig | object | `{}` | Override the tlsConfig of the generated ServiceMonitor |
+| cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
 | cluster.cluster.general.podSecurityContext | object | `{}` | Opensearch pod security context configuration |
 | cluster.cluster.general.securityContext | object | `{}` | Opensearch securityContext |
@@ -114,7 +114,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | cluster.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | cluster.cluster.general.vendor | string | `"Opensearch"` |  |
-| cluster.cluster.general.version | string | `"2.18.0"` | Opensearch version |
+| cluster.cluster.general.version | string | `"2.19.1"` | Opensearch version |
 | cluster.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | cluster.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | cluster.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |
@@ -146,10 +146,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.security.tls.transport.secret | object | `{}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.componentTemplates | list | `[]` | List of OpensearchComponentTemplate. Check values.yaml file for examples. |
 | cluster.fullnameOverride | string | `""` |  |
-| cluster.indexTemplates | list | `[{"dataStream":{"timestamp_field":{"name":"@timestamp"}},"indexPatterns":["logs*"],"name":"logs-index-template","priority":200,"templateSpec":{"mappings":{"properties":{"@timestamp":{"type":"date"},"message":{"type":"text"}}},"settings":{"index":{"number_of_replicas":1,"number_of_shards":1,"refresh_interval":"1s"}}}}]` | List of OpensearchIndexTemplate. Check values.yaml file for examples. |
+| cluster.indexTemplates | list | `[]` |  |
+| cluster.indexTemplatesWorkAround | list | `[{"dataStream":{"timestamp_field":{"name":"@timestamp"}},"indexPatterns":["logs*"],"name":"logs-index-template","priority":200,"templateSpec":{"mappings":{"properties":{"@timestamp":{"type":"date"},"message":{"type":"text"}}},"settings":{"index":{"number_of_replicas":1,"number_of_shards":1,"refresh_interval":"1s"}}}}]` | List of OpensearchIndexTemplate. Check values.yaml file for examples. |
 | cluster.ismPolicies | list | `[{"defaultState":"hot","description":"Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d","ismTemplate":{"indexPatterns":["logs-*"],"priority":100},"name":"logs-rollover-policy","states":[{"actions":[{"rollover":{"minDocCount":50000000,"minIndexAge":"7d","minSize":"30gb"}}],"name":"hot","transitions":[{"conditions":{"minIndexAge":"30d"},"stateName":"delete"}]},{"actions":[{"delete":{}}],"name":"delete","transitions":[]}]}]` | List of OpenSearchISMPolicy. Check values.yaml file for examples. |
 | cluster.nameOverride | string | `""` |  |
-| cluster.roles | list | `[{"clusterPermissions":["cluster_monitor","cluster_composite_ops","cluster:admin/ingest/pipeline/put","cluster:admin/ingest/pipeline/get","indices:admin/template/get","cluster_manage_index_templates"],"indexPermissions":[{"allowedActions":["indices:admin/template/get","indices:admin/template/put","indices:admin/mapping/put","indices:admin/create","indices:data/write/bulk*","indices:data/write/index","indices:data/read*","indices:monitor*","indices_all"],"indexPatterns":["logs-*","logs-datastream"]}],"name":"logs-role"}]` | List of OpensearchRole. Check values.yaml file for examples. |
+| cluster.roles | list | `[{"clusterPermissions":["cluster_monitor","cluster_composite_ops","cluster:admin/ingest/pipeline/put","cluster:admin/ingest/pipeline/get","indices:admin/template/get","cluster_manage_index_templates"],"indexPermissions":[{"allowedActions":["indices:admin/template/get","indices:admin/template/put","indices:admin/mapping/put","indices:admin/create","indices:data/write/bulk*","indices:data/write/index","indices:data/read*","indices:monitor*","indices_all"],"indexPatterns":["logs*"]}],"name":"logs-role"}]` | List of OpensearchRole. Check values.yaml file for examples. |
 | cluster.serviceAccount.annotations | object | `{}` | Service Account annotations |
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
