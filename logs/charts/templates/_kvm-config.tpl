@@ -25,8 +25,8 @@ transform/kvm_openvswitch:
       conditions:
         - resource.attributes["k8s.daemonset.name"] == "neutron-openvswitch-agent"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
-        - set(log.attributes["config.parsed"], "kvm_openvswitch") where log.attributes["log_level"] != nil
+        - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
+        - set(attributes["config.parsed"], "kvm_openvswitch") where attributes["log_level"] != nil
 
 transform/kvm_nova_agent:
   error_mode: ignore
@@ -35,8 +35,8 @@ transform/kvm_nova_agent:
       conditions:
         - resource.attributes["k8s.daemonset.name"] == "nova-hypervisor-agents-compute-kvm"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
-        - set(log.attributes["config.parsed"], "kvm_nova_agent") where log.attributes["log_level"] != nil
+        - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
+        - set(attributes["config.parsed"], "kvm_nova_agent") where attributes["log_level"] != nil
 
 transform/kvm_logs:
   error_mode: ignore
@@ -45,8 +45,8 @@ transform/kvm_logs:
       conditions:
         - resource.attributes["log.type"] == "files"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{GREEDYDATA:log}",true), "upsert")
-        - set(log.attributes["config.parsed"], "files") where log.attributes["log_level"] != nil
+        - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{GREEDYDATA:log}",true), "upsert")
+        - set(attributes["config.parsed"], "files") where attributes["log_level"] != nil
 
 {{- end }}
 {{- define "kvm.pipeline" }}
