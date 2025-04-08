@@ -52,6 +52,9 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| foo | object | `{"bar":"baz","baz":["foo","bar"],"qux":["foo","bar"]}` | this is a test |
+| foo.baz | list | `["foo","bar"]` | this is a test 2 |
+| foo.qux | list | `["foo","bar"]` | this is a test 3 |
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
 | greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
 | perses.additionalLabels | object | `{}` |  |
