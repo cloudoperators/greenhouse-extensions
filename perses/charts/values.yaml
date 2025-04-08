@@ -214,3 +214,15 @@ perses:
 greenhouse:
   defaultDashboards:
     enabled: true
+
+# -- this is a test
+foo:
+  bar: "baz"
+  # -- this is a test 2
+  baz:
+    - "foo"
+    - "bar"
+  # -- this is a test 3
+  qux:
+    - "foo"
+    - "bar"     
