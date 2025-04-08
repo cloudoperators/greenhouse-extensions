@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: opensearch
+spec:
+  version: 0.0.1
+  displayName: OpenSearch
+  description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
+  icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
+  helmChart:
+    name: opensearch
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.0.1
+  options:
+    - name: operator.fullnameOverride
+      description: "Override the full name of the operator. Use this to customize resource naming."
+      default: "opensearch-operator"
+      required: false
+      type: string
+    - name: operator.installCRDs
+      description: "Enable or disable installation of the Custom Resource Definitions (CRDs) required by the operator."
+      default: false
+      required: false
+      type: bool
+    - name: operator.kubeRbacProxy.enable
+      description: "Toggle the kube-rbac-proxy to secure the operator's endpoints."
+      default: true
+      required: false
+      type: bool
+    - name: opensearchOperator.serviceAccount.create
+      description: "Determine whether a new service account should be created for the OpenSearch operator."
+      default: true
+      required: false
+      type: bool
+    - name: opensearchOperator.serviceAccount.name
+      description: "Specify the name of the service account used by the OpenSearch operator. Only change if creating a new account."
+      default: "opensearch-operator-controller-manager"
+      required: false
+      type: string
+    - name: cluster.fullnameOverride
+      description: "Override the full name of the OpenSearch cluster. Defaults to the release name if left blank."
+      required: false
+      type: string
+    - name: cluster.serviceAccount.create
+      description: "Control whether to create a service account for the OpenSearch cluster. Set to false to use an existing account."
+      default: false
+      required: false
+      type: bool
+    - name: cluster.monitoring.pluginUrl
+      description: "Provide a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
+      required: false
+      type: string
