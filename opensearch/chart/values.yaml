@@ -548,7 +548,7 @@ cluster:
   # -- List of OpensearchUser. Check values.yaml file for examples.
   users:
     - name: "logs"
-      password: "" # If not set, a random password will be generated
+      password: ""  # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
       backendRoles: []
