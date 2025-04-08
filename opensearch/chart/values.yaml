@@ -652,7 +652,7 @@ cluster:
   indexTemplates: []
 
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
-  indexTemplatesWorkAround: # TODO: Switch back to indexTemplates after fix of https://github.com/opensearch-project/opensearch-k8s-operator/issues/990
+  indexTemplatesWorkAround:  # TODO: Switch back to indexTemplates after fix of https://github.com/opensearch-project/opensearch-k8s-operator/issues/990
     - name: logs-index-template
       indexPatterns:
         - "logs*"
