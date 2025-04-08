@@ -8,7 +8,7 @@ metadata:
 spec:
   version: 0.0.1
   displayName: OpenSearch
-  description: Search and observability suite that brings order to unstructured data at scale.
+  description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
