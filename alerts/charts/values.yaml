@@ -295,3 +295,7 @@ testFramework:
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
   imagePullPolicy: IfNotPresent
+
+# -- This is a foo bar test.
+foo:
+  test: "bar"
