@@ -11,9 +11,9 @@ spec:
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
-        name: audit-logs
-        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.1
+        name: 'local/plugins/audit-logs/charts'
+        #repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+        #version: 0.0.1
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -33,12 +33,17 @@ spec:
           type: string
         - name: auditLogs.openSearchLogs.failover_username_a
           description: Username for OpenSearch endpoint
-          required: false
-          type: string
+          required: true
+          type: secret
         - name: auditLogs.openSearchLogs.failover_password_a
           description: Password for OpenSearch endpoint
           required: true
           type: secret
+        - name: openTelemetry.logsCollector.failover.enabled
+          default: false
+          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
+          required: false
+          type: bool
         - name: auditLogs.openSearchLogs.failover_username_b
           description: Second Username (as a failover) for OpenSearch endpoint
           required: false
