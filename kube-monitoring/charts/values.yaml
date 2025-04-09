@@ -1,7 +1,7 @@
 global:
   # -- Labels to apply to all resources
   # This can be used to add a `support_group` or `service` label to all resources and alerting rules.
-  # @section -- Global Options
+  # @section -- Global options
   commonLabels: {}
 
 # kube-prometheus-stack configuration scoped to kube-monitoring
