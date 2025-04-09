@@ -1,4 +1,4 @@
-{{ if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled (not .Values.thanos.query.standalone) }}
+{{ if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ThanosRuler
 metadata:
