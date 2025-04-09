@@ -66,7 +66,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | alerts.alertmanagers.tlsConfig.key | string | `""` | TLS key for communication with Alertmanager |
 | alerts.enabled | bool | `false` | To send alerts to Alertmanager |
 
-### Global Options
+### Global options
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
