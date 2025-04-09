@@ -612,28 +612,50 @@ cluster:
 
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
   indexTemplates: []
-  #  - name: example-index-template
-  #    indexPatterns:
-  #      - "logs-2020-01-*"
-  #    composedOf: # optional
-  #      - example-component-template
-  #    priority: 100 # optional
-  #    templateSpec: {} # optional
-  #    version: 1 # optional
-  #    _meta: {} # optional
+
+  # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
+  indexTemplatesWorkAround:  # TODO: Switch back to indexTemplates after fix of https://github.com/opensearch-project/opensearch-k8s-operator/issues/990
+    - name: logs-index-template
+      indexPatterns:
+        - "logs*"
+      templateSpec:
+        settings:
+          index:
+            number_of_shards: 1
+            number_of_replicas: 1
+            refresh_interval: 1s
+        mappings:
+          properties:
+            "@timestamp":
+              type: date
+            message:
+              type: text
+      dataStream:
+        timestamp_field:
+          name: "@timestamp"
+      priority: 100
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  ismPolicies: []
-  #  - name: example-policy
-  #    defaultState: hot
-  #    description: Example policy
-  #    states:
-  #      - name: hot
-  #        actions:
-  #          - replicaCount:
-  #              numberOfReplicas: 1
-  #        transitions: []
-  #    ismTemplate: # optional
-  #      priority: 0
-  #      indexPatterns:
-  #        - "example-index-pattern*"
+  ismPolicies:
+    - name: logs-rollover-policy
+      defaultState: hot
+      description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"
+      states:
+        - name: hot
+          actions:
+            - rollover:
+                minIndexAge: "7d"
+                minSize: "30gb"
+                minDocCount: 50000000
+          transitions:
+            - stateName: delete
+              conditions:
+                minIndexAge: "30d"
+        - name: delete
+          actions:
+            - delete: {}
+          transitions: []
+      ismTemplate:
+        indexPatterns:
+          - "logs*"
+        priority: 100
