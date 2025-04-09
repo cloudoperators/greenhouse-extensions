@@ -38,13 +38,13 @@ spec:
       value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
-         name: audit-logs-basic-auth
+         name: otel-basic-auth
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 9999
 {{- end }}
-  image: {{ index .Values "auditLogs" "collectorImage" "repository" }}:{{ index .Values "auditLogs" "collectorImage" "tag" }}
+  image: {{ .Values.auditLogs.collectorImage.repository }}:{{ .Values.auditLogs.collectorImage.tag }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
@@ -151,11 +151,10 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-      attributes/failover_username_b:
-        actions:
-          - action: insert
-            key: failover_username_opensearch
-            value: ${failover_username_b}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+    {{- include "failover.attributes" . | nindent 6 -}}
+{{- end }}
 
       transform/journal:
         error_mode: ignore
@@ -292,13 +291,11 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-      opensearch/failover_b:
-        http:
-          auth:
-            authenticator: basicauth/failover_b
-          endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
-        logs_index: ${index}-datastream
-        
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+    {{- include "failover.exporter" . | nindent 6 -}}
+{{- end }}
+
       prometheus:
         endpoint: 0.0.0.0:9999
 
@@ -307,30 +304,37 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-      basicauth/failover_b:
-        client_auth:
-          username: ${failover_username_b}
-          password: ${failover_password_b}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+    {{- include "failover.extension" . | nindent 6 -}}
+{{- end }}
+
 
     connectors:
       forward: {}
       failover:
         priority_levels:
           - [logs/failover_a]
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
           - [logs/failover_b]
+{{- end }}
         retry_interval: 2m
         retry_gap: 30s
         max_retries: 0
     service:
       extensions:
         - basicauth/failover_a
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
         - basicauth/failover_b
+{{- end }}
+
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
           address: 127.0.0.1:8888
           level: detailed
 {{- end }}
+
       pipelines:
         logs/forward:
           receivers: [forward]
@@ -340,10 +344,11 @@ spec:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-        logs/failover_b:
-          receivers: [failover]
-          processors: [attributes/failover_username_b]
-          exporters: [opensearch/failover_b]
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+    {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
+
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress]

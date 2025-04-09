@@ -39,7 +39,7 @@ spec:
           description: Password for OpenSearch endpoint
           required: true
           type: secret
-        - name: openTelemetry.logsCollector.failover.enabled
+        - name: auditLogs.openSearchLogs.failover.enabled
           default: false
           description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
           required: false

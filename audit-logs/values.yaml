@@ -11,7 +11,6 @@ auditLogs:
   cluster: 
   # -- Region label for Logging
   region: 
-
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint: 
@@ -21,6 +20,9 @@ auditLogs:
     failover_username_a: 
     # -- Password for OpenSearch endpoint
     failover_password_a: 
+    # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
+    failover:
+      enabled: true
     # -- Second Username (as a failover) for OpenSearch endpoint
     failover_username_b: 
     # -- Second Password (as a failover) for OpenSearch endpoint
