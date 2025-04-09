@@ -215,6 +215,45 @@ This would enable you to either:
           - thanos-kube-2:10901
     ```
 
+### Query GRPC Ingress
+
+To expose the Thanos Query GRPC endpoint externally, you can configure an ingress resource. This is useful for enabling external tools or other clusters to query the Thanos Query component.
+Example configuration for enabling GRPC ingress:
+```yaml
+grpc:
+  enabled: true
+  hosts:
+    - host: thanos.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+```
+
+#### TLS Ingress
+
+To enable TLS for the Thanos Query GRPC endpoint, you can configure a TLS secret. This is useful for securing the communication between external clients and the Thanos Query component.
+Example configuration for enabling TLS ingress:
+```yaml
+tls: []
+  - secretName: ingress-cert
+    hosts: [thanos.local]
+```
+
+### Thanos Global Query
+
+In the case of a multi-cluster setup, you may want your Thanos Query to be able to query all Thanos components in all clusters. This is possible by leveraging GRPC Ingress and TLS Ingress.
+If your remote clusters are reachable via a common domain, you can add the endpoints of the remote clusters to the `stores` list in the Thanos Query configuration. This allows the Thanos Query to query all Thanos components across all clusters.
+```yaml
+spec:
+  optionsValues:
+  - name: thanos.query.stores
+    value:
+      - thanos.local-1:443
+      - thanos.local-2:443
+      - thanos.local-3:443
+```
+Pay attention to port numbers. The default port for GRPC is `443`.
+
 ### Disable Individual Thanos Components
 It is possible to disable certain Thanos components for your deployment. To do so add the necessary configuration to your Plugin (currently it is not possible to disable the query component)
 ```yaml
