@@ -13,6 +13,7 @@ header:
     - '*Dockerfile*'
     - 'REUSE.toml'
     - 'LICENSES/*.txt'
+    - 'audit-logs/**' # ignore the license for the opentelemetry charts
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts

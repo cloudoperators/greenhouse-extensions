@@ -19,6 +19,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 
 # The following paths are owned by the respective maintainers
 /alerts/                  @cloudoperators/greenhouse-observability
+/audit-logs/              @cloudoperators/greenhouse-observability
 /cert-manager/            @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
