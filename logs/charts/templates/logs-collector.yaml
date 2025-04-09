@@ -46,7 +46,6 @@ spec:
       port: 9999
 {{- end }}
   image: {{ index .Values "logs-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "logs-operator" "manager" "collectorImage" "tag" }}
-  imagePullPolicy: Always
   volumeMounts:
   - mountPath: /var/log
     name: varlog
