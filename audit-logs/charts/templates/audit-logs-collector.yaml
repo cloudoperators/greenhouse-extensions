@@ -38,7 +38,7 @@ spec:
       value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
-         name: otel-basic-auth
+         name: audit-logs-basic-auth
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
