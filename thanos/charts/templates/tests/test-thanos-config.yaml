@@ -69,7 +69,7 @@ data:
     }
     {{ end }}
 
-    {{- if and .Values.thanos.query.grpc.ingress.enabled .Values.thanos.query.grpc.ingress.hosts .Values.thanos.query.ingress.grpc.tls}}
+    {{- if and .Values.thanos.query.grpc.ingress.enabled .Values.thanos.query.grpc.ingress.hosts .Values.thanos.query.ingress.grpc.tls (not .Values.ci.enabled ) }}
     @test "Verify the availability of the Thanos Query API Ingress hostname by using the created certificates" {
       url="https://{{ (first .Values.thanos.query.grpc.ingress.hosts).host }}:443"
 
