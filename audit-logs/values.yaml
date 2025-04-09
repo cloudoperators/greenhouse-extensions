@@ -2,22 +2,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
 auditLogs:
-  openSearchLogs:
-    failover_username_a: 
-    failover_password_a: 
-    failover_username_b: 
-    failover_password_b: 
-    endpoint: 
-    index: 
+# -- Cluster label for Logging
   cluster: 
+# -- Region label for Logging
   region: 
-  collectorImage:
-    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-    tag: main
+
+  openSearchLogs:
+    # -- Endpoint URL for OpenSearch
+    endpoint: 
+    # -- Name for OpenSearch index
+    index: 
+    # -- Username for OpenSearch endpoint
+    failover_username_a: 
+    # -- Password for OpenSearch endpoint
+    failover_password_a: 
+    # -- Second Username (as a failover) for OpenSearch endpoint
+    failover_username_b: 
+    # -- Second Password (as a failover) for OpenSearch endpoint
+    failover_password_b: 
+
   prometheus:
+    # -- Activates the service-monitoring for the Logs Collector.
     podMonitor:
       enabled: false
+    # -- Activates the pod-monitoring for the Logs Collector.
     serviceMonitor:
       enabled: false
   
-
+  collectorImage:
+    # -- overrides the default image repository for the OpenTelemetry Collector image.
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    # -- overrides the default image tag for the OpenTelemetry Collector image.
+    tag: main

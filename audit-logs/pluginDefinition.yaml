@@ -15,55 +15,55 @@ spec:
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
         version: 0.0.1
     options:
-        - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-          description: Collector image repository
-          name: auditLogs.collectorImage.repository
+        - name: auditLogs.region
+          description: Region label for logging
           required: false
           type: string
-        - default: "main"
-          description: Collector image tag
-          name: auditLogs.collectorImage.tag
+        - name: auditLogs.cluster
+          description: Cluster label for logging
           required: false
           type: string
-        - description: Endpoint URL for OpenSearch
-          name: auditLogs.openSearchLogs.endpoint
+        - name: auditLogs.openSearchLogs.endpoint
+          description: Endpoint URL for OpenSearch
           required: false
           type: string
-        - description: Username for OpenSearch endpoint
-          name: auditLogs.openSearchLogs.failover_username_a
+        - name: auditLogs.openSearchLogs.index
+          description: auditLogs.openSearchLogs.index
           required: false
           type: string
-        - description: Password for OpenSearch endpoint
-          name: auditLogs.openSearchLogs.failover_password_a
+        - name: auditLogs.openSearchLogs.failover_username_a
+          description: Username for OpenSearch endpoint
+          required: false
+          type: string
+        - name: auditLogs.openSearchLogs.failover_password_a
+          description: Password for OpenSearch endpoint
           required: true
           type: secret
-        - description: Second Username (as a failover) for OpenSearch endpoint
-          name: auditLogs.openSearchLogs.failover_username_b
+        - name: auditLogs.openSearchLogs.failover_username_b
+          description: Second Username (as a failover) for OpenSearch endpoint
           required: false
           type: secret
-        - description: Second Username (as a failover) for OpenSearch endpoint
-          name: auditLogs.openSearchLogs.failover_password_b
+        - name: auditLogs.openSearchLogs.failover_password_b
+          description: Second Username (as a failover) for OpenSearch endpoint
           required: false
           type: secret  
-        - description: auditLogs.openSearchLogs.index
-          name: auditLogs.openSearchLogs.index
-          required: false
-          type: string
-        - default: false
+        - name: auditLogs.prometheus.podMonitor.enabled
+          default: false
           description: auditLogs.prometheus.podMonitor.enabled
-          name: auditLogs.prometheus.podMonitor.enabled
           required: false
           type: bool
-        - default: false
+        - name: auditLogs.prometheus.serviceMonitor.enabled
+          default: false
           description: auditLogs.prometheus.serviceMonitor.enabled
-          name: auditLogs.prometheus.serviceMonitor.enabled
           required: false
           type: bool
-        - description: Region label for logging
-          name: auditLogs.region
+        - name: auditLogs.collectorImage.repository
+          default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+          description: Collector image repository
           required: false
           type: string
-        - description: Cluster label for logging
-          name: auditLogs.cluster
+        - name: auditLogs.collectorImage.tag
+          default: "main"
+          description: Collector image tag
           required: false
           type: string
