@@ -538,6 +538,7 @@ stringData:
   client_id: <value>
   client_secret: <value>
 ```
+- Include in the `extraSecretMounts` configuration flag:
 
 ```yaml
 - extraSecretMounts:
