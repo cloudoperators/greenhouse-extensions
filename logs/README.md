@@ -87,7 +87,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | logs-operator.crds.create | bool | `false` | The required CRDs used by this dependency are version-controlled in this repository under ./crds. If you want to use the upstream CRDs, set this variable to `true``. |
 | logs-operator.kubeRBACProxy | object | `{"enabled":false}` | the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API. |
 | logs-operator.manager.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| logs-operator.manager.collectorImage.tag | string | `"main"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| logs-operator.manager.collectorImage.tag | string | `"9cc3692"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | logs-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
 | logs-operator.manager.image.tag | string | `"v0.120.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | logs-operator.manager.serviceMonitor | object | `{"enabled":true}` | Enable serviceMonitor for Prometheus metrics scrape |
