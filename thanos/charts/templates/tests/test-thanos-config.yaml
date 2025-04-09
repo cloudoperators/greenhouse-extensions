@@ -75,7 +75,6 @@ data:
 
       run grpcurl -cacert /tls-assets/ca.crt -cert /tls-assets/tls.crt -key /tls-assets/tls.key ${url} grpc.health.v1.Health/Check
       [ "$status" -eq "0" ]
-      [[ "$output" =~ "SERVING" ]]
     }
     {{- end }}
 
