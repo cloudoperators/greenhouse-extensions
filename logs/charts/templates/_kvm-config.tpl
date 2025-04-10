@@ -7,11 +7,11 @@ filelog/kvm_logs:
     line_start_pattern: ^\d{4}-\d{2}-\d{2}
   operators:
     - type: regex_parser
-      regex: (?P<logtime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(?:Z)?)
+      regex: (?P<logtime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3})
     - type: time_parser
       parse_from: attributes.logtime
-      layout: "2006-01-02T15:04:05.999"
-      layout_type: gotime
+      layout: '%Y-%m-%dT%H:%M:%S.%L'
+      layout_type: strptime
     - id: file-label
       type: add
       field: attributes["log.type"]
