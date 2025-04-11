@@ -108,7 +108,7 @@ spec:
           name: openTelemetry.manager.collectorImage.repository
           required: false
           type: string
-        - default: "main"
+        - default: "1e76287"
           description: openTelemetry.manager.collectorImage.tag
           name: openTelemetry.manager.collectorImage.tag
           required: false
