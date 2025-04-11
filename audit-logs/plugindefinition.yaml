@@ -11,9 +11,9 @@ spec:
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
-        name: 'local/plugins/audit-logs/charts'
-        #repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        #version: 0.0.1
+        name: 'audit-logs'
+        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+        version: 0.0.1
     options:
         - name: auditLogs.region
           description: Region label for logging
