@@ -1,6 +1,29 @@
 {{- define "kvm.receiver" }}
-filelog/kvm_logs:
-  include: [ /var/log/libvirt/qemu/*.log, /var/log/openvswitch/*.log ]
+filelog/qemu_logs:
+  include: [ /var/log/libvirt/qemu/*.log ]
+  include_file_path: true
+  start_at: beginning
+  multiline:
+    line_start_pattern: ^\d{4}-\d{2}-\d{2}
+  operators:
+    - type: regex_parser
+      regex: (?P<logtime>\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}.\d{3})
+    - type: time_parser
+      if: not (attributes.logtime contains "T")
+      parse_from: attributes.logtime
+      layout: '%Y-%m-%d %H:%M:%S.%L'
+      layout_type: strptime
+    - type: time_parser
+      if: attributes.logtime contains "T"
+      parse_from: attributes.logtime
+      layout: '%Y-%m-%dT%H:%M:%S.%L'
+      layout_type: strptime
+    - id: file-label
+      type: add
+      field: attributes["log.type"]
+      value: "files-qemu"
+filelog/openvswitch_logs:
+  include: [ /var/log/openvswitch/*.log ]
   include_file_path: true
   start_at: beginning
   multiline:
@@ -15,7 +38,7 @@ filelog/kvm_logs:
     - id: file-label
       type: add
       field: attributes["log.type"]
-      value: "files"
+      value: "files-openvswitch"
 {{- end }}
 {{- define "kvm.transform" }}
 transform/kvm_openvswitch:
@@ -55,7 +78,7 @@ logs/kvm_containerd:
   processors: [k8sattributes,attributes/cluster,transform/ingress,transform/kvm_openvswitch,transform/kvm_nova_agent]
   exporters: [forward]
 logs/kvm_filelog:
-  receivers: [filelog/kvm_logs]
+  receivers: [filelog/qemu_logs,filelog/openvswitch_logs]
   processors: [k8sattributes,attributes/cluster,transform/kvm_logs]
   exporters: [forward]
 {{- end }}
