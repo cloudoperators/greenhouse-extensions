@@ -296,9 +296,9 @@ To enable the creation of a ServiceMonitor we can use the Thanos Plugin configur
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.ruler.serviceMonitor.selfMonitor
+  - name: thanos.serviceMonitor.selfMonitor
       value: true
-  - name: thanos.ruler.serviceMonitor.additionalLabels
+  - name: thanos.serviceMonitor.labels
       value:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
