@@ -41,7 +41,7 @@ data:
     }
     {{ end }}
 
-    {{ if and .Values.thanos.ruler.enabled }}
+    {{ if .Values.thanos.ruler.enabled }}
     @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
       verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
       verify "there is 1 service named '{{ .Release.Name }}-ruler'"
