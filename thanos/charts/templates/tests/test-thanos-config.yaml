@@ -69,4 +69,14 @@ data:
     }
     {{ end }}
 
+    {{- if and .Values.thanos.query.ingress.grpc.enabled .Values.thanos.query.ingress.grpc.hosts .Values.thanos.query.ingress.grpc.tls (not .Values.ci.enabled ) }}
+    @test "Verify the availability of the Thanos Query API Ingress hostname by using the created certificates" {
+      url="{{ (first .Values.thanos.query.ingress.grpc.hosts).host }}:443"
+
+      run grpc_health_probe -addr=${url} -tls -tls-ca-cert /tls-assets/ca.crt
+      [ "$status" -eq "0" ]
+      [[ "$output" =~ "SERVING" ]]
+    }
+    {{- end }}
+
 {{- end -}}

@@ -17,7 +17,7 @@ data:
         "name": "{{ printf "%s-%s" $.Release.Name "query" }}",
       },
       "spec": {
-        "default": true,
+        "default": false,
         "plugin": {
           "kind": "PrometheusDatasource",
           "spec": {

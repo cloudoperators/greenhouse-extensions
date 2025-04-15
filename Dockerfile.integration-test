@@ -1,6 +1,7 @@
 FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.11.1
 
 ARG KUBECTL_VERSION=v1.30.3
+ARG GRPC_HEALTH_PROBE_VERSION=v0.4.37
 
 # Add packages
 RUN apk upgrade --no-cache --no-progress \  
@@ -11,4 +12,7 @@ RUN apk upgrade --no-cache --no-progress \
 RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/${BUILDPLATFORM:-linux/amd64}/kubectl" && \
 	chmod +x kubectl && \
 	mv kubectl /usr/local/bin/
-	
+
+# Install GRPC Health Probe
+RUN curl -L https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 -o /usr/local/bin/grpc_health_probe && \
+	chmod +x /usr/local/bin/grpc_health_probe
