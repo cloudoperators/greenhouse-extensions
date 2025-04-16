@@ -481,5 +481,5 @@ testFramework:
   imagePullPolicy: IfNotPresent
 
 # @ignored
-blackboxporter:
+blackboxExporter:
   enabled: false
