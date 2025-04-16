@@ -6,26 +6,26 @@ kind: PluginDefinition
 metadata:
     name: logs
 spec:
-    version: 0.8.2
+    version: 0.8.6
     displayName: Logs
     description: Observability framework for instrumenting, generating, collecting, and exporting logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
     helmChart:
         name: logs-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.8.2
+        version: 0.8.6
     options:
         - default: true
           description: Activates the standard configuration for logs
           name: openTelemetry.logsCollector.enabled
           required: false
           type: bool
-        - default: true
+        - default: false
           description: Activates the configuration for KVM logs (requires logsCollector enabled)
           name: openTelemetry.logsCollector.kvmConfig.enabled
           required: false
           type: bool
-        - default: true
+        - default: false
           description: Activates the configuration for Ceph logs (requires logsCollector enabled)
           name: openTelemetry.logsCollector.cephConfig.enabled
           required: false
@@ -108,7 +108,7 @@ spec:
           name: openTelemetry.manager.collectorImage.repository
           required: false
           type: string
-        - default: "main"
+        - default: "b05fdf1"
           description: openTelemetry.manager.collectorImage.tag
           name: openTelemetry.manager.collectorImage.tag
           required: false

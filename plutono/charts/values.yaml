@@ -5,7 +5,7 @@ global:
   # -- Overrides the Docker registry globally for all images
   imageRegistry: null
 
-  # To help compatibility with other charts which use global.imagePullSecrets.
+  # -- To help compatibility with other charts which use global.imagePullSecrets.
   # Allow either an array of {name: pullSecret} maps (k8s-style), or an array of strings (more common helm-style).
   # Can be templated.
   # global:
@@ -22,7 +22,7 @@ global:
 plutono:
   rbac:
     create: true
-    ## Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)
+    # -- Use an existing ClusterRole/Role (depending on rbac.namespaced false/true)
     # useExistingRole: name-of-some-role
     # useExistingClusterRole: name-of-some-clusterRole
     pspEnabled: false
@@ -52,13 +52,13 @@ plutono:
 
   replicas: 1
 
-  ## Create a headless service for the deployment
+  # -- Create a headless service for the deployment
   headlessService: false
 
-  ## Should the service account be auto mounted on the pod
+  # -- Should the service account be auto mounted on the pod
   automountServiceAccountToken: true
 
-  ## Create HorizontalPodAutoscaler object for deployment type
+  # -- Create HorizontalPodAutoscaler object for deployment type
   #
   autoscaling:
     enabled: false
@@ -68,14 +68,14 @@ plutono:
     targetMemory: ""
     behavior: {}
 
-  ## See `kubectl explain poddisruptionbudget.spec` for more
+  # -- See `kubectl explain poddisruptionbudget.spec` for more
   ## ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
   podDisruptionBudget: {}
   #  apiVersion: ""
   #  minAvailable: 1
   #  maxUnavailable: 1
 
-  ## See `kubectl explain deployment.spec.strategy` for more
+  # -- See `kubectl explain deployment.spec.strategy` for more
   ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
   deploymentStrategy:
     type: RollingUpdate
@@ -93,7 +93,7 @@ plutono:
     timeoutSeconds: 30
     failureThreshold: 10
 
-  ## Use an alternate scheduler, e.g. "stork".
+  # -- Use an alternate scheduler, e.g. "stork".
   ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
   ##
   # schedulerName: "default-scheduler"
@@ -101,12 +101,12 @@ plutono:
   image:
     registry: ghcr.io
     repository: credativ/plutono
-    # Overrides the Plutono image tag whose default is the chart appVersion
+    # -- Overrides the Plutono image tag whose default is the chart appVersion
     tag: v7.5.37
     sha: ""
     pullPolicy: IfNotPresent
 
-    ## Optionally specify an array of imagePullSecrets.
+    # -- Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     ## Can be templated.
@@ -130,9 +130,10 @@ plutono:
     #    cpu: 100m
     #    memory: 128Mi
 
-  # dns configuration for pod
+  # -- dns configuration for pod
   dnsPolicy: ~
-  dnsConfig: {}
+  dnsConfig:
+    {}
     # nameservers:
     #   - 8.8.8.8
     #   options:
@@ -150,16 +151,17 @@ plutono:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
-      - ALL
+        - ALL
     seccompProfile:
       type: RuntimeDefault
 
-  # Enable creating the plutono configmap
+  # -- Enable creating the plutono configmap
   createConfigmap: true
 
-  # Extra configmaps to mount in plutono pods
-  # Values are templated.
-  extraConfigmapMounts: []
+  # -- Extra configmaps to mount in plutono pods
+  # -- Values are templated.
+  extraConfigmapMounts:
+    []
     # - name: certs-configmap
     #   mountPath: /etc/plutono/ssl/
     #   subPath: certificates.crt # (optional)
@@ -167,24 +169,23 @@ plutono:
     #   readOnly: true
     #   optional: false
 
-
-  extraEmptyDirMounts: []
+  extraEmptyDirMounts:
+    []
     # - name: provisioning-notifiers
     #   mountPath: /etc/plutono/provisioning/notifiers
 
-
-  # Apply extra labels to common labels.
+  # -- Apply extra labels to common labels.
   extraLabels:
     plugin: plutono
 
-  ## Assign a PriorityClassName to pods if set
+  # Assign a PriorityClassName to pods if set
   # priorityClassName:
 
   downloadDashboardsImage:
     # -- The Docker registry
     registry: docker.io
     repository: curlimages/curl
-    tag: 8.12.1
+    tag: 8.13.0
     sha: ""
     pullPolicy: IfNotPresent
 
@@ -196,7 +197,7 @@ plutono:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - ALL
+          - ALL
       seccompProfile:
         type: RuntimeDefault
     envValueFrom: {}
@@ -210,7 +211,7 @@ plutono:
 
   ## ConfigMap Annotations
   # configMapAnnotations: {}
-    # argocd.argoproj.io/sync-options: Replace=true
+  # argocd.argoproj.io/sync-options: Replace=true
 
   ## Pod Labels
   # podLabels: {}
@@ -220,38 +221,39 @@ plutono:
   ## Deployment annotations
   # annotations: {}
 
-  ## Expose the plutono service to be accessed from outside the cluster (LoadBalancer service).
+  # -- Expose the plutono service to be accessed from outside the cluster (LoadBalancer service).
   ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
   ## ref: http://kubernetes.io/docs/user-guide/services/
   ##
   service:
     enabled: true
     type: ClusterIP
-    # Set the ip family policy to configure dual-stack see [Configure dual-stack](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services)
+    # -- Set the ip family policy to configure dual-stack see [Configure dual-stack](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services)
     ipFamilyPolicy: ""
-    # Sets the families that should be supported and the order in which they should be applied to ClusterIP as well. Can be IPv4 and/or IPv6.
+    # -- Sets the families that should be supported and the order in which they should be applied to ClusterIP as well. Can be IPv4 and/or IPv6.
     ipFamilies: []
     loadBalancerIP: ""
     loadBalancerClass: ""
     loadBalancerSourceRanges: []
     port: 80
-    targetPort: 3000
+    targetPort:
+      3000
       # targetPort: 4181 To be used with a proxy extraContainer
-    ## Service annotations. Can be templated.
+    # -- Service annotations. Can be templated.
     annotations: {}
     labels:
       greenhouse.sap/expose: "true"
     portName: service
-    # Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
+    # -- Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp"
     appProtocol: ""
 
   serviceMonitor:
-    ## If true, a ServiceMonitor CR is created for a prometheus operator
+    # -- If true, a ServiceMonitor CR is created for a prometheus operator
     ## https://github.com/coreos/prometheus-operator
     ##
     enabled: false
     path: /metrics
-    #  namespace: monitoring  (defaults to use the namespace this chart is deployed to)
+    # -- namespace: monitoring  (defaults to use the namespace this chart is deployed to)
     labels: {}
     interval: 30s
     scheme: http
@@ -261,13 +263,15 @@ plutono:
     metricRelabelings: []
     targetLabels: []
 
-  extraExposePorts: []
-   # - name: keycloak
-   #   port: 8080
-   #   targetPort: 8080
+  extraExposePorts:
+    []
+    # - name: keycloak
+    #   port: 8080
+    #   targetPort: 8080
 
-  # overrides pod.spec.hostAliases in the plutono deployment's pods
-  hostAliases: []
+  # -- overrides pod.spec.hostAliases in the plutono deployment's pods
+  hostAliases:
+    []
     # - ip: "1.2.3.4"
     #   hostnames:
     #     - "my.host.com"
@@ -278,18 +282,19 @@ plutono:
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
     # Values can be templated
-    annotations: {}
+    annotations:
+      {}
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     labels: {}
     path: /
 
-    # pathType is only for k8s >= 1.1=
+    # -- pathType is only for k8s >= 1.1=
     pathType: Prefix
 
     hosts:
       - chart-example.local
-    ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
+    # -- Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
     extraPaths: []
     # - path: /*
     #   backend:
@@ -304,7 +309,6 @@ plutono:
     #       port:
     #         name: use-annotation
 
-
     tls: []
     #  - secretName: chart-example-tls
     #    hosts:
@@ -318,32 +322,32 @@ plutono:
   #    cpu: 100m
   #    memory: 128Mi
 
-  ## Node labels for pod assignment
-  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  # -- Node labels for pod assignment
+  # ref: https://kubernetes.io/docs/user-guide/node-selection/
   #
   nodeSelector: {}
 
-  ## Tolerations for pod assignment
-  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-  ##
+  # -- Tolerations for pod assignment
+  # ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  #
   tolerations: []
 
-  ## Affinity for pod assignment (evaluated as template)
-  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  ##
+  # -- Affinity for pod assignment (evaluated as template)
+  # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  #
   affinity: {}
 
-  ## Topology Spread Constraints
-  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-  ##
+  # -- Topology Spread Constraints
+  # ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+  #
   topologySpreadConstraints: []
 
-  ## Additional init containers (evaluated as template)
-  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
-  ##
+  # -- Additional init containers (evaluated as template)
+  # ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  #
   extraInitContainers: []
 
-  ## Enable an Specify container in extraContainers. This is meant to allow adding an authentication proxy to a plutono pod
+  # -- Enable an Specify container in extraContainers. This is meant to allow adding an authentication proxy to a plutono pod
   extraContainers: ""
   # extraContainers: |
   # - name: proxy
@@ -361,7 +365,7 @@ plutono:
   #     - name: proxy-web
   #       containerPort: 4181
 
-  ## Volumes that can be used in init containers that will not be mounted to deployment pods
+  # -- Volumes that can be used in init containers that will not be mounted to deployment pods
   extraContainerVolumes: []
   #  - name: volume-from-secret
   #    secret:
@@ -369,9 +373,9 @@ plutono:
   #  - name: empty-dir-volume
   #    emptyDir: {}
 
-  ## Enable persistence using Persistent Volume Claims
-  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-  ##
+  # -- Enable persistence using Persistent Volume Claims
+  # ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  #
   persistence:
     type: pvc
     enabled: false
@@ -383,15 +387,15 @@ plutono:
     finalizers:
       - kubernetes.io/pvc-protection
     # selectorLabels: {}
-    ## Sub-directory of the PV to mount. Can be templated.
+    # Sub-directory of the PV to mount. Can be templated.
     # subPath: ""
     ## Name of an existing PVC. Can be templated.
     # existingClaim:
-    ## Extra labels to apply to a PVC.
+    # -- Extra labels to apply to a PVC.
     extraPvcLabels: {}
     disableWarning: false
 
-    ## If persistence is not enabled, this allows to mount the
+    # -- If persistence is not enabled, this allows to mount the
     ## local storage in-memory to improve performance
     ##
     inMemory:
@@ -402,18 +406,18 @@ plutono:
       ##
       # sizeLimit: 300Mi
 
-    ## If 'lookupVolumeName' is set to true, Helm will attempt to retrieve
-    ## the current value of 'spec.volumeName' and incorporate it into the template.
+    # -- If 'lookupVolumeName' is set to true, Helm will attempt to retrieve
+    # the current value of 'spec.volumeName' and incorporate it into the template.
     lookupVolumeName: true
-
+  # @ignored
   initChownData:
-    ## If false, data ownership will not be reset at startup
-    ## This allows the plutono-server to be run with an arbitrary user
-    ##
+    # --If false, data ownership will not be reset at startup
+    # This allows the plutono-server to be run with an arbitrary user
+    #
     enabled: true
 
-    ## initChownData container image
-    ##
+    # -- initChownData container image
+    #
     image:
       # -- The Docker registry
       registry: docker.io
@@ -422,9 +426,9 @@ plutono:
       sha: ""
       pullPolicy: IfNotPresent
 
-    ## initChownData resource requests and limits
-    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
-    ##
+    # -- initChownData resource requests and limits
+    # Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    #
     resources: {}
     #  limits:
     #    cpu: 100m
@@ -499,34 +503,35 @@ plutono:
   ##     - name: <key>
   ##       valueFrom:
   ##         <value rendered as YAML>
-  envValueFrom: {}
+  envValueFrom:
+    {}
     #  ENV_NAME:
     #    configMapKeyRef:
     #      name: configmap-name
     #      key: value_key
 
-  ## The name of a secret in the same kubernetes namespace which contain values to be added to the environment
-  ## This can be useful for auth tokens, etc. Value is templated.
+  # -- The name of a secret in the same kubernetes namespace which contain values to be added to the environment
+  # This can be useful for auth tokens, etc. Value is templated.
   envFromSecret: ""
 
-  ## Sensible environment variables that will be rendered as new secret object
-  ## This can be useful for auth tokens, etc.
-  ## If the secret values contains "{{", they'll need to be properly escaped so that they are not interpreted by Helm
-  ## ref: https://helm.sh/docs/howto/charts_tips_and_tricks/#using-the-tpl-function
+  # -- Sensible environment variables that will be rendered as new secret object
+  # This can be useful for auth tokens, etc.
+  # If the secret values contains "{{", they'll need to be properly escaped so that they are not interpreted by Helm
+  # ref: https://helm.sh/docs/howto/charts_tips_and_tricks/#using-the-tpl-function
   envRenderSecret: {}
 
-  ## The names of secrets in the same kubernetes namespace which contain values to be added to the environment
-  ## Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
-  ## Name is templated.
+  # -- The names of secrets in the same kubernetes namespace which contain values to be added to the environment
+  # Each entry should contain a name key, and can optionally specify whether the secret must be defined with an optional key.
+  # Name is templated.
   envFromSecrets: []
   ## - name: secret-name
   ##   prefix: prefix
   ##   optional: true
 
-  ## The names of conifgmaps in the same kubernetes namespace which contain values to be added to the environment
-  ## Each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
-  ## Name is templated.
-  ## ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#configmapenvsource-v1-core
+  # -- The names of conifgmaps in the same kubernetes namespace which contain values to be added to the environment
+  # Each entry should contain a name key, and can optionally specify whether the configmap must be defined with an optional key.
+  # Name is templated.
+  # ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#configmapenvsource-v1-core
   envFromConfigMaps: []
   ## - name: configmap-name
   ##   prefix: prefix
@@ -536,9 +541,10 @@ plutono:
   # See https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/#environment-variables
   enableServiceLinks: true
 
-  ## Additional plutono server secret mounts
+  # -- The additional plutono server secret mounts
   # Defines additional mounts with secrets. Secrets must be manually created in the namespace.
-  extraSecretMounts: []
+  extraSecretMounts:
+    []
     # - name: secret-files
     #   mountPath: /etc/secrets
     #   secretName: plutono-secret-files
@@ -570,9 +576,10 @@ plutono:
     #    nodePublishSecretRef:                       # Only required when using service principal mode
     #       name: plutono-akv-creds                  # Only required when using service principal mode
 
-  ## Additional plutono server volume mounts
+  # -- The additional plutono server volume mounts
   # Defines additional volume mounts.
-  extraVolumeMounts: []
+  extraVolumeMounts:
+    []
     # - name: extra-volume-0
     #   mountPath: /mnt/volume0
     #   readOnly: true
@@ -583,7 +590,8 @@ plutono:
     #   mountPath: /mnt/volume2
 
   ## Additional Plutono server volumes
-  extraVolumes: []
+  extraVolumes:
+    []
     # - name: extra-volume-0
     #   existingClaim: volume-claim
     # - name: extra-volume-1
@@ -598,14 +606,16 @@ plutono:
     #       secretProviderClass: "plutono-env-spc"
 
   ## Container Lifecycle Hooks. Execute a specific bash command or make an HTTP request
-  lifecycleHooks: {}
+  lifecycleHooks:
+    {}
     # postStart:
     #   exec:
     #     command: []
 
   ## Pass the plugins you want installed as a list.
   ##
-  plugins: []
+  plugins:
+    []
     # - digrich-bubblechart-panel
     # - plutono-clock-panel
     ## You can also use other plugin download URL, as long as they are valid zip files,
@@ -638,7 +648,8 @@ plutono:
   ## Configure plutono alerting (can be templated)
   ## ref: http://docs.plutono.org/administration/provisioning/#alerting
   ##
-  alerting: {}
+  alerting:
+    {}
     # rules.yaml:
     #   apiVersion: 1
     #   groups:
@@ -720,7 +731,8 @@ plutono:
   ##
   ## dashboards per provider, use provider name as key.
   ##
-  dashboards: {}
+  dashboards:
+    {}
     # default:
     #   some-dashboard:
     #     json: |
@@ -781,33 +793,34 @@ plutono:
       org_role: Admin
 
   ## plutono Authentication can be enabled with the following values on plutono.ini
-   # server:
-        # The full public facing url you use in browser, used for redirects and emails
-   #    root_url:
-   # https://plutono.com/docs/plutono/latest/auth/github/#enable-github-in-plutono
-   # auth.github:
-   #    enabled: false
-   #    allow_sign_up: false
-   #    scopes: user:email,read:org
-   #    auth_url: https://github.com/login/oauth/authorize
-   #    token_url: https://github.com/login/oauth/access_token
-   #    api_url: https://api.github.com/user
-   #    team_ids:
-   #    allowed_organizations:
-   #    client_id:
-   #    client_secret:
+  # server:
+  # The full public facing url you use in browser, used for redirects and emails
+  #    root_url:
+  # https://plutono.com/docs/plutono/latest/auth/github/#enable-github-in-plutono
+  # auth.github:
+  #    enabled: false
+  #    allow_sign_up: false
+  #    scopes: user:email,read:org
+  #    auth_url: https://github.com/login/oauth/authorize
+  #    token_url: https://github.com/login/oauth/access_token
+  #    api_url: https://api.github.com/user
+  #    team_ids:
+  #    allowed_organizations:
+  #    client_id:
+  #    client_secret:
   ## LDAP Authentication can be enabled with the following values on plutono.ini
   ## NOTE: Plutono will fail to start if the value for ldap.toml is invalid
-    # auth.ldap:
-    #   enabled: true
-    #   allow_sign_up: true
-    #   config_file: /etc/plutono/ldap.toml
+  # auth.ldap:
+  #   enabled: true
+  #   allow_sign_up: true
+  #   config_file: /etc/plutono/ldap.toml
 
   ## Plutono's LDAP configuration
   ## Templated by the template in _helpers.tpl
   ## NOTE: To enable the plutono.ini must be configured with auth.ldap.enabled
   ## ref: http://docs.plutono.org/installation/configuration/#auth-ldap
   ## ref: http://docs.plutono.org/installation/ldap/#configuration
+  # @ignored
   ldap:
     enabled: false
     # `existingSecret` is a reference to an existing secret containing the ldap configuration
@@ -829,6 +842,7 @@ plutono:
   ## Plutono's SMTP configuration
   ## NOTE: To enable, plutono.ini must be configured with smtp.enabled
   ## ref: http://docs.plutono.org/installation/configuration/#smtp
+  # @ignored
   smtp:
     # `existingSecret` is a reference to an existing secret containing the smtp configuration
     # for Plutono.
@@ -836,8 +850,8 @@ plutono:
     userKey: "user"
     passwordKey: "password"
 
-  ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
-  ## Requires at least Plutono 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
+  # -- Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+  # Requires at least Plutono 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
       # -- The Docker registry
@@ -847,17 +861,17 @@ plutono:
       sha: ""
     imagePullPolicy: IfNotPresent
     resources: {}
-  #   limits:
-  #     cpu: 100m
-  #     memory: 100Mi
-  #   requests:
-  #     cpu: 50m
-  #     memory: 50Mi
+    #   limits:
+    #     cpu: 100m
+    #     memory: 100Mi
+    #   requests:
+    #     cpu: 50m
+    #     memory: 50Mi
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
-        - ALL
+          - ALL
       seccompProfile:
         type: RuntimeDefault
     # skipTlsVerify Set to true to skip tls verification for kube api calls
@@ -869,23 +883,23 @@ plutono:
     # logLevel: INFO
     alerts:
       enabled: false
-      # Additional environment variables for the alerts sidecar
+      # -- Additional environment variables for the alerts sidecar
       env: {}
       # Do not reprocess already processed unchanged resources on k8s API reconnect.
       # ignoreAlreadyProcessed: true
-      # label that the configmaps with alert are marked with
+      # -- label that the configmaps with alert are marked with
       label: plutono_alert
-      # value of label that the configmaps with alert are set to
+      # -- value of label that the configmaps with alert are set to
       labelValue: ""
       # Log level. Can be one of: DEBUG, INFO, WARN, ERROR, CRITICAL.
       # logLevel: INFO
-      # If specified, the sidecar will search for alert config-maps inside this namespace.
+      # -- If specified, the sidecar will search for alert config-maps inside this namespace.
       # Otherwise the namespace in which the sidecar is running will be used.
       # It's also possible to specify ALL to search in all namespaces
       searchNamespace: null
-      # Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds.
+      # -- Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds.
       watchMethod: WATCH
-      # search in configmap, secret or both
+      # -- search in configmap, secret or both
       resource: both
       # watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
       # defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -935,27 +949,27 @@ plutono:
       labelValue: "true"
       # Log level. Can be one of: DEBUG, INFO, WARN, ERROR, CRITICAL.
       # logLevel: INFO
-      # folder in the pod that should hold the collected dashboards (unless `defaultFolderName` is set)
+      # -- folder in the pod that should hold the collected dashboards (unless `defaultFolderName` is set)
       folder: /tmp/dashboards
-      # The default folder name, it will create a subfolder under the `folder` and put dashboards in there instead
+      # -- The default folder name, it will create a subfolder under the `folder` and put dashboards in there instead
       defaultFolderName: null
-      # Namespaces list. If specified, the sidecar will search for config-maps/secrets inside these namespaces.
+      # -- Namespaces list. If specified, the sidecar will search for config-maps/secrets inside these namespaces.
       # Otherwise the namespace in which the sidecar is running will be used.
       # It's also possible to specify ALL to search in all namespaces.
       searchNamespace: ALL
       # Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds.
       watchMethod: WATCH
-      # search in configmap, secret or both
+      # s-- earch in configmap, secret or both
       resource: both
-      # If specified, the sidecar will look for annotation with this name to create folder and put graph here.
+      # -- If specified, the sidecar will look for annotation with this name to create folder and put graph here.
       # You can use this parameter together with `provider.foldersFromFilesStructure`to annotate configmaps and create folder structure.
       folderAnnotation: null
-      # Endpoint to send request to reload alerts
+      # -- Endpoint to send request to reload alerts
       reloadURL: "http://localhost:3000/api/admin/provisioning/dashboards/reload"
       # Absolute path to shell script to execute after a configmap got reloaded
       script: null
       skipReload: false
-      # watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
+      # -- watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
       # defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
       # watchServerTimeout: 3600
       #
@@ -967,29 +981,29 @@ plutono:
       #
       # provider configuration that lets plutono manage the dashboards
       provider:
-        # name of the provider, should be unique
+        # -- name of the provider, should be unique
         name: sidecarProvider
-        # orgid as configured in plutono
+        # -- orgid as configured in plutono
         orgid: 1
-        # folder in which the dashboards should be imported in plutono
-        folder: ''
-        # <string> folder UID. will be automatically generated if not specified
-        folderUid: ''
-        # type of the provider
+        # -- folder in which the dashboards should be imported in plutono
+        folder: ""
+        # -- <string> folder UID. will be automatically generated if not specified
+        folderUid: ""
+        # -- type of the provider
         type: file
-        # disableDelete to activate a import-only behaviour
+        # -- disableDelete to activate a import-only behaviour
         disableDelete: false
-        # allow updating provisioned dashboards from the UI
+        # -- allow updating provisioned dashboards from the UI
         allowUiUpdates: false
-        # allow Plutono to replicate dashboard structure from filesystem
+        # -- allow Plutono to replicate dashboard structure from filesystem
         foldersFromFilesStructure: false
-      # Additional dashboard sidecar volume mounts
+      # -- Additional dashboard sidecar volume mounts
       extraMounts: []
-      # Sets the size limit of the dashboard sidecar emptyDir volume
+      # -- Sets the size limit of the dashboard sidecar emptyDir volume
       sizeLimit: {}
     datasources:
       enabled: true
-      # Additional environment variables for the datasourcessidecar
+      # -- Additional environment variables for the datasourcessidecar
       env: {}
       ## "valueFrom" environment variable references that will be added to deployment pods. Name is templated.
       ## ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#envvarsource-v1-core
@@ -1012,13 +1026,13 @@ plutono:
       labelValue: "true"
       # Log level. Can be one of: DEBUG, INFO, WARN, ERROR, CRITICAL.
       # logLevel: INFO
-      # If specified, the sidecar will search for datasource config-maps inside this namespace.
+      # -- If specified, the sidecar will search for datasource config-maps inside this namespace.
       # Otherwise the namespace in which the sidecar is running will be used.
       # It's also possible to specify ALL to search in all namespaces
       searchNamespace: ALL
-      # Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds.
+      # -- Method to use to detect ConfigMap changes. With WATCH the sidecar will do a WATCH requests, with SLEEP it will list all ConfigMaps, then sleep for 60 seconds.
       watchMethod: WATCH
-      # search in configmap, secret or both
+      # -- search in configmap, secret or both
       resource: both
       # watchServerTimeout: request to the server, asking it to cleanly close the connection after that.
       # defaults to 60sec; much higher values like 3600 seconds (1h) are feasible for non-Azure K8S
@@ -1030,16 +1044,17 @@ plutono:
       # defaults to 66sec (sic!)
       # watchClientTimeout: 60
       #
-      # Endpoint to send request to reload datasources
+      # -- Endpoint to send request to reload datasources
       reloadURL: "http://localhost:3000/api/admin/provisioning/datasources/reload"
-      # Absolute path to shell script to execute after a datasource got reloaded
+      # -- Absolute path to shell script to execute after a datasource got reloaded
       script: null
       skipReload: false
-      # This is needed if skipReload is true, to load any datasources defined at startup time.
+      # -- This is needed if skipReload is true, to load any datasources defined at startup time.
       # Deploy the datasources sidecar as an initContainer.
       initDatasources: false
       # Sets the size limit of the datasource sidecar emptyDir volume
       sizeLimit: {}
+    # @ignored
     plugins:
       enabled: false
       # Additional environment variables for the plugins sidecar
@@ -1130,21 +1145,21 @@ plutono:
   revisionHistoryLimit: 10
 
   networkPolicy:
-    ## @param networkPolicy.enabled Enable creation of NetworkPolicy resources. Only Ingress traffic is filtered for now.
+    # -- @param networkPolicy.enabled Enable creation of NetworkPolicy resources. Only Ingress traffic is filtered for now.
     ##
     enabled: false
-    ## @param networkPolicy.allowExternal Don't require client label for connections
+    # -- @param networkPolicy.allowExternal Don't require client label for connections
     ## The Policy model to apply. When set to false, only pods with the correct
     ## client label will have network access to  plutono port defined.
     ## When true, plutono will accept connections from any source
     ## (with the correct destination port).
     ##
     ingress: true
-    ## @param networkPolicy.ingress When true enables the creation
+    # -- @param networkPolicy.ingress When true enables the creation
     ## an ingress network policy
     ##
     allowExternal: true
-    ## @param networkPolicy.explicitNamespacesSelector A Kubernetes LabelSelector to explicitly select namespaces from which traffic could be allowed
+    # -- @param networkPolicy.explicitNamespacesSelector A Kubernetes LabelSelector to explicitly select namespaces from which traffic could be allowed
     ## If explicitNamespacesSelector is missing or set to {}, only client Pods that are in the networkPolicy's namespace
     ## and that match other criteria, the ones that have the good label, can reach the plutono.
     ## But sometimes, we want the plutono to be accessible to clients from other namespaces, in this case, we can use this
@@ -1165,15 +1180,15 @@ plutono:
     ##
     ##
     egress:
-      ## @param networkPolicy.egress.enabled When enabled, an egress network policy will be
+      # --@param networkPolicy.egress.enabled When enabled, an egress network policy will be
       ## created allowing plutono to connect to external data sources from kubernetes cluster.
       enabled: false
       ##
-      ## @param networkPolicy.egress.blockDNSResolution When enabled, DNS resolution will be blocked
+      # -- @param networkPolicy.egress.blockDNSResolution When enabled, DNS resolution will be blocked
       ## for all pods in the plutono namespace.
       blockDNSResolution: false
       ##
-      ## @param networkPolicy.egress.ports Add individual ports to be allowed by the egress
+      # -- @param networkPolicy.egress.ports Add individual ports to be allowed by the egress
       ports: []
       ## Add ports to the egress by specifying - port: <port number>
       ## E.X.
@@ -1194,11 +1209,12 @@ plutono:
     ##
     ##
 
-  # Enable backward compatibility of kubernetes where version below 1.13 doesn't have the enableServiceLinks option
+  # -- Enable backward compatibility of kubernetes where version below 1.13 doesn't have the enableServiceLinks option
   enableKubeBackwardCompatibility: false
   useStatefulSet: false
-  # Create a dynamic manifests via values:
-  extraObjects: []
+  # -- Create a dynamic manifests via values:
+  extraObjects:
+    []
     # - apiVersion: "kubernetes-client.io/v1"
     #   kind: ExternalSecret
     #   metadata:
