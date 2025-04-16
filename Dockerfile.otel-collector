@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:12.6 AS journal
+FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:12.10 AS journal
 RUN apt update  \
   && apt upgrade -y  \
   && apt autoremove -y \

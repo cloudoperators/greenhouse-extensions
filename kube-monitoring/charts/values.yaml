@@ -1,14 +1,13 @@
 global:
-
-  ## Labels to apply to all resources
-  ##
+  # -- Labels to apply to all resources
+  # This can be used to add a `support_group` or `service` label to all resources and alerting rules.
+  # @section -- Global options
   commonLabels: {}
 
-## kube-prometheus-stack configuration scoped to kube-monitoring
+# kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
-
-  ## Create open source community rules for monitoring the cluster
-  ##
+  # Create open source community rules for monitoring the cluster
+  # @ignored
   defaultRules:
     create: true
     rules:
@@ -44,78 +43,118 @@ kubeMonitoring:
       nodeExporterAlerting: false
       nodeExporterRecording: false
       windows: false
-
-      ## Enable useful alerting rules for self-monitoring Prometheus
+      # Enable useful alerting rules for self-monitoring Prometheus
       prometheus: true
       prometheusOperator: true
 
-    ## Additional labels for PrometheusRule alerts. E.g. support_group and service.
+    # Additional labels for PrometheusRule alerts. E.g. support_group and service.
     additionalRuleLabels: {}
 
-  ## Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
-  ##
+  kubernetesServiceMonitors:
+    # -- Flag to disable all the Kubernetes component scrapers
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeApiServer:
+    # -- Component scraping the kube API server
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  coreDns:
+    # -- Component scraping coreDns. Use either this or kubeDns
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeEtcd:
+    # -- Component scraping etcd
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeStateMetrics:
+    # -- Component scraping kube state metrics
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  nodeExporter:
+    # -- Deploy node exporter as a daemonset to all nodes
+    # @section -- Kubernetes component scraper options
+    enabled: true
+  kubeControllerManager:
+    # -- Component scraping the kube controller manager
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeScheduler:
+    # -- Component scraping kube scheduler
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeProxy:
+    # -- Component scraping kube proxy
+    # @section -- Kubernetes component scraper options
+    enabled: false
+  kubeDns:
+    # -- Component scraping kubeDns. Use either this or coreDns
+    # @section -- Kubernetes component scraper options
+    enabled: false
+
+  # Create curated dashboards for generic monitoring (e.g. monitoring Prometheus)
+  # @ignored
   dashboards:
     create: true
 
-    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    # Label selectors for the Plutono dashboards to be picked up by Plutono.
+    # @ignored
     plutonoSelectors:
       - name: plutono-dashboard
         value: '"true"'
 
-  ## Install Prometheus Operator CRDs
-  ##
+  prometheusOperator:
+    # -- Manages Prometheus and Alertmanager components
+    # @section -- Prometheus-operator options
+    enabled: true
+    # -- Filter namespaces to look for prometheus-operator Alertmanager resources
+    # @section -- Prometheus-operator options
+    alertmanagerInstanceNamespaces: []
+    # -- Filter namespaces to look for prometheus-operator AlertmanagerConfig resources
+    # @section -- Prometheus-operator options
+    alertmanagerConfigNamespaces: []
+    # -- Filter namespaces to look for prometheus-operator Prometheus resources
+    # @section -- Prometheus-operator options
+    prometheusInstanceNamespaces: []
+
+  # Install Prometheus Operator CRDs
+  # @ignored
   crds:
     enabled: true
 
-  ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
-  ##
+  # Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
+  # @ignored
   cleanPrometheusOperatorObjectNames: true
 
+  # @ignored
   windowsMonitoring:
-  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
+  # Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
     enabled: false
 
-  ## Configuration for alertmanager
-  ## ref: https://prometheus.io/docs/alerting/alertmanager/
-  ##
+  # Configuration for alertmanager
+  # ref: https://prometheus.io/docs/alerting/alertmanager/
+  # @ignored
   alertmanager:
-
-    ## Deploy alertmanager
-    ##
+    # Deploy alertmanager
+    #
     enabled: false
 
-  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
-  ##
+  # Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  # @ignored
   grafana:
     enabled: false
 
-  ## Configuration for thanosRuler
-  ## ref: https://thanos.io/tip/components/rule.md/
-  ##
+  # Configuration for thanosRuler
+  # ref: https://thanos.io/tip/components/rule.md/
+  # @ignored
   thanosRuler:
-
-    ## Deploy thanosRuler
-    ##
-    enabled: false
-
-  ## Component scraping the kube controller manager
-  ##
-  kubeControllerManager:
-    enabled: false
-
-  ## Component scraping kube proxy
-  ##
-  kubeProxy:
-    enabled: false
-
-  ## Component scraping kube scheduler
-  ##
-  kubeScheduler:
+    # Deploy thanosRuler
     enabled: false
 
   kubelet:
+    # -- Component scraping the kubelet and kubelet-hosted cAdvisor
+    # @section -- Kubernetes component scraper options
     enabled: true
-
+    # @ignored
     serviceMonitor:
       cAdvisorMetricRelabelings:
         # Drop less useful container CPU metrics.
@@ -156,8 +195,8 @@ kubeMonitoring:
         - regex: '^name$'
           action: labeldrop
 
-  ## Configuration for prometheus-node-exporter subchart
-  ##
+  # Configuration for prometheus-node-exporter subchart
+  # @ignored
   prometheus-node-exporter:
     prometheus:
       monitor:
@@ -178,8 +217,8 @@ kubeMonitoring:
       - --collector.processes
       - --collector.mountstats
 
-  ## Configuration for kube-state-metrics subchart
-  ##
+  # Configuration for kube-state-metrics subchart
+  # @ignored
   kube-state-metrics:
     metricLabelsAllowlist:
       - cronjobs=[*]
@@ -197,24 +236,22 @@ kubeMonitoring:
       - services=[*]
       - statefulsets=[*]
 
-  ## Service discovery configuration
-  ##
+  # Service discovery configuration
+  # @ignored
   serviceDiscovery:
 
-    ## Configuration for the Prometheus Operator to discover pods
-    ##
+    # Configuration for the Prometheus Operator to discover pods
     pods:
       enabled: true
 
-      ## To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
+      # To avoid multiple pod scrapes from different Prometheis, service discovery can be limited to one target
       limitToPrometheusTargets: true
 
-      ## Monitor Pods with the following port name
+      # Monitor Pods with the following port name
       port: metrics
 
-      ## RelabelConfigs to apply to samples before scraping
-      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-      ##
+      # RelabelConfigs to apply to samples before scraping
+      # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
       additionalRelabelings: []
       # - sourceLabels: [__meta_kubernetes_pod_node_name]
       #   separator: ;
@@ -223,87 +260,140 @@ kubeMonitoring:
       #   replacement: $1
       #   action: replace
 
-      ## MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
-      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-      ##
+      # MetricRelabelConfigs to apply to samples after scraping, but before ingestion.
+      # ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
       additionalMetricRelabelings: []
       # - action: keep
       #   regex: 'kube_(daemonset|deployment|pod|namespace|node|statefulset).+'
       #   sourceLabels: [__name__]
 
-      ## Pod label for use in assembling a job name of the form <label value>-<port>
-      ## If no label is specified, the pod endpoint name is used.
-      ##
+      # Pod label for use in assembling a job name of the form <label value>-<port>
+      # If no label is specified, the pod endpoint name is used.
       jobLabel: ""
 
-      ## Namespaces from which pods are selected
-      ##
+      # Namespaces from which pods are selected
       namespaceSelector:
-        ## Match any namespace
-        ##
+        # Match any namespace
         any: true
 
-        ## Explicit list of namespace names to select
-        ##
+        # Explicit list of namespace names to select
         # matchNames: []
 
-      ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
-      ##
+      # SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
       # sampleLimit: 0
 
-  ## Configuration for the Prometheus instance
-  ##
+  # Configuration for the Prometheus instance
   prometheus:
+    # -- Deploy a Prometheus instance
+    # @section -- Prometheus options
+    enabled: true
+
+    # -- Annotations for Prometheus
+    # @section -- Prometheus options
+    annotations: {}
+
+    # Move to plugindef ?
+    # @ignored
     service:
       # Add the label to expose the service via Greenhouse.
       labels:
         greenhouse.sap/expose: "true"
 
     ingress:
+      # -- Deploy Prometheus Ingress
+      # @section -- Prometheus options
       enabled: false
 
-      ## By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
+      # By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
+      # Move to plugindef ?
+      # @ignored
       annotations:
         disco: "true"
         kubernetes.io/tls-acme: "true"
         nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
         nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
-      ingressClassName: nginx
+
+      # -- Must be provided if Ingress is enabled
+      # @section -- Prometheus options
+      hosts: []
+
+      # -- Specifies the ingress-controller
+      # @section -- Prometheus options
+      ingressClassname: nginx
 
     # Deploys a Plutono datasource config Secret for this Prometheus
+    # @ignored
     plutonoDatasource: true
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
+    # @ignored
     persesDatasource: true
 
     prometheusSpec:
 
-      ## If additional alertmanager configurations are already deployed in a single secret, or you want to manage
-      ## them separately from the helm deployment, you can use this section.
-      ## Expected values are the secret name and key
-      ## Cannot be used with additionalAlertManagerConfigs
+      # If additional alertmanager configurations are already deployed in a single secret, or you want to manage
+      # them separately from the helm deployment, you can use this section.
+      # Expected values are the secret name and key
+      # Cannot be used with additionalAlertManagerConfigs
+      # @ignored
       additionalAlertManagerConfigsSecret:
         name: "{{ $.Release.Name }}-alertmanager-config"
         key: config.yaml
 
-      ## If additional alert relabel configurations are already deployed in a single secret, or you want to manage
-      ## them separately from the helm deployment, you can use this section.
-      ## Expected values are the secret name and key
-      ## Cannot be used with additionalAlertRelabelConfigs
+      # If additional alert relabel configurations are already deployed in a single secret, or you want to manage
+      # them separately from the helm deployment, you can use this section.
+      # Expected values are the secret name and key
+      # Cannot be used with additionalAlertRelabelConfigs
+      # @ignored
       additionalAlertRelabelConfigsSecret:
         name: "{{ $.Release.Name }}-alertmanager-config"
         key: relabelConfig.yaml
 
-      ## Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
-      ## The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
-      ## reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
-      ## with the new list of secrets.
+      # Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
+      # The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
+      # reflected in the running Pods. To change the secrets mounted into the Prometheus Pods, the object must be deleted and recreated
+      # with the new list of secrets.
+      # @ignored
       secrets:
         - "tls-prometheus-{{ .Release.Name }}"
 
+      # How long to retain metrics
+      # retention: 10d
+
+      # -- ServiceMonitors to be selected for target discovery.
+      # If {}, select all ServiceMonitors
+      # @default { matchLabels: { plugin: <metadata.name> } }
+      # @section -- Prometheus options
+      serviceMonitorSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- PodMonitors to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      podMonitorSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- Probes to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      probeSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- scrapeConfigs to be selected for target discovery. Defaults to `{ matchLabels: { plugin: <metadata.name> } }`
+      # @section -- Prometheus options
+      scrapeConfigSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      # -- PrometheusRules to be selected for target discovery.
+      # If {}, select all PrometheusRules
+      # @default { matchLabels: { plugin: <metadata.name> } }
+      # @section -- Prometheus options
+      ruleSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+
       storageSpec:
         volumeClaimTemplate:
+          # @ignored
           metadata:
             labels:
               plugindefinition: kube-monitoring
@@ -311,61 +401,77 @@ kubeMonitoring:
               app: "{{ $.Release.Name }}-prometheus"
             name: "{{ $.Release.Name }}"
           spec:
+            # @ignored
             accessModes:
               - ReadWriteOnce
+            # -- How large the persistent volume should be to house the Prometheus database. Default 50Gi.
+            # @section -- Prometheus options
             resources:
               requests:
                 storage: 50Gi
 
-      ## How long to retain metrics
-      ## retention: 10d
+      # -- Interval between consecutive scrapes. Defaults to 30s
+      # @section -- Prometheus options
+      scrapeInterval: ""
 
-      ## ServiceMonitors to be selected for target discovery.
-      ## If {}, select all ServiceMonitors
-      serviceMonitorSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## PodMonitors to be selected for target discovery.
-      ## If {}, select all PodMonitors
-      ##
-      podMonitorSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## Probes to be selected for target discovery.
-      ## If {}, select all Probes
-      ##
-      probeSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## scrapeConfigs to be selected for target discovery.
-      ## If {}, select all scrapeConfigs
-      ##
-      scrapeConfigSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
-      ## PrometheusRules to be selected for target discovery.
-      ## If {}, select all PrometheusRules
-      ##
-      ruleSelector:
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- Number of seconds to wait for target to respond before erroring
+      # @section -- Prometheus options
+      scrapeTimeout: ""
 
+      # -- Interval between consecutive evaluations
+      # @section -- Prometheus options
+      evaluationInterval: ""
+
+      # -- External labels to add to any time series or alerts when communicating with external systems like Alertmanager
+      # @section -- Prometheus options
+      externalLabels: {}
+
+      # -- How long to retain metrics
+      # @section -- Prometheus options
+      retention: ""
+
+      # -- Log level to be configured for Prometheus
+      # @section -- Prometheus options
+      logLevel: ""
+
+      # -- Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations
+      # @section -- Prometheus options
+      additionalScrapeConfigs: ""
+
+      # -- Allows setting additional arguments for the Prometheus container
+      # @section -- Prometheus options
+      additionalArgs: []
+
+    tlsConfig:
+      # -- CA certificate to verify technical clients at Prometheus Ingress
+      # @section -- Prometheus options
+      caCert: Secret
+
+# @ignored
 kubernetes-operations:
   prometheusRules:
     ruleSelector:
       - name: plugin
         value: "{{ $.Release.Name }}"
 
-## Configures Prometheus Alertmanager
+# Configures Prometheus Alertmanager
 alerts:
+  # -- To send alerts to Alertmanager
+  # @section -- Alertmanager options
   enabled: false
   alertmanagers:
+    # -- List of Alertmanager hostsd alerts to
+    # @section -- Alertmanager options
     hosts: []
-    ## Overrides tls certificate to authenticate with Alertmanager
+    # Overrides tls certificate to authenticate with Alertmanager
     tlsConfig:
+      # -- TLS certificate for communication with Alertmanager
+      # @section -- Alertmanager options
       cert: ""
+      # -- TLS key for communication with Alertmanager
+      # @section -- Alertmanager options
       key: ""
-
+# @ignored
 testFramework:
   enabled: true
   image:
@@ -374,5 +480,6 @@ testFramework:
     tag: main
   imagePullPolicy: IfNotPresent
 
+# @ignored
 blackboxExporter:
   enabled: false

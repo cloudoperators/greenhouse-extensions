@@ -14,7 +14,7 @@ thanos:
     # -- Thanos image repository
     repository: quay.io/thanos/thanos
     # -- Thanos image tag
-    tag: v0.37.2
+    tag: v0.38.0
     # -- Thanos image pull policy
     pullPolicy: IfNotPresent
 
@@ -310,7 +310,7 @@ testFramework:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
     tag: main
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
 
 # @ignored
 # Only used for TESTING !!! see test-values.yaml
