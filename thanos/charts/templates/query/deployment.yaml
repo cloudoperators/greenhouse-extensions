@@ -53,7 +53,7 @@ spec:
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}
-        # --store.sd-files is deprecated. Correct flag is --endpoint.sd-config-file but throws unmarshal error
+        # --store.sd-files is deprecated. Correct flag is --endpoint.sd-config-file but throws unmarshal error see https://github.com/thanos-io/thanos/issues/8209
         - --store.sd-files=/etc/thanos/sd-config/endpoint-targets.yaml
         {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
         - --grpc-client-tls-ca=/etc/tls/client/ca.crt
