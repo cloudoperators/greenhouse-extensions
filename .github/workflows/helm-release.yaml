@@ -8,6 +8,7 @@ on:
     paths:
       - .github/workflows/helm-release.yaml
       - alerts/charts/**
+      - audit-logs/charts/**
       - cert-manager/charts/**
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
@@ -41,6 +42,8 @@ jobs:
         include:
           - chartDir: alerts/charts
             chartName: alerts
+          - chartDir: audit-logs/charts
+            chartName: audit-logs
           - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
