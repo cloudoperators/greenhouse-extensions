@@ -296,9 +296,9 @@ To enable the creation of a ServiceMonitor we can use the Thanos Plugin configur
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.ruler.serviceMonitor.selfMonitor
+  - name: thanos.serviceMonitor.selfMonitor
       value: true
-  - name: thanos.ruler.serviceMonitor.additionalLabels
+  - name: thanos.serviceMonitor.labels
       value:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
@@ -330,7 +330,7 @@ spec:
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
 | thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
-| thanos.image.tag | string | `"v0.37.2"` | Thanos image tag |
+| thanos.image.tag | string | `"v0.38.0"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
 | thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` |  |
