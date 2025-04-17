@@ -8,7 +8,7 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.14.0
     meta.helm.sh/release-name: opensearch
-    meta.helm.sh/release-namespace: opensearch
+    meta.helm.sh/release-namespace: opensearch-logs
   labels:
     app.kubernetes.io/managed-by: Helm
   name: opensearchactiongroups.opensearch.opster.io
