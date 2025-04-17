@@ -15,6 +15,7 @@ Dockerfile.otel-collector @cloudoperators/greenhouse-observability
 Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
 /docs/                    @cloudoperators/greenhouse-core
+/docs/catalog.md          @cloudoperators/greenhouse-core @cloudoperators/greenhouse-frontend @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-src
 /hack/                    @cloudoperators/greenhouse-backend
 
 # The following paths are owned by the respective maintainers
