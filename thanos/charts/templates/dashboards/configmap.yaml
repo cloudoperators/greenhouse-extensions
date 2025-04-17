@@ -6,6 +6,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "release.name" . }}-perses-dashboards
   labels:
+    perses.dev/resource: "true"
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
 data:     
