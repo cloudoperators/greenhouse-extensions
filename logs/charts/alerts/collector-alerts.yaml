@@ -7,7 +7,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
@@ -20,7 +20,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Some metric points have been refused by receiver
@@ -33,7 +33,7 @@ groups:
         for: 5m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/HighCPUUsage.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/HighCPUUsage.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: High max CPU usage
@@ -46,7 +46,7 @@ groups:
         for: 120m
         labels:
           severity: warning
-          runbook_url: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel is not shipping logs
