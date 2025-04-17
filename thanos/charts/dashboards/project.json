@@ -1,0 +1,8 @@
+{
+    "kind": "Project",
+    "metadata": {
+      "name": "Thanos"
+    },
+    "spec": { "display": { "name": "Thanos" } }
+  }
+  

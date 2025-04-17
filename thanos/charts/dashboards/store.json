@@ -76,7 +76,7 @@
                                     "spec": {
 
                                         "query": "sum by (job, grpc_method, grpc_code) (rate(grpc_server_handled_total{ grpc_type=\"unary\"}[$interval]))",
-                                        "seriesNameFormat": "{{job}} {{grpc_method}} {{grpc_code}}"
+                                        "seriesNameFormat": "{{ job }} {{ grpc_method }} {{ grpc_code }}"
                                     }
                                 }
                             }
