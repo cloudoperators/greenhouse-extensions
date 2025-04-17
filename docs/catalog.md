@@ -16,5 +16,5 @@ This following table provides an overview of the currently available Plugins in 
 | ingress-nginx|Ingress NGINX controller|1.1.0|
 | kube-monitoring|Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.|1.3.4|
 | logs|This Plugin is intended for ingesting, generating, collecting, and exporting logs.|0.8.0|
-| opensearch|The OpenSearch plugin sets up an OpenSearch environment using the OpenSearch Operator, automating deployment, provisioning, management, and orchestration of OpenSearch clusters and dashboards.|0.0.4|
+| opensearch|The OpenSearch plugin sets up an OpenSearch environment using the OpenSearch Operator, automating deployment, provisioning, management, and orchestration of OpenSearch clusters and dashboards.|0.0.5|
 | teams2slack|Manage Slack handles and channels based on Greenhouse teams and their members|1.1.0|
