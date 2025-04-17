@@ -1,4 +1,4 @@
-{{- if .Values.greenhouse.defaultDashboards.enabled }}
+{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.dashboards }}
 {{- range $path, $bytes := .Files.Glob "dashboards/*.json" }}
 ---
 apiVersion: v1
