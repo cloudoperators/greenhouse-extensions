@@ -21,7 +21,7 @@ spec:
     shortNames:
     - opensearchtenant
     singular: opensearchtenant
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1
     schema:
