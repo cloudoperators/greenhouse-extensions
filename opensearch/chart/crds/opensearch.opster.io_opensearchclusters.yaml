@@ -22,7 +22,7 @@ spec:
     - os
     - opensearch
     singular: opensearchcluster
-  scope: Cluster
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
     - jsonPath: .status.health

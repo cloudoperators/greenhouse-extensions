@@ -21,7 +21,7 @@ spec:
     shortNames:
     - opensearchcomponenttemplate
     singular: opensearchcomponenttemplate
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1
     schema:

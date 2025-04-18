@@ -21,7 +21,7 @@ spec:
     shortNames:
     - opensearchindextemplate
     singular: opensearchindextemplate
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1
     schema:

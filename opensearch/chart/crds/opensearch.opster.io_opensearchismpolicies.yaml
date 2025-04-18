@@ -22,7 +22,7 @@ spec:
     - ismp
     - ismpolicy
     singular: opensearchismpolicy
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1
     schema:
