@@ -1,0 +1,1082 @@
+{
+    "kind": "Dashboard",
+    "metadata": {
+        "name": "thanos_compactor",
+        "project": "Thanos"
+      },
+    "spec": {
+      "display": {
+        "name": "Thanos / Compactor"
+      },
+      "panels": {
+        "0_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Rate",
+              "description": "Shows rate of execution for compactions against blocks that are stored in the bucket by compaction resolution."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job, resolution) (rate(thanos_compact_group_compactions_total[$__rate_interval]))",
+                      "seriesNameFormat": "compaction {{job}} {{resolution}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "0_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Errors",
+              "description": "Shows ratio of errors compared to the total number of executed compactions against blocks that are stored in the bucket."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "percent-decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_group_compactions_failures_total[$interval])) / sum by (job) (rate(thanos_compact_group_compactions_total[$interval]))",
+                      "seriesNameFormat": "error"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "1_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Rate",
+              "description": "Shows rate of execution for downsampling against blocks that are stored in the bucket by compaction resolution."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job, resolution) (rate(thanos_compact_downsample_total[$__rate_interval]))",
+                      "seriesNameFormat": "downsample {{job}} {{resolution}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "1_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Errors",
+              "description": "Shows ratio of errors compared to the total number of executed downsampling against blocks that are stored in the bucket."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "percent-decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_downsample_failed_total[$interval])) / sum by (job) (rate(thanos_compact_downsample_total[$interval]))",
+                      "seriesNameFormat": "error"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "2_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Rate",
+              "description": "Shows rate of execution for removals of blocks if their data is available as part of a block with a higher compaction level."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_garbage_collection_total[$__rate_interval]))",
+                      "seriesNameFormat": "garbage collection {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "2_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Errors",
+              "description": "Shows ratio of errors compared to the total number of executed garbage collections."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 0.25,
+                  "stack": "all"
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "percent-decimal"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_garbage_collection_failures_total[$interval])) / sum by (job) (rate(thanos_compact_garbage_collection_total[$interval]))",
+                      "seriesNameFormat": "error"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "2_2": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Duration",
+              "description": "Shows how long has it taken to execute garbage collection in quantiles."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {
+                "legend": {
+                  "mode": "list",
+                  "position": "bottom",
+                  "values": []
+                },
+                "visual": {
+                  "areaOpacity": 0.1,
+                  "connectNulls": false,
+                  "display": "line",
+                  "lineWidth": 1
+                },
+                "yAxis": {
+                  "format": {
+                    "unit": "seconds"
+                  },
+                  "min": 0
+                }
+              }
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.50, sum by (job, le) (rate(thanos_compact_garbage_collection_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p50 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.90, sum by (job, le) (rate(thanos_compact_garbage_collection_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p90 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.99, sum by (job, le) (rate(thanos_compact_garbage_collection_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p99 {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "3_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Deletion Rate",
+              "description": "Shows deletion rate of blocks already marked for deletion."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_blocks_cleaned_total[$__rate_interval]))",
+                      "seriesNameFormat": "Blocks cleanup {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "3_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Deletion Error Rate",
+              "description": "Shows deletion failures rate of blocks already marked for deletion."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_block_cleanup_failures_total[$__rate_interval]))",
+                      "seriesNameFormat": "Blocks cleanup failures {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "3_2": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Marking Rate",
+              "description": "Shows rate at which blocks are marked for deletion (from GC and retention policy)."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_compact_blocks_marked_for_deletion_total[$__rate_interval]))",
+                      "seriesNameFormat": "Blocks marked {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "4_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Rate",
+              "description": "Shows rate of execution for all meta files from blocks in the bucket into the memory."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_blocks_meta_syncs_total[$__rate_interval]))",
+                      "seriesNameFormat": "sync {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "4_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Errors",
+              "description": "Shows ratio of errors compared to the total number of executed meta file sync."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_blocks_meta_sync_failures_total[$interval])) / sum by (job) (rate(thanos_blocks_meta_syncs_total[$interval]))",
+                      "seriesNameFormat": "error"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "4_2": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Duration",
+              "description": "Shows how long has it taken to execute meta file sync, in quantiles."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.50, sum by (job, le) (rate(thanos_blocks_meta_sync_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p50 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.90, sum by (job, le) (rate(thanos_blocks_meta_sync_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p90 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.99, sum by (job, le) (rate(thanos_blocks_meta_sync_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p99 {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "5_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Rate",
+              "description": "Shows rate of execution for operations against the bucket."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job, operation) (rate(thanos_objstore_bucket_operations_total[$__rate_interval]))",
+                      "seriesNameFormat": "{{job}} {{operation}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "5_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Errors",
+              "description": "Shows ratio of errors compared to the total number of executed operations against the bucket."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "sum by (job) (rate(thanos_objstore_bucket_operation_failures_total[$interval])) / sum by (job) (rate(thanos_objstore_bucket_operations_total[$interval]))",
+                      "seriesNameFormat": "error"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "5_2": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Duration",
+              "description": "Shows how long has it taken to execute operations against the bucket, in quantiles."
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.50, sum by (job, le) (rate(thanos_objstore_bucket_operation_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p50 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.90, sum by (job, le) (rate(thanos_objstore_bucket_operation_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p90 {{job}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "histogram_quantile(0.99, sum by (job, le) (rate(thanos_objstore_bucket_operation_duration_seconds_bucket[$interval]))) * 1",
+                      "seriesNameFormat": "p99 {{job}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "6_0": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Memory Used"
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_memstats_alloc_bytes",
+                      "seriesNameFormat": "alloc all {{instance}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_memstats_heap_alloc_bytes",
+                      "seriesNameFormat": "alloc heap {{instance}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "rate(go_memstats_alloc_bytes_total[30s])",
+                      "seriesNameFormat": "alloc rate all {{instance}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "rate(go_memstats_heap_alloc_bytes[30s])",
+                      "seriesNameFormat": "alloc rate heap {{instance}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_memstats_stack_inuse_bytes",
+                      "seriesNameFormat": "inuse heap {{instance}}"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_memstats_heap_inuse_bytes",
+                      "seriesNameFormat": "inuse stack {{instance}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "6_1": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "Goroutines"
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_goroutines",
+                      "seriesNameFormat": "{{instance}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "6_2": {
+          "kind": "Panel",
+          "spec": {
+            "display": {
+              "name": "GC Time Quantiles"
+            },
+            "plugin": {
+              "kind": "TimeSeriesChart",
+              "spec": {}
+            },
+            "queries": [
+              {
+                "kind": "TimeSeriesQuery",
+                "spec": {
+                  "plugin": {
+                    "kind": "PrometheusTimeSeriesQuery",
+                    "spec": {
+                      "query": "go_gc_duration_seconds",
+                      "seriesNameFormat": "{{quantile}} {{instance}}"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "layouts": [
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Group Compaction",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/0_0"
+                }
+              },
+              {
+                "x": 12,
+                "y": 0,
+                "width": 12,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/0_1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Downsample",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/1_0"
+                }
+              },
+              {
+                "x": 12,
+                "y": 0,
+                "width": 12,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/1_1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Garbage Collection",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/2_0"
+                }
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/2_1"
+                }
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/2_2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Blocks deletion",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/3_0"
+                }
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/3_1"
+                }
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/3_2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Sync Meta",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/4_0"
+                }
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/4_1"
+                }
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/4_2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Object Store Operations",
+              "collapse": {
+                "open": true
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/5_0"
+                }
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/5_1"
+                }
+              },
+              {
+                "x": 16,
+                "y": 0,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/5_2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Grid",
+          "spec": {
+            "display": {
+              "title": "Resources",
+              "collapse": {
+                "open": false
+              }
+            },
+            "items": [
+              {
+                "x": 0,
+                "y": 49,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/6_0"
+                }
+              },
+              {
+                "x": 8,
+                "y": 49,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/6_1"
+                }
+              },
+              {
+                "x": 16,
+                "y": 49,
+                "width": 8,
+                "height": 7,
+                "content": {
+                  "$ref": "#/spec/panels/6_2"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "variables": [
+        {
+          "kind": "ListVariable",
+          "spec": {
+            "display": {
+              "name": "interval",
+              "hidden": false
+            },
+            "defaultValue": "5m",
+            "allowAllValue": false,
+            "allowMultiple": false,
+            "plugin": {
+              "kind": "StaticListVariable",
+              "spec": {
+                "values": [
+                  "5m",
+                  "10m",
+                  "30m",
+                  "1h",
+                  "6h",
+                  "12h"
+                ]
+              }
+            },
+            "name": "interval"
+          }
+        }
+      ],
+      "duration": "1h",
+      "refreshInterval": "0s"
+    }
+  }

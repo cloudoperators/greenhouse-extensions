@@ -372,6 +372,7 @@ spec:
 | thanos.ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
 | thanos.ruler.matchLabel | string | `nil` | TO DO |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
+| thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor |
 | thanos.serviceMonitor.selfMonitor | bool | `true` | Create a serviceMonitor for Thanos components |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
