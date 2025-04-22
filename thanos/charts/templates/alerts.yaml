@@ -1,0 +1,17 @@
+{{ if .Values.thanos.serviceMonitor.selfMonitor }}
+{{ $root := . }}
+{{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: {{ include "release.name" $root }}-alerts
+  labels:
+    {{- toYaml $root.Values.thanos.serviceMonitor.labels | nindent 4 }}
+    {{- include "thanos.labels" $root | nindent 4 }}
+    thanos-ruler: {{ $root.Values.thanos.ruler.matchLabel | default $root.Release.Name }}
+spec:
+{{ printf "%s" $bytes | indent 2 }}
+
+{{- end }}
+{{- end }}
