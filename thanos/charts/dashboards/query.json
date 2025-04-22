@@ -1,0 +1,1155 @@
+{
+    "kind": "Dashboard",
+    "metadata": {
+        "name": "thanos_query",
+        "project": "Thanos"
+      },
+    "spec": {
+        "display": {
+            "name": "Thanos / Query"
+        },
+        "variables": [
+            {
+                "kind": "ListVariable",
+                "spec": {
+                    "display": {
+                        "name": "interval",
+                        "hidden": false
+                    },
+                    "defaultValue": "5m",
+                    "allowAllValue": false,
+                    "allowMultiple": false,
+                    "plugin": {
+                        "kind": "StaticListVariable",
+                        "spec": {
+                            "values": [
+                                "5m",
+                                "10m",
+                                "30m",
+                                "1h",
+                                "6h",
+                                "12h"
+                            ]
+                        }
+                    },
+                    "name": "interval"
+                }
+            },
+            {
+                "kind": "ListVariable",
+                "spec": {
+                    "display": {
+                        "name": "job",
+                        "hidden": false
+                    },
+                    "defaultValue": "$__all",
+                    "allowAllValue": true,
+                    "allowMultiple": false,
+                    "sort": "alphabetical-desc",
+                    "plugin": {
+                        "kind": "PrometheusLabelValuesVariable",
+                        "spec": {
+                            "labelName": "job",
+                            "matchers": [
+                                "up{job=~\".*thanos-query.*\"}"
+                            ]
+                        }
+                    },
+                    "name": "job"
+                }
+            }
+        ],
+        "panels": {
+            "0_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Rate",
+                        "description": "Shows rate of requests against /query for the given time."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, handler, code) (rate(http_requests_total{ handler=\"query\"}[$interval]))",
+                                        "seriesNameFormat": "{{job}} {{handler}} {{code}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "0_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Errors",
+                        "description": "Shows ratio of errors compared to the total number of handled requests against /query."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "percent-decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, code) (rate(http_requests_total{ handler=\"query\",code=~\"5..\"}[$interval])) / ignoring (code) group_left() sum by (job) (rate(http_requests_total{ handler=\"query\"}[$interval]))"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "0_2": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Duration",
+                        "description": "Shows how long has it taken to handle requests in quantiles."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 0.1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 1
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "seconds"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.50, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p50 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.90, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p90 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.99, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p99 {{job}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "1_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Rate",
+                        "description": "Shows rate of requests against /query_range for the given time range."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, handler, code) (rate(http_requests_total{ handler=\"query_range\"}[$interval]))",
+                                        "seriesNameFormat": "{{job}} {{handler}} {{code}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "1_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Errors",
+                        "description": "Shows ratio of errors compared to the total number of handled requests against /query_range."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "percent-decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, code) (rate(http_requests_total{ handler=\"query_range\",code=~\"5..\"}[$interval])) / ignoring (code) group_left() sum by (job) (rate(http_requests_total{ handler=\"query_range\"}[$interval]))"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "1_2": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Duration",
+                        "description": "Shows how long has it taken to handle requests in quantiles."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 0.1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 1
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "seconds"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.50, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query_range\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p50 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.90, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query_range\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p90 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.99, sum by (job, le) (rate(http_request_duration_seconds_bucket{ handler=\"query_range\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p99 {{job}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "2_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Rate",
+                        "description": "Shows rate of handled Unary gRPC requests from other queriers."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, grpc_method, grpc_code) (rate(grpc_client_handled_total{ grpc_type=\"unary\"}[$interval]))",
+                                        "seriesNameFormat": "{{job}} {{grpc_method}} {{grpc_code}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "2_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Errors",
+                        "description": "Shows ratio of errors compared to the total number of handled requests from other queriers."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 0.25,
+                                "stack": "all"
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "percent-decimal"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, grpc_code) (rate(grpc_client_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable|DataLoss\", grpc_type=\"unary\"}[$interval])) / ignoring (grpc_code) group_left() sum by (job) (rate(grpc_client_handled_total{ grpc_type=\"unary\"}[$interval]))"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "2_2": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Duration",
+                        "description": "Shows how long has it taken to handle requests from other queriers, in quantiles."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {
+                            "legend": {
+                                "mode": "list",
+                                "position": "bottom",
+                                "values": []
+                            },
+                            "visual": {
+                                "areaOpacity": 0.1,
+                                "connectNulls": false,
+                                "display": "line",
+                                "lineWidth": 1
+                            },
+                            "yAxis": {
+                                "format": {
+                                    "unit": "seconds"
+                                },
+                                "min": 0
+                            }
+                        }
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.50, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"unary\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p50 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.90, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"unary\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p90 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.99, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"unary\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p99 {{job}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "3_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Rate",
+                        "description": "Shows rate of handled Streamed gRPC requests from other queriers."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, grpc_method, grpc_code) (rate(grpc_client_handled_total{ grpc_type=\"server_stream\"}[$interval]))",
+                                        "seriesNameFormat": "{{job}} {{grpc_method}} {{grpc_code}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "3_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Errors",
+                        "description": "Shows ratio of errors compared to the total number of handled requests from other queriers."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job, grpc_code) (rate(grpc_client_handled_total{grpc_code=~\"Unknown|ResourceExhausted|Internal|Unavailable|DataLoss\", grpc_type=\"server_stream\"}[$interval])) / ignoring (grpc_code) group_left() sum by (job) (rate(grpc_client_handled_total{ grpc_type=\"server_stream\"}[$interval]))"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "3_2": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Duration",
+                        "description": "Shows how long has it taken to handle requests from other queriers, in quantiles"
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.50, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"server_stream\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p50 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.90, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"server_stream\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p90 {{job}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "histogram_quantile(0.99, sum by (job, le) (rate(grpc_client_handling_seconds_bucket{ grpc_type=\"server_stream\"}[$interval]))) * 1",
+                                        "seriesNameFormat": "p99 {{job}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "4_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Rate",
+                        "description": "Shows rate of DNS lookups to discover stores."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job) (rate(thanos_query_store_apis_dns_lookups_total[$interval]))",
+                                        "seriesNameFormat": "lookups {{job}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "4_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Errors",
+                        "description": "Shows ratio of failures compared to the total number of executed DNS lookups."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "sum by (job) (rate(thanos_query_store_apis_dns_failures_total[$interval])) / sum by (job) (rate(thanos_query_store_apis_dns_lookups_total[$interval]))",
+                                        "seriesNameFormat": "error"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "5_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Concurrent Capacity",
+                        "description": "Shows available capacity of processing queries in parallel."
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "max_over_time(thanos_query_concurrent_gate_queries_max[$__rate_interval]) - avg_over_time(thanos_query_concurrent_gate_queries_in_flight[$__rate_interval])",
+                                        "seriesNameFormat": "{{job}} - {{pod}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "6_0": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Memory Used"
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_memstats_alloc_bytes",
+                                        "seriesNameFormat": "alloc all {{instance}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_memstats_heap_alloc_bytes",
+                                        "seriesNameFormat": "alloc heap {{instance}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "rate(go_memstats_alloc_bytes_total[30s])",
+                                        "seriesNameFormat": "alloc rate all {{instance}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "rate(go_memstats_heap_alloc_bytes[30s])",
+                                        "seriesNameFormat": "alloc rate heap {{instance}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_memstats_stack_inuse_bytes",
+                                        "seriesNameFormat": "inuse heap {{instance}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_memstats_heap_inuse_bytes",
+                                        "seriesNameFormat": "inuse stack {{instance}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "6_1": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "Goroutines"
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_goroutines",
+                                        "seriesNameFormat": "{{instance}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "6_2": {
+                "kind": "Panel",
+                "spec": {
+                    "display": {
+                        "name": "GC Time Quantiles"
+                    },
+                    "plugin": {
+                        "kind": "TimeSeriesChart",
+                        "spec": {}
+                    },
+                    "queries": [
+                        {
+                            "kind": "TimeSeriesQuery",
+                            "spec": {
+                                "plugin": {
+                                    "kind": "PrometheusTimeSeriesQuery",
+                                    "spec": {
+
+                                        "query": "go_gc_duration_seconds",
+                                        "seriesNameFormat": "{{quantile}} {{instance}}"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "layouts": [
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "Instant Query API",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 1,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/0_0"
+                            }
+                        },
+                        {
+                            "x": 8,
+                            "y": 1,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/0_1"
+                            }
+                        },
+                        {
+                            "x": 16,
+                            "y": 1,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/0_2"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "Range Query API",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 9,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/1_0"
+                            }
+                        },
+                        {
+                            "x": 8,
+                            "y": 9,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/1_1"
+                            }
+                        },
+                        {
+                            "x": 16,
+                            "y": 9,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/1_2"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "gRPC (Unary)",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 17,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/2_0"
+                            }
+                        },
+                        {
+                            "x": 8,
+                            "y": 17,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/2_1"
+                            }
+                        },
+                        {
+                            "x": 16,
+                            "y": 17,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/2_2"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "gRPC (Stream)",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 25,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/3_0"
+                            }
+                        },
+                        {
+                            "x": 8,
+                            "y": 25,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/3_1"
+                            }
+                        },
+                        {
+                            "x": 16,
+                            "y": 25,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/3_2"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "DNS",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 33,
+                            "width": 12,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/4_0"
+                            }
+                        },
+                        {
+                            "x": 12,
+                            "y": 33,
+                            "width": 12,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/4_1"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "Query Concurrency",
+                        "collapse": {
+                            "open": true
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 41,
+                            "width": 24,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/5_0"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "kind": "Grid",
+                "spec": {
+                    "display": {
+                        "title": "Resources",
+                        "collapse": {
+                            "open": false
+                        }
+                    },
+                    "items": [
+                        {
+                            "x": 0,
+                            "y": 49,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/6_0"
+                            }
+                        },
+                        {
+                            "x": 8,
+                            "y": 49,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/6_1"
+                            }
+                        },
+                        {
+                            "x": 16,
+                            "y": 49,
+                            "width": 8,
+                            "height": 7,
+                            "content": {
+                                "$ref": "#/spec/panels/6_2"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "duration": "1h"
+    }
+}
