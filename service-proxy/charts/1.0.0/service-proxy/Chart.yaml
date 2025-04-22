@@ -4,6 +4,9 @@
 apiVersion: v2
 name: service-proxy
 description: A Helm chart for Kubernetes
+maintainers:
+  - name: ivogoman
+  - name: uwe-mayer
 
 # A chart can be either an 'application' or a 'library' chart.
 #
