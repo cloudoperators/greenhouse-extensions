@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: cert-manager
 spec:
-  version: 1.17.1
+  version: 1.17.2
   displayName: Certificate manager
   description: Automated TLS certificate management
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
@@ -45,3 +45,8 @@ spec:
       description: Group of the cert-manager issuer to use for TLS certificates
       required: false
       type: string
+    - name: cert-manager.webhook.timeoutSeconds
+      description: Timeout in seconds for the CertManager webhook
+      default: 15
+      required: false
+      type: int
