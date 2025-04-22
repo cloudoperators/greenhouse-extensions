@@ -23,3 +23,6 @@ thanos:
         ssoCert: xxx
         ssoKey: xxx
       hosts:
+  serviceMonitor:
+    selfMonitor: true
+    labels: {plugin: dummy}
