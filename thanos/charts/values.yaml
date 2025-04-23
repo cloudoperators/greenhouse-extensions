@@ -33,6 +33,9 @@ thanos:
     # -- Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching Prometheus serviceMonitorSelector config
     labels: {}
 
+    # -- Create configmaps containing Perses dashboards
+    dashboards: true
+
   # @ignored
   # Init container to set permissions
   initChownData:

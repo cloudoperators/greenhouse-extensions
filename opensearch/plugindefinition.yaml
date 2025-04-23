@@ -6,25 +6,20 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.5
+  version: 0.0.6
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.5
+    version: 0.0.6
   options:
     - name: operator.fullnameOverride
       description: "Override the full name of the operator. Use this to customize resource naming."
       default: "opensearch-operator"
       required: false
       type: string
-    - name: operator.installCRDs
-      description: "Enable or disable installation of the Custom Resource Definitions (CRDs) required by the operator."
-      default: false
-      required: false
-      type: bool
     - name: operator.kubeRbacProxy.enable
       description: "Toggle the kube-rbac-proxy to secure the operator's endpoints."
       default: true
