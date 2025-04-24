@@ -364,28 +364,28 @@ kubeMonitoring:
       serviceMonitorSelector:
         # -- ServiceMonitors to be selected for target discovery.
         # If {}, select all ServiceMonitors
-        # @default -- { plugin: <metadata.name> }
+        # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
       podMonitorSelector:
         # -- PodMonitors to be selected for target discovery.
-        # @default -- { plugin: <metadata.name> }
+        # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
       probeSelector:
         # -- Probes to be selected for target discovery.
-        # @default -- { plugin: <metadata.name> }
+        # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
         matchLabels:
           plugin: "{{ $.Release.Name }}"
 
       scrapeConfigSelector:
         # -- scrapeConfigs to be selected for target discovery.
-        # @default -- { plugin: <metadata.name> }
+        # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
         matchLabels:
           plugin: "{{ $.Release.Name }}"
@@ -393,7 +393,7 @@ kubeMonitoring:
       ruleSelector:
         # -- PrometheusRules to be selected for target discovery.
         # If {}, select all PrometheusRules
-        # @default -- { plugin: <metadata.name> }
+        # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
         matchLabels:
           plugin: "{{ $.Release.Name }}"
