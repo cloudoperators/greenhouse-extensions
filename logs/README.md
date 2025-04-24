@@ -89,7 +89,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | logs-operator.manager.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
 | logs-operator.manager.collectorImage.tag | string | `"469df1a"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | logs-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
-| logs-operator.manager.image.tag | string | `"v0.124.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
+| logs-operator.manager.image.tag | string | `"v0.123.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | logs-operator.manager.serviceMonitor | object | `{"enabled":true}` | Enable serviceMonitor for Prometheus metrics scrape |
 | logs-operator.nameOverride | string | `"operator"` | Provide a name in place of the default name `opentelemetry-operator`. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
