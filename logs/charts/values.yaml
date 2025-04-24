@@ -30,12 +30,12 @@ logs-operator:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-      tag: b05fdf1
+      tag: 469df1a
     image:
     # -- overrides the default image repository for the OpenTelemetry Operator image.
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.120.0
+      tag: v0.123.0
     # -- Enable serviceMonitor for Prometheus metrics scrape
     serviceMonitor:
       enabled: true
