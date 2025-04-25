@@ -33,6 +33,10 @@ thanos:
     # -- Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching Prometheus serviceMonitorSelector config
     labels: {}
 
+    # -- Labels to add to the PrometheusRules alerts. 
+    alertLabels: | 
+      support_group: "default"
+
     # -- Create configmaps containing Perses dashboards
     dashboards: true
 

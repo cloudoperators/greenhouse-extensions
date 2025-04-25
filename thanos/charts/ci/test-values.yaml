@@ -15,6 +15,7 @@ ci:
 
 thanos:
   ruler:
+    enabled: true
     matchLabel: thanos
     alertmanagers:
       enabled: true
@@ -25,4 +26,7 @@ thanos:
       hosts:
   serviceMonitor:
     selfMonitor: true
-    labels: {plugin: dummy}
+    labels: {
+      plugin: default
+    }
+    dashboards: false
