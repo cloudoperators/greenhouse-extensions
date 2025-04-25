@@ -372,7 +372,7 @@ spec:
 | thanos.ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
 | thanos.ruler.matchLabel | string | `nil` | TO DO |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
-| thanos.serviceMonitor.alertLabels | string | `"support_group: \"default\"\n"` | Labels to add to the PrometheusRules alerts.  |
+| thanos.serviceMonitor.alertLabels | string | `"support_group: \"default\"\n"` | Labels to add to the PrometheusRules alerts. |
 | thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching Prometheus serviceMonitorSelector config |
 | thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector |
