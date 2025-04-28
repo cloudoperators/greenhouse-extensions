@@ -1,0 +1,17 @@
+{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.dashboards }}
+{{- $root := . }}
+{{- range $path, $bytes := .Files.Glob "dashboards/*.json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" (include "release.name" $root) ($path | replace ".json" "" | replace "/" "-" | trunc 63) }}
+  labels:
+    perses.dev/resource: "true"
+    {{- include "plugin.labels" $root | nindent 4 }}
+    {{- include "thanos.labels" $root | nindent 4 }}
+data:     
+{{ printf "%s: |-" ($path | replace "/" "-" | indent 2) }}
+{{ printf "%s" $bytes | indent 4 }}
+{{- end }}
+{{- end }}

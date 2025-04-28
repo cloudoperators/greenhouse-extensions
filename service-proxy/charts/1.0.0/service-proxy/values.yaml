@@ -35,6 +35,7 @@ service:
 ingress:
   className: ""
   annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 32k
     kubernetes.io/tls-acme: "true"
     disco: "true"
 
