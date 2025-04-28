@@ -1,0 +1,5 @@
+perses:
+  serviceMonitor:
+    selfMonitor: true
+    labels:
+      prometheus: monitoring
