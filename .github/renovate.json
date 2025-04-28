@@ -5,10 +5,6 @@
     "config:recommended",
     "helpers:pinGitHubActionDigests"
   ],
-  "docker": {
-    "enabled": true,
-    "pinDigests": true
-  },
   "customManagers": [
     {
       "customType": "regex",
@@ -167,6 +163,13 @@
   ],
   "packageRules": [
     {
+      "matchCategories": [
+        "docker"
+      ],
+      "enabled": true,
+      "pinDigests": true
+    },
+    {
       "groupName": "github actions",
       "matchManagers": [
         "github-actions"
@@ -229,7 +232,9 @@
       ]
     },
     {
-      "matchDatasources": ["docker"],
+      "matchDatasources": [
+        "docker"
+      ],
       "matchPackageNames": [
         "debian",
         "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
