@@ -101,6 +101,9 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | perses.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | perses.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| perses.serviceMonitor.interval | string | `"30s"` | Interval for the serviceMonitor |
+| perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' defined in your Prometheus CR. |
+| perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
 | perses.sidecar | object | `{"allNamespaces":true,"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
 | perses.sidecar.allNamespaces | bool | `true` | check for configmaps from all namespaces. When set to false, it will only check for configmaps in the same namespace as the Perses instance |
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
