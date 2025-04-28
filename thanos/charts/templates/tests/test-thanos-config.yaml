@@ -28,7 +28,7 @@ data:
       for endpoint in $endpoints; do
         if [[ $endpoint =~ :443$ ]];
         then
-          run grpc_health_probe -addr=${endpoint} -tls -tls-ca-cert /tls-assets/ca.crt
+          run grpc_health_probe -addr=${endpoint} -tls -tls-no-verify
         else
           run grpc_health_probe -addr=${endpoint}
         fi
