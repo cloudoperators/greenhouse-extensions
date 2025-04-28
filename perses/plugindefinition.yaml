@@ -22,3 +22,12 @@ spec:
       name: perses.image.version
       required: false
       type: string
+    - default: false
+      description: Enable serviceMonitor for Perses
+      name: perses.serviceMonitor.selfMonitor
+      required: false
+      type: bool
+    - description: ServiceMonitor labels for Perses to expose metrics to Prometheus.
+      name: perses.serviceMonitor.labels
+      required: false
+      type: map

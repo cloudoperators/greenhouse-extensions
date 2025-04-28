@@ -56,6 +56,17 @@ perses:
     # -- Perses running port
     targetPort: 8080
 
+  serviceMonitor:
+    # -- Create a serviceMonitor for Perses
+    selfMonitor: true
+
+    # -- Labels to add to the ServiceMonitor so that Prometheus can discover it.
+    # These labels should match the 'serviceMonitorSelector.matchLabels' defined in your Prometheus CR.
+    labels: {}
+
+    # -- Interval for the serviceMonitor
+    interval: 30s
+
   # -- Statefulset Annotations
   annotations: {}
 
