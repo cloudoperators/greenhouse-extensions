@@ -26,7 +26,12 @@ data:
 
       endpoints=$(kubectl get cm {{ .Release.Name }}-sd-config -oyaml | yq '.data["endpoint-targets.yaml"] | select(. != null)' | yq '.endpoints[].address'
       for endpoint in $endpoints; do
-        run grpc_health_probe -addr=${endpoint} 
+        if [[ $endpoint =~ :443$ ]];
+        then
+          run grpc_health_probe -addr=${endpoint} -tls -tls-ca-cert /tls-assets/ca.crt
+        else
+          run grpc_health_probe -addr=${endpoint}
+        fi
         echo "${output}"
         [ "$status" -eq "0" ]
       done
