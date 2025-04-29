@@ -89,6 +89,34 @@ jobs:
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
 
+      - name: Extract version from Dockerfile
+        id: extract-version
+        run: |
+          VERSION=$(grep -E '^LABEL[[:space:]]+VERSION[[:space:]]*=' ${{ matrix.Dockerfiles }} | sed 's/.*=//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check if docker image with the same version already exists
+        id: check-image
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.Imagename }}:${{ env.VERSION }}
+          echo "Checking if image exists: $IMAGE"
+          if docker manifest inspect "$IMAGE" > /dev/null 2>&1; then
+            echo "Image with tag $IMAGE already exists."
+            echo "bump=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image with tag $IMAGE does not exist."
+            echo "bump=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Docker image needs version bump
+        if: steps.check-image.outputs.bump == 'true'
+        env:
+          CHART_VERSION: ${{ steps.check-image.outputs.chart_version }}
+        run: |
+          echo "Docker image ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.Imagename }}:${{ env.VERSION }} 
+          already exists in the registry. Skipping build and push. Please update the version tag if changes were made."          
+          exit 1
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -98,7 +126,9 @@ jobs:
           context: .
           file: ${{ matrix.Dockerfiles }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.Imagename }}:${{ env.VERSION }}
           labels: ${{ steps.meta.outputs.labels }}
           # remove untagged images produced for multi platform builds
           provenance: false
