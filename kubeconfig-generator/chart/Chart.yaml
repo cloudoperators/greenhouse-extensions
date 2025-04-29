@@ -10,3 +10,7 @@ appVersion: "97ce7e3908695171b780b33e1e4d09653b72474b"
 keywords:
 - operator
 - kubeconfig
+maintainers:
+  - name: nuckal777
+  - name: ivogoman
+  - name: uwe-mayer
