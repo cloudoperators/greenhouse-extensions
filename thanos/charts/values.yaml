@@ -312,8 +312,8 @@ testFramework:
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
-  imagePullPolicy: Always
+    tag: v0.0.1
+  imagePullPolicy: IfNotPresent
 
 # @ignored
 # Only used for TESTING !!! see test-values.yaml
@@ -321,32 +321,3 @@ testFramework:
 # Thanos Plugin leverages it for its CI
 ci:
   enabled: false
-# @ignored
-prometheus-operator:
-  defaultRules:
-    create: false
-  dashboards:
-    create: false
-  kubernetesServiceMonitors:
-    enabled: false
-  cleanPrometheusOperatorObjectNames: false
-  crds:
-    enabled: false
-  windowsMonitoring:
-    enabled: false
-  grafana:
-    enabled: false
-  thanosRuler:
-    enabled: false
-  prometheus:
-    enabled: false
-  nodeExporter:
-    enabled: false
-  kubeStateMetrics:
-    enabled: false
-  prometheusOperator:
-    enabled: false
-  alertmanager:
-    enabled: false
-    ingress:
-      enabled: false

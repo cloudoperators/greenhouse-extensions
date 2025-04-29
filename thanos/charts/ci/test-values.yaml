@@ -1,15 +1,3 @@
-prometheus-operator:
-  defaultRules:
-    create: true
-    labels:
-      thanos-ruler: thanos
-  prometheusOperator:
-    enabled: true
-    serviceMonitor:
-      selfMonitor: false
-  crds:
-    enabled: true
-
 ci:
   enabled: true
 
