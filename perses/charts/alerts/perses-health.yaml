@@ -1,0 +1,13 @@
+groups:
+  - name: perses-alerts
+    rules:
+      # Dashboard rendering errors
+      - alert: PersesDashboardRenderErrors
+        expr: sum(increase(perses_dashboard_render_errors_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          {{- include "alerts.additionalRuleLabels" . | indent 10 }}
+        annotations:
+          summary: "Dashboard rendering errors detected"
+          description: "More than 10 dashboard rendering errors in the last 5 minutes"

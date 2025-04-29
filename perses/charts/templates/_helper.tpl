@@ -8,3 +8,9 @@ release: {{ .Release.Name | quote }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
 {{- end }}
+
+{{- define "alerts.additionalRuleLabels" -}}
+{{- if not (empty .Values.greenhouse.prometheus.alerts.additionalRuleLabels) }}
+{{ tpl (toYaml .Values.greenhouse.prometheus.alerts.additionalRuleLabels) . }}
+{{- end }}
+{{- end }}
