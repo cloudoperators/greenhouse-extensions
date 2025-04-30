@@ -36,8 +36,9 @@ thanos:
     labels: {}
 
     # -- Labels to add to the PrometheusRules alerts.
-    alertLabels: |
-      support_group: "default"
+    # @default -- <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre>
+    alertLabels: ""
+      # support_group: "default"
 
     # -- Create configmaps containing Perses dashboards
     dashboards: true
