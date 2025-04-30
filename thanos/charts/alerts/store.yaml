@@ -70,10 +70,10 @@ groups:
   - alert: ThanosStoreIsDown
     annotations:
       description: ThanosStore has disappeared. Prometheus target for the component
-        cannot be discovered. 
+        cannot be discovered.
       summary: Thanos component has disappeared.
     expr: |
-      absent(up{job=~".*store.*"} == 1)x``
+      absent(up{job=~".*store.*"} == 1)
     for: 5m
     labels:
       severity: warning
