@@ -27,7 +27,7 @@ YQ ?= $(LOCALBIN)/yq
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
-HELM_DOCS_REPO ?= github.com/norwoodj/helm-docs/cmd/helm-docs
+HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(ARCH).tar.gz
 PINT_REPO ?= https://github.com/cloudflare/pint/releases/download/v$(PINT_VERSION)/pint-$(PINT_VERSION)-$(OS)-$(ARCH).tar.gz
 HELM_URL ?= https://get.helm.sh/helm-v$(HELM_VERSION)-$(OS)-$(ARCH).tar.gz
 
@@ -54,38 +54,48 @@ $(YQ): $(LOCALBIN)
 ## Download `helm-docs` locally if necessary
 .PHONY: helm-docs
 helm-docs:
-	@if test -x $(LOCALBIN)/helm-docs; then \
-		echo "$(LOCALBIN)/helm-docs is not expected. Removing it before installing."; \
+	@if test -x $(LOCALBIN)/helm-docs && ! $(LOCALBIN)/helm-docs -v | grep -q $(HELM_DOCS_VERSION); then \
+		echo "$(LOCALBIN)/helm-docs -v is not expected $(HELM_DOCS_VERSION). Removing it before installing."; \
 		rm -rf $(LOCALBIN)/helm-docs; \
 	fi;
-	GOBIN=$(LOCALBIN) go install $(HELM_DOCS_REPO)@v$(HELM_DOCS_VERSION);
+	if ! test -s $(LOCALBIN)/helm-docs; then \
+		curl -L $(HELM_DOCS_REPO) -o $(LOCALBIN)/helm-docs.tar.gz \
+		&& tar -xzf $(LOCALBIN)/helm-docs.tar.gz -C $(LOCALBIN) helm-docs \
+		&& rm $(LOCALBIN)/helm-docs.tar.gz \
+		&& chmod +x $(LOCALBIN)/helm-docs; \
+	fi;
 
 ## Download `pint` locally if necessary
 .PHONY: pint-install
 pint-install:
-	@if test -x $(LOCALBIN)/pint; then \
-		echo "$(LOCALBIN)/pint is not expected. Removing it before installing."; \
+	@if test -x $(LOCALBIN)/pint && ! $(LOCALBIN)/pint version | grep -q $(PINT_VERSION); then \
+		echo "$(LOCALBIN)/pint version is not expected $(PINT_VERSION). Removing it before installing."; \
 		rm -rf $(LOCALBIN)/pint; \
 	fi;
-	curl -L $(PINT_REPO) -o $(LOCALBIN)/pint.tar.gz \
-	&& tar -xzf $(LOCALBIN)/pint.tar.gz -C $(LOCALBIN) pint-$(OS)-$(ARCH) \
-	&& rm $(LOCALBIN)/pint.tar.gz \
-	&& mv $(LOCALBIN)/pint-$(OS)-$(ARCH)  $(LOCALBIN)/pint \
-	&& chmod +x $(LOCALBIN)/pint
+	if ! test -x $(LOCALBIN)/pint; then \
+		curl -L $(PINT_REPO) -o $(LOCALBIN)/pint.tar.gz \
+		&& tar -xzf $(LOCALBIN)/pint.tar.gz -C $(LOCALBIN) pint-$(OS)-$(ARCH) \
+		&& rm $(LOCALBIN)/pint.tar.gz \
+		&& mv $(LOCALBIN)/pint-$(OS)-$(ARCH)  $(LOCALBIN)/pint \
+		&& chmod +x $(LOCALBIN)/pint; \
+	fi;
 
 ## Download `pint` locally if necessary
 .PHONY: helm-install
 helm-install:
-	@if test -x $(LOCALBIN)/helm; then \
+	@if test -x $(LOCALBIN)/helm && ! $(LOCALBIN)/helm version | grep -q $(HELM_VERSION); then \
 		echo "$(LOCALBIN)/helm is not expected. Removing it before installing."; \
 		rm -rf $(LOCALBIN)/helm; \
 	fi;
-	curl -fsSL $(HELM_URL) -o $(LOCALBIN)/helm.tar.gz \
-	&& tar -zxvf $(LOCALBIN)/helm.tar.gz -C $(LOCALBIN) \
-	&& rm $(LOCALBIN)/helm.tar.gz \
-	&& mv $(LOCALBIN)/$(OS)-$(ARCH)/helm  $(LOCALBIN)/helm \
-	&& chmod +x $(LOCALBIN)/helm \
-	&& rm -rf $(LOCALBIN)/$(OS)-$(ARCH)
+	if ! test -x $(LOCALBIN)/helm; then \
+		curl -fsSL $(HELM_URL) -o $(LOCALBIN)/helm.tar.gz \
+		&& tar -zxvf $(LOCALBIN)/helm.tar.gz -C $(LOCALBIN) \
+		&& rm $(LOCALBIN)/helm.tar.gz \
+		&& mv $(LOCALBIN)/$(OS)-$(ARCH)/helm  $(LOCALBIN)/helm \
+		&& chmod +x $(LOCALBIN)/helm \
+		&& rm -rf $(LOCALBIN)/$(OS)-$(ARCH); \
+	fi;
+
 
 .PHONY: generate-documentation
 generate-documentation:
@@ -115,11 +125,12 @@ pint: pint-install helm-install yq
 	if [ -d "./$$PLUGIN" ] && [ "$$PLUGIN" != "" ]; then\
 		echo "Running pint for $$PLUGIN..."; \
 		cd ./$$PLUGIN/charts; $(LOCALBIN)/helm template . --values ci/test-values.yaml | yq > $(LOCALBIN)/template.yaml \
-		&& $(LOCALBIN)/pint -c ../../pint-config.hcl lint $(LOCALBIN)/template.yaml \
-		echo "pint analysis complete!"; \
+		&& $(LOCALBIN)/pint -c ../../pint-config.hcl lint $(LOCALBIN)/template.yaml; \
+		rm $(LOCALBIN)/template.yaml \
+		&& echo "pint analysis complete!"; \
 	else \
 		echo "Error: Plugin directory '$$PLUGIN' does not exist"; \
 		echo "Available plugins:"; \
 		ls -d */ | sed 's#/##' | sed 's/LICENSES//' || echo "No plugin directories found"; \
 		exit 1; \
-	fi
+	fi;
