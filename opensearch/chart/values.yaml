@@ -296,8 +296,7 @@ cluster:
       imagePullSecrets: []
 
       # -- dashboards labels
-      labels:
-        greenhouse.sap/expose: "true"
+      labels: {}
 
       # -- dashboards pod node selectors
       nodeSelector: {}

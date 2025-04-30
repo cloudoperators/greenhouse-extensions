@@ -4,7 +4,7 @@ global:
   greenhouse:
     organizationName: demo
 domain: demo.cloud.tld
-
+replicaCount: 1
 oauth2proxy:
   issuerURL: https://idp.tld
   clientIDRef:

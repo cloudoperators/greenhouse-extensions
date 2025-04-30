@@ -78,7 +78,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | cluster.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
-| cluster.cluster.dashboards.labels | object | `{"greenhouse.sap/expose":"true"}` | dashboards labels |
+| cluster.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | cluster.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
 | cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | cluster.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
