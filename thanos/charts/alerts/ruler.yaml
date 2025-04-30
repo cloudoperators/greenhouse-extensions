@@ -9,7 +9,7 @@ groups:
       sum by (job, instance) (rate(thanos_alert_queue_alerts_dropped_total{job=~".*ruler.*"}[5m])) > 0
     for: 5m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulequeueisdroppingalerts
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleSenderIsFailingAlerts
@@ -20,7 +20,7 @@ groups:
       sum by (job, instance) (rate(thanos_alert_sender_alerts_dropped_total{job=~".*ruler.*"}[5m])) > 0
     for: 5m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulesenderisfailingalerts
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleHighRuleEvaluationFailures
@@ -36,7 +36,7 @@ groups:
       )
     for: 5m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulehighruleevaluationfailures
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleHighRuleEvaluationWarnings
@@ -154,7 +154,7 @@ groups:
       sum by (job, instance) (thanos_rule_loaded_rules{job=~".*ruler.*"}) > 0
     for: 5m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosnoruleevaluations
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
 - name: thanos-component-absent
@@ -166,8 +166,8 @@ groups:
       summary: Thanos component has disappeared.
     expr: |
       absent(up{job=~".*ruler.*"} == 1)
-    for: 5m
+    for: 10m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosruleisdown
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}

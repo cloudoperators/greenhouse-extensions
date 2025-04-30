@@ -374,8 +374,8 @@ spec:
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
 | thanos.serviceMonitor.alertLabels | string | `"support_group: \"default\"\n"` | Labels to add to the PrometheusRules alerts. |
 | thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
-| thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching Prometheus serviceMonitorSelector config |
-| thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector |
+| thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
+| thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus  serviceMonitorSelector/ruleSelector.  |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
 | thanos.store.annotations | object | `{}` | Annotations to add to the Thanos Store resources |
 | thanos.store.chunkPoolSize | string | 4GB | Set Thanos Store chunk-pool-size |

@@ -15,7 +15,7 @@ groups:
       )
     for: 5m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoregrpcerrorrate
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosStoreSeriesGateLatencyHigh
@@ -31,7 +31,7 @@ groups:
       )
     for: 10m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreseriesgatelatencyhigh
   - alert: ThanosStoreBucketHighOperationFailures
     annotations:
@@ -46,7 +46,7 @@ groups:
       )
     for: 15m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstorebuckethighoperationfailures
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosStoreObjstoreOperationLatencyHigh
@@ -62,7 +62,7 @@ groups:
       )
     for: 10m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreobjstoreoperationlatencyhigh
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
 - name: thanos-component-absent
@@ -70,12 +70,12 @@ groups:
   - alert: ThanosStoreIsDown
     annotations:
       description: ThanosStore has disappeared. Prometheus target for the component
-        cannot be discovered.
+        cannot be discovered. 
       summary: Thanos component has disappeared.
     expr: |
-      absent(up{job=~".*store.*"} == 1)
+      absent(up{job=~".*store.*"} == 1)x``
     for: 5m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreisdown
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}

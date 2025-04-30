@@ -8,7 +8,7 @@ groups:
     expr: sum by (job) (up{job=~".*compactor.*"}) > 1
     for: 5m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactmultiplerunning
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHalted
@@ -18,7 +18,7 @@ groups:
     expr: thanos_compact_halted{job=~".*compactor.*"} == 1
     for: 5m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthalted
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHighCompactionFailures
@@ -34,7 +34,7 @@ groups:
       )
     for: 15m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthighcompactionfailures
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactBucketHighOperationFailures
@@ -50,7 +50,7 @@ groups:
       )
     for: 15m
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactbuckethighoperationfailures
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHasNotRun
@@ -61,7 +61,7 @@ groups:
     expr: (time() - max by (job) (max_over_time(thanos_objstore_bucket_last_successful_upload_time{job=~".*compactor.*"}[24h])))
       / 60 / 60 > 24
     labels:
-      severity: warning
+      severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthasnotrun
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
 - name: thanos-component-absent
@@ -73,8 +73,8 @@ groups:
       summary: Thanos component has disappeared.
     expr: |
       absent(up{job=~".*compactor.*"} == 1)
-    for: 5m
+    for: 15m
     labels:
-      severity: critical
+      severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactisdown
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
