@@ -102,6 +102,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | cluster.cluster.general.keystore | list | `[]` | Populate opensearch keystore before startup |
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
+| cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
 | cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.1/prometheus-exporter-2.19.1.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
