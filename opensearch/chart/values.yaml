@@ -208,6 +208,9 @@ cluster:
         tlsConfig:
           insecureSkipVerify: true
 
+        # -- ServiceMonitor labels
+        labels: {}
+
       # -- List of Opensearch plugins to install
       pluginsList: []
 
