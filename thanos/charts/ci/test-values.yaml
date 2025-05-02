@@ -3,6 +3,7 @@ ci:
 
 thanos:
   ruler:
+    enabled: true
     matchLabel: thanos
     alertmanagers:
       enabled: true
@@ -11,3 +12,9 @@ thanos:
         ssoCert: xxx
         ssoKey: xxx
       hosts:
+  serviceMonitor:
+    selfMonitor: true
+    labels: {
+      plugin: default
+    }
+    dashboards: false
