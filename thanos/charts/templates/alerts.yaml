@@ -16,5 +16,6 @@ spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
+---
 {{- end }}
 {{- end }}
