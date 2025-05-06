@@ -23,7 +23,7 @@ spec:
           service: prometheus
           severity: info
         annotations:
-          summary: "Absent Metrics Operator cannot scrape {{ $labels.prometheusrule_namespace }}/{{ $labels.prometheusrule_name }}"
+          summary: "Absent Metrics Operator cannot scrape `{{` {{ $labels.prometheusrule_namespace }}`}}`/ `{{` {{ $labels.prometheusrule_name }}`}}`"
           description: >
-            The absent metrics operator has not done a successful scrape of {{ $labels.prometheusrule_namespace }}/{{ $labels.prometheusrule_name }}
+            The absent metrics operator has not done a successful scrape of `{{`{{ $labels.prometheusrule_namespace }}`}}`/`{{`{{ $labels.prometheusrule_name }}`}}`
             for more than 10 minutes. The `kubectl logs` for absent-metrics-operator in kube-monitoring namespace shoud contain additional info.
