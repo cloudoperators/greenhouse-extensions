@@ -3,7 +3,7 @@ kind: PluginDefinition
 metadata:
   name: prometheus
 spec:
-  version: 0.1.0
+  version: 0.2.0
   displayName: Prometheus
   description: Native deployment of Prometheus managed by the prometheus-operator
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/prometheus/README.md
@@ -11,7 +11,7 @@ spec:
   helmChart:
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.25.2
+    version: 1.2.2
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
