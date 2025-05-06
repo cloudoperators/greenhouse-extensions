@@ -4,12 +4,13 @@
 apiVersion: v2
 name: logshipper
 description: A Helm chart for deploying fluent-bit with custom config
-
+maintainers:
+  - name: ivogoman
 type: application
-version: 0.4.2
+version: 0.4.3
 appVersion: 3.2.8
 
 dependencies:
   - name: fluent-bit
     repository: https://fluent.github.io/helm-charts
-    version: 0.48.9
+    version: 0.48.10
