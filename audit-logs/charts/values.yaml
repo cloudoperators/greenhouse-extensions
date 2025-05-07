@@ -8,25 +8,25 @@ auditLogs:
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
   # -- Cluster label for Logging
-  cluster: 
+  cluster:
   # -- Region label for Logging
-  region: 
+  region:
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
-    endpoint: 
+    endpoint:
     # -- Name for OpenSearch index
-    index: 
+    index:
     # -- Username for OpenSearch endpoint
-    failover_username_a: 
+    failover_username_a:
     # -- Password for OpenSearch endpoint
-    failover_password_a: 
+    failover_password_a:
     # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
     failover:
       enabled: true
     # -- Second Username (as a failover) for OpenSearch endpoint
-    failover_username_b: 
+    failover_username_b:
     # -- Second Password (as a failover) for OpenSearch endpoint
-    failover_password_b: 
+    failover_password_b:
 
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
@@ -35,7 +35,7 @@ auditLogs:
     # -- Activates the pod-monitoring for the Logs Collector.
     serviceMonitor:
       enabled: false
-  
+
   collectorImage:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
