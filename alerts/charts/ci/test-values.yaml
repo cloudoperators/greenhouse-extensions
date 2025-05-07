@@ -14,26 +14,26 @@ alerts:
   alertmanagerConfig:
     slack:
       routes:
-         - name: slack-info-route
-           channel: slack-info-channel
-           webhookURL: https://hooks.slack.com/services/some-id
-           matchers:
-             - name: severity
-               matchType: "="
-               value: "info"
-         - name: slack-warning-route
-           channel: slack-warning-channel
-           webhookURL: https://hooks.slack.com/services/some-id
-           matchers:
-             - name: severity
-               matchType: "="
-               value: "warning"
-         - name: slack-critical-route
-           channel: slack-critical-channel
-           webhookURL: https://hooks.slack.com/services/some-id
-           matchers:
-             - name: severity
-               matchType: "="
-               value: "critical"
+        - name: slack-info-route
+          channel: slack-info-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "info"
+        - name: slack-warning-route
+          channel: slack-warning-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "warning"
+        - name: slack-critical-route
+          channel: slack-critical-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "critical"
   certManager:
     enabled: true
