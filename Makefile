@@ -24,6 +24,9 @@ $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 KUSTOMIZE ?= $(LOCALBIN)/kustomize
 YQ ?= $(LOCALBIN)/yq
+PINT ?= $(LOCALBIN)/pint
+HELM ?= $(LOCALBIN)/helm
+HELM-DOCS ?= $(LOCALBIN)/helm-docs
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
@@ -53,7 +56,8 @@ $(YQ): $(LOCALBIN)
 
 ## Download `helm-docs` locally if necessary
 .PHONY: helm-docs
-helm-docs:
+helm-docs: $(HELM-DOCS)
+$(HELM-DOCS): $(LOCALBIN)
 	@if test -x $(LOCALBIN)/helm-docs && ! $(LOCALBIN)/helm-docs -v | grep -q $(HELM_DOCS_VERSION); then \
 		echo "$(LOCALBIN)/helm-docs -v is not expected $(HELM_DOCS_VERSION). Removing it before installing."; \
 		rm -rf $(LOCALBIN)/helm-docs; \
@@ -67,7 +71,8 @@ helm-docs:
 
 ## Download `pint` locally if necessary
 .PHONY: pint-install
-pint-install:
+pint-install: $(PINT)
+$(PINT): $(LOCALBIN)
 	@if test -x $(LOCALBIN)/pint && ! $(LOCALBIN)/pint version | grep -q $(PINT_VERSION); then \
 		echo "$(LOCALBIN)/pint version is not expected $(PINT_VERSION). Removing it before installing."; \
 		rm -rf $(LOCALBIN)/pint; \
@@ -82,7 +87,8 @@ pint-install:
 
 ## Download `pint` locally if necessary
 .PHONY: helm-install
-helm-install:
+helm-install: $(HELM)
+$(HELM): $(LOCALBIN)
 	@if test -x $(LOCALBIN)/helm && ! $(LOCALBIN)/helm version | grep -q $(HELM_VERSION); then \
 		echo "$(LOCALBIN)/helm is not expected. Removing it before installing."; \
 		rm -rf $(LOCALBIN)/helm; \
