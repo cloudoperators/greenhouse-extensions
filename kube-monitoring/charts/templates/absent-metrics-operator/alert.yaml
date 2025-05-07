@@ -5,9 +5,6 @@ metadata:
   name: {{ $.Release.Name }}-absent-metrics-operator
   labels:
     {{- include "kube-prometheus-stack.labels" . | indent 4 }}
-    ccloud/support-group: containers # ??
-    ccloud/service: prometheus # ??
-    prometheus: "kubernetes" # ??
 
 spec:
   groups:
@@ -18,9 +15,9 @@ spec:
         expr: sum(time() - absent_metrics_operator_successful_reconcile_time) by (prometheusrule_namespace, prometheusrule_name) > 600
         for: 5m
         labels:
-          support_group: containers
-          tier: k8s
-          service: prometheus
+          {{- if .Values.global.commonLabels }}
+          {{ .Values.global.commonLabels | toYaml | nindent 10 }}
+          {{- end }}
           severity: info
         annotations:
           summary: "Absent Metrics Operator cannot scrape `{{` {{ $labels.prometheusrule_namespace }}`}}`/ `{{` {{ $labels.prometheusrule_name }}`}}`"

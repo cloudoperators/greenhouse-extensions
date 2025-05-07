@@ -18,13 +18,11 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+        {{- include "kube-prometheus-stack.labels" . | indent 8 }}
         name: {{ $.Release.Name }}-absent-metrics-operator
-        ccloud/support-group: containers # ??
-        ccloud/service: prometheus # ??
       annotations:
-        prometheus.io/scrape: "true" # ??
-        prometheus.io/targets: "kubernetes" # ??
+        prometheus.io/scrape: "true"
+        prometheus.io/targets: "kubernetes"
     spec:
       serviceAccount: {{ $.Release.Name }}-absent-metrics-operator
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
