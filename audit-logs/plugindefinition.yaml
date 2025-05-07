@@ -68,7 +68,7 @@ spec:
           required: false
           type: string
         - name: auditLogs.collectorImage.tag
-          default: "main"
+          default: "5b6e153"
           description: Collector image tag
           required: false
           type: string
