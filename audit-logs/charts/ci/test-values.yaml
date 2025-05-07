@@ -11,6 +11,3 @@ auditLogs:
     index: test
   cluster: test
   region: test
-
-  
-
