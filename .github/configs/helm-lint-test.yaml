@@ -18,6 +18,7 @@ chart-dirs:
   - service-proxy/charts/1.0.0
   - logshipper
   - logs
+  - audit-logs
   - thanos
   - perses
   - prometheus
@@ -29,4 +30,5 @@ chart-repos:
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts
   - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts
