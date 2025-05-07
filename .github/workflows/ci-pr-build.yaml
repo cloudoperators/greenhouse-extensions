@@ -27,7 +27,7 @@ jobs:
           - chartDir: alerts/charts
             chartName: alerts
           - chartDir: audit-logs/charts
-            chartName: audit-logs-operator
+            chartName: audit-logs
           - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
