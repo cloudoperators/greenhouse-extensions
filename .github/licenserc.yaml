@@ -13,7 +13,7 @@ header:
     - '*Dockerfile*'
     - 'REUSE.toml'
     - 'LICENSES/*.txt'
-    - 'audit-logs/**' # ignore the license for the opentelemetry charts
+    - 'audit-logs/**' # ignore the license for the audit-logs charts
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts
@@ -22,7 +22,6 @@ header:
     - 'kube-monitoring/**' # ignore the license for the kube-monitoring charts
     - 'thanos/**' # ignore the license for this directory
     - 'logs/**' # ignore the license for the opentelemetry charts
-    - 'audit-logs/**' # ignore the license for the audit-logs charts'
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'
