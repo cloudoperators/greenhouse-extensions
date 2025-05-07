@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: external-dns
 spec:
-  version: 1.2.0
+  version: 1.2.1
   displayName: External DNS manager
   description: The kubernetes-sigs/external-dns plugin.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/external-dns/README.md
@@ -14,4 +14,4 @@ spec:
   helmChart:
     name: external-dns
     repository: https://kubernetes-sigs.github.io/external-dns
-    version: 1.16.0
+    version: 1.16.1
