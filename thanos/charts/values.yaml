@@ -27,11 +27,18 @@ thanos:
   httpAddress:
 
   serviceMonitor:
-    # -- Create a serviceMonitor for Thanos components
-    selfMonitor: true
+    # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
+    # serviceMonitorSelector/ruleSelector.
+    selfMonitor: false
 
-    # -- Labels to add to the ServiceMonitor
+    # -- Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs
+    # by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"`
     labels: {}
+
+    # -- Labels to add to the PrometheusRules alerts.
+    # @default -- <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre>
+    alertLabels: ""
+      # support_group: "default"
 
     # -- Create configmaps containing Perses dashboards
     dashboards: true

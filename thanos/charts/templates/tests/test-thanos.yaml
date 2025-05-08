@@ -27,6 +27,10 @@ spec:
         - name: tls-cert
           mountPath: /tls-assets
           readOnly: true
+  {{- else if .Values.thanos.query.tls.data }}
+        - name: tls-cert
+          mountPath: /tls-assets
+          readOnly: true
   {{- end }}
   volumes:
     - name: tests
@@ -37,6 +41,11 @@ spec:
       secret:
         defaultMode: 420
         secretName: "{{ (first .Values.thanos.query.ingress.grpc.tls).secretName }}"
-    {{- end }}
+  {{- else if .Values.thanos.query.tls.data }}
+    - name: tls-cert
+      secret:
+        defaultMode: 420
+        secretName: "{{ .Release.Name }}-tls"
+  {{- end }}
   restartPolicy: Never
 {{- end -}}
