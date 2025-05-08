@@ -8,3 +8,9 @@ icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e
 type: application
 version: 0.0.1
 appVersion: "v0.121.0"
+maintainers:
+- name: olandr
+- name: kuckkuck
+- name: timojohlo
+sources:
+- https://github.com/cloudoperators/greenhouse-extensions
