@@ -1,6 +1,13 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+global:
+  ## common greenhouse values to use
+  ##
+  greenhouse:
+    # base domain of the greenhouse organisation
+    baseDomain:
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -340,12 +347,12 @@ cluster:
         enable: false
 
         # -- generate certificate, if false secret must be provided
-        generate: true
+        generate: false
 
         # -- Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different
         # secret provide it via the caSecret field
         secret:
-          # name: "
+          name: "opensearch-http-cert"
 
       # -- dashboards pod tolerations
       tolerations: []
@@ -433,12 +440,12 @@ cluster:
 
           # -- If set to true the operator will generate a CA and certificates for the cluster to use,
           # if false - secrets with existing certificates must be supplied
-          generate: true
+          generate: false
 
           # -- Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a
           # different secret provide it via the caSecret field
-          secret: {}
-  #            name: "secret-name"
+          secret:
+            name: "opensearch-admin-cert"
 
         transport:
           # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
@@ -452,18 +459,18 @@ cluster:
 
           # -- If set to true the operator will generate a CA and certificates for the cluster to use,
           # if false secrets with existing certificates must be supplied
-          generate: true
+          generate: false
 
           # --  Allowed Certificate DNs for nodes, only used when existing certificates are provided
           nodesDn: []
 
           # -- Separate certificate per node
-          perNode: true
+          perNode: false
 
           # -- Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a
           # different secret provide it via the caSecret field
-          secret: {}
-  #            name: "secret-name"
+          secret:
+            name: "opensearch-transport-cert"
 
     # Opensearch Ingress configuration
     ingress:
