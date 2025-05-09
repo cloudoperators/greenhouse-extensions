@@ -85,7 +85,7 @@ $(PINT): $(LOCALBIN)
 		&& chmod +x $(LOCALBIN)/pint; \
 	fi;
 
-## Download `pint` locally if necessary
+## Download `helm` locally if necessary
 .PHONY: helm-install
 helm-install: $(HELM)
 $(HELM): $(LOCALBIN)
