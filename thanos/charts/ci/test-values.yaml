@@ -1,20 +1,9 @@
-prometheus-operator:
-  defaultRules:
-    create: true
-    labels:
-      thanos-ruler: thanos
-  prometheusOperator:
-    enabled: true
-    serviceMonitor:
-      selfMonitor: false
-  crds:
-    enabled: true
-
 ci:
   enabled: true
 
 thanos:
   ruler:
+    enabled: true
     matchLabel: thanos
     alertmanagers:
       enabled: true
@@ -23,3 +12,9 @@ thanos:
         ssoCert: xxx
         ssoKey: xxx
       hosts:
+  serviceMonitor:
+    selfMonitor: true
+    labels: {
+      plugin: default
+    }
+    dashboards: false

@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: github-guard
 spec:
-  version: "1.0.0"
+  version: "1.1.0"
   displayName: Github Guard
   description: Manages Github teams, team memberships and repository & team assignments
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/github-guard/README.md
@@ -14,4 +14,4 @@ spec:
   helmChart:
     name: github-guard
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.0.0
+    version: 1.1.0

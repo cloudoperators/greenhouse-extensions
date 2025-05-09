@@ -6,45 +6,29 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.7
+  version: 0.0.8
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.7
+    version: 0.0.8
   options:
     - name: operator.fullnameOverride
-      description: "Override the full name of the operator. Use this to customize resource naming."
+      description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
       default: "opensearch-operator"
       required: false
       type: string
-    - name: operator.kubeRbacProxy.enable
-      description: "Toggle the kube-rbac-proxy to secure the operator's endpoints."
-      default: true
-      required: false
-      type: bool
-    - name: opensearchOperator.serviceAccount.create
-      description: "Determine whether a new service account should be created for the OpenSearch operator."
-      default: true
-      required: false
-      type: bool
-    - name: opensearchOperator.serviceAccount.name
-      description: "Specify the name of the service account used by the OpenSearch operator. Only change if creating a new account."
-      default: "opensearch-operator-controller-manager"
-      required: false
-      type: string
     - name: cluster.fullnameOverride
-      description: "Override the full name of the OpenSearch cluster. Defaults to the release name if left blank."
+      description: "Specifies a custom name for the OpenSearch cluster. If left blank, the release name will be used as the default."
       required: false
       type: string
-    - name: cluster.serviceAccount.create
-      description: "Control whether to create a service account for the OpenSearch cluster. Set to false to use an existing account."
-      default: false
-      required: false
-      type: bool
-    - name: cluster.monitoring.pluginUrl
-      description: "Provide a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
+    - name: cluster.cluster.general.monitoring.pluginUrl
+      description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
       required: false
       type: string
+    - name: cluster.cluster.general.monitoring.labels
+      description: "Specifies custom labels for the ServiceMonitor to expose OpenSearch metrics to Prometheus."
+      required: false
+      type: map
