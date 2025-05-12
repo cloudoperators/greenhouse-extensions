@@ -218,7 +218,8 @@
       ],
       "minimumReleaseAge": "7 days",
       "additionalBranchPrefix": "{{parentDir}}-",
-      "bumpVersion": "patch"
+      "bumpVersion": "patch",
+      "postUpdateOptions": ["helmUpdateSubChartArchives"]
     },
     {
       "matchManagers": [
@@ -229,7 +230,8 @@
       ],
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
-      "bumpVersion": "minor"
+      "bumpVersion": "minor",
+      "postUpdateOptions": ["helmUpdateSubChartArchives"]
     },
     {
       "matchManagers": [
@@ -240,7 +242,8 @@
       ],
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
-      "bumpVersion": "major"
+      "bumpVersion": "major",
+      "postUpdateOptions": ["helmUpdateSubChartArchives"]
     },
     {
       "groupName": "npm dependencies",
