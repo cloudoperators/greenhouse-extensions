@@ -115,7 +115,7 @@ rules:
 - apiGroups:
   - greenhouse.sap
   resources:
-  - teammemberships
+  - teams
   verbs:
   - get
   - list
