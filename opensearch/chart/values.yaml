@@ -7,6 +7,8 @@ global:
   greenhouse:
     # base domain of the greenhouse organisation
     baseDomain:
+  certManager:
+    enable: true
 
 operator:
   namespace: ""
