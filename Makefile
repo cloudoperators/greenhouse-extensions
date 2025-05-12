@@ -2,6 +2,7 @@
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # Detect ARCH (AMD64 or ARM64)
+UNAME_M := $(shell uname -m)
 UNAME_P := $(shell uname -p)
 ARCH :=
 ifeq ($(UNAME_P),x86_64)
@@ -30,7 +31,7 @@ HELM-DOCS ?= $(LOCALBIN)/helm-docs
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
-HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(ARCH).tar.gz
+HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(UNAME_M).tar.gz
 PINT_REPO ?= https://github.com/cloudflare/pint/releases/download/v$(PINT_VERSION)/pint-$(PINT_VERSION)-$(OS)-$(ARCH).tar.gz
 HELM_URL ?= https://get.helm.sh/helm-v$(HELM_VERSION)-$(OS)-$(ARCH).tar.gz
 
