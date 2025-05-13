@@ -159,6 +159,9 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"password":"","secretKey":"password","secretName":"logs-credentials"}]` | List of OpensearchUser. Check values.yaml file for examples. |
 | cluster.usersRoleBinding | list | `[{"name":"logs-access","roles":["logs-role"],"users":["logs"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
 | global.certManager.enable | bool | `true` |  |
+| global.certManager.issuerRef.group | string | `"certmanager.cloud.sap"` |  |
+| global.certManager.issuerRef.kind | string | `"DigicertIssuer"` |  |
+| global.certManager.issuerRef.name | string | `"digicert-issuer"` |  |
 | global.greenhouse.baseDomain | string | `nil` |  |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
