@@ -50,6 +50,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
+| greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config.annotations | object | `{}` | Annotations for config |
