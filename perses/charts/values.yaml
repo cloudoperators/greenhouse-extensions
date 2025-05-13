@@ -226,8 +226,3 @@ perses:
     tls: []
   #    - secretName: ingress-cert
   #      hosts: []
-
-# -- By setting this to true, You will get some default dashboards
-greenhouse:
-  defaultDashboards:
-    enabled: true
