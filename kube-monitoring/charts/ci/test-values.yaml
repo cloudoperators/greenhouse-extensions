@@ -1,2 +1,6 @@
 blackboxExporter:
   enabled: true
+
+kube-monitoring:
+  nodeExporter:
+    enabled: false
