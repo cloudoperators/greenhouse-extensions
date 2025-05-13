@@ -28,7 +28,7 @@ spec:
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
       containers:
         - name: operator
-          image: keppel.global.cloud.sap/ccloud/absent-metrics-operator:20250212104340
+          image: ghcr.io/sapcc/absent-metrics-operator:20250513141237
           imagePullPolicy: IfNotPresent
           # NOTE: observed usage in eu-de-1 (as of 2021-10)
           # - CPU: ~10m during load
