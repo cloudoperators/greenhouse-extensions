@@ -102,6 +102,12 @@ kubeMonitoring:
       - name: plutono-dashboard
         value: '"true"'
 
+    # Label selectors for the Perses dashboards to be picked up by Perses.
+    # @ignored
+    persesSelectors:
+      - name: perses.dev/resource
+        value: '"true"'
+
   prometheusOperator:
     # -- Manages Prometheus and Alertmanager components
     # @section -- Prometheus-operator options

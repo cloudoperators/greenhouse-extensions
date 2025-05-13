@@ -19,6 +19,7 @@ chart-dirs:
   - logshipper
   - opensearch
   - logs
+  - audit-logs
   - thanos
   - perses
   - prometheus
@@ -31,4 +32,5 @@ chart-repos:
   - logshipper=https://fluent.github.io/helm-charts
   - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
   - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts

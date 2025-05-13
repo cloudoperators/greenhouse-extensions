@@ -2,20 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: v2
-appVersion: v0.124.1
-name: logs-operator
-version: 0.9.1
-description: OpenTelemetry Operator Helm chart for Kubernetes
+name: audit-logs
+description: OpenTelemetry Collector Helm chart for audit-logs
 icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e9e3ac0c8817cb/projects/opentelemetry/icon/color/opentelemetry-icon-color.png
 type: application
+version: 0.0.1
+appVersion: "v0.121.0"
 maintainers:
-- name: timojohlo
+- name: olandr
 - name: kuckkuck
-- name: viennaa
+- name: timojohlo
 sources:
 - https://github.com/cloudoperators/greenhouse-extensions
-dependencies:
-- name: opentelemetry-operator
-  alias: logs-operator
-  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.86.3

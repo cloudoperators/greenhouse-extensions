@@ -3,15 +3,14 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if .Values.openTelemetry.logsCollector.enabled }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: logs
+  name: audit-logs
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
-  {{- if .Values.openTelemetry.customLabels }}
-  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+  {{- if .Values.auditLogs.customLabels }}
+  {{ toYaml .Values.auditLogs.customLabels | nindent 4 }}
   {{- end }}
 spec:
   mode: daemonset
@@ -32,20 +31,20 @@ spec:
           apiVersion: v1
           fieldPath: status.podIP
     - name: cluster
-      value: "{{ .Values.openTelemetry.cluster }}"
+      value: "{{ .Values.auditLogs.cluster }}"
     - name: region
-      value: "{{ .Values.openTelemetry.region }}"
+      value: "{{ .Values.auditLogs.region }}"
     - name: index
-      value: "{{ .Values.openTelemetry.openSearchLogs.index }}"
+      value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
-         name: otel-basic-auth
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+         name: audit-logs-basic-auth
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 9999
 {{- end }}
-  image: {{ index .Values "logs-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "logs-operator" "manager" "collectorImage" "tag" }}
+  image: {{ .Values.auditLogs.collectorImage.repository }}:{{ .Values.auditLogs.collectorImage.tag }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
@@ -83,11 +82,7 @@ spec:
             field: attributes["log.type"]
             value: "containerd"
 
-{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-    {{- include "kvm.receiver" . | nindent 6 -}}
-{{- end }}
-
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       prometheus/internal:
         config:
           scrape_configs:
@@ -103,7 +98,7 @@ spec:
         timeout: 5s
         send_batch_size : 10
 
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       attributes/prometheus:
         actions:
           - action: insert
@@ -156,47 +151,47 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.attributes" . | nindent 6 -}}
 {{- end }}
-
 
       transform/journal:
         error_mode: ignore
         log_statements:
           - context: log
             statements:
-              - merge_maps(log.cache, body, "upsert") where IsMatch(log.body, "^\\{")
-              - set(log.attributes["message"], log.cache["MESSAGE"])
-              - set(log.attributes["code_file"], log.cache["CODE_FILE"])
-              - set(log.attributes["code_func"], log.cache["CODE_FUNC"])
-              - set(log.attributes["code_line"], log.cache["CODE_LINE"])
-              - set(log.attributes["incovation_id"], log.cache["INVOCATION_ID"])
-              - set(log.attributes["message_id"], log.cache["MESSAGE_ID"])
-              - set(log.attributes["priority"], log.cache["PRIORITY"])
-              - set(log.attributes["syslog_facility"], log.cache["SYSLOG_FACILITY"])
-              - set(log.attributes["syslog_identifier"], log.cache["SYSLOG_IDENTIFIER"])
-              - set(log.attributes["tid"], log.cache["TID"])
-              - set(log.attributes["unit"], log.cache["UNIT"])
-              - set(log.attributes["boot_id"], log.cache["_BOOT_ID"])
-              - set(log.attributes["cao_effective"], log.cache["_CAP_EFFECTIVE"])
-              - set(log.attributes["cmdline"], log.cache["_CMDLINE"])
-              - set(log.attributes["exe"], log.cache["_EXE"])
-              - set(log.attributes["gid"], log.cache["_GID"])
-              - set(log.attributes["hostname"], log.cache["_HOSTNAME"])
-              - set(log.attributes["machine_id"], log.cache["_MACHINE_ID"])
-              - set(log.attributes["pid"], log.cache["_PID"])
-              - set(log.attributes["runtime_scope"], log.cache["_RUNTIME_SCOPE"])
-              - set(log.attributes["selinux_context"], log.cache["_SELINUX_CONTEXT"])
-              - set(log.attributes["source_realtime_timestamp"], log.cache["_SOURCE_REALTIME_TIMESTAMP"])
-              - set(log.attributes["systemd_cgroup"], log.cache["_SYSTEMD_CGROUP"])
-              - set(log.attributes["systemd_slice"], log.cache["_SYSTEMD_SLICE"])
-              - set(log.attributes["systemd_unit"], log.cache["_SYSTEMD_UNIT"])
-              - set(log.attributes["transport"], log.cache["_TRANSPORT"])
-              - set(log.attributes["uid"], log.cache["_UID"])
-              - set(log.attributes["cursor"], log.cache["__CURSOR"])
-              - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
-              - delete_key(attributes, "log.cache")
+              - merge_maps(cache, body, "upsert") where IsMatch(body, "^\\{")
+              - set(attributes["message"], cache["MESSAGE"])
+              - set(attributes["code_file"], cache["CODE_FILE"])
+              - set(attributes["code_func"], cache["CODE_FUNC"])
+              - set(attributes["code_line"], cache["CODE_LINE"])
+              - set(attributes["incovation_id"], cache["INVOCATION_ID"])
+              - set(attributes["message_id"], cache["MESSAGE_ID"])
+              - set(attributes["priority"], cache["PRIORITY"])
+              - set(attributes["syslog_facility"], cache["SYSLOG_FACILITY"])
+              - set(attributes["syslog_identifier"], cache["SYSLOG_IDENTIFIER"])
+              - set(attributes["tid"], cache["TID"])
+              - set(attributes["unit"], cache["UNIT"])
+              - set(attributes["boot_id"], cache["_BOOT_ID"])
+              - set(attributes["cao_effective"], cache["_CAP_EFFECTIVE"])
+              - set(attributes["cmdline"], cache["_CMDLINE"])
+              - set(attributes["exe"], cache["_EXE"])
+              - set(attributes["gid"], cache["_GID"])
+              - set(attributes["hostname"], cache["_HOSTNAME"])
+              - set(attributes["machine_id"], cache["_MACHINE_ID"])
+              - set(attributes["pid"], cache["_PID"])
+              - set(attributes["runtime_scope"], cache["_RUNTIME_SCOPE"])
+              - set(attributes["selinux_context"], cache["_SELINUX_CONTEXT"])
+              - set(attributes["source_realtime_timestamp"], cache["_SOURCE_REALTIME_TIMESTAMP"])
+              - set(attributes["systemd_cgroup"], cache["_SYSTEMD_CGROUP"])
+              - set(attributes["systemd_slice"], cache["_SYSTEMD_SLICE"])
+              - set(attributes["systemd_unit"], cache["_SYSTEMD_UNIT"])
+              - set(attributes["transport"], cache["_TRANSPORT"])
+              - set(attributes["uid"], cache["_UID"])
+              - set(attributes["cursor"], cache["__CURSOR"])
+              - set(attributes["monotonic_timestamp"], cache["__MONOTONIC_TIMESTAMP"])
+              - delete_key(attributes, "cache")
 
       transform/ingress:
         error_mode: ignore
@@ -205,16 +200,19 @@ spec:
             conditions:
               - resource.attributes["app.label.name"] == "ingress-nginx"
             statements:
-              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
-              - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
-              - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
-    {{- include "ceph.transform" . | nindent 6 -}}
-{{- end }}
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - set(attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where attributes["network.protocol.name"] != nil
+              - set(attributes["config.parsed"], "ingress-nginx") where attributes["client.address"] != nil
 
-{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-    {{- include "kvm.transform" . | nindent 6 -}}
-{{- end }}
+      transform/files:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["log.type"] == "files"
+            statements:
+              - merge_maps(attributes, ExtractGrokPatterns(body, "%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{GREEDYDATA:log}", true), "upsert")
+              - set(attributes["config.parsed"], "files") where attributes["log_level"] != nil
 
       k8sattributes:
         auth_type: "serviceAccount"
@@ -267,9 +265,6 @@ spec:
             - tag_name: app.label.pod-template-hash
               key: app.kubernetes.io/pod-template-hash
               from: pod
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
-    {{- include "ceph.labels" . | nindent 12 -}}
-{{- end }}
         pod_association:
           - sources:
               - from: resource_attribute
@@ -294,11 +289,13 @@ spec:
         http:
           auth:
             authenticator: basicauth/failover_a
-          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+
       prometheus:
         endpoint: 0.0.0.0:9999
 
@@ -307,7 +304,8 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.extension" . | nindent 6 -}}
 {{- end }}
 
@@ -317,7 +315,7 @@ spec:
       failover:
         priority_levels:
           - [logs/failover_a]
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
           - [logs/failover_b]
 {{- end }}
         retry_interval: 2m
@@ -326,15 +324,17 @@ spec:
     service:
       extensions:
         - basicauth/failover_a
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
+          address: 127.0.0.1:8888
           level: detailed
-          readers:
 {{- end }}
+
       pipelines:
         logs/forward:
           receivers: [forward]
@@ -344,21 +344,15 @@ spec:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
+
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
+
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress]
           exporters: [forward]
-{{- end }}
-{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-    {{- include "kvm.pipeline" . | nindent 8 -}}
-{{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
-    {{- include "ceph.pipeline" . | nindent 8 -}}
-{{- end }}
         logs/k8sevents:
           receivers: [k8s_events]
           processors: [attributes/k8sevents]
@@ -367,10 +361,9 @@ spec:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal]
           exporters: [forward]
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics/prometheus:
           receivers: [prometheus/internal]
           processors: [attributes/prometheus]
           exporters: [prometheus]
-{{- end }}
 {{- end }}

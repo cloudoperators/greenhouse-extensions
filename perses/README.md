@@ -2,9 +2,6 @@
 title: Perses
 ---
 
-> [!WARNING]
-> This plugin is in beta and please report any bugs by creating an issue [here](https://github.com/cloudoperators/greenhouse-extensions/issues/new/choose).
-
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
@@ -53,7 +50,6 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
-| greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config.annotations | object | `{}` | Annotations for config |
@@ -127,6 +123,11 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
    - Click on the **{}** icon in the top right corner of the dashboard.
    - Copy the entire JSON model.
    - See the next section for detailed instructions on how and where to paste the copied dashboard JSON model.
+
+### Dashboard-as-Code
+
+Perses offers the possibility to define **dashboards as code (DaC)** instead of going through manipulations on the UI.
+But why would you want to do this? Basically Dashboard-as-Code (DaC) is something that becomes useful at scale, when you have many dashboards to maintain, to keep aligned on certain parts, etc. If you are interested in this, you can check the [Perses documentation](https://perses.dev/perses/docs/dac/getting-started/) for more information.
 
 ## Add Dashboards as ConfigMaps
 
