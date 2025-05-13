@@ -9,6 +9,10 @@ global:
     baseDomain:
   certManager:
     enable: true
+    issuerRef:
+      group: certmanager.cloud.sap
+      kind: DigicertIssuer
+      name: digicert-issuer
 
 operator:
   namespace: ""

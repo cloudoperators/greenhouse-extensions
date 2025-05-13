@@ -15,9 +15,7 @@ spec:
   - opensearch.{{ .Release.Namespace }}.svc
   - opensearch.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
-    group: certmanager.cloud.sap
-    kind: DigicertIssuer
-    name: digicert-issuer
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -37,9 +35,7 @@ spec:
   commonName: admin
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   issuerRef:
-    group: certmanager.cloud.sap
-    kind: DigicertIssuer
-    name: digicert-issuer
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -65,9 +61,7 @@ spec:
   - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
 {{- end }}
   issuerRef:
-    group: certmanager.cloud.sap
-    kind: DigicertIssuer
-    name: digicert-issuer
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
   privateKey:
     algorithm: RSA
     encoding: PKCS8
