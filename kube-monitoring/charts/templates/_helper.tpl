@@ -137,6 +137,17 @@ plugin: {{ $root.Release.Name }}
 {{- end }}
 {{- end }}
 
+{{- define "kubeMonitoring.persesDashboardSelectorLabels" }}
+{{- $path := index . 0 -}}
+{{- $root := index . 1 -}}
+plugin: {{ $root.Release.Name }}
+{{- if $root.Values.kubeMonitoring.dashboards.persesSelectors }}
+{{- range $i, $target := $root.Values.kubeMonitoring.dashboards.persesSelectors }}
+{{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.persesSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.persesSelectors.[%v].value missing" $i)) $ }}
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- define "kubeMonitoring.defaultRelabelConfig" -}}
 {{- if .Values.kubeMonitoring.prometheus.prometheusSpec.externalLabels }}
 {{- range $key, $value := .Values.kubeMonitoring.prometheus.prometheusSpec.externalLabels }}
