@@ -76,6 +76,16 @@ helm.sh/chart: {{ include "prometheus-node-exporter.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/component: metrics
 app.kubernetes.io/part-of: {{ include "prometheus-node-exporter.name" . }}
+{{ include "prometheus-node-exporter.selectorLabels" . }}
+{{- with .Chart.AppVersion }}
+app.kubernetes.io/version: {{ . | quote }}
+{{- end }}
+{{- with .Values.podLabels }}
+{{ toYaml . }}
+{{- end }}
+{{- if .Values.releaseLabel }}
+release: {{ .Release.Name }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -91,6 +101,16 @@ helm.sh/chart: {{ include "prometheus-blackbox-exporter.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/component: metrics
 app.kubernetes.io/part-of: {{ include "prometheus-blackbox-exporter.name" . }}
+{{ include "prometheus-node-exporter.selectorLabels" . }}
+{{- with .Chart.AppVersion }}
+app.kubernetes.io/version: {{ . | quote }}
+{{- end }}
+{{- with .Values.podLabels }}
+{{ toYaml . }}
+{{- end }}
+{{- if .Values.releaseLabel }}
+release: {{ .Release.Name }}
+{{- end }}
 {{- end }}
 
 {{/* Generate basic labels */}}
