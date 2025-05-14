@@ -185,6 +185,28 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "mikefarah/yq",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump spec.version in plugindefinition.yaml to match Chart.yaml",
+      "fileMatch": ["^**/plugindefinition.yaml$"],
+      "matchStrings": [
+        "spec:\\s*version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "file",
+      "depNameTemplate": "**/Chart.yaml",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump spec.helmChart.version in plugindefinition.yaml to match Chart.yaml",
+      "fileMatch": ["^**/plugindefinition.yaml$"],
+      "matchStrings": [
+        "helmChart:\\s*([\\s\\S]*?)version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "file",
+      "depNameTemplate": "**/Chart.yaml",
+      "versioningTemplate": "helm"
     }
   ],
   "packageRules": [
@@ -275,6 +297,13 @@
         "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
       ],
       "groupName": "OTEL docker base images"
+    },
+    {
+      "groupName": "Helm dependency updates",
+      "matchPaths": [
+        "**/Chart.yaml",
+        "**/plugindefinition.yaml"
+      ]
     }
   ],
   "separateMinorPatch": true
