@@ -485,7 +485,6 @@ alerts:
       # @section -- Alertmanager options
       key: ""
 
-# @ignored
 absentmetricsoperator:
   enabled: false
 

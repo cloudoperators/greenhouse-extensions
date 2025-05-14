@@ -122,6 +122,12 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheusOperator.enabled | bool | `true` | Manages Prometheus and Alertmanager components |
 | kubeMonitoring.prometheusOperator.prometheusInstanceNamespaces | list | `[]` | Filter namespaces to look for prometheus-operator Prometheus resources |
 
+### Other Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| absentmetricsoperator.enabled | bool | `false` |  |
+
 ## Service Discovery
 
 The **kube-monitoring** Plugin provides a PodMonitor to automatically discover the Prometheus metrics of the Kubernetes Pods in any Namespace. The PodMonitor is configured to detect the `metrics` endpoint of the Pods if the following annotations are set:
