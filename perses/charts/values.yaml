@@ -226,3 +226,8 @@ perses:
     tls: []
   #    - secretName: ingress-cert
   #      hosts: []
+
+greenhouse:
+  defaultDashboards:
+    # -- By setting this to true, You will get Perses Self-monitoring dashboards
+    enabled: true
