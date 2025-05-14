@@ -419,6 +419,18 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
 
+    # Configuration for the client service used to expose client nodes externally.
+    client:
+      service:
+        enabled: true
+        type: LoadBalancer
+        annotations: {}
+        ports:
+          - name: http
+            port: 9200
+            targetPort: 9200
+            protocol: TCP
+
     # Opensearch security configuration
     security:
       config:
