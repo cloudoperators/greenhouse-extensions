@@ -419,12 +419,16 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
 
-    # Configuration for the client service used to expose client nodes externally.
+    # -- Configuration for the client service used to expose client nodes externally.
     client:
       service:
+        # -- Enable or disable the external client service.
         enabled: true
+        # -- The type of Kubernetes service to create. Default is LoadBalancer for external access.
         type: LoadBalancer
+        # -- Annotations to add to the service, e.g. disco.
         annotations: {}
+        # -- Ports to expose for the client service.
         ports:
           - name: http
             port: 9200
