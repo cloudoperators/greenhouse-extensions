@@ -68,6 +68,13 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
+| cluster.cluster.client.service.annotations | object | `{}` |  |
+| cluster.cluster.client.service.enabled | bool | `true` |  |
+| cluster.cluster.client.service.ports[0].name | string | `"http"` |  |
+| cluster.cluster.client.service.ports[0].port | int | `9200` |  |
+| cluster.cluster.client.service.ports[0].protocol | string | `"TCP"` |  |
+| cluster.cluster.client.service.ports[0].targetPort | int | `9200` |  |
+| cluster.cluster.client.service.type | string | `"LoadBalancer"` |  |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
 | cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
