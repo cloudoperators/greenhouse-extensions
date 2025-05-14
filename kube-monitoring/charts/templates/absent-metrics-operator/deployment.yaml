@@ -1,3 +1,4 @@
+{{- if .Values.absent-metrics-operator.enabled }}
 kind: Deployment
 apiVersion: apps/v1
 
@@ -43,3 +44,4 @@ spec:
           ports:
             - name: metrics
               containerPort: 9659
+{{ end }}

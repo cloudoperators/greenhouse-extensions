@@ -1,4 +1,5 @@
 
+{{- if .Values.absent-metrics-operator.enabled }}
 # Set up a service account for absent-metrics-operator that has the necessary
 # permissions to interact with PrometheusRules at the cluster-level.
 
@@ -33,3 +34,4 @@ roleRef:
   kind: ClusterRole
   name: {{ $.Release.Name }}-absent-metrics-operator
   apiGroup: rbac.authorization.k8s.io
+{{- end }}

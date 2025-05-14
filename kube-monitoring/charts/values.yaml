@@ -484,6 +484,10 @@ alerts:
       # -- TLS key for communication with Alertmanager
       # @section -- Alertmanager options
       key: ""
+
+absent-metrics-operator:
+  enabled: false
+
 # @ignored
 testFramework:
   enabled: true
