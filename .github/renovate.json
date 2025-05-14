@@ -9,8 +9,8 @@
     {
       "customType": "regex",
       "description": "Bump ingress-nginx version in the plugindefinition",
-      "fileMatch": [
-        "^ingress-nginx.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^ingress-nginx.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -22,8 +22,8 @@
     {
       "customType": "regex",
       "description": "Bump external-dns version in the plugindefinition",
-      "fileMatch": [
-        "^external-dns.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^external-dns.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -35,8 +35,8 @@
     {
       "customType": "regex",
       "description": "Bump cert-manager version in the plugindefinition",
-      "fileMatch": [
-        "^cert-manager.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^cert-manager.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -48,8 +48,8 @@
     {
       "customType": "regex",
       "description": "Bump kube-monitoring version in the plugindefinition",
-      "fileMatch": [
-        "^kube-monitoring.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^kube-monitoring.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -60,8 +60,8 @@
     {
       "customType": "regex",
       "description": "Bump alerts version in the plugindefinition",
-      "fileMatch": [
-        "^alerts.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^alerts.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -72,8 +72,8 @@
     {
       "customType": "regex",
       "description": "Bump perses version in the plugindefinition",
-      "fileMatch": [
-        "^perses.plugindefinition.yaml$"
+      "managerFilePatterns": [
+        "/^perses.plugindefinition.yaml$/"
       ],
       "matchStrings": [
         ".*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
@@ -85,8 +85,8 @@
     {
       "customType": "regex",
       "description": "Bump kustomize version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "KUSTOMIZE_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -98,8 +98,8 @@
     {
       "customType": "regex",
       "description": "Bump yq version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "YQ_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -111,8 +111,8 @@
     {
       "customType": "regex",
       "description": "Bump helm-docs version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "HELM_DOCS_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -124,8 +124,8 @@
     {
       "customType": "regex",
       "description": "Bump pint version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "PINT_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -137,8 +137,8 @@
     {
       "customType": "regex",
       "description": "Bump helm version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "HELM_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -150,8 +150,8 @@
     {
       "customType": "regex",
       "description": "Bump kubectl version in integration-test Dockerfile",
-      "fileMatch": [
-        "^Dockerfile(\\.integration-test)?$"
+      "managerFilePatterns": [
+        "/^Dockerfile.integration-test$/"
       ],
       "matchStrings": [
         "ARG KUBECTL_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
@@ -163,8 +163,8 @@
     {
       "customType": "regex",
       "description": "Bump grpc-health-probe version in integration-test Dockerfile",
-      "fileMatch": [
-        "^Dockerfile(\\.integration-test)?$"
+      "managerFilePatterns": [
+        "/^Dockerfile.integration-test$/"
       ],
       "matchStrings": [
         "ARG GRPC_HEALTH_PROBE_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
@@ -176,8 +176,8 @@
     {
       "customType": "regex",
       "description": "Bump yq version in integration-test Dockerfile",
-      "fileMatch": [
-        "^Dockerfile(\\.integration-test)?$"
+      "managerFilePatterns": [
+        "/^Dockerfile.integration-test$/"
       ],
       "matchStrings": [
         "ARG YQ_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
@@ -219,7 +219,9 @@
       "minimumReleaseAge": "7 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "patch",
-      "postUpdateOptions": ["helmUpdateSubChartArchives"]
+      "postUpdateOptions": [
+        "helmUpdateSubChartArchives"
+      ]
     },
     {
       "matchManagers": [
@@ -231,7 +233,9 @@
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "minor",
-      "postUpdateOptions": ["helmUpdateSubChartArchives"]
+      "postUpdateOptions": [
+        "helmUpdateSubChartArchives"
+      ]
     },
     {
       "matchManagers": [
@@ -243,7 +247,9 @@
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "major",
-      "postUpdateOptions": ["helmUpdateSubChartArchives"]
+      "postUpdateOptions": [
+        "helmUpdateSubChartArchives"
+      ]
     },
     {
       "groupName": "npm dependencies",
