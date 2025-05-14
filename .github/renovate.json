@@ -189,7 +189,7 @@
     {
       "customType": "regex",
       "description": "Bump spec.version in plugindefinition.yaml to match Chart.yaml",
-      "fileMatch": ["^**/plugindefinition.yaml$"],
+      "fileMatch": [".*/plugindefinition.yaml$"],
       "matchStrings": [
         "spec:\\s*version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
@@ -200,7 +200,7 @@
     {
       "customType": "regex",
       "description": "Bump spec.helmChart.version in plugindefinition.yaml to match Chart.yaml",
-      "fileMatch": ["^**/plugindefinition.yaml$"],
+      "fileMatch": [".*/plugindefinition.yaml$"],
       "matchStrings": [
         "helmChart:\\s*([\\s\\S]*?)version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
