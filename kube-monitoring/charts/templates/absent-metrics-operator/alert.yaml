@@ -1,4 +1,4 @@
-{{- if .Values.absent-metrics-operator.enabled }}
+{{- if .Values.absentmetricsoperator.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 

@@ -1,4 +1,4 @@
-{{- if .Values.absent-metrics-operator.enabled }}
+{{- if .Values.absentmetricsoperator.enabled }}
 kind: Deployment
 apiVersion: apps/v1
 
