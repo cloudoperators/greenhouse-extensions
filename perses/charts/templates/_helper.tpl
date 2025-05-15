@@ -1,6 +1,5 @@
 {{- define "perses.labels" -}}
 plugindefinition: perses
-plugin: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 perses.dev/resource: "true"
 release: {{ .Release.Name | quote }}
