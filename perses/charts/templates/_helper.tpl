@@ -8,3 +8,14 @@ release: {{ .Release.Name | quote }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
 {{- end }}
+
+
+{{- define "release.name" -}}
+{{- printf "%s" $.Release.Name | trunc 50 | trimSuffix "-" -}}
+{{- end}}
+
+{{- define "perses.alertLabels" -}}
+{{- if not (empty .Values.greenhouse.alertLabels) }}
+{{- toYaml .Values.greenhouse.alertLabels  -}}
+{{- end }}
+{{- end }}
