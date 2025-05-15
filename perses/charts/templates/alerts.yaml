@@ -10,5 +10,6 @@ metadata:
     {{- include "perses.labels" $root | nindent 4 }}
 spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
+---
 {{- end }}
 {{- end }}
