@@ -102,7 +102,7 @@ plutono:
     registry: ghcr.io
     repository: credativ/plutono
     # -- Overrides the Plutono image tag whose default is the chart appVersion
-    tag: v7.5.37
+    tag: v7.5.38
     sha: ""
     pullPolicy: IfNotPresent
 
