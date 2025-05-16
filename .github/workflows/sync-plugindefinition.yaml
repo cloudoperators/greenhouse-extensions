@@ -3,6 +3,9 @@ name: Bump plugindefinition.yaml version on Chart.yaml change
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - "**/*/Chart.yaml"
+      - "**/*/*/Chart.yaml"
 
 jobs:
   bump-version:
@@ -91,4 +94,4 @@ jobs:
         env:
           files: ${{ steps.chartdiff.outputs.files }}
           UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          GITHUB_TOKEN: ${{ secrets.CLOUOPERATOR_REPO_WRITE }}
