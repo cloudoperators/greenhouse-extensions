@@ -484,6 +484,12 @@ alerts:
       # -- TLS key for communication with Alertmanager
       # @section -- Alertmanager options
       key: ""
+
+absentmetricsoperator:
+  enabled: false
+  image:
+    repository: keppel.global.cloud.sap/ccloud/absent-metrics-operator:20250512144918
+
 # @ignored
 testFramework:
   enabled: true
