@@ -47,43 +47,6 @@
     },
     {
       "customType": "regex",
-      "description": "Bump kube-monitoring version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^kube-monitoring.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump alerts version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^alerts.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump perses version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^perses.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        ".*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "perses/helm-charts",
-      "extractVersionTemplate": "^perses-(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
       "description": "Bump kustomize version in the Makefile",
       "managerFilePatterns": [
         "/^Makefile$/"

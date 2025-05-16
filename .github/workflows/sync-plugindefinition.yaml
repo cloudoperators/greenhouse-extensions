@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Find changed Chart.yaml files
         id: chartdiff
@@ -85,7 +87,8 @@ jobs:
             fi
           done
           git pull --rebase origin ${GITHUB_HEAD_REF}
-          git push origin HEAD:${GITHUB_HEAD_REF}
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:${GITHUB_HEAD_REF}
         env:
           files: ${{ steps.chartdiff.outputs.files }}
           UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
