@@ -22,5 +22,6 @@
 {{- if not $generatorURL }}{{ $generatorURL = .GeneratorURL }}{{ end }}
 {{ end -}}
 
-*<{{ $generatorURL }}|Prometheus>*
+*<{{ $generatorURL }}|Prometheus>* {{ if .CommonLabels.playbook }}*<{{ .CommonLabels.playbook }}|Playbook>* {{ end -}}
+{{ if .CommonAnnotations.documentation }}*<{{ .CommonAnnotations.documentation }}|Documentation>* {{ end -}}
 {{ end }}
