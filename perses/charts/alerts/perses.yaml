@@ -1,5 +1,5 @@
 groups:
-  - name: perses-alerts
+  - name: perses
     rules:
       - alert: PersesServiceDown
         annotations:
@@ -19,7 +19,7 @@ groups:
           summary: Perses health endpoint is failing.
         expr: |
           sum(rate(perses_http_request_total{handler="/perses/api/v1/health",code="200"}[5m])) == 0
-        for: 5m
+        for: 15m
         labels:
           severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
@@ -38,19 +38,6 @@ groups:
         for: 5m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
-          {{- include "perses.alertLabels" . | nindent 10 }}
-
-      - alert: PersesElevatedMemoryUsage
-        annotations:
-          description: Perses memory usage has exceeded 400MB and is growing.
-          summary: Perses memory usage is high.
-        expr: |
-          process_resident_memory_bytes > 400 * 1024 * 1024 and
-          rate(process_resident_memory_bytes[10m]) > 1024 * 1024
-        for: 15m
-        labels:
-          severity: info
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
@@ -75,7 +62,7 @@ groups:
           description: Perses instance has {{`{{$value}}`}} goroutines, which is higher than normal.
           summary: Perses has an elevated number of goroutines.
         expr: |
-          go_goroutines > 100
+          go_goroutines > 1000
         for: 15m
         labels:
           severity: info

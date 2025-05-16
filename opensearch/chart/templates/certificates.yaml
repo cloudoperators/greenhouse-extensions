@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.global.certManager.enable }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-transport-cert
+spec:
+  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
+  dnsNames:
+  - opensearch
+  - opensearch-discovery
+  - opensearch.{{ .Release.Namespace }}
+  - opensearch.{{ .Release.Namespace }}.svc
+  - opensearch.{{ .Release.Namespace }}.svc.cluster.local
+  issuerRef:
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+  secretName: opensearch-transport-cert
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-admin-cert
+spec:
+  commonName: admin
+  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
+  issuerRef:
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+  secretName: opensearch-admin-cert
+  usages:
+    - digital signature
+    - key encipherment
+    - client auth
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-http-cert
+spec:
+  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
+  dnsNames:
+  - opensearch
+  - opensearch.{{ .Release.Namespace }}
+  - opensearch.{{ .Release.Namespace }}.svc
+  - opensearch.{{ .Release.Namespace }}.svc.cluster.local
+{{- if .Values.global.greenhouse.baseDomain }}
+  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
+{{- end }}
+  issuerRef:
+  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 2048
+  secretName: opensearch-http-cert
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
+{{- end }}
