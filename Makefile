@@ -16,7 +16,7 @@ endif
 KUSTOMIZE_VERSION ?= 5.6.0
 YQ_VERSION ?= v4.45.1
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.73.6
+PINT_VERSION ?= 0.73.7
 HELM_VERSION ?= 3.17.3
 
 ## Location to install dependencies to
