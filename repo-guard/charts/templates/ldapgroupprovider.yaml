@@ -1,0 +1,19 @@
+{{ if .Values.ldap }}
+apiVersion: githubguard.sap/v1
+kind: LDAPGroupProvider
+metadata:
+  name: {{ .Values.ldap.name | lower }}
+spec:
+  secret: {{ .Values.ldap.name | lower }}
+  host: {{ .Values.ldap.host }}
+  baseDN:  {{ .Values.ldap.baseDN }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.ldap.name | lower }}
+type: Opaque
+data:
+  bindDN: {{ .Values.ldap.bindDN | b64enc }}
+  bindPW: {{ .Values.ldap.bindPW | b64enc }}
+{{ end }}

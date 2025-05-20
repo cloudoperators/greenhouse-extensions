@@ -1,0 +1,41 @@
+{{- range $githubKey, $githubItem := .Values.githubs }}
+  {{- if $githubItem.organizations }}
+    {{- range $idx, $org := $githubItem.organizations }}
+      {{- if $org.teams }}
+        {{- range $tidx, $team := $org.teams }}
+apiVersion: githubguard.sap/v1
+kind: GithubTeam
+metadata:
+  name: {{ $githubKey }}--{{ $org.organization | replace "/" "-" | lower }}--{{ $team.name | replace "_" "-" | replace " " "-" | lower }}
+  labels:
+    githubguard.sap/addUser: "{{ $team.addUsers | default "true" }}"
+    githubguard.sap/removeUser: "{{ $team.removeUsers | default "true" }}"
+    {{- if eq ($org.disableInternalUsernames | default "false") "true" }}
+    githubguard.sap/disableInternalUsernames: "true"
+    {{- end }}
+spec:
+  {{- if or $team.distributionListID $team.ldapGroup }}
+  externalMemberProvider:
+    {{- if $team.distributionListID }}
+    distributionList:
+      distributionListAPI: "{{ $.Values.distributionListAPI.name }}"
+      distributionListID: {{ $team.distributionListID }}
+    {{- end }}
+    {{- if $team.ldapGroup }}
+    ldapGroup:
+      ldapGroupProvider: "{{ $.Values.ldap.name }}"
+      group: {{ $team.ldapGroup }}
+    {{- end }}
+  {{- end }}
+  github: {{ $githubKey }}
+  organization: {{ $org.organization }}
+  team: {{ $team.name }}
+  {{- if $team.greenhouseTeam }}
+  greenhouseTeam: {{ $team.greenhouseTeam }}
+  {{- end }}
+---
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
