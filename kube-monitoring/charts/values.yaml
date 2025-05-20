@@ -488,7 +488,10 @@ alerts:
 absentmetricsoperator:
   enabled: false
   image:
-    repository: ghcr.io/sapcc/absent-metrics-operator:init
+    registry: ghcr.io
+    repository: sapcc/absent-metrics-operator
+    tag: init
+  imagePullPolicy: IfNotPresent
 
 # @ignored
 testFramework:
@@ -496,7 +499,7 @@ testFramework:
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
+    tag: v0.0.1
   imagePullPolicy: IfNotPresent
 
 # @ignored
