@@ -127,7 +127,10 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | absentmetricsoperator.enabled | bool | `false` |  |
-| absentmetricsoperator.image.repository | string | `"ghcr.io/sapcc/absent-metrics-operator:init"` |  |
+| absentmetricsoperator.image.registry | string | `"ghcr.io"` |  |
+| absentmetricsoperator.image.repository | string | `"sapcc/absent-metrics-operator"` |  |
+| absentmetricsoperator.image.tag | string | `"init"` |  |
+| absentmetricsoperator.imagePullPolicy | string | `"IfNotPresent"` |  |
 
 ## Service Discovery
 
