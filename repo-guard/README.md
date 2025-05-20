@@ -20,7 +20,7 @@ metadata:
 spec:
   webURL: https://github.com
   v3APIURL: https://api.github.com
-  integrationID: 420328
+  integrationID: 123456
   clientUserAgent: greenhouse-repo-guard
   secret: github-com-secret
 ```
@@ -55,15 +55,9 @@ apiVersion: githubguard.sap/v1
 kind: GithubAccountLink
 metadata:
   annotations: 
-   name: com-I313226 
+   name: com-123456 
 spec:
-  userID: I313226
+  userID: 123456
   githubID: 2042059
   github: com
 ```
-
-### External Member Providers: `DistributionListAPI`
- ![](img/dl.png)
-
- ###  External Member Providers: `LDAPGroupProvider`
- ![](img/ldap.png)
