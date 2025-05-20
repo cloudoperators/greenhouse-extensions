@@ -1,3 +1,3 @@
 dependencies:
-  - kube-monitoring
+#  - kube-monitoring -> (currently blocked by https://github.com/prometheus-community/helm-charts/issues/5648)
   - cert-manager
