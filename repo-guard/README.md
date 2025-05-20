@@ -1,8 +1,8 @@
 ---
-title: Github Guard
+title: Repo Guard
 ---
 
-Github Guard Greenhouse Plugin manages Github teams, team memberships and repository & team assignments.
+Repo Guard Greenhouse Plugin manages Github teams, team memberships and repository & team assignments.
 
 ## Hierarchy of Custom Resources
 
@@ -21,7 +21,7 @@ spec:
   webURL: https://github.com
   v3APIURL: https://api.github.com
   integrationID: 420328
-  clientUserAgent: greenhouse-github-guard
+  clientUserAgent: greenhouse-repo-guard
   secret: github-com-secret
 ```
 
@@ -49,17 +49,21 @@ Default team & repository assignments:
 ![](img/github-team-repository.png)
 
 
-### `GithubUsername` for external username matching
-
+### `GithubAccountLink` for external account matching
 ```
 apiVersion: githubguard.sap/v1
-kind: GithubUsername
+kind: GithubAccountLink
 metadata:
   annotations: 
-    last-check-timestamp: 1681614602 
    name: com-I313226 
 spec:
-  userID: greenhouse_onuryilmaz
-  githubUsername: onuryilmaz
+  userID: I313226
+  githubID: 2042059
   github: com
 ```
+
+### External Member Providers: `DistributionListAPI`
+ ![](img/dl.png)
+
+ ###  External Member Providers: `LDAPGroupProvider`
+ ![](img/ldap.png)

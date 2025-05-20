@@ -4,14 +4,14 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-  name: github-guard
+  name: repo-guard
 spec:
-  version: "1.2.0"
-  displayName: Github Guard
+  version: "1.3.0"
+  displayName: Repo Guard
   description: Manages Github teams, team memberships and repository & team assignments
-  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/github-guard/README.md
-  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/github-guard/img/logo.png
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/img/logo.png
   helmChart:
-    name: github-guard
+    name: repo-guard
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.2.0
+    version: 1.3.0

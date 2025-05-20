@@ -4,9 +4,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "github-guard-greenhouse.fullname" . }}-manager-role
+  name: {{ include "repo-guard.fullname" . }}-manager-role
   labels:
-  {{- include "github-guard-greenhouse.labels" . | nindent 4 }}
+  {{- include "repo-guard.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - githubguard.sap
@@ -172,17 +172,17 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "github-guard-greenhouse.fullname" . }}-manager-rolebinding
+  name: {{ include "repo-guard.fullname" . }}-manager-rolebinding
   labels:
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: github-guard-greenhouse
-    app.kubernetes.io/part-of: github-guard-greenhouse
-  {{- include "github-guard-greenhouse.labels" . | nindent 4 }}
+    app.kubernetes.io/created-by: repo-guard
+    app.kubernetes.io/part-of: repo-guard
+  {{- include "repo-guard.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: '{{ include "github-guard-greenhouse.fullname" . }}-manager-role'
+  name: '{{ include "repo-guard.fullname" . }}-manager-role'
 subjects:
 - kind: ServiceAccount
-  name: '{{ include "github-guard-greenhouse.fullname" . }}-controller-manager'
+  name: '{{ include "repo-guard.fullname" . }}-controller-manager'
   namespace: '{{ .Release.Namespace }}'
