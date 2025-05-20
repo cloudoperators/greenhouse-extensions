@@ -24,7 +24,7 @@ spec:
     spec:
       serviceAccountName: kubeconfig-generator
       containers:
-      - image: "{{required ".Values.image.registry is missing" .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+      - image: "{{required ".Values.image.registry is missing" .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: kubeconfig-generator
         command: ["/kubeconfig-generator"]
