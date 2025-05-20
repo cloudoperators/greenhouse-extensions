@@ -488,7 +488,7 @@ alerts:
 absentmetricsoperator:
   enabled: false
   image:
-    repository: keppel.global.cloud.sap/ccloud/absent-metrics-operator:20250512144918
+    repository: ghcr.io/sapcc/absent-metrics-operator:init
 
 # @ignored
 testFramework:
