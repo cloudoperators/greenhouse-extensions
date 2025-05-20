@@ -3,6 +3,13 @@
 
 {{- if .Values.global.certManager.enable }}
 apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: opensearch-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-transport-cert
@@ -15,7 +22,7 @@ spec:
   - opensearch.{{ .Release.Namespace }}.svc
   - opensearch.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
-  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+    name: opensearch-issuer
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -35,7 +42,7 @@ spec:
   commonName: admin
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   issuerRef:
-  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+    name: opensearch-issuer
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -53,13 +60,7 @@ metadata:
 spec:
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   dnsNames:
-  - opensearch
-  - opensearch.{{ .Release.Namespace }}
-  - opensearch.{{ .Release.Namespace }}.svc
-  - opensearch.{{ .Release.Namespace }}.svc.cluster.local
-{{- if .Values.global.greenhouse.baseDomain }}
-  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
-{{- end }}
+    - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
   issuerRef:
   {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
   privateKey:
