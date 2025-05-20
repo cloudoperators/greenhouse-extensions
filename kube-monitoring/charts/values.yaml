@@ -486,12 +486,16 @@ alerts:
       key: ""
 
 absentmetricsoperator:
+  # -- Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator)
+  # @section -- absent-metrics-operator options
   enabled: false
+  # @ignored
   image:
     registry: ghcr.io
     repository: sapcc/absent-metrics-operator
     tag: init
-  imagePullPolicy: IfNotPresent
+  # @ignored
+  imagePullPolicy: IfNotPresent 
 
 # @ignored
 testFramework:
