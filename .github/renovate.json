@@ -262,6 +262,11 @@
         "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
       ],
       "groupName": "OTEL docker base images"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["Dockerfile.integration-test"],
+      "groupName": "integration-test Dockerfile dependencies"
     }
   ],
   "separateMinorPatch": true
