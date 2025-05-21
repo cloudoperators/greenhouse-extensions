@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 3.3.3
+  version: 3.4.0
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -15,7 +15,7 @@ spec:
     # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/kube-monitoring
     name: kube-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 2.0.3
+    version: 2.1.0
   options:
     - name: global.commonLabels
       description: Labels to add to all resources. This can be used to add a support group or service to all alerts.
