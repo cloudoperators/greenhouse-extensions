@@ -267,7 +267,12 @@
       "matchManagers": ["regex"],
       "matchPaths": ["Dockerfile.integration-test"],
       "groupName": "integration-test Dockerfile dependencies"
+    },
+    {
+      "matchManagers": ["regex"],
+      "matchPaths": ["Makefile"],
+      "groupName": "Makefile dependencies"
     }
   ],
-  "separateMinorPatch": true
+  "separateMinorPatch": false
 }
