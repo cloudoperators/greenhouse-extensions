@@ -131,8 +131,8 @@ operator:
       initialDelaySeconds: 10
 
     image:
-      repository: "gcr.io/kubebuilder/kube-rbac-proxy"
-      tag: "v0.15.0"
+      repository: "quay.io/brancz/kube-rbac-proxy"
+      tag: "v0.19.1"
 
   ## If this is set to true, RoleBindings will be used instead of ClusterRoleBindings, inorder to restrict ClusterRoles
   ## to the namespace where the operator and OpenSearch cluster are in. In that case, specify the namespace where they

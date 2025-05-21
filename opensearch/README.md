@@ -166,8 +166,8 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
-| operator.kubeRbacProxy.image.repository | string | `"gcr.io/kubebuilder/kube-rbac-proxy"` |  |
-| operator.kubeRbacProxy.image.tag | string | `"v0.15.0"` |  |
+| operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
+| operator.kubeRbacProxy.image.tag | string | `"v0.19.1"` |  |
 | operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.port | int | `10443` |  |
