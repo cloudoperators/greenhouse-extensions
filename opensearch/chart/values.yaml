@@ -429,8 +429,8 @@ cluster:
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
-        adminSecret: {}
-  #       name: "secret-name"
+        adminSecret:
+          name: "opensearch-admin-cert"
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
         securityConfigSecret: {}
@@ -456,7 +456,8 @@ cluster:
         transport:
           # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
           # only used when existing certificates are provided
-          adminDn: []
+          adminDn:
+            - "CN=admin"
 
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
@@ -468,7 +469,8 @@ cluster:
           generate: false
 
           # --  Allowed Certificate DNs for nodes, only used when existing certificates are provided
-          nodesDn: []
+          nodesDn:
+            - "CN=opensearch-transport"
 
           # -- Separate certificate per node
           perNode: false
