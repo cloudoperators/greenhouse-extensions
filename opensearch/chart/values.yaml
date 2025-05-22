@@ -346,8 +346,8 @@ cluster:
       tls:
         # -- Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
         # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
-        caSecret: {}
-          # name: ""
+        caSecret:
+          name: "opensearch-ca-cert"
 
         # -- Enable HTTPS for dashboards
         enable: false
@@ -460,8 +460,8 @@ cluster:
 
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
-          caSecret: {}
-  #            name: "ca-secret-name"
+          caSecret:
+            name: "opensearch-ca-cert"
 
           # -- If set to true the operator will generate a CA and certificates for the cluster to use,
           # if false secrets with existing certificates must be supplied

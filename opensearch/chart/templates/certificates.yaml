@@ -15,16 +15,16 @@ metadata:
   name: opensearch-ca-issuer
 spec:
   ca:
-    secretName: opensearch-ca
+    secretName: opensearch-ca-cert
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: opensearch-ca
+  name: opensearch-ca-cert
 spec:
   isCA: true
   commonName: opensearch-ca
-  secretName: opensearch-ca
+  secretName: opensearch-ca-cert
   duration: 8760h
   privateKey:
     algorithm: RSA
