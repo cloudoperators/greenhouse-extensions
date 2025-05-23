@@ -10,14 +10,14 @@ RUN apk upgrade --no-cache --no-progress \
 && apk del --no-cache --no-progress apk-tools alpine-keys
 
 # Install kubectl binary
-RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/${BUILDPLATFORM:-linux/amd64}/kubectl" && \
-	chmod +x kubectl && \
-	mv kubectl /usr/local/bin/
+RUN curl -fLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/
 
 # Install GRPC Health Probe
-RUN curl -L https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 -o /usr/local/bin/grpc_health_probe && \
+RUN curl -fL https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 -o /usr/local/bin/grpc_health_probe && \
 	chmod +x /usr/local/bin/grpc_health_probe
 
 # Install yq binary
-RUN curl -L https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -o /usr/local/bin/yq && \
+RUN curl -fL https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -o /usr/local/bin/yq && \
 	chmod +x /usr/local/bin/yq
