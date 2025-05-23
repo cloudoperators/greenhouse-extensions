@@ -50,11 +50,6 @@ kubeMonitoring:
     # Additional labels for PrometheusRule alerts. E.g. support_group and service.
     additionalRuleLabels: {}
 
-  # Configure pod disruption budgets for Alertmanager
-  # ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/#specifying-a-poddisruptionbudget
-  podDisruptionBudget:
-    enabled: true
-
   kubernetesServiceMonitors:
     # -- Flag to disable all the Kubernetes component scrapers
     # @section -- Kubernetes component scraper options
