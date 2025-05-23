@@ -75,4 +75,15 @@ jobs:
 
       - name: Run chart integration tests
         if: steps.chart-list-changed.outputs.changed == 'true'
-        run: ct lint-and-install --config .github/configs/helm-lint-test.yaml
+        run: ct lint-and-install --config .github/configs/helm-lint-test.yaml --skip-clean-up
+      
+      - name: Print pod logs on failure
+        if: failure() && steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          echo "🔍 Printing logs for failed pods..."
+          for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do
+            for pod in $(kubectl get pods -n $ns --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
+              echo "Logs for pod $pod in namespace $ns:"
+              kubectl logs -n $ns $pod --all-containers=true || true
+            done
+          done
