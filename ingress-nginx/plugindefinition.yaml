@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: ingress-nginx
 spec:
-  version: 1.2.0
+  version: 1.2.1
   displayName: Ingress NGINX
   description: Ingress NGINX controller for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: ingress-nginx
     repository: https://kubernetes.github.io/ingress-nginx
-    version: 4.12.1
+    version: 4.12.2
   options:
     - name: controller.service.loadBalancerIP
       description: IP address of the associated load balancer.
