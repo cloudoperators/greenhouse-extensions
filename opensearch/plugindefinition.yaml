@@ -36,3 +36,7 @@ spec:
       description: "List of allowed IP ranges for external access when service type is LoadBalancer."
       required: false
       type: list
+    - name: cluster.cluster.client.service.externalIPs
+      description: "List of allowed IP ranges for external access when service type is LoadBalancer."
+      required: false
+      type: list

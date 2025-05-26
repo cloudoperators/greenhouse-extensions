@@ -12,6 +12,8 @@ spec:
   type: {{ $.Values.cluster.cluster.client.service.type }}
   loadBalancerSourceRanges:
 {{ toYaml .Values.cluster.cluster.client.service.loadBalancerSourceRanges | indent 4 }}
+  externalIPs:
+{{ toYaml .Values.cluster.cluster.client.service.externalIPs | indent 4 }}
   ports:
 {{ toYaml $.Values.cluster.cluster.client.service.ports | indent 4 }}
   selector:
