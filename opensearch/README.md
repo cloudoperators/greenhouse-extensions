@@ -60,13 +60,14 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| certManager | object | `{"defaults":{"durations":{"ca":"8760h","leaf":"4800h"},"privateKey":{"algorithm":"RSA","encoding":"PKCS8","size":2048},"usages":["digital signature","key encipherment","server auth","client auth"]},"enable":true,"httpDnsNames":["opensearch-client.tld"],"issuer":{"ca":{"name":"opensearch-ca-issuer"},"digicert":{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"},"selfSigned":{"name":"opensearch-issuer"}}}` | Enable cert-manager integration for issuing TLS certificates |
 | certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
 | certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
 | certManager.defaults.privateKey.algorithm | string | `"RSA"` | Algorithm used for generating private keys |
 | certManager.defaults.privateKey.encoding | string | `"PKCS8"` | Encoding format for private keys (PKCS8 recommended) |
 | certManager.defaults.privateKey.size | int | `2048` | Key size in bits for RSA keys |
 | certManager.defaults.usages | list | `["digital signature","key encipherment","server auth","client auth"]` | List of extended key usages for certificates |
+| certManager.enable | bool | `true` | Enable cert-manager integration for issuing TLS certificates |
+| certManager.httpDnsNames | list | `["opensearch-client.tld"]` | Override HTTP DNS names for OpenSearch client endpoints |
 | certManager.issuer.ca | object | `{"name":"opensearch-ca-issuer"}` | Name of the CA Issuer to be used for internal certs |
 | certManager.issuer.digicert | object | `{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"}` | API group for the DigicertIssuer custom resource |
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
