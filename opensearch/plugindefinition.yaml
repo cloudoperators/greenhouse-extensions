@@ -35,4 +35,4 @@ spec:
     - name: certManager.httpDnsNames
       description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
       required: true
-      type: map
+      type: list
