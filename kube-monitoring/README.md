@@ -61,7 +61,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| absentmetricsoperator.enabled | bool | `false` | Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator) |
+| absentMetricsOperator.enabled | bool | `false` | Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator) |
 
 ### Alertmanager options
 
