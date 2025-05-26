@@ -435,8 +435,7 @@ cluster:
             targetPort: 9200
             protocol: TCP
         # -- List of allowed IP ranges for external access when service type is `LoadBalancer`.
-        loadBalancerSourceRanges:
-          - "0.0.0.0/0"
+        loadBalancerSourceRanges: []
         # -- List of external IPs to expose the service on.
         externalIPs: []
 
