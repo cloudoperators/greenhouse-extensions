@@ -39,4 +39,7 @@ spec:
     - name: cluster.cluster.client.service.externalIPs
       description: "List of allowed IP ranges for external access when service type is LoadBalancer."
       required: false
+    - name: certManager.httpDnsNames
+      description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
+      required: true
       type: list

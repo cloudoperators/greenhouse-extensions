@@ -60,6 +60,17 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
+| certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
+| certManager.defaults.privateKey.algorithm | string | `"RSA"` | Algorithm used for generating private keys |
+| certManager.defaults.privateKey.encoding | string | `"PKCS8"` | Encoding format for private keys (PKCS8 recommended) |
+| certManager.defaults.privateKey.size | int | `2048` | Key size in bits for RSA keys |
+| certManager.defaults.usages | list | `["digital signature","key encipherment","server auth","client auth"]` | List of extended key usages for certificates |
+| certManager.enable | bool | `true` | Enable cert-manager integration for issuing TLS certificates |
+| certManager.httpDnsNames | list | `["opensearch-client.tld"]` | Override HTTP DNS names for OpenSearch client endpoints |
+| certManager.issuer.ca | object | `{"name":"opensearch-ca-issuer"}` | Name of the CA Issuer to be used for internal certs |
+| certManager.issuer.digicert | object | `{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"}` | API group for the DigicertIssuer custom resource |
+| certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | cluster.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
@@ -164,11 +175,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
 | cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"password":"","secretKey":"password","secretName":"logs-credentials"}]` | List of OpensearchUser. Check values.yaml file for examples. |
 | cluster.usersRoleBinding | list | `[{"name":"logs-access","roles":["logs-role"],"users":["logs"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
-| global.certManager.enable | bool | `true` |  |
-| global.certManager.issuerRef.group | string | `"certmanager.cloud.sap"` |  |
-| global.certManager.issuerRef.kind | string | `"DigicertIssuer"` |  |
-| global.certManager.issuerRef.name | string | `"digicert-issuer"` |  |
-| global.greenhouse.baseDomain | string | `nil` |  |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
