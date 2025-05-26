@@ -68,7 +68,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
-| cluster.cluster.client | object | `{"service":{"annotations":{},"enabled":true,"externalIPs":[],"loadBalancerSourceRanges":[],"ports":[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}],"type":"ClusterIP"}}` | Configuration for the client service used to expose client nodes externally. |
 | cluster.cluster.client.service.annotations | object | `{}` | Annotations to add to the service, e.g. disco. |
 | cluster.cluster.client.service.enabled | bool | `true` | Enable or disable the external client service. |
 | cluster.cluster.client.service.externalIPs | list | `[]` | List of external IPs to expose the service on. |

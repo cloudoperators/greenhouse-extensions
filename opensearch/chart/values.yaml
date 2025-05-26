@@ -419,7 +419,7 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
 
-    # -- Configuration for the client service used to expose client nodes externally.
+    # Configuration for the client service used to expose client nodes externally.
     client:
       service:
         # -- Enable or disable the external client service.
