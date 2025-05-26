@@ -32,3 +32,7 @@ spec:
       description: "Specifies custom labels for the ServiceMonitor to expose OpenSearch metrics to Prometheus."
       required: false
       type: map
+    - name: cluster.cluster.client.service.loadBalancerSourceRanges
+      description: "List of allowed IP ranges for external access when service type is LoadBalancer."
+      required: false
+      type: list
