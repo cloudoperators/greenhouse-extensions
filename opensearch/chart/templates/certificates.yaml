@@ -3,10 +3,43 @@
 
 {{- if .Values.global.certManager.enable }}
 apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: opensearch-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: opensearch-ca-issuer
+spec:
+  ca:
+    secretName: opensearch-ca-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-ca-cert
+spec:
+  isCA: true
+  commonName: opensearch-ca
+  secretName: opensearch-ca-cert
+  duration: 8760h
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  issuerRef:
+    name: opensearch-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-transport-cert
 spec:
+  commonName: opensearch-transport
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   dnsNames:
   - opensearch
@@ -15,7 +48,7 @@ spec:
   - opensearch.{{ .Release.Namespace }}.svc
   - opensearch.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
-  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+    name: opensearch-ca-issuer
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -35,7 +68,7 @@ spec:
   commonName: admin
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   issuerRef:
-  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+    name: opensearch-ca-issuer
   privateKey:
     algorithm: RSA
     encoding: PKCS8
@@ -45,21 +78,17 @@ spec:
     - digital signature
     - key encipherment
     - client auth
+    - server auth
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-http-cert
 spec:
+  commonName: opensearch-http
   duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
   dnsNames:
-  - opensearch
-  - opensearch.{{ .Release.Namespace }}
-  - opensearch.{{ .Release.Namespace }}.svc
-  - opensearch.{{ .Release.Namespace }}.svc.cluster.local
-{{- if .Values.global.greenhouse.baseDomain }}
-  - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
-{{- end }}
+    - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
   issuerRef:
   {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
   privateKey:

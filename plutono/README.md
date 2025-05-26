@@ -108,9 +108,9 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.gossipPortName | string | `"gossip"` |  |
 | plutono.headlessService | bool | `false` | Create a headless service for the deployment |
 | plutono.hostAliases | list | `[]` | overrides pod.spec.hostAliases in the plutono deployment's pods |
-| plutono.image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":[],"registry":"ghcr.io","repository":"credativ/plutono","sha":"","tag":"v7.5.37"}` | Use an alternate scheduler, e.g. "stork". # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/ # schedulerName: "default-scheduler" |
+| plutono.image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":[],"registry":"ghcr.io","repository":"credativ/plutono","sha":"","tag":"v7.5.38"}` | Use an alternate scheduler, e.g. "stork". # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/ # schedulerName: "default-scheduler" |
 | plutono.image.pullSecrets | list | `[]` | Optionally specify an array of imagePullSecrets. # Secrets must be manually created in the namespace. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ # Can be templated. # |
-| plutono.image.tag | string | `"v7.5.37"` | Overrides the Plutono image tag whose default is the chart appVersion |
+| plutono.image.tag | string | `"v7.5.38"` | Overrides the Plutono image tag whose default is the chart appVersion |
 | plutono.ingress.annotations | object | `{}` |  |
 | plutono.ingress.enabled | bool | `false` |  |
 | plutono.ingress.extraPaths | list | `[]` | Extra paths to prepend to every host configuration. This is useful when working with annotation based services. |
