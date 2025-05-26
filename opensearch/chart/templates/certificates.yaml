@@ -1,22 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-{{- if .Values.global.certManager.enable }}
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: opensearch-issuer
-spec:
-  selfSigned: {}
----
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: opensearch-ca-issuer
-spec:
-  ca:
-    secretName: opensearch-ca-cert
----
+{{- if .Values.certManager.enable }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -24,15 +9,12 @@ metadata:
 spec:
   isCA: true
   commonName: opensearch-ca
-  secretName: opensearch-ca-cert
-  duration: 8760h
-  privateKey:
-    algorithm: RSA
-    size: 2048
+  duration: {{ .Values.certManager.defaults.durations.ca }}
   issuerRef:
-    name: opensearch-issuer
-    kind: Issuer
-    group: cert-manager.io
+{{ toYaml .Values.certManager.issuer.selfSigned | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-ca-cert
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -40,25 +22,20 @@ metadata:
   name: opensearch-transport-cert
 spec:
   commonName: opensearch-transport
-  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
-  dnsNames:
-  - opensearch
-  - opensearch-discovery
-  - opensearch.{{ .Release.Namespace }}
-  - opensearch.{{ .Release.Namespace }}.svc
-  - opensearch.{{ .Release.Namespace }}.svc.cluster.local
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
   issuerRef:
-    name: opensearch-ca-issuer
+{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS8
-    size: 2048
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-transport-cert
+  dnsNames:
+    - opensearch
+    - opensearch-discovery
+    - {{ printf "opensearch.%s" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc.cluster.local" .Release.Namespace }}
   usages:
-    - digital signature
-    - key encipherment
-    - server auth
-    - client auth
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -66,39 +43,28 @@ metadata:
   name: opensearch-admin-cert
 spec:
   commonName: admin
-  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
   issuerRef:
-    name: opensearch-ca-issuer
+{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS8
-    size: 2048
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-admin-cert
   usages:
-    - digital signature
-    - key encipherment
-    - client auth
-    - server auth
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-http-cert
 spec:
-  commonName: opensearch-http
-  duration: 4800h # 200 days to comply with the upcoming CA/B Forum requirements
-  dnsNames:
-    - {{ printf "*.%s" .Values.global.greenhouse.baseDomain | quote }}
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
   issuerRef:
-  {{- toYaml .Values.global.certManager.issuerRef | nindent 4 }}
+{{ toYaml .Values.certManager.issuer.digicert | indent 4 }}
   privateKey:
-    algorithm: RSA
-    encoding: PKCS8
-    size: 2048
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-http-cert
+  dnsNames:
+{{ toYaml .Values.certManager.httpDnsNames | indent 4 }}
   usages:
-    - digital signature
-    - key encipherment
-    - server auth
-    - client auth
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 {{- end }}
