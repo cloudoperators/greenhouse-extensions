@@ -32,3 +32,7 @@ spec:
       description: "Specifies custom labels for the ServiceMonitor to expose OpenSearch metrics to Prometheus."
       required: false
       type: map
+    - name: certManager.httpDnsNames
+      description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
+      required: true
+      type: map

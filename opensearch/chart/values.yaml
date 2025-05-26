@@ -1,18 +1,50 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-global:
-  ## common greenhouse values to use
-  ##
-  greenhouse:
-    # base domain of the greenhouse organisation
-    baseDomain:
-  certManager:
-    enable: true
-    issuerRef:
+# -- Enable cert-manager integration for issuing TLS certificates
+certManager:
+  enable: true
+
+  issuer:
+    # -- API group for the DigicertIssuer custom resource
+    digicert:
       group: certmanager.cloud.sap
       kind: DigicertIssuer
       name: digicert-issuer
+
+    # -- Name of the CA Issuer to be used for internal certs
+    ca:
+      name: opensearch-ca-issuer
+
+    # -- Name of the self-signed issuer used to sign the internal CA certificate
+    selfSigned:
+      name: opensearch-issuer
+
+  defaults:
+    privateKey:
+      # -- Algorithm used for generating private keys
+      algorithm: RSA
+      # -- Encoding format for private keys (PKCS8 recommended)
+      encoding: PKCS8
+      # -- Key size in bits for RSA keys
+      size: 2048
+
+    durations:
+      # -- Validity period for CA certificates (1 year)
+      ca: 8760h
+      # -- Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements)
+      leaf: 4800h
+
+    # -- List of extended key usages for certificates
+    usages:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+
+# -- Override HTTP DNS names for OpenSearch client endpoints
+  httpDnsNames:
+    - opensearch-client.tld
 
 operator:
   namespace: ""
