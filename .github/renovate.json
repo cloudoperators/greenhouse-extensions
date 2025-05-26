@@ -264,13 +264,21 @@
       "groupName": "OTEL docker base images"
     },
     {
-      "matchManagers": ["regex"],
-      "matchPaths": ["Dockerfile.integration-test"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "Dockerfile.integration-test"
+      ],
       "groupName": "integration-test Dockerfile dependencies"
     },
     {
-      "matchManagers": ["regex"],
-      "matchPaths": ["Makefile"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "Makefile"
+      ],
       "groupName": "Makefile dependencies"
     }
   ],
