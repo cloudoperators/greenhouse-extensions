@@ -434,6 +434,9 @@ cluster:
             port: 9200
             targetPort: 9200
             protocol: TCP
+        # -- List of allowed IP ranges for external access when service type is `LoadBalancer`.
+        loadBalancerSourceRanges:
+          - "0.0.0.0/0"
 
     # Opensearch security configuration
     security:
