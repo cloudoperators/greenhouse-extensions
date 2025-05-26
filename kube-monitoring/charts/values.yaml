@@ -485,7 +485,7 @@ alerts:
       # @section -- Alertmanager options
       key: ""
 
-absentmetricsoperator:
+absentMetricsOperator:
   # -- Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator)
   # @section -- absent-metrics-operator options
   enabled: false

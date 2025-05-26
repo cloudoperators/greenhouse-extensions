@@ -1,4 +1,4 @@
-{{- if .Values.absentmetricsoperator.enabled }}
+{{- if .Values.absentMetricsOperator.enabled }}
 kind: Deployment
 apiVersion: apps/v1
 
@@ -29,7 +29,7 @@ spec:
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
       containers:
         - name: operator
-          image: "{{ .Values.absentmetricsoperator.image.registry}}/{{ .Values.absentmetricsoperator.image.repository}}:{{ .Values.absentmetricsoperator.image.tag }}"
+          image: "{{ .Values.absentMetricsOperator.image.registry}}/{{ .Values.absentMetricsOperator.image.repository}}:{{ .Values.absentMetricsOperator.image.tag }}"
           imagePullPolicy: IfNotPresent
           # NOTE: observed usage in eu-de-1 (as of 2021-10)
           # - CPU: ~10m during load

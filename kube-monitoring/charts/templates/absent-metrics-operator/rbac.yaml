@@ -1,4 +1,4 @@
-{{ if .Values.absentmetricsoperator.enabled }}
+{{ if .Values.absentMetricsOperator.enabled }}
 kind: ServiceAccount
 apiVersion: v1
 
