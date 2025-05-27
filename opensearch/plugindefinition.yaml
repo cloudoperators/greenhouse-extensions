@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.12
+  version: 0.0.13
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.12
+    version: 0.0.13
   options:
     - name: operator.fullnameOverride
       description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
