@@ -8,7 +8,7 @@ manager:
       drop:
       - ALL
   image:
-      repository: keppel.global.cloud.sap/ccloud/github-guard-greenhouse
+      repository: ghcr.io/cloudoperators/repo-guard
   resources:
     limits:
       cpu: 500m
