@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.21
+    version: 0.5.22
     description: thanos
     helmChart:
         name: thanos
@@ -149,3 +149,11 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
+        - name: thanos.absentMetricsOperator.alertLabels
+          description: Labels to add to the PrometheusRules alerts
+          default: |
+            support_group: observability
+            service: metrics
+          type: string
+          required: false
+
