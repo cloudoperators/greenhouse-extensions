@@ -1,0 +1,80 @@
+groups:
+  - name: opensearch-cluster
+    interval: 30s
+    rules:
+      - alert: OpenSearchClusterRed
+        expr: opensearch_cluster_status == 2
+        for: 3m
+        labels:
+          severity: critical
+          component: opensearch-cluster
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
+        annotations:
+          summary: "OpenSearch cluster status is RED"
+          description: "OpenSearch cluster {{`{{ $labels.cluster }}`}} is in RED status for more than 3 minutes"
+
+      - alert: OpenSearchClusterYellow
+        expr: opensearch_cluster_status == 1
+        for: 10m
+        labels:
+          severity: warning
+          component: opensearch-cluster
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
+        annotations:
+          summary: "OpenSearch cluster status is YELLOW"
+          description: "OpenSearch cluster {{`{{ $labels.cluster }}`}} is in YELLOW status for more than 10 minutes"
+
+      - alert: OpenSearchNodeDown
+        expr: up{job=~".*opensearch.*"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: opensearch-node
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
+        annotations:
+          summary: "OpenSearch node is down"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} has been down for more than 5 minutes"
+
+      - alert: OpenSearchMasterNodeDown
+        expr: opensearch_cluster_manager_nodes < 2
+        for: 3m
+        labels:
+          severity: critical
+          component: opensearch-cluster
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchMasterNodeDown.md
+        annotations:
+          summary: "Insufficient master nodes available"
+          description: "OpenSearch cluster has fewer than 2 master nodes available for more than 3 minutes"
+
+      - alert: OpenSearchHighMemoryUsage
+        expr: (opensearch_jvm_memory_used_bytes{area="heap"} / opensearch_jvm_memory_max_bytes{area="heap"}) * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+          component: opensearch-node
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighMemoryUsage.md
+        annotations:
+          summary: "High JVM heap memory usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} heap memory usage is above 90% ({{`{{ $value }}`}}%)"
+
+      - alert: OpenSearchHighCPUUsage
+        expr: rate(opensearch_process_cpu_seconds_total[5m]) * 100 > 90
+        for: 15m
+        labels:
+          severity: warning
+          component: opensearch-node
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighCPUUsage.md
+        annotations:
+          summary: "High CPU usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} CPU usage is above 90% ({{`{{ $value }}`}}%)"
+
+      - alert: OpenSearchHighDiskUsage
+        expr: (opensearch_filesystem_data_size_bytes - opensearch_filesystem_data_free_bytes) / opensearch_filesystem_data_size_bytes * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: opensearch-storage
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+        annotations:
+          summary: "High disk usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} disk usage is above 85% ({{`{{ $value }}`}}%)"

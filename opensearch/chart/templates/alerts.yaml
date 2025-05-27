@@ -1,0 +1,19 @@
+{{- if .Values.cluster.cluster.general.monitoring.enable }}
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name ($path | trimSuffix ".yaml") | replace "/" "-" | trunc 63 }}
+  labels:
+    {{- if $.Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
+spec:
+{{- with $root -}}
+{{- $content := printf "%s" $bytes }}
+{{ tpl $content . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
