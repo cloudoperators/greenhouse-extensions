@@ -634,10 +634,10 @@ cluster:
   usersCredentials:
     logs:
       username: "" # Username (empty = defaults to key name "logs")
-      password: "" # Password (required - must be set in values or external override)
+      password: "" # Password (empty = uses DUMMY-LogsUser2025!@# - override for production)
     logs2:
       username: "" # Username (empty = defaults to key name "logs2")
-      password: "" # Password (required - must be set in values or external override)
+      password: "" # Password (empty = uses DUMMY-FailoverUser2025$%^ - override for production)
 
   #  - name: "admin"
   #    password: "admin" # If not set, a random password will be generated
