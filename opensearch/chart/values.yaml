@@ -614,15 +614,31 @@ cluster:
   #        allowedActions:
   #          - "*"
 
-  # -- List of OpensearchUser. Check values.yaml file for examples.
+  # -- List of OpenSearch user configurations.
+  # Each user references a secret (defined in usersCredentials) for authentication.
   users:
     - name: "logs"
-      password: ""  # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
       backendRoles: []
       opendistroSecurityRoles:
         - "logs-role"
+    - name: "logs2"
+      secretName: "logs2-credentials"
+      secretKey: "password"
+      backendRoles: []
+      opendistroSecurityRoles:
+        - "logs-role"
+
+  # -- List of OpenSearch user passwords. These passwords are used to authenticate users with OpenSearch.
+  usersCredentials:
+    logs:
+      username: "" # Username (empty = defaults to key name "logs")
+      password: "" # Password (required - must be set in values or external override)
+    logs2:
+      username: "" # Username (empty = defaults to key name "logs2")
+      password: "" # Password (required - must be set in values or external override)
+
   #  - name: "admin"
   #    password: "admin" # If not set, a random password will be generated
   #    secretName: "admin-credentials"
