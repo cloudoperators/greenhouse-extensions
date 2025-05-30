@@ -64,8 +64,6 @@ groups:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthasnotrun
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
-- name: thanos-component-absent
-  rules:
   - alert: ThanosCompactIsDown
     annotations:
       description: ThanosCompact has disappeared. Prometheus target for the component
