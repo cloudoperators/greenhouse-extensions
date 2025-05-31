@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{ if .Values.distributionListAPI }}
+apiVersion: githubguard.sap/v1
+kind: DistributionListAPI
+metadata:
+  name: {{ .Values.distributionListAPI.name | lower }}
+spec:
+  endpoint: {{ .Values.distributionListAPI.endpoint }}
+  secret: {{ .Values.distributionListAPI.name | lower }}-dl-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.distributionListAPI.name | lower }}-dl-secret
+type: Opaque
+data:
+  username: {{ .Values.distributionListAPI.username | b64enc }}
+  password: {{ .Values.distributionListAPI.password | b64enc }}
+{{ end }}
