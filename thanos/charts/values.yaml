@@ -175,8 +175,8 @@ thanos:
     ## Expose Thanos Query as a Perses datasource
     ##
     persesDatasource:
-      # -- Creates a Perses datasource for standalone Thanos Query
-      create: false
+      # -- Creates a Perses datasource for Thanos Query
+      create: true
 
       # -- Label selectors for the Perses sidecar to detect this datasource.
       selector: {}
