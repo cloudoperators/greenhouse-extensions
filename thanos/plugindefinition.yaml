@@ -149,7 +149,7 @@ spec:
           description: TLS key for communication with Alertmanager
           required: false
           type: secret
-        - name: thanos.absentMetricsOperator.alertLabels
+        - name: thanos.serviceMonitor.alertLabels
           description: Labels to add to the PrometheusRules alerts
           default: |
             support_group: observability

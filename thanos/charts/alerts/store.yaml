@@ -25,9 +25,9 @@ groups:
       summary: Thanos Store has high latency for store series gate requests.
     expr: |
       (
-        histogram_quantile(0.99, sum by (job, le) (rate(thanos_bucket_store_series_gate_duration_seconds_bucket{job=~".*store.*"}[5m]))) > 2
+        histogram_quantile(0.99, sum by (job, le) (rate(thanos_bucket_store_series_gate_queries_duration_seconds_bucket{job=~".*store.*"}[5m]))) > 2
       and
-        sum by (job) (rate(thanos_bucket_store_series_gate_duration_seconds_count{job=~".*store.*"}[5m])) > 0
+        sum by (job) (rate(thanos_bucket_store_series_gate_queries_duration_seconds_count{job=~".*store.*"}[5m])) > 0
       )
     for: 10m
     labels:
@@ -65,8 +65,6 @@ groups:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreobjstoreoperationlatencyhigh
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
-- name: thanos-component-absent
-  rules:
   - alert: ThanosStoreIsDown
     annotations:
       description: ThanosStore has disappeared. Prometheus target for the component
