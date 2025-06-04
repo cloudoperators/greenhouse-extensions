@@ -630,14 +630,14 @@ cluster:
       opendistroSecurityRoles:
         - "logs-role"
 
-  # -- List of OpenSearch user passwords. These passwords are used to authenticate users with OpenSearch.
+  # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch.
   usersCredentials:
     logs:
-      username: ""  # Username (empty = defaults to key name "logs")
-      password: ""  # Password (empty = uses DUMMY-LogsUser2025!@# - override for production)
+      username: ""  # Specify the username for the "logs" user. If left empty, defaults to "logs".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
     logs2:
-      username: ""  # Username (empty = defaults to key name "logs2")
-      password: ""  # Password (empty = uses DUMMY-FailoverUser2025$%^ - override for production)
+      username: ""  # Specify the username for the failover user for "logs". If left empty, defaults to "logs2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   #  - name: "admin"
   #    password: "admin" # If not set, a random password will be generated
