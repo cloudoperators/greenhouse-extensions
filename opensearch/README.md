@@ -174,7 +174,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
 | cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs-credentials"},{"backendRoles":[],"name":"logs2","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs2-credentials"}]` | List of OpenSearch user configurations. Each user references a secret (defined in usersCredentials) for authentication. |
-| cluster.usersCredentials | object | `{"logs":{"password":"","username":""},"logs2":{"password":"","username":""}}` | List of OpenSearch user passwords. These passwords are used to authenticate users with OpenSearch. |
+| cluster.usersCredentials | object | `{"logs":{"password":"","username":""},"logs2":{"password":"","username":""}}` | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. |
 | cluster.usersRoleBinding | list | `[{"name":"logs-access","roles":["logs-role"],"users":["logs"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
