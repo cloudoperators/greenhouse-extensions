@@ -45,7 +45,7 @@ thanos:
 
     # -- Enable Endpoint Health Exporter. A standalone pod doing periodic health checks on endpoints
     # configured in endpoint-targets.yaml and exposing it as a metric. ref: templates/endpoint-health-exporter/endpoint-health-exporter.py
-    endpointHealthExporter: false 
+    endpointHealthExporter: false
 
   # @ignored
   # Init container to set permissions
