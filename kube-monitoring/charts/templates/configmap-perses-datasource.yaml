@@ -14,7 +14,7 @@ data:
         "name": "{{ printf "%s-%s" $.Release.Name "prometheus" }}",
       },
       "spec": {
-        "default": true,
+        "default": false,
         "plugin": {
           "kind": "PrometheusDatasource",
           "spec": {

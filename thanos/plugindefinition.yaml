@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.25
+    version: 0.5.26
     description: thanos
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.5.23
+        version: 0.5.24
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -95,9 +95,7 @@ spec:
           name: thanos.query.persesDatasource.create
           required: false
           type: bool
-        - default:
-            perses.dev/resource: true
-          description: Label selectors for the Perses sidecar to detect this datasource
+        - description: Label selectors for the Perses sidecar to detect this datasource
           name: thanos.query.persesDatasource.selector
           required: false
           type: map

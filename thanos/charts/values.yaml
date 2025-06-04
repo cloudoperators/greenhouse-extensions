@@ -179,7 +179,8 @@ thanos:
       create: true
 
       # -- Label selectors for the Perses sidecar to detect this datasource.
-      selector: {}
+      selector:
+        perses.dev/resource: '"true"'
         # perses-global: '"true"'
 
   store:
