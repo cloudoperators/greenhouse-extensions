@@ -348,7 +348,7 @@ spec:
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
-| thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
+| thanos.query.persesDatasource.selector | object | `{"perses.dev/resource":"\"true\""}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `nil` |  |
