@@ -347,7 +347,7 @@ spec:
 | thanos.query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
-| thanos.query.persesDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
