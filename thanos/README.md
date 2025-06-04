@@ -374,6 +374,7 @@ spec:
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
 | thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
 | thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
+| thanos.serviceMonitor.endpointHealthExporter | bool | `false` | Enable Endpoint Health Exporter. A standalone pod doing periodic health checks on endpoints configured in endpoint-targets.yaml and exposing it as a metric. ref: templates/endpoint-health-exporter/endpoint-health-exporter.py |
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
 | thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
