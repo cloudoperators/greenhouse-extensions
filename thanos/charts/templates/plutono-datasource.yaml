@@ -1,4 +1,4 @@
-{{- if and .Values.thanos.query.standalone .Values.thanos.query.plutonoDatasource.create }}
+{{- if .Values.thanos.query.plutonoDatasource.create }}
 apiVersion: v1
 kind: Secret
 metadata:
