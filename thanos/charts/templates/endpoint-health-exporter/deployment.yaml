@@ -1,0 +1,45 @@
+{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.endpointHealthExporter .Values.thanos.query.standalone }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "release.name" . }}-endpoint-health-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: {{ include "release.name" . }}-endpoint-health-exporter
+      app.kubernetes.io/name: endpoint-health-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: {{ include "release.name" . }}-endpoint-health-exporter
+        app.kubernetes.io/name: endpoint-health-exporter
+    spec:
+      containers:
+        - name: endpoint-health-exporter
+          image: python:3.13.3-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install grpcio grpcio-health-checking prometheus_client pyyaml && \
+              python -u /scripts/endpoint-health-exporter.py
+          volumeMounts:
+            - name: script-volume
+              mountPath: /scripts
+            - name: sd-config-volume
+              mountPath: /sd-config
+            - name: tls-cert
+              mountPath: /tls-assets
+              readOnly: true
+      volumes:
+        - name: script-volume
+          configMap:
+            name: {{ include "release.name" . }}-endpoints-health-exporter
+        - name: sd-config-volume
+          configMap:
+            name: {{ include "release.name" . }}-sd-config
+        - name: tls-cert
+          secret:
+            defaultMode: 420
+            secretName: {{ include "release.name" . }}-tls
+{{ end }}

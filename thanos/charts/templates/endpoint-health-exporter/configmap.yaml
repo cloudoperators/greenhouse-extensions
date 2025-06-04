@@ -1,0 +1,9 @@
+{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.endpointHealthExporter .Values.thanos.query.standalone }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "release.name" . }}-endpoints-health-exporter
+data:
+  endpoint-health-exporter.py: |-
+{{ .Files.Get "endpoint-health-exporter/endpoint-health-exporter.py" | indent 4 }}
+{{- end }}

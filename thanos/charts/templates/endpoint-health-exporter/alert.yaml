@@ -1,0 +1,21 @@
+{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.endpointHealthExporter .Values.thanos.query.standalone }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "release.name" . }}-endpoint-health-exporter
+  labels:
+    thanos-ruler: {{ include "release.name" . }}
+spec:
+  groups:
+    - name: grpc-endpoint-health.rules
+      rules:
+        - alert: GrpcEndpointUnhealthy
+          expr: grpc_endpoint_health != 1
+          for: 5m
+          labels:
+            severity: warning
+            {{ include .Values.thanos.serviceMonitor.alertLabels . | nindent 12 }}
+          annotations:
+            summary: "gRPC endpoint is unhealthy (instance {{ $labels.endpoint }})"
+            description: "The gRPC health check for endpoint {{ $labels.endpoint }} is not healthy (value={{ $value }})."
+{{ end }}
