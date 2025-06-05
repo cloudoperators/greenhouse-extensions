@@ -312,6 +312,10 @@ thanos:
       # -- List of hosts endpoints to send alerts to
       hosts:
 
+blackboxExporter:
+# -- Enable Blackbox Exporter
+  enabled: false
+
 # @ignored
 testFramework:
   # -- Enable Thanos test framework

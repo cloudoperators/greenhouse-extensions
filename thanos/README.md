@@ -307,6 +307,7 @@ spec:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| blackboxExporter.enabled | bool | `false` | Enable Blackbox Exporter |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |
