@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.26
+    version: 0.5.27
     description: thanos
     helmChart:
         name: thanos
@@ -96,7 +96,7 @@ spec:
           required: false
           type: bool
         - default:
-            perses.dev/resource: '"true"'
+            perses.dev/resource: "true"
           description: Label selectors for the Perses sidecar to detect this datasource
           name: thanos.query.persesDatasource.selector
           required: false
