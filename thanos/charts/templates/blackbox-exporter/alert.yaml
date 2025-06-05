@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "release.name" . }}-blackbox-exporter
+  labels:
+    {{- toYaml $root.Values.thanos.serviceMonitor.labels | nindent 4 }}
+    {{- include "thanos.labels" $root | nindent 4 }}
+    thanos-ruler: {{ $.Values.thanos.ruler.matchLabel | default $.Release.Name }}
+spec:
+    ""
