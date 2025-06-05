@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+cluster:
+  usersCredentials:
+    logs:
+      password: "CHANGE_ME_LogsUser2025!@#"
+    logs2:
+      password: "CHANGE_ME_FailoverUser2025$%"
