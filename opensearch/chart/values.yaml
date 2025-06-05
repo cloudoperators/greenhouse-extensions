@@ -614,15 +614,31 @@ cluster:
   #        allowedActions:
   #          - "*"
 
-  # -- List of OpensearchUser. Check values.yaml file for examples.
+  # -- List of OpenSearch user configurations.
+  # Each user references a secret (defined in usersCredentials) for authentication.
   users:
     - name: "logs"
-      password: ""  # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
       backendRoles: []
       opendistroSecurityRoles:
         - "logs-role"
+    - name: "logs2"
+      secretName: "logs2-credentials"
+      secretKey: "password"
+      backendRoles: []
+      opendistroSecurityRoles:
+        - "logs-role"
+
+  # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch.
+  usersCredentials:
+    logs:
+      username: ""  # Specify the username for the "logs" user. If left empty, defaults to "logs".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    logs2:
+      username: ""  # Specify the username for the failover user for "logs". If left empty, defaults to "logs2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+
   #  - name: "admin"
   #    password: "admin" # If not set, a random password will be generated
   #    secretName: "admin-credentials"
