@@ -319,7 +319,7 @@ testFramework:
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: v0.0.1
+    tag: v0.0.2
   imagePullPolicy: IfNotPresent
 
 # @ignored
