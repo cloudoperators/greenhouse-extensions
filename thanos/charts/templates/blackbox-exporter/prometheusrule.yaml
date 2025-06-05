@@ -1,3 +1,4 @@
+{{- if .Values.blackboxExporter.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -8,3 +9,4 @@ metadata:
     thanos-ruler: {{ $.Values.thanos.ruler.matchLabel | default $.Release.Name }}
 spec:
     ""
+{{- end -}}

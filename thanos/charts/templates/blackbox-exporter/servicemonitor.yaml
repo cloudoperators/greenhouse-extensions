@@ -1,3 +1,4 @@
+{{- if .Values.blackboxExporter.enabled -}}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -8,7 +9,7 @@ metadata:
 spec:
   endpoints:
 {{- if (empty .Values.thanos.query.stores) }}
-{{- fail "WARNING Blackbox exporter requires store endpoints to probe. Specify thanos.query.stores or disable blackbox-export" -}}
+{{- fail "WARNING Blackbox exporter requires store endpoints to probe. Specify thanos.query.stores or disable blackbox-exporter" -}}
 {{- end }}
 {{- range .Values.thanos.query.stores }}
   - honorTimestamps: true
@@ -39,3 +40,4 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: {{ include "release.name" . }}
       app.kubernetes.io/name: blackboxExporter
+{{- end -}}
