@@ -506,6 +506,27 @@ testFramework:
     tag: v0.0.1
   imagePullPolicy: IfNotPresent
 
-# @ignored
 blackboxExporter:
+  # -- To enable Blackbox Exporter (supported probers: grpc-prober)
+  # @section -- Blackbox exporter config
   enabled: false
+
+  # -- TLS secret of the Thanos global instance to mount for probing
+  # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>
+  # @section -- Blackbox exporter config
+  extraVolumes: []
+    # - name: blackbox-exporter-tls
+    #   secret:
+    #     defaultMode: 420
+    #     secretName: ""
+  # @ignored
+  extraVolumeMounts:
+    - name: blackbox-exporter-tls
+      mountPath: /etc/blackbox/tls
+  # @ignored
+  configExistingSecretName: "{{ $.Release.Namespace }}-blackbox-exporter"
+  # serviceMonitor:
+  #   enabled: true
+  #   targets:
+  #     - name: thanos-grpc.obs.eu-de-1
+  #       url: thanos-grpc.obs.eu-de-1.cloud.sap:443
