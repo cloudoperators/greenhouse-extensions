@@ -307,7 +307,7 @@ spec:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| blackboxExporter.enabled | bool | `false` | Enable Blackbox Exporter |
+| blackboxExporter.enabled | bool | `false` | Enable Blackbox Exporter probing for Thanos stores. Will create ServiceMonitor and PrometheurRule CR to probe provided store endpoints to the Thanos query. |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |

@@ -313,7 +313,8 @@ thanos:
       hosts:
 
 blackboxExporter:
-# -- Enable Blackbox Exporter
+# -- Enable Blackbox Exporter probing for Thanos stores. Will create ServiceMonitor and PrometheurRule CR
+# to probe provided store endpoints to the Thanos query.
   enabled: false
 
 # @ignored
