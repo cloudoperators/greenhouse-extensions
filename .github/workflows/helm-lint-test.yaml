@@ -2,6 +2,9 @@ name: "Helm lint and tests"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
   workflow_dispatch: {}
 
 env:
