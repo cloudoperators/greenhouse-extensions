@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
+    {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
   name: {{ include "release.name" . }}-endpoints
 spec:
   endpoints:
@@ -17,12 +18,12 @@ spec:
     scrapeTimeout: 60s
     metricRelabelings:
     - action: replace
-      replacement: thanos-grpc.obs.eu-de-1.cloud.sap:443
+      replacement: {{ . }}
       sourceLabels:
       - instance
       targetLabel: instance
     - action: replace
-      replacement: thanos-grpc.obs.eu-de-1
+      replacement: {{ replace . ".cloud.sap:443" "" }}
       sourceLabels:
       - target
       targetLabel: target
@@ -38,6 +39,6 @@ spec:
   jobLabel: {{ include "release.name" . }}
   selector:
     matchLabels:
-      app.kubernetes.io/instance: {{ include "release.name" . }}
+      {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 6 }}
       app.kubernetes.io/name: blackboxExporter
 {{- end -}}

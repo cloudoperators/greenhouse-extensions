@@ -313,8 +313,9 @@ thanos:
       hosts:
 
 blackboxExporter:
-# -- Enable Blackbox Exporter probing for Thanos stores. Will create ServiceMonitor and PrometheurRule CR
-# to probe provided store endpoints to the Thanos query.
+# -- Enable creation of Blackbox exporter ressources for probing Thanos stores. It will create ServiceMonitor and PrometheusRule CR
+# to probe store endpoints provided to the helm release (thanos.query.stores) <br>
+# Make sure Blackbox exporter is enabled in kube-monitoring plugin and that it uses same TLS secret as the Thanos instance.
   enabled: false
 
 # @ignored
