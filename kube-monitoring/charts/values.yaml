@@ -525,8 +525,3 @@ blackboxExporter:
       mountPath: /etc/blackbox/tls
   # @ignored
   configExistingSecretName: "{{ $.Release.Namespace }}-blackbox-exporter"
-  # serviceMonitor:
-  #   enabled: true
-  #   targets:
-  #     - name: thanos-grpc.obs.eu-de-1
-  #       url: thanos-grpc.obs.eu-de-1.cloud.sap:443
