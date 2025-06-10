@@ -77,7 +77,7 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | blackboxExporter.enabled | bool | `false` | To enable Blackbox Exporter (supported probers: grpc-prober) |
-| blackboxExporter.extraVolumes | list | <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre> | TLS secret of the Thanos global instance to mount for probing |
+| blackboxExporter.extraVolumes | list | <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre> | TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter. |
 
 ### Global options
 
