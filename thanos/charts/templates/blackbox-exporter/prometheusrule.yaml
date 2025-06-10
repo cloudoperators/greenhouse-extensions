@@ -2,14 +2,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ include "release.name" . }}-blackbox-exporter
+  name: {{ include "release.name" . }}-blackbox-exporter-probes
   labels:
     {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     thanos-ruler: {{ $.Values.thanos.ruler.matchLabel | default $.Release.Name }}
 spec:
   groups:
-  - name: thanos-endpoints-blackbox-exporter
+  - name: thanos-endpoints-blackbox-exporter-probes
     rules:
     - alerts: ThanosEndpointsProbeSuccess
       annotations:
