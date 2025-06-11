@@ -145,7 +145,6 @@ perses:
 
     frontend:
       # -- Information contains markdown content to be displayed on the Perses home page.
-      # @default -- "Add your information here. This will be displayed on the home page of Perses."
       information: "# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"
       important_dashboards:
         []
