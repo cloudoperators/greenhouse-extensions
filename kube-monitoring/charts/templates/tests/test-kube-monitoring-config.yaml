@@ -76,4 +76,11 @@ data:
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
     }
     {{- end }}
+
+    {{- if .Values.absentMetricsOperator.enabled }}
+    @test "Verify successful deployment and running status of the {{ .Release.Name }}-absent-metrics-operator pod" {
+        verify "there is 1 deployment named '{{ .Release.Name }}-absent-metrics-operator'"
+        try "at most 2 times every 5s to get pods named '{{ .Release.Name }}-absent-metrics-operator.*' and verify that '.status.phase' is 'running'"
+    }
+    {{- end }}
 {{- end -}}

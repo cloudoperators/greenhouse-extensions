@@ -1,4 +1,4 @@
-{{- if and .Values.thanos.query.standalone .Values.thanos.query.persesDatasource.create }}
+{{- if .Values.thanos.query.persesDatasource.create }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,7 +17,7 @@ data:
         "name": "{{ printf "%s-%s" $.Release.Name "query" }}",
       },
       "spec": {
-        "default": false,
+        "default": true,
         "plugin": {
           "kind": "PrometheusDatasource",
           "spec": {

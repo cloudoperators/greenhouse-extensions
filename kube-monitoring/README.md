@@ -57,6 +57,12 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 
 ## Values
 
+### absent-metrics-operator options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| absentMetricsOperator.enabled | bool | `false` | Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator) |
+
 ### Alertmanager options
 
 | Key | Type | Default | Description |
@@ -121,6 +127,10 @@ Greenhouse regularly performs integration tests that are bundled with **kube-mon
 | kubeMonitoring.prometheusOperator.alertmanagerInstanceNamespaces | list | `[]` | Filter namespaces to look for prometheus-operator Alertmanager resources |
 | kubeMonitoring.prometheusOperator.enabled | bool | `true` | Manages Prometheus and Alertmanager components |
 | kubeMonitoring.prometheusOperator.prometheusInstanceNamespaces | list | `[]` | Filter namespaces to look for prometheus-operator Prometheus resources |
+
+## Absent-metrics-operator
+
+The **kube-monitoring** Plugin can optionally deploy and configure the [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator) to help detect missing or absent metrics in your Prometheus setup. This operator automatically generates alerts when expected metrics are not present, improving observability and alerting coverage.
 
 ## Service Discovery
 

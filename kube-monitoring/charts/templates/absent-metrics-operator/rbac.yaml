@@ -1,0 +1,33 @@
+{{ if .Values.absentMetricsOperator.enabled }}
+kind: ServiceAccount
+apiVersion: v1
+
+metadata:
+  name: {{ $.Release.Name }}-absent-metrics-operator
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+
+metadata:
+  name: {{ $.Release.Name }}-absent-metrics-operator
+
+rules:
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["prometheusrules"]
+    verbs: ["*"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+
+metadata:
+  name: {{ $.Release.Name }}-absent-metrics-operator
+
+subjects:
+  - kind: ServiceAccount
+    namespace: "{{ .Release.Namespace }}"
+    name: {{ $.Release.Name }}-absent-metrics-operator
+roleRef:
+  kind: ClusterRole
+  name: {{ $.Release.Name }}-absent-metrics-operator
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if .Values.absentMetricsOperator.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+
+metadata:
+  name: {{ $.Release.Name }}-absent-metrics-operator
+  labels:
+    {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+
+spec:
+  groups:
+  - name: liveness.alerts
+    rules:
+      - alert: AbsentMetricsOperatorReconciliationFailure
+        # NOTE: Reconciliation happens every 5 minutes (300 seconds). To prevent alerts from going in and out of the PENDING state for every reconciliation loop, the threshold must be slightly bigger than 300 seconds. We choose 600 seconds (10 minutes).
+        expr: sum(time() - absent_metrics_operator_successful_reconcile_time) by (prometheusrule_namespace, prometheusrule_name) > 600
+        for: 5m
+        labels:
+          support_group: observability
+          service: metrics
+          {{- if .Values.global.commonLabels }}
+          {{ .Values.global.commonLabels | toYaml | nindent 10 }}
+          {{- end }}
+          severity: info
+        annotations:
+          summary: "Absent Metrics Operator cannot scrape `{{` {{ $labels.prometheusrule_namespace }}`}}`/ `{{` {{ $labels.prometheusrule_name }}`}}`"
+          description: >
+            The absent metrics operator has not done a successful scrape of `{{`{{ $labels.prometheusrule_namespace }}`}}`/`{{`{{ $labels.prometheusrule_name }}`}}`
+            for more than 10 minutes. The `kubectl logs` for absent-metrics-operator in kube-monitoring namespace shoud contain additional info.
+{{- end }}

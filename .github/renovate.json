@@ -71,19 +71,6 @@
     },
     {
       "customType": "regex",
-      "description": "Bump perses version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^perses.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        ".*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "perses/helm-charts",
-      "extractVersionTemplate": "^perses-(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
       "description": "Bump kustomize version in the Makefile",
       "managerFilePatterns": [
         "/^Makefile$/"
@@ -151,10 +138,10 @@
       "customType": "regex",
       "description": "Bump kubectl version in integration-test Dockerfile",
       "managerFilePatterns": [
-        "/^Dockerfile.integration-test$/"
+        "Dockerfile.integration-test"
       ],
       "matchStrings": [
-        "ARG KUBECTL_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+        "ARG KUBECTL_VERSION=v(?<currentValue>v?[0-9]+\\.[0-9]+\\.[0-9]+)"
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "kubernetes/kubernetes",
@@ -164,10 +151,10 @@
       "customType": "regex",
       "description": "Bump grpc-health-probe version in integration-test Dockerfile",
       "managerFilePatterns": [
-        "/^Dockerfile.integration-test$/"
+        "Dockerfile.integration-test"
       ],
       "matchStrings": [
-        "ARG GRPC_HEALTH_PROBE_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+        "ARG GRPC_HEALTH_PROBE_VERSION=v(?<currentValue>v?[0-9]+\\.[0-9]+\\.[0-9]+)"
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "grpc-ecosystem/grpc-health-probe",
@@ -177,10 +164,10 @@
       "customType": "regex",
       "description": "Bump yq version in integration-test Dockerfile",
       "managerFilePatterns": [
-        "/^Dockerfile.integration-test$/"
+        "Dockerfile.integration-test"
       ],
       "matchStrings": [
-        "ARG YQ_VERSION=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+        "ARG YQ_VERSION=v(?<currentValue>v?[0-9]+\\.[0-9]+\\.[0-9]+)"
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "mikefarah/yq",
@@ -275,6 +262,24 @@
         "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"
       ],
       "groupName": "OTEL docker base images"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "Dockerfile.integration-test"
+      ],
+      "groupName": "integration-test Dockerfile dependencies"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "Makefile"
+      ],
+      "groupName": "Makefile dependencies"
     }
   ],
   "separateMinorPatch": true

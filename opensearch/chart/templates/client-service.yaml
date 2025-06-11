@@ -1,0 +1,22 @@
+{{- if .Values.cluster.cluster.client.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Values.cluster.cluster.name | default $.Release.Name }}-client-external
+  labels:
+    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default $.Release.Name }}
+    opster.io/opensearch-nodepool: client
+  annotations:
+{{ toYaml $.Values.cluster.cluster.client.service.annotations | indent 4 }}
+spec:
+  type: {{ $.Values.cluster.cluster.client.service.type }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.cluster.cluster.client.service.loadBalancerSourceRanges | indent 4 }}
+  externalIPs:
+{{ toYaml .Values.cluster.cluster.client.service.externalIPs | indent 4 }}
+  ports:
+{{ toYaml $.Values.cluster.cluster.client.service.ports | indent 4 }}
+  selector:
+    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default $.Release.Name }}
+    opster.io/opensearch-nodepool: client
+{{- end }}

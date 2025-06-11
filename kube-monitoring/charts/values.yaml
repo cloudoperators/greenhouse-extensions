@@ -484,13 +484,26 @@ alerts:
       # -- TLS key for communication with Alertmanager
       # @section -- Alertmanager options
       key: ""
+
+absentMetricsOperator:
+  # -- Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator)
+  # @section -- absent-metrics-operator options
+  enabled: false
+  # @ignored
+  image:
+    registry: ghcr.io
+    repository: sapcc/absent-metrics-operator
+    tag: "20250515130640"
+  # @ignored
+  imagePullPolicy: IfNotPresent
+
 # @ignored
 testFramework:
   enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
+    tag: v0.0.1
   imagePullPolicy: IfNotPresent
 
 # @ignored

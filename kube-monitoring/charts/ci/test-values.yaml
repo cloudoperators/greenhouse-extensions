@@ -1,2 +1,4 @@
 blackboxExporter:
   enabled: true
+absentMetricsOperator:
+  enabled: true
