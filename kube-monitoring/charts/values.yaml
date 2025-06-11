@@ -524,4 +524,4 @@ blackboxExporter:
     - name: blackbox-exporter-tls
       mountPath: /etc/blackbox/tls
   # @ignored
-  configExistingSecretName: "{{ $.Release.Namespace }}-blackbox-exporter"
+  configExistingSecretName: "{{ $.Release.Name }}-blackbox-exporter-config"
