@@ -503,7 +503,7 @@ cluster:
           # -- Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a
           # different secret provide it via the caSecret field
           secret:
-            name: "opensearch-admin-cert"
+            name: "opensearch-http-cert"
 
         transport:
           # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
