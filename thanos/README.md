@@ -307,6 +307,7 @@ spec:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| blackboxExporter.enabled | bool | `false` | Enable creation of Blackbox exporter resources for probing Thanos stores. It will create ServiceMonitor and PrometheusRule CR to probe store endpoints provided to the helm release (thanos.query.stores) <br> Make sure Blackbox exporter is enabled in kube-monitoring plugin and that it uses same TLS secret as the Thanos instance. |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |
