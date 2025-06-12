@@ -206,8 +206,12 @@
       "minimumReleaseAge": "7 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "patch",
+      "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
+      ],
+      "ignorePaths": [
+        "**/cert-manager/charts/**"
       ]
     },
     {
@@ -220,8 +224,12 @@
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "minor",
+      "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
+      ],
+      "ignorePaths": [
+        "**/cert-manager/charts/**"
       ]
     },
     {
@@ -234,8 +242,12 @@
       "minimumReleaseAge": "14 days",
       "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "major",
+      "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
+      ],
+      "ignorePaths": [
+        "**/cert-manager/charts/**"
       ]
     },
     {
@@ -244,14 +256,6 @@
         "npm"
       ],
       "minimumReleaseAge": "14 days"
-    },
-    {
-      "matchManagers": [
-        "helmv3"
-      ],
-      "ignorePaths": [
-        "**/cert-manager/charts/**"
-      ]
     },
     {
       "matchDatasources": [
