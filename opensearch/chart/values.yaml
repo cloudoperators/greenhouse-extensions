@@ -424,11 +424,11 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "2Gi"
+            cpu: 1
       - component: data
         diskSize: "30Gi"
-        replicas: 1
+        replicas: 3
         roles:
           - "data"
         resources:
@@ -436,8 +436,8 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "4Gi"
+            cpu: 2
       - component: client
         diskSize: "30Gi"
         replicas: 1
@@ -448,8 +448,8 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "2Gi"
+            cpu: 1
 
     # Configuration for the client service used to expose client nodes externally.
     client:
@@ -675,25 +675,18 @@ cluster:
   #    type: index
 
   # -- List of OpensearchComponentTemplate. Check values.yaml file for examples.
-  componentTemplates: []
-  #  - name: example-component-template
-  #    templateSpec: # required
-  #      aliases: # optional
-  #        my_alias: {}
-  #      settings: # optional
-  #        number_of_shards: 2
-  #        number_of_replicas: 1
-  #      mappings: # optional
-  #        properties:
-  #          timestamp:
-  #            type: date
-  #            format: yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis
-  #          value:
-  #            type: double
-  #    version: 1 # optional
-  #    allowAutoCreate: false # optional
-  #    _meta: # optional
-  #      description: example description
+  componentTemplates:
+    - name: logs-attributes-dynamic
+      version: 1
+      allowAutoCreate: true
+      _meta:
+        description: "Enable full dynamic mapping for all attributes.* keys"
+      templateSpec:
+        mappings:
+          properties:
+            attributes:
+              type: object
+              dynamic: true
 
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
   indexTemplates: []
@@ -703,6 +696,8 @@ cluster:
     - name: logs-index-template
       indexPatterns:
         - "logs*"
+      composedOf:
+        - logs-attributes-dynamic
       templateSpec:
         settings:
           index:
