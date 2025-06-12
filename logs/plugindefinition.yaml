@@ -4,112 +4,112 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: logs
+  name: logs
 spec:
-    version: 0.9.2
-    displayName: Logs
-    description: Observability framework for instrumenting, generating, collecting, and exporting logs.
-    icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
-    helmChart:
-        name: logs-operator
-        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.9.2
-    options:
-        - default: true
-          description: Activates the standard configuration for logs
-          name: openTelemetry.logsCollector.enabled
-          required: false
-          type: bool
-        - default: false
-          description: Activates the configuration for KVM logs (requires logsCollector enabled)
-          name: openTelemetry.logsCollector.kvmConfig.enabled
-          required: false
-          type: bool
-        - default: false
-          description: Activates the configuration for Ceph logs (requires logsCollector enabled)
-          name: openTelemetry.logsCollector.cephConfig.enabled
-          required: false
-          type: bool
-        - default: false
-          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
-          name: openTelemetry.logsCollector.failover.enabled
-          required: false
-          type: bool
-        - default: true
-          description: Activates the standard configuration for metrics 
-          name: openTelemetry.metricsCollector.enabled
-          required: false
-          type: bool
-        - description: Username for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.failover_username_a
-          required: true
-          type: secret
-        - description: Password for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.failover_password_a
-          required: true
-          type: secret
-        - description: Second Username (as a failover) for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.failover_username_b
-          required: false
-          type: secret
-        - description: Second Password (as a failover) for OpenSearch endpoint
-          name: openTelemetry.openSearchLogs.failover_password_b
-          required: false
-          type: secret
-        - description: Endpoint URL for OpenSearch
-          name: openTelemetry.openSearchLogs.endpoint
-          required: false
-          type: string
-        - description: Name for OpenSearch index
-          name: openTelemetry.openSearchLogs.index
-          required: false
-          type: string
-        - description: Region label for logging
-          name: openTelemetry.region
-          required: false
-          type: string
-        - description: Cluster label for logging
-          name: openTelemetry.cluster
-          required: false
-          type: string
-        - default: false
-          description: Activates the pod-monitoring for the Logs Collector
-          name: openTelemetry.prometheus.podMonitor.enabled
-          required: false
-          type: bool
-        - default: false
-          description: Activates the service-monitoring for the Logs Collector
-          name: openTelemetry.prometheus.serviceMonitor.enabled
-          required: false
-          type: bool
-        - description: Label selector for Prometheus resources to be picked-up by the operator
-          name: openTelemetry.prometheus.additionalLabels
-          required: false
-          type: map
-        - description: openTelemetry.prometheus.rules.create
-          name: openTelemetry.prometheus.rules.create
-          required: false
-          type: map
-        - default: true
-          description: Activate to use the CertManager for generating self-signed certificates
-          name: logs-operator.admissionWebhooks.certManager.enabled
-          type: bool
-        - description: Additional labels for PrometheusRule alerts
-          name: openTelemetry.prometheus.rules.additionalRuleLabels
-          required: false
-          type: map
-        - default: false
-          description: Activate to use Helm to create self-signed certificates
-          name: logs-operator.admissionWebhooks.autoGenerateCert.enabled
-          required: false
-          type: bool
-        - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-          description: openTelemetry.manager.collectorImage.repository
-          name: openTelemetry.manager.collectorImage.repository
-          required: false
-          type: string
-        - default: "469df1a"
-          description: openTelemetry.manager.collectorImage.tag
-          name: openTelemetry.manager.collectorImage.tag
-          required: false
-          type: string
+  version: 0.10.0
+  displayName: Logs
+  description: Observability framework for instrumenting, generating, collecting, and exporting logs.
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
+  helmChart:
+    name: logs-operator
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.10.0
+  options:
+    - default: true
+      description: Activates the standard configuration for logs
+      name: openTelemetry.logsCollector.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the configuration for KVM logs (requires logsCollector enabled)
+      name: openTelemetry.logsCollector.kvmConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the configuration for Ceph logs (requires logsCollector enabled)
+      name: openTelemetry.logsCollector.cephConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
+      name: openTelemetry.logsCollector.failover.enabled
+      required: false
+      type: bool
+    - default: true
+      description: Activates the standard configuration for metrics
+      name: openTelemetry.metricsCollector.enabled
+      required: false
+      type: bool
+    - description: Username for OpenSearch endpoint
+      name: openTelemetry.openSearchLogs.failover_username_a
+      required: true
+      type: secret
+    - description: Password for OpenSearch endpoint
+      name: openTelemetry.openSearchLogs.failover_password_a
+      required: true
+      type: secret
+    - description: Second Username (as a failover) for OpenSearch endpoint
+      name: openTelemetry.openSearchLogs.failover_username_b
+      required: false
+      type: secret
+    - description: Second Password (as a failover) for OpenSearch endpoint
+      name: openTelemetry.openSearchLogs.failover_password_b
+      required: false
+      type: secret
+    - description: Endpoint URL for OpenSearch
+      name: openTelemetry.openSearchLogs.endpoint
+      required: false
+      type: string
+    - description: Name for OpenSearch index
+      name: openTelemetry.openSearchLogs.index
+      required: false
+      type: string
+    - description: Region label for logging
+      name: openTelemetry.region
+      required: false
+      type: string
+    - description: Cluster label for logging
+      name: openTelemetry.cluster
+      required: false
+      type: string
+    - default: false
+      description: Activates the pod-monitoring for the Logs Collector
+      name: openTelemetry.prometheus.podMonitor.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the service-monitoring for the Logs Collector
+      name: openTelemetry.prometheus.serviceMonitor.enabled
+      required: false
+      type: bool
+    - description: Label selector for Prometheus resources to be picked-up by the operator
+      name: openTelemetry.prometheus.additionalLabels
+      required: false
+      type: map
+    - description: openTelemetry.prometheus.rules.create
+      name: openTelemetry.prometheus.rules.create
+      required: false
+      type: map
+    - default: true
+      description: Activate to use the CertManager for generating self-signed certificates
+      name: logs-operator.admissionWebhooks.certManager.enabled
+      type: bool
+    - description: Additional labels for PrometheusRule alerts
+      name: openTelemetry.prometheus.rules.additionalRuleLabels
+      required: false
+      type: map
+    - default: false
+      description: Activate to use Helm to create self-signed certificates
+      name: logs-operator.admissionWebhooks.autoGenerateCert.enabled
+      required: false
+      type: bool
+    - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+      description: openTelemetry.manager.collectorImage.repository
+      name: openTelemetry.manager.collectorImage.repository
+      required: false
+      type: string
+    - default: "469df1a"
+      description: openTelemetry.manager.collectorImage.tag
+      name: openTelemetry.manager.collectorImage.tag
+      required: false
+      type: string
