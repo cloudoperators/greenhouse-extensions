@@ -1,7 +1,14 @@
 ci:
   enabled: true
 
+blackboxExporter:
+  enabled: true
+
 thanos:
+  query:
+    stores:
+      - abc.com.cloud.sap:443
+      - xyz.com.cloud.sap:443
   ruler:
     enabled: true
     matchLabel: thanos
