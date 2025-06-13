@@ -60,6 +60,17 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
+| certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
+| certManager.defaults.privateKey.algorithm | string | `"RSA"` | Algorithm used for generating private keys |
+| certManager.defaults.privateKey.encoding | string | `"PKCS8"` | Encoding format for private keys (PKCS8 recommended) |
+| certManager.defaults.privateKey.size | int | `2048` | Key size in bits for RSA keys |
+| certManager.defaults.usages | list | `["digital signature","key encipherment","server auth","client auth"]` | List of extended key usages for certificates |
+| certManager.enable | bool | `true` | Enable cert-manager integration for issuing TLS certificates |
+| certManager.httpDnsNames | list | `["opensearch-client.tld"]` | Override HTTP DNS names for OpenSearch client endpoints |
+| certManager.issuer.ca | object | `{"name":"opensearch-ca-issuer"}` | Name of the CA Issuer to be used for internal certs |
+| certManager.issuer.digicert | object | `{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"}` | API group for the DigicertIssuer custom resource |
+| certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | cluster.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
@@ -68,6 +79,12 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
+| cluster.cluster.client.service.annotations | object | `{}` | Annotations to add to the service, e.g. disco. |
+| cluster.cluster.client.service.enabled | bool | `true` | Enable or disable the external client service. |
+| cluster.cluster.client.service.externalIPs | list | `[]` | List of external IPs to expose the service on. |
+| cluster.cluster.client.service.loadBalancerSourceRanges | list | `[]` | List of allowed IP ranges for external access when service type is `LoadBalancer`. |
+| cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
+| cluster.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
 | cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
@@ -88,7 +105,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.securityContext | object | `{}` | dashboards security context configuration |
 | cluster.cluster.dashboards.service.loadBalancerSourceRanges | list | `[]` | source ranges for a loadbalancer |
 | cluster.cluster.dashboards.service.type | string | `"ClusterIP"` | dashboards service type |
-| cluster.cluster.dashboards.tls.caSecret | object | `{}` | Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
+| cluster.cluster.dashboards.tls.caSecret | object | `{"name":"opensearch-ca-cert"}` | Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.dashboards.tls.enable | bool | `false` | Enable HTTPS for dashboards |
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
@@ -134,15 +151,15 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.name | string | `""` | OpenSearchCluster name, by default release name is used |
 | cluster.cluster.nodePools | list | `[{"component":"main","diskSize":"30Gi","replicas":3,"resources":{"limits":{"cpu":"500m","memory":"1Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["cluster_manager"]},{"component":"data","diskSize":"30Gi","replicas":1,"resources":{"limits":{"cpu":"500m","memory":"1Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["data"]},{"component":"client","diskSize":"30Gi","replicas":1,"resources":{"limits":{"cpu":"500m","memory":"1Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["client"]}]` | Opensearch nodes configuration |
 | cluster.cluster.security.config.adminCredentialsSecret | object | `{}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
-| cluster.cluster.security.config.adminSecret | object | `{}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
+| cluster.cluster.security.config.adminSecret | object | `{"name":"opensearch-admin-cert"}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
 | cluster.cluster.security.config.securityConfigSecret | object | `{}` | Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
 | cluster.cluster.security.tls.http.caSecret | object | `{}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.http.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false - secrets with existing certificates must be supplied |
-| cluster.cluster.security.tls.http.secret | object | `{"name":"opensearch-admin-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
-| cluster.cluster.security.tls.transport.adminDn | list | `[]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
-| cluster.cluster.security.tls.transport.caSecret | object | `{}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
+| cluster.cluster.security.tls.http.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
+| cluster.cluster.security.tls.transport.adminDn | list | `["CN=admin"]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
+| cluster.cluster.security.tls.transport.caSecret | object | `{"name":"opensearch-ca-cert"}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.transport.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false secrets with existing certificates must be supplied |
-| cluster.cluster.security.tls.transport.nodesDn | list | `[]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
+| cluster.cluster.security.tls.transport.nodesDn | list | `["CN=opensearch-transport"]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
 | cluster.cluster.security.tls.transport.perNode | bool | `false` | Separate certificate per node |
 | cluster.cluster.security.tls.transport.secret | object | `{"name":"opensearch-transport-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.componentTemplates | list | `[]` | List of OpensearchComponentTemplate. Check values.yaml file for examples. |
@@ -156,18 +173,14 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
-| cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"password":"","secretKey":"password","secretName":"logs-credentials"}]` | List of OpensearchUser. Check values.yaml file for examples. |
+| cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs-credentials"},{"backendRoles":[],"name":"logs2","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs2-credentials"}]` | List of OpenSearch user configurations. Each user references a secret (defined in usersCredentials) for authentication. |
+| cluster.usersCredentials | object | `{"logs":{"password":"","username":""},"logs2":{"password":"","username":""}}` | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. |
 | cluster.usersRoleBinding | list | `[{"name":"logs-access","roles":["logs-role"],"users":["logs"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
-| global.certManager.enable | bool | `true` |  |
-| global.certManager.issuerRef.group | string | `"certmanager.cloud.sap"` |  |
-| global.certManager.issuerRef.kind | string | `"DigicertIssuer"` |  |
-| global.certManager.issuerRef.name | string | `"digicert-issuer"` |  |
-| global.greenhouse.baseDomain | string | `nil` |  |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
-| operator.kubeRbacProxy.image.repository | string | `"gcr.io/kubebuilder/kube-rbac-proxy"` |  |
-| operator.kubeRbacProxy.image.tag | string | `"v0.15.0"` |  |
+| operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
+| operator.kubeRbacProxy.image.tag | string | `"v0.19.1"` |  |
 | operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.port | int | `10443` |  |

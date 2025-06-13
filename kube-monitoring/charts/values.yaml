@@ -484,15 +484,44 @@ alerts:
       # -- TLS key for communication with Alertmanager
       # @section -- Alertmanager options
       key: ""
+
+absentMetricsOperator:
+  # -- Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator)
+  # @section -- absent-metrics-operator options
+  enabled: false
+  # @ignored
+  image:
+    registry: ghcr.io
+    repository: sapcc/absent-metrics-operator
+    tag: "20250515130640"
+  # @ignored
+  imagePullPolicy: IfNotPresent
+
 # @ignored
 testFramework:
   enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
+    tag: v0.0.1
   imagePullPolicy: IfNotPresent
 
-# @ignored
 blackboxExporter:
+  # -- To enable Blackbox Exporter (supported probers: grpc-prober)
+  # @section -- Blackbox exporter config
   enabled: false
+
+  # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter.
+  # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>
+  # @section -- Blackbox exporter config
+  extraVolumes: []
+    # - name: blackbox-exporter-tls
+    #   secret:
+    #     defaultMode: 420
+    #     secretName: <secretName>
+  # @ignored
+  extraVolumeMounts:
+    - name: blackbox-exporter-tls
+      mountPath: /etc/blackbox/tls
+  # @ignored
+  configExistingSecretName: "{{ $.Release.Name }}-blackbox-exporter-config"

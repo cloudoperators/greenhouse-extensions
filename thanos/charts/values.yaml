@@ -175,8 +175,8 @@ thanos:
     ## Expose Thanos Query as a Perses datasource
     ##
     persesDatasource:
-      # -- Creates a Perses datasource for standalone Thanos Query
-      create: false
+      # -- Creates a Perses datasource for Thanos Query
+      create: true
 
       # -- Label selectors for the Perses sidecar to detect this datasource.
       selector: {}
@@ -311,6 +311,12 @@ thanos:
         ssoKey:
       # -- List of hosts endpoints to send alerts to
       hosts:
+
+blackboxExporter:
+# -- Enable creation of Blackbox exporter resources for probing Thanos stores. It will create ServiceMonitor and PrometheusRule CR
+# to probe store endpoints provided to the helm release (thanos.query.stores) <br>
+# Make sure Blackbox exporter is enabled in kube-monitoring plugin and that it uses same TLS secret as the Thanos instance.
+  enabled: false
 
 # @ignored
 testFramework:

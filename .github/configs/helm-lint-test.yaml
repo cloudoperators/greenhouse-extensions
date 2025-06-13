@@ -6,6 +6,7 @@ remote: origin
 target-branch: main
 validate-maintainers: true
 check-version-increment: true
+skip-clean-up: true
 namespace: default
 release-label: "app.kubernetes.io/instance"
 chart-dirs:

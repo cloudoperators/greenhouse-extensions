@@ -11,7 +11,7 @@ image:
   repository: mendhak/http-https-echo
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "36"
+  tag: "37"
 
 imagePullSecrets: []
 nameOverride: ""

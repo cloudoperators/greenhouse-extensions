@@ -1,0 +1,47 @@
+{{- if .Values.absentMetricsOperator.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: {{ $.Release.Name }}-absent-metrics-operator
+
+spec:
+  revisionHistoryLimit: 5
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+  selector:
+    matchLabels:
+      name: {{ $.Release.Name }}-absent-metrics-operator
+  template:
+    metadata:
+      labels:
+        {{- include "kube-prometheus-stack.labels" . | indent 8 }}
+        name: {{ $.Release.Name }}-absent-metrics-operator
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/targets: "kubernetes"
+    spec:
+      serviceAccount: {{ $.Release.Name }}-absent-metrics-operator
+      serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
+      containers:
+        - name: operator
+          image: "{{ .Values.absentMetricsOperator.image.registry}}/{{ .Values.absentMetricsOperator.image.repository}}:{{ .Values.absentMetricsOperator.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          # NOTE: observed usage in eu-de-1 (as of 2021-10)
+          # - CPU: ~10m during load
+          # - RAM: ~45Mi during load
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "100Mi"
+            limits:
+              cpu: "20m"
+              memory: "100Mi"
+          ports:
+            - name: metrics
+              containerPort: 9659
+{{ end }}
