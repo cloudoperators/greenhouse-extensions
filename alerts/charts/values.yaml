@@ -215,7 +215,7 @@ alerts:
         disco: "true"
         kubernetes.io/tls-acme: "true"
         nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
-        nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
+        nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
         nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
         nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type
         nginx.ingress.kubernetes.io/cors-allow-methods: DELETE
