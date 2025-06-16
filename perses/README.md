@@ -35,9 +35,10 @@ This guide provides a quick and straightforward way how to use Perses as a Green
 **Prerequisites**
 
 - A running and Greenhouse-managed Kubernetes remote cluster
-- `kube-monitoring` Plugin should be installed with `.spec.kubeMonitoring.prometheus.persesDatasource: true` and it should have at least one Prometheus instance running in the cluster
+- `kube-monitoring` Plugin will integrate into Perses automatically with its own datasource 
+- `thanos` Plugin can be enabled alongside `kube-monitoring`. Perses then will have both datasources (`thanos`, `kube-monitoring`) and will default to `thanos` to provide access to long term metrics 
 
-The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and the kube-monitoring datasource will be automatically discovered by the plugin.
+The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and datasources will be automatically discovered by the plugin.
 
 **Step 1: Add your dashboards and datasources**
 
