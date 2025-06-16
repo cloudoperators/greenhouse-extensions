@@ -303,6 +303,31 @@ spec:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
 
+### Creating Datasources for Perses
+
+When deploying Thanos, a Perses datasource is automatically created by default, allowing Perses to fetch data for its visualizations and making it the global default datasource for the selected Perses instance.
+
+The Perses datasource is created as a configmap, which allows Perses to connect to the Thanos Query API and retrieve metrics. This integration is essential for enabling dashboards and visualizations in Perses.
+
+**Example configuration:**
+
+```yaml
+spec:
+  optionsValues:
+    - name: thanos.query.persesDatasource.create
+      value: true
+    - name: thanos.query.persesDatasource.selector
+      value: perses.dev/resource: "true"
+```
+
+You can further customize the datasource resource using the `selector` field if you want to target specific Perses instances.
+
+**Note:** 
+- The Perses datasource is always created as the global default for Perses.
+- The datasource configmap is required for Perses to fetch data for its visualizations.
+
+For more details, see the `thanos.query.persesDatasource` options in the [Values](#values) table below.
+
 ## Values
 
 | Key | Type | Default | Description |
