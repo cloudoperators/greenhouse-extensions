@@ -328,6 +328,10 @@ You can further customize the datasource resource using the `selector` field if 
 
 For more details, see the `thanos.query.persesDatasource` options in the [Values](#values) table below.
 
+### Blackbox-exporter Integration
+
+If Blackbox-exporter is enabled and store endpoints are provided, this Thanos deployment will automatically create a ServiceMonitor to probe the specified Thanos GRPC endpoints. Additionally, a PrometheusRule is created to alert in case of failing probes. This allows you to monitor the availability and responsiveness of your Thanos Store components using Blackbox probes and receive alerts if any endpoints become unreachable.
+
 ## Values
 
 | Key | Type | Default | Description |
