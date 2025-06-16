@@ -2,6 +2,8 @@ dependencies:
   - kube-monitoring
 values:
   kubeMonitoring:
+    blackboxExporter:
+      enabled: true
     prometheus:
       enabled: true
       serviceMonitor:
