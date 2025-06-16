@@ -37,7 +37,8 @@ This guide provides a quick and straightforward way how to use Perses as a Green
 **Prerequisites**
 
 - A running and Greenhouse-managed Kubernetes remote cluster
-- `kube-monitoring` Plugin should be installed alongside `thanos` Plugin for long term storage of metrics. By default `thanos` Plugin will also create datasource configmap for Perses. That will serve as default datasource for Perses.
+- `kube-monitoring` Plugin will integrate into Perses automatically with its own datasource  
+- `thanos` Plugin can be enabled alongside `kube-monitoring`. Perses then will have both datasources (`thanos`, `kube-monitoring`) and will default to `thanos` to provide access to long term metrics  
 
 The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and datasources will be automatically discovered by the plugin.
 
