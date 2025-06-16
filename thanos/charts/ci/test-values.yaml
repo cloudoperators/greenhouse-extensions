@@ -7,8 +7,8 @@ blackboxExporter:
 thanos:
   query:
     stores:
-      - abc.com.cloud.sap:443
-      - xyz.com.cloud.sap:443
+      - abc.com.cloud.sap:123
+      - xyz.com.cloud.sap:123
   ruler:
     enabled: true
     matchLabel: thanos
