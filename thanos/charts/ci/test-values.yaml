@@ -7,8 +7,8 @@ blackboxExporter:
 thanos:
   query:
     stores:
-      - abc.com.cloud.sap:123
-      - xyz.com.cloud.sap:123
+      - prometheus-operated:10901
+      - prometheus-operated:10901
   ruler:
     enabled: true
     matchLabel: thanos
