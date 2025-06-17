@@ -11,7 +11,7 @@ spec:
   groups:
   - name: thanos-endpoints-blackbox-exporter-probes
     rules:
-    - alerts: ThanosEndpointsProbeSuccess
+    - alert: ThanosEndpointsProbeSuccess
       annotations:
         description: "Probe is failing for instance: `{{`{{ $labels.instance }}`}}`, job: `{{`{{ $labels.job }}`}}`"
         summary: "Blackbox exporter probing is failling"

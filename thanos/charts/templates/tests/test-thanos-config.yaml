@@ -72,7 +72,7 @@ data:
 
     {{ if .Values.thanos.serviceMonitor.selfMonitor }}
     @test "Verify succesful creation of ServiceMonitor" {
-      verify "there is 1 servicemonitor named '{{ .Release.Name }}'"
+      verify "there is 1 servicemonitor named '{{ .Release.Name }}$'"
     }
     {{ end }}
 
@@ -93,9 +93,9 @@ data:
     {{- end }}
 
     {{- if .Values.blackboxExporter.enabled }}
-    @test "Verify successful deployment and running status of the {{ .Release.Name }}-blackbox-exporter pod" {
-        verify "there is 1 deployment named '.*-blackbox-exporter'"
-        try "at most 2 times every 5s to get pods named '.*-blackbox-exporter.*' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the blackbox-exporter pod" {
+        verify "there is 1 deployment named 'blackbox-exporter'"
+        try "at most 2 times every 5s to get pods named 'blackbox-exporter' and verify that '.status.phase' is 'running'"
     }
     {{- end }}
 

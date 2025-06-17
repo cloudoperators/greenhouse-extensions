@@ -35,10 +35,10 @@ spec:
     path: /probe
     port: http
     scheme: http
-{{- end -}}
+{{- end }}
   jobLabel: {{ include "release.name" . }}
   selector:
     matchLabels:
       {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 6 }}
       app.kubernetes.io/name: blackboxExporter
-{{- end -}}
+{{- end }}
