@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 manager:
+  enabled: true
   image:
       repository: ghcr.io/cloudoperators/repo-guard
   resources:
