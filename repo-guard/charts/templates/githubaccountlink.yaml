@@ -12,6 +12,10 @@ metadata:
   labels:
     githubguard.sap/osmp-check: {{ $.Values.openSourceManagementPortalAPI.name }}
   {{- end }}
+  {{- if $.Values.openSourceManagementPortalAPI }}
+  annotations:
+    githubguard.sap/osmp-check-ttl: {{ $.Values.openSourceManagementPortalAPI.checkResultTTL }}
+  {{- end }}
 spec:
   github: {{ $githubKey | lower }}
   githubUserID: {{ $user.githubID | int64 | quote }}
