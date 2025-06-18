@@ -16,7 +16,14 @@ spec:
     singular: opensourcemanagementportalapi
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: Status
+      type: string
+    - jsonPath: .status.timestamp
+      name: Last Change
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
         description: OpenSourceManagementPortalAPI is the Schema for the OpenSourceManagementPortalAPI.
@@ -43,18 +50,16 @@ spec:
               of OpenSourceManagementPortalAPI.
             properties:
               cacheTTL:
-                description: |-
-                  A Duration represents the elapsed time between two instants
-                  as an int64 nanosecond count. The representation limits the
-                  largest representable duration to approximately 290 years.
-                format: int64
-                type: integer
+                type: string
               endpoint:
                 type: string
               secret:
                 type: string
               version:
                 type: string
+            required:
+            - endpoint
+            - version
             type: object
           status:
             description: OpenSourceManagementPortalAPIStatus defines the observed
