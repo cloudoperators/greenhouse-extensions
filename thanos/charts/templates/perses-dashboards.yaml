@@ -1,4 +1,4 @@
-{{ if and .Values.thanos.serviceMonitor.selfMonitor .Values.thanos.serviceMonitor.dashboards }}
+{{ if and .Values.serviceMonitor.selfMonitor .Values.serviceMonitor.dashboards }}
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "dashboards/*.json" }}
 ---

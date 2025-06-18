@@ -5,21 +5,21 @@ metadata:
   labels:  
     {{- include "plugin.labels" . | nindent 4 }}  
     {{- include "thanos.labels" . | nindent 4 }}  
-    {{- if .Values.thanos.query.deploymentLabels }}  
-    {{ toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}  
+    {{- if .Values.query.deploymentLabels }}  
+    {{ toYaml .Values.query.deploymentLabels | nindent 4 }}  
     {{- end }}
 data:
   endpoint-targets.yaml: |-
     endpoints:
 {{- /* Technically it is possible to add stores and have the default stores all together.*/}}
 {{- /* Enabling standalone would remove the default stores for an empty store list to be maintained entirely manual.*/}}
-{{- if and (empty .Values.thanos.query.stores) (.Values.thanos.query.standalone) }}
+{{- if and (empty .Values.query.stores) (.Values.query.standalone) }}
 {{- fail "WARNING Thanos Query will have no data. Either unset thanos.query.standalone or specify thanos.query.stores." -}}
 {{- end }}
-{{- range .Values.thanos.query.stores }}
+{{- range .Values.query.stores }}
       - address: "{{ . }}"
 {{- end -}}
-{{- if not .Values.thanos.query.standalone }}
+{{- if not .Values.query.standalone }}
       - address: "prometheus-operated:10901"
-      - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"
+      - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.grpcAddress }}"
 {{- end -}}

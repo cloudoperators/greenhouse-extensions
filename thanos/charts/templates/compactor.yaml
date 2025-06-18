@@ -1,12 +1,12 @@
-{{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.compactor.enabled (not .Values.query.standalone) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.compactor.deploymentLabels }}
-    {{ toYaml .Values.thanos.compactor.deploymentLabels | nindent 4 }}
+    {{- if .Values.compactor.deploymentLabels }}
+    {{ toYaml .Values.compactor.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-compactor
 spec:
@@ -21,39 +21,39 @@ spec:
     type: Recreate
   template:
     metadata:
-      {{- if .Values.thanos.compactor.annotations }}
+      {{- if .Values.compactor.annotations }}
       annotations:
-        {{ toYaml .Values.thanos.compactor.annotations | nindent 8 }}
+        {{ toYaml .Values.compactor.annotations | nindent 8 }}
       {{- end }}
       labels:
         app.kubernetes.io/managed-by: {{ include "release.name" . }} 
         app.kubernetes.io/name: compactor
-        {{- if .Values.thanos.compactor.containerLabels }}
-        {{ toYaml .Values.thanos.compactor.containerLabels | nindent 8 }}
+        {{- if .Values.compactor.containerLabels }}
+        {{ toYaml .Values.compactor.containerLabels | nindent 8 }}
         {{- end }}
       name: {{ include "release.name" . }}-compactor
     spec:
       containers:
       - args:
         - compact
-        - --log.level={{ default "info" .Values.thanos.compactor.logLevel }}
-        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
-        - --http-grace-period={{ default "120s" .Values.thanos.compactor.httpGracePeriod }}
+        - --log.level={{ default "info" .Values.compactor.logLevel }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.httpAddress }}
+        - --http-grace-period={{ default "120s" .Values.compactor.httpGracePeriod }}
         - --data-dir=/data
         - --objstore.config-file=/etc/config/thanos.yaml
-        - --consistency-delay={{ default "1800s" .Values.thanos.compactor.consistencyDelay }}
-        - --retention.resolution-raw={{ default "7776000s" .Values.thanos.compactor.retentionResolutionRaw }}
-        - --retention.resolution-5m={{ default "7776000s" .Values.thanos.compactor.retentionResolution5m }}
-        - --retention.resolution-1h={{ default "157680000s" .Values.thanos.compactor.retentionResolution1h }}
-        - --compact.concurrency={{ default (int 1) .Values.thanos.compactor.compact.concurrency }}
-        - --compact.cleanup-interval={{ default "1800s" .Values.thanos.compactor.compact.cleanupInterval }}
+        - --consistency-delay={{ default "1800s" .Values.compactor.consistencyDelay }}
+        - --retention.resolution-raw={{ default "7776000s" .Values.compactor.retentionResolutionRaw }}
+        - --retention.resolution-5m={{ default "7776000s" .Values.compactor.retentionResolution5m }}
+        - --retention.resolution-1h={{ default "157680000s" .Values.compactor.retentionResolution1h }}
+        - --compact.concurrency={{ default (int 1) .Values.compactor.compact.concurrency }}
+        - --compact.cleanup-interval={{ default "1800s" .Values.compactor.compact.cleanupInterval }}
         - --wait
-        - --wait-interval={{ default "900s" .Values.thanos.compactor.compact.cleanupInterval }}
-        {{- range .Values.thanos.compactor.additionalArgs }}
+        - --wait-interval={{ default "900s" .Values.compactor.compact.cleanupInterval }}
+        {{- range .Values.compactor.additionalArgs }}
         - {{ . }}
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
-        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy }}
         name: compactor
         ports:
         - containerPort: 10902
@@ -67,11 +67,11 @@ spec:
           name: data-volume
       initContainers:
         - name: init-permissions
-          {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
-          {{- if .Values.thanos.initChownData.image.sha }}
-          image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+          {{- $registry := .Values.global.imageRegistry | default .Values.initChownData.image.registry -}}
+          {{- if .Values.initChownData.image.sha }}
+          image: "{{ $registry }}/{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}@sha256:{{ .Values.initChownData.image.sha }}"
           {{- else }}
-          image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}"
+          image: "{{ $registry }}/{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}"
           {{- end }}
           command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
           volumeMounts:

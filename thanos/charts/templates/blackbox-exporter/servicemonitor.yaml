@@ -5,14 +5,14 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
+    {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
   name: {{ include "release.name" . }}-blackbox-exporter-probes
 spec:
   endpoints:
-{{- if (empty .Values.thanos.query.stores) }}
+{{- if (empty .Values.query.stores) }}
 {{- fail "WARNING Blackbox exporter requires store endpoints to probe. Specify thanos.query.stores or disable blackbox-exporter" -}}
 {{- end }}
-{{- range .Values.thanos.query.stores }}
+{{- range .Values.query.stores }}
   - honorTimestamps: true
     interval: 60s
     scrapeTimeout: 60s
@@ -39,6 +39,6 @@ spec:
   jobLabel: {{ include "release.name" . }}
   selector:
     matchLabels:
-      {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 6 }}
+      {{- toYaml .Values.serviceMonitor.labels | nindent 6 }}
       app.kubernetes.io/name: blackboxExporter
 {{- end }}

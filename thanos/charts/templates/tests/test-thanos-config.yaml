@@ -37,7 +37,7 @@ data:
       done
     }
 
-    {{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
+    {{ if and .Values.store.enabled (not .Values.query.standalone) }}
     @test "Verify {{ .Release.Name }} Store" {
       verify "there is 1 deployment named '{{ .Release.Name }}-store'"
       verify "there is 1 service named '{{ .Release.Name }}-store'"
@@ -45,7 +45,7 @@ data:
     }
     {{ end }}
 
-    {{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
+    {{ if and .Values.compactor.enabled (not .Values.query.standalone) }}
     @test "Verify {{ .Release.Name }} Compactor" {
       verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
       verify "there is 1 service named '{{ .Release.Name }}-compactor'"
@@ -54,7 +54,7 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.thanos.ruler.enabled }}
+    {{ if .Values.ruler.enabled }}
     @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
       verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
       verify "there is 1 service named '{{ .Release.Name }}-ruler'"
@@ -70,21 +70,21 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.thanos.serviceMonitor.selfMonitor }}
+    {{ if .Values.serviceMonitor.selfMonitor }}
     @test "Verify succesful creation of ServiceMonitor" {
       verify "there is 1 servicemonitor named '{{ .Release.Name }}$'"
     }
     {{ end }}
 
-    {{ if (not .Values.thanos.query.standalone) }}
+    {{ if (not .Values.query.standalone) }}
     @test "Verify prometheus sidecar is running" {
       try "at most 3 times every 5s to get pods named 'prometheus-.*-[0-9]$' and verify that '.status.containerStatuses[*].name' is 'config-reloader,prometheus,thanos-sidecar'"
     }
     {{ end }}
 
-    {{- if and .Values.thanos.query.ingress.grpc.enabled .Values.thanos.query.ingress.grpc.hosts .Values.thanos.query.ingress.grpc.tls (not .Values.ci.enabled ) }}
+    {{- if and .Values.query.ingress.grpc.enabled .Values.query.ingress.grpc.hosts .Values.query.ingress.grpc.tls (not .Values.ci.enabled ) }}
     @test "Verify the availability of the Thanos Query API Ingress hostname by using the created certificates" {
-      url="{{ (first .Values.thanos.query.ingress.grpc.hosts).host }}:443"
+      url="{{ (first .Values.query.ingress.grpc.hosts).host }}:443"
 
       run grpc_health_probe -addr=${url} -tls -tls-ca-cert /tls-assets/ca.crt
       [ "$status" -eq "0" ]

@@ -1,4 +1,4 @@
-{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.store.enabled (not .Values.query.standalone) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,8 +6,8 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.store.deploymentLabels }}
-    {{ toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
+    {{- if .Values.store.deploymentLabels }}
+    {{ toYaml .Values.store.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-store
 spec:
@@ -23,15 +23,15 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      {{- if .Values.thanos.store.annotations }}
+      {{- if .Values.store.annotations }}
       annotations:
-        {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+        {{ toYaml .Values.store.annotations | nindent 8 }}
       {{- end }}
       labels:
         app.kubernetes.io/managed-by: {{ include "release.name" . }}
         app.kubernetes.io/name: store
-        {{- if .Values.thanos.store.containerLabels }}
-        {{ toYaml .Values.thanos.store.containerLabels | nindent 8 }}
+        {{- if .Values.store.containerLabels }}
+        {{ toYaml .Values.store.containerLabels | nindent 8 }}
         {{- end }}
       name: {{ include "release.name" . }}-store
     spec:
@@ -39,16 +39,16 @@ spec:
       - args:
         - store
         - --objstore.config-file=/etc/config/thanos.yaml
-        - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
-        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
-        - --log.level={{ default "info" .Values.thanos.store.logLevel }}
-        - --index-cache-size={{ default "1GB" .Values.thanos.store.indexCacheSize }}
-        - --chunk-pool-size={{ default "4GB" .Values.thanos.store.chunkPoolSize }}
-        {{- range .Values.thanos.store.additionalArgs }}
+        - --grpc-address={{ default "0.0.0.0:10901" .Values.grpcAddress }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.httpAddress }}
+        - --log.level={{ default "info" .Values.store.logLevel }}
+        - --index-cache-size={{ default "1GB" .Values.store.indexCacheSize }}
+        - --chunk-pool-size={{ default "4GB" .Values.store.chunkPoolSize }}
+        {{- range .Values.store.additionalArgs }}
         - {{ . }}
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
-        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
           httpGet:
@@ -85,11 +85,11 @@ spec:
           name: data
       initContainers:
       - name: init-permissions
-        {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
-        {{- if .Values.thanos.initChownData.image.sha }}
-        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+        {{- $registry := .Values.global.imageRegistry | default .Values.initChownData.image.registry -}}
+        {{- if .Values.initChownData.image.sha }}
+        image: "{{ $registry }}/{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}@sha256:{{ .Values.initChownData.image.sha }}"
         {{- else }}
-        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}"
+        image: "{{ $registry }}/{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}"
         {{- end }}
         command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
         securityContext:
