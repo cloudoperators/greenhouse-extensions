@@ -28,6 +28,13 @@ manager:
 #  username: 
 #  password:
 
+# openSourceManagementPortalAPI:
+#  name:
+#  endpoint:
+#  version:
+#  cacheTTL:
+#  apikey:
+
 # githubs:
 #  enterprise:
 #    webURL: 

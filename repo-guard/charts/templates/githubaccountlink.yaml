@@ -8,6 +8,10 @@ apiVersion: githubguard.sap/v1
 kind: GithubAccountLink
 metadata:
   name: {{ $githubKey | lower }}--{{ $user.userID | lower }}
+  {{- if $.Values.openSourceManagementPortalAPI }}
+  labels:
+    githubguard.sap/osmp-check: {{ $.Values.openSourceManagementPortalAPI.name }}
+  {{- end }}
 spec:
   github: {{ $githubKey | lower }}
   githubUserID: {{ $user.githubID | int64 | quote }}

@@ -1,0 +1,19 @@
+{{ if .Values.openSourceManagementPortalAPI }}
+apiVersion: githubguard.sap/v1
+kind: OpenSourceManagementPortalAPI
+metadata:
+  name: {{ .Values.openSourceManagementPortalAPI.name | lower }}
+spec:
+  secret: {{ .Values.openSourceManagementPortalAPI.name | lower }}
+  endpoint: {{ .Values.openSourceManagementPortalAPI.endpoint }}
+  version: {{ .Values.openSourceManagementPortalAPI.version }}
+  cacheTTL: {{ .Values.openSourceManagementPortalAPI.cacheTTL }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.openSourceManagementPortalAPI.name | lower }}
+type: Opaque
+data:
+  apikey: {{ .Values.openSourceManagementPortalAPI.apikey | b64enc }}
+{{ end }}

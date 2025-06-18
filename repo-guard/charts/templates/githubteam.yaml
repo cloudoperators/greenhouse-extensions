@@ -16,6 +16,9 @@ metadata:
     {{- if eq ($org.disableInternalUsernames | default "false") "true" }}
     githubguard.sap/disableInternalUsernames: "true"
     {{- end }}
+    {{- if eq ($org.requireOSMPCheck | default "false") "true" }}
+    githubguard.sap/require-osmp-check: "true"
+    {{- end }}
 spec:
   {{- if or $team.distributionListID $team.ldapGroup }}
   externalMemberProvider:
