@@ -54,8 +54,8 @@ jobs:
             chartName: service-proxy
           - chartDir: thanos/charts
             chartName: thanos
-          - chartDir: github-guard/charts
-            chartName: github-guard
+          - chartDir: repo-guard/charts
+            chartName: repo-guard
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
