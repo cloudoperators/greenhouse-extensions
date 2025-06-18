@@ -86,7 +86,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | cluster.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| cluster.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-proxy-user\",\"x-proxy-roles\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-proxy-roles","opensearch_security.proxycache.user_header":"x-proxy-user"}` | Additional properties for opensearch_dashboards.yaml |
+| cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | cluster.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | cluster.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
