@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- $labels := include "opensearch-cluster-local.labels" . }}
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: opensearch-security-config
+  labels:
+    {{- $labels := include "opensearch-cluster-local.labels" . }}
+    {{ $labels | nindent 4 }}
+stringData:
+  config.yml: |-
+    _meta:
+      type: "config"
+      config_version: 2
+    config:
+      dynamic:
+        http:
+          xff:
+            enabled: true
+            remoteIpHeader: "x-forwarded-for"
+            internalProxies: ".*"
+        authc:
+          proxy_auth_domain:
+            http_enabled: true
+            transport_enabled: true
+            order: 0
+            http_authenticator:
+              type: proxy
+              challenge: false
+              config:
+                user_header: "x-proxy-user"
+                roles_header: "x-proxy-roles"
+          basic_internal_auth_domain:
+            http_enabled: true
+            transport_enabled: true
+            order: 10
+            http_authenticator:
+              type: basic
+              challenge: true
+            authentication_backend:
+              type: internal
+
+  internal_users.yml: |-
+    _meta:
+      type: "internalusers"
+      config_version: 2
+    admin:
+      hash: {{ .Values.cluster.usersCredentials.admin.hash | quote }}
+      reserved: true
+      backend_roles:
+        - "admin"
+
+  roles.yml: |-
+    _meta:
+      type: "roles"
+      config_version: 2
+
+  roles_mapping.yml: |-
+    _meta:
+      type: "rolesmapping"
+      config_version: 2
+    all_access:
+      reserved: false
+      backend_roles:
+        - "admin"
+      users:
+        - "admin"
+
+  tenants.yml: |-
+    _meta:
+      type: "tenants"
+      config_version: 2
