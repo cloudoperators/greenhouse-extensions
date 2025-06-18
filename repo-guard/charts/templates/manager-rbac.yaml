@@ -103,6 +103,8 @@ rules:
   verbs:
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - ""
@@ -164,6 +166,30 @@ rules:
   - githubguard.sap
   resources:
   - ldapgroupproviders/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - opensourcemanagementportalapis
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - opensourcemanagementportalapis/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - githubguard.sap
+  resources:
+  - opensourcemanagementportalapis/status
   verbs:
   - get
   - patch
