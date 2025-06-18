@@ -1,16 +1,16 @@
-{{ if and .Values.thanos.ruler.enabled }}
+{{ if and .Values.ruler.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.ruler.annotations }}
+  {{- if .Values.ruler.annotations }}
   annotations:
-    {{ toYaml .Values.thanos.ruler.annotations | nindent 8 }}
+    {{ toYaml .Values.ruler.annotations | nindent 8 }}
   {{- end }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.ruler.serviceLabels }}
-    {{ toYaml .Values.thanos.ruler.serviceLabels | nindent 4 }}
+    {{- if .Values.ruler.serviceLabels }}
+    {{ toYaml .Values.ruler.serviceLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-ruler
 spec:

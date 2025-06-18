@@ -1,11 +1,11 @@
-{{- if .Values.thanos.query.ingress.enabled -}}
+{{- if .Values.query.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-  {{- with .Values.thanos.query.ingress.annotations }}
+  {{- with .Values.query.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -13,7 +13,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    {{- range .Values.thanos.query.ingress.hosts }}
+    {{- range .Values.query.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -27,9 +27,9 @@ spec:
                   name: http
           {{- end }}
     {{- end }}
-  {{- if .Values.thanos.query.ingress.tls }}
+  {{- if .Values.query.ingress.tls }}
   tls:
-    {{- range .Values.thanos.query.ingress.tls }}
+    {{- range .Values.query.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}

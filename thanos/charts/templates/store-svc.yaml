@@ -1,16 +1,16 @@
-{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.store.enabled (not .Values.query.standalone) }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.store.annotations }}
+  {{- if .Values.store.annotations }}
   annotations:
-    {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+    {{ toYaml .Values.store.annotations | nindent 8 }}
   {{- end }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.store.serviceLabels }}
-    {{ toYaml .Values.thanos.store.serviceLabels | nindent 4 }}
+    {{- if .Values.store.serviceLabels }}
+    {{ toYaml .Values.store.serviceLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-store
 spec:

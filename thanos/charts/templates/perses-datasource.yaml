@@ -1,4 +1,4 @@
-{{- if .Values.thanos.query.persesDatasource.create }}
+{{- if .Values.query.persesDatasource.create }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
 {{ include "plugin.labels" . | indent 4 }}
 {{ include "thanos.labels" . | indent 4 }}
-{{- with .Values.thanos.query.persesDatasource.selector }}
+{{- with .Values.query.persesDatasource.selector }}
 {{ toYaml . | indent 4}}
 {{- end }}
 data:

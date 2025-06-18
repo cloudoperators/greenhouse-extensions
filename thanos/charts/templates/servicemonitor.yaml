@@ -1,11 +1,11 @@
-{{ if .Values.thanos.serviceMonitor.selfMonitor }}
+{{ if .Values.serviceMonitor.selfMonitor }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 
 metadata:
   name: {{ include "release.name" . }}
   labels:
-    {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
+    {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
 
 spec:
   selector:

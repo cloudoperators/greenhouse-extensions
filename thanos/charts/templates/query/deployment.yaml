@@ -7,13 +7,13 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.query.deploymentLabels }}
-    {{ toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}
+    {{- if .Values.query.deploymentLabels }}
+    {{ toYaml .Values.query.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-query
 spec:
   progressDeadlineSeconds: 600
-  replicas: {{ default 1 .Values.thanos.query.replicas }}
+  replicas: {{ default 1 .Values.query.replicas }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -26,42 +26,42 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      {{- if .Values.thanos.query.annotations }}
+      {{- if .Values.query.annotations }}
       annotations:
-        {{ toYaml .Values.thanos.query.annotations | nindent 8 }}
+        {{ toYaml .Values.query.annotations | nindent 8 }}
       {{- end }}
       labels:
         app.kubernetes.io/managed-by: {{ include "release.name" . }}
         app.kubernetes.io/name: query
-        {{- if .Values.thanos.query.containerLabels }}
-        {{ toYaml .Values.thanos.query.containerLabels | nindent 8 }}
+        {{- if .Values.query.containerLabels }}
+        {{ toYaml .Values.query.containerLabels | nindent 8 }}
         {{- end }}
       name: {{ include "release.name" . }}-query
     spec:
       containers:
       - args:
         - query
-        - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
-        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
-        - --log.level={{ default "info" .Values.thanos.query.logLevel }}
-        {{- if .Values.thanos.query.autoDownsampling }}
+        - --grpc-address={{ default "0.0.0.0:10901" .Values.grpcAddress }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.httpAddress }}
+        - --log.level={{ default "info" .Values.query.logLevel }}
+        {{- if .Values.query.autoDownsampling }}
         - --query.auto-downsampling
         {{- end }}
-        - --query.replica-label={{ default "prometheus_replica" .Values.thanos.query.replicaLabel }}
-        - {{ default "--web.external-prefix=/thanos" .Values.thanos.query.web.externalPrefix }}
-        - {{ default "--web.route-prefix=/thanos" .Values.thanos.query.web.routePrefix }}
-        {{- range .Values.thanos.query.additionalArgs }}
+        - --query.replica-label={{ default "prometheus_replica" .Values.query.replicaLabel }}
+        - {{ default "--web.external-prefix=/thanos" .Values.query.web.externalPrefix }}
+        - {{ default "--web.route-prefix=/thanos" .Values.query.web.routePrefix }}
+        {{- range .Values.query.additionalArgs }}
         - {{ . }}
         {{- end }}
         - --endpoint.sd-config-file=/etc/thanos/sd-config/endpoint-targets.yaml
-        {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+        {{- if or .Values.query.tls.data .Values.query.tls.secretName }}
         - --grpc-client-tls-ca=/etc/tls/client/ca.crt
         - --grpc-client-tls-cert=/etc/tls/client/tls.crt
         - --grpc-client-tls-key=/etc/tls/client/tls.key
         - --grpc-client-tls-secure
         {{- end }}
-        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
-        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy }}
         livenessProbe:
           failureThreshold: 2
           httpGet:
@@ -93,7 +93,7 @@ spec:
         volumeMounts:
         - name: sd-config
           mountPath: /etc/thanos/sd-config
-      {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+      {{- if or .Values.query.tls.data .Values.query.tls.secretName }}
         - name: tls-certificate
           mountPath: /etc/tls/client
           readOnly: true 
@@ -104,11 +104,11 @@ spec:
         - name: sd-config
           configMap:
             name: {{ include "release.name" . }}-sd-config
-      {{- if or .Values.thanos.query.tls.data .Values.thanos.query.tls.secretName }}
+      {{- if or .Values.query.tls.data .Values.query.tls.secretName }}
         - name: tls-certificate
           secret:
             defaultMode: 420
-            secretName: {{ .Values.thanos.query.tls.secretName | default (printf "%s-tls" .Release.Name) }}
+            secretName: {{ .Values.query.tls.secretName | default (printf "%s-tls" .Release.Name) }}
       {{- end }}
 
 

@@ -1,11 +1,11 @@
-{{- if .Values.thanos.query.ingress.grpc.enabled -}}
+{{- if .Values.query.ingress.grpc.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
-  {{- with .Values.thanos.query.ingress.grpc.annotations }}
+  {{- with .Values.query.ingress.grpc.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -13,7 +13,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    {{- range .Values.thanos.query.ingress.grpc.hosts }}
+    {{- range .Values.query.ingress.grpc.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -27,9 +27,9 @@ spec:
                   name: grpc
           {{- end }}
     {{- end }}
-  {{- if .Values.thanos.query.ingress.grpc.tls }}
+  {{- if .Values.query.ingress.grpc.tls }}
   tls:
-    {{- range .Values.thanos.query.ingress.grpc.tls }}
+    {{- range .Values.query.ingress.grpc.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
