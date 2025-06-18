@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.17
+  version: 0.0.18
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.17
+    version: 0.0.18
   options:
     - name: operator.fullnameOverride
       description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
@@ -53,18 +53,47 @@ spec:
       required: true
       type: list
     - name: cluster.usersCredentials.logs.username
-      description: "Primary OpenSearch user username"
+      description: "Primary OpenSearch username for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs.password
-      description: "Primary OpenSearch user password"
+      description: "Primary OpenSearch user password for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.username
-      description: "Secondary OpenSearch user username for failover authentication"
+      description: "Secondary OpenSearch username for failover log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.password
-      description: "Secondary OpenSearch user password for failover authentication"
+      description: "Secondary OpenSearch user password for failover log ingestion."
       required: true
       type: secret
+    - name: cluster.usersCredentials.admin.password
+      description: "OpenSearch admin password used for initial setup and management"
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.admin.hash
+      description: "OpenSearch admin password hash (bcrypt format)"
+      required: true
+      type: secret
+    - name: cluster.cluster.ingress.opensearch.enabled
+      description: "Enables the Opensearch ingress for log ingestion."
+      required: false
+      type: bool
+    - name: cluster.cluster.ingress.opensearch.className
+      description: "Ingress class name for Opensearch."
+      default: "nginx"
+      required: false
+      type: string
+    - name: cluster.cluster.ingress.opensearch.annotations
+      description: "Opensearch ingress annotations"
+      required: false
+      type: map
+    - name: cluster.cluster.ingress.opensearch.hosts
+      description: "Opensearch ingress hosts"
+      required: false
+      type: list
+    - name: cluster.cluster.ingress.opensearch.tls
+      description: "Opensearch ingress tls configuration"
+      required: false
+      type: list
