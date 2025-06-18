@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: repo-guard
 spec:
-  version: "1.3.0"
+  version: "1.4.0"
   displayName: Repo Guard
   description: Manages Github teams, team memberships and repository & team assignments
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: repo-guard
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.3.0
+    version: 1.4.0
   options:
     - name: ldap
       description: LDAP configuration for external member provider
