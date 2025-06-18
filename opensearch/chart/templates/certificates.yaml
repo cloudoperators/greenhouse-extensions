@@ -71,6 +71,7 @@ spec:
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 ---
+{{- if .Values.cluster.cluster.ingress.opensearch.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -86,4 +87,5 @@ spec:
 {{ toYaml .Values.certManager.httpDnsNames | indent 4 }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+{{- end }}
 {{- end }}
