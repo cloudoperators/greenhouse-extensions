@@ -2,11 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 manager:
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-      - ALL
   image:
       repository: ghcr.io/cloudoperators/repo-guard
   resources:

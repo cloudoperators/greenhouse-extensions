@@ -52,9 +52,5 @@ spec:
           periodSeconds: 10
         resources: {{- toYaml .Values.manager.resources | nindent 10
           }}
-        securityContext: {{- toYaml .Values.manager.containerSecurityContext
-          | nindent 10 }}
-      securityContext:
-        runAsNonRoot: true
       serviceAccountName: {{ include "repo-guard.fullname" . }}-controller-manager
       terminationGracePeriodSeconds: 10
