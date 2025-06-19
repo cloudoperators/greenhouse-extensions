@@ -17,7 +17,7 @@ KUSTOMIZE_VERSION ?= 5.6.0
 YQ_VERSION ?= v4.45.4
 HELM_DOCS_VERSION ?= 1.14.2
 PINT_VERSION ?= 0.74.1
-HELM_VERSION ?= 3.18.2
+HELM_VERSION ?= 3.18.3
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
