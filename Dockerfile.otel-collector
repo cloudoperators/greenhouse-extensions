@@ -1,9 +1,9 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:12.10 AS journal
+FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:12.11@sha256:0d8498a0e9e6a60011df39aab78534cfe940785e7c59d19dfae1eb53ea59babe AS journal
 RUN apt update  \
   && apt upgrade -y  \
   && apt autoremove -y \
   && apt install -y systemd libssl-dev
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.124.1
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.128.0@sha256:1ab0baba0ee3695d823c46653d8a6e8894896e668ce8bd7ebe002e948d827bc7
 LABEL source_repository="https://github.com/greenhouse-extensions"
 COPY --from=journal /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
 COPY --from=journal /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2

@@ -6,6 +6,7 @@ on:
     paths:
       - "**/*/values.yaml"
       - "**/*/*/values.yaml"
+      - "**/README.md.gotmpl"
 
 jobs:
   helm-docs-check:

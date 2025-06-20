@@ -85,7 +85,7 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.downloadDashboardsImage.registry | string | `"docker.io"` | The Docker registry |
 | plutono.downloadDashboardsImage.repository | string | `"curlimages/curl"` |  |
 | plutono.downloadDashboardsImage.sha | string | `""` |  |
-| plutono.downloadDashboardsImage.tag | string | `"8.13.0"` |  |
+| plutono.downloadDashboardsImage.tag | string | `"8.14.1"` |  |
 | plutono.enableKubeBackwardCompatibility | bool | `false` | Enable backward compatibility of kubernetes where version below 1.13 doesn't have the enableServiceLinks option |
 | plutono.enableServiceLinks | bool | `true` |  |
 | plutono.env | object | `{}` |  |
@@ -108,9 +108,12 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.gossipPortName | string | `"gossip"` |  |
 | plutono.headlessService | bool | `false` | Create a headless service for the deployment |
 | plutono.hostAliases | list | `[]` | overrides pod.spec.hostAliases in the plutono deployment's pods |
-| plutono.image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":[],"registry":"ghcr.io","repository":"credativ/plutono","sha":"","tag":"v7.5.38"}` | Use an alternate scheduler, e.g. "stork". # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/ # schedulerName: "default-scheduler" |
+| plutono.image.pullPolicy | string | `"IfNotPresent"` |  |
 | plutono.image.pullSecrets | list | `[]` | Optionally specify an array of imagePullSecrets. # Secrets must be manually created in the namespace. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ # Can be templated. # |
-| plutono.image.tag | string | `"v7.5.38"` | Overrides the Plutono image tag whose default is the chart appVersion |
+| plutono.image.registry | string | `"ghcr.io"` |  |
+| plutono.image.repository | string | `"credativ/plutono"` |  |
+| plutono.image.sha | string | `""` |  |
+| plutono.image.tag | string | `"v7.5.39"` | Overrides the Plutono image tag whose default is the chart appVersion |
 | plutono.ingress.annotations | object | `{}` |  |
 | plutono.ingress.enabled | bool | `false` |  |
 | plutono.ingress.extraPaths | list | `[]` | Extra paths to prepend to every host configuration. This is useful when working with annotation based services. |

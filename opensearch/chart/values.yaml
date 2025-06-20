@@ -424,11 +424,11 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "2Gi"
+            cpu: 1
       - component: data
         diskSize: "30Gi"
-        replicas: 1
+        replicas: 3
         roles:
           - "data"
         resources:
@@ -436,8 +436,8 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "4Gi"
+            cpu: 2
       - component: client
         diskSize: "30Gi"
         replicas: 1
@@ -448,16 +448,36 @@ cluster:
             memory: "1Gi"
             cpu: "500m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "2Gi"
+            cpu: 1
+
+    # Configuration for the client service used to expose client nodes externally.
+    client:
+      service:
+        # -- Enable or disable the external client service.
+        enabled: true
+        # -- Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally.
+        type: ClusterIP
+        # -- Annotations to add to the service, e.g. disco.
+        annotations: {}
+        # -- Ports to expose for the client service.
+        ports:
+          - name: http
+            port: 9200
+            targetPort: 9200
+            protocol: TCP
+        # -- List of allowed IP ranges for external access when service type is `LoadBalancer`.
+        loadBalancerSourceRanges: []
+        # -- List of external IPs to expose the service on.
+        externalIPs: []
 
     # Opensearch security configuration
     security:
       config:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
-        adminCredentialsSecret: {}
-         # name: "admin-credentials"
+        adminCredentialsSecret:
+          name: "admin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -465,16 +485,16 @@ cluster:
           name: "opensearch-admin-cert"
 
         # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
-        securityConfigSecret: {}
-  #       name: ""
+        securityConfigSecret:
+          name: "opensearch-security-config"
 
       # Configure tls usage for transport and http interface
       tls:
         http:
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
-          caSecret: {}
-  #            name: "ca-secret-name"
+          caSecret:
+            name: "opensearch-http-cert"
 
           # -- If set to true the operator will generate a CA and certificates for the cluster to use,
           # if false - secrets with existing certificates must be supplied
@@ -483,7 +503,7 @@ cluster:
           # -- Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a
           # different secret provide it via the caSecret field
           secret:
-            name: "opensearch-admin-cert"
+            name: "opensearch-http-cert"
 
         transport:
           # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
@@ -563,7 +583,7 @@ cluster:
 
   # -- List of OpensearchRole. Check values.yaml file for examples.
   roles:
-    - name: "logs-role"
+    - name: "logs-write-role"
       clusterPermissions:
         - "cluster_monitor"
         - "cluster_composite_ops"
@@ -584,45 +604,85 @@ cluster:
             - "indices:data/read*"
             - "indices:monitor*"
             - "indices_all"
+    - name: "logs-read-role"
+      clusterPermissions:
+        - "read"
+        - "cluster:monitor/nodes/stats"
+        - "cluster:admin/opensearch/ql/datasources/read"
+        - "cluster:monitor/task/get"
+        - 'cluster:admin/opendistro/reports/definition/create'
+        - 'cluster:admin/opendistro/reports/definition/update'
+        - 'cluster:admin/opendistro/reports/definition/on_demand'
+        - 'cluster:admin/opendistro/reports/definition/delete'
+        - 'cluster:admin/opendistro/reports/definition/get'
+        - 'cluster:admin/opendistro/reports/definition/list'
+        - 'cluster:admin/opendistro/reports/instance/list'
+        - 'cluster:admin/opendistro/reports/instance/get'
+        - 'cluster:admin/opendistro/reports/menu/download'
+        - 'cluster:admin/opensearch/ppl'
+      indexPermissions:
+        - indexPatterns:
+            - "*"
+          allowedActions:
+            - "search"
+            - "read"
+            - "get"
+            - "indices:monitor/settings/get"
+            - "indices:admin/create"
+            - "indices:admin/mappings/get"
+            - "indices:data/read/search*"
+            - "indices:admin/get"
+    - name: "admin-role"
+      clusterPermissions:
+        - "*"
+      indexPermissions:
+        - indexPatterns:
+            - "*"
+          allowedActions:
+            - "*"
 
-  #  - name: "admin-role"
-  #    clusterPermissions:
-  #      - "*"
-  #    indexPermissions:
-  #      - indexPatterns:
-  #          - "*"
-  #        allowedActions:
-  #          - "*"
-
-  # -- List of OpensearchUser. Check values.yaml file for examples.
+  # -- List of OpenSearch user configurations.
+  # Each user references a secret (defined in usersCredentials) for authentication.
   users:
     - name: "logs"
-      password: ""  # If not set, a random password will be generated
       secretName: "logs-credentials"
       secretKey: "password"
       backendRoles: []
-      opendistroSecurityRoles:
-        - "logs-role"
-  #  - name: "admin"
-  #    password: "admin" # If not set, a random password will be generated
-  #    secretName: "admin-credentials"
-  #    secretKey: "password"
-  #    opendistroSecurityRoles:
-  #      - "admin-role"
+    - name: "logs2"
+      secretName: "logs2-credentials"
+      secretKey: "password"
+      backendRoles: []
+
+  # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch.
+  usersCredentials:
+    admin:
+      username: ""  # Specify the username for the "admin" user. If left empty, defaults to "admin".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+      hash: ""      # Optional bcrypt hash of the password.
+    logs:
+      username: ""  # Specify the username for the "logs" user. If left empty, defaults to "logs".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    logs2:
+      username: ""  # Specify the username for the failover user for "logs". If left empty, defaults to "logs2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
   usersRoleBinding:
-    - name: "logs-access"
+    - name: "logs-write"
       users:
         - "logs"
+        - "logs2"
       roles:
-        - "logs-role"
-  #  - name: "admin-access"
-  #    users:
-  #      - "admin"
-  #    roles:
-  #      - "admin-role"
+        - "logs-write-role"
+    - name: "logs-read"
+      backendRoles: []
+      roles:
+        - "logs-read-role"
+    - name: "admin"
+      backendRoles: []
+      roles:
+        - "admin-role"
 
   # -- List of additional tenants. Check values.yaml file for examples.
   tenants: []
@@ -639,25 +699,18 @@ cluster:
   #    type: index
 
   # -- List of OpensearchComponentTemplate. Check values.yaml file for examples.
-  componentTemplates: []
-  #  - name: example-component-template
-  #    templateSpec: # required
-  #      aliases: # optional
-  #        my_alias: {}
-  #      settings: # optional
-  #        number_of_shards: 2
-  #        number_of_replicas: 1
-  #      mappings: # optional
-  #        properties:
-  #          timestamp:
-  #            type: date
-  #            format: yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis
-  #          value:
-  #            type: double
-  #    version: 1 # optional
-  #    allowAutoCreate: false # optional
-  #    _meta: # optional
-  #      description: example description
+  componentTemplates:
+    - name: logs-attributes-dynamic
+      version: 1
+      allowAutoCreate: true
+      _meta:
+        description: "Enable full dynamic mapping for all attributes.* keys"
+      templateSpec:
+        mappings:
+          properties:
+            attributes:
+              type: object
+              dynamic: true
 
   # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
   indexTemplates: []
@@ -667,6 +720,8 @@ cluster:
     - name: logs-index-template
       indexPatterns:
         - "logs*"
+      composedOf:
+        - logs-attributes-dynamic
       templateSpec:
         settings:
           index:
