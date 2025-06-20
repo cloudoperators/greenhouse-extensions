@@ -1,4 +1,5 @@
 blackboxExporter:
   enabled: true
+  extraVolumeMounts: []
 absentMetricsOperator:
   enabled: true
