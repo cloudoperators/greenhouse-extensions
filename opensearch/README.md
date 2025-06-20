@@ -118,6 +118,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | cluster.cluster.general.keystore | list | `[]` | Populate opensearch keystore before startup |
+| cluster.cluster.general.monitoring.additionalRuleLabels | object | `{}` | PrometheusRule labels |
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
@@ -178,7 +179,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.usersRoleBinding | list | `[{"name":"logs-write","roles":["logs-write-role"],"users":["logs","logs2"]},{"backendRoles":[],"name":"logs-read","roles":["logs-read-role"]},{"backendRoles":[],"name":"admin","roles":["admin-role"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
-| operator.kubeRbacProxy.enable | bool | `true` |  |
+| operator.kubeRbacProxy.enable | bool | `false` |  |
 | operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
 | operator.kubeRbacProxy.image.tag | string | `"v0.19.1"` |  |
 | operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
