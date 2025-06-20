@@ -53,29 +53,33 @@ spec:
       required: true
       type: list
     - name: cluster.usersCredentials.logs.username
-      description: "Primary OpenSearch username for log ingestion."
+      description: "Primary username for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs.password
-      description: "Primary OpenSearch user password for log ingestion."
+      description: "Primary user password for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.username
-      description: "Secondary OpenSearch username for failover log ingestion."
+      description: "Secondary username for log ingestion to support failover authentication."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.password
-      description: "Secondary OpenSearch user password for failover log ingestion."
+      description: "Secondary user password for log ingestion to support failover authentication."
       required: true
       type: secret
     - name: cluster.usersCredentials.admin.password
-      description: "OpenSearch admin password used for initial setup and management"
+      description: "Admin password used for initial setup and management"
       required: true
       type: secret
     - name: cluster.usersCredentials.admin.hash
-      description: "OpenSearch admin password hash (bcrypt format)"
+      description: "Admin password hash (bcrypt format)"
       required: true
       type: secret
+    - name: cluster.usersRoleBinding
+      description: "Define user role bindings."
+      required: false
+      type: list
     - name: cluster.cluster.ingress.opensearch.enabled
       description: "Enables the Opensearch ingress for log ingestion."
       required: false
