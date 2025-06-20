@@ -101,3 +101,7 @@ spec:
       description: "Opensearch ingress tls configuration"
       required: false
       type: list
+    - description: Additional labels for PrometheusRule alerts
+      name: cluster.cluster.general.monitoring.additionalRuleLabels
+      required: false
+      type: map
