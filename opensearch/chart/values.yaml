@@ -666,13 +666,6 @@ cluster:
       username: ""  # Specify the username for the failover user for "logs". If left empty, defaults to "logs2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
-  #  - name: "admin"
-  #    password: "admin" # If not set, a random password will be generated
-  #    secretName: "admin-credentials"
-  #    secretKey: "password"
-  #    opendistroSecurityRoles:
-  #      - "admin-role"
-
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # Check values.yaml file for examples.
   usersRoleBinding:
@@ -683,13 +676,11 @@ cluster:
       roles:
         - "logs-write-role"
     - name: "logs-read"
-      backendRoles:
-        - "CC_IAS_OPERATIONS_UI_KIBANA_SUPPORT"
+      backendRoles: []
       roles:
         - "logs-read-role"
     - name: "admin"
-      backendRoles:
-        - "CC_IAS_TEAM_SUPERVISION"
+      backendRoles: []
       roles:
         - "admin-role"
 
