@@ -114,22 +114,9 @@ release: {{ .Release.Name }}
 {{- end }}
 
 {{/* Generate basic labels */}}
-{{ define "kubeMonitoring.labels" }}
-{{- $path := index . 0 -}}
-{{- $root := index . 1 -}}
-plugindefinition: kube-monitoring
-plugin: {{ $root.Release.Name }}
-{{- if $root.Values.global.commonLabels }}
-{{ tpl (toYaml $root.Values.global.commonLabels) . }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ $root.Release.Service }}
-release: {{ $root.Release.Name | quote }}
-{{- end }}
-
 {{- define "kubeMonitoring.dashboardSelectorLabels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
-plugin: {{ $root.Release.Name }}
 {{- if $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
 {{- range $i, $target := $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
 {{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
@@ -140,7 +127,6 @@ plugin: {{ $root.Release.Name }}
 {{- define "kubeMonitoring.persesDashboardSelectorLabels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
-plugin: {{ $root.Release.Name }}
 {{- if $root.Values.kubeMonitoring.dashboards.persesSelectors }}
 {{- range $i, $target := $root.Values.kubeMonitoring.dashboards.persesSelectors }}
 {{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.persesSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.persesSelectors.[%v].value missing" $i)) $ }}
