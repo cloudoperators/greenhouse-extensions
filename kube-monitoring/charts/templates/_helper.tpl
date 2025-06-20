@@ -115,20 +115,16 @@ release: {{ .Release.Name }}
 
 {{/* Generate basic labels */}}
 {{- define "kubeMonitoring.dashboardSelectorLabels" }}
-{{- $path := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- if $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
-{{- range $i, $target := $root.Values.kubeMonitoring.dashboards.plutonoSelectors }}
+{{- if $.Values.kubeMonitoring.dashboards.plutonoSelectors }}
+{{- range $i, $target := $.Values.kubeMonitoring.dashboards.plutonoSelectors }}
 {{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
 {{- end }}
 {{- end }}
 {{- end }}
 
 {{- define "kubeMonitoring.persesDashboardSelectorLabels" }}
-{{- $path := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- if $root.Values.kubeMonitoring.dashboards.persesSelectors }}
-{{- range $i, $target := $root.Values.kubeMonitoring.dashboards.persesSelectors }}
+{{- if $.Values.kubeMonitoring.dashboards.persesSelectors }}
+{{- range $i, $target := $.Values.kubeMonitoring.dashboards.persesSelectors }}
 {{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.persesSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.persesSelectors.[%v].value missing" $i)) $ }}
 {{- end }}
 {{- end }}

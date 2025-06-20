@@ -7,8 +7,8 @@ kind: ConfigMap
 metadata:
   name: {{ printf "%s-%s" $root.Release.Name $path | trunc 63 | replace "/" "-" | replace "." "-" | trimPrefix "-" }}
   labels:
-{{ include "kubeMonitoring.dashboardSelectorLabels" (list $path $root) | indent 4 }}
-{{ include "kube-prometheus-stack.labels" (list $path $root) | indent 4 }}
+{{ include "kubeMonitoring.dashboardSelectorLabels" $root | indent 4 }}
+{{ include "kube-prometheus-stack.labels" $root | indent 4 }}
 data:
 {{ printf "%s: |-" $path | replace "/" "-" | indent 2 }}
 {{ printf "%s" $bytes | indent 4 }}
