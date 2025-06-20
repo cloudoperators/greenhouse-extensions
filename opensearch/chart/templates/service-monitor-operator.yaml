@@ -13,11 +13,11 @@ spec:
     matchLabels:
       control-plane: controller-manager
   endpoints:
-  - port: {{ if .Values.operator.kubeRbacProxy.enable }}https{{ else }}http{{ end }}
+  {{- if .Values.operator.kubeRbacProxy.enable }}
+  - port: https
     path: /metrics
-    scheme: {{ if .Values.operator.kubeRbacProxy.enable }}https{{ else }}http{{ end }}
+    scheme: https
     interval: {{ .Values.cluster.cluster.general.monitoring.scrapeInterval | default "30s" }}
-    {{- if .Values.operator.kubeRbacProxy.enable }}
     bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
     tlsConfig:
       {{- if .Values.cluster.cluster.general.monitoring.tlsConfig }}
@@ -25,7 +25,12 @@ spec:
       {{- else }}
       insecureSkipVerify: true
       {{- end }}
-    {{- end }}
+  {{- else }}
+  - port: http
+    path: /metrics
+    scheme: http
+    interval: {{ .Values.cluster.cluster.general.monitoring.scrapeInterval | default "30s" }}
+  {{- end }}
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
