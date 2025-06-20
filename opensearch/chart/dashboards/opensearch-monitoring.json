@@ -2,12 +2,13 @@
     "kind": "Dashboard",
     "metadata": {
       "name": "opensearch-monitoring",
-      "project": "default"
+      "project": "default",
+      "version": 1
     },
     "spec": {
       "display": {
         "name": "OpenSearch Monitoring",
-        "description": "Comprehensive monitoring dashboard for OpenSearch cluster and operator"
+        "description": "Monitor OpenSearch cluster health, resource usage, and operator status with key metrics and visualizations."
       },
       "datasource": {
         "default": {
@@ -29,8 +30,11 @@
                   "unit": "decimal"
                 },
                 "thresholds": {
-                  "defaultColor": "#299c46",
                   "steps": [
+                    {
+                      "value": 0,
+                      "color": "#299c46"
+                    },
                     {
                       "value": 1,
                       "color": "#ff9830"
@@ -617,6 +621,31 @@
                 }
               }
             ]
+          }
+        }
+      ],
+      "variables": [
+        {
+          "kind": "ListVariable",
+          "name": "cluster",
+          "spec": {
+            "display": {
+              "name": "Cluster",
+              "hidden": false
+            },
+            "defaultValue": "opensearch-cluster",
+            "allowAllValue": false,
+            "allowMultiple": false,
+            "sort": "alphabetical-asc",
+            "plugin": {
+              "kind": "PrometheusLabelValuesVariable",
+              "spec": {
+                "labelName": "cluster",
+                "matchers": [
+                  "opensearch_cluster_status"
+                ]
+              }
+            }
           }
         }
       ],
