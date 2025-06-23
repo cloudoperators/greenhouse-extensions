@@ -11,7 +11,7 @@ spec:
     description: Observability framework for instrumenting, generating, collecting, and exporting logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
     helmChart:
-        name: logs-operator
+        name: opentelemetry-operator
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
         version: 0.10.0
     options:
@@ -92,7 +92,7 @@ spec:
           type: map
         - default: true
           description: Activate to use the CertManager for generating self-signed certificates
-          name: logs-operator.admissionWebhooks.certManager.enabled
+          name: opentelemetry-operator.admissionWebhooks.certManager.enabled
           type: bool
         - description: Additional labels for PrometheusRule alerts
           name: openTelemetry.prometheus.rules.additionalRuleLabels
@@ -100,7 +100,7 @@ spec:
           type: map
         - default: false
           description: Activate to use Helm to create self-signed certificates
-          name: logs-operator.admissionWebhooks.autoGenerateCert.enabled
+          name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
           required: false
           type: bool
         - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib

@@ -5,7 +5,7 @@
 commonLabels: {}
 
 # opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
-logs-operator:
+opentelemetry-operator:
   # -- Provide a name in place of the default name `opentelemetry-operator`.
   nameOverride: "operator"
 
