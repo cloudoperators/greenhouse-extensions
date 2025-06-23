@@ -2,6 +2,8 @@ name: "Helm lint and tests"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [synchronize]
   push:
     branches:
       - main
