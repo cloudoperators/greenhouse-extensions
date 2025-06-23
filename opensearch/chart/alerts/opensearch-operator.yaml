@@ -10,9 +10,7 @@ groups:
           severity: info # critical
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "OpenSearch operator is down"
           description: "OpenSearch operator in namespace {{`{{ $labels.namespace }}`}} has been down for more than 10 minutes"
@@ -24,9 +22,7 @@ groups:
           severity: info # warning
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorRestarts.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "OpenSearch operator restarting frequently"
           description: "OpenSearch operator pod {{`{{ $labels.pod }}`}} has restarted {{`{{ $value }}`}} times in the last hour"
@@ -38,9 +34,7 @@ groups:
           severity: info # warning
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorReconcileErrors.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "OpenSearch operator reconcile errors"
           description: "OpenSearch operator controller {{`{{ $labels.controller }}`}} has {{`{{ $value }}`}} reconcile errors in the last 10 minutes"
@@ -52,9 +46,7 @@ groups:
           severity: info # warning
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighReconcileTime.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "High operator reconcile time"
           description: "OpenSearch operator 95th percentile reconcile time is above 60s ({{`{{ $value }}`}}s)"
@@ -66,9 +58,7 @@ groups:
           severity: info # warning
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighMemoryUsage.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "High operator memory usage"
           description: "OpenSearch operator memory usage is above 95% ({{`{{ $value }}`}}%)"
@@ -80,9 +70,7 @@ groups:
           severity: info # warning
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighCPUUsage.md
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
-{{ toYaml . | nindent 10 }}
-{{- end }}
+          {{ tpl .Values.cluster.cluster.general.monitoring.additionalRuleLabels $ | nindent 10 }}
         annotations:
           summary: "High operator CPU usage"
           description: "OpenSearch operator CPU usage is above 95% ({{`{{ $value }}`}}%)"
