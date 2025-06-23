@@ -8,6 +8,7 @@ Generic plugin name
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
 plugindefinition: logs
+plugin: {{ $.Release.Name }}
 {{- if .Values.commonLabels }}
 {{ tpl (toYaml .Values.commonLabels) . }}
 {{- end }}
