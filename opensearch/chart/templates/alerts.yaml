@@ -11,9 +11,6 @@ metadata:
     {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
     {{- end }}
 spec:
-{{- with $root -}}
-{{- $content := printf "%s" $bytes }}
-{{ tpl $content . | indent 2 }}
-{{- end }}
+{{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
