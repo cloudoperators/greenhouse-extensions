@@ -256,6 +256,9 @@ cluster:
         # -- ServiceMonitor labels
         labels: {}
 
+        # -- PrometheusRule labels
+        additionalRuleLabels: {}
+
       # -- List of Opensearch plugins to install
       pluginsList: []
 
