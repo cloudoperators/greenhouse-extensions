@@ -8,7 +8,6 @@ groups:
         for: 5m
         labels:
           severity: info # critical
-          component: opensearch-cluster
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -20,7 +19,6 @@ groups:
         for: 20m
         labels:
           severity: info # warning
-          component: opensearch-cluster
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -32,7 +30,6 @@ groups:
         for: 10m
         labels:
           severity: info # critical
-          component: opensearch-node
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchNodeDown.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -40,11 +37,10 @@ groups:
           description: "OpenSearch node {{`{{ $labels.instance }}`}} has been down for more than 10 minutes"
 
       - alert: OpenSearchHighMemoryUsage
-        expr: (opensearch_jvm_memory_used_bytes{area="heap"} / opensearch_jvm_memory_max_bytes{area="heap"}) * 100 > 95
+        expr: (opensearch_jvm_mem_heap_used_bytes / opensearch_jvm_mem_heap_max_bytes) * 100 > 95
         for: 15m
         labels:
           severity: info # warning
-          component: opensearch-node
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighMemoryUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -52,11 +48,11 @@ groups:
           description: "OpenSearch node {{`{{ $labels.instance }}`}} heap memory usage is above 95% ({{`{{ $value }}`}}%)"
 
       - alert: OpenSearchHighCPUUsage
-        expr: rate(opensearch_process_cpu_seconds_total[5m]) * 100 > 95
+        # Improved: Use opensearch_process_cpu_percent for direct CPU usage percentage
+        expr: opensearch_process_cpu_percent > 95
         for: 20m
         labels:
           severity: info # warning
-          component: opensearch-node
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighCPUUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -64,11 +60,10 @@ groups:
           description: "OpenSearch node {{`{{ $labels.instance }}`}} CPU usage is above 95% ({{`{{ $value }}`}}%)"
 
       - alert: OpenSearchHighDiskUsage
-        expr: (opensearch_filesystem_data_size_bytes - opensearch_filesystem_data_free_bytes) / opensearch_filesystem_data_size_bytes * 100 > 90
+        expr: 100 * (1 - (opensearch_fs_total_free_bytes / opensearch_fs_total_total_bytes)) > 90
         for: 10m
         labels:
           severity: info # warning
-          component: opensearch-storage
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
