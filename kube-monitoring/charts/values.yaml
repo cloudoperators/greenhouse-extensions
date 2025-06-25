@@ -13,7 +13,6 @@ kubeMonitoring:
       PrometheusRemoteStorageFailures: true
       PrometheusRemoteWriteBehind: true
       PrometheusRemoteWriteDesiredShards: true
-      PrometheusSDRefreshFailure: true
     create: true
     rules:
       alertmanager: false
