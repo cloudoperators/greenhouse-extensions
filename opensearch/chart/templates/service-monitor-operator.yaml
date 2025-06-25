@@ -25,11 +25,23 @@ spec:
       {{- else }}
       insecureSkipVerify: true
       {{- end }}
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: "(.*)"
+        targetLabel: __name__
+        replacement: "opensearch_operator_$1"
+        action: replace
   {{- else }}
   - port: http
     path: /metrics
     scheme: http
     interval: {{ .Values.cluster.cluster.general.monitoring.scrapeInterval | default "30s" }}
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: "(.*)"
+        targetLabel: __name__
+        replacement: "opensearch_operator_$1"
+        action: replace
   {{- end }}
   namespaceSelector:
     matchNames:
