@@ -9,6 +9,10 @@ kubeMonitoring:
   # Create open source community rules for monitoring the cluster
   # @ignored
   defaultRules:
+    disabled:
+      PrometheusRemoteStorageFailures: true
+      PrometheusRemoteWriteBehind: true
+      PrometheusRemoteWriteDesiredShards: true
     create: true
     rules:
       alertmanager: false
