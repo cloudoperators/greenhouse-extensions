@@ -511,7 +511,9 @@ blackboxExporter:
   # @section -- Blackbox exporter config
   enabled: false
 
+  # @ignored
   secretConfig: true
+  # @ignored
   config:
     modules:
       grpc-prober:
