@@ -179,7 +179,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.usersRoleBinding | list | `[{"name":"logs-write","roles":["logs-write-role"],"users":["logs","logs2"]},{"backendRoles":[],"name":"logs-read","roles":["logs-read-role"]},{"backendRoles":[],"name":"admin","roles":["admin-role"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
-| operator.kubeRbacProxy.enable | bool | `false` |  |
+| operator.kubeRbacProxy.enable | bool | `true` |  |
 | operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
 | operator.kubeRbacProxy.image.tag | string | `"v0.19.1"` |  |
 | operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
