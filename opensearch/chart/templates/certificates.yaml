@@ -79,7 +79,7 @@ metadata:
 spec:
   duration: {{ .Values.certManager.defaults.durations.leaf }}
   issuerRef:
-{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
+{{ toYaml .Values.certManager.issuer.digicert | indent 4 }}
   privateKey:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-http-cert-external
