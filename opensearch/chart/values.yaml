@@ -125,7 +125,7 @@ operator:
     name: "opensearch-operator-controller-manager"
 
   kubeRbacProxy:
-    enable: false
+    enable: true
     securityContext:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
