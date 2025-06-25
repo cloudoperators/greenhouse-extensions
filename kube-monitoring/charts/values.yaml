@@ -213,7 +213,6 @@ kubeMonitoring:
             targetLabel: node
             replacement: $1
             action: replace
-    podLabels: ""
 
     extraArgs:
       - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
