@@ -584,7 +584,8 @@ cluster:
         #      - example.com
         #    secretName: tls-secret
 
-  # -- List of OpensearchRole. Check values.yaml file for examples.
+  # -- List of OpensearchRole. See values.yaml file for a full example.
+  # @default -- []
   roles:
     - name: "logs-write-role"
       clusterPermissions:
@@ -664,7 +665,7 @@ cluster:
             - "indices:admin/get"
 
   # -- List of OpenSearch user configurations.
-  # Each user references a secret (defined in usersCredentials) for authentication.
+  # Each user references a secret (defined in usersCredentials) for authentication. See values.yaml file for a full example.
   # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
     - name: "logs"
@@ -684,7 +685,8 @@ cluster:
       secretKey: "password"
       backendRoles: []
 
-  # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch.
+  # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
+  # @default -- <pre>usersCredentials:<br>  admin:<br>    username: ""<br>    password: ""<br>    hash: ""</pre>
   usersCredentials:
     admin:
       username: ""  # Specify the username for the "admin" user. If left empty, defaults to "admin".
@@ -704,7 +706,8 @@ cluster:
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
-  # Check values.yaml file for examples.
+  # See values.yaml file for a full example.
+  # @default -- <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"</pre>
   usersRoleBinding:
     - name: "logs-write"
       users:
