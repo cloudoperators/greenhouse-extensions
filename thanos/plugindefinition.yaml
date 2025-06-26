@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.30
+    version: 0.5.31
     description: thanos
     helmChart:
         name: thanos
@@ -99,6 +99,17 @@ spec:
             perses.dev/resource: "true"
           description: Label selectors for the Perses sidecar to detect this datasource
           name: thanos.query.persesDatasource.selector
+          required: false
+          type: map
+        - name: thanos.query.plutonoDatasource.create
+          description: Expose Thanos Query as a Plutono datasource
+          required: false
+          type: bool
+          default: true
+        - name: thanos.query.plutonoDatasource.selector
+          default:
+            plutono-datasource: "true"
+          description: Label selectors for Putono sidera to detect this datasource
           required: false
           type: map
         - default: true
