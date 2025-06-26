@@ -126,7 +126,6 @@ spec:
     {{- include "failover.attributes" . | nindent 6 -}}
 {{- end }}
 
-
       transform/journal:
         error_mode: ignore
         log_statements:
@@ -252,8 +251,7 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
-
-     resource:
+      resource:
         attributes:
         - action: insert
           key: k8s.cluster.name
@@ -286,8 +284,6 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.extension" . | nindent 6 -}}
 {{- end }}
-
-
     connectors:
       forward: {}
       failover:
@@ -324,7 +320,6 @@ spec:
           k8s_cluster_name: ${cluster}
           k8s_node_name: ${KUBE_NODE_NAME}
           region: ${region}
-
 {{- end }}
       pipelines:
         logs/forward:
