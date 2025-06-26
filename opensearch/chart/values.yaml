@@ -665,6 +665,8 @@ cluster:
 
   # -- List of OpenSearch user configurations.
   # Each user references a secret (defined in usersCredentials) for authentication.
+    # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
+
   users:
     - name: "logs"
       secretName: "logs-credentials"
