@@ -17,6 +17,8 @@ stringData:
       config_version: 2
     config:
       dynamic:
+        kibana:
+          server_username: {{ .Values.cluster.usersCredentials.dashboards.username }}
         http:
           anonymous_auth_enabled: false
         authc:

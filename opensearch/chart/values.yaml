@@ -354,8 +354,8 @@ cluster:
 
       # -- Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied
       # if a custom securityconfig is provided
-      opensearchCredentialsSecret: {}
-        # name: "secret-name"
+      opensearchCredentialsSecret:
+        name: "dashboards-credentials"
 
       # -- List of dashboards plugins to install
       pluginsList: []
@@ -643,6 +643,25 @@ cluster:
             - "*"
           allowedActions:
             - "*"
+    - name: "dashboards-role"
+      clusterPermissions:
+        - "cluster_monitor"
+        - "cluster_composite_ops"
+        - "indices:admin/template*"
+        - "indices:data/read/scroll*"
+      indexPermissions:
+        - indexPatterns:
+            - ".kibana*"
+            - ".opensearch_dashboards*"
+            - ".tasks"
+            - ".management-beats*"
+          allowedActions:
+            - "indices_all"
+        - indexPatterns:
+            - "*"
+          allowedActions:
+            - "indices:admin/aliases*"
+            - "indices:admin/get"
 
   # -- List of OpenSearch user configurations.
   # Each user references a secret (defined in usersCredentials) for authentication.
@@ -653,6 +672,14 @@ cluster:
       backendRoles: []
     - name: "logs2"
       secretName: "logs2-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "dashboards"
+      secretName: "dashboards-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "dashboards2"
+      secretName: "dashboards2-credentials"
       secretKey: "password"
       backendRoles: []
 
@@ -667,6 +694,12 @@ cluster:
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
     logs2:
       username: ""  # Specify the username for the failover user for "logs". If left empty, defaults to "logs2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    dashboards:
+      username: ""  # Specify the username for the "dashboards" user. If left empty, defaults to "dashboards".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    dashboards2:
+      username: ""  # Specify the username for the failover user for "dashboards". If left empty, defaults to "dashboards2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
@@ -686,6 +719,12 @@ cluster:
       backendRoles: []
       roles:
         - "admin-role"
+    - name: "dashboards"
+      users:
+        - "dashboards"
+        - "dashboards2"
+      roles:
+        - "dashboards-role"
 
   # -- List of additional tenants. Check values.yaml file for examples.
   tenants: []
