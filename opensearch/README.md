@@ -174,24 +174,9 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
+| cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. Each user references a secret (defined in usersCredentials) for authentication. |
 | cluster.usersCredentials | object | `{"admin":{"hash":"","password":"","username":""},"dashboards":{"password":"","username":""},"dashboards2":{"password":"","username":""},"logs":{"password":"","username":""},"logs2":{"password":"","username":""}}` | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. |
 | cluster.usersRoleBinding | list | `[{"name":"logs-write","roles":["logs-write-role"],"users":["logs","logs2"]},{"backendRoles":[],"name":"logs-read","roles":["logs-read-role"]},{"backendRoles":[],"name":"admin","roles":["admin-role"]},{"name":"dashboards","roles":["dashboards-role"],"users":["dashboards","dashboards2"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
-| cluster.users[0].backendRoles | list | `[]` |  |
-| cluster.users[0].name | string | `"logs"` |  |
-| cluster.users[0].secretKey | string | `"password"` |  |
-| cluster.users[0].secretName | string | `"logs-credentials"` |  |
-| cluster.users[1].backendRoles | list | `[]` |  |
-| cluster.users[1].name | string | `"logs2"` |  |
-| cluster.users[1].secretKey | string | `"password"` |  |
-| cluster.users[1].secretName | string | `"logs2-credentials"` |  |
-| cluster.users[2].backendRoles | list | `[]` |  |
-| cluster.users[2].name | string | `"dashboards"` |  |
-| cluster.users[2].secretKey | string | `"password"` |  |
-| cluster.users[2].secretName | string | `"dashboards-credentials"` |  |
-| cluster.users[3].backendRoles | list | `[]` |  |
-| cluster.users[3].name | string | `"dashboards2"` |  |
-| cluster.users[3].secretKey | string | `"password"` |  |
-| cluster.users[3].secretName | string | `"dashboards2-credentials"` |  |
 | operator.fullnameOverride | string | `"opensearch-operator"` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
