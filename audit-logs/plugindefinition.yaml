@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.0.1
+    version: 0.0.2
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.1
+        version: 0.0.2
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -62,6 +62,18 @@ spec:
           description: auditLogs.prometheus.serviceMonitor.enabled
           required: false
           type: bool
+        - name: auditLogs.prometheus.rules.create
+          description: auditLogs.prometheus.rules.create
+          required: false
+          type: bool
+        - name: auditLogs.prometheus.additionalLabels
+          description: Label selector for Prometheus resources to be picked-up by the operator
+          required: false
+          type: map
+        - name: auditLogs.prometheus.rules.additionalRuleLabels
+          description: Additional labels for PrometheusRule alerts
+          required: false
+          type: map
         - name: auditLogs.collectorImage.repository
           default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
           description: Collector image repository

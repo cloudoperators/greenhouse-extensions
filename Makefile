@@ -2,6 +2,7 @@
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 # Detect ARCH (AMD64 or ARM64)
+UNAME_M := $(shell uname -m)
 UNAME_P := $(shell uname -p)
 ARCH :=
 ifeq ($(UNAME_P),x86_64)
@@ -13,10 +14,10 @@ endif
 
 ## tools versions
 KUSTOMIZE_VERSION ?= 5.6.0
-YQ_VERSION ?= v4.45.1
+YQ_VERSION ?= v4.45.4
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.73.5
-HELM_VERSION ?= 3.17.3
+PINT_VERSION ?= 0.74.2
+HELM_VERSION ?= 3.18.3
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
@@ -30,7 +31,7 @@ HELM-DOCS ?= $(LOCALBIN)/helm-docs
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
-HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(ARCH).tar.gz
+HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(UNAME_M).tar.gz
 PINT_REPO ?= https://github.com/cloudflare/pint/releases/download/v$(PINT_VERSION)/pint-$(PINT_VERSION)-$(OS)-$(ARCH).tar.gz
 HELM_URL ?= https://get.helm.sh/helm-v$(HELM_VERSION)-$(OS)-$(ARCH).tar.gz
 

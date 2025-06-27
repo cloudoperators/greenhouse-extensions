@@ -85,7 +85,7 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.downloadDashboardsImage.registry | string | `"docker.io"` | The Docker registry |
 | plutono.downloadDashboardsImage.repository | string | `"curlimages/curl"` |  |
 | plutono.downloadDashboardsImage.sha | string | `""` |  |
-| plutono.downloadDashboardsImage.tag | string | `"8.13.0"` |  |
+| plutono.downloadDashboardsImage.tag | string | `"8.14.1"` |  |
 | plutono.enableKubeBackwardCompatibility | bool | `false` | Enable backward compatibility of kubernetes where version below 1.13 doesn't have the enableServiceLinks option |
 | plutono.enableServiceLinks | bool | `true` |  |
 | plutono.env | object | `{}` |  |
@@ -108,9 +108,12 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.gossipPortName | string | `"gossip"` |  |
 | plutono.headlessService | bool | `false` | Create a headless service for the deployment |
 | plutono.hostAliases | list | `[]` | overrides pod.spec.hostAliases in the plutono deployment's pods |
-| plutono.image | object | `{"pullPolicy":"IfNotPresent","pullSecrets":[],"registry":"ghcr.io","repository":"credativ/plutono","sha":"","tag":"v7.5.37"}` | Use an alternate scheduler, e.g. "stork". # ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/ # schedulerName: "default-scheduler" |
+| plutono.image.pullPolicy | string | `"IfNotPresent"` |  |
 | plutono.image.pullSecrets | list | `[]` | Optionally specify an array of imagePullSecrets. # Secrets must be manually created in the namespace. # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ # Can be templated. # |
-| plutono.image.tag | string | `"v7.5.37"` | Overrides the Plutono image tag whose default is the chart appVersion |
+| plutono.image.registry | string | `"ghcr.io"` |  |
+| plutono.image.repository | string | `"credativ/plutono"` |  |
+| plutono.image.sha | string | `""` |  |
+| plutono.image.tag | string | `"v7.5.39"` | Overrides the Plutono image tag whose default is the chart appVersion |
 | plutono.ingress.annotations | object | `{}` |  |
 | plutono.ingress.enabled | bool | `false` |  |
 | plutono.ingress.extraPaths | list | `[]` | Extra paths to prepend to every host configuration. This is useful when working with annotation based services. |
@@ -177,7 +180,7 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.serviceMonitor.scrapeTimeout | string | `"30s"` |  |
 | plutono.serviceMonitor.targetLabels | list | `[]` |  |
 | plutono.serviceMonitor.tlsConfig | object | `{}` |  |
-| plutono.sidecar | object | `{"alerts":{"enabled":false,"env":{},"extraMounts":[],"initAlerts":false,"label":"plutono_alert","labelValue":"","reloadURL":"http://localhost:3000/api/admin/provisioning/alerting/reload","resource":"both","script":null,"searchNamespace":null,"sizeLimit":{},"skipReload":false,"watchMethod":"WATCH"},"dashboards":{"SCProvider":true,"defaultFolderName":null,"enabled":true,"env":{},"envValueFrom":{},"extraMounts":[],"folder":"/tmp/dashboards","folderAnnotation":null,"label":"plutono-dashboard","labelValue":"true","provider":{"allowUiUpdates":false,"disableDelete":false,"folder":"","folderUid":"","foldersFromFilesStructure":false,"name":"sidecarProvider","orgid":1,"type":"file"},"reloadURL":"http://localhost:3000/api/admin/provisioning/dashboards/reload","resource":"both","script":null,"searchNamespace":"ALL","sizeLimit":{},"skipReload":false,"watchMethod":"WATCH"},"datasources":{"enabled":true,"env":{},"envValueFrom":{},"initDatasources":false,"label":"plutono-datasource","labelValue":"true","reloadURL":"http://localhost:3000/api/admin/provisioning/datasources/reload","resource":"both","script":null,"searchNamespace":"ALL","sizeLimit":{},"skipReload":false,"watchMethod":"WATCH"},"enableUniqueFilenames":false,"image":{"registry":"quay.io","repository":"kiwigrid/k8s-sidecar","sha":"","tag":"1.30.3"},"imagePullPolicy":"IfNotPresent","livenessProbe":{},"notifiers":{"enabled":false,"env":{},"initNotifiers":false,"label":"plutono_notifier","labelValue":"","reloadURL":"http://localhost:3000/api/admin/provisioning/notifications/reload","resource":"both","script":null,"searchNamespace":null,"sizeLimit":{},"skipReload":false,"watchMethod":"WATCH"},"readinessProbe":{},"resources":{},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"seccompProfile":{"type":"RuntimeDefault"}}}` | Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders Requires at least Plutono 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards |
+| plutono.sidecar | object | {} | Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders Requires at least Plutono 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards |
 | plutono.sidecar.alerts.env | object | `{}` | Additional environment variables for the alerts sidecar |
 | plutono.sidecar.alerts.label | string | `"plutono_alert"` | label that the configmaps with alert are marked with |
 | plutono.sidecar.alerts.labelValue | string | `""` | value of label that the configmaps with alert are set to |

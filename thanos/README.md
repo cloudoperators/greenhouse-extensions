@@ -303,10 +303,40 @@ spec:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
 
+### Creating Datasources for Perses
+
+When deploying Thanos, a Perses datasource is automatically created by default, allowing Perses to fetch data for its visualizations and making it the global default datasource for the selected Perses instance.
+
+The Perses datasource is created as a configmap, which allows Perses to connect to the Thanos Query API and retrieve metrics. This integration is essential for enabling dashboards and visualizations in Perses.
+
+**Example configuration:**
+
+```yaml
+spec:
+  optionsValues:
+    - name: thanos.query.persesDatasource.create
+      value: true
+    - name: thanos.query.persesDatasource.selector
+      value: perses.dev/resource: "true"
+```
+
+You can further customize the datasource resource using the `selector` field if you want to target specific Perses instances.
+
+**Note:** 
+- The Perses datasource is always created as the global default for Perses.
+- The datasource configmap is required for Perses to fetch data for its visualizations.
+
+For more details, see the `thanos.query.persesDatasource` options in the [Values](#values) table below.
+
+### Blackbox-exporter Integration
+
+If Blackbox-exporter is enabled and store endpoints are provided, this Thanos deployment will automatically create a ServiceMonitor to probe the specified Thanos GRPC endpoints. Additionally, a PrometheusRule is created to alert in case of failing probes. This allows you to monitor the availability and responsiveness of your Thanos Store components using Blackbox probes and receive alerts if any endpoints become unreachable.
+
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| blackboxExporter.enabled | bool | `false` | Enable creation of Blackbox exporter resources for probing Thanos stores. It will create ServiceMonitor and PrometheusRule CR to probe store endpoints provided to the helm release (thanos.query.stores) <br> Make sure Blackbox exporter is enabled in kube-monitoring plugin and that it uses same TLS secret as the Thanos instance. |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |
@@ -347,7 +377,7 @@ spec:
 | thanos.query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
-| thanos.query.persesDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |

@@ -9,6 +9,10 @@ kubeMonitoring:
   # Create open source community rules for monitoring the cluster
   # @ignored
   defaultRules:
+    disabled:
+      PrometheusRemoteStorageFailures: true
+      PrometheusRemoteWriteBehind: true
+      PrometheusRemoteWriteDesiredShards: true
     create: true
     rules:
       alertmanager: false
@@ -100,6 +104,12 @@ kubeMonitoring:
     # @ignored
     plutonoSelectors:
       - name: plutono-dashboard
+        value: '"true"'
+
+    # Label selectors for the Perses dashboards to be picked up by Perses.
+    # @ignored
+    persesSelectors:
+      - name: perses.dev/resource
         value: '"true"'
 
   prometheusOperator:
@@ -478,15 +488,56 @@ alerts:
       # -- TLS key for communication with Alertmanager
       # @section -- Alertmanager options
       key: ""
+
+absentMetricsOperator:
+  # -- Enable [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator)
+  # @section -- absent-metrics-operator options
+  enabled: false
+  # @ignored
+  image:
+    registry: ghcr.io
+    repository: sapcc/absent-metrics-operator
+    tag: "20250515130640"
+  # @ignored
+  imagePullPolicy: IfNotPresent
+
 # @ignored
 testFramework:
   enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
-    tag: main
+    tag: v0.0.1
   imagePullPolicy: IfNotPresent
 
-# @ignored
 blackboxExporter:
+  # -- To enable Blackbox Exporter (supported probers: grpc-prober)
+  # @section -- Blackbox exporter config
   enabled: false
+
+  # @ignored
+  secretConfig: true
+  # @ignored
+  config:
+    modules:
+      grpc-prober:
+        prober: grpc
+        grpc:
+          tls: true
+          tls_config:
+            ca_file: /etc/blackbox/tls/ca.crt
+            cert_file: /etc/blackbox/tls/tls.crt
+            key_file: /etc/blackbox/tls/tls.key
+
+  # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter.
+  # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>
+  # @section -- Blackbox exporter config
+  extraVolumes: []
+    # - name: blackbox-exporter-tls
+    #   secret:
+    #     defaultMode: 420
+    #     secretName: <secretName>
+  # @ignored
+  extraVolumeMounts:
+    - name: blackbox-exporter-tls
+      mountPath: /etc/blackbox/tls

@@ -1,0 +1,3 @@
+dependencies:
+  - kube-monitoring
+  - cert-manager

@@ -1,0 +1,44 @@
+{{- if .Values.blackboxExporter.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
+  name: {{ include "release.name" . }}-blackbox-exporter-probes
+spec:
+  endpoints:
+{{- if (empty .Values.thanos.query.stores) }}
+{{- fail "WARNING Blackbox exporter requires store endpoints to probe. Specify thanos.query.stores or disable blackbox-exporter" -}}
+{{- end }}
+{{- range .Values.thanos.query.stores }}
+  - honorTimestamps: true
+    interval: 60s
+    scrapeTimeout: 60s
+    metricRelabelings:
+    - action: replace
+      replacement: {{ . }}
+      sourceLabels:
+      - instance
+      targetLabel: instance
+    - action: replace
+      replacement: {{ replace . ".cloud.sap:443" "" }}
+      sourceLabels:
+      - target
+      targetLabel: target
+    params:
+      module:
+      - grpc-prober
+      target:
+      - "{{ . }}"
+    path: /probe
+    port: http
+    scheme: http
+{{- end }}
+  jobLabel: {{ include "release.name" . }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 6 }}
+      app.kubernetes.io/name: blackboxExporter
+{{- end }}

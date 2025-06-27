@@ -35,9 +35,10 @@ This guide provides a quick and straightforward way how to use Perses as a Green
 **Prerequisites**
 
 - A running and Greenhouse-managed Kubernetes remote cluster
-- `kube-monitoring` Plugin should be installed with `.spec.kubeMonitoring.prometheus.persesDatasource: true` and it should have at least one Prometheus instance running in the cluster
+- `kube-monitoring` Plugin will integrate into Perses automatically with its own datasource 
+- `thanos` Plugin can be enabled alongside `kube-monitoring`. Perses then will have both datasources (`thanos`, `kube-monitoring`) and will default to `thanos` to provide access to long term metrics 
 
-The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and the kube-monitoring datasource will be automatically discovered by the plugin.
+The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and datasources will be automatically discovered by the plugin.
 
 **Step 1: Add your dashboards and datasources**
 
@@ -50,14 +51,16 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
-| greenhouse | object | `{"defaultDashboards":{"enabled":true}}` | By setting this to true, You will get some default dashboards |
+| greenhouse.alertLabels | object | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
+| greenhouse.defaultDashboards.enabled | bool | `true` | By setting this to true, You will get Perses Self-monitoring dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config.annotations | object | `{}` | Annotations for config |
 | perses.config.api_prefix | string | `"/perses"` |  |
 | perses.config.database | object | `{"file":{"extension":"json","folder":"/perses"}}` | Database config based on data base type |
 | perses.config.database.file | object | `{"extension":"json","folder":"/perses"}` | file system configs |
-| perses.config.frontend | object | `{"important_dashboards":[]}` | Important dashboards list |
+| perses.config.frontend.important_dashboards | list | `[]` |  |
+| perses.config.frontend.information | string | `"# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"` | Information contains markdown content to be displayed on the Perses home page. |
 | perses.config.provisioning | object | `{"folders":["/etc/perses/provisioning"]}` | provisioning config |
 | perses.config.schemas | object | `{"datasources_path":"/etc/perses/cue/schemas/datasources","interval":"5m","panels_path":"/etc/perses/cue/schemas/panels","queries_path":"/etc/perses/cue/schemas/queries","variables_path":"/etc/perses/cue/schemas/variables"}` | Schemas paths |
 | perses.config.security.cookie | object | `{"same_site":"lax","secure":false}` | cookie config |
@@ -99,7 +102,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | perses.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | perses.serviceMonitor.interval | string | `"30s"` | Interval for the serviceMonitor |
-| perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' defined in your Prometheus CR. |
+| perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR. |
 | perses.serviceMonitor.selector.matchLabels | object | `{}` | Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service. |
 | perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
 | perses.sidecar | object | `{"allNamespaces":true,"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |

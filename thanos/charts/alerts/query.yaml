@@ -73,9 +73,9 @@ groups:
       summary: Thanos Query is having high number of DNS failures.
     expr: |
       (
-        sum by (job) (rate(thanos_query_store_apis_dns_failures_total{job=~".*query.*"}[5m]))
+        sum by (job) (rate(thanos_query_endpoints_dns_failures_total{job=~".*query.*"}[5m]))
       /
-        sum by (job) (rate(thanos_query_store_apis_dns_lookups_total{job=~".*query.*"}[5m]))
+        sum by (job) (rate(thanos_query_endpoints_dns_lookups_total{job=~".*query.*"}[5m]))
       ) * 100 > 1
     for: 15m
     labels:
@@ -131,8 +131,6 @@ groups:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryoverload
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
-- name: thanos-component-absent
-  rules:
   - alert: ThanosQueryIsDown
     annotations:
       description: ThanosQuery has disappeared. Prometheus target for the component

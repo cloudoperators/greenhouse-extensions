@@ -58,3 +58,9 @@ Create the name of the service account to use
 {{- default "default" .Values.cluster.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "opensearch-alert-labels" -}}
+{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }} 
+{{ . | toYaml }}
+{{- end -}}
+{{- end -}}

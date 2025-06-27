@@ -1,0 +1,49 @@
+{{- if .Values.cluster.cluster.general.monitoring.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.cluster.cluster.name | default .Release.Name }}-operator-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- if .Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml .Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  endpoints:
+  {{- if .Values.operator.kubeRbacProxy.enable }}
+  - port: https
+    path: /metrics
+    scheme: https
+    interval: {{ .Values.cluster.cluster.general.monitoring.scrapeInterval | default "30s" }}
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    tlsConfig:
+      {{- if .Values.cluster.cluster.general.monitoring.tlsConfig }}
+      {{- toYaml .Values.cluster.cluster.general.monitoring.tlsConfig | nindent 6 }}
+      {{- else }}
+      insecureSkipVerify: true
+      {{- end }}
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: "(.*)"
+        targetLabel: __name__
+        replacement: "opensearch_operator_$1"
+        action: replace
+  {{- else }}
+  - port: http
+    path: /metrics
+    scheme: http
+    interval: {{ .Values.cluster.cluster.general.monitoring.scrapeInterval | default "30s" }}
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: "(.*)"
+        targetLabel: __name__
+        replacement: "opensearch_operator_$1"
+        action: replace
+  {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- end }}

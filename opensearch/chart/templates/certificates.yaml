@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.certManager.enable }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-ca-cert
+spec:
+  isCA: true
+  commonName: opensearch-ca
+  duration: {{ .Values.certManager.defaults.durations.ca }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.selfSigned | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-ca-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-transport-cert
+spec:
+  commonName: opensearch-transport
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-transport-cert
+  dnsNames:
+    - opensearch
+    - opensearch-discovery
+    - {{ printf "opensearch.%s" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc.cluster.local" .Release.Namespace }}
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-admin-cert
+spec:
+  commonName: admin
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-admin-cert
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-http-cert
+spec:
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.ca | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-http-cert
+  dnsNames:
+    - opensearch
+    - {{ printf "opensearch.%s" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc" .Release.Namespace }}
+    - {{ printf "opensearch.%s.svc.cluster.local" .Release.Namespace }}
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+---
+{{- if .Values.cluster.cluster.ingress.opensearch.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-http-cert-external
+spec:
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.digicert | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-http-cert-external
+  dnsNames:
+{{ toYaml .Values.certManager.httpDnsNames | indent 4 }}
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+{{- end }}
+{{- end }}

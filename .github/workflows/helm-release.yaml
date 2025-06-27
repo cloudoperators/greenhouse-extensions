@@ -22,7 +22,7 @@ on:
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
-      - github-guard/charts/**
+      - repo-guard/charts/**
 
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
           - chartDir: opensearch/chart
             chartName: opensearch
           - chartDir: logs/charts
-            chartName: logs-operator
+            chartName: opentelemetry-operator
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts
@@ -70,8 +70,8 @@ jobs:
             chartName: service-proxy
           - chartDir: thanos/charts
             chartName: thanos
-          - chartDir: github-guard/charts
-            chartName: github-guard
+          - chartDir: repo-guard/charts
+            chartName: repo-guard
 
 
     steps:
@@ -88,7 +88,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
 
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
             python-version: '3.x'
             check-latest: true
