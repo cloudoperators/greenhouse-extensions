@@ -1,6 +1,9 @@
 dependencies:
   - kube-monitoring
 values:
+  blackboxExporter:
+    enabled: true
+    extraVolumeMounts: []
   kubeMonitoring:
     prometheus:
       enabled: true

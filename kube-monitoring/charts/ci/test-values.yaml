@@ -1,4 +1,7 @@
 blackboxExporter:
-  enabled: true
+  enabled: false
 absentMetricsOperator:
   enabled: true
+kubeMonitoring:
+  dashboards:
+    create: true

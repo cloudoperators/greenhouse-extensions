@@ -1,0 +1,71 @@
+# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
+groups:
+  - name: opensearch-cluster
+    interval: 30s
+    rules:
+      - alert: OpenSearchClusterRed
+        expr: opensearch_cluster_status == 2
+        for: 5m
+        labels:
+          severity: info # critical
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch cluster status is RED"
+          description: "OpenSearch cluster {{`{{ $labels.cluster }}`}} is in RED status for more than 5 minutes"
+
+      - alert: OpenSearchClusterYellow
+        expr: opensearch_cluster_status == 1
+        for: 20m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch cluster status is YELLOW"
+          description: "OpenSearch cluster {{`{{ $labels.cluster }}`}} is in YELLOW status for more than 20 minutes"
+
+      - alert: OpenSearchNodeDown
+        expr: up{job=~".*opensearch.*"} == 0
+        for: 10m
+        labels:
+          severity: info # critical
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchNodeDown.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch node is down"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} has been down for more than 10 minutes"
+
+      - alert: OpenSearchHighMemoryUsage
+        expr: (opensearch_jvm_mem_heap_used_bytes / opensearch_jvm_mem_heap_max_bytes) * 100 > 95
+        for: 15m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighMemoryUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High JVM heap memory usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} heap memory usage is above 95% ({{`{{ $value }}`}}%)"
+
+      - alert: OpenSearchHighCPUUsage
+        # Improved: Use opensearch_process_cpu_percent for direct CPU usage percentage
+        expr: opensearch_process_cpu_percent > 95
+        for: 20m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighCPUUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High CPU usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} CPU usage is above 95% ({{`{{ $value }}`}}%)"
+
+      - alert: OpenSearchHighDiskUsage
+        expr: 100 * (1 - (opensearch_fs_total_free_bytes / opensearch_fs_total_total_bytes)) > 90
+        for: 10m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High disk usage"
+          description: "OpenSearch node {{`{{ $labels.instance }}`}} disk usage is above 90% ({{`{{ $value }}`}}%)"

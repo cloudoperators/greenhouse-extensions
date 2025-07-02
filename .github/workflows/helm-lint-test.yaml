@@ -2,6 +2,8 @@ name: "Helm lint and tests"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [synchronize]
   push:
     branches:
       - main
@@ -84,6 +86,8 @@ jobs:
         if: failure() && steps.chart-list-changed.outputs.changed == 'true'
         run: |
           echo "🔍 Printing logs for failed pods..."
+          kubectl get pods -n default
+          echo
           for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"
             kubectl logs -n default $pod --all-containers=true || true

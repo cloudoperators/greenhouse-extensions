@@ -20,7 +20,7 @@ jobs:
         id: chartdiff
         run: |
           git fetch origin ${{ github.base_ref }}
-          files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep 'charts/Chart.yaml$' || true)
+          files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E 'charts?/Chart.yaml$' || true)
           echo $files
           echo "files<<EOF"$'\n'"$files"$'\n'"EOF" >> $GITHUB_OUTPUT
 

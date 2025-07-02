@@ -3,14 +3,14 @@
 *                         @cloudoperators/Administrators
 
 /.github/                 @cloudoperators/Administrators
-/.github/configs/         @cloudoperators/greenhouse-core
-/.github/workflows/       @cloudoperators/greenhouse-core
-/.github/labeler.yml      @cloudoperators/greenhouse-core
-/.github/licenserc.yaml   @cloudoperators/greenhouse-core
-/.github/renovate.json    @cloudoperators/greenhouse-core
+/.github/configs/         @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+/.github/workflows/       @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+/.github/labeler.yml      @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+/.github/licenserc.yaml   @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
+/.github/renovate.json    @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
-Makefile                  @cloudoperators/greenhouse-backend
-ct.yaml                   @cloudoperators/greenhouse-backend
+Makefile                  @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-observability
+ct.yaml                   @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-observability
 Dockerfile.otel-collector @cloudoperators/greenhouse-observability
 Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
@@ -46,4 +46,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /heureka-scanner-keppel/  @cloudoperators/greenhouse-src @dimtas
 /heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
-/github-guard/            @cloudoperators/greenhouse-backend
+/repo-guard/              @cloudoperators/greenhouse-backend
