@@ -59,7 +59,7 @@ openTelemetry:
         - FilelogRefusedLogs
 
 testFramework:
-  enabled: false
+  enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
