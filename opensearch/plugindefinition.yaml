@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.20
+  version: 0.0.22
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.20
+    version: 0.0.22
   options:
     - name: operator.fullnameOverride
       description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
@@ -53,7 +53,7 @@ spec:
       required: false
       type: string
     - name: certManager.httpDnsNames
-      description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
+      description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
       type: list
     - name: cluster.usersCredentials.logs.username
@@ -109,3 +109,7 @@ spec:
       name: cluster.cluster.general.monitoring.additionalRuleLabels
       required: false
       type: map
+    - name: cluster.cluster.nodePools
+      description: Node pool configuration.
+      required: false
+      type: list
