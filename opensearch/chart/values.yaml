@@ -458,7 +458,7 @@ cluster:
     client:
       service:
         # -- Enable or disable the external client service.
-        enabled: true
+        enabled: false
         # -- Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally.
         type: ClusterIP
         # -- Annotations to add to the service, e.g. disco.
