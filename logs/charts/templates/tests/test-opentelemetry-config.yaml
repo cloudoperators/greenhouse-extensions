@@ -25,7 +25,7 @@ data:
     }
 
     @test "Verify successful deployment of the {{ .Release.Name }} service" {
-        verify "there is 1 service named '{{ .Release.Name }}'"
+        verify "there is 1 service named '{{ .Release.Name }}\$'"
     }
 
     {{- if .Values.openTelemetry.logsCollector.enabled }}
