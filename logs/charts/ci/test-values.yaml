@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 opentelemetry-operator:
+  nameOverride: "chart"
   crds:
     create: false
   admissionWebhooks:
@@ -59,7 +60,7 @@ openTelemetry:
         - FilelogRefusedLogs
 
 testFramework:
-  enabled: false
+  enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
