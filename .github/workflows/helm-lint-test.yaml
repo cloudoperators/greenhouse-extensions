@@ -87,6 +87,8 @@ jobs:
         run: |
           echo "🔍 Printing logs for failed pods..."
           kubectl get pods -n default
+          kubectl get deployments -n default
+          kubectl get services -n default
           echo
           for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"
