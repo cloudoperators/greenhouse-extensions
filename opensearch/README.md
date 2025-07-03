@@ -245,6 +245,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
+| testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
+| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
+| testFramework.image.tag | string | `"main"` | Defines the image tag for the test framework. |
+| testFramework.imagePullPolicy | string | `"IfNotPresent"` | Defines the image pull policy for the test framework. |
 
 ## Usage
 
