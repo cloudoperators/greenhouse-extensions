@@ -49,7 +49,7 @@ certManager:
 operator:
   namespace: ""
   nameOverride: ""
-  fullnameOverride: "opensearch-operator"
+  fullnameOverride: ""
 
   podAnnotations: {}
   podLabels: {}
