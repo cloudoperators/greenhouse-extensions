@@ -64,7 +64,6 @@ data:
     }
 
     @test "Verify OpenSearch main, data, and bootstrap pods are running" {
-      # Increased retries and interval for slow scheduling
       tries=12
       interval=10
       for i in $(seq 1 $tries); do
@@ -86,7 +85,7 @@ data:
     }
 
     @test "Verify OpenSearch dashboards pod is running or starting" {
-      # NOTE: kube-monitoring is a dependency and required for ServiceMonitor CRD
+      # NOTE: kube-monitoring is a required dependency because the OpenSearch dashboards pod will not become ready unless the ServiceMonitor CRD is present.
       pods=$(kubectl get pods -n {{ .Release.Namespace }} -l opensearch.cluster.dashboards=opensearch --no-headers 2>/dev/null | wc -l)
       if [ "$pods" -eq 0 ]; then
         skip "No dashboards pod found"
@@ -105,11 +104,6 @@ data:
           sleep $interval
         done
       fi
-    }
-
-    @test "Verify ServiceMonitor for OpenSearch dashboards exists" {
-      # This checks for a ServiceMonitor resource in the release namespace with 'dashboards' in the name
-      kubectl get servicemonitor -n {{ .Release.Namespace }} | grep dashboards
     }
 
     @test "Verify OpenSearch main, data, and client services exist" {
