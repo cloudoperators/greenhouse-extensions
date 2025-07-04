@@ -16,28 +16,15 @@ groups:
 
   {{- if not (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.disabled) }}
       - alert: ReceiverRefusedMetric
-        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
+        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[2m])) > 0
         for: 5m
         labels:
           severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          summary: Some metric points have been refused by receiver
-          description: Maybe collector has received non standard metric points or it reached some limits
-  {{- end }}
-
-  {{- if not (has "HighCPUUsage" .Values.openTelemetry.prometheus.rules.disabled) }}
-      - alert: HighCPUUsage
-        expr: max(rate(otelcol_process_cpu_seconds{}[1m])*100) > 90
-        for: 5m
-        labels:
-          severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/HighCPUUsage.md
-          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
-        annotations:
-          summary: High max CPU usage
-          description: Collector need to scale up
+          summary: OTel is refusing metric points
+          description: The OTel Collector has refused metric points for over 5 minutes. This may indicate malformed metrics. Review configuration and incoming traffic for issues.
   {{- end }}
 
   {{- if not (has "LogsOTelLogsMissing" .Values.openTelemetry.prometheus.rules.disabled) }}
