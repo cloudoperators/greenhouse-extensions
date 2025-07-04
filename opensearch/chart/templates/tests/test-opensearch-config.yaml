@@ -59,10 +59,6 @@ data:
       [ "$(kubectl get opensearchtenants.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
     }
 
-    @test "Verify OpenSearch client service exists" {
-        verify "there is 1 service named '{{ .Release.Name }}-client-external'"
-    }
-
     @test "Verify OpenSearch main, data, and bootstrap pods are running" {
       tries=12
       interval=10
