@@ -15,15 +15,6 @@ spec:
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.0.23
   options:
-    - name: operator.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
-      default: "opensearch-operator"
-      required: false
-      type: string
-    - name: cluster.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch cluster. If left blank, the release name will be used as the default."
-      required: false
-      type: string
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
       required: false
