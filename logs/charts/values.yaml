@@ -101,6 +101,7 @@ openTelemetry:
       disabled:
         - ReconcileErrors
         - WorkqueueDepth
+        - ReceiverRefusedMetric
 
       # -- Labels for PrometheusRules.
       labels: {}
