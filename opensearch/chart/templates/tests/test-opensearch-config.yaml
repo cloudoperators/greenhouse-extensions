@@ -1,0 +1,122 @@
+{{- if .Values.testFramework.enabled -}}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+    {{- include "opensearch-cluster-local.labels" . | nindent 4 }}
+data:
+  run.sh: |-
+
+    #!/usr/bin/env bats
+
+    load "/usr/lib/bats/bats-detik/utils"
+    load "/usr/lib/bats/bats-detik/detik"
+
+    DETIK_CLIENT_NAME="kubectl"
+
+    @test "Verify successful deployment and running status of the operator pod" {
+        try "at most 12 times every 10s to get pods named '{{ .Release.Name }}-operator-controller-manager-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
+    }
+
+    @test "Verify successful deployment of the operator service" {
+        verify "there is 1 service named '{{ .Release.Name }}-operator-controller-manager-metrics-service$'"
+    }
+
+    @test "Verify presence of OpenSearchCluster resource" {
+      [ "$(kubectl get opensearchclusters.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchIndexTemplate resource" {
+      [ "$(kubectl get opensearchindextemplates.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchRole resource" {
+      [ "$(kubectl get opensearchroles.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchUser resource" {
+      [ "$(kubectl get opensearchusers.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchUserRoleBinding resource" {
+      [ "$(kubectl get opensearchuserrolebindings.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchISMPolicy resource" {
+      [ "$(kubectl get opensearchismpolicies.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchComponentTemplate resource" {
+      [ "$(kubectl get opensearchcomponenttemplates.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+    }
+
+    @test "Verify presence of OpenSearchTenant resource" {
+      [ "$(kubectl get opensearchtenants.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
+    }
+
+    @test "Verify OpenSearch main, data, and bootstrap pods are running" {
+      tries=12
+      interval=10
+      for i in $(seq 1 $tries); do
+        all_running=true
+        kubectl get pods -n {{ .Release.Namespace }} | grep -E '{{ .Release.Name }}-(main|data|bootstrap|client)-' | awk '{print $1,$3}' | while read name status; do
+          if [[ "$status" != "Running" ]]; then
+            echo "$name is not running (status: $status)"
+            all_running=false
+            break
+          fi
+        done
+        if $all_running; then
+          break
+        fi
+        if [[ $i -eq $tries ]]; then
+          exit 1
+        fi
+        echo "retrying after $interval (s)"
+        sleep $interval
+      done
+    }
+
+    @test "Verify OpenSearch dashboards pod is running or starting" {
+      # NOTE: kube-monitoring is a required dependency because the OpenSearch dashboards pod will not become ready unless the ServiceMonitor CRD is present.
+      pods=$(kubectl get pods -n {{ .Release.Namespace }} -l opensearch.cluster.dashboards={{ .Release.Name }} --no-headers 2>/dev/null | wc -l)
+      if [ "$pods" -eq 0 ]; then
+        skip "No dashboards pod found"
+      else
+        tries=12
+        interval=10
+        for i in $(seq 1 $tries); do
+          status=$(kubectl get pods -n {{ .Release.Namespace }} -l opensearch.cluster.dashboards={{ .Release.Name }} -o jsonpath='{.items[0].status.phase}')
+          if [[ "$status" == "Running" || "$status" == "Pending" || "$status" == "Succeeded" ]]; then
+            break
+          fi
+          if [[ $i -eq $tries ]]; then
+            echo "If this test fails, ensure the ServiceMonitor CRD is installed in your cluster (required for dashboards monitoring)."
+            exit 1
+          fi
+          echo "retrying after $interval (s)"
+          sleep $interval
+        done
+      fi
+    }
+
+    @test "Verify OpenSearch main, data, and client services exist" {
+      for svc in main data client; do
+        kubectl get svc {{ .Release.Name }}-$svc -n {{ .Release.Namespace }} > /dev/null
+      done
+    }
+
+    @test "Verify OpenSearch dashboards pod label" {
+      pods=$(kubectl get pods -n {{ .Release.Namespace }} -l opensearch.cluster.dashboards={{ .Release.Name }} --no-headers 2>/dev/null | wc -l)
+      if [ "$pods" -eq 0 ]; then
+        skip "No dashboards pod found"
+      else
+        kubectl get pods -n {{ .Release.Namespace }} --show-labels | grep -q "opensearch.cluster.dashboards={{ .Release.Name }}"
+      fi
+    }
+{{- end -}}

@@ -177,7 +177,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. Each user references a secret (defined in usersCredentials) for authentication. See values.yaml file for a full example. |
 | cluster.usersCredentials | object | <pre>usersCredentials:<br>  admin:<br>    username: ""<br>    password: ""<br>    hash: ""</pre> | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
 | cluster.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role See values.yaml file for a full example. |
-| operator.fullnameOverride | string | `"opensearch-operator"` |  |
+| operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
 | operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
@@ -245,6 +245,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
+| testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
+| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
+| testFramework.image.tag | string | `"main"` | Defines the image tag for the test framework. |
+| testFramework.imagePullPolicy | string | `"IfNotPresent"` | Defines the image pull policy for the test framework. |
 
 ## Usage
 
