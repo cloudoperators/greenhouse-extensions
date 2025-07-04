@@ -16,7 +16,7 @@ groups:
 
   {{- if not (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.disabled) }}
       - alert: ReceiverRefusedMetric
-        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[2m])) > 0
+        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
         for: 5m
         labels:
           severity: warning

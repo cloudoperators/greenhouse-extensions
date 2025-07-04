@@ -95,11 +95,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
-| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"disabled":["ReconcileErrors","WorkqueueDepth"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"disabled":["ReconcileErrors","WorkqueueDepth","ReceiverRefusedMetric"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
 | openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
 | openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| openTelemetry.prometheus.rules.disabled | list | `["ReconcileErrors","WorkqueueDepth"]` | PrometheusRules to disable. |
+| openTelemetry.prometheus.rules.disabled | list | `["ReconcileErrors","WorkqueueDepth","ReceiverRefusedMetric"]` | PrometheusRules to disable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |
 | openTelemetry.region | string | `nil` | Region label for Logging |
