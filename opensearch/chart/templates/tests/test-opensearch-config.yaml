@@ -60,7 +60,7 @@ data:
     }
 
     @test "Verify OpenSearch client service exists" {
-        verify "there is 1 service named 'opensearch-client-external'"
+        verify "there is 1 service named '{{ .Release.Name }}-client-external'"
     }
 
     @test "Verify OpenSearch main, data, and bootstrap pods are running" {
@@ -107,8 +107,8 @@ data:
     }
 
     @test "Verify OpenSearch main, data, and client services exist" {
-      for svc in opensearch-main opensearch-data opensearch-client; do
-        kubectl get svc $svc -n {{ .Release.Namespace }} > /dev/null
+      for svc in main data client; do
+        kubectl get svc {{ .Release.Name }}-$svc -n {{ .Release.Namespace }} > /dev/null
       done
     }
 
