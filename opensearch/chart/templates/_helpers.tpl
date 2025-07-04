@@ -60,7 +60,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "opensearch-alert-labels" -}}
-{{- with .Values.cluster.cluster.general.monitoring.labels }}
+{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }} 
 {{ . | toYaml }}
 {{- end -}}
 {{- end -}}

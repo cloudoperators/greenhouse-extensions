@@ -253,8 +253,11 @@ cluster:
         tlsConfig:
           insecureSkipVerify: true
 
-        # -- Labels to apply to both ServiceMonitor and PrometheusRule resources
+        # -- ServiceMonitor labels
         labels: {}
+
+        # -- PrometheusRule labels
+        additionalRuleLabels: {}
 
       # -- List of Opensearch plugins to install
       pluginsList: []
