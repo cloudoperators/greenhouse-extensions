@@ -19,10 +19,10 @@ metadata:
     type: integration-test
 rules:
   - apiGroups: ["apps"]
-    resources: ["deployments", "statefulsets"]
+    resources: ["deployments"]
     verbs: ["get", "list"]
   - apiGroups: [""]
-    resources: ["pods", "persistentvolumeclaims", "services"]
+    resources: ["pods", "services"]
     verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

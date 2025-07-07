@@ -20,7 +20,7 @@ data:
     DETIK_CLIENT_NAME="kubectl"
 
     @test "Verify successful deployment and running status of the operator pod" {
-        try "at most 12 times every 10s to get pods named '{{ .Release.Name }}-operator-controller-manager-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
+        try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-operator-controller-manager-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify successful deployment of the operator service" {
