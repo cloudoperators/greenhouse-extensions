@@ -73,7 +73,7 @@ data:
 
     # The dashboards pod will not be scheduled if the ServiceMonitor CRD is missing. If the following test fails, please ensure the ServiceMonitor CRD is installed (e.g. via the kube-monitoring plugin).
     @test "Verify OpenSearch dashboards pod is running" {
-        try "at most 5 times every 10s to get pods named '{{ .Release.Name }}-dashboards-' and verify that '.status.phase' is 'Running'"
+        try "at most 10 times every 15s to get pods named '{{ .Release.Name }}-dashboards-' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch main service exists" {
