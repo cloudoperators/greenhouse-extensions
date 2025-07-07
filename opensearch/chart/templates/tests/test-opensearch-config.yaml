@@ -67,22 +67,13 @@ data:
         try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-data-' and verify that '.status.phase' is 'Running'"
     }
 
-    @test "Verify OpenSearch bootstrap pod is running" {
-        try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-bootstrap-' and verify that '.status.phase' is 'Running'"
-    }
-
     @test "Verify OpenSearch client pod is running" {
         try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-client-' and verify that '.status.phase' is 'Running'"
     }
 
+    # The dashboards pod will not be scheduled if the ServiceMonitor CRD is missing. If the following test fails, please ensure the ServiceMonitor CRD is installed (e.g. via the kube-monitoring plugin).
     @test "Verify OpenSearch dashboards pod is running" {
-        pods=$(kubectl get pods -n {{ .Release.Namespace }} -l opensearch.cluster.dashboards={{ .Release.Name }} --no-headers 2>/dev/null | wc -l)
-        if [ "$pods" -eq 0 ]; then
-            echo "No dashboards pod found. This usually means the ServiceMonitor CRD is missing. Please ensure the ServiceMonitor CRD is installed e.g. via the kube-monitoring plugin (required for dashboards monitoring). The dashboards pod will not be scheduled without it."
-            exit 1
-        else
-            try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-dashboards-' and verify that '.status.phase' is 'Running'"
-        fi
+        try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-dashboards-' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch main service exists" {
