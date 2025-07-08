@@ -103,6 +103,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.replicas | int | `1` | number of dashboards replicas |
 | cluster.cluster.dashboards.resources | object | `{}` | dashboards pod cpu and memory resources |
 | cluster.cluster.dashboards.securityContext | object | `{}` | dashboards security context configuration |
+| cluster.cluster.dashboards.service.labels | object | `{}` | dashboards service metadata labels |
 | cluster.cluster.dashboards.service.loadBalancerSourceRanges | list | `[]` | source ranges for a loadbalancer |
 | cluster.cluster.dashboards.service.type | string | `"ClusterIP"` | dashboards service type |
 | cluster.cluster.dashboards.tls.caSecret | object | `{"name":"opensearch-ca-cert"}` | Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
