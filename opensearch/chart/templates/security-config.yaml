@@ -7,9 +7,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: opensearch-security-config
-  labels:
-    {{- $labels := include "opensearch-cluster-local.labels" . }}
-    {{ $labels | nindent 4 }}
+  labels: {{ $labels | nindent 4 }}
 stringData:
   config.yml: |-
     _meta:
