@@ -43,6 +43,10 @@ spec:
       description: "Defines the type of service for the external client, such as ClusterIP, NodePort, or LoadBalancer."
       required: false
       type: string
+    - name: cluster.cluster.dashboards.service.labels
+      description: "Specifies custom metadata labels for the dashboards service."
+      required: false
+      type: map
     - name: certManager.httpDnsNames
       description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
