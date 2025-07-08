@@ -7,9 +7,8 @@ title: Perses
 - [Overview](#overview)
 - [Disclaimer](#disclaimer)
 - [Quick Start](#quick-start)
-- [Values](#values)
+- [Configuration](#configuration)
 - [Create a custom dashboard](#create-a-custom-dashboard)
-  - [Dashboard-as-Code](#dashboard-as-code)
 - [Add Dashboards as ConfigMaps](#add-dashboards-as-configmaps)
     - [Recommended folder structure](#recommended-folder-structure)
 
