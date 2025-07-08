@@ -49,7 +49,7 @@ certManager:
 operator:
   namespace: ""
   nameOverride: ""
-  fullnameOverride: "opensearch-operator"
+  fullnameOverride: ""
 
   podAnnotations: {}
   podLabels: {}
@@ -244,7 +244,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.1/prometheus-exporter-2.19.1.0.zip"
+        pluginUrl: "https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.2/prometheus-exporter-2.19.2.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -289,7 +289,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 2.19.1
+      version: 2.19.2
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -377,6 +377,8 @@ cluster:
         loadBalancerSourceRanges: []
         # -- dashboards service type
         type: ClusterIP
+        # -- dashboards service metadata labels
+        labels: {}
 
       tls:
         # -- Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
@@ -399,7 +401,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 2.19.1
+      version: 2.19.2
 
     # initHelper configuration
     initHelper:
@@ -416,6 +418,7 @@ cluster:
       version: "1.36"
 
     # -- Opensearch nodes configuration
+    # @default -- <pre>nodePools:<br>  - component: main<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "2Gi"<br>        cpu: 1</pre>
     nodePools:
       - component: main
         diskSize: "30Gi"
@@ -458,7 +461,7 @@ cluster:
     client:
       service:
         # -- Enable or disable the external client service.
-        enabled: true
+        enabled: false
         # -- Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally.
         type: ClusterIP
         # -- Annotations to add to the service, e.g. disco.
@@ -585,7 +588,7 @@ cluster:
         #    secretName: tls-secret
 
   # -- List of OpensearchRole. See values.yaml file for a full example.
-  # @default -- []
+  # @default -- <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>
   roles:
     - name: "logs-write-role"
       clusterPermissions:
@@ -665,7 +668,6 @@ cluster:
             - "indices:admin/get"
 
   # -- List of OpenSearch user configurations.
-  # Each user references a secret (defined in usersCredentials) for authentication. See values.yaml file for a full example.
   # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
     - name: "logs"
@@ -686,7 +688,7 @@ cluster:
       backendRoles: []
 
   # -- List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
-  # @default -- <pre>usersCredentials:<br>  admin:<br>    username: ""<br>    password: ""<br>    hash: ""</pre>
+  # @default -- <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""</pre>
   usersCredentials:
     admin:
       username: ""  # Specify the username for the "admin" user. If left empty, defaults to "admin".
@@ -706,8 +708,7 @@ cluster:
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
-  # See values.yaml file for a full example.
-  # @default -- <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"</pre>
+  # @default -- <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre>
   usersRoleBinding:
     - name: "logs-write"
       users:
@@ -745,6 +746,7 @@ cluster:
   #    type: index
 
   # -- List of OpensearchComponentTemplate. Check values.yaml file for examples.
+  # @default -- <pre>componentTemplates:<br>  - name: logs-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre>
   componentTemplates:
     - name: logs-attributes-dynamic
       version: 1
@@ -758,11 +760,9 @@ cluster:
               type: object
               dynamic: true
 
-  # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
-  indexTemplates: []
-
-  # -- List of OpensearchIndexTemplate. Check values.yaml file for examples.
-  indexTemplatesWorkAround:  # TODO: Switch back to indexTemplates after fix of https://github.com/opensearch-project/opensearch-k8s-operator/issues/990
+  # -- List of OpensearchIndexTemplate.
+  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream:<br>      timestamp_field:<br>        name: "@timestamp"<br>    priority: 100</pre>
+  indexTemplates:
     - name: logs-index-template
       indexPatterns:
         - "logs*"
@@ -786,6 +786,7 @@ cluster:
       priority: 100
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
+  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minIndexAge: "7d"<br>              minSize: "30gb"<br>              minDocCount: 50000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>        transitions: []<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
   ismPolicies:
     - name: logs-rollover-policy
       defaultState: hot
@@ -809,3 +810,16 @@ cluster:
         indexPatterns:
           - "logs*"
         priority: 100
+
+testFramework:
+  # -- Activates the Helm chart testing framework.
+  enabled: true
+  image:
+    # -- Defines the image registry for the test framework.
+    registry: ghcr.io
+    # -- Defines the image repository for the test framework.
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    # -- Defines the image tag for the test framework.
+    tag: main
+  # -- Defines the image pull policy for the test framework.
+  imagePullPolicy: IfNotPresent

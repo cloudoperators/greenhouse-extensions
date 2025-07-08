@@ -98,7 +98,10 @@ openTelemetry:
       create: true
 
       # -- PrometheusRules to disable.
-      disabled: []
+      disabled:
+        - ReconcileErrors
+        - WorkqueueDepth
+        - ReceiverRefusedMetric
 
       # -- Labels for PrometheusRules.
       labels: {}

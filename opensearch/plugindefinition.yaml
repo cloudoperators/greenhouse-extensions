@@ -6,24 +6,15 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.21
+  version: 0.0.25
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.21
+    version: 0.0.25
   options:
-    - name: operator.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
-      default: "opensearch-operator"
-      required: false
-      type: string
-    - name: cluster.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch cluster. If left blank, the release name will be used as the default."
-      required: false
-      type: string
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
       required: false
@@ -52,8 +43,12 @@ spec:
       description: "Defines the type of service for the external client, such as ClusterIP, NodePort, or LoadBalancer."
       required: false
       type: string
+    - name: cluster.cluster.dashboards.service.labels
+      description: "Specifies custom metadata labels for the dashboards service."
+      required: false
+      type: map
     - name: certManager.httpDnsNames
-      description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
+      description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
       type: list
     - name: cluster.usersCredentials.logs.username
@@ -109,3 +104,7 @@ spec:
       name: cluster.cluster.general.monitoring.additionalRuleLabels
       required: false
       type: map
+    - name: cluster.cluster.nodePools
+      description: Node pool configuration.
+      required: false
+      type: list
