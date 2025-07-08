@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: opensearch
-version: 0.0.24
+version: 0.0.25
 description: A Helm chart for the OpenSearch operator
 type: application
 maintainers:
