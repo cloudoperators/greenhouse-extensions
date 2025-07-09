@@ -356,7 +356,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
-| thanos.existingObjectStoreSecretName | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
+| thanos.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
+| thanos.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
 | thanos.grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
 | thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
