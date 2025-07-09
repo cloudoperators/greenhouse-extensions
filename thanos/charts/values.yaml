@@ -26,7 +26,8 @@ thanos:
   # @default -- 0.0.0.0:10902
   httpAddress:
 
-  # -- Thanos Compactor ObjestStore secret name
+  # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
+  # -- https://thanos.io/tip/thanos/storage.md/#s3
   existingObjectStoreSecretName:
 
   serviceMonitor:
