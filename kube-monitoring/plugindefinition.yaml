@@ -96,3 +96,8 @@ spec:
       default: false
       required: false
       type: bool
+    - name: .Values.kubeMonitoring.prometheus.plutonoDatasource.isDefault
+      description: Whether the Plutono datasource should be set as default for Prometheus
+      default: false
+      required: false
+      type: bool
