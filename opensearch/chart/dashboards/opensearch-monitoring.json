@@ -92,7 +92,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber",
+              "calculation": "last-number",
               "thresholds": {
                 "defaultColor": "#2FBF71"
               }
@@ -122,7 +122,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber"
+              "calculation": "last-number"
             }
           },
           "queries": [
@@ -149,7 +149,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber"
+              "calculation": "last-number"
             }
           },
           "queries": [
@@ -176,7 +176,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber"
+              "calculation": "last-number"
             }
           },
           "queries": [
@@ -364,7 +364,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber",
+              "calculation": "last-number",
               "thresholds": {
                 "defaultColor": "#EA4747",
                 "steps": [
@@ -403,7 +403,7 @@
                 "plugin": {
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
-                    "query": "up{job=\"opensearch-operator-controller-manager-metrics-service\"}"
+                    "query": "max(up{job=\"opensearch-operator-controller-manager-metrics-service\"})"
                   }
                 }
               }
@@ -478,7 +478,7 @@
           "plugin": {
             "kind": "StatChart",
             "spec": {
-              "calculation": "lastNumber"
+              "calculation": "last-number"
             }
           },
           "queries": [
@@ -681,6 +681,7 @@
       {
         "kind": "ListVariable",
         "spec": {
+          "name": "cluster",
           "display": {
             "name": "Cluster",
             "hidden": false
