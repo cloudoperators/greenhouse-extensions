@@ -26,7 +26,8 @@ thanos:
   # @default -- 0.0.0.0:10902
   httpAddress:
 
-  objectstoreSecretName:
+  # -- Thanos Compactor ObjestStore secret name
+  existingObjectStoreSecretName:
 
   serviceMonitor:
     # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
@@ -239,9 +240,6 @@ thanos:
 
     # -- Adding additional arguments to Thanos Compactor
     additionalArgs: []
-
-    # -- Thanos Compactor ObjestStore secret name
-    objectstoreSecretName:
 
     # -- Set Thanos Compactor http-grace-period
     # @default -- 120s

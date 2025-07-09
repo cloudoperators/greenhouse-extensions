@@ -90,7 +90,7 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ .Values.thanos.objectstoreSecretName | default (include "release.name" . | printf "%s-metrics-objectstore") }}
+          secretName: {{ .Values.thanos.existingObjectStoreSecretName | default (include "release.name" . | printf "%s-metrics-objectstore") }}
       - name: data-volume
         persistentVolumeClaim:
           claimName: {{ include "release.name" . }}-compactor
