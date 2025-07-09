@@ -19,3 +19,21 @@ plugin: {{ $.Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 release: {{ $.Release.Name | quote }}
 {{- end }}
+
+{{/* Base labels to be glued on everything */}}
+{{- define "thanos.objectStoreSecretName" -}}
+{{- if .Values.thanos.existingObjectStoreSecret.name -}}
+{{ tpl .Values.thanos.existingObjectStoreSecret.name . }}
+{{- else -}}
+{{ include "release.name" . }}-metrics-objectstore
+{{- end }}
+{{- end }}
+
+{{/* Base labels to be glued on everything */}}
+{{- define "thanos.objectStoreConfigFile" -}}
+{{- if .Values.thanos.existingObjectStoreSecret.configFile -}}
+{{ tpl .Values.thanos.existingObjectStoreSecret.configFile . }}
+{{- else -}}
+thanos.yaml
+{{- end }}
+{{- end }}
