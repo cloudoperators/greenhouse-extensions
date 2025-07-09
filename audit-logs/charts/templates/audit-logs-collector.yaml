@@ -9,13 +9,38 @@ metadata:
   name: audit-logs
   labels:
   {{- include "plugin.labels" . | nindent 4 }} 
-  {{- if .Values.auditLogs.customLabels }}
-  {{ toYaml .Values.auditLogs.customLabels | nindent 4 }}
+  {{- if .Values.openTelemetryPlugin.auditLogs.customLabels }}
+  {{ toYaml .Values.openTelemetryPlugin.auditLogs.customLabels | nindent 4 }}
   {{- end }}
 spec:
+  hostPID: true
+  securityContext:
+    privileged: true
+    runAsUser: 0
+    capabilities:
+      add:
+        # Capabilities needed for auditd
+        - 'AUDIT_READ'
+        - 'AUDIT_WRITE'
+        - 'AUDIT_CONTROL'
   mode: daemonset
   tolerations:
   - operator: Exists
+  podAnnotations:
+    kubectl.kubernetes.io/default-container: "otc-container"
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: cloud.sap/deployment-state
+            operator: NotIn
+            values:
+            - reinstalling
+          - key: cloud.sap/esx-in-maintenance
+            operator: NotIn
+            values:
+            - alarm
   env:
     - name: NAMESPACE
       valueFrom:
@@ -30,51 +55,165 @@ spec:
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
+    - name: cluster
+      value: "{{ .Values.openTelemetryPlugin.auditLogs.cluster }}"
+    - name: region
+      value: "{{ .Values.openTelemetryPlugin.auditLogs.region }}"
     - name: index
-      value: "{{ .Values.auditLogs.openSearchLogs.index }}"
+      value: "{{ .Values.openTelemetryPlugin.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
-         name: audit-logs-basic-auth
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+          name: audit-logs-basic-auth
+{{- if .Values.openTelemetryPlugin.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 8888
 {{- end }}
-  image: {{ .Values.auditLogs.collectorImage.repository }}:{{ .Values.auditLogs.collectorImage.tag }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.auditdConfig.enabled }}
+  initContainers:
+{{- include "auditd.initContainer" . | nindent 2 -}}
+{{- end }}
+
+  image: {{ index .Values "openTelemetryPlugin" "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "openTelemetryPlugin" "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+  - name: bin
+    mountPath: /hostfs/bin
+    readOnly: true
+  - name: sbin
+    mountPath: /hostfs/sbin
+    readOnly: true
+  - name: usrbin
+    mountPath: /hostfs/usr/bin
+    readOnly: true
+  - name: usrsbin
+    mountPath: /hostfs/usr/sbin
+    readOnly: true
+  - name: etc
+    mountPath: /hostfs/etc
+    readOnly: true
+  # Directory with root filesystems of containers executed with containerd, this can be
+  # different with other runtimes. This volume is needed to monitor the file integrity
+  # of files in containers.
+  - name: run-containerd
+    mountPath: /run/containerd
+    readOnly: true
+
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+  - name: bin
+    hostPath:
+      path: /bin
+  - name: usrbin
+    hostPath:
+      path: /usr/bin
+  - name: sbin
+    hostPath:
+      path: /sbin
+  - name: usrsbin
+    hostPath:
+      path: /usr/sbin
+  - name: etc
+    hostPath:
+      path: /etc
+  - name: run-containerd
+    hostPath:
+      path: /run/containerd
+      type: DirectoryOrCreate
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.auditdConfig.enabled }}
+{{- include "auditd.initContainerVolumes" . | nindent 2 -}}
+{{- end }}
+
   config:
     receivers:
-      journald:
-        directory: /var/log/journal
-        operators:
-          - id: journal-label
-            type: add
-            field: attributes["log.type"]
-            value: "journald"
+      k8s_events:
+        auth_type: serviceAccount
 
-      filelog/container:
-        include_file_path: true
-        include: [ /var/log/containers/*.log ]
-        operators:
-          - id: container-label
-            type: add
-            field: attributes["log.type"]
-            value: "container"
-          - id: container-parser
-            type: container
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.auditdConfig.enabled }}
+  {{- include "auditd.receiver" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.filewatchConfig.enabled }}
+  {{- include "filewatch.receiver" . | nindent 6 -}}
+{{- end }}
 
     processors:
       batch:
-        send_batch_max_size: 500
+        send_batch_max_size: 5000
         timeout: 5s
-        send_batch_size : 10
+        send_batch_size : 100
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.auditdConfig.enabled }}
+  {{- include "auditd.processors" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.filewatchConfig.enabled }}
+  {{- include "filewatch.processors" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.prometheus.podMonitor.enabled }}
+      attributes/prometheus:
+        actions:
+          - action: insert
+            key: k8s_node_name
+            value: ${KUBE_NODE_NAME}
+          - action: insert
+            key: k8s_cluster_name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+          - action: delete
+            key: service_instance_id
+          - action: delete
+            key: pod
+{{- end }}
+
+      attributes/cluster:
+        actions:
+          - action: insert
+            key: k8s.cluster.name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+          - action: insert
+            key: k8s.node.name
+            value: ${KUBE_NODE_NAME}
+
+      attributes/k8sevents:
+        actions:
+          - action: insert
+            key: k8s.node.name
+            value: ${KUBE_NODE_NAME}
+          - key: k8s.namespace.name
+            from_attribute: k8s.namespace.name
+            action: insert
+          - action: insert
+            key: k8s.cluster.name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+          - action: insert
+            key: log.type
+            value: "k8sevents"
+
+      attributes/failover_username_a:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_a}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.attributes" . | nindent 6 -}}
+{{- end }}
 
       transform/journal:
         error_mode: ignore
@@ -120,19 +259,50 @@ spec:
         http:
           auth:
             authenticator: basicauth/failover_a
-          endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
+          endpoint: {{ .Values.openTelemetryPlugin.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-    
+
+      opensearch/failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.openTelemetryPlugin.auditLogs.openSearchLogs.endpoint }}
+        logs_index: ${index}-datastream
+
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.exporter" . | nindent 6 -}}
+{{- end }}
+
     extensions:
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
 
-    service: 
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.extension" . | nindent 6 -}}
+{{- end }}
+
+
+    connectors:
+      forward: {}
+      failover:
+        priority_levels:
+          - [logs/failover_a]
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+          - [logs/failover_b]
+{{- end }}
+        retry_interval: 20m
+        retry_gap: 5m
+        max_retries: 0
+    service:
       extensions:
         - basicauth/failover_a
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+        - basicauth/failover_b
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
           level: detailed
@@ -141,7 +311,7 @@ spec:
               exporter:
                 prometheus:
                   host: 0.0.0.0
-                  port: 8888
+                  port: 9999
                   with_resource_constant_labels:
                     included:
                     - k8s_node_name
@@ -157,7 +327,19 @@ spec:
           receivers: [filelog/container]
           processors: [batch]
           exporters: [opensearch/failover_a]
-        logs/journal:
-          receivers: [journald]
-          processors: [batch, transform/journal]
-          exporters: [opensearch/failover_a]
+        logs/failover_b:
+          receivers: [failover]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/failover_b]
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.auditdConfig.enabled }}
+{{- include "auditd.pipelines" . | nindent 8 -}}
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.logsCollector.filewatchConfig.enabled }}
+{{- include "filewatch.pipelines" . | nindent 8 -}}
+{{- end }}
+
+{{- if .Values.openTelemetryPlugin.auditLogs.openSearchLogs.failover.enabled }}
+{{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
