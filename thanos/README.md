@@ -350,6 +350,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.enabled | bool | `true` | Enable Thanos Compactor component |
 | thanos.compactor.httpGracePeriod | string | 120s | Set Thanos Compactor http-grace-period |
 | thanos.compactor.logLevel | string | info | Thanos Compactor log level |
+| thanos.compactor.objectstoreSecretName | string | `nil` | Thanos Compactor ObjestStore secret name |
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
