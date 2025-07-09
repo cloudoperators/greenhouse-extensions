@@ -106,7 +106,7 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "release.name" . }}-metrics-objectstore
+          secretName: {{ .Values.thanos.objectstoreSecretName | default (include "release.name" . | printf "%s-metrics-objectstore") }}
       - name: data
         emptyDir: {}
 {{ end }}

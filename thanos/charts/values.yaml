@@ -26,6 +26,8 @@ thanos:
   # @default -- 0.0.0.0:10902
   httpAddress:
 
+  objectstoreSecretName:
+
   serviceMonitor:
     # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
     # serviceMonitorSelector/ruleSelector.
