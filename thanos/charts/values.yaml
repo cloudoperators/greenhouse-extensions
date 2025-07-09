@@ -26,6 +26,11 @@ thanos:
   # @default -- 0.0.0.0:10902
   httpAddress:
 
+  # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
+  # https://thanos.io/tip/thanos/storage.md/#s3
+  # @default -- {{ include "release.name" . }}-metrics-objectstore
+  existingObjectStoreSecretName:
+
   serviceMonitor:
     # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
     # serviceMonitorSelector/ruleSelector.
