@@ -168,10 +168,12 @@ thanos:
         # tlsKey:
 
     ## Expose Thanos Query as a Plutono datasource
-    ##
     plutonoDatasource:
       # -- Creates a Perses datasource for standalone Thanos Query
       create: false
+
+      # -- set datasource as default for Perses
+      isDefault: false
 
       # -- Label selectors for the Plutono sidecar to detect this datasource.
       selector: {}
