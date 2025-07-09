@@ -25,8 +25,8 @@ spec:
         action: labeldrop
   selector:
     matchLabels:
-      app.kubernetes.io/component: audit-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.auditLogs.metrics
-      app.kubernetes.io/managed-by: audit-logs
+      app.kubernetes.io/component: opentelemetry-collector
+      app.kubernetes.io/instance: {{ .Release.Namespace }}.audit-logs
+      app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
