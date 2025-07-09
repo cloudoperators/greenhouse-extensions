@@ -20,7 +20,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 release: {{ $.Release.Name | quote }}
 {{- end }}
 
-{{/* Base labels to be glued on everything */}}
+{{/* Object Store Secret Name */}}
 {{- define "thanos.objectStoreSecretName" -}}
 {{- if .Values.thanos.existingObjectStoreSecret.name -}}
 {{ tpl .Values.thanos.existingObjectStoreSecret.name . }}
@@ -29,7 +29,7 @@ release: {{ $.Release.Name | quote }}
 {{- end }}
 {{- end }}
 
-{{/* Base labels to be glued on everything */}}
+{{/* Object Store Config File Name */}}
 {{- define "thanos.objectStoreConfigFile" -}}
 {{- if .Values.thanos.existingObjectStoreSecret.configFile -}}
 {{ tpl .Values.thanos.existingObjectStoreSecret.configFile . }}
