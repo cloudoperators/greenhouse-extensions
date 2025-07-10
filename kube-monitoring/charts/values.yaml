@@ -334,7 +334,10 @@ kubeMonitoring:
 
     # Deploys a Plutono datasource config Secret for this Prometheus
     # @ignored
-    plutonoDatasource: true
+    plutonoDatasource:
+      create: true
+
+      isDefault: false
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
     # @ignored
