@@ -38,7 +38,7 @@ spec:
       containers:
       - args:
         - store
-        - --objstore.config-file=/etc/config/thanos.yaml
+        - --objstore.config-file=/etc/config/{{ include "thanos.objectStoreConfigFile" . }}
         - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
         - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
         - --log.level={{ default "info" .Values.thanos.store.logLevel }}
@@ -106,7 +106,7 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ .Values.thanos.existingObjectStoreSecretName | default (include "release.name" . | printf "%s-metrics-objectstore") }}
+          secretName: {{ include "thanos.objectStoreSecretName" . }}
       - name: data
         emptyDir: {}
 {{ end }}
