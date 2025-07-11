@@ -1,0 +1,709 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "opensearch-monitoring",
+    "project": "default",
+    "version": 4
+  },
+  "spec": {
+    "display": {
+      "name": "OpenSearch Monitoring",
+      "description": "Monitor OpenSearch cluster health, resource usage, and operator status with key metrics and visualizations."
+    },
+    "panels": {
+      "cluster_status": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cluster Status"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal",
+                "shortValues": false
+              },
+              "thresholds": {
+                "steps": [
+                  {
+                    "value": 1
+                  },
+                  {
+                    "color": "#EE6C6C",
+                    "value": 2
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "result": {
+                      "value": "Green"
+                    },
+                    "value": "0"
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "result": {
+                      "value": "Yellow"
+                    },
+                    "value": "1"
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "result": {
+                      "value": "Red"
+                    },
+                    "value": "2"
+                  }
+                }
+              ]
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max(opensearch_cluster_status)"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "total_nodes": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Total Nodes"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "thresholds": {
+                "defaultColor": "#2FBF71"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "count(count by(pod)(opensearch_cluster_nodes_number))"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "data_nodes": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Client Nodes"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "count(count by(pod)(opensearch_cluster_nodes_number{job=\"opensearch-client\"}))"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "master_nodes": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Main Nodes"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "count(count by(pod)(opensearch_cluster_nodes_number{job=\"opensearch-main\"}))"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "total_indices": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Total Indices"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "count(opensearch_index_status)"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "jvm_memory_usage": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "JVM Memory Usage"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "mode": "table",
+                "position": "bottom"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "percent"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max by (pod) (\n  (opensearch_jvm_mem_heap_used_bytes / opensearch_jvm_mem_heap_max_bytes) * 100\n)",
+                    "seriesNameFormat": "{{pod}} - Heap"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "cpu_usage": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "CPU Usage"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "mode": "table",
+                "position": "bottom"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "percent"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "opensearch_process_cpu_percent",
+                    "seriesNameFormat": "{{pod}} - CPU"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "disk_usage": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Disk Usage"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "legend": {
+                "mode": "table",
+                "position": "bottom"
+              },
+              "yAxis": {
+                "format": {
+                  "unit": "percent"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "(opensearch_fs_total_total_bytes - opensearch_fs_total_free_bytes) / opensearch_fs_total_total_bytes * 100",
+                    "seriesNameFormat": "{{pod}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "indexing_rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Indexing Rate"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {}
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (pod) (\n  rate(opensearch_indices_indexing_index_count{service=~\"opensearch-client|opensearch-data\"}[$__rate_interval])\n) OR vector(0)",
+                    "seriesNameFormat": "{{pod}}",
+                    "minStep": "30s"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "search_rate": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Search Rate"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {}
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (pod) (rate(opensearch_indices_search_query_count{service=~\"opensearch-client|opensearch-data\"}[$__rate_interval]))",
+                    "seriesNameFormat": "{{pod}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "operator_status": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Operator Status"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "thresholds": {
+                "defaultColor": "#EA4747",
+                "steps": [
+                  {
+                    "color": "#2FBF71",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "result": {
+                      "value": "Up"
+                    },
+                    "value": "1"
+                  }
+                },
+                {
+                  "kind": "Value",
+                  "spec": {
+                    "result": {
+                      "value": "Down"
+                    },
+                    "value": "0"
+                  }
+                }
+              ]
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "max(up{job=\"opensearch-operator-controller-manager-metrics-service\"})"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "operator_reconcile_time": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Operator Reconcile Time (95th percentile)"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {}
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "histogram_quantile(\n  0.95,\n  sum by (le) (\n    rate(opensearch_operator_controller_runtime_reconcile_time_seconds_bucket[5m])\n  )\n)",
+                    "seriesNameFormat": "Reconcile Time"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "TotalDocs": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Total Docs"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number",
+              "format": {
+                "unit": "decimal"
+              },
+              "sparkline": {}
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum(opensearch_indices_doc_number)",
+                    "seriesNameFormat": ""
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "data_nodes-1": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Data Nodes"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last-number"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "count(count by(pod)(opensearch_cluster_nodes_number{job=\"opensearch-data\"}))"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Cluster Overview",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 3,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/cluster_status"
+              }
+            },
+            {
+              "x": 3,
+              "y": 0,
+              "width": 3,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/total_nodes"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 3,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/master_nodes"
+              }
+            },
+            {
+              "x": 9,
+              "y": 0,
+              "width": 3,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/data_nodes"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 3,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/data_nodes-1"
+              }
+            },
+            {
+              "x": 15,
+              "y": 0,
+              "width": 4,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/total_indices"
+              }
+            },
+            {
+              "x": 19,
+              "y": 0,
+              "width": 5,
+              "height": 4,
+              "content": {
+                "$ref": "#/spec/panels/TotalDocs"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Resource Usage",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/jvm_memory_usage"
+              }
+            },
+            {
+              "x": 8,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/cpu_usage"
+              }
+            },
+            {
+              "x": 16,
+              "y": 0,
+              "width": 8,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/disk_usage"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Performance Metrics",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/indexing_rate"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/search_rate"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Operator Metrics",
+            "collapse": {
+              "open": true
+            }
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/operator_status"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 18,
+              "height": 6,
+              "content": {
+                "$ref": "#/spec/panels/operator_reconcile_time"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "variables": [
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "cluster",
+          "display": {
+            "name": "Cluster",
+            "hidden": false
+          },
+          "defaultValue": "obs-eu-de-1",
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "sort": "alphabetical-asc",
+          "plugin": {
+            "kind": "PrometheusLabelValuesVariable",
+            "spec": {
+              "labelName": "cluster",
+              "matchers": [
+                "opensearch_cluster_status"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "duration": "1h",
+    "refreshInterval": "30s",
+    "datasources": {}
+  }
+}

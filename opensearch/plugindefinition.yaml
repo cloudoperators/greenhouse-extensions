@@ -6,24 +6,15 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.17
+  version: 0.0.25
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.17
+    version: 0.0.25
   options:
-    - name: operator.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch operator. Use this to override the default naming convention for operator-managed resources."
-      default: "opensearch-operator"
-      required: false
-      type: string
-    - name: cluster.fullnameOverride
-      description: "Specifies a custom name for the OpenSearch cluster. If left blank, the release name will be used as the default."
-      required: false
-      type: string
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
       required: false
@@ -32,6 +23,10 @@ spec:
       description: "Specifies custom labels for the ServiceMonitor to expose OpenSearch metrics to Prometheus."
       required: false
       type: map
+    - name: cluster.cluster.client.service.enabled
+      description: "Enables the service for the external log ingestion."
+      required: false
+      type: bool
     - name: cluster.cluster.client.service.loadBalancerSourceRanges
       description: "List of allowed IP ranges for external access when service type is LoadBalancer."
       required: false
@@ -48,23 +43,68 @@ spec:
       description: "Defines the type of service for the external client, such as ClusterIP, NodePort, or LoadBalancer."
       required: false
       type: string
+    - name: cluster.cluster.dashboards.service.labels
+      description: "Specifies custom metadata labels for the dashboards service."
+      required: false
+      type: map
     - name: certManager.httpDnsNames
-      description: "DNS names for the HTTP certificate and service annotations on client nodes receiving logs via LoadBalancer."
+      description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
       type: list
     - name: cluster.usersCredentials.logs.username
-      description: "Primary OpenSearch user username"
+      description: "Primary username for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs.password
-      description: "Primary OpenSearch user password"
+      description: "Primary user password for log ingestion."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.username
-      description: "Secondary OpenSearch user username for failover authentication"
+      description: "Secondary username for log ingestion to support failover authentication."
       required: true
       type: secret
     - name: cluster.usersCredentials.logs2.password
-      description: "Secondary OpenSearch user password for failover authentication"
+      description: "Secondary user password for log ingestion to support failover authentication."
       required: true
       type: secret
+    - name: cluster.usersCredentials.admin.password
+      description: "Admin password used for initial setup and management"
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.admin.hash
+      description: "Admin password hash (bcrypt format)"
+      required: true
+      type: secret
+    - name: cluster.usersRoleBinding
+      description: "Define user role bindings."
+      required: false
+      type: list
+    - name: cluster.cluster.ingress.opensearch.enabled
+      description: "Enables the Opensearch ingress for log ingestion."
+      required: false
+      type: bool
+    - name: cluster.cluster.ingress.opensearch.className
+      description: "Ingress class name for Opensearch."
+      default: "nginx"
+      required: false
+      type: string
+    - name: cluster.cluster.ingress.opensearch.annotations
+      description: "Opensearch ingress annotations"
+      required: false
+      type: map
+    - name: cluster.cluster.ingress.opensearch.hosts
+      description: "Opensearch ingress hosts"
+      required: false
+      type: list
+    - name: cluster.cluster.ingress.opensearch.tls
+      description: "Opensearch ingress tls configuration"
+      required: false
+      type: list
+    - description: Additional labels for PrometheusRule alerts
+      name: cluster.cluster.general.monitoring.additionalRuleLabels
+      required: false
+      type: map
+    - name: cluster.cluster.nodePools
+      description: Node pool configuration.
+      required: false
+      type: list

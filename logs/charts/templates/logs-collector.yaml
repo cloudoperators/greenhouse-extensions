@@ -43,9 +43,9 @@ spec:
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
-      port: 9999
+      port: 8888
 {{- end }}
-  image: {{ index .Values "logs-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "logs-operator" "manager" "collectorImage" "tag" }}
+  image: {{ index .Values "opentelemetry-operator" "manager" "collectorImage" "repository" }}:{{ index .Values "opentelemetry-operator" "manager" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
     name: varlog
@@ -87,39 +87,11 @@ spec:
     {{- include "kvm.receiver" . | nindent 6 -}}
 {{- end }}
 
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
-      prometheus/internal:
-        config:
-          scrape_configs:
-            - job_name: 'internal'
-              scrape_interval: 5s
-              static_configs:
-                - targets: ['127.0.0.1:8888']
-{{- end }}
-
     processors:
       batch:
         send_batch_max_size: 500
         timeout: 5s
         send_batch_size : 10
-
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
-      attributes/prometheus:
-        actions:
-          - action: insert
-            key: k8s_node_name
-            value: ${KUBE_NODE_NAME}
-          - action: insert
-            key: k8s_cluster_name
-            value: ${cluster}
-          - action: insert
-            key: region
-            value: ${region}
-          - action: delete
-            key: service_instance_id
-          - action: delete
-            key: pod
-{{- end }}
 
       attributes/cluster:
         actions:
@@ -138,9 +110,9 @@ spec:
           - action: insert
             key: k8s.node.name
             value: ${KUBE_NODE_NAME}
-          - key: k8s.namespace.name
+          - action: insert
+            key: k8s.namespace.name
             from_attribute: k8s.namespace.name
-            action: insert
           - action: insert
             key: k8s.cluster.name
             value: ${cluster}
@@ -151,6 +123,17 @@ spec:
             key: log.type
             value: "k8sevents"
 
+      transform/consolidate_label:
+      # consolidates the k8s labels coming from resource and attributes into a single label
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - set(resource.attributes["k8s.namespace.name"], attributes["k8s.namespace.name"])
+              - set(resource.attributes["k8s.node.name"], attributes["k8s.node.name"])
+              - delete_key(attributes, "k8s.namespace.name") 
+              - delete_key(attributes, "k8s.node.name") 
+
       attributes/failover_username_a:
         actions:
           - action: insert
@@ -159,7 +142,6 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.attributes" . | nindent 6 -}}
 {{- end }}
-
 
       transform/journal:
         error_mode: ignore
@@ -286,6 +268,17 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+      resource:
+        attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: ${cluster}
+        - action: insert
+          key: region
+          value: ${region}
+        - action: insert
+          key: k8s.node.name
+          value: ${KUBE_NODE_NAME}
 
     exporters:
       debug:
@@ -299,8 +292,6 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
-      prometheus:
-        endpoint: 0.0.0.0:9999
 
     extensions:
       basicauth/failover_a:
@@ -310,8 +301,6 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.extension" . | nindent 6 -}}
 {{- end }}
-
-
     connectors:
       forward: {}
       failover:
@@ -334,6 +323,20 @@ spec:
         metrics:
           level: detailed
           readers:
+          - pull:
+              exporter:
+                prometheus:
+                  host: 0.0.0.0
+                  port: 8888
+                  with_resource_constant_labels:
+                    included:
+                    - k8s_node_name
+                    - k8s_cluster_name
+                    - region
+        resource:
+          k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
+          region: ${region}
 {{- end }}
       pipelines:
         logs/forward:
@@ -361,16 +364,10 @@ spec:
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]
-          processors: [attributes/k8sevents]
+          processors: [attributes/k8sevents,transform/consolidate_label]
           exporters: [forward]
         logs/journald:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal]
           exporters: [forward]
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
-        metrics/prometheus:
-          receivers: [prometheus/internal]
-          processors: [attributes/prometheus]
-          exporters: [prometheus]
-{{- end }}
 {{- end }}

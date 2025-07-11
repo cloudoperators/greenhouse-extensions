@@ -49,7 +49,7 @@ spec:
           callbackId: "alertmanager"
           color: {{`'{{template "slack.color" . }}'`}}
           sendResolved: true
-    {{ end }}
+    {{- end }}
     {{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
     - name: {{ required ".Values.alerts.alertmanagerConfig.webhook.routes[].name missing" $route.name | quote }}
       webhookConfigs:
@@ -58,4 +58,23 @@ spec:
             name: {{ $.Release.Name }}-webhook-urls
           sendResolved: true
     {{ end }}
-{{ end }}
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: {{ $.Release.Name }}-webhook-urls
+  labels:
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+data:
+{{- if .Values.alerts.alertmanagerConfig.slack.routes }}
+{{- range $route := .Values.alerts.alertmanagerConfig.slack.routes }}
+  {{ $route.name }}: {{ $route.webhookURL | b64enc | quote }}
+{{- end }}
+{{- end }}
+{{- if .Values.alerts.alertmanagerConfig.webhook.routes }}
+{{- range $route := .Values.alerts.alertmanagerConfig.webhook.routes }}
+  {{ $route.name }}: {{ $route.url | b64enc | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

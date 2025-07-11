@@ -2,7 +2,7 @@ dependencies:
   - logs
 
 values:
-  logs-operator:
+  opentelemetry-operator:
     crds:
       create: false
     admissionWebhooks:
