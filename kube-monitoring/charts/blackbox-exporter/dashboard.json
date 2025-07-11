@@ -9,6 +9,50 @@
     "display": {
       "name": "Blackbox Exporter / Overview"
     },
+    "variables": [
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "display": {
+            "name": "job",
+            "hidden": false
+          },
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "plugin": {
+            "kind": "PrometheusLabelValuesVariable",
+            "spec": {
+              "labelName": "job",
+              "matchers": [
+                "probe_success{}"
+              ]
+            }
+          },
+          "name": "job"
+        }
+      },
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "display": {
+            "name": "instance",
+            "hidden": false
+          },
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "plugin": {
+            "kind": "PrometheusLabelValuesVariable",
+            "spec": {
+              "labelName": "instance",
+              "matchers": [
+                "probe_success{job=\"$job\"}"
+              ]
+            }
+          },
+          "name": "instance"
+        }
+      }
+    ],
     "panels": {
       "0_0": {
         "kind": "Panel",
@@ -760,10 +804,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Summary",
-            "collapse": {
-              "open": true
-            }
+            "title": "Summary"
           },
           "items": [
             {
@@ -782,10 +823,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Probes Stats",
-            "collapse": {
-              "open": true
-            }
+            "title": "Probes Stats"
           },
           "items": [
             {
@@ -831,10 +869,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Probes Uptimes Stats",
-            "collapse": {
-              "open": true
-            }
+            "title": "Probes Uptimes Stats"
           },
           "items": [
             {
@@ -862,10 +897,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Probes",
-            "collapse": {
-              "open": true
-            }
+            "title": "Probes"
           },
           "items": [
             {
@@ -893,10 +925,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Probes Additional Stats",
-            "collapse": {
-              "open": true
-            }
+            "title": "Probes Additional Stats"
           },
           "items": [
             {
@@ -951,10 +980,7 @@
         "kind": "Grid",
         "spec": {
           "display": {
-            "title": "Probes Avg Duration Stats",
-            "collapse": {
-              "open": true
-            }
+            "title": "Probes Avg Duration Stats"
           },
           "items": [
             {
@@ -979,52 +1005,6 @@
         }
       }
     ],
-    "variables": [
-      {
-        "kind": "ListVariable",
-        "spec": {
-          "display": {
-            "name": "job",
-            "hidden": false
-          },
-          "allowAllValue": false,
-          "allowMultiple": false,
-          "plugin": {
-            "kind": "PrometheusLabelValuesVariable",
-            "spec": {
-              "labelName": "job",
-              "matchers": [
-                "probe_success{}"
-              ]
-            }
-          },
-          "name": "job"
-        }
-      },
-      {
-        "kind": "ListVariable",
-        "spec": {
-          "display": {
-            "name": "instance",
-            "hidden": false
-          },
-          "allowAllValue": false,
-          "allowMultiple": false,
-          "plugin": {
-            "kind": "PrometheusLabelValuesVariable",
-            "spec": {
-              "labelName": "instance",
-              "matchers": [
-                "probe_success{job=\"$job\"}"
-              ]
-            }
-          },
-          "name": "instance"
-        }
-      }
-    ],
-    "duration": "1h",
-    "refreshInterval": "0s",
-    "datasources": {}
+    "duration": "1h"
   }
 }
