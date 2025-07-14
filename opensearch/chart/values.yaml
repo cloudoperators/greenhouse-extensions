@@ -7,10 +7,7 @@ certManager:
 
   issuer:
     # -- API group for the DigicertIssuer custom resource
-    digicert:
-      group: certmanager.cloud.sap
-      kind: DigicertIssuer
-      name: digicert-issuer
+    digicert: {}
 
     # -- Name of the CA Issuer to be used for internal certs
     ca:
