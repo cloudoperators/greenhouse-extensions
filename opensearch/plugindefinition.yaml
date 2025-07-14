@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.26
+  version: 0.0.27
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.26
+    version: 0.0.27
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -77,6 +77,10 @@ spec:
       type: secret
     - name: cluster.usersRoleBinding
       description: "Define user role bindings."
+      required: false
+      type: list
+    - name: cluster.roles
+      description: "Define OpenSearch roles with their permissions and cluster permissions."
       required: false
       type: list
     - name: cluster.cluster.ingress.opensearch.enabled
