@@ -83,10 +83,6 @@ spec:
       description: "Define user role bindings."
       required: false
       type: list
-    - name: cluster.roles
-      description: "Define OpenSearch roles with their permissions and cluster permissions."
-      required: false
-      type: list
     - name: cluster.cluster.ingress.opensearch.enabled
       description: "Enables the Opensearch ingress for log ingestion."
       required: false
