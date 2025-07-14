@@ -667,8 +667,8 @@ spec:
                                       properties:
                                         matchExpressions:
                                           description: matchExpressions is a list
-                                            of label selector requirements. The
-                                            requirements are ANDed.
+                                            of label selector requirements. The requirements
+                                            are ANDed.
                                           items:
                                             description: |-
                                               A label selector requirement is a selector that contains values, a key, and an operator that
@@ -747,8 +747,8 @@ spec:
                                       properties:
                                         matchExpressions:
                                           description: matchExpressions is a list
-                                            of label selector requirements. The
-                                            requirements are ANDed.
+                                            of label selector requirements. The requirements
+                                            are ANDed.
                                           items:
                                             description: |-
                                               A label selector requirement is a selector that contains values, a key, and an operator that
@@ -2305,8 +2305,8 @@ spec:
                                       properties:
                                         matchExpressions:
                                           description: matchExpressions is a list
-                                            of label selector requirements. The
-                                            requirements are ANDed.
+                                            of label selector requirements. The requirements
+                                            are ANDed.
                                           items:
                                             description: |-
                                               A label selector requirement is a selector that contains values, a key, and an operator that
@@ -2385,8 +2385,8 @@ spec:
                                       properties:
                                         matchExpressions:
                                           description: matchExpressions is a list
-                                            of label selector requirements. The
-                                            requirements are ANDed.
+                                            of label selector requirements. The requirements
+                                            are ANDed.
                                           items:
                                             description: |-
                                               A label selector requirement is a selector that contains values, a key, and an operator that
@@ -4687,8 +4687,8 @@ spec:
                                                 This array is replaced during a strategic merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -4721,8 +4721,8 @@ spec:
                                                 This array is replaced during a strategic merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -4786,8 +4786,8 @@ spec:
                                                 This array is replaced during a strategic merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -4820,8 +4820,8 @@ spec:
                                                 This array is replaced during a strategic merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -4893,8 +4893,8 @@ spec:
                                                     merge patch.
                                                   items:
                                                     type: string
-                                                    type: array
-                                                    x-kubernetes-list-type: atomic
+                                                  type: array
+                                                  x-kubernetes-list-type: atomic
                                               required:
                                               - key
                                               - operator
@@ -4973,8 +4973,8 @@ spec:
                                                     merge patch.
                                                   items:
                                                     type: string
-                                                    type: array
-                                                    x-kubernetes-list-type: atomic
+                                                  type: array
+                                                  x-kubernetes-list-type: atomic
                                               required:
                                               - key
                                               - operator
@@ -5073,8 +5073,8 @@ spec:
                                                 merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -5153,8 +5153,8 @@ spec:
                                                 merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -5251,8 +5251,8 @@ spec:
                                                     merge patch.
                                                   items:
                                                     type: string
-                                                    type: array
-                                                    x-kubernetes-list-type: atomic
+                                                  type: array
+                                                  x-kubernetes-list-type: atomic
                                               required:
                                               - key
                                               - operator
@@ -5331,8 +5331,8 @@ spec:
                                                     merge patch.
                                                   items:
                                                     type: string
-                                                    type: array
-                                                    x-kubernetes-list-type: atomic
+                                                  type: array
+                                                  x-kubernetes-list-type: atomic
                                               required:
                                               - key
                                               - operator
@@ -5431,8 +5431,8 @@ spec:
                                                 merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -5511,8 +5511,8 @@ spec:
                                                 merge patch.
                                               items:
                                                 type: string
-                                                type: array
-                                                x-kubernetes-list-type: atomic
+                                              type: array
+                                              x-kubernetes-list-type: atomic
                                           required:
                                           - key
                                           - operator
@@ -5962,8 +5962,8 @@ spec:
                                         merge patch.
                                       items:
                                         type: string
-                                        type: array
-                                        x-kubernetes-list-type: atomic
+                                      type: array
+                                      x-kubernetes-list-type: atomic
                                   required:
                                   - key
                                   - operator
