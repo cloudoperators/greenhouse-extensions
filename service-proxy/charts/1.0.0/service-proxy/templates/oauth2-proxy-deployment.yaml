@@ -21,6 +21,7 @@ spec:
       containers:
       - args:
         - --provider=oidc
+        - --approval-prompt=""
         - --email-domain=*
         - --provider-display-name={{ .Values.oauth2proxy.providerDisplayName | default ( printf "%s %s" .Values.global.greenhouse.organizationName "OIDC Provider") }}
         - --upstream=file:///dev/null
