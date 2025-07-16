@@ -1,4 +1,3 @@
-# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
 groups:
   - name: opensearch-operator
     interval: 30s
@@ -7,7 +6,7 @@ groups:
         expr: up{job=~".*opensearch-operator.*"} == 0
         for: 10m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
@@ -19,7 +18,7 @@ groups:
         expr: increase(opensearch_operator_controller_runtime_reconcile_errors_total[10m]) > 10
         for: 10m
         labels:
-          severity: info # warning
+          severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorReconcileErrors.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -35,7 +34,7 @@ groups:
           ) > 60
         for: 10m
         labels:
-          severity: info # warning
+          severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighReconcileTime.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -53,7 +52,7 @@ groups:
           ) * 100 > 95
         for: 15m
         labels:
-          severity: info # warning
+          severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighMemoryUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -71,7 +70,7 @@ groups:
           ) * 100 > 95
         for: 20m
         labels:
-          severity: info # warning
+          severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighCPUUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
