@@ -41,7 +41,7 @@ datasources:
     # <bool> Toggles whether the data source is pre-selected
     # for new panels. You can set only one default
     # data source per organization.
-    isDefault: false
+    isDefault: {{ .Values.thanos.query.plutonoDatasource.isDefault }}
     # <map> Fields to convert to JSON and store in jsonData.
     jsonData:
       httpMethod: 'POST'

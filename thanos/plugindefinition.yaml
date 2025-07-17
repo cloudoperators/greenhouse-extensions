@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.31
+    version: 0.5.34
     description: thanos
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.5.27
+        version: 0.5.30
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -91,6 +91,11 @@ spec:
           name: thanos.query.plutonoDatasource.selector
           required: false
           type: map
+        - name: thanos.query.plutonoDatasource.isDefault
+          description: Whether the Plutono datasource should be set as default for Thanos Query
+          default: true
+          required: false
+          type: bool
         - description: Expose Thanos Query as a Perses datasource
           name: thanos.query.persesDatasource.create
           required: false

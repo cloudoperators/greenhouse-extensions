@@ -356,6 +356,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
+| thanos.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
+| thanos.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
 | thanos.grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
 | thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
@@ -380,6 +382,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Perses |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `nil` |  |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |

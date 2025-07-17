@@ -69,7 +69,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | certManager.enable | bool | `true` | Enable cert-manager integration for issuing TLS certificates |
 | certManager.httpDnsNames | list | `["opensearch-client.tld"]` | Override HTTP DNS names for OpenSearch client endpoints |
 | certManager.issuer.ca | object | `{"name":"opensearch-ca-issuer"}` | Name of the CA Issuer to be used for internal certs |
-| certManager.issuer.digicert | object | `{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"}` | API group for the DigicertIssuer custom resource |
+| certManager.issuer.digicert | object | `{}` | API group for the DigicertIssuer custom resource |
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
