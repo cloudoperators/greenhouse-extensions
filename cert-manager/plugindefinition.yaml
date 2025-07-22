@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: cert-manager
 spec:
-  version: 1.17.4
+  version: 1.18.2
   displayName: Certificate manager
   description: Automated TLS certificate management
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
