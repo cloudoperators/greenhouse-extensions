@@ -9338,7 +9338,7 @@ spec:
       jsonPath: .spec.managementState
       name: Management
       type: string
-    name: v1beta1
+    name: v2beta1
     schema:
       openAPIV3Schema:
         properties:
@@ -10814,7 +10814,9 @@ spec:
                 type: array
               hostNetwork:
                 type: boolean
-              image:
+              hostPID:
+                type: boolean
+              image: 
                 type: string
               imagePullPolicy:
                 type: string
@@ -14068,7 +14070,7 @@ spec:
             type: object
         type: object
     served: true
-    storage: true
+    storage: false
     subresources:
       scale:
         labelSelectorPath: .status.scale.selector
