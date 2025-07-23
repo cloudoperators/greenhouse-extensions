@@ -48,7 +48,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Running\", namespace=\"logs\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Running"
                   }
                 }
@@ -93,7 +93,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"logs\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
                     "seriesNameFormat": "Running"
                   }
                 }
@@ -134,7 +134,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Failed\", namespace=\"logs\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Failed\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Failed"
                   }
                 }
@@ -175,7 +175,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Pending\", namespace=\"logs\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Pending\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Pending"
                   }
                 }
@@ -343,7 +343,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"logs\"}",
+                    "query": "kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"}",
                     "seriesNameFormat": "="
                   }
                 }
@@ -510,7 +510,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "kube_pod_status_phase{pod=~\".*operator-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$\", phase=\"Running\", namespace=\"logs\"}",
+                    "query": "kube_pod_status_phase{pod=~\".*operator-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$\", phase=\"Running\", namespace=\"$namespace\"}",
                     "seriesNameFormat": "="
                   }
                 }
@@ -1549,6 +1549,28 @@
         "kind": "ListVariable",
         "spec": {
           "display": {
+            "name": "Exporter",
+            "hidden": false
+          },
+          "defaultValue": "opensearch/failover_a",
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "sort": "alphabetical-asc",
+          "plugin": {
+            "kind": "PrometheusPromQLVariable",
+            "spec": {
+              "expr": "avg by (exporter) ({__name__=~\"otelcol_exporter_.+\",job=\"$job\"})",
+              "labelName": "exporter"
+            }
+          },
+          "name": "exporter"
+        }
+      },
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "receiver",
+          "display": {
             "name": "Receiver",
             "hidden": false
           },
@@ -1562,8 +1584,7 @@
               "expr": "avg by (receiver) ({__name__=~\"otelcol_receiver_.+\",job=\"$job\"})",
               "labelName": "receiver"
             }
-          },
-          "name": "receiver"
+          }
         }
       },
       {
@@ -1591,27 +1612,6 @@
         "kind": "ListVariable",
         "spec": {
           "display": {
-            "name": "Exporter",
-            "hidden": false
-          },
-          "defaultValue": "opensearch/failover_a",
-          "allowAllValue": false,
-          "allowMultiple": false,
-          "sort": "alphabetical-asc",
-          "plugin": {
-            "kind": "PrometheusPromQLVariable",
-            "spec": {
-              "expr": "avg by (exporter) ({__name__=~\"otelcol_exporter_.+\",job=\"$job\"})",
-              "labelName": "exporter"
-            }
-          },
-          "name": "exporter"
-        }
-      },
-      {
-        "kind": "ListVariable",
-        "spec": {
-          "display": {
             "name": "Metric Type",
             "hidden": false
           },
@@ -1630,6 +1630,24 @@
             }
           },
           "name": "suffix"
+        }
+      },
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "namespace",
+          "display": {
+            "name": "namespace"
+          },
+          "allowAllValue": true,
+          "allowMultiple": false,
+          "plugin": {
+            "kind": "PrometheusPromQLVariable",
+            "spec": {
+              "expr": "avg by (namespace) ({__name__=~\"otelcol_receiver_.+\"})",
+              "labelName": "namespace"
+            }
+          }
         }
       }
     ],
