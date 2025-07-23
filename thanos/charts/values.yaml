@@ -65,6 +65,20 @@ query:
   # To be used for overarching Thanos Queries with custom endpoint lists
   standalone: false
 
+  existingObjectStoreSecret:
+    # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
+    # https://thanos.io/tip/thanos/storage.md/#s3
+    # @default -- {{ include "release.name" . }}-metrics-objectstore
+    name:
+    # -- Object store config file name
+    # @default -- thanos.yaml
+    configFile:
+
+  serviceMonitor:
+    # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
+    # serviceMonitorSelector/ruleSelector.
+    selfMonitor: false
+
   # -- Set Thanos Query --query.auto-downsampling
   autoDownsampling: true
 
@@ -162,10 +176,12 @@ query:
       # tlsKey:
 
   ## Expose Thanos Query as a Plutono datasource
-  ##
   plutonoDatasource:
     # -- Creates a Perses datasource for standalone Thanos Query
     create: false
+
+    # -- set datasource as default for Perses
+    isDefault: false
 
     # -- Label selectors for the Plutono sidecar to detect this datasource.
     selector: {}

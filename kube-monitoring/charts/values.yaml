@@ -9,6 +9,10 @@ kubeMonitoring:
   # Create open source community rules for monitoring the cluster
   # @ignored
   defaultRules:
+    disabled:
+      PrometheusRemoteStorageFailures: true
+      PrometheusRemoteWriteBehind: true
+      PrometheusRemoteWriteDesiredShards: true
     create: true
     rules:
       alertmanager: false
@@ -330,7 +334,10 @@ kubeMonitoring:
 
     # Deploys a Plutono datasource config Secret for this Prometheus
     # @ignored
-    plutonoDatasource: true
+    plutonoDatasource:
+      create: true
+
+      isDefault: false
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
     # @ignored
@@ -510,6 +517,20 @@ blackboxExporter:
   # -- To enable Blackbox Exporter (supported probers: grpc-prober)
   # @section -- Blackbox exporter config
   enabled: false
+
+  # @ignored
+  secretConfig: true
+  # @ignored
+  config:
+    modules:
+      grpc-prober:
+        prober: grpc
+        grpc:
+          tls: true
+          tls_config:
+            ca_file: /etc/blackbox/tls/ca.crt
+            cert_file: /etc/blackbox/tls/tls.crt
+            key_file: /etc/blackbox/tls/tls.key
 
   # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter.
   # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>

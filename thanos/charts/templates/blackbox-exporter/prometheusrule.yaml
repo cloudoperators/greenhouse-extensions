@@ -4,7 +4,9 @@ kind: PrometheusRule
 metadata:
   name: {{ include "release.name" . }}-blackbox-exporter-probes
   labels:
+    {{- if .Values.serviceMonitor.labels }} 
     {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
     {{- include "thanos.labels" . | nindent 4 }}
     thanos-ruler: {{ $.Values.ruler.matchLabel | default $.Release.Name }}
 spec:

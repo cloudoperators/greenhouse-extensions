@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
     name: thanos
 spec:
-    version: 0.5.30
+    version: 0.5.36
     description: thanos
     helmChart:
         name: thanos
         repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.5.27
+        version: 0.5.32
     options:
         - default: null
           description: CLI param for Thanos Query
@@ -91,6 +91,11 @@ spec:
           name: thanos.query.plutonoDatasource.selector
           required: false
           type: map
+        - name: thanos.query.plutonoDatasource.isDefault
+          description: Whether the Plutono datasource should be set as default for Thanos Query
+          default: true
+          required: false
+          type: bool
         - description: Expose Thanos Query as a Perses datasource
           name: thanos.query.persesDatasource.create
           required: false
@@ -99,6 +104,17 @@ spec:
             perses.dev/resource: "true"
           description: Label selectors for the Perses sidecar to detect this datasource
           name: thanos.query.persesDatasource.selector
+          required: false
+          type: map
+        - name: thanos.query.plutonoDatasource.create
+          description: Expose Thanos Query as a Plutono datasource
+          required: false
+          type: bool
+          default: true
+        - name: thanos.query.plutonoDatasource.selector
+          default:
+            plutono-datasource: "true"
+          description: Label selectors for Putono sidera to detect this datasource
           required: false
           type: map
         - default: true
@@ -111,7 +127,7 @@ spec:
           name: thanos.compactor.enabled
           required: false
           type: bool
-        - default: true
+        - default: false
           description: Enable Thanos Ruler
           name: thanos.ruler.enabled
           required: false
@@ -153,8 +169,5 @@ spec:
           type: secret
         - name: thanos.serviceMonitor.alertLabels
           description: Labels to add to the PrometheusRules alerts
-          default: |
-            support_group: observability
-            service: metrics
           type: string
           required: false

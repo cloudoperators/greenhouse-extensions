@@ -5,7 +5,9 @@ metadata:
   name: {{ .Values.cluster.cluster.name | default .Release.Name }}-dashboards-external
   labels:
     opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default .Release.Name }}
-    greenhouse.sap/expose: "true"
+    {{- with .Values.cluster.cluster.dashboards.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.cluster.cluster.dashboards.service.type }}
   ports:

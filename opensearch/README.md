@@ -69,7 +69,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | certManager.enable | bool | `true` | Enable cert-manager integration for issuing TLS certificates |
 | certManager.httpDnsNames | list | `["opensearch-client.tld"]` | Override HTTP DNS names for OpenSearch client endpoints |
 | certManager.issuer.ca | object | `{"name":"opensearch-ca-issuer"}` | Name of the CA Issuer to be used for internal certs |
-| certManager.issuer.digicert | object | `{"group":"certmanager.cloud.sap","kind":"DigicertIssuer","name":"digicert-issuer"}` | API group for the DigicertIssuer custom resource |
+| certManager.issuer.digicert | object | `{}` | API group for the DigicertIssuer custom resource |
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
@@ -80,7 +80,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
 | cluster.cluster.client.service.annotations | object | `{}` | Annotations to add to the service, e.g. disco. |
-| cluster.cluster.client.service.enabled | bool | `true` | Enable or disable the external client service. |
+| cluster.cluster.client.service.enabled | bool | `false` | Enable or disable the external client service. |
 | cluster.cluster.client.service.externalIPs | list | `[]` | List of external IPs to expose the service on. |
 | cluster.cluster.client.service.loadBalancerSourceRanges | list | `[]` | List of allowed IP ranges for external access when service type is `LoadBalancer`. |
 | cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
@@ -97,12 +97,13 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
 | cluster.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | cluster.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
-| cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
+| cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{"name":"dashboards-credentials"}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | cluster.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
 | cluster.cluster.dashboards.podSecurityContext | object | `{}` | dasboards pod security context configuration |
 | cluster.cluster.dashboards.replicas | int | `1` | number of dashboards replicas |
 | cluster.cluster.dashboards.resources | object | `{}` | dashboards pod cpu and memory resources |
 | cluster.cluster.dashboards.securityContext | object | `{}` | dashboards security context configuration |
+| cluster.cluster.dashboards.service.labels | object | `{}` | dashboards service metadata labels |
 | cluster.cluster.dashboards.service.loadBalancerSourceRanges | list | `[]` | source ranges for a loadbalancer |
 | cluster.cluster.dashboards.service.type | string | `"ClusterIP"` | dashboards service type |
 | cluster.cluster.dashboards.tls.caSecret | object | `{"name":"opensearch-ca-cert"}` | Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
@@ -110,7 +111,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"2.19.1"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"2.19.2"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -118,10 +119,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | cluster.cluster.general.keystore | list | `[]` | Populate opensearch keystore before startup |
+| cluster.cluster.general.monitoring.additionalRuleLabels | object | `{}` | PrometheusRule labels |
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.1/prometheus-exporter-2.19.1.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.2/prometheus-exporter-2.19.2.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -132,7 +134,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | cluster.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | cluster.cluster.general.vendor | string | `"Opensearch"` |  |
-| cluster.cluster.general.version | string | `"2.19.1"` | Opensearch version |
+| cluster.cluster.general.version | string | `"2.19.2"` | Opensearch version |
 | cluster.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | cluster.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | cluster.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |
@@ -149,11 +151,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.initHelper.version | string | `"1.36"` | initHelper version |
 | cluster.cluster.labels | object | `{}` | OpenSearchCluster labels |
 | cluster.cluster.name | string | `""` | OpenSearchCluster name, by default release name is used |
-| cluster.cluster.nodePools | list | `[{"component":"main","diskSize":"30Gi","replicas":3,"resources":{"limits":{"cpu":1,"memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["cluster_manager"]},{"component":"data","diskSize":"30Gi","replicas":3,"resources":{"limits":{"cpu":2,"memory":"4Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["data"]},{"component":"client","diskSize":"30Gi","replicas":1,"resources":{"limits":{"cpu":1,"memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"roles":["client"]}]` | Opensearch nodes configuration |
-| cluster.cluster.security.config.adminCredentialsSecret | object | `{}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
+| cluster.cluster.nodePools | list | <pre>nodePools:<br>  - component: main<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "2Gi"<br>        cpu: 1</pre> | Opensearch nodes configuration |
+| cluster.cluster.security.config.adminCredentialsSecret | object | `{"name":"admin-credentials"}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
 | cluster.cluster.security.config.adminSecret | object | `{"name":"opensearch-admin-cert"}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
-| cluster.cluster.security.config.securityConfigSecret | object | `{}` | Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
-| cluster.cluster.security.tls.http.caSecret | object | `{}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
+| cluster.cluster.security.config.securityConfigSecret | object | `{"name":"opensearch-security-config"}` | Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
+| cluster.cluster.security.tls.http.caSecret | object | `{"name":"opensearch-http-cert"}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.http.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false - secrets with existing certificates must be supplied |
 | cluster.cluster.security.tls.http.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.security.tls.transport.adminDn | list | `["CN=admin"]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
@@ -162,21 +164,20 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.security.tls.transport.nodesDn | list | `["CN=opensearch-transport"]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
 | cluster.cluster.security.tls.transport.perNode | bool | `false` | Separate certificate per node |
 | cluster.cluster.security.tls.transport.secret | object | `{"name":"opensearch-transport-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
-| cluster.componentTemplates | list | `[{"_meta":{"description":"Enable full dynamic mapping for all attributes.* keys"},"allowAutoCreate":true,"name":"logs-attributes-dynamic","templateSpec":{"mappings":{"properties":{"attributes":{"dynamic":true,"type":"object"}}}},"version":1}]` | List of OpensearchComponentTemplate. Check values.yaml file for examples. |
+| cluster.componentTemplates | list | <pre>componentTemplates:<br>  - name: logs-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre> | List of OpensearchComponentTemplate. Check values.yaml file for examples. |
 | cluster.fullnameOverride | string | `""` |  |
-| cluster.indexTemplates | list | `[]` | List of OpensearchIndexTemplate. Check values.yaml file for examples. |
-| cluster.indexTemplatesWorkAround | list | `[{"composedOf":["logs-attributes-dynamic"],"dataStream":{"timestamp_field":{"name":"@timestamp"}},"indexPatterns":["logs*"],"name":"logs-index-template","priority":100,"templateSpec":{"mappings":{"properties":{"@timestamp":{"type":"date"},"message":{"type":"text"}}},"settings":{"index":{"number_of_replicas":1,"number_of_shards":1,"refresh_interval":"1s"}}}}]` | List of OpensearchIndexTemplate. Check values.yaml file for examples. |
-| cluster.ismPolicies | list | `[{"defaultState":"hot","description":"Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d","ismTemplate":{"indexPatterns":["logs*"],"priority":100},"name":"logs-rollover-policy","states":[{"actions":[{"rollover":{"minDocCount":50000000,"minIndexAge":"7d","minSize":"30gb"}}],"name":"hot","transitions":[{"conditions":{"minIndexAge":"30d"},"stateName":"delete"}]},{"actions":[{"delete":{}}],"name":"delete","transitions":[]}]}]` | List of OpenSearchISMPolicy. Check values.yaml file for examples. |
+| cluster.indexTemplates | list | <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream:<br>      timestamp_field:<br>        name: "@timestamp"<br>    priority: 100</pre> | List of OpensearchIndexTemplate. |
+| cluster.ismPolicies | list | <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minIndexAge: "7d"<br>              minSize: "30gb"<br>              minDocCount: 50000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>        transitions: []<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre> | List of OpenSearchISMPolicy. Check values.yaml file for examples. |
 | cluster.nameOverride | string | `""` |  |
-| cluster.roles | list | `[{"clusterPermissions":["cluster_monitor","cluster_composite_ops","cluster:admin/ingest/pipeline/put","cluster:admin/ingest/pipeline/get","indices:admin/template/get","cluster_manage_index_templates"],"indexPermissions":[{"allowedActions":["indices:admin/template/get","indices:admin/template/put","indices:admin/mapping/put","indices:admin/create","indices:data/write/bulk*","indices:data/write/index","indices:data/read*","indices:monitor*","indices_all"],"indexPatterns":["logs*"]}],"name":"logs-role"}]` | List of OpensearchRole. Check values.yaml file for examples. |
+| cluster.roles | list | <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre> | List of OpensearchRole. See values.yaml file for a full example. |
 | cluster.serviceAccount.annotations | object | `{}` | Service Account annotations |
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
-| cluster.users | list | `[{"backendRoles":[],"name":"logs","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs-credentials"},{"backendRoles":[],"name":"logs2","opendistroSecurityRoles":["logs-role"],"secretKey":"password","secretName":"logs2-credentials"}]` | List of OpenSearch user configurations. Each user references a secret (defined in usersCredentials) for authentication. |
-| cluster.usersCredentials | object | `{"logs":{"password":"","username":""},"logs2":{"password":"","username":""}}` | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. |
-| cluster.usersRoleBinding | list | `[{"name":"logs-access","roles":["logs-role"],"users":["logs"]}]` | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role Check values.yaml file for examples. |
-| operator.fullnameOverride | string | `"opensearch-operator"` |  |
+| cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. |
+| cluster.usersCredentials | object | <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
+| cluster.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role |
+| operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
 | operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
@@ -244,6 +245,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
+| testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
+| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
+| testFramework.image.tag | string | `"main"` | Defines the image tag for the test framework. |
+| testFramework.imagePullPolicy | string | `"IfNotPresent"` | Defines the image pull policy for the test framework. |
 
 ## Usage
 
