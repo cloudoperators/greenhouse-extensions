@@ -22,8 +22,8 @@ release: {{ $.Release.Name | quote }}
 
 {{/* Object Store Secret Name */}}
 {{- define "thanos.objectStoreSecretName" -}}
-{{- if .Values.thanos.existingObjectStoreSecret.name -}}
-{{ tpl .Values.thanos.existingObjectStoreSecret.name . }}
+{{- if .Values.existingObjectStoreSecret.name -}}
+{{ tpl .Values.existingObjectStoreSecret.name . }}
 {{- else -}}
 {{ include "release.name" . }}-metrics-objectstore
 {{- end }}
@@ -31,8 +31,8 @@ release: {{ $.Release.Name | quote }}
 
 {{/* Object Store Config File Name */}}
 {{- define "thanos.objectStoreConfigFile" -}}
-{{- if .Values.thanos.existingObjectStoreSecret.configFile -}}
-{{ tpl .Values.thanos.existingObjectStoreSecret.configFile . }}
+{{- if .Values.existingObjectStoreSecret.configFile -}}
+{{ tpl .Values.existingObjectStoreSecret.configFile . }}
 {{- else -}}
 thanos.yaml
 {{- end }}
