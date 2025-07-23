@@ -356,82 +356,66 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
-| thanos.compactor.additionalArgs | list | `[]` | Adding additional arguments to Thanos Compactor |
-| thanos.compactor.annotations | object | `{}` | Annotations to add to the Thanos Compactor resources |
-| thanos.compactor.compact.cleanupInterval | string | 1800s | Set Thanos Compactor compact.cleanup-interval |
-| thanos.compactor.compact.concurrency | string | 1 | Set Thanos Compactor compact.concurrency |
-| thanos.compactor.compact.waitInterval | string | 900s | Set Thanos Compactor wait-interval |
-| thanos.compactor.consistencyDelay | string | 1800s | Set Thanos Compactor consistency-delay |
-| thanos.compactor.containerLabels | object | `{}` | Labels to add to the Thanos Compactor container |
-| thanos.compactor.deploymentLabels | object | `{}` | Labels to add to the Thanos Compactor deployment |
-| thanos.compactor.enabled | bool | `true` | Enable Thanos Compactor component |
-| thanos.compactor.httpGracePeriod | string | 120s | Set Thanos Compactor http-grace-period |
-| thanos.compactor.logLevel | string | info | Thanos Compactor log level |
-| thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
-| thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
-| thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
-| thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
-| thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
-| thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
-| thanos.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
-| thanos.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
-| thanos.grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
-| thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
-| thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
-| thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
-| thanos.image.tag | string | `"v0.38.0"` | Thanos image tag |
-| thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
-| thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
-| thanos.query.autoDownsampling | bool | `true` |  |
-| thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
-| thanos.query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
-| thanos.query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
-| thanos.query.ingress.enabled | bool | `false` | Enable ingress controller resource |
-| thanos.query.ingress.grpc.annotations | object | `{}` | Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
-| thanos.query.ingress.grpc.enabled | bool | `false` | Enable ingress controller resource.(GRPC) |
-| thanos.query.ingress.grpc.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource.(GRPC) |
-| thanos.query.ingress.grpc.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)(GRPC) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
-| thanos.query.ingress.grpc.tls | list | `[]` | Ingress TLS configuration. (GRPC) |
-| thanos.query.ingress.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource |
-| thanos.query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
-| thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
-| thanos.query.logLevel | string | info | Thanos Query log level |
-| thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
-| thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
-| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
-| thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Perses |
-| thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
-| thanos.query.replicaLabel | string | `nil` |  |
-| thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
-| thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.standalone | bool | `false` |  |
-| thanos.query.stores | list | `[]` |  |
-| thanos.query.tls.data | object | `{}` |  |
-| thanos.query.tls.secretName | string | `""` |  |
-| thanos.query.web.externalPrefix | string | `nil` |  |
-| thanos.query.web.routePrefix | string | `nil` |  |
-| thanos.ruler.alertmanagers | object | nil | Configures the list of Alertmanager endpoints to send alerts to. The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager. |
-| thanos.ruler.alertmanagers.authentication.enabled | bool | `true` | Enable Alertmanager authentication for Thanos Ruler |
-| thanos.ruler.alertmanagers.authentication.ssoCert | string | `nil` | SSO Cert for Alertmanager authentication |
-| thanos.ruler.alertmanagers.authentication.ssoKey | string | `nil` | SSO Key for Alertmanager authentication |
-| thanos.ruler.alertmanagers.enabled | bool | `true` | Enable Thanos Ruler Alertmanager config |
-| thanos.ruler.alertmanagers.hosts | string | `nil` | List of hosts endpoints to send alerts to |
-| thanos.ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler resources |
-| thanos.ruler.enabled | bool | `false` | Enable Thanos Ruler components |
-| thanos.ruler.externalPrefix | string | `"/ruler"` | Set Thanos Ruler external prefix |
-| thanos.ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
-| thanos.ruler.matchLabel | string | `nil` | TO DO |
-| thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
-| thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
-| thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
-| thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
-| thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
-| thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
-| thanos.store.annotations | object | `{}` | Annotations to add to the Thanos Store resources |
-| thanos.store.chunkPoolSize | string | 4GB | Set Thanos Store chunk-pool-size |
-| thanos.store.containerLabels | object | `{}` | Labels to add to the Thanos Store container |
-| thanos.store.deploymentLabels | object | `{}` | Labels to add to the Thanos Store deployment |
-| thanos.store.enabled | bool | `true` | Enable Thanos Store component |
-| thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
-| thanos.store.logLevel | string | info | Thanos Store log level |
-| thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
+| grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
+| httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
+| image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
+| image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
+| image.tag | string | `"v0.38.0"` | Thanos image tag |
+| query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
+| query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
+| query.autoDownsampling | bool | `true` |  |
+| query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
+| query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
+| query.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
+| query.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
+| query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
+| query.ingress.enabled | bool | `false` | Enable ingress controller resource |
+| query.ingress.grpc.annotations | object | `{}` | Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
+| query.ingress.grpc.enabled | bool | `false` | Enable ingress controller resource.(GRPC) |
+| query.ingress.grpc.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource.(GRPC) |
+| query.ingress.grpc.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)(GRPC) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
+| query.ingress.grpc.tls | list | `[]` | Ingress TLS configuration. (GRPC) |
+| query.ingress.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource |
+| query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
+| query.ingress.tls | list | `[]` | Ingress TLS configuration |
+| query.logLevel | string | info | Thanos Query log level |
+| query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
+| query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
+| query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Perses |
+| query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
+| query.replicaLabel | string | `nil` |  |
+| query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
+| query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
+| query.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
+| query.standalone | bool | `false` |  |
+| query.stores | list | `[]` |  |
+| query.tls.data | object | `{}` |  |
+| query.tls.secretName | string | `""` |  |
+| query.web.externalPrefix | string | `nil` |  |
+| query.web.routePrefix | string | `nil` |  |
+| ruler.alertmanagers | object | nil | Configures the list of Alertmanager endpoints to send alerts to. The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager. |
+| ruler.alertmanagers.authentication.enabled | bool | `true` | Enable Alertmanager authentication for Thanos Ruler |
+| ruler.alertmanagers.authentication.ssoCert | string | `nil` | SSO Cert for Alertmanager authentication |
+| ruler.alertmanagers.authentication.ssoKey | string | `nil` | SSO Key for Alertmanager authentication |
+| ruler.alertmanagers.enabled | bool | `true` | Enable Thanos Ruler Alertmanager config |
+| ruler.alertmanagers.hosts | string | `nil` | List of hosts endpoints to send alerts to |
+| ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler resources |
+| ruler.enabled | bool | `false` | Enable Thanos Ruler components |
+| ruler.externalPrefix | string | `"/ruler"` | Set Thanos Ruler external prefix |
+| ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
+| ruler.matchLabel | string | `nil` | TO DO |
+| ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
+| serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
+| serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
+| serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
+| serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
+| store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
+| store.annotations | object | `{}` | Annotations to add to the Thanos Store resources |
+| store.chunkPoolSize | string | 4GB | Set Thanos Store chunk-pool-size |
+| store.containerLabels | object | `{}` | Labels to add to the Thanos Store container |
+| store.deploymentLabels | object | `{}` | Labels to add to the Thanos Store deployment |
+| store.enabled | bool | `true` | Enable Thanos Store component |
+| store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
+| store.logLevel | string | info | Thanos Store log level |
+| store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
