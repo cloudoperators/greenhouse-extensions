@@ -354,6 +354,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
+| existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
+| existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
 | global.commonLabels | object | the chart will add some internal labels automatically | Labels to apply to all resources |
 | global.imageRegistry | string | `nil` | Overrides the registry globally for all images |
 | grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
@@ -366,8 +368,6 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | query.autoDownsampling | bool | `true` |  |
 | query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
 | query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
-| query.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
-| query.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
 | query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
 | query.ingress.enabled | bool | `false` | Enable ingress controller resource |
 | query.ingress.grpc.annotations | object | `{}` | Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
