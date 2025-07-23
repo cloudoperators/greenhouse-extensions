@@ -25,6 +25,15 @@ grpcAddress:
 # @default -- 0.0.0.0:10902
 httpAddress:
 
+existingObjectStoreSecret:
+  # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
+  # https://thanos.io/tip/thanos/storage.md/#s3
+  # @default -- {{ include "release.name" . }}-metrics-objectstore
+  name:
+  # -- Object store config file name
+  # @default -- thanos.yaml
+  configFile:
+
 serviceMonitor:
   # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
   # serviceMonitorSelector/ruleSelector.
@@ -64,15 +73,6 @@ query:
   # Disables standard prometheus-operated and Thanos Store endpoints
   # To be used for overarching Thanos Queries with custom endpoint lists
   standalone: false
-
-  existingObjectStoreSecret:
-    # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
-    # https://thanos.io/tip/thanos/storage.md/#s3
-    # @default -- {{ include "release.name" . }}-metrics-objectstore
-    name:
-    # -- Object store config file name
-    # @default -- thanos.yaml
-    configFile:
 
   serviceMonitor:
     # -- Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus
