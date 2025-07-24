@@ -19,13 +19,15 @@ The OpenSearch operator is experiencing high CPU usage, which can lead to perfor
 ## Diagnosis
 
 1. **Check operator CPU usage**: Monitor CPU usage of the operator pods:
+
    ```bash
-   kubectl top pods -n opensearch-system
+   kubectl top pods -n opensearch-logs
    ```
 
 2. **Check operator logs**: Look for any errors or warnings in the operator logs:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager
    ```
 
 3. **Check for reconciliation loops**: Look for any reconciliation loops or repeated operations that might be consuming high CPU.
@@ -35,8 +37,9 @@ The OpenSearch operator is experiencing high CPU usage, which can lead to perfor
 ## Resolution Steps
 
 1. **Identify high CPU processes**: Check which operations are consuming high CPU in the operator:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager --tail=100
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager --tail=100
    ```
 
 2. **Check for reconciliation issues**: If high CPU is due to reconciliation loops:

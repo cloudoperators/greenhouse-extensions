@@ -19,16 +19,19 @@ The OpenSearch operator is experiencing reconciliation errors, which can prevent
 ## Diagnosis
 
 1. **Check operator logs**: Look for reconciliation errors in the operator logs:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager
    ```
 
 2. **Check operator events**: Look for any events related to reconciliation errors:
+
    ```bash
-   kubectl get events -n opensearch-system
+   kubectl get events -n opensearch-logs
    ```
 
 3. **Check OpenSearch cluster status**: Verify the status of OpenSearch clusters managed by the operator:
+
    ```bash
    kubectl get opensearchclusters -A
    ```
@@ -38,28 +41,33 @@ The OpenSearch operator is experiencing reconciliation errors, which can prevent
 ## Resolution Steps
 
 1. **Identify error causes**: Check which specific errors are occurring during reconciliation:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager --tail=100
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager --tail=100
    ```
 
 2. **Check resource definitions**: Verify that OpenSearch cluster resources are properly defined:
+
    ```bash
    kubectl get opensearchclusters -A -o yaml
    ```
 
 3. **Check for validation errors**: Look for any validation errors in the OpenSearch cluster configurations:
+
    ```bash
    kubectl describe opensearchcluster <cluster-name> -n <namespace>
    ```
 
 4. **Check for resource conflicts**: Look for any resource conflicts or issues that might be causing reconciliation errors:
+
    ```bash
-   kubectl get events -n opensearch-system
+   kubectl get events -n opensearch-logs
    ```
 
 5. **Restart operator if needed**: If the operator is stuck or not responding properly:
+
    ```bash
-   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-system
+   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-logs
    ```
 
 6. **Check operator configuration**: Verify that the operator is properly configured and has the necessary permissions.

@@ -19,20 +19,21 @@ The OpenSearch operator is down or not functioning properly, which can prevent t
 ## Diagnosis
 
 1. **Check operator pod status**: Verify if the OpenSearch operator pods are running:
+
    ```bash
-   kubectl get pods -n opensearch-system
-   # or
-   kubectl get pods -n opensearch-operator-system
+   kubectl get pods -n opensearch-logs
    ```
 
 2. **Check operator logs**: Check the operator logs for errors:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager
    ```
 
 3. **Check operator deployment**: Verify the operator deployment status:
+
    ```bash
-   kubectl get deployment -n opensearch-system
+   kubectl get deployment -n opensearch-logs
    ```
 
 4. **Check for resource conflicts**: Look for any resource conflicts or issues that might be preventing the operator from running.
@@ -40,8 +41,9 @@ The OpenSearch operator is down or not functioning properly, which can prevent t
 ## Resolution Steps
 
 1. **Restart the operator**: If the operator is stuck or not responding:
+
    ```bash
-   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-system
+   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-logs
    ```
 
 2. **Check operator configuration**: Verify that the operator is properly configured and has the necessary permissions.
@@ -49,13 +51,15 @@ The OpenSearch operator is down or not functioning properly, which can prevent t
 3. **Check for resource issues**: Ensure that the operator has sufficient resources (CPU, memory) to run properly.
 
 4. **Verify CRDs**: Check if the Custom Resource Definitions (CRDs) are properly installed:
+
    ```bash
    kubectl get crd | grep opensearch
    ```
 
 5. **Check operator events**: Look for any events related to the operator:
+
    ```bash
-   kubectl get events -n opensearch-system
+   kubectl get events -n opensearch-logs
    ```
 
 6. **Contact support**: If the operator continues to have issues, investigate further or seek assistance from your operations team.

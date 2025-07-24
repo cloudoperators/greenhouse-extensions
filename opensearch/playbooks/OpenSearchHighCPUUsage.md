@@ -18,14 +18,24 @@ The OpenSearch cluster is experiencing high CPU usage, which can lead to perform
 
 ## Diagnosis
 
-1. **Check CPU usage metrics**: Monitor CPU usage across all nodes in the cluster:
-   ```bash
-   kubectl top pods -n opensearch-logs
-   ```
+1. **Check cluster health**:
 
-2. **Check cluster health**: Verify if the cluster is in a healthy state:
-   ```bash
-   curl -u $USER:$PW http://localhost:9200/_cluster/health
+   - **How to access Dev Tools:**
+     1. In the Greenhouse UI, go to **Organization** > **Plugins** > **opensearch <cluster>**.
+     2. Under **External Links**, click on **opensearch-dashboards-external** to open OpenSearch Dashboards.
+     3. Log in if prompted.
+     4. In the OpenSearch Dashboards menu (left side), scroll down to **Management** and then click on **Dev Tools**.
+
+   - In the Dev Tools console, run:
+
+     ```http
+     GET _cluster/health
+     ```
+
+2. **Check OS stats for all nodes**:
+
+   ```http
+   GET _nodes/stats/os
    ```
 
 3. **Check for ongoing operations**: Look for heavy operations like:
@@ -42,9 +52,12 @@ The OpenSearch cluster is experiencing high CPU usage, which can lead to perform
 ## Resolution Steps
 
 1. **Identify high CPU processes**: Check which operations are consuming high CPU:
-   ```bash
-   curl -u $USER:$PW http://localhost:9200/_nodes/stats/os
-   ```
+
+   - In the Dev Tools console, run:
+
+     ```http
+     GET _nodes/stats/os
+     ```
 
 2. **Optimize search queries**: If high CPU is due to complex queries:
    - Review and optimize search queries

@@ -19,13 +19,15 @@ The OpenSearch operator is experiencing high memory usage, which can lead to per
 ## Diagnosis
 
 1. **Check operator memory usage**: Monitor memory usage of the operator pods:
+
    ```bash
-   kubectl top pods -n opensearch-system
+   kubectl top pods -n opensearch-logs
    ```
 
 2. **Check operator logs**: Look for any memory-related errors in the operator logs:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager
    ```
 
 3. **Check for memory leaks**: Look for any patterns that might indicate memory leaks in the operator.
@@ -35,8 +37,9 @@ The OpenSearch operator is experiencing high memory usage, which can lead to per
 ## Resolution Steps
 
 1. **Identify memory-intensive processes**: Check which operations are consuming high memory in the operator:
+
    ```bash
-   kubectl logs -n opensearch-system deployment/opensearch-operator-controller-manager --tail=100
+   kubectl logs -n opensearch-logs deployment/opensearch-operator-controller-manager --tail=100
    ```
 
 2. **Check for reconciliation issues**: If high memory is due to reconciliation loops or large resource processing:
@@ -55,8 +58,9 @@ The OpenSearch operator is experiencing high memory usage, which can lead to per
    - Ensure proper resource allocation
 
 5. **Restart operator if needed**: If memory usage is critically high:
+
    ```bash
-   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-system
+   kubectl rollout restart deployment/opensearch-operator-controller-manager -n opensearch-logs
    ```
 
 6. **Monitor and adjust**: Continue monitoring memory usage and adjust resources as needed.

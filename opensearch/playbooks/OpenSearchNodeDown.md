@@ -7,7 +7,7 @@ weight: 20
 
 ## Problem
 
-OpenSearch master or data pods are crash-looping due to full disk or other issues, causing `KubernetesPodRestartingTooMuch` alerts or pod failures.
+OpenSearch main or data pods are crash-looping due to full disk or other issues, causing `KubernetesPodRestartingTooMuch` alerts or pod failures.
 
 ## Impact
 
@@ -17,84 +17,48 @@ OpenSearch master or data pods are crash-looping due to full disk or other issue
 
 ## Diagnosis
 
-1. **Check pod logs**: Check the pod logs in the respective scaleout cluster for errors such as `No space left on device`:
-   ```bash
-   kubectl logs opensearch-logs-master-0 -n opensearch-logs
-   ```
+1. **Check node status**:
 
-   Example error:
-   ```
-   14:09:51.872 [main] ERROR org.elasticsearch.bootstrap.ElasticsearchUncaughtExceptionHandler - uncaught exception in thread [main]
-   org.elasticsearch.bootstrap.StartupException: ElasticsearchException[failed to load metadata]; nested: IOException[No space left on device];
-   ```
+   - Use Kubernetes to check pod status:
 
-2. **Check pod status**: Verify which pods are down and their current status:
-   ```bash
-   kubectl get pods -n opensearch-logs
-   ```
+     ```bash
+     kubectl get pods -n opensearch-logs
+     ```
 
-3. **Check volume status**: If the pod is failing due to disk space issues, it may not be possible to check the volumes content from the Elasticsearch pod directly.
+2. **Check cluster health**:
+
+   - **How to access Dev Tools:**
+     1. In the Greenhouse UI, go to **Organization** > **Plugins** > **opensearch <cluster>**.
+     2. Under **External Links**, click on **opensearch-dashboards-external** to open OpenSearch Dashboards.
+     3. Log in if prompted.
+     4. In the OpenSearch Dashboards menu (left side), scroll down to **Management** and then click on **Dev Tools**.
+
+   - In the Dev Tools console, run:
+
+     ```http
+     GET _cat/nodes?v
+     ```
+
+     ```http
+     GET _cluster/health
+     ```
+
+3. **Check volume status**: If the pod is failing due to disk space issues, it may not be possible to check the volumes content from the OpenSearch pod directly.
 
 ## Resolution Steps
 
-1. **Delete StatefulSet without removing pods**: If the pod is failing due to disk space issues, delete the StatefulSet without removing the pods:
+1. **Access the PVC for cleanup using kubectl debug**: If the pod is crash-looping and you need to manually clean up files on the volume, use the following command to start a debug container attached to the existing pod (if possible):
+
    ```bash
-   kubectl delete statefulset opensearch-logs-master --cascade=orphan -n opensearch-logs
+   kubectl debug -it <pod-name> -n opensearch-logs --image=alpine --target=<container-name> -- /bin/sh
    ```
 
-2. **Mount PVC in alpine pod**: Create a plain alpine pod to mount the PersistentVolumeClaim:
-   ```yaml
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     labels:
-       run: alpine
-     name: alpine
-     namespace: opensearch-logs
-   spec:
-     containers:
-     - image: keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/alpine:3.17
-       name: alpine
-       command: [ "/bin/sh", "-c", "--" ]
-       args: [ "while true; do sleep 30; done;" ]
-       volumeMounts:
-       - mountPath: /usr/share/opensearch/data
-         name: opensearch-logs-master
-     dnsPolicy: ClusterFirst
-     restartPolicy: Always
-     volumes:
-     - name: opensearch-logs-master
-       persistentVolumeClaim:
-         claimName: opensearch-logs-master-opensearch-logs-master-0
-     tolerations:
-     - effect: NoSchedule
-       key: dedicated
-       operator: Equal
-       value: payload
-   ```
+   If the pod is not running and you need to create a new debug pod to mount the PVC, you may need to create a temporary pod manifest that mounts the PVC, or use your cluster's preferred debug workflow.
 
-3. **Access the PVC**: Access the PVC with the alpine pod:
-   ```bash
-   kubectl exec -ti alpine -- sh -n opensearch-logs
-   ```
+   Once inside the debug shell, you can check disk usage and clean up files as needed:
 
-4. **Check disk usage**: Check if the volume is actually full:
    ```bash
    df -h
-   ```
-
-5. **Check volume content**: Check the volumes content to identify the culprit:
-   ```bash
    ls -lah /usr/share/opensearch/data
+   # Remove large or unnecessary files if you are certain they are not needed
    ```
-
-6. **Clean up large files**: **ONLY** delete files if you are certain they will not be missed. If there are large displaced files, such as `hprof` files, delete them.
-
-7. **Delete alpine pod**: After freeing space in the volume, delete the alpine pod to avoid `MultipleAttachErrors`:
-   ```bash
-   kubectl delete pod -n opensearch-logs alpine
-   ```
-
-8. **Trigger pipeline**: Trigger the pipeline of the respective region to redeploy the StatefulSet, which will then recreate the missing Elasticsearch master pod. To avoid side-effects, always use the `re-run with same inputs` feature of concourse.
-
-**Note**: This playbook can also be followed for data pods by adjusting the pod names and PVC names accordingly.

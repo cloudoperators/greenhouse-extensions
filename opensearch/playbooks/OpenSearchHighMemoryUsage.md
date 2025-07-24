@@ -18,19 +18,30 @@ The OpenSearch cluster is experiencing high memory usage, which can lead to perf
 
 ## Diagnosis
 
-1. **Check memory usage metrics**: Monitor memory usage across all nodes in the cluster:
-   ```bash
-   kubectl top pods -n opensearch-logs
+1. **Check cluster health**:
+
+   - **How to access Dev Tools:**
+     1. In the Greenhouse UI, go to **Organization** > **Plugins** > **opensearch <cluster>**.
+     2. Under **External Links**, click on **opensearch-dashboards-external** to open OpenSearch Dashboards.
+     3. Log in if prompted.
+     4. In the OpenSearch Dashboards menu (left side), scroll down to **Management** and then click on **Dev Tools**.
+
+   - In the Dev Tools console, run:
+
+     ```http
+     GET _cluster/health
+     ```
+
+2. **Check JVM stats for all nodes**:
+
+   ```http
+   GET _nodes/stats/jvm
    ```
 
-2. **Check cluster health**: Verify if the cluster is in a healthy state:
-   ```bash
-   curl -u $USER:$PW http://localhost:9200/_cluster/health
-   ```
+3. **Monitor JVM stats for a specific node**:
 
-3. **Check JVM heap usage**: Monitor JVM heap usage for OpenSearch nodes:
-   ```bash
-   curl -u $USER:$PW http://localhost:9200/_nodes/stats/jvm
+   ```http
+   GET _nodes/stats/jvm
    ```
 
 4. **Check for memory-intensive operations**: Look for operations that consume high memory:
@@ -39,12 +50,24 @@ The OpenSearch cluster is experiencing high memory usage, which can lead to perf
    - Bulk indexing operations
    - Index recovery operations
 
+4. **Delete index**: Deleting is done via the OpenSearch Dev Tools:
+
+   ```http
+   DELETE /<index-name>
+   ```
+
+   Replace `<index-name>` with the actual name of the index.
+   - ⚠️ **Warning:** Deleting an index is a last resort and will result in permanent data loss for that index. Only proceed if the index is unrecoverable and all other recovery options have failed. If possible, take a snapshot/backup before deletion, even if the index is partially damaged.
+
 ## Resolution Steps
 
 1. **Identify memory-intensive processes**: Check which operations are consuming high memory:
-   ```bash
-   curl -u $USER:$PW http://localhost:9200/_nodes/stats/jvm
-   ```
+
+   - In the Dev Tools console, run:
+
+     ```http
+     GET _nodes/stats/jvm
+     ```
 
 2. **Optimize queries and aggregations**: If high memory is due to complex operations:
    - Review and optimize search queries
