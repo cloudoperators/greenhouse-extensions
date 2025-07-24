@@ -7,7 +7,7 @@ weight: 20
 
 ## Problem
 
-The OpenSearch cluster is in status RED, which means there are one or more indexes which cannot be opened because one or more shards are missing.
+The OpenSearch cluster is in status RED, which means there are one or more indices which cannot be opened because one or more shards are missing.
 
 ## Impact
 
@@ -21,7 +21,7 @@ The OpenSearch cluster is in status RED, which means there are one or more index
 
 2. Check via OpenSearch Dev Tools if the cluster is syncing again after Kubernetes cluster issues have been resolved.
 
-3. Check via OpenSearch Dev Tools for affected indexes:
+3. Check via OpenSearch Dev Tools for affected indices:
 
    - Use the Dev Tools console to query cluster health
 
@@ -75,7 +75,7 @@ The OpenSearch cluster is in status RED, which means there are one or more index
 
 4. **Check disk usage**: Check if disks are nearly full using the OpenSearch Dev Tools to query node stats. There is a hard stop at 90% disk usage.
 
-5. **Delete missing special indexes**: If this is a special index (ones with a dot in front of the name like `.opensearch...`), use the Dev Tools to delete the index.
+5. **Delete missing special indices**: If this is a special index (ones with a dot in front of the name like `.opensearch...`), use the Dev Tools to delete the index.
 
    - **Delete an index:**
 
@@ -85,7 +85,7 @@ The OpenSearch cluster is in status RED, which means there are one or more index
 
    Replace `<index-name>` with the actual name of the index you want to delete.
 
-6. **Force cluster reroute**: If the cluster is not recovering and just stuck after deleting missing dot indexes, execute two additional commands via the OpenSearch Dev Tools:
+6. **Force cluster reroute**: If the cluster is not recovering and just stuck after deleting missing dot indices, execute two additional commands via the OpenSearch Dev Tools:
 
    - **Retry failed shard allocations:**
 

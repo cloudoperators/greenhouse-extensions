@@ -98,7 +98,7 @@ The OpenSearch cluster is reporting status YELLOW, which indicates that some rep
      POST _cluster/reroute?retry_failed=true
      ```
 
-   - **Delete unrecoverable indexes:**
+   - **Delete unrecoverable indices:**
      - If an index cannot be resynced, delete it with:
 
        ```http
@@ -123,6 +123,6 @@ The OpenSearch cluster is reporting status YELLOW, which indicates that some rep
 
    Run this in the OpenSearch Dev Tools console as described above.
 
-4. **Delete unrecoverable indexes**: Delete indexes which cannot be resynced anymore via the OpenSearch Dev Tools.
+4. **Delete unrecoverable indices**: Delete indices which cannot be resynced anymore via the OpenSearch Dev Tools.
 
 5. **Contact support**: If issues persist, investigate further or seek assistance from your operations team.
