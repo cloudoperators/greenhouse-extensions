@@ -44,10 +44,17 @@ The OpenSearch cluster is experiencing high CPU usage, which can lead to perform
    - Complex search queries
    - Index recovery operations
 
-4. **Monitor via dashboard**: Check the OpenSearch Manager dashboard for:
-   - Node CPU usage
-   - Active operations
-   - Query performance
+4. **Monitor via dashboard**: You can find the OpenSearch Monitoring dashboard in **Perses** under the **default** project. In the Greenhouse UI, go to **Organization** > **Plugins** > **perses <cluster>**, then under **External Links** look for **perses**. Open the **OpenSearch Monitoring** dashboard.
+
+   - **What to look for:**
+     - **CPU Usage panel:** Shows per-node CPU usage over time. Identify nodes with consistently high CPU usage.
+     - **Cluster Status panel:** Check if the cluster is in a healthy state (Green/Yellow/Red).
+     - **Total Nodes, Main Nodes, Data Nodes, Client Nodes:** Ensure the expected number of nodes are up and healthy.
+     - **JVM Memory Usage panel:** High memory pressure can sometimes correlate with high CPU usage.
+     - **Indexing Rate and Search Rate panels:** High indexing or search rates can drive up CPU usage. Look for spikes or sustained high rates.
+     - **Operator Status and Reconcile Time:** If the operator is unhealthy or slow, it may impact cluster performance.
+
+   Use these panels to correlate high CPU usage with cluster health, node status, and workload patterns. Investigate nodes or time periods with abnormal CPU usage for further troubleshooting.
 
 ## Resolution Steps
 
