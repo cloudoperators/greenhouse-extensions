@@ -1,3 +1,4 @@
+# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
 groups:
   - name: opensearch-cluster
     interval: 30s
@@ -6,7 +7,7 @@ groups:
         expr: opensearch_cluster_status == 2
         for: 5m
         labels:
-          severity: critical
+          severity: info # critical
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -17,7 +18,7 @@ groups:
         expr: opensearch_cluster_status == 1
         for: 20m
         labels:
-          severity: warning
+          severity: info # warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -28,7 +29,7 @@ groups:
         expr: up{job=~".*opensearch.*"} == 0
         for: 10m
         labels:
-          severity: critical
+          severity: info # critical
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchNodeDown.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -39,7 +40,7 @@ groups:
         expr: (opensearch_jvm_mem_heap_used_bytes / opensearch_jvm_mem_heap_max_bytes) * 100 > 95
         for: 15m
         labels:
-          severity: warning
+          severity: info # warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighMemoryUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -51,7 +52,7 @@ groups:
         expr: opensearch_process_cpu_percent > 95
         for: 20m
         labels:
-          severity: warning
+          severity: info # warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighCPUUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
@@ -62,7 +63,7 @@ groups:
         expr: 100 * (1 - (opensearch_fs_total_free_bytes / opensearch_fs_total_total_bytes)) > 90
         for: 10m
         labels:
-          severity: warning
+          severity: info # warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
