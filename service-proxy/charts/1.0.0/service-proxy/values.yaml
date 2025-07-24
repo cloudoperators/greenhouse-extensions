@@ -42,7 +42,7 @@ ingress:
 oauth2proxy:
   enabled: false
   image:
-    registry: "docker.io"
-    repository: "bitnami/oauth2-proxy"
-    version: "7.8.2"
+    registry: "quay.io"
+    repository: "oauth2-proxy/oauth2-proxy"
+    version: "7.10.0"
   providerDisplayName: ""
