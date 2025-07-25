@@ -79,7 +79,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | perses.ingress.tls | list | `[]` | Ingress TLS configuration |
 | perses.livenessProbe | object | `{"enabled":true,"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":60,"successThreshold":1,"timeoutSeconds":5}` | Liveness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| perses.logLevel | string | `"info"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
+| perses.logLevel | string | `"warning"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
 | perses.nameOverride | string | `""` | Override name of the chart used in Kubernetes object names. |
 | perses.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"labels":{},"securityContext":{"fsGroup":2000},"size":"8Gi"}` | Persistence parameters |
 | perses.persistence.accessModes | list | `["ReadWriteOnce"]` | PVC Access Modes for data volume |

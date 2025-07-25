@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.27
+  version: 0.0.30
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.27
+    version: 0.0.30
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -112,3 +112,27 @@ spec:
       description: Node pool configuration.
       required: false
       type: list
+    - name: operator.manager.image.repository
+      description: "Specifies the image repository for the OpenSearch Operator image."
+      required: false
+      type: string
+    - name: operator.manager.image.tag
+      description: "Specifies the image tag for the OpenSearch Operator image."
+      required: false
+      type: string
+    - name: cluster.cluster.general.image
+      description: "Specifies the full image repository for the OpenSearch image."
+      required: false
+      type: string
+    - name: cluster.cluster.general.version
+      description: "Specifies the OpenSearch version."
+      required: false
+      type: string
+    - name: operator.kubeRbacProxy.image.repository
+      description: "Specifies the image repository for the kube-rbac-proxy image."
+      required: false
+      type: string
+    - name: operator.kubeRbacProxy.image.tag
+      description: "Specifies the image tag for the kube-rbac-proxy image."
+      required: false
+      type: string
