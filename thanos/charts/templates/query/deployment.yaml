@@ -80,6 +80,8 @@ spec:
         - containerPort: 10901
           name: grpc
           protocol: TCP
+        resources:
+          {{- toYaml .Values.thanos.query.resources | nindent 10 }}
         readinessProbe:
           failureThreshold: 2
           httpGet:
