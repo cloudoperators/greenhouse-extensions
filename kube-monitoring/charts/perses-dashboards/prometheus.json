@@ -911,7 +911,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "max(prometheus_sd_refresh_failures_total{job=~\"$prometheus\"})",
+                    "query": "max(prometheus_sd_refresh_failures_total{job=~\"$prometheus\"}) or vector(0)",
                     "seriesNameFormat": ""
                   }
                 }
