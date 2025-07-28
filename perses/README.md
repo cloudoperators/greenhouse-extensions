@@ -7,9 +7,8 @@ title: Perses
 - [Overview](#overview)
 - [Disclaimer](#disclaimer)
 - [Quick Start](#quick-start)
-- [Values](#values)
+- [Configuration](#configuration)
 - [Create a custom dashboard](#create-a-custom-dashboard)
-  - [Dashboard-as-Code](#dashboard-as-code)
 - [Add Dashboards as ConfigMaps](#add-dashboards-as-configmaps)
     - [Recommended folder structure](#recommended-folder-structure)
 
@@ -113,6 +112,16 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.sidecar.extraEnvVars | list | `[]` | add additional environment variables to sidecar container. you can look at the k8s-sidecar documentation for more information - https://github.com/kiwigrid/k8s-sidecar |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
+| perses.tls | object | `{"caCert":{"enabled":false,"mountPath":"/ca","secretName":""},"clientCert":{"enabled":false,"mountPath":"/tls","secretName":""},"enabled":false}` | TLS configuration for mounting certificates from Kubernetes secrets |
+| perses.tls.caCert | object | `{"enabled":false,"mountPath":"/ca","secretName":""}` | CA Certificate configuration Certificates will be mounted to the directory specified in mountPath |
+| perses.tls.caCert.enabled | bool | `false` | Enable CA certificate mounting |
+| perses.tls.caCert.mountPath | string | `"/ca"` | Mount path for the CA certificate directory |
+| perses.tls.caCert.secretName | string | `""` | Name of the Kubernetes secret containing the CA certificate Defaults to "release-name-tls" if not specified |
+| perses.tls.clientCert | object | `{"enabled":false,"mountPath":"/tls","secretName":""}` | Client Certificate configuration (contains both cert and key) Certificates will be mounted to the directory specified in mountPath |
+| perses.tls.clientCert.enabled | bool | `false` | Enable client certificate mounting |
+| perses.tls.clientCert.mountPath | string | `"/tls"` | Mount path for the client certificate directory |
+| perses.tls.clientCert.secretName | string | `""` | Name of the Kubernetes secret containing the client certificate and key Defaults to "release-name-tls" if not specified |
+| perses.tls.enabled | bool | `false` | Enable TLS certificate mounting |
 | perses.volumeMounts | list | `[]` | Additional VolumeMounts on the output StatefulSet definition. |
 | perses.volumes | list | `[]` | Additional volumes on the output StatefulSet definition. |
 
