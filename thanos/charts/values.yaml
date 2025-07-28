@@ -85,6 +85,16 @@ thanos:
       externalPrefix:
       routePrefix:
 
+    # -- Resource requests and limits for the Thanos Query container.
+    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
+    resources:
+      requests:
+        cpu:
+        memory:
+      limits:
+        cpu:
+        memory:
+
     # -- Adding additional arguments to Thanos Query
     additionalArgs: []
       # - something.route-foo=/lol

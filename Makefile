@@ -13,10 +13,10 @@ ifneq ($(filter arm%,$(UNAME_P)),)
 endif
 
 ## tools versions
-KUSTOMIZE_VERSION ?= 5.7.0
+KUSTOMIZE_VERSION ?= 5.7.1
 YQ_VERSION ?= v4.45.4
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.74.3
+PINT_VERSION ?= 0.74.4
 HELM_VERSION ?= 3.18.4
 
 ## Location to install dependencies to
