@@ -386,6 +386,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `nil` |  |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
+| thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
 | thanos.query.standalone | bool | `false` |  |
 | thanos.query.stores | list | `[]` |  |

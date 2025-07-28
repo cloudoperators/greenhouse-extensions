@@ -106,9 +106,11 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR. |
 | perses.serviceMonitor.selector.matchLabels | object | `{}` | Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service. |
 | perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
-| perses.sidecar | object | `{"allNamespaces":true,"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
+| perses.sidecar | object | `{"allNamespaces":true,"enableSecretAccess":false,"enabled":true,"extraEnvVars":[],"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
 | perses.sidecar.allNamespaces | bool | `true` | check for configmaps from all namespaces. When set to false, it will only check for configmaps in the same namespace as the Perses instance |
+| perses.sidecar.enableSecretAccess | bool | `false` | Enable secret access permissions in the cluster role. When enabled, the sidecar will have permissions to read secrets and use them. |
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
+| perses.sidecar.extraEnvVars | list | `[]` | add additional environment variables to sidecar container. you can look at the k8s-sidecar documentation for more information - https://github.com/kiwigrid/k8s-sidecar |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
 | perses.volumeMounts | list | `[]` | Additional VolumeMounts on the output StatefulSet definition. |

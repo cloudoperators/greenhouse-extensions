@@ -101,7 +101,7 @@ helm.sh/chart: {{ include "prometheus-blackbox-exporter.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/component: metrics
 app.kubernetes.io/part-of: {{ include "prometheus-blackbox-exporter.name" . }}
-{{ include "prometheus-node-exporter.selectorLabels" . }}
+{{ include "prometheus-blackbox-exporter.selectorLabels" . }}
 {{- with .Chart.AppVersion }}
 app.kubernetes.io/version: {{ . | quote }}
 {{- end }}
