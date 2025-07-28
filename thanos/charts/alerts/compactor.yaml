@@ -19,7 +19,7 @@ groups:
     for: 5m
     labels:
       severity: info
-      playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthalted
+      playbook: https://github.com/cloudoperators/greenhouse-extensions/thanos/playbooks/ThanosCompactHalted.md
       {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHighCompactionFailures
     annotations:
