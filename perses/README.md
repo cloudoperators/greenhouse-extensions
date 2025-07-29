@@ -66,6 +66,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.config.security.cookie | object | `{"same_site":"lax","secure":false}` | cookie config |
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
 | perses.config.security.readonly | bool | `false` | Configure Perses instance as readonly |
+| perses.extraObjects | list | `[]` | Deploy extra K8s manifests |
 | perses.fullnameOverride | string | `""` | Override fully qualified app name |
 | perses.image | object | `{"name":"persesdev/perses","pullPolicy":"IfNotPresent","version":""}` | Image of Perses |
 | perses.image.name | string | `"persesdev/perses"` | Perses image repository and name |
