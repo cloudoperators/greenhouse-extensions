@@ -303,6 +303,35 @@ spec:
         plugin: $PROMETHEUS_PLUGIN_NAME
 ```
 
+### Creating Datasources for Perses
+
+When deploying Thanos, a Perses datasource is automatically created by default, allowing Perses to fetch data for its visualizations and making it the global default datasource for the selected Perses instance.
+
+The Perses datasource is created as a configmap, which allows Perses to connect to the Thanos Query API and retrieve metrics. This integration is essential for enabling dashboards and visualizations in Perses.
+
+**Example configuration:**
+
+```yaml
+spec:
+  optionsValues:
+    - name: thanos.query.persesDatasource.create
+      value: true
+    - name: thanos.query.persesDatasource.selector
+      value: perses.dev/resource: "true"
+```
+
+You can further customize the datasource resource using the `selector` field if you want to target specific Perses instances.
+
+**Note:** 
+- The Perses datasource is always created as the global default for Perses.
+- The datasource configmap is required for Perses to fetch data for its visualizations.
+
+For more details, see the `thanos.query.persesDatasource` options in the [Values](#values) table below.
+
+### Blackbox-exporter Integration
+
+If Blackbox-exporter is enabled and store endpoints are provided, this Thanos deployment will automatically create a ServiceMonitor to probe the specified Thanos GRPC endpoints. Additionally, a PrometheusRule is created to alert in case of failing probes. This allows you to monitor the availability and responsiveness of your Thanos Store components using Blackbox probes and receive alerts if any endpoints become unreachable.
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -327,6 +356,8 @@ spec:
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
+| thanos.existingObjectStoreSecret.configFile | string | thanos.yaml | Object store config file name |
+| thanos.existingObjectStoreSecret.name | string | {{ include "release.name" . }}-metrics-objectstore | Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store https://thanos.io/tip/thanos/storage.md/#s3 |
 | thanos.grpcAddress | string | 0.0.0.0:10901 | GRPC-address used across the stack |
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
 | thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
@@ -351,9 +382,11 @@ spec:
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Perses |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `nil` |  |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
+| thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
 | thanos.query.standalone | bool | `false` |  |
 | thanos.query.stores | list | `[]` |  |

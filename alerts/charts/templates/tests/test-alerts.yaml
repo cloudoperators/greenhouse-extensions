@@ -11,7 +11,7 @@ metadata:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 spec:
-  serviceAccountName: {{ .Release.Name }}-test
+  serviceAccountName: {{ .Release.Name }}-{{ .Release.Namespace }}-test
   containers:
     - name: bats-test
       image: "{{ .Values.testFramework.image.registry}}/{{ .Values.testFramework.image.repository}}:{{ .Values.testFramework.image.tag }}"

@@ -1,0 +1,79 @@
+# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
+groups:
+  - name: opensearch-operator
+    interval: 30s
+    rules:
+      - alert: OpenSearchOperatorDown
+        expr: up{job=~".*opensearch-operator.*"} == 0
+        for: 10m
+        labels:
+          severity: info # critical
+          component: opensearch-operator
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch operator is down"
+          description: "OpenSearch operator in namespace {{`{{ $labels.namespace }}`}} has been down for more than 10 minutes"
+
+      - alert: OpenSearchOperatorReconcileErrors
+        expr: increase(opensearch_operator_controller_runtime_reconcile_errors_total[10m]) > 10
+        for: 10m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorReconcileErrors.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch operator reconcile errors"
+          description: "OpenSearch operator controller {{`{{ $labels.controller }}`}} has {{`{{ $value }}`}} reconcile errors in the last 10 minutes"
+
+      - alert: OpenSearchOperatorHighReconcileTime
+        expr: |
+          avg by (controller) (
+            rate(opensearch_operator_controller_runtime_reconcile_time_seconds_sum[10m])
+            /
+            rate(opensearch_operator_controller_runtime_reconcile_time_seconds_count[10m])
+          ) > 60
+        for: 10m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighReconcileTime.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High operator reconcile time"
+          description: "OpenSearch operator average reconcile time is above 60s ({{`{{ $value }}`}}s)"
+
+      - alert: OpenSearchOperatorHighMemoryUsage
+        expr: |
+          (
+            container_memory_working_set_bytes{container="operator-controller-manager", namespace="{{ .Release.Namespace }}"}
+            /
+            on(namespace, pod, container)
+            group_left(resource)
+            kube_pod_container_resource_limits{container="operator-controller-manager", namespace="{{ .Release.Namespace }}", resource="memory"}
+          ) * 100 > 95
+        for: 15m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighMemoryUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High operator memory usage"
+          description: "OpenSearch operator memory usage is above 95% of its memory limit ({{`{{ $value }}`}}%)"
+
+      - alert: OpenSearchOperatorHighCPUUsage
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{container="operator-controller-manager", namespace="{{ .Release.Namespace }}"}[5m])
+            /
+            on(namespace, pod, container)
+            group_left(resource)
+            kube_pod_container_resource_limits{container="operator-controller-manager", namespace="{{ .Release.Namespace }}", resource="cpu"}
+          ) * 100 > 95
+        for: 20m
+        labels:
+          severity: info # warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorHighCPUUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "High operator CPU usage"
+          description: "OpenSearch operator CPU usage is above 95% of its CPU limit ({{`{{ $value }}`}}%)"

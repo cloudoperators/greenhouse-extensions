@@ -19,13 +19,13 @@ data:
     
     DETIK_CLIENT_NAME="kubectl"
     
-    @test "Verify successful deployment and running status of the {{ .Release.Name }}-operator pod" {
-        verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-operator-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
+    @test "Verify successful deployment and running status of the {{ .Release.Name }} pod" {
+        verify "there is 1 deployment named '{{ .Release.Name }}'"
+        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
     }
 
-    @test "Verify successful deployment of the {{ .Release.Name }}-operator service" {
-        verify "there is 1 service named '^{{ .Release.Name }}-operator\$'"
+    @test "Verify successful deployment of the {{ .Release.Name }} service" {
+        verify "there is 1 service named '{{ .Release.Name }}\$'"
     }
 
     {{- if .Values.openTelemetry.logsCollector.enabled }}
@@ -43,5 +43,6 @@ data:
         verify "there is 1 customresourcedefinition named 'instrumentations.opentelemetry.io'"
         verify "there is 1 customresourcedefinition named 'opampbridges.opentelemetry.io'"
         verify "there is 1 customresourcedefinition named 'opentelemetrycollectors.opentelemetry.io'"
+        verify "there is 1 customresourcedefinition named 'targetallocators.opentelemetry.io'"
     }
 {{- end -}}

@@ -2,6 +2,9 @@
   "kind": "Dashboard",
   "metadata": {
     "name": "open-telemetry",
+    "createdAt": "2025-07-18T08:25:49.108936779Z",
+    "updatedAt": "2025-07-23T07:15:49.477811352Z",
+    "version": 713,
     "project": "default"
   },
   "spec": {
@@ -45,7 +48,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Running\", namespace=\"otel\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Running\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Running"
                   }
                 }
@@ -90,7 +93,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
                     "seriesNameFormat": "Running"
                   }
                 }
@@ -131,7 +134,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Failed\", namespace=\"otel\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Failed\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Failed"
                   }
                 }
@@ -172,7 +175,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(kube_pod_status_phase{phase=\"Pending\", namespace=\"otel\"})\n",
+                    "query": "sum(kube_pod_status_phase{phase=\"Pending\", namespace=\"$namespace\"})\n",
                     "seriesNameFormat": "Pending"
                   }
                 }
@@ -340,7 +343,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"}",
+                    "query": "kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"}",
                     "seriesNameFormat": "="
                   }
                 }
@@ -507,7 +510,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "kube_pod_status_phase{pod=~\".*operator.*\", phase=\"Running\", namespace=\"otel\"}",
+                    "query": "kube_pod_status_phase{pod=~\".*operator-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$\", phase=\"Running\", namespace=\"$namespace\"}",
                     "seriesNameFormat": "="
                   }
                 }
@@ -527,24 +530,7 @@
             "spec": {
               "text": "<center>\n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/\">\nGreenhouse Documentation\n</a> \n\n<a target=\"_blank\" \nhref=\"https://cloudoperators.github.io/greenhouse/docs/reference/catalog/logs/\">\nGreenhouse Logs Plugin Documentation\n</a>\n\n<a target=\"_blank\" \nhref=\"https://github.com/cloudoperators/greenhouse-extensions\">\nGreenhouse Extensions GitHub Repository\n</a> \n\n<a target=\"_blank\" \nhref=\"https://opentelemetry.io/docs/\">\nOpenTelemetry Documentation\n</a> \n</center>"
             }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "datasource": {
-                      "kind": "PrometheusDatasource",
-                      "name": "MigrationFromGrafanaNotSupported"
-                    },
-                    "query": "migration_from_grafana_not_supported"
-                  }
-                }
-              }
-            }
-          ]
+          }
         }
       },
       "2_0": {
@@ -560,7 +546,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.25,
@@ -578,7 +567,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_receiver_accepted_log_records${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver ,${grouping})",
+                    "query": "sum by (receiver)(${metric}(otelcol_receiver_accepted_log_records_total{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}"
                   }
                 }
@@ -600,7 +589,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.25,
@@ -618,87 +610,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_receiver_refused_log_records${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver ,$grouping)",
-                    "seriesNameFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "2_2": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Metric Points ${metric}",
-            "description": "Accepted: count/rate of metric points successfully pushed into the pipeline."
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "legend": {
-                "mode": "table",
-                "position": "bottom",
-                "values": ["max", "min"]
-              },
-              "visual": {
-                "areaOpacity": 0.2,
-                "connectNulls": false,
-                "display": "line",
-                "lineWidth": 1
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_receiver_accepted_metric_points${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver ,$grouping)",
-                    "seriesNameFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "2_3": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Refused Metric Points ${metric}",
-            "description": "Refused: count/rate of metric points that could not be pushed into the pipeline"
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "legend": {
-                "mode": "table",
-                "position": "bottom",
-                "values": ["max", "min"]
-              },
-              "visual": {
-                "areaOpacity": 0.25,
-                "connectNulls": false,
-                "display": "line",
-                "lineWidth": 1
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_receiver_refused_metric_points${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver ,$grouping)",
+                    "query": "sum by (receiver)(${metric}(otelcol_receiver_refused_log_records_total{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}"
                   }
                 }
@@ -711,7 +623,7 @@
         "kind": "Panel",
         "spec": {
           "display": {
-            "name": "Batch Metrics 1",
+            "name": "Batch Metrics",
             "description": "Number of times the batch was sent due to a size trigger. Number of times the batch was sent due to a timeout trigger."
           },
           "plugin": {
@@ -720,7 +632,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.25,
@@ -739,7 +654,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_processor_batch_batch_size_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor ,$grouping)",
+                    "query": "sum by (processor)(${metric}(otelcol_processor_batch_batch_size_trigger_send_total{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Batch sent due to a size trigger: {{processor}}"
                   }
                 }
@@ -752,74 +667,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_processor_batch_timeout_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor ,$grouping)",
-                    "seriesNameFormat": "Batch sent due to a timeout trigger: {{processor}} {{service_instance_id}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "3_1": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Batch Metrics 2",
-            "description": "Sent: count/rate of spans successfully sent to destination.\\nEnqueue: count/rate of spans failed to be added to the sending queue.\nFailed: count/rate of spans in failed attempts to send to destination."
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "legend": {
-                "mode": "table",
-                "position": "bottom",
-                "values": ["max", "min"]
-              },
-              "visual": {
-                "areaOpacity": 0,
-                "connectNulls": false,
-                "display": "line",
-                "lineWidth": 1
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_sent_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Sent: {{exporter}} {{service_instance_id}}"
-                  }
-                }
-              }
-            },
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_enqueue_failed_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Enqueue: {{exporter}} {{service_instance_id}}"
-                  }
-                }
-              }
-            },
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "",
-                    "query": "sum(${metric}(otelcol_exporter_send_failed_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Failed: {{exporter}} {{service_instance_id}}"
+                    "query": "sum  by (processor)(${metric}(otelcol_processor_batch_timeout_trigger_send_total{job=\"$job\"}[$__rate_interval]))",
+                    "seriesNameFormat": "Batch sent due to a timeout trigger: {{processor}} "
                   }
                 }
               }
@@ -840,7 +689,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.3,
@@ -858,8 +710,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_sent_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Sent: {{exporter}} {{service_instance_id}}"
+                    "query": "sum(${metric}(otelcol_exporter_sent_log_records_total{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
+                    "seriesNameFormat": "Sent: {{exporter}} "
                   }
                 }
               }
@@ -871,21 +723,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(${metric}(otelcol_exporter_enqueue_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Enqueue: {{exporter}} {{service_instance_id}}"
-                  }
-                }
-              }
-            },
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "",
-                    "query": "sum(${metric}(otelcol_exporter_send_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Failed: {{exporter}} {{service_instance_id}}"
+                    "query": "sum(${metric}(otelcol_exporter_send_failed_log_records_total{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
+                    "seriesNameFormat": "Enqueue: {{exporter}} "
                   }
                 }
               }
@@ -897,8 +736,8 @@
         "kind": "Panel",
         "spec": {
           "display": {
-            "name": "Metric Points ${metric}",
-            "description": "Sent: count/rate of metric points successfully sent to destination.\nEnqueue: count/rate of metric points failed to be added to the sending queue.\nFailed: count/rate of metric points in failed attempts to send to destination."
+            "name": "Decrease Log Rate",
+            "description": "This will compare the sending decrease of NOW and 2h ago."
           },
           "plugin": {
             "kind": "TimeSeriesChart",
@@ -906,7 +745,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.25,
@@ -924,33 +766,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_send_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Failed: {{exporter}} {{service_instance_id}}"
-                  }
-                }
-              }
-            },
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_sent_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
-                    "seriesNameFormat": "Sent: {{exporter}} {{service_instance_id}}"
-                  }
-                }
-              }
-            },
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "",
-                    "query": "sum(${metric}(otelcol_exporter_enqueue_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter ,$grouping)",
+                    "query": "sum(rate(otelcol_exporter_sent_log_records_total{job=\"$job\"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job=\"$job\"}[1h])) by (k8s_cluster_name) > 1",
                     "seriesNameFormat": ""
                   }
                 }
@@ -972,7 +788,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.15,
@@ -995,7 +814,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job ,$grouping)",
+                    "query": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Max Memory RSS {{service_instance_id}}"
                   }
                 }
@@ -1008,7 +827,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job ,$grouping)",
+                    "query": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Avg Memory RSS {{service_instance_id}}"
                   }
                 }
@@ -1043,7 +862,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.05,
@@ -1066,7 +888,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job ,$grouping)",
+                    "query": "max(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Max Memory RSS {{service_instance_id}}"
                   }
                 }
@@ -1079,7 +901,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job ,$grouping)",
+                    "query": "avg(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Avg Memory RSS {{service_instance_id}}"
                   }
                 }
@@ -1114,7 +936,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.05,
@@ -1137,7 +962,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job ,$grouping)",
+                    "query": "max(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Max CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1150,7 +975,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job ,$grouping)",
+                    "query": "avg(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Avg CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1185,7 +1010,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.2
@@ -1207,7 +1035,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job ,$grouping)",
+                    "query": "max(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Max CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1220,7 +1048,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job ,$grouping)",
+                    "query": "avg(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Avg CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1233,109 +1061,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "min(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job ,$grouping)",
+                    "query": "min(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Min CPU usage {{service_instance_id}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "5_4": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Service Instance Count",
-            "description": "Total CPU user and system time in percentage"
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "visual": {
-                "areaOpacity": 0.2
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "count(count(otelcol_process_cpu_seconds${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id))",
-                    "seriesNameFormat": "Service instance count"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "5_5": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Uptime by Service Instance",
-            "description": "Number of service instances, which are reporting metrics"
-          },
-          "plugin": {
-            "kind": "TimeSeriesChart",
-            "spec": {
-              "visual": {
-                "areaOpacity": 0.2
-              },
-              "yAxis": {
-                "format": {
-                  "unit": "seconds"
-                },
-                "label": "",
-                "show": true
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "max(otelcol_process_uptime${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
-                    "seriesNameFormat": "Service instance uptime: {{service_instance_id}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "5_6": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Service Instance Details",
-            "description": "Number of service instances, which are reporting metrics"
-          },
-          "plugin": {
-            "kind": "Table",
-            "spec": {
-              "columnSettings": []
-            }
-          },
-          "queries": [
-            {
-              "kind": "TimeSeriesQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "PrometheusTimeSeriesQuery",
-                  "spec": {
-                    "minStep": "$minstep",
-                    "query": "max(otelcol_process_uptime${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
-                    "seriesNameFormat": "Service instance count"
                   }
                 }
               }
@@ -1356,7 +1083,10 @@
               "legend": {
                 "mode": "table",
                 "position": "bottom",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.15
@@ -1371,8 +1101,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_deleted${suffix}{job=\"$job\"}) by (job ,$grouping)",
-                    "seriesNameFormat": "Deleted: {{transport}} {{service_instance_id}}"
+                    "query": "sum(otelcol_otelsvc_k8s_pod_deleted_ratio_total{job=\"$job\"}) by (job)",
+                    "seriesNameFormat": "Deleted"
                   }
                 }
               }
@@ -1384,8 +1114,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_updated${suffix}{job=\"$job\"}) by (job ,$grouping)",
-                    "seriesNameFormat": "Updated: {{transport}} {{service_instance_id}}"
+                    "query": "sum(otelcol_otelsvc_k8s_pod_updated_ratio_total{job=\"$job\"}) by (job)",
+                    "seriesNameFormat": "Updated"
                   }
                 }
               }
@@ -1397,8 +1127,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_added${suffix}{job=\"$job\"}) by (job ,$grouping)",
-                    "seriesNameFormat": "Added: {{transport}} {{service_instance_id}}"
+                    "query": "sum(otelcol_otelsvc_k8s_pod_added_ratio_total{job=\"$job\"}) by (job)",
+                    "seriesNameFormat": "Added"
                   }
                 }
               }
@@ -1420,7 +1150,10 @@
                 "mode": "table",
                 "position": "bottom",
                 "size": "medium",
-                "values": ["max", "min"]
+                "values": [
+                  "max",
+                  "min"
+                ]
               },
               "visual": {
                 "areaOpacity": 0.15
@@ -1435,8 +1168,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(otelcol_otelsvc_k8s_namespace_updated${suffix}{job=\"$job\"}) by (job $grouping)",
-                    "seriesNameFormat": "Updated: {{transport}} {{service_instance_id}}"
+                    "query": "avg(otelcol_otelsvc_k8s_namespace_updated_ratio_total{job=\"$job\"}) by (job)",
+                    "seriesNameFormat": "Updated"
                   }
                 }
               }
@@ -1448,8 +1181,8 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(otelcol_otelsvc_k8s_namespace_added${suffix}{job=\"$job\"}) by (job ,$grouping)",
-                    "seriesNameFormat": "Added: {{transport}} {{service_instance_id}}"
+                    "query": "avg(otelcol_otelsvc_k8s_namespace_added_ratio_total{job=\"$job\"}) by (job)",
+                    "seriesNameFormat": "Added"
                   }
                 }
               }
@@ -1461,7 +1194,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_added${suffix}{job=\"$job\"}) by (job ,$grouping)",
+                    "query": "sum(otelcol_otelsvc_k8s_pod_added_ratio_total{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Added: {{transport}} {{service_instance_id}}"
                   }
                 }
@@ -1544,7 +1277,7 @@
               "x": 0,
               "y": 5,
               "width": 12,
-              "height": 7,
+              "height": 5,
               "content": {
                 "$ref": "#/spec/panels/0_4"
               }
@@ -1553,7 +1286,7 @@
               "x": 12,
               "y": 5,
               "width": 12,
-              "height": 7,
+              "height": 5,
               "content": {
                 "$ref": "#/spec/panels/0_5"
               }
@@ -1588,24 +1321,6 @@
               "content": {
                 "$ref": "#/spec/panels/2_1"
               }
-            },
-            {
-              "x": 0,
-              "y": 10,
-              "width": 12,
-              "height": 6,
-              "content": {
-                "$ref": "#/spec/panels/2_2"
-              }
-            },
-            {
-              "x": 12,
-              "y": 10,
-              "width": 12,
-              "height": 6,
-              "content": {
-                "$ref": "#/spec/panels/2_3"
-              }
             }
           ]
         }
@@ -1623,19 +1338,10 @@
             {
               "x": 0,
               "y": 0,
-              "width": 12,
+              "width": 24,
               "height": 10,
               "content": {
                 "$ref": "#/spec/panels/3_0"
-              }
-            },
-            {
-              "x": 12,
-              "y": 0,
-              "width": 12,
-              "height": 10,
-              "content": {
-                "$ref": "#/spec/panels/3_1"
               }
             }
           ]
@@ -1685,64 +1391,37 @@
             {
               "x": 0,
               "y": 0,
-              "width": 8,
+              "width": 6,
               "height": 9,
               "content": {
                 "$ref": "#/spec/panels/5_0"
               }
             },
             {
-              "x": 8,
+              "x": 6,
               "y": 0,
-              "width": 8,
+              "width": 6,
               "height": 9,
               "content": {
                 "$ref": "#/spec/panels/5_1"
               }
             },
             {
-              "x": 16,
+              "x": 12,
               "y": 0,
-              "width": 8,
-              "height": 9,
+              "width": 6,
+              "height": 8,
               "content": {
                 "$ref": "#/spec/panels/5_2"
               }
             },
             {
-              "x": 0,
-              "y": 9,
-              "width": 8,
+              "x": 18,
+              "y": 0,
+              "width": 6,
               "height": 9,
               "content": {
                 "$ref": "#/spec/panels/5_3"
-              }
-            },
-            {
-              "x": 8,
-              "y": 9,
-              "width": 8,
-              "height": 9,
-              "content": {
-                "$ref": "#/spec/panels/5_4"
-              }
-            },
-            {
-              "x": 16,
-              "y": 9,
-              "width": 8,
-              "height": 9,
-              "content": {
-                "$ref": "#/spec/panels/5_5"
-              }
-            },
-            {
-              "x": 0,
-              "y": 18,
-              "width": 24,
-              "height": 3,
-              "content": {
-                "$ref": "#/spec/panels/5_6"
               }
             }
           ]
@@ -1788,14 +1467,16 @@
             "name": "Datasource",
             "hidden": false
           },
-          "defaultValue": "kube-monitoring-st1-qa-de-1-prometheus",
+          "defaultValue": "kube-monitoring-obs-eu-de-1-prometheus",
           "allowAllValue": false,
           "allowMultiple": false,
           "plugin": {
             "kind": "PrometheusLabelValuesVariable",
             "spec": {
               "labelName": "job",
-              "matchers": ["prometheus_build_info"]
+              "matchers": [
+                "prometheus_build_info"
+              ]
             }
           },
           "name": "datasource"
@@ -1804,12 +1485,12 @@
       {
         "kind": "TextVariable",
         "spec": {
+          "name": "job",
           "display": {
-            "hidden": true
+            "hidden": false
           },
-          "value": "otel/opentelemetry-collector-logs",
-          "constant": true,
-          "name": "job"
+          "value": "logs/opentelemetry-collector-logs",
+          "constant": true
         }
       },
       {
@@ -1825,7 +1506,12 @@
           "plugin": {
             "kind": "StaticListVariable",
             "spec": {
-              "values": ["10s", "30s", "1m", "5m"]
+              "values": [
+                "10s",
+                "30s",
+                "1m",
+                "5m"
+              ]
             }
           },
           "name": "minstep"
@@ -1863,6 +1549,28 @@
         "kind": "ListVariable",
         "spec": {
           "display": {
+            "name": "Exporter",
+            "hidden": false
+          },
+          "defaultValue": "opensearch/failover_a",
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "sort": "alphabetical-asc",
+          "plugin": {
+            "kind": "PrometheusPromQLVariable",
+            "spec": {
+              "expr": "avg by (exporter) ({__name__=~\"otelcol_exporter_.+\",job=\"$job\"})",
+              "labelName": "exporter"
+            }
+          },
+          "name": "exporter"
+        }
+      },
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "receiver",
+          "display": {
             "name": "Receiver",
             "hidden": false
           },
@@ -1876,8 +1584,7 @@
               "expr": "avg by (receiver) ({__name__=~\"otelcol_receiver_.+\",job=\"$job\"})",
               "labelName": "receiver"
             }
-          },
-          "name": "receiver"
+          }
         }
       },
       {
@@ -1905,64 +1612,10 @@
         "kind": "ListVariable",
         "spec": {
           "display": {
-            "name": "Exporter",
-            "hidden": false
-          },
-          "defaultValue": "prometheus",
-          "allowAllValue": false,
-          "allowMultiple": false,
-          "sort": "alphabetical-asc",
-          "plugin": {
-            "kind": "PrometheusPromQLVariable",
-            "spec": {
-              "expr": "avg by (exporter) ({__name__=~\"otelcol_exporter_.+\",job=\"$job\"})",
-              "labelName": "exporter"
-            }
-          },
-          "name": "exporter"
-        }
-      },
-      {
-        "kind": "ListVariable",
-        "spec": {
-          "display": {
-            "name": "Additional Grouping",
-            "description": "Detailed metrics must be configured in the collector configuration. They add grouping by transport protocol (http/grpc) for receivers. ",
-            "hidden": false
-          },
-          "defaultValue": "transport",
-          "allowAllValue": false,
-          "allowMultiple": false,
-          "plugin": {
-            "kind": "StaticListVariable",
-            "spec": {
-              "values": [
-                {
-                  "label": "None (basic metrics)",
-                  "value": ""
-                },
-                {
-                  "label": "By transport (detailed metrics)",
-                  "value": "transport"
-                },
-                {
-                  "label": "By service instance id",
-                  "value": "service_instance_id"
-                }
-              ]
-            }
-          },
-          "name": "grouping"
-        }
-      },
-      {
-        "kind": "ListVariable",
-        "spec": {
-          "display": {
             "name": "Metric Type",
             "hidden": false
           },
-          "defaultValue": "_total",
+          "defaultValue": "_seconds_total",
           "allowAllValue": false,
           "allowMultiple": false,
           "capturingRegexp": "otelcol_process_uptime(.*)",
@@ -1978,9 +1631,28 @@
           },
           "name": "suffix"
         }
+      },
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "namespace",
+          "display": {
+            "name": "namespace"
+          },
+          "allowAllValue": true,
+          "allowMultiple": false,
+          "plugin": {
+            "kind": "PrometheusPromQLVariable",
+            "spec": {
+              "expr": "avg by (namespace) ({__name__=~\"otelcol_receiver_.+\"})",
+              "labelName": "namespace"
+            }
+          }
+        }
       }
     ],
     "duration": "6h",
-    "refreshInterval": "0s"
+    "refreshInterval": "0s",
+    "datasources": {}
   }
 }

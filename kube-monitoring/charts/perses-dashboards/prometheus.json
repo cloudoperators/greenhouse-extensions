@@ -873,6 +873,52 @@
             }
           ]
         }
+      },
+      "3-1": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "SD Refresh failures total",
+            "description": "Shows how many SD refresh failures occured"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "max",
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "rgba(50, 172, 45, 0.97)",
+                    "value": 0
+                  },
+                  {
+                    "color": "rgba(237, 129, 40, 0.89)",
+                    "value": 0.1
+                  },
+                  {
+                    "color": "rgba(245, 54, 54, 0.9)",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "minStep": "",
+                    "query": "max(prometheus_sd_refresh_failures_total{job=~\"$prometheus\"}) or vector(0)",
+                    "seriesNameFormat": ""
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
     },
     "layouts": [
@@ -883,14 +929,14 @@
             {
               "x": 0,
               "y": 0,
-              "width": 6,
+              "width": 5,
               "height": 5,
               "content": {
                 "$ref": "#/spec/panels/0"
               }
             },
             {
-              "x": 6,
+              "x": 5,
               "y": 0,
               "width": 6,
               "height": 5,
@@ -899,21 +945,30 @@
               }
             },
             {
-              "x": 12,
+              "x": 11,
               "y": 0,
-              "width": 6,
+              "width": 5,
               "height": 5,
               "content": {
                 "$ref": "#/spec/panels/2"
               }
             },
             {
-              "x": 18,
+              "x": 16,
               "y": 0,
-              "width": 6,
+              "width": 4,
               "height": 5,
               "content": {
                 "$ref": "#/spec/panels/3"
+              }
+            },
+            {
+              "x": 20,
+              "y": 0,
+              "width": 4,
+              "height": 5,
+              "content": {
+                "$ref": "#/spec/panels/3-1"
               }
             },
             {

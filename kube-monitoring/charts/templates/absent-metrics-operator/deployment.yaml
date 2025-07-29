@@ -31,6 +31,8 @@ spec:
         - name: operator
           image: "{{ .Values.absentMetricsOperator.image.registry}}/{{ .Values.absentMetricsOperator.image.repository}}:{{ .Values.absentMetricsOperator.image.tag }}"
           imagePullPolicy: IfNotPresent
+          args:
+            - --prom-rule-name={{"{{"}} index .metadata.labels "plugin" {{"}}"}}
           # NOTE: observed usage in eu-de-1 (as of 2021-10)
           # - CPU: ~10m during load
           # - RAM: ~45Mi during load

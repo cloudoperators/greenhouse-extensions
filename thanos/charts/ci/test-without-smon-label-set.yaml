@@ -1,0 +1,24 @@
+ci:
+  enabled: true
+
+blackboxExporter:
+  enabled: true
+
+thanos:
+  query:
+    stores:
+      - prometheus-operated:10901
+      - prometheus-operated:10901
+  ruler:
+    enabled: true
+    matchLabel: thanos
+    alertmanagers:
+      enabled: true
+      authentication:
+        enabled: true
+        ssoCert: xxx
+        ssoKey: xxx
+      hosts:
+  serviceMonitor:
+    selfMonitor: true
+    dashboards: false

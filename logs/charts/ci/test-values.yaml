@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-logs-operator:
+opentelemetry-operator:
+  nameOverride: "chart"
   crds:
     create: false
   admissionWebhooks:
@@ -59,7 +60,7 @@ openTelemetry:
         - FilelogRefusedLogs
 
 testFramework:
-  enabled: false
+  enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test

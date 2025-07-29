@@ -1,4 +1,8 @@
 blackboxExporter:
-  enabled: false
+  enabled: true
+  extraVolumeMounts: []
 absentMetricsOperator:
   enabled: true
+kubeMonitoring:
+  dashboards:
+    create: true

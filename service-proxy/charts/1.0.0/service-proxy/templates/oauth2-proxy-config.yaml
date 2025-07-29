@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.oauth2proxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth2-proxy-config
+data:
+  config.yaml: |
+    providers:
+      - provider: oidc
+        id: oidc
+        name: {{ printf "%s %s" .Values.global.greenhouse.organizationName "OIDC Provider" }}
+        clientID: ${OAUTH2_PROXY_CLIENT_ID}
+        clientSecret: ${OAUTH2_PROXY_CLIENT_SECRET}
+        scope: "openid email"
+        loginURLParameters:
+          - name: approval_prompt
+            default: [""]
+          - name: connector_id
+            default:
+              - {{ .Values.global.greenhouse.organizationName }}
+        oidcConfig:
+          issuerURL: {{ required "oauth2proxy.issuerURL" .Values.oauth2proxy.issuerURL }}
+          emailClaim: email
+          audienceClaims:
+            - "aud"
+    server:
+      bindAddress: "0.0.0.0:4180"
+    injectRequestHeaders:
+      - name: "X-Forwarded-User"
+        values:
+          - claim: "user"
+      - name: "X-Forwarded-Groups"
+        values:
+          - claim: "groups"
+      - name: "X-Forwarded-Email"
+        values:
+          - claim: "email"
+      - name: "X-Forwarded-Username"
+        values:
+          - claim: "preferred_username"
+    injectResponseHeaders:
+      - name: "X-Forwarded-User"
+        values:
+          - claim: "user"
+      - name: "X-Forwarded-Groups"
+        values:
+          - claim: "groups"
+      - name: "X-Forwarded-Email"
+        values:
+          - claim: "email"
+      - name: "X-Forwarded-Username"
+        values:
+          - claim: "preferred_username"
+{{- end }}

@@ -66,6 +66,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.config.security.cookie | object | `{"same_site":"lax","secure":false}` | cookie config |
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
 | perses.config.security.readonly | bool | `false` | Configure Perses instance as readonly |
+| perses.extraObjects | list | `[]` | Deploy extra K8s manifests |
 | perses.fullnameOverride | string | `""` | Override fully qualified app name |
 | perses.image | object | `{"name":"persesdev/perses","pullPolicy":"IfNotPresent","version":""}` | Image of Perses |
 | perses.image.name | string | `"persesdev/perses"` | Perses image repository and name |
@@ -78,7 +79,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | perses.ingress.tls | list | `[]` | Ingress TLS configuration |
 | perses.livenessProbe | object | `{"enabled":true,"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":60,"successThreshold":1,"timeoutSeconds":5}` | Liveness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
-| perses.logLevel | string | `"info"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
+| perses.logLevel | string | `"warning"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
 | perses.nameOverride | string | `""` | Override name of the chart used in Kubernetes object names. |
 | perses.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"labels":{},"securityContext":{"fsGroup":2000},"size":"8Gi"}` | Persistence parameters |
 | perses.persistence.accessModes | list | `["ReadWriteOnce"]` | PVC Access Modes for data volume |
@@ -105,11 +106,23 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR. |
 | perses.serviceMonitor.selector.matchLabels | object | `{}` | Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service. |
 | perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
-| perses.sidecar | object | `{"allNamespaces":true,"enabled":true,"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
+| perses.sidecar | object | `{"allNamespaces":true,"enableSecretAccess":false,"enabled":true,"extraEnvVars":[],"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
 | perses.sidecar.allNamespaces | bool | `true` | check for configmaps from all namespaces. When set to false, it will only check for configmaps in the same namespace as the Perses instance |
+| perses.sidecar.enableSecretAccess | bool | `false` | Enable secret access permissions in the cluster role. When enabled, the sidecar will have permissions to read secrets and use them. |
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
+| perses.sidecar.extraEnvVars | list | `[]` | add additional environment variables to sidecar container. you can look at the k8s-sidecar documentation for more information - https://github.com/kiwigrid/k8s-sidecar |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
+| perses.tls | object | `{"caCert":{"enabled":false,"mountPath":"/ca","secretName":""},"clientCert":{"enabled":false,"mountPath":"/tls","secretName":""},"enabled":false}` | TLS configuration for mounting certificates from Kubernetes secrets |
+| perses.tls.caCert | object | `{"enabled":false,"mountPath":"/ca","secretName":""}` | CA Certificate configuration Certificates will be mounted to the directory specified in mountPath |
+| perses.tls.caCert.enabled | bool | `false` | Enable CA certificate mounting |
+| perses.tls.caCert.mountPath | string | `"/ca"` | Mount path for the CA certificate directory |
+| perses.tls.caCert.secretName | string | `""` | Name of the Kubernetes secret containing the CA certificate Defaults to "release-name-tls" if not specified |
+| perses.tls.clientCert | object | `{"enabled":false,"mountPath":"/tls","secretName":""}` | Client Certificate configuration (contains both cert and key) Certificates will be mounted to the directory specified in mountPath |
+| perses.tls.clientCert.enabled | bool | `false` | Enable client certificate mounting |
+| perses.tls.clientCert.mountPath | string | `"/tls"` | Mount path for the client certificate directory |
+| perses.tls.clientCert.secretName | string | `""` | Name of the Kubernetes secret containing the client certificate and key Defaults to "release-name-tls" if not specified |
+| perses.tls.enabled | bool | `false` | Enable TLS certificate mounting |
 | perses.volumeMounts | list | `[]` | Additional VolumeMounts on the output StatefulSet definition. |
 | perses.volumes | list | `[]` | Additional volumes on the output StatefulSet definition. |
 

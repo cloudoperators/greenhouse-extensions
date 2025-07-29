@@ -22,7 +22,7 @@ on:
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
-      - github-guard/charts/**
+      - repo-guard/charts/**
 
 
 permissions:
@@ -61,7 +61,7 @@ jobs:
           - chartDir: opensearch/chart
             chartName: opensearch
           - chartDir: logs/charts
-            chartName: logs-operator
+            chartName: opentelemetry-operator
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts
@@ -70,8 +70,8 @@ jobs:
             chartName: service-proxy
           - chartDir: thanos/charts
             chartName: thanos
-          - chartDir: github-guard/charts
-            chartName: github-guard
+          - chartDir: repo-guard/charts
+            chartName: repo-guard
 
 
     steps:

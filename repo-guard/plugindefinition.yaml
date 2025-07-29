@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: repo-guard
+spec:
+  version: "1.4.5"
+  displayName: Repo Guard
+  description: Manages Github teams, team memberships and repository & team assignments
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/img/logo.png
+  helmChart:
+    name: repo-guard
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 1.4.5
+  options:
+    - name: ldap
+      description: LDAP configuration for external member provider
+      required: false
+      type: map
+    - name: distributionListAPI
+      description: HTTP remote API configuration for external member provider
+      required: false
+      type: map
+    - name: githubs
+      description: Github configuration to be managed by the plugin
+      required: false
+      type: map
