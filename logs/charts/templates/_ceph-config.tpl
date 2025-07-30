@@ -66,7 +66,7 @@ transform/ceph_rgw:
       conditions:
         - resource.attributes["app.label.component"] == "cephobjectstores.ceph.rook.io"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{WORD}\\:(%{SPACE})?%{WORD}\\:(%{SPACE})?%{IP:client.address}(%{SPACE})?%{NOTSPACE}(%{SPACE})%{PROJECT_ID:project.id}(\\$%{NOTSPACE})?(%{SPACE})?\\[%{HTTPDATE:request.timestamp}\\] \"%{WORD:request.method} \\/(?<bucket>[a-zA-Z0-9._+-]+)?(\\/)?(%{NOTSPACE:request.path})? %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content.length:int} %{NOTSPACE} \"%{GREEDYDATA:user.agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true, ["PROJECT_ID=([A-Za-z0-9-]+)"]),"upsert")
+        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:debug_level} %{TIMESTAMP_ISO8601:log_timestamp}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{WORD}\\:(%{SPACE})?%{WORD}\\:(%{SPACE})?%{IP:client.address}(%{SPACE})?%{NOTSPACE}(%{SPACE})%{PROJECT_ID:project.id}(\\$%{NOTSPACE})?(%{SPACE})?\\[%{HTTPDATE:request.timestamp}\\] \"%{WORD:request.method} \\/(?<bucket>[a-zA-Z0-9._+-]+)?(\\/)?(%{NOTSPACE:request.path})? %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content.length:int} %{NOTSPACE} \"%{GREEDYDATA:user_agent}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true, ["PROJECT_ID=([A-Za-z0-9-]+)"]),"upsert")
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:log_level}", true),"upsert")
         - set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["network.protocol.name"], "lower")) where cache["network.protocol.name"] != nil
         - set(log.attributes["config.parsed"], "ceph_rgw") where log.attributes["project.id"] != nil
@@ -84,11 +84,32 @@ transform/ceph_osd:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:log_level}", true),"upsert")
         - set(log.attributes["config.parsed"], "ceph_osd") where log.attributes["osd.stats.level"] != nil
         - set(log.attributes["config.parsed"], "ceph_osd") where log.attributes["osd.wall.type"] != nil
+
+transform/ceph_prysm_sidecar:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - resource.attributes["k8s.container.name"] == "prysm-sidecar"
+      statements:
+        - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        - set(log.attributes["bucket"], log.cache["bucket"])
+        - set(log.attributes["remote_addr"], log.cache["remote_addr"])
+        - set(log.attributes["user"], log.cache["user"])
+        - set(log.attributes["operation"], log.cache["operation"])
+        - set(log.attributes["uri"], log.cache["uri"])
+        - set(log.attributes["http_status"], log.cache["http_status"])
+        - set(log.attributes["bytes_sent"], log.cache["bytes_sent"])
+        - set(log.attributes["object_size"], log.cache["object_size"])
+        - set(log.attributes["user_agent"], log.cache["user_agent"])
+        - set(log.attributes["trans_id"], log.cache["trans_id"])
+        - set(log.attributes["access_key_id"], log.cache["access_key_id"])
+        - set(log.attributes["authentication_type"], log.cache["authentication_type"])
 {{- end }}
 
 {{- define "ceph.pipeline" }}
 logs/ceph:
   receivers: [filelog/containerd]
-  processors: [k8sattributes,attributes/cluster,transform/ingress,transform/ceph_rgw,transform/ceph_osd]
+  processors: [k8sattributes,attributes/cluster,transform/ingress,transform/ceph_rgw,transform/ceph_osd,transform/ceph_prysm_sidecar]
   exporters: [forward]
 {{- end }}
