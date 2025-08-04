@@ -61,7 +61,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.config.database.file | object | `{"extension":"json","folder":"/perses"}` | file system configs |
 | perses.config.frontend.important_dashboards | list | `[]` |  |
 | perses.config.frontend.information | string | `"# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"` | Information contains markdown content to be displayed on the Perses home page. |
-| perses.config.provisioning | object | `{"folders":["/etc/perses/provisioning"]}` | provisioning config |
+| perses.config.provisioning | object | `{"folders":["/etc/perses/provisioning"],"interval":"3m"}` | provisioning config |
 | perses.config.schemas | object | `{"datasources_path":"/etc/perses/cue/schemas/datasources","interval":"5m","panels_path":"/etc/perses/cue/schemas/panels","queries_path":"/etc/perses/cue/schemas/queries","variables_path":"/etc/perses/cue/schemas/variables"}` | Schemas paths |
 | perses.config.security.cookie | object | `{"same_site":"lax","secure":false}` | cookie config |
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
