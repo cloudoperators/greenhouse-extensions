@@ -187,7 +187,7 @@ perses:
     provisioning:
       folders:
         - /etc/perses/provisioning
-      # interval: 10m
+      interval: 3m
 
   # --  Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning
   sidecar:
