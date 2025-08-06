@@ -30,10 +30,18 @@ This is caused by overlapping blocks in your object storage.
 #### 1. Identify Overlapping Blocks
 
 - Enter the compactor container or a pod with Thanos CLI access.
-- Run:
-  ```
-  thanos tools bucket inspect --objstore.config-file=<your-objstore.yaml> | grep <block_id>
-  ```
+
+- Run: ``` thanos tools bucket inspect --objstore.config-file=<your-objstore.yaml> | grep <block_id> ```
+
+- You will see output similar to the following, showing details for each block ULID:
+
+| ULID                      | MIN TIME            | MAX TIME            | DURATION        | AGE              | NUM SAMPLES | NUM SERIES     | NUM CHUNKS  | LEVEL      | COMPACTED   | LABELS                                                                                                                                                                                                 | DELETION   | SOURCE    |
+|---------------------------|---------------------|---------------------|-----------------|------------------|-------------|----------------|-------------|------------|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
+| 01JWTG9RS2PVHHFZKFCCBZH0RV | 2025-06-03T06:00:00Z | 2025-06-03T08:00:00Z | 1h59m59.95s    | 38h0m0.05s      | 193,216     | 44,122,225     | 379,866     | 1          | false       | cluster=obs-eu-de-1,cluster_type=observability,organization=ccloud,prometheus=kube-monitoring/kube-monitoring-obs-eu-de-1,prometheus_replica=prometheus-kube-monitoring-obs-eu-de-1-0,region=eu-de-1 | 0s         | sidecar   |
+| 01JWZ95H85J8SZEN09Z3W8MQPP | 2025-06-03T08:00:00Z | 2025-06-05T00:00:00Z | 40h0m0s        | 0s              | 411,006     | 903,753,062    | 7,661,746   | 3          | false       | cluster=obs-eu-de-1,cluster_type=observability,prometheus=kube-monitoring/kube-monitoring-obs-eu-de-1,prometheus_replica=prometheus-kube-monitoring-obs-eu-de-1-0,region=eu-de-1                     | 0s         | compactor |
+
+This table helps you identify block time ranges, sizes, and sources for troubleshooting overlaps.
+
 - Look for blocks with overlapping `mint` and `maxt` time ranges. Note the ULIDs of the offending blocks.
 
 - Use `| grep <block_id>` to compare block sizes and timestamps from the error log.
@@ -55,7 +63,7 @@ This is caused by overlapping blocks in your object storage.
 
 - Navigate to your object store UI
 
-- Search and Delete block IDs causing overlap
+- Search and delete block IDs causing overlap
 
 - **Warning:** This will permanently delete the specified blocks. Always back up your data before proceeding.
 
@@ -83,7 +91,7 @@ The error itself is harmless, no productive impact, but it should be fixed to av
 
 ## Solution
 
-1. Check the logs of the Thanos compcator in question
+1. Check the logs of the Thanos compactor in question
 
     ```bash
     kubectl logs --follow $podName
@@ -97,7 +105,6 @@ The error itself is harmless, no productive impact, but it should be fixed to av
     ```
     level=info ts=2023-04-27T05:43:18.591882979Z caller=http.go:103 service=http/server component=compact msg="internal server is shutdown gracefully" err="could not sync metas: filter metas: filter blocks marked for deletion: get file: 01GYH4WNQKAXY1Y4RN1K5J1R8Q/deletion-mark.json: open object: Timeout when reading or writing data"
     level=info ts=2023-04-27T05:43:18.591951424Z caller=intrumentation.go:81 msg="changing probe status" status=not-healthy reason="could not sync metas: filter metas: filter blocks marked for deletion: get file: 01GYH4WNQKAXY1Y4RN1K5J1R8Q/deletion-mark.json: open object: Timeout when reading or writing data"
-    level=info ts=2023-04-27T05:43:19.711718378Z caller=compact.go:1070 group="0@{cluster=\"s-eu-de-1\", cluster_type=\"scaleout\", prometheus=\"vmware-monitoring/vmware-vc-mgmt-b-0\", prometheus_replica=\"prometheus-vmware-vc-mgmt-b-0-0\", region=\"eu-de-1\"}" groupKey=0@2754565673212689501 msg="downloaded and verified blocks; compacting blocks" plan="[/data/compact/0@2754565673212689501/01GYZEZNMR42383F8BXZHE91A0 /data/compact/0@2754565673212689501/01GYZNVCWRNMVJZYY7MZD4SJQM /data/compact/0@2754565673212689501/01GYZWQ44S29Y97MV0CKBEVKRA /data/compact/0@2754565673212689501/01GZ03JVCRRQ9E6HAQ9333P9SY]" duration=1.12004828s duration_ms=1120
     level=error ts=2023-04-27T05:43:19.742219509Z caller=compact.go:488 msg="critical error detected; halting" err="compaction: group 0@2754565673212689501: compact blocks [/data/compact/0@2754565673212689501/01GYZEZNMR42383F8BXZHE91A0 /data/compact/0@2754565673212689501/01GYZNVCWRNMVJZYY7MZD4SJQM /data/compact/0@2754565673212689501/01GYZWQ44S29Y97MV0CKBEVKRA /data/compact/0@2754565673212689501/01GZ03JVCRRQ9E6HAQ9333P9SY]: 2 errors: populate block: context canceled; context canceled"
     ```
 
@@ -113,7 +120,7 @@ Some block error prohibits Thanos from continuing to compact. The faulty block n
 
 ### Solution
 
-#### 1. Check the logs of the Thanos compcator in question
+#### 1. Check the logs of the Thanos compactor in question
 
     ```bash
     kubectl logs --follow $podName
@@ -127,22 +134,17 @@ Some block error prohibits Thanos from continuing to compact. The faulty block n
 
     If you can't see it, kick the pod and watch the logs straight, to catch the initial error. It might be obfuscated by appending messages by the time you are looking at it.
 
-#### 2. Usually the block in question has no content, in particular it is missing the `chunks` folder. 
-    Find out the compactor in question:
-
+#### 2. Find the Secret CR Used by Your Thanos Compactor
+- Check the `Deployment` or `StatefulSet` manifest for the Thanos compactor to find the name of the    Secret containing the object storage configuration (often referenced as `--objstore.config` or `--objstore.config-file`).
+- Example command to find the Secret reference:
+    ```bash
+    kubectl get deployment -n <namespace> -o yaml | grep objstore
     ```
-    kubectl get objectstore
-    # Example output
-    # NAME                AGE
-    # thanos-kubernetes   84d
+- Once you have the Secret name, retrieve its contents:
+    ```bash
+    kubectl get secret <secret-name> -n <namespace> -o yaml
     ```
-
-    Extract the object store config name from the just received `thanos-kubernetes`:
-    ```
-    kubectl get objectstore thanos-kubernetes -o 'go-template={{index .spec.config.mountFrom.secretKeyRef.name}}'
-    # Example output:
-    # prometheus-kubernetes-metal-thanos
-    ```
+- Review the Secret to identify the object storage endpoint, bucket, and credentials. This tells you which object storage instance you need to access to delete the problematic blocks.
 
 #### 3. Remove faulty Blocks
 
@@ -152,7 +154,7 @@ Some block error prohibits Thanos from continuing to compact. The faulty block n
 
 - Navigate to your object store UI
 
-- Search and Delete block IDs causing faults
+- Search and delete block IDs causing faults
 
 - **Warning:** This will permanently delete the specified blocks. Always back up your data before proceeding.
 
