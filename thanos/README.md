@@ -86,13 +86,17 @@ config:
 When configuring object storage for the Thanos charts, you must specify both the name of the existing Secret and the key (file name) within that Secret containing your object store configuration. This is done using the `existingObjectStoreSecret` values:
 
 ```yaml
-existingObjectStoreSecret:
-  name: <your-secret-name>
-  configFile: <your-config-file-name>
+spec:
+  optionValues:
+    - name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig
+      value:
+        existingSecret:
+          key: <your-config-file-name>
+          name: <your-secret-name>
 ```
 
 - `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, <.Release.Name>-metrics-objectstore)
-- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `thanos.yaml`).
+- `key`: The key (file name) in the Secret where the object store config is stored (default, `thanos.yaml`).
 
 ### Thanos Query
 

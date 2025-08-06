@@ -211,7 +211,7 @@ Alternatively, you can provide the object storage configuration directly. The pl
 **Note:** 
 If `existingSecret` is set, the `secret` config will be ignored.
 
-This allows you to flexibly manage your Thanos object storage credentials, either by referencing an existing Kubernetes Secret or by providing the configuration inline for automatic
+This allows you to flexibly manage your Thanos object storage credentials, either by referencing an existing Kubernetes Secret or by providing the configuration inline for automatic creation of Secret.
 
 Values used here are described in the [Prometheus Operator Spec](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec).
 
