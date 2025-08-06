@@ -1,4 +1,4 @@
-{{ if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.thanos.ruler.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ThanosRuler
 metadata:
@@ -11,6 +11,20 @@ metadata:
     {{ toYaml .Values.thanos.ruler.labels | nindent 4 }}
     {{- end }}
 spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - thanos-ruler
+          - key: thanos-ruler
+            operator: In
+            values:
+            - {{ .Release.Name }}
+        topologyKey: kubernetes.io/hostname
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
   {{- if .Values.thanos.ruler.externalPrefix }}
   externalPrefix: {{ .Values.thanos.ruler.externalPrefix }}
@@ -21,20 +35,39 @@ spec:
     labels:
       {{- include "plugin.labels" . | nindent 6 }}
       {{- include "thanos.labels" . | nindent 6 }}
+  evaluationInterval: {{ .Values.thanos.ruler.evaluationInterval }}
+  logLevel: {{ default "info" .Values.thanos.ruler.logLevel }}
+  resources:
+    {{- toYaml .Values.thanos.ruler.resources | nindent 4 }}
+  retention: {{ .Values.thanos.ruler.retention }}
+  {{- if .Values.thanos.ruler.storage }}
+  storage:
+    {{- toYaml .Values.thanos.ruler.storage | nindent 4 }}
+  {{- end }}
+  {{- if .Values.thanos.ruler.objectStorageConfig.existingSecret }}
+  objectStorageConfig:
+    key: "{{ .Values.thanos.ruler.objectStorageConfig.existingSecret.key }}"
+    name: "{{ .Values.thanos.ruler.objectStorageConfig.existingSecret.name }}"
+  {{- end }}
+  # Select rules across all namespaces
+  ruleNamespaceSelector: {}
   ruleSelector:
     matchLabels:
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
   serviceName: {{ include "release.name" . }}-ruler
   queryEndpoints:
-    - {{ include "release.name" . }}-query:10902
-  {{ if .Values.thanos.ruler.alertmanagers.enabled }}
+    - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}
+  replicas: {{ .Values.thanos.ruler.replicas }}
+  securityContext:
+    {{- toYaml .Values.thanos.ruler.securityContext | nindent 4 }}
+  {{- if .Values.thanos.ruler.alertmanagers.enabled }}
+  alertDropLabels:
+    - {{ .Values.thanos.query.replicaLabel }}
   alertmanagersConfig:
     key: alertManagerConfig.yaml # Key name for alert manager config yaml
     name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
-  {{ end }}
-  # Select rules from all namespaces.
-  ruleNamespaceSelector: {}  
-  {{ if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
+  {{- end }}
+  {{- if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
   containers:
     - name: thanos-ruler
       volumeMounts:
@@ -45,5 +78,8 @@ spec:
     - name: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
       secret:
         secretName: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
-  {{ end }}
-{{ end }}
+  {{- end }}
+  {{- if .Values.thanos.ruler.additionalSpec }}
+  {{- toYaml .Values.thanos.ruler.additionalSpec | nindent 2 }}
+  {{- end }}
+{{- end }}
