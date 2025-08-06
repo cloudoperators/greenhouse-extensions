@@ -1,3 +1,7 @@
+---
+title: Kubernetes Monitoring
+---
+
 Learn more about the **kube-monitoring** plugin. Use it to activate Kubernetes monitoring for your Greenhouse cluster.
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).

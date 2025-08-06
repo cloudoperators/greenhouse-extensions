@@ -1,3 +1,7 @@
+---
+title: Thanos
+---
+
 Learn more about the **Thanos** Plugin. Use it to enable extended metrics retention and querying across Prometheus servers and Greenhouse clusters.
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
@@ -77,7 +81,7 @@ config:
 
 **Refer to the [kube-monitoring README](../kube-monitoring/README.md#thanos-object-storage)** for detailed instructions on:
 - How to use an existing Kubernetes Secret for object storage configuration
-- How to provide plain text config that will automatically create a Secret
+- How to provide plain text config that will automatically create a Kubernetes Secret
 
 When configuring object storage for the Thanos charts, you must specify both the name of the existing Secret and the key (file name) within that Secret containing your object store configuration. This is done using the `existingObjectStoreSecret` values:
 
