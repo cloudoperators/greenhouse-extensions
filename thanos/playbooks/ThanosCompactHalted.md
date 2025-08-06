@@ -37,10 +37,10 @@ This is caused by overlapping blocks in your object storage.
 
 | ULID                      | MIN TIME            | MAX TIME            | DURATION        | AGE              | NUM SAMPLES | NUM SERIES     | NUM CHUNKS  | LEVEL      | COMPACTED   | LABELS                                                                                                                                                                                                 | DELETION   | SOURCE    |
 |---------------------------|---------------------|---------------------|-----------------|------------------|-------------|----------------|-------------|------------|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| 01JWTG9RS2PVHHFZKFCCBZH0RV | 2025-06-03T06:00:00Z | 2025-06-03T08:00:00Z | 1h59m59.95s    | 38h0m0.05s      | 193,216     | 44,122,225     | 379,866     | 1          | false       | cluster=obs-eu-de-1,cluster_type=observability,organization=ccloud,prometheus=kube-monitoring/kube-monitoring-obs-eu-de-1,prometheus_replica=prometheus-kube-monitoring-obs-eu-de-1-0,region=eu-de-1 | 0s         | sidecar   |
-| 01JWZ95H85J8SZEN09Z3W8MQPP | 2025-06-03T08:00:00Z | 2025-06-05T00:00:00Z | 40h0m0s        | 0s              | 411,006     | 903,753,062    | 7,661,746   | 3          | false       | cluster=obs-eu-de-1,cluster_type=observability,prometheus=kube-monitoring/kube-monitoring-obs-eu-de-1,prometheus_replica=prometheus-kube-monitoring-obs-eu-de-1-0,region=eu-de-1                     | 0s         | compactor |
+| 01JWTG9RS2PVHHFZKFCCBZH0RV | 2025-06-03T06:00:00Z | 2025-06-03T08:00:00Z | 1h59m59.95s    | 38h0m0.05s      | 193,216     | 44,122,225     | 379,866     | 1          | false       | cluster=cluster-us,cluster_type=observability,organization=ccloud,prometheus=kube-monitoring/kube-monitoring,prometheus_replica=prometheus-kube-monitoring-0,region=us | 0s         | sidecar   |
+| 01JWZ95H85J8SZEN09Z3W8MQPP | 2025-06-03T08:00:00Z | 2025-06-05T00:00:00Z | 40h0m0s        | 0s              | 411,006     | 903,753,062    | 7,661,746   | 3          | false       | cluster=cluster-us,cluster_type=observability,prometheus=kube-monitoring/kube-monitoring,prometheus_replica=prometheus-kube-monitoring-0,region=us                     | 0s         | compactor |
 
-This table helps you identify block time ranges, sizes, and sources for troubleshooting overlaps.
+This table helps you to identify block time ranges, sizes, and sources for troubleshooting overlaps.
 
 - Look for blocks with overlapping `mint` and `maxt` time ranges. Note the ULIDs of the offending blocks.
 
