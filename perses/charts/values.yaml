@@ -183,7 +183,7 @@ perses:
         folder: /perses
         extension: json
 
-    # -- provisioning config
+    # -- provisioning config test
     provisioning:
       folders:
         - /etc/perses/provisioning
