@@ -58,11 +58,16 @@ spec:
   queryEndpoints:
     - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}
   replicas: {{ .Values.thanos.ruler.replicas }}
+  {{- if .Values.thanos.ruler.externalLabels }}
+  labels:
+    {{- toYaml .Values.thanos.ruler.externalLabels | nindent 4 }}
+  {{- end }}
   securityContext:
     {{- toYaml .Values.thanos.ruler.securityContext | nindent 4 }}
   {{- if .Values.thanos.ruler.alertmanagers.enabled }}
   alertDropLabels:
     - {{ .Values.thanos.query.replicaLabel }}
+    - {{ .Values.thanos.ruler.replicaLabel }}
   alertmanagersConfig:
     key: alertManagerConfig.yaml # Key name for alert manager config yaml
     name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config

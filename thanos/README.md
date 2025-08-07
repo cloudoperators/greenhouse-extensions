@@ -407,11 +407,13 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler resources |
 | thanos.ruler.enabled | bool | `false` | Enable Thanos Ruler components |
 | thanos.ruler.evaluationInterval | string | `"15s"` | Interval between consecutive evaluations. |
+| thanos.ruler.externalLabels | object | `{}` | External Labels to add to the Thanos Ruler (A default replica label `thanos_ruler_replica` will be always added as a label with the value of the pod’s name.) |
 | thanos.ruler.externalPrefix | string | `"/ruler"` | Set Thanos Ruler external prefix |
-| thanos.ruler.labels | object | `{}` | Labels to add to the Thanos Ruler deployment |
+| thanos.ruler.labels | object | `{}` | Labels to add to the ThanosRuler CustomResource |
 | thanos.ruler.logLevel | string | info | Thanos Ruler log level |
 | thanos.ruler.matchLabel | string | `nil` | PrometheusRule objects to be selected for rule evaluation |
 | thanos.ruler.objectStorageConfig.existingSecret | object | `{}` |  |
+| thanos.ruler.replicaLabel | string | `"thanos_ruler_replica"` | Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"` |
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
 | thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
