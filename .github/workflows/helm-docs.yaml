@@ -7,6 +7,8 @@ on:
       - "**/*/values.yaml"
       - "**/*/*/values.yaml"
       - "**/README.md.gotmpl"
+permissions:
+  pull-requests: write
 
 jobs:
   helm-docs-check:
