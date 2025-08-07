@@ -319,11 +319,14 @@ thanos:
     # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
-    # -- Labels to add to the Thanos Ruler deployment
+    # -- Labels to add to the ThanosRuler CustomResource
     labels: {}
 
     # -- Labels to add to the Thanos Ruler service
     serviceLabels: {}
+
+    # -- Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"`
+    replicaLabel: thanos_ruler_replica
 
     # -- PrometheusRule objects to be selected for rule evaluation
     matchLabel:
@@ -333,6 +336,9 @@ thanos:
 
     # -- Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years).
     retention: 24h
+
+    # -- External Labels to add to the Thanos Ruler (A default replica label `thanos_ruler_replica` will be always added as a label with the value of the pod’s name.)
+    externalLabels: {}
 
     ## -- Storage is the definition of how storage will be used by the ThanosRuler instances.
     storage: {}
