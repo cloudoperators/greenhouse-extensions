@@ -397,9 +397,6 @@ thanos:
       # -- List of hosts endpoints to send alerts to
       hosts:
 
-    # -- Additional fields for Thanos Ruler CustomResource spec
-    additionalSpec: {}
-
   # -- Deploy extra K8s manifests
   extraObjects:
     []
