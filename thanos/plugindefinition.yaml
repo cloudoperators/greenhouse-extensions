@@ -57,9 +57,9 @@ spec:
           name: thanos.query.logLevel
           required: false
           type: string
-        - default: null
-          description: thanos.query.replicaLabels
-          name: thanos.query.replicaLabels
+        - default: prometheus_replica
+          description: thanos.query.replicaLabel
+          name: thanos.query.replicaLabel
           required: false
           type: string
         - default: null
