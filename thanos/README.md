@@ -382,7 +382,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
-| thanos.query.persesDatasource.isDefault | bool | `true` | set datasource as default for Perses |
+| thanos.query.persesDatasource.isDefault | bool | `true` | set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already. |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
 | thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
 | thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
@@ -406,7 +406,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.alertmanagers.hosts | string | `nil` | List of hosts endpoints to send alerts to |
 | thanos.ruler.annotations | object | `{}` | Annotations to add to the Thanos Ruler resources |
 | thanos.ruler.enabled | bool | `false` | Enable Thanos Ruler components |
-| thanos.ruler.evaluationInterval | string | `"15s"` | Interval between consecutive evaluations. |
+| thanos.ruler.evaluationInterval | string | `"30s"` | Interval between consecutive evaluations. |
 | thanos.ruler.externalLabels | object | `{}` | External Labels to add to the Thanos Ruler (A default replica label `thanos_ruler_replica` will be always added as a label with the value of the pod’s name.) |
 | thanos.ruler.externalPrefix | string | `"/ruler"` | Set Thanos Ruler external prefix |
 | thanos.ruler.labels | object | `{}` | Labels to add to the ThanosRuler CustomResource |

@@ -204,7 +204,7 @@ thanos:
       # -- Creates a Perses datasource for Thanos Query
       create: true
 
-      # -- set datasource as default for Perses
+      # -- set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already.
       isDefault: true
 
       # -- Label selectors for the Perses sidecar to detect this datasource.
@@ -332,7 +332,7 @@ thanos:
     matchLabel:
 
     # -- Interval between consecutive evaluations.
-    evaluationInterval: 15s
+    evaluationInterval: 30s
 
     # -- Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years).
     retention: 24h
