@@ -84,7 +84,4 @@ spec:
       secret:
         secretName: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
   {{- end }}
-  {{- if .Values.thanos.ruler.additionalSpec }}
-  {{- toYaml .Values.thanos.ruler.additionalSpec | nindent 2 }}
-  {{- end }}
 {{- end }}
