@@ -1,6 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
+{{- if .Values.thanos.query.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,7 +45,10 @@ spec:
         {{- if .Values.thanos.query.autoDownsampling }}
         - --query.auto-downsampling
         {{- end }}
-        - --query.replica-label={{ default "prometheus_replica" .Values.thanos.query.replicaLabel }}
+        - --query.replica-label={{ .Values.thanos.query.replicaLabel }}
+        {{- if .Values.thanos.ruler.enabled }}
+        - --query.replica-label={{ .Values.thanos.ruler.replicaLabel }}
+        {{- end }}
         - {{ default "--web.external-prefix=/thanos" .Values.thanos.query.web.externalPrefix }}
         - {{ default "--web.route-prefix=/thanos" .Values.thanos.query.web.routePrefix }}
         {{- range .Values.thanos.query.additionalArgs }}
@@ -112,5 +113,4 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.thanos.query.tls.secretName | default (printf "%s-tls" .Release.Name) }}
       {{- end }}
-
-
+{{- end }}

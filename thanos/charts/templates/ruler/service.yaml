@@ -25,4 +25,4 @@ spec:
     targetPort: http
   selector:
     app.kubernetes.io/name: thanos-ruler
-{{ end}}
+{{ end }}
