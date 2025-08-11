@@ -1,0 +1,4 @@
+{{ range .Values.thanos.extraObjects }}
+---
+{{ tpl (toYaml .) $ }}
+{{ end }}

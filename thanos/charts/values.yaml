@@ -65,6 +65,9 @@ thanos:
       sha: ""
 
   query:
+    # -- Enable Thanos Query component
+    enabled: true
+
     # -- Number of Thanos Query replicas to deploy
     replicas:
 
@@ -76,10 +79,11 @@ thanos:
     # To be used for overarching Thanos Queries with custom endpoint lists
     standalone: false
 
-    # -- Set Thanos Query --query.auto-downsampling
+    # -- Set Thanos Query auto-downsampling
     autoDownsampling: true
 
-    replicaLabel:
+    # -- Set Thanos Query replica-label for Prometheus replicas
+    replicaLabel: prometheus_replica
 
     web:
       externalPrefix:
@@ -187,7 +191,7 @@ thanos:
       # -- Creates a Perses datasource for standalone Thanos Query
       create: false
 
-      # -- set datasource as default for Perses
+      # -- set datasource as default for Plutono
       isDefault: false
 
       # -- Label selectors for the Plutono sidecar to detect this datasource.
@@ -199,6 +203,9 @@ thanos:
     persesDatasource:
       # -- Creates a Perses datasource for Thanos Query
       create: true
+
+      # -- set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already.
+      isDefault: true
 
       # -- Label selectors for the Perses sidecar to detect this datasource.
       selector: {}
@@ -303,20 +310,76 @@ thanos:
     # -- Enable Thanos Ruler components
     enabled: false
 
+    # -- Set Thanos Ruler replica count
+    replicas: 1
+
     # -- Annotations to add to the Thanos Ruler resources
     annotations: {}
 
     # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
-    # -- Labels to add to the Thanos Ruler deployment
+    # -- Labels to add to the ThanosRuler CustomResource
     labels: {}
 
     # -- Labels to add to the Thanos Ruler service
     serviceLabels: {}
 
-    # -- TO DO
+    # -- Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"`
+    replicaLabel: thanos_ruler_replica
+
+    # -- PrometheusRule objects to be selected for rule evaluation
     matchLabel:
+
+    # -- Interval between consecutive evaluations.
+    evaluationInterval: 30s
+
+    # -- Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years).
+    retention: 24h
+
+    # -- External Labels to add to the Thanos Ruler (A default replica label `thanos_ruler_replica` will be always added as a label with the value of the pod’s name.)
+    externalLabels: {}
+
+    ## -- Storage is the definition of how storage will be used by the ThanosRuler instances.
+    storage: {}
+    # volumeClaimTemplate:
+    #   spec:
+    #     storageClassName: default
+    #     accessModes: ["ReadWriteOnce"]
+    #     resources:
+    #       requests:
+    #         storage: 50Gi
+    #     selector: {}
+
+    ## -- ObjectStorageConfig configures object storage in Thanos
+    objectStorageConfig:
+      # use existing secret, see https://thanos.io/tip/thanos/storage.md/#s3
+      existingSecret: {}
+        # name: kube-monitoring-prometheus
+        # key: object-storage-configs.yaml
+
+    # -- Resource requests and limits for the Thanos Ruler container.
+    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
+    resources:
+      requests:
+        cpu:
+        memory:
+      limits:
+        cpu:
+        memory:
+
+    # -- SecurityContext holds pod-level security attributes and common container settings.
+    securityContext:
+      fsGroup: 2000
+      runAsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+
+    # -- Thanos Ruler log level
+    # @default -- info
+    logLevel:
 
     # -- Configures the list of Alertmanager endpoints to send alerts to.
     # The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager.
@@ -333,6 +396,18 @@ thanos:
         ssoKey:
       # -- List of hosts endpoints to send alerts to
       hosts:
+
+  # -- Deploy extra K8s manifests
+  extraObjects:
+    []
+    # - apiVersion: v1
+    #   kind: ConfigMap
+    #   metadata:
+    #     name: '{{ include "release.name" . }}-truststore'
+    #   data:
+    #     ca.crt: |
+    #       -----BEGIN CERTIFICATE-----
+    #       -----END CERTIFICATE-----
 
 blackboxExporter:
 # -- Enable creation of Blackbox exporter resources for probing Thanos stores. It will create ServiceMonitor and PrometheusRule CR
