@@ -98,6 +98,16 @@ jobs:
 
               git add "$chart_file"
               
+              # Extract plugin name from directory path
+              # For example: thanos/charts/Chart.yaml -> plugin name is "thanos"
+              plugin_name=$(dirname "$(dirname "$chart_file")" | xargs basename)
+              echo "Generating README for plugin: $plugin_name"
+              
+              make generate-readme PLUGIN="$plugin_name"
+              
+              # Add any generated/updated README files
+              git add "$plugin_name/" || true
+
               changes_made=true
             fi
           done
@@ -257,24 +267,6 @@ jobs:
               console.log('❌ Failed to trigger helm-lint-test:', error.message);
             }
             
-            // Trigger helm-docs workflow
-            let helmDocsRunId = null;
-            try {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'helm-docs.yaml',
-                ref: '${{ github.head_ref }}'
-              });
-              console.log('✅ Triggered helm-docs workflow');
-              
-              // Wait for the run to be created
-              await new Promise(resolve => setTimeout(resolve, 3000));
-              helmDocsRunId = await getLatestRunId('helm-docs.yaml');
-            } catch (error) {
-              console.log('❌ Failed to trigger helm-docs:', error.message);
-            }
-            
             // Create initial comment
             const initialComment = `🤖 **Version Bump Complete** ✅
 
@@ -282,7 +274,6 @@ jobs:
 
             📋 **Triggered Workflows Status:**
             ${helmLintRunId ? `- ⏳ [Helm Lint & Test](${repoUrl}/actions/runs/${helmLintRunId}) - Starting...` : '- ❌ Helm Lint & Test - Failed to trigger'}
-            ${helmDocsRunId ? `- ⏳ [Helm Docs](${repoUrl}/actions/runs/${helmDocsRunId}) - Starting...` : '- ❌ Helm Docs - Failed to trigger'}
 
             *This comment will be updated with workflow progress...*
 
@@ -321,22 +312,6 @@ jobs:
                 }
               } else {
                 statusLines.push('- ❌ Helm Lint & Test - Failed to trigger');
-              }
-              
-              // Check helm-docs status
-              if (helmDocsRunId) {
-                const status = await getRunStatus(helmDocsRunId);
-                if (status) {
-                  const emoji = getStatusEmoji(status.status, status.conclusion);
-                  const statusText = status.status === 'completed' ? status.conclusion : status.status;
-                  statusLines.push(`- ${emoji} [Helm Docs](${status.url}) - ${statusText}`);
-                  if (status.status !== 'completed') allCompleted = false;
-                } else {
-                  statusLines.push(`- ❓ [Helm Docs](${repoUrl}/actions/runs/${helmDocsRunId}) - Unknown status`);
-                  allCompleted = false;
-                }
-              } else {
-                statusLines.push('- ❌ Helm Docs - Failed to trigger');
               }
               
               // Update comment
