@@ -10,7 +10,6 @@ permissions:
   actions: write
   contents: write
   pull-requests: write
-  contents: write
 
 jobs:
   bump-version:
