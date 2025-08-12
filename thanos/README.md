@@ -350,6 +350,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.enabled | bool | `true` | Enable Thanos Compactor component |
 | thanos.compactor.httpGracePeriod | string | 120s | Set Thanos Compactor http-grace-period |
 | thanos.compactor.logLevel | string | info | Thanos Compactor log level |
+| thanos.compactor.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Compactor container. |
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
@@ -431,4 +432,5 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.store.enabled | bool | `true` | Enable Thanos Store component |
 | thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
 | thanos.store.logLevel | string | info | Thanos Store log level |
+| thanos.store.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Store container. |
 | thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
