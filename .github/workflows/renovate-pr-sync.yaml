@@ -1,4 +1,4 @@
-name: Bump plugindefinition.yaml version on Chart.yaml/values.yaml changes
+name: Bump plugindefinition.yaml versions on Renovate PRs bumping Chart.yaml/values.yaml files
 
 on:
   pull_request:
