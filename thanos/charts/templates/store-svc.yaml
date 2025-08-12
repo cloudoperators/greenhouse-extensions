@@ -1,4 +1,4 @@
-{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.thanos.store.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
