@@ -1,0 +1,371 @@
+name: Bump plugindefinition.yaml versions on Renovate PRs bumping Chart.yaml/values.yaml files
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*/Chart.yaml"
+      - "**/*/*/Chart.yaml"
+      - "**/*/values.yaml"
+      - "**/*/*/values.yaml"
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find changed Chart.yaml and values.yaml files
+        id: filediff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          chart_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E 'charts?/Chart.yaml$' || true)
+          values_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E 'charts?/values.yaml$' || true)
+          echo "chart_files<<EOF"$'\n'"$chart_files"$'\n'"EOF" >> $GITHUB_OUTPUT
+          echo "values_files<<EOF"$'\n'"$values_files"$'\n'"EOF" >> $GITHUB_OUTPUT
+
+      - name: Determine update level from PR description
+        id: update_level
+        run: |
+          body="$PR_BODY"
+
+          # Extract all update levels from the table
+          levels=$(echo "$body" | grep -Eo '\|\s*(major|minor|patch)\s*\|' | grep -Eo '(major|minor|patch)')
+
+          # Set priority: major > minor > patch
+          update_level="patch"
+          if echo "$levels" | grep -q 'major'; then
+            update_level="major"
+          elif echo "$levels" | grep -q 'minor'; then
+            update_level="minor"
+          fi
+
+          echo "update_level=$update_level" >> $GITHUB_OUTPUT
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+
+      - name: Setup Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Chart.yaml versions for values.yaml changes
+        id: bump-chart
+        if: steps.filediff.outputs.values_files != ''
+        run: |
+          set -e
+          changes_made=false
+          
+          for values_file in ${{ steps.filediff.outputs.values_files }}; do
+            # Get the corresponding Chart.yaml file
+            chart_file=$(dirname "$values_file")/Chart.yaml
+            
+            if [ -f "$chart_file" ]; then
+              echo "Bumping version in $chart_file due to changes in $values_file"
+              
+              # Get current version
+              current_version=$(yq e '.version' "$chart_file")
+              IFS='.' read -r major minor patch <<< "$current_version"
+              
+              # Bump version based on update_level
+              case "$UPDATE_LEVEL" in
+                major)
+                  major=$((major + 1))
+                  minor=0
+                  patch=0
+                  ;;
+                minor)
+                  minor=$((minor + 1))
+                  patch=0
+                  ;;
+                patch|*)
+                  patch=$((patch + 1))
+                  ;;
+              esac
+              new_version="$major.$minor.$patch"
+              
+              # Update Chart.yaml
+              yq e -i ".version = \"$new_version\"" "$chart_file"
+              echo "Updated $chart_file from $current_version to $new_version (level: $UPDATE_LEVEL)"
+
+              git add "$chart_file"
+              
+              changes_made=true
+            fi
+          done
+          
+          if [ "$changes_made" = true ]; then
+            git commit -m "chore: bump chart versions for values.yaml changes ($UPDATE_LEVEL)"
+            # Add the updated Chart.yaml files to the list for processing
+            updated_charts=$(echo "${{ steps.filediff.outputs.values_files }}" | sed 's|values\.yaml|Chart.yaml|g')
+            echo "updated_charts<<EOF"$'\n'"$updated_charts"$'\n'"EOF" >> $GITHUB_OUTPUT
+            echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
+
+      - name: Sync plugindefinition.yaml version with Chart.yaml
+        id: sync-versions
+        if: steps.filediff.outputs.chart_files != '' || steps.bump-chart.outputs.changes_made == 'true'
+        run: |
+          set -e
+          changes_made=false
+          
+          # Process originally changed Chart.yaml files
+          all_chart_files="${{ steps.filediff.outputs.chart_files }}"
+          
+          # Add newly updated Chart.yaml files from values.yaml changes
+          if [ "${{ steps.bump-chart.outputs.changes_made }}" = "true" ]; then
+            all_chart_files="$all_chart_files ${{ steps.bump-chart.outputs.updated_charts }}"
+          fi
+          
+          for chart in $all_chart_files; do
+            # Get the root directory (parent of charts/)
+            root_dir=$(dirname "$(dirname "$chart")")
+            # Get the chart version from Chart.yaml
+            chart_version=$(yq e '.version' "$chart")
+            # Find plugindefinition.yaml in the root directory
+            plugin_yaml="$root_dir/plugindefinition.yaml"
+            if [ -f "$plugin_yaml" ]; then
+              # Update spec.helmChart.version in plugindefinition.yaml
+              yq e -i ".spec.helmChart.version = \"$chart_version\"" "$plugin_yaml"
+              echo "Updated $plugin_yaml to version $chart_version"
+
+              # Bump spec.version based on update_level
+              current_version=$(yq e '.spec.version' "$plugin_yaml")
+              IFS='.' read -r major minor patch <<< "$current_version"
+              case "$UPDATE_LEVEL" in
+                major)
+                  major=$((major + 1))
+                  minor=0
+                  patch=0
+                  ;;
+                minor)
+                  minor=$((minor + 1))
+                  patch=0
+                  ;;
+                patch|*)
+                  patch=$((patch + 1))
+                  ;;
+              esac
+              new_version="$major.$minor.$patch"
+              yq e -i ".spec.version = \"$new_version\"" "$plugin_yaml"
+              echo "Bumped $plugin_yaml spec.version to $new_version"
+
+              git add "$plugin_yaml"
+              changes_made=true
+            else
+              echo "No plugindefinition.yaml found for $chart"
+            fi
+          done
+          
+          if [ "$changes_made" = true ]; then
+            git commit -m "chore: sync plugindefinition.yaml versions"
+            git push origin HEAD:${GITHUB_HEAD_REF}
+            echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger other workflows and track status
+        if: steps.sync-versions.outputs.changes_made == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+            const triggeredWorkflows = [];
+            
+            // Function to get latest run ID for a workflow
+            async function getLatestRunId(workflowId) {
+              try {
+                const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: workflowId,
+                  per_page: 1,
+                  page: 1
+                });
+                return runs.workflow_runs[0]?.id;
+              } catch (error) {
+                console.log(`Failed to get run ID for ${workflowId}:`, error.message);
+                return null;
+              }
+            }
+            
+            // Function to get workflow run status
+            async function getRunStatus(runId) {
+              try {
+                const { data: run } = await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: runId
+                });
+                return {
+                  status: run.status,
+                  conclusion: run.conclusion,
+                  url: run.html_url
+                };
+              } catch (error) {
+                console.log(`Failed to get status for run ${runId}:`, error.message);
+                return null;
+              }
+            }
+            
+            // Function to get status emoji
+            function getStatusEmoji(status, conclusion) {
+              if (status === 'completed') {
+                switch (conclusion) {
+                  case 'success': return '✅';
+                  case 'failure': return '❌';
+                  case 'cancelled': return '⏹️';
+                  case 'skipped': return '⏭️';
+                  default: return '❓';
+                }
+              } else if (status === 'in_progress') {
+                return '🔄';
+              } else if (status === 'queued') {
+                return '⏳';
+              }
+              return '❓';
+            }
+            
+            // Trigger helm-lint-test workflow
+            let helmLintRunId = null;
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'helm-lint-test.yaml',
+                ref: '${{ github.head_ref }}'
+              });
+              console.log('✅ Triggered helm-lint-test workflow');
+              
+              // Wait for the run to be created
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              helmLintRunId = await getLatestRunId('helm-lint-test.yaml');
+            } catch (error) {
+              console.log('❌ Failed to trigger helm-lint-test:', error.message);
+            }
+            
+            // Trigger helm-docs workflow
+            let helmDocsRunId = null;
+            try {
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'helm-docs.yaml',
+                ref: '${{ github.head_ref }}'
+              });
+              console.log('✅ Triggered helm-docs workflow');
+              
+              // Wait for the run to be created
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              helmDocsRunId = await getLatestRunId('helm-docs.yaml');
+            } catch (error) {
+              console.log('❌ Failed to trigger helm-docs:', error.message);
+            }
+            
+            // Create initial comment
+            const initialComment = `🤖 **Version Bump Complete** ✅
+
+            Plugin versions have been synchronized and additional workflows have been triggered.
+
+            📋 **Triggered Workflows Status:**
+            ${helmLintRunId ? `- ⏳ [Helm Lint & Test](${repoUrl}/actions/runs/${helmLintRunId}) - Starting...` : '- ❌ Helm Lint & Test - Failed to trigger'}
+            ${helmDocsRunId ? `- ⏳ [Helm Docs](${repoUrl}/actions/runs/${helmDocsRunId}) - Starting...` : '- ❌ Helm Docs - Failed to trigger'}
+
+            *This comment will be updated with workflow progress...*
+
+            ---
+            *Last updated: ${new Date().toISOString()}*`;
+
+            const { data: comment } = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: initialComment
+            });
+            
+            // Poll for status updates (up to 10 minutes)
+            const maxPolls = 20; // 10 minutes with 30-second intervals
+            let polls = 0;
+            
+            while (polls < maxPolls) {
+              await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
+              polls++;
+              
+              let allCompleted = true;
+              const statusLines = [];
+              
+              // Check helm-lint-test status
+              if (helmLintRunId) {
+                const status = await getRunStatus(helmLintRunId);
+                if (status) {
+                  const emoji = getStatusEmoji(status.status, status.conclusion);
+                  const statusText = status.status === 'completed' ? status.conclusion : status.status;
+                  statusLines.push(`- ${emoji} [Helm Lint & Test](${status.url}) - ${statusText}`);
+                  if (status.status !== 'completed') allCompleted = false;
+                } else {
+                  statusLines.push(`- ❓ [Helm Lint & Test](${repoUrl}/actions/runs/${helmLintRunId}) - Unknown status`);
+                  allCompleted = false;
+                }
+              } else {
+                statusLines.push('- ❌ Helm Lint & Test - Failed to trigger');
+              }
+              
+              // Check helm-docs status
+              if (helmDocsRunId) {
+                const status = await getRunStatus(helmDocsRunId);
+                if (status) {
+                  const emoji = getStatusEmoji(status.status, status.conclusion);
+                  const statusText = status.status === 'completed' ? status.conclusion : status.status;
+                  statusLines.push(`- ${emoji} [Helm Docs](${status.url}) - ${statusText}`);
+                  if (status.status !== 'completed') allCompleted = false;
+                } else {
+                  statusLines.push(`- ❓ [Helm Docs](${repoUrl}/actions/runs/${helmDocsRunId}) - Unknown status`);
+                  allCompleted = false;
+                }
+              } else {
+                statusLines.push('- ❌ Helm Docs - Failed to trigger');
+              }
+              
+              // Update comment
+              const updatedComment = `🤖 **Version Bump Complete** ✅ 
+
+              Plugin versions have been synchronized and additional workflows have been triggered.
+
+              📋 **Triggered Workflows Status:**
+              ${statusLines.join('\n')}
+
+              ${allCompleted ? '🎉 **All workflows completed!**' : '⏳ **Workflows in progress...**'}
+
+              ---
+              *Last updated: ${new Date().toISOString()} (Poll ${polls}/${maxPolls})*`;
+
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: updatedComment
+              });
+              
+              // Stop polling if all workflows are completed
+              if (allCompleted) {
+                console.log('All workflows completed, stopping status updates');
+                break;
+              }
+            }
+            
+            if (polls >= maxPolls) {
+              console.log('Reached maximum polling attempts, stopping status updates');
+            }
