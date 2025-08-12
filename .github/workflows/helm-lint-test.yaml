@@ -3,13 +3,9 @@ on:
   workflow_dispatch: {}
   pull_request:
     types: [opened, synchronize, reopened]
-    paths-ignore:
-      - '.github/**'
   push:
     branches:
       - main
-    paths-ignore:
-      - '.github/**'
 
 env:
   REGISTRY: ghcr.io
