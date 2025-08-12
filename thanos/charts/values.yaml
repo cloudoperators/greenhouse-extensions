@@ -75,10 +75,6 @@ thanos:
     # @default -- info
     logLevel:
 
-    # Disables standard prometheus-operated and Thanos Store endpoints
-    # To be used for overarching Thanos Queries with custom endpoint lists
-    standalone: false
-
     # -- Set Thanos Query auto-downsampling
     autoDownsampling: true
 
@@ -115,7 +111,7 @@ thanos:
     # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
-    # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
+    # -- Thanos Query store endpoints
     stores: []
 
     # Configure the ingress resource that allows you to access Thanos Query
@@ -188,7 +184,7 @@ thanos:
 
     ## Expose Thanos Query as a Plutono datasource
     plutonoDatasource:
-      # -- Creates a Perses datasource for standalone Thanos Query
+      # -- Creates a Perses datasource for Thanos Query
       create: false
 
       # -- set datasource as default for Plutono
