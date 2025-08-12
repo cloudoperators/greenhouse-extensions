@@ -98,6 +98,16 @@ jobs:
 
               git add "$chart_file"
               
+              # Extract plugin name from directory path
+              # For example: thanos/charts/Chart.yaml -> plugin name is "thanos"
+              plugin_name=$(dirname "$(dirname "$chart_file")" | xargs basename)
+              echo "Generating README for plugin: $plugin_name"
+              
+              make generate-readme PLUGIN="$plugin_name"
+              
+              # Add any generated/updated README files
+              git add "$plugin_name/" || true
+
               changes_made=true
             fi
           done
