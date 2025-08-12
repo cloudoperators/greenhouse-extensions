@@ -6,6 +6,8 @@ on:
     paths:
       - "**/*/Chart.yaml"
       - "**/*/*/Chart.yaml"
+permissions:
+  pull-requests: write
 
 jobs:
   bump-version:
