@@ -221,6 +221,7 @@ thanos:
       requests:
         cpu:
         memory:
+        ephemeral-storage: 200Mi
       limits:
         cpu:
         memory:
