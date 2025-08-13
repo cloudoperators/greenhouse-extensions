@@ -90,7 +90,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.persistence.size | string | `"8Gi"` | PVC Storage Request for data volume |
 | perses.readinessProbe | object | `{"enabled":true,"failureThreshold":5,"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Readiness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | perses.replicas | int | `1` | Number of pod replicas. |
-| perses.resources | object | `{}` | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| perses.resources | object | `{"limits":{"cpu":"250m","memory":"500Mi"},"requests":{"cpu":"250m","memory":"500Mi"}}` | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | perses.service | object | `{"annotations":{},"labels":{"greenhouse.sap/expose":"true"},"port":8080,"portName":"http","targetPort":8080,"type":"ClusterIP"}` | Expose the Perses service to be accessed from outside the cluster (LoadBalancer service). or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. |
 | perses.service.annotations | object | `{}` | Annotations to add to the service |
 | perses.service.labels | object | `{"greenhouse.sap/expose":"true"}` | Labeles to add to the service |
