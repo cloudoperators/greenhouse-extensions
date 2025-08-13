@@ -1,0 +1,187 @@
+name: Bump plugindefinition.yaml versions on Renovate PRs bumping Chart.yaml/values.yaml files
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*/Chart.yaml"
+      - "**/*/*/Chart.yaml"
+      - "**/*/values.yaml"
+      - "**/*/*/values.yaml"
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find changed Chart.yaml and values.yaml files
+        id: filediff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          chart_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E 'charts?/Chart.yaml$' || true)
+          values_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E 'charts?/values.yaml$' || true)
+          echo "chart_files<<EOF"$'\n'"$chart_files"$'\n'"EOF" >> $GITHUB_OUTPUT
+          echo "values_files<<EOF"$'\n'"$values_files"$'\n'"EOF" >> $GITHUB_OUTPUT
+
+      - name: Determine update level from PR description
+        id: update_level
+        run: |
+          body="$PR_BODY"
+
+          # Extract all update levels from the table
+          levels=$(echo "$body" | grep -Eo '\|\s*(major|minor|patch)\s*\|' | grep -Eo '(major|minor|patch)')
+
+          # Set priority: major > minor > patch
+          update_level="patch"
+          if echo "$levels" | grep -q 'major'; then
+            update_level="major"
+          elif echo "$levels" | grep -q 'minor'; then
+            update_level="minor"
+          fi
+
+          echo "update_level=$update_level" >> $GITHUB_OUTPUT
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+
+      - name: Setup Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Chart.yaml versions for values.yaml changes
+        id: bump-chart
+        if: steps.filediff.outputs.values_files != ''
+        run: |
+          set -e
+          changes_made=false
+          
+          for values_file in ${{ steps.filediff.outputs.values_files }}; do
+            # Get the corresponding Chart.yaml file
+            chart_file=$(dirname "$values_file")/Chart.yaml
+            
+            if [ -f "$chart_file" ]; then
+              echo "Bumping version in $chart_file due to changes in $values_file"
+              
+              # Get current version
+              current_version=$(yq e '.version' "$chart_file")
+              IFS='.' read -r major minor patch <<< "$current_version"
+              
+              # Bump version based on update_level
+              case "$UPDATE_LEVEL" in
+                major)
+                  major=$((major + 1))
+                  minor=0
+                  patch=0
+                  ;;
+                minor)
+                  minor=$((minor + 1))
+                  patch=0
+                  ;;
+                patch|*)
+                  patch=$((patch + 1))
+                  ;;
+              esac
+              new_version="$major.$minor.$patch"
+              
+              # Update Chart.yaml
+              yq e -i ".version = \"$new_version\"" "$chart_file"
+              echo "Updated $chart_file from $current_version to $new_version (level: $UPDATE_LEVEL)"
+
+              git add "$chart_file"
+              
+              # Extract plugin name from directory path
+              # For example: thanos/charts/Chart.yaml -> plugin name is "thanos"
+              plugin_name=$(dirname "$(dirname "$chart_file")" | xargs basename)
+              echo "Generating README for plugin: $plugin_name"
+              
+              make generate-readme PLUGIN="$plugin_name"
+              
+              # Add any generated/updated README files
+              git add "$plugin_name/" || true
+
+              changes_made=true
+            fi
+          done
+          
+          if [ "$changes_made" = true ]; then
+            git commit -m "chore: bump chart versions for values.yaml changes ($UPDATE_LEVEL)"
+            # Add the updated Chart.yaml files to the list for processing
+            updated_charts=$(echo "${{ steps.filediff.outputs.values_files }}" | sed 's|values\.yaml|Chart.yaml|g')
+            echo "updated_charts<<EOF"$'\n'"$updated_charts"$'\n'"EOF" >> $GITHUB_OUTPUT
+            echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
+
+      - name: Sync plugindefinition.yaml version with Chart.yaml
+        id: sync-versions
+        if: steps.filediff.outputs.chart_files != '' || steps.bump-chart.outputs.changes_made == 'true'
+        run: |
+          set -e
+          changes_made=false
+          
+          # Process originally changed Chart.yaml files
+          all_chart_files="${{ steps.filediff.outputs.chart_files }}"
+          
+          # Add newly updated Chart.yaml files from values.yaml changes
+          if [ "${{ steps.bump-chart.outputs.changes_made }}" = "true" ]; then
+            all_chart_files="$all_chart_files ${{ steps.bump-chart.outputs.updated_charts }}"
+          fi
+          
+          for chart in $all_chart_files; do
+            # Get the root directory (parent of charts/)
+            root_dir=$(dirname "$(dirname "$chart")")
+            # Get the chart version from Chart.yaml
+            chart_version=$(yq e '.version' "$chart")
+            # Find plugindefinition.yaml in the root directory
+            plugin_yaml="$root_dir/plugindefinition.yaml"
+            if [ -f "$plugin_yaml" ]; then
+              # Update spec.helmChart.version in plugindefinition.yaml
+              yq e -i ".spec.helmChart.version = \"$chart_version\"" "$plugin_yaml"
+              echo "Updated $plugin_yaml to version $chart_version"
+
+              # Bump spec.version based on update_level
+              current_version=$(yq e '.spec.version' "$plugin_yaml")
+              IFS='.' read -r major minor patch <<< "$current_version"
+              case "$UPDATE_LEVEL" in
+                major)
+                  major=$((major + 1))
+                  minor=0
+                  patch=0
+                  ;;
+                minor)
+                  minor=$((minor + 1))
+                  patch=0
+                  ;;
+                patch|*)
+                  patch=$((patch + 1))
+                  ;;
+              esac
+              new_version="$major.$minor.$patch"
+              yq e -i ".spec.version = \"$new_version\"" "$plugin_yaml"
+              echo "Bumped $plugin_yaml spec.version to $new_version"
+
+              git add "$plugin_yaml"
+              changes_made=true
+            else
+              echo "No plugindefinition.yaml found for $chart"
+            fi
+          done
+          
+          if [ "$changes_made" = true ]; then
+            git commit -m "chore: sync plugindefinition.yaml versions"
+            git push origin HEAD:${GITHUB_HEAD_REF}
+            echo "changes_made=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

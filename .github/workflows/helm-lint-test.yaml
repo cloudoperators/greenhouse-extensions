@@ -1,13 +1,11 @@
 name: "Helm lint and tests"
 on:
+  workflow_dispatch: {}
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_target:
-    types: [synchronize]
   push:
     branches:
       - main
-  workflow_dispatch: {}
 
 env:
   REGISTRY: ghcr.io
