@@ -215,6 +215,17 @@ thanos:
     # -- Enable Thanos Store component
     enabled: true
 
+    # -- Resource requests and limits for the Thanos Store container.
+    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
+    resources:
+      requests:
+        cpu:
+        memory:
+        ephemeral-storage: 200Mi
+      limits:
+        cpu:
+        memory:
+
     # -- Adding additional arguments to Thanos Store
     additionalArgs: []
 
@@ -251,6 +262,16 @@ thanos:
     # -- Thanos Compactor log level
     # @default -- info
     logLevel:
+
+    # -- Resource requests and limits for the Thanos Compactor container.
+    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
+    resources:
+      requests:
+        cpu:
+        memory:
+      limits:
+        cpu:
+        memory:
 
     # -- Labels to add to the Thanos Compactor deployment
     deploymentLabels: {}
