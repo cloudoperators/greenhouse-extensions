@@ -15,6 +15,7 @@ perses:
   fullnameOverride: ""
 
   # -- Image of Perses
+  # @default -- <pre>image:<br>  name: "persesdev/perses"<br>  version: ""<br>  pullPolicy: IfNotPresent</pre>
   image:
     # -- Perses image repository and name
     name: "persesdev/perses"
@@ -30,6 +31,7 @@ perses:
     # app: perses
 
   # -- Service account for Perses to use.
+  # @default -- <pre>serviceAccount:<br>  create: true<br>  annotations: {}<br>  name: ""</pre>
   serviceAccount:
     # -- Specifies whether a service account should be created
     create: true
@@ -41,6 +43,7 @@ perses:
 
   # -- Expose the Perses service to be accessed from outside the cluster (LoadBalancer service).
   # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+  # @default -- <pre>service:<br>  annotations: {}<br>  labels:<br>    greenhouse.sap/expose: "true"<br>  type: "ClusterIP"<br>  portName: http<br>  port: 8080<br>  targetPort: 8080</pre>
   service:
     # -- Annotations to add to the service
     annotations: {}
@@ -56,6 +59,7 @@ perses:
     # -- Perses running port
     targetPort: 8080
 
+  # @default -- <pre>serviceMonitor:<br>  selfMonitor: false<br>  labels: {}<br>  selector:<br>    matchLabels: {}<br>  interval: 30s</pre>
   serviceMonitor:
     # -- Create a serviceMonitor for Perses
     selfMonitor: false
@@ -84,6 +88,7 @@ perses:
 
   # -- Liveness probe configuration
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # @default -- <pre>livenessProbe:<br>  enabled: true<br>  initialDelaySeconds: 10<br>  periodSeconds: 60<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre>
   livenessProbe:
     enabled: true
     initialDelaySeconds: 10
@@ -94,6 +99,7 @@ perses:
 
   # -- Readiness probe configuration
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  # @default -- <pre>readinessProbe:<br>  enabled: true<br>  initialDelaySeconds: 5<br>  periodSeconds: 10<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre>
   readinessProbe:
     enabled: true
     initialDelaySeconds: 5
@@ -108,12 +114,14 @@ perses:
   # -- Additional VolumeMounts on the output StatefulSet definition.
   volumeMounts: []
   # -- TLS configuration for mounting certificates from Kubernetes secrets
+  # @default -- <pre>tls:<br>  enabled: false<br>  caCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/ca"<br>  clientCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/tls"</pre>
   tls:
     # -- Enable TLS certificate mounting
     enabled: false
 
     # -- CA Certificate configuration
     # Certificates will be mounted to the directory specified in mountPath
+    # @default -- <pre>caCert:<br>  enabled: false<br>  secretName: ""<br>  mountPath: "/ca"</pre>
     caCert:
       # -- Enable CA certificate mounting
       enabled: false
@@ -125,6 +133,7 @@ perses:
 
     # -- Client Certificate configuration (contains both cert and key)
     # Certificates will be mounted to the directory specified in mountPath
+    # @default -- <pre>clientCert:<br>  enabled: false<br>  secretName: ""<br>  mountPath: "/tls"</pre>
     clientCert:
       # -- Enable client certificate mounting
       enabled: false
@@ -134,6 +143,7 @@ perses:
       # -- Mount path for the client certificate directory
       mountPath: "/tls"
   # -- Resource limits & requests.
+  # @default -- <pre>resources:<br>  limits:<br>    cpu: 250m<br>    memory: 500Mi<br>  requests:<br>    cpu: 250m<br>    memory: 500Mi</pre>
   # Update according to your own use case as these values might be too low for a typical deployment.
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
@@ -153,12 +163,14 @@ perses:
     # With this config, the Perses app will be served with the path <api_prefix>/api
     api_prefix: "/perses"
 
+    # @default -- <pre>security:<br>  readonly: false<br>  enable_auth: false<br>  cookie:<br>    same_site: lax<br>    secure: false</pre>
     security:
       # -- Configure Perses instance as readonly
       readonly: false
       # -- Enable Authentication
       enable_auth: false
       # -- cookie config
+      # @default -- <pre>cookie:<br>  same_site: lax<br>  secure: false</pre>
       cookie:
         same_site: lax
         secure: false
@@ -167,6 +179,7 @@ perses:
         # [ secure: <boolean> | default = false ]
 
     # -- Schemas paths
+    # @default -- <pre>schemas:<br>  panels_path: "/etc/perses/cue/schemas/panels"<br>  queries_path: "/etc/perses/cue/schemas/queries"<br>  datasources_path: "/etc/perses/cue/schemas/datasources"<br>  variables_path: "/etc/perses/cue/schemas/variables"<br>  interval: "5m"</pre>
     schemas:
       panels_path: "/etc/perses/cue/schemas/panels"
       queries_path: "/etc/perses/cue/schemas/queries"
@@ -182,7 +195,8 @@ perses:
         # - project: "perses"
         #   dashboard: "Demo"
 
-    # -- Database config based on data base type
+    # -- Database configuration based on database type
+    # @default -- <pre>database:<br>  file:<br>    folder: /perses<br>    extension: json</pre>
     database:
       # -- file system configs
       file:
@@ -190,12 +204,14 @@ perses:
         extension: json
 
     # -- provisioning config
+    # @default -- <pre>provisioning:<br>  folders:<br>    - /etc/perses/provisioning<br>  interval: 3m</pre>
     provisioning:
       folders:
         - /etc/perses/provisioning
       interval: 3m
 
   # --  Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning
+  # @default -- <pre>sidecar:<br>  enabled: true<br>  label: "perses.dev/resource"<br>  labelValue: "true"<br>  allNamespaces: true<br>  extraEnvVars: []<br>  enableSecretAccess: false</pre>
   sidecar:
     # -- Enable the sidecar container for ConfigMap provisioning
     enabled: true
@@ -214,6 +230,7 @@ perses:
     enableSecretAccess: false
 
   # -- Persistence parameters
+  # @default -- <pre>persistence:<br>  enabled: false<br>  accessModes:<br>    - ReadWriteOnce<br>  size: 8Gi<br>  securityContext:<br>    fsGroup: 2000<br>  labels: {}<br>  annotations: {}</pre>
   persistence:
     # -- If disabled, it will use a emptydir volume
     enabled: false
@@ -239,11 +256,13 @@ perses:
 
   # -- Configure the ingress resource that allows you to access Perses Frontend
   # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
+  # @default -- <pre>ingress:<br>  enabled: false<br>  hosts:<br>    - host: perses.local<br>      paths:<br>        - path: /<br>          pathType: Prefix<br>  ingressClassName: ""<br>  annotations: {}<br>  tls: []</pre>
   ingress:
     # -- Enable ingress controller resource
     enabled: false
 
     # -- Default host for the ingress resource
+    # @default -- <pre>hosts:<br>  - host: perses.local<br>    paths:<br>      - path: /<br>        pathType: Prefix</pre>
     hosts:
       - host: perses.local
         paths:
@@ -283,5 +302,5 @@ greenhouse:
     enabled: true
 
   # -- Labels to add to the PrometheusRules alerts.
-  # @default -- <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre>
+  # @default -- <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre>
   alertLabels: {}

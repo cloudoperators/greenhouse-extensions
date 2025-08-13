@@ -51,54 +51,54 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
-| greenhouse.alertLabels | object | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
+| greenhouse.alertLabels | object | <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre> | Labels to add to the PrometheusRules alerts. |
 | greenhouse.defaultDashboards.enabled | bool | `true` | By setting this to true, You will get Perses Self-monitoring dashboards |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config.annotations | object | `{}` | Annotations for config |
 | perses.config.api_prefix | string | `"/perses"` |  |
-| perses.config.database | object | `{"file":{"extension":"json","folder":"/perses"}}` | Database config based on data base type |
+| perses.config.database | object | <pre>database:<br>  file:<br>    folder: /perses<br>    extension: json</pre> | Database configuration based on database type |
 | perses.config.database.file | object | `{"extension":"json","folder":"/perses"}` | file system configs |
 | perses.config.frontend.important_dashboards | list | `[]` |  |
 | perses.config.frontend.information | string | `"# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"` | Information contains markdown content to be displayed on the Perses home page. |
-| perses.config.provisioning | object | `{"folders":["/etc/perses/provisioning"],"interval":"3m"}` | provisioning config |
-| perses.config.schemas | object | `{"datasources_path":"/etc/perses/cue/schemas/datasources","interval":"5m","panels_path":"/etc/perses/cue/schemas/panels","queries_path":"/etc/perses/cue/schemas/queries","variables_path":"/etc/perses/cue/schemas/variables"}` | Schemas paths |
-| perses.config.security.cookie | object | `{"same_site":"lax","secure":false}` | cookie config |
+| perses.config.provisioning | object | <pre>provisioning:<br>  folders:<br>    - /etc/perses/provisioning<br>  interval: 3m</pre> | provisioning config |
+| perses.config.schemas | object | <pre>schemas:<br>  panels_path: "/etc/perses/cue/schemas/panels"<br>  queries_path: "/etc/perses/cue/schemas/queries"<br>  datasources_path: "/etc/perses/cue/schemas/datasources"<br>  variables_path: "/etc/perses/cue/schemas/variables"<br>  interval: "5m"</pre> | Schemas paths |
+| perses.config.security.cookie | object | <pre>cookie:<br>  same_site: lax<br>  secure: false</pre> | cookie config |
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
 | perses.config.security.readonly | bool | `false` | Configure Perses instance as readonly |
 | perses.extraObjects | list | `[]` | Deploy extra K8s manifests |
 | perses.fullnameOverride | string | `""` | Override fully qualified app name |
-| perses.image | object | `{"name":"persesdev/perses","pullPolicy":"IfNotPresent","version":""}` | Image of Perses |
+| perses.image | object | <pre>image:<br>  name: "persesdev/perses"<br>  version: ""<br>  pullPolicy: IfNotPresent</pre> | Image of Perses |
 | perses.image.name | string | `"persesdev/perses"` | Perses image repository and name |
 | perses.image.pullPolicy | string | `"IfNotPresent"` | Default image pull policy |
 | perses.image.version | string | `""` | Overrides the image tag whose default is the chart appVersion. |
-| perses.ingress | object | `{"annotations":{},"enabled":false,"hosts":[{"host":"perses.local","paths":[{"path":"/","pathType":"Prefix"}]}],"ingressClassName":"","tls":[]}` | Configure the ingress resource that allows you to access Perses Frontend ref: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
+| perses.ingress | object | <pre>ingress:<br>  enabled: false<br>  hosts:<br>    - host: perses.local<br>      paths:<br>        - path: /<br>          pathType: Prefix<br>  ingressClassName: ""<br>  annotations: {}<br>  tls: []</pre> | Configure the ingress resource that allows you to access Perses Frontend ref: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
 | perses.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
 | perses.ingress.enabled | bool | `false` | Enable ingress controller resource |
-| perses.ingress.hosts | list | `[{"host":"perses.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource |
+| perses.ingress.hosts | list | <pre>hosts:<br>  - host: perses.local<br>    paths:<br>      - path: /<br>        pathType: Prefix</pre> | Default host for the ingress resource |
 | perses.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | perses.ingress.tls | list | `[]` | Ingress TLS configuration |
-| perses.livenessProbe | object | `{"enabled":true,"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":60,"successThreshold":1,"timeoutSeconds":5}` | Liveness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
+| perses.livenessProbe | object | <pre>livenessProbe:<br>  enabled: true<br>  initialDelaySeconds: 10<br>  periodSeconds: 60<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre> | Liveness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | perses.logLevel | string | `"warning"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
 | perses.nameOverride | string | `""` | Override name of the chart used in Kubernetes object names. |
-| perses.persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"labels":{},"securityContext":{"fsGroup":2000},"size":"8Gi"}` | Persistence parameters |
+| perses.persistence | object | <pre>persistence:<br>  enabled: false<br>  accessModes:<br>    - ReadWriteOnce<br>  size: 8Gi<br>  securityContext:<br>    fsGroup: 2000<br>  labels: {}<br>  annotations: {}</pre> | Persistence parameters |
 | perses.persistence.accessModes | list | `["ReadWriteOnce"]` | PVC Access Modes for data volume |
 | perses.persistence.annotations | object | `{}` | Annotations for the PVC |
 | perses.persistence.enabled | bool | `false` | If disabled, it will use a emptydir volume |
 | perses.persistence.labels | object | `{}` | Labels for the PVC |
 | perses.persistence.securityContext | object | `{"fsGroup":2000}` | Security context for the PVC when persistence is enabled |
 | perses.persistence.size | string | `"8Gi"` | PVC Storage Request for data volume |
-| perses.readinessProbe | object | `{"enabled":true,"failureThreshold":5,"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Readiness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
+| perses.readinessProbe | object | <pre>readinessProbe:<br>  enabled: true<br>  initialDelaySeconds: 5<br>  periodSeconds: 10<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre> | Readiness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | perses.replicas | int | `1` | Number of pod replicas. |
-| perses.resources | object | `{"limits":{"cpu":"250m","memory":"500Mi"},"requests":{"cpu":"250m","memory":"500Mi"}}` | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| perses.service | object | `{"annotations":{},"labels":{"greenhouse.sap/expose":"true"},"port":8080,"portName":"http","targetPort":8080,"type":"ClusterIP"}` | Expose the Perses service to be accessed from outside the cluster (LoadBalancer service). or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. |
+| perses.resources | object | <pre>resources:<br>  limits:<br>    cpu: 250m<br>    memory: 500Mi<br>  requests:<br>    cpu: 250m<br>    memory: 500Mi</pre> | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| perses.service | object | <pre>service:<br>  annotations: {}<br>  labels:<br>    greenhouse.sap/expose: "true"<br>  type: "ClusterIP"<br>  portName: http<br>  port: 8080<br>  targetPort: 8080</pre> | Expose the Perses service to be accessed from outside the cluster (LoadBalancer service). or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. |
 | perses.service.annotations | object | `{}` | Annotations to add to the service |
 | perses.service.labels | object | `{"greenhouse.sap/expose":"true"}` | Labeles to add to the service |
 | perses.service.port | int | `8080` | Service Port |
 | perses.service.portName | string | `"http"` | Service Port Name |
 | perses.service.targetPort | int | `8080` | Perses running port |
 | perses.service.type | string | `"ClusterIP"` | Service Type |
-| perses.serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account for Perses to use. |
+| perses.serviceAccount | object | <pre>serviceAccount:<br>  create: true<br>  annotations: {}<br>  name: ""</pre> | Service account for Perses to use. |
 | perses.serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | perses.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | perses.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
@@ -106,19 +106,19 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR. |
 | perses.serviceMonitor.selector.matchLabels | object | `{}` | Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service. |
 | perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
-| perses.sidecar | object | `{"allNamespaces":true,"enableSecretAccess":false,"enabled":true,"extraEnvVars":[],"label":"perses.dev/resource","labelValue":"true"}` | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
+| perses.sidecar | object | <pre>sidecar:<br>  enabled: true<br>  label: "perses.dev/resource"<br>  labelValue: "true"<br>  allNamespaces: true<br>  extraEnvVars: []<br>  enableSecretAccess: false</pre> | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
 | perses.sidecar.allNamespaces | bool | `true` | check for configmaps from all namespaces. When set to false, it will only check for configmaps in the same namespace as the Perses instance |
 | perses.sidecar.enableSecretAccess | bool | `false` | Enable secret access permissions in the cluster role. When enabled, the sidecar will have permissions to read secrets and use them. |
 | perses.sidecar.enabled | bool | `true` | Enable the sidecar container for ConfigMap provisioning |
 | perses.sidecar.extraEnvVars | list | `[]` | add additional environment variables to sidecar container. you can look at the k8s-sidecar documentation for more information - https://github.com/kiwigrid/k8s-sidecar |
 | perses.sidecar.label | string | `"perses.dev/resource"` | Label key to watch for ConfigMaps containing Perses resources |
 | perses.sidecar.labelValue | string | `"true"` | Label value to watch for ConfigMaps containing Perses resources |
-| perses.tls | object | `{"caCert":{"enabled":false,"mountPath":"/ca","secretName":""},"clientCert":{"enabled":false,"mountPath":"/tls","secretName":""},"enabled":false}` | TLS configuration for mounting certificates from Kubernetes secrets |
-| perses.tls.caCert | object | `{"enabled":false,"mountPath":"/ca","secretName":""}` | CA Certificate configuration Certificates will be mounted to the directory specified in mountPath |
+| perses.tls | object | <pre>tls:<br>  enabled: false<br>  caCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/ca"<br>  clientCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/tls"</pre> | TLS configuration for mounting certificates from Kubernetes secrets |
+| perses.tls.caCert | object | <pre>caCert:<br>  enabled: false<br>  secretName: ""<br>  mountPath: "/ca"</pre> | CA Certificate configuration Certificates will be mounted to the directory specified in mountPath |
 | perses.tls.caCert.enabled | bool | `false` | Enable CA certificate mounting |
 | perses.tls.caCert.mountPath | string | `"/ca"` | Mount path for the CA certificate directory |
 | perses.tls.caCert.secretName | string | `""` | Name of the Kubernetes secret containing the CA certificate Defaults to "release-name-tls" if not specified |
-| perses.tls.clientCert | object | `{"enabled":false,"mountPath":"/tls","secretName":""}` | Client Certificate configuration (contains both cert and key) Certificates will be mounted to the directory specified in mountPath |
+| perses.tls.clientCert | object | <pre>clientCert:<br>  enabled: false<br>  secretName: ""<br>  mountPath: "/tls"</pre> | Client Certificate configuration (contains both cert and key) Certificates will be mounted to the directory specified in mountPath |
 | perses.tls.clientCert.enabled | bool | `false` | Enable client certificate mounting |
 | perses.tls.clientCert.mountPath | string | `"/tls"` | Mount path for the client certificate directory |
 | perses.tls.clientCert.secretName | string | `""` | Name of the Kubernetes secret containing the client certificate and key Defaults to "release-name-tls" if not specified |
