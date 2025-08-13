@@ -136,7 +136,13 @@ perses:
   # -- Resource limits & requests.
   # Update according to your own use case as these values might be too low for a typical deployment.
   # ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  resources: {}
+  resources:
+    limits:
+      cpu: 250m
+      memory: 500Mi
+    requests:
+      cpu: 250m
+      memory: 500Mi
 
   # Perses configuration file
   # ref: https://github.com/perses/perses/blob/main/docs/user-guides/configuration.md
