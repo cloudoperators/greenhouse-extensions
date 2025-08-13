@@ -580,9 +580,16 @@ cluster:
 
         # -- Ingress hostnames
         hosts: []
+  #        - host: example.com
+  #          paths:
+  #            - path: /
+  #              pathType: ImplementationSpecific
 
         # -- Ingress tls configuration
         tls: []
+        #  - hosts:
+        #      - example.com
+        #    secretName: tls-secret
 
   # -- List of OpensearchRole. See values.yaml file for a full example.
   # @default -- <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>

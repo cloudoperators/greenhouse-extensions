@@ -80,7 +80,7 @@ spec:
       required: true
       type: secret
     - name: cluster.usersRoleBinding
-      description: "Define user role bindings. Use 'backendRoles' to map OIDC groups to OpenSearch roles."
+      description: "Define user role bindings."
       required: false
       type: list
     - name: cluster.cluster.ingress.opensearch.enabled
@@ -105,11 +105,11 @@ spec:
       required: false
       type: list
     - name: cluster.cluster.ingress.dashboards.enabled
-      description: "Enables the dashboard ingress for external access."
+      description: "Enables the dashboard ingress for external access"
       required: false
       type: bool
     - name: cluster.cluster.ingress.dashboards.className
-      description: "Ingress class name for dashboards."
+      description: "Ingress class name for dashboards"
       default: "nginx"
       required: false
       type: string
@@ -165,4 +165,3 @@ spec:
       description: "Specifies the image tag for the kube-rbac-proxy image."
       required: false
       type: string
-    # OAuth2/Dex test options removed per request
