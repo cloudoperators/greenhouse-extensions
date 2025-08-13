@@ -25,7 +25,7 @@ spec:
       - instance
       targetLabel: instance
     - action: replace
-      replacement: {{ replace . ".cloud.sap:443" "" }}
+      replacement: {{ . }}
       sourceLabels:
       - target
       targetLabel: target
