@@ -43,6 +43,10 @@ certManager:
   httpDnsNames:
     - opensearch-client.tld
 
+  # -- Dashboards DNS names for external TLS certificate
+  dashboardsDnsNames:
+    - opensearch-dashboards.tld
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -317,7 +321,10 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig: {}
+      additionalConfig:
+        opensearch_security.auth.type: "proxy"
+        opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-email","x-forwarded-user","x-forwarded-groups"]'
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -573,16 +580,9 @@ cluster:
 
         # -- Ingress hostnames
         hosts: []
-  #        - host: example.com
-  #          paths:
-  #            - path: /
-  #              pathType: ImplementationSpecific
 
         # -- Ingress tls configuration
         tls: []
-        #  - hosts:
-        #      - example.com
-        #    secretName: tls-secret
 
   # -- List of OpensearchRole. See values.yaml file for a full example.
   # @default -- <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>
@@ -642,6 +642,9 @@ cluster:
         - "cluster_composite_ops"
         - "indices:admin/template*"
         - "indices:data/read/scroll*"
+        - "cluster:monitor/nodes/info"
+        - "cluster:monitor/nodes/stats"
+        - "cluster:monitor/health"
       indexPermissions:
         - indexPatterns:
             - ".kibana*"
