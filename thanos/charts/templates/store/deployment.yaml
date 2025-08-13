@@ -36,7 +36,8 @@ spec:
       name: {{ include "release.name" . }}-store
     spec:
       containers:
-      - args:
+      - name: store
+        args:
         - store
         - --objstore.config-file=/etc/config/{{ include "thanos.objectStoreConfigFile" . }}
         - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
@@ -59,7 +60,8 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
-        name: store
+        resources:
+          {{- toYaml .Values.thanos.store.resources | nindent 10 }}
         ports:
         - containerPort: 10902
           name: http
