@@ -204,7 +204,6 @@
         "patch"
       ],
       "minimumReleaseAge": "7 days",
-      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "patch",
       "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
@@ -215,9 +214,6 @@
       ]
     },
     {
-      "separateMultipleMajor": false,
-      "separateMultipleMinor": false,
-      "separateMultiplePatch": false,
       "matchManagers": [
         "helmv3"
       ],
@@ -225,7 +221,6 @@
         "minor"
       ],
       "minimumReleaseAge": "14 days",
-      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "minor",
       "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
@@ -236,9 +231,6 @@
       ]
     },
     {
-      "separateMultipleMajor": false,
-      "separateMultipleMinor": false,
-      "separateMultiplePatch": false,
       "matchManagers": [
         "helmv3"
       ],
@@ -246,7 +238,6 @@
         "major"
       ],
       "minimumReleaseAge": "14 days",
-      "additionalBranchPrefix": "{{parentDir}}-",
       "bumpVersion": "major",
       "groupName": "{{{packageFile}}} helm chart updates",
       "postUpdateOptions": [
