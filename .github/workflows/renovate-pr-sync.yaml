@@ -18,10 +18,18 @@ jobs:
     if: github.actor == 'renovate[bot]'
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App Token
+        id: github-app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CLOUDOPERATOR_APP_ID }}
+          private-key: ${{ secrets.CLOUDOPERATOR_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.github-app-token.outputs.token }}
 
       - name: Find changed Chart.yaml and values.yaml files
         id: filediff
@@ -184,163 +192,3 @@ jobs:
           fi
         env:
           UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger other workflows and track status
-        if: steps.sync-versions.outputs.changes_made == 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
-            const triggeredWorkflows = [];
-            
-            // Function to get latest run ID for a workflow
-            async function getLatestRunId(workflowId) {
-              try {
-                const { data: runs } = await github.rest.actions.listWorkflowRuns({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  workflow_id: workflowId,
-                  per_page: 1,
-                  page: 1
-                });
-                return runs.workflow_runs[0]?.id;
-              } catch (error) {
-                console.log(`Failed to get run ID for ${workflowId}:`, error.message);
-                return null;
-              }
-            }
-            
-            // Function to get workflow run status
-            async function getRunStatus(runId) {
-              try {
-                const { data: run } = await github.rest.actions.getWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: runId
-                });
-                return {
-                  status: run.status,
-                  conclusion: run.conclusion,
-                  url: run.html_url
-                };
-              } catch (error) {
-                console.log(`Failed to get status for run ${runId}:`, error.message);
-                return null;
-              }
-            }
-            
-            // Function to get status emoji
-            function getStatusEmoji(status, conclusion) {
-              if (status === 'completed') {
-                switch (conclusion) {
-                  case 'success': return '✅';
-                  case 'failure': return '❌';
-                  case 'cancelled': return '⏹️';
-                  case 'skipped': return '⏭️';
-                  default: return '❓';
-                }
-              } else if (status === 'in_progress') {
-                return '🔄';
-              } else if (status === 'queued') {
-                return '⏳';
-              }
-              return '❓';
-            }
-            
-            // Trigger helm-lint-test workflow
-            let helmLintRunId = null;
-            try {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'helm-lint-test.yaml',
-                ref: '${{ github.head_ref }}'
-              });
-              console.log('✅ Triggered helm-lint-test workflow');
-              
-              // Wait for the run to be created
-              await new Promise(resolve => setTimeout(resolve, 3000));
-              helmLintRunId = await getLatestRunId('helm-lint-test.yaml');
-            } catch (error) {
-              console.log('❌ Failed to trigger helm-lint-test:', error.message);
-            }
-            
-            // Create initial comment
-            const initialComment = `🤖 **Version Bump Complete** ✅
-
-            Plugin versions have been synchronized and additional workflows have been triggered.
-
-            📋 **Triggered Workflows Status:**
-            ${helmLintRunId ? `- ⏳ [Helm Lint & Test](${repoUrl}/actions/runs/${helmLintRunId}) - Starting...` : '- ❌ Helm Lint & Test - Failed to trigger'}
-
-            *This comment will be updated with workflow progress...*
-
-            ---
-            *Last updated: ${new Date().toISOString()}*`;
-
-            const { data: comment } = await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: initialComment
-            });
-            
-            // Poll for status updates (up to 10 minutes)
-            const maxPolls = 20; // 10 minutes with 30-second intervals
-            let polls = 0;
-            
-            while (polls < maxPolls) {
-              await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
-              polls++;
-              
-              let allCompleted = true;
-              const statusLines = [];
-              
-              // Check helm-lint-test status
-              if (helmLintRunId) {
-                const status = await getRunStatus(helmLintRunId);
-                if (status) {
-                  const emoji = getStatusEmoji(status.status, status.conclusion);
-                  const statusText = status.status === 'completed' ? status.conclusion : status.status;
-                  statusLines.push(`- ${emoji} [Helm Lint & Test](${status.url}) - ${statusText}`);
-                  if (status.status !== 'completed') allCompleted = false;
-                } else {
-                  statusLines.push(`- ❓ [Helm Lint & Test](${repoUrl}/actions/runs/${helmLintRunId}) - Unknown status`);
-                  allCompleted = false;
-                }
-              } else {
-                statusLines.push('- ❌ Helm Lint & Test - Failed to trigger');
-              }
-              
-              // Update comment
-              const updatedComment = `🤖 **Version Bump Complete** ✅ 
-
-              Plugin versions have been synchronized and additional workflows have been triggered.
-
-              📋 **Triggered Workflows Status:**
-              ${statusLines.join('\n')}
-
-              ${allCompleted ? '🎉 **All workflows completed!**' : '⏳ **Workflows in progress...**'}
-
-              ---
-              *Last updated: ${new Date().toISOString()} (Poll ${polls}/${maxPolls})*`;
-
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: comment.id,
-                body: updatedComment
-              });
-              
-              // Stop polling if all workflows are completed
-              if (allCompleted) {
-                console.log('All workflows completed, stopping status updates');
-                break;
-              }
-            }
-            
-            if (polls >= maxPolls) {
-              console.log('Reached maximum polling attempts, stopping status updates');
-            }
