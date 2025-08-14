@@ -8,11 +8,11 @@ maintainers:
 name: alerts
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 2.0.3
+version: 3.0.0
 keywords:
   - prometheus-alertmanager
 dependencies:
   - name: kube-prometheus-stack
     alias: alerts
     repository: https://prometheus-community.github.io/helm-charts
-    version: 73.2.3
+    version: 75.15.1
