@@ -200,6 +200,7 @@
       "matchManagers": [
         "helmv3"
       ],
+      "commitMessageAction": "Update {{parentDir}}",
       "matchUpdateTypes": [
         "patch"
       ],
@@ -217,6 +218,7 @@
       "matchManagers": [
         "helmv3"
       ],
+      "commitMessageAction": "Update {{{packageFile}}}",
       "matchUpdateTypes": [
         "minor"
       ],
@@ -237,6 +239,7 @@
       "matchUpdateTypes": [
         "major"
       ],
+      "commitMessageAction": "Update {{parentDir}}",
       "minimumReleaseAge": "14 days",
       "bumpVersion": "major",
       "groupName": "{{{packageFile}}} helm chart updates",
