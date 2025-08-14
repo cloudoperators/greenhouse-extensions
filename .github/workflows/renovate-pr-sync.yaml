@@ -61,8 +61,8 @@ jobs:
 
       - name: Setup Git config
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "cloud-operator-bot[bot]"
+          git config user.email "224791424+cloud-operator-bot[bot]@users.noreply.github.com"
 
       - name: Bump Chart.yaml versions for values.yaml changes
         id: bump-chart
