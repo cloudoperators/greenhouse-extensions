@@ -1,4 +1,4 @@
-name: Bump plugindefinition.yaml versions on Renovate PRs bumping Chart.yaml/values.yaml files
+name: Bump plugindefinition.yaml versions on Renovate PRs updating Chart.yaml/values.yaml files
 
 on:
   pull_request:
@@ -9,7 +9,6 @@ on:
       - "**/*/values.yaml"
       - "**/*/*/values.yaml"
 permissions:
-  actions: write
   contents: write
   pull-requests: write
 
@@ -18,10 +17,18 @@ jobs:
     if: github.actor == 'renovate[bot]'
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App Token
+        id: github-app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CLOUDOPERATOR_APP_ID }}
+          private-key: ${{ secrets.CLOUDOPERATOR_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.github-app-token.outputs.token }}
 
       - name: Find changed Chart.yaml and values.yaml files
         id: filediff
@@ -113,7 +120,7 @@ jobs:
           done
           
           if [ "$changes_made" = true ]; then
-            git commit -m "chore: bump chart versions for values.yaml changes ($UPDATE_LEVEL)"
+            git commit -m "chore: bump Chart.yaml versions for values.yaml changes ($UPDATE_LEVEL)"
             # Add the updated Chart.yaml files to the list for processing
             updated_charts=$(echo "${{ steps.filediff.outputs.values_files }}" | sed 's|values\.yaml|Chart.yaml|g')
             echo "updated_charts<<EOF"$'\n'"$updated_charts"$'\n'"EOF" >> $GITHUB_OUTPUT
@@ -178,10 +185,9 @@ jobs:
           done
           
           if [ "$changes_made" = true ]; then
-            git commit -m "chore: sync plugindefinition.yaml versions"
+            git commit -m "chore: sync plugindefinition.yaml version with Chart.yaml($UPDATE_LEVEL)"
             git push origin HEAD:${GITHUB_HEAD_REF}
             echo "changes_made=true" >> $GITHUB_OUTPUT
           fi
         env:
           UPDATE_LEVEL: ${{ steps.update_level.outputs.update_level }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
