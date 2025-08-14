@@ -215,6 +215,9 @@
       ]
     },
     {
+      "separateMultipleMajor": false,
+      "separateMultipleMinor": false,
+      "separateMultiplePatch": false,
       "matchManagers": [
         "helmv3"
       ],
