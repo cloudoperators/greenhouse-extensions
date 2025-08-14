@@ -858,7 +858,7 @@ plutono:
       # -- The Docker registry
       registry: quay.io
       repository: kiwigrid/k8s-sidecar
-      tag: 1.30.7
+      tag: 1.30.8
       sha: ""
     imagePullPolicy: IfNotPresent
     resources: {}
