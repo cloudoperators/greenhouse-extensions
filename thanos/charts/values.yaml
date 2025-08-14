@@ -14,7 +14,7 @@ thanos:
     # -- Thanos image repository
     repository: quay.io/thanos/thanos
     # -- Thanos image tag
-    tag: v0.38.0
+    tag: v0.39.2
     # -- Thanos image pull policy
     pullPolicy: IfNotPresent
 
