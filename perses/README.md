@@ -62,7 +62,6 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.config.frontend.important_dashboards | list | `[]` |  |
 | perses.config.frontend.information | string | `"# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"` | Information contains markdown content to be displayed on the Perses home page. |
 | perses.config.provisioning | object | <pre>provisioning:<br>  folders:<br>    - /etc/perses/provisioning<br>  interval: 3m</pre> | provisioning config |
-| perses.config.schemas | object | <pre>schemas:<br>  panels_path: "/etc/perses/cue/schemas/panels"<br>  queries_path: "/etc/perses/cue/schemas/queries"<br>  datasources_path: "/etc/perses/cue/schemas/datasources"<br>  variables_path: "/etc/perses/cue/schemas/variables"<br>  interval: "5m"</pre> | Schemas paths |
 | perses.config.security.cookie | object | <pre>cookie:<br>  same_site: lax<br>  secure: false</pre> | cookie config |
 | perses.config.security.enable_auth | bool | `false` | Enable Authentication |
 | perses.config.security.readonly | bool | `false` | Configure Perses instance as readonly |
