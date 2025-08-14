@@ -206,7 +206,7 @@
       ],
       "minimumReleaseAge": "7 days",
       "bumpVersion": "patch",
-      "groupName": "{{{packageFile}}} helm chart updates",
+      "groupName": "helm chart updates {{depName}}",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
       ],
@@ -224,7 +224,7 @@
       ],
       "minimumReleaseAge": "14 days",
       "bumpVersion": "minor",
-      "groupName": "{{{packageFile}}} helm chart updates",
+      "groupName": "helm chart updates {{depName}}",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
       ],
@@ -242,7 +242,7 @@
       "commitMessageAction": "Update {{{packageFile}}}",
       "minimumReleaseAge": "14 days",
       "bumpVersion": "major",
-      "groupName": "{{{packageFile}}} helm chart updates",
+      "groupName": "helm chart updates {{depName}}",
       "postUpdateOptions": [
         "helmUpdateSubChartArchives"
       ],
