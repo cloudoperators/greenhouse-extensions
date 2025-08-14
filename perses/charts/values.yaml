@@ -178,15 +178,6 @@ perses:
         # Set to true if you host Perses behind HTTPS. Default is false
         # [ secure: <boolean> | default = false ]
 
-    # -- Schemas paths
-    # @default -- <pre>schemas:<br>  panels_path: "/etc/perses/cue/schemas/panels"<br>  queries_path: "/etc/perses/cue/schemas/queries"<br>  datasources_path: "/etc/perses/cue/schemas/datasources"<br>  variables_path: "/etc/perses/cue/schemas/variables"<br>  interval: "5m"</pre>
-    schemas:
-      panels_path: "/etc/perses/cue/schemas/panels"
-      queries_path: "/etc/perses/cue/schemas/queries"
-      datasources_path: "/etc/perses/cue/schemas/datasources"
-      variables_path: "/etc/perses/cue/schemas/variables"
-      interval: "5m"
-
     frontend:
       # -- Information contains markdown content to be displayed on the Perses home page.
       information: "# Welcome to Perses!\n\n**Perses is now the default visualization plugin** for Greenhouse platform and will replace Plutono for the visualization of Prometheus and Thanos metrics.\n\n## Documentation\n\n- [Perses Official Documentation](https://perses.dev/)\n- [Perses Greenhouse Plugin Guide](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/)\n- [Create a Custom Dashboard](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/perses/#create-a-custom-dashboard)"
