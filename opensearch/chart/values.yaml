@@ -43,6 +43,10 @@ certManager:
   httpDnsNames:
     - opensearch-client.tld
 
+  # -- Dashboards DNS names for external TLS certificate
+  dashboardsDnsNames:
+    - opensearch-dashboards.tld
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -317,7 +321,10 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig: {}
+      additionalConfig:
+        opensearch_security.auth.type: "proxy"
+        opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-email","x-forwarded-user","x-forwarded-groups"]'
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -642,6 +649,9 @@ cluster:
         - "cluster_composite_ops"
         - "indices:admin/template*"
         - "indices:data/read/scroll*"
+        - "cluster:monitor/nodes/info"
+        - "cluster:monitor/nodes/stats"
+        - "cluster:monitor/health"
       indexPermissions:
         - indexPatterns:
             - ".kibana*"

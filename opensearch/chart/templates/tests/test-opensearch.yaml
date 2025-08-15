@@ -8,7 +8,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     type: integration-test
-    {{- include "opensearch-cluster-local.labels" . | nindent 4 }}
+    {{- include "opensearch.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
