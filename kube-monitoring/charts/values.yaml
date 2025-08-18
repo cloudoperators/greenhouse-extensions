@@ -309,6 +309,9 @@ kubeMonitoring:
       # Add the label to expose the service via Greenhouse.
       labels:
         greenhouse.sap/expose: "true"
+      # Add the annotation to expose the service via Greenhouse.
+      annotations:
+        greenhouse.sap/expose: "true"
 
     ingress:
       # -- Deploy Prometheus Ingress
