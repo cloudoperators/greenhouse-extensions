@@ -2,9 +2,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.query.annotations }}
+  {{- if or .Values.thanos.query.annotations .Values.thanos.query.serviceAnnotations }}
   annotations:
-    {{ toYaml .Values.thanos.query.annotations | nindent 8 }}
+    {{- if .Values.thanos.store.annotations }}
+    {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+    {{- end }}
+    {{- if .Values.thanos.store.serviceAnnotations }}
+    {{ toYaml .Values.thanos.store.serviceAnnotations | nindent 8 }}
+    {{- end }}
   {{- end }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
