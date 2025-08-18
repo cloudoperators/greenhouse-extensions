@@ -112,6 +112,9 @@ thanos:
     # -- Labels to add to the Thanos Query service
     serviceLabels: {}
 
+    # -- Annotations to add to the Thanos Query service
+    serviceAnnotations: {}
+
     # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
@@ -238,6 +241,9 @@ thanos:
     # -- Labels to add to the Thanos Store service
     serviceLabels: {}
 
+    # -- Annotations to add to the Thanos Store service
+    serviceAnnotations: {}
+
     # -- Annotations to add to the Thanos Store resources
     annotations: {}
 
@@ -281,6 +287,9 @@ thanos:
 
     # -- Labels to add to the Thanos Compactor service
     serviceLabels: {}
+
+    # -- Annotations to add to the Thanos Compactor service
+    serviceAnnotations: {}
 
     # -- Annotations to add to the Thanos Compactor resources
     annotations: {}
@@ -345,6 +354,9 @@ thanos:
 
     # -- Labels to add to the Thanos Ruler service
     serviceLabels: {}
+
+    # -- Annotations to add to the Thanos Ruler service
+    serviceAnnotations: {}
 
     # -- Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"`
     replicaLabel: thanos_ruler_replica

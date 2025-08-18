@@ -37,3 +37,17 @@ kube-monitoring-prometheus
 object-storage-configs.yaml
 {{- end }}
 {{- end }}
+
+{{/*
+Renders a single `annotations:` block by merging two maps.
+`b` overrides `a` on key conflicts. Emits nothing if the merged map is empty.
+*/}}
+{{- define "thanos.annotations" -}}
+{{- $a := .a | default dict -}}
+{{- $b := .b | default dict -}}
+{{- $m := merge (dict) $a $b -}}
+{{- if $m -}}
+annotations:
+{{- toYaml $m | nindent 2 }}
+{{- end -}}
+{{- end }}
