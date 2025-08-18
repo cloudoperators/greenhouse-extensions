@@ -74,6 +74,13 @@ spec:
       name: thanos.query.serviceLabels
       required: false
       type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: "http"
+      description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.query.serviceAnnotations
+      required: false
+      type: map
     - default: false
       description: Removes standard Thanos endpoints for overarching Queries
       name: thanos.query.standalone
@@ -152,6 +159,13 @@ spec:
         greenhouse.sap/exposeNamedPort: http
       description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
       name: thanos.ruler.serviceLabels
+      required: false
+      type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: http
+      description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.ruler.serviceAnnotations
       required: false
       type: map
     - default: false
