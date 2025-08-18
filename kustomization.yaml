@@ -17,3 +17,4 @@ resources:
   - service-proxy/plugindefinition.yaml
   - teams2slack/plugindefinition.yaml
   - thanos/plugindefinition.yaml
+  - disco/plugindefinition.yaml
