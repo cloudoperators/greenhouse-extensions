@@ -160,8 +160,8 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.securityContext.runAsGroup | int | `472` |  |
 | plutono.securityContext.runAsNonRoot | bool | `true` |  |
 | plutono.securityContext.runAsUser | int | `472` |  |
-| plutono.service | object | `{"annotations":{},"appProtocol":"","enabled":true,"ipFamilies":[],"ipFamilyPolicy":"","labels":{"greenhouse.sap/expose":"true"},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerSourceRanges":[],"port":80,"portName":"service","targetPort":3000,"type":"ClusterIP"}` | Expose the plutono service to be accessed from outside the cluster (LoadBalancer service). # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. # ref: http://kubernetes.io/docs/user-guide/services/ # |
-| plutono.service.annotations | object | `{}` | Service annotations. Can be templated. |
+| plutono.service | object | `{"annotations":{"greenhouse.sap/expose":"true"},"appProtocol":"","enabled":true,"ipFamilies":[],"ipFamilyPolicy":"","labels":{"greenhouse.sap/expose":"true"},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerSourceRanges":[],"port":80,"portName":"service","targetPort":3000,"type":"ClusterIP"}` | Expose the plutono service to be accessed from outside the cluster (LoadBalancer service). # or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. # ref: http://kubernetes.io/docs/user-guide/services/ # |
+| plutono.service.annotations | object | `{"greenhouse.sap/expose":"true"}` | Service annotations. Can be templated. |
 | plutono.service.appProtocol | string | `""` | Adds the appProtocol field to the service. This allows to work with istio protocol selection. Ex: "http" or "tcp" |
 | plutono.service.ipFamilies | list | `[]` | Sets the families that should be supported and the order in which they should be applied to ClusterIP as well. Can be IPv4 and/or IPv6. |
 | plutono.service.ipFamilyPolicy | string | `""` | Set the ip family policy to configure dual-stack see [Configure dual-stack](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services) |
