@@ -6,4 +6,4 @@ dependencies:
   repository: https://opensearch-project.github.io/opensearch-k8s-operator/
   version: 3.0.0
 digest: sha256:dadae0c7eed9c5e0cc4e7c6f88a3946e6ae175db0e2f89a216c54ce7791c9981
-generated: "2025-07-07T12:26:00.42879+02:00"
+generated: "2025-08-20T12:13:46.282683+02:00"
