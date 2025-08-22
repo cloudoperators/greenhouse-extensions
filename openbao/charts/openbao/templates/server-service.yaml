@@ -20,6 +20,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     greenhouse.sap/expose: "true"
   annotations:
+    greenhouse.sap/expose: "true"
 {{ template "openbao.service.annotations" .}}
 spec:
   {{- if .Values.server.service.type}}
