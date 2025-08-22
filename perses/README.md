@@ -91,7 +91,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.replicas | int | `1` | Number of pod replicas. |
 | perses.resources | object | <pre>resources:<br>  limits:<br>    cpu: 250m<br>    memory: 500Mi<br>  requests:<br>    cpu: 250m<br>    memory: 500Mi</pre> | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | perses.service | object | <pre>service:<br>  annotations: {}<br>  labels:<br>    greenhouse.sap/expose: "true"<br>  type: "ClusterIP"<br>  portName: http<br>  port: 8080<br>  targetPort: 8080</pre> | Expose the Perses service to be accessed from outside the cluster (LoadBalancer service). or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it. |
-| perses.service.annotations | object | `{}` | Annotations to add to the service |
+| perses.service.annotations | object | `{"greenhouse.sap/expose":"true"}` | Annotations to add to the service |
 | perses.service.labels | object | `{"greenhouse.sap/expose":"true"}` | Labeles to add to the service |
 | perses.service.port | int | `8080` | Service Port |
 | perses.service.portName | string | `"http"` | Service Port Name |
