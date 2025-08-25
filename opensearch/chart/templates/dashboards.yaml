@@ -10,6 +10,7 @@ metadata:
   name: {{ printf "%s-%s" $root.Release.Name ($path | replace ".json" "" | replace "/" "-" | trunc 63) }}
   namespace: {{ $root.Release.Namespace }}
   labels:
+    {{- include "opensearch.labels" $root | nindent 4 }}
     perses.dev/resource: "true"
     {{- if $root.Values.cluster.cluster.general.monitoring.labels }}
     {{- toYaml $root.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}

@@ -7,6 +7,7 @@ metadata:
   name: {{ .Values.cluster.cluster.name | default .Release.Name }}-operator-metrics
   namespace: {{ .Release.Namespace }}
   labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
     {{- if .Values.cluster.cluster.general.monitoring.labels }}
     {{- toYaml .Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
     {{- end }}
