@@ -324,6 +324,7 @@ cluster:
       additionalConfig:
         opensearch_security.auth.type: "proxy"
         opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
         opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-email","x-forwarded-user","x-forwarded-groups"]'
 
       # -- dashboards pod affinity rules

@@ -24,7 +24,7 @@ stringData:
             remoteIpHeader: 'x-forwarded-for'
         authc:
           proxy_auth_domain:
-            description: "Authenticate via proxy (for external users through ingress)"
+            description: "Authenticate via proxy headers from OAuth2 proxy"
             http_enabled: true
             transport_enabled: false
             order: 0
@@ -34,6 +34,7 @@ stringData:
               config:
                 user_header: "x-forwarded-user"
                 roles_header: "x-forwarded-groups"
+                roles_separator: ","
             authentication_backend:
               type: noop
           basic_internal_auth_domain:
