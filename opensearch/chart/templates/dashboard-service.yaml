@@ -1,0 +1,20 @@
+{{- if .Values.cluster.cluster.dashboards.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.cluster.cluster.name | default .Release.Name }}-dashboards-external
+  labels:
+    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default .Release.Name }}
+    {{- with .Values.cluster.cluster.dashboards.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.cluster.cluster.dashboards.service.type }}
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      protocol: TCP
+  selector:
+    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default .Release.Name }}
+{{- end }}
