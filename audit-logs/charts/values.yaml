@@ -61,4 +61,3 @@ auditLogs:
       additionalRuleLabels:
         # support_group: support
         # service: my-service
-
