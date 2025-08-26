@@ -30,6 +30,10 @@ spec:
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
+    - name: cluster
+      value: "{{ .Values.auditLogs.cluster }}"
+    - name: region
+      value: "{{ .Values.auditLogs.region }}"
     - name: index
       value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
@@ -59,16 +63,23 @@ spec:
             field: attributes["log.type"]
             value: "journald"
 
-      filelog/container:
+      k8s_events:
+        auth_type: serviceAccount
+
+      filelog/containerd:
         include_file_path: true
         include: [ /var/log/containers/*.log ]
         operators:
+          - id: container-parser
+            type: container
+          - id: parser-containerd
+            type: add
+            field: resource["container.runtime"]
+            value: "containerd"
           - id: container-label
             type: add
             field: attributes["log.type"]
-            value: "container"
-          - id: container-parser
-            type: container
+            value: "containerd"
 
     processors:
       batch:
@@ -76,6 +87,55 @@ spec:
         timeout: 5s
         send_batch_size : 10
 
+      attributes/cluster:
+        actions:
+          - action: insert
+            key: k8s.cluster.name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+          - action: insert
+            key: k8s.node.name
+            value: ${KUBE_NODE_NAME}
+
+      attributes/k8sevents:
+        actions:
+          - action: insert
+            key: k8s.node.name
+            value: ${KUBE_NODE_NAME}
+          - action: insert
+            key: k8s.namespace.name
+            from_attribute: k8s.namespace.name
+          - action: insert
+            key: k8s.cluster.name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+          - action: insert
+            key: log.type
+            value: "k8sevents"
+
+      transform/consolidate_label:
+      # consolidates the k8s labels coming from resource and attributes into a single label
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - set(resource.attributes["k8s.namespace.name"], attributes["k8s.namespace.name"])
+              - set(resource.attributes["k8s.node.name"], attributes["k8s.node.name"])
+              - delete_key(attributes, "k8s.namespace.name") 
+              - delete_key(attributes, "k8s.node.name") 
+
+      attributes/failover_username_a:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_a}
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.attributes" . | nindent 6 -}}
+{{- end }}
       transform/journal:
         error_mode: ignore
         log_statements:
@@ -113,6 +173,96 @@ spec:
               - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
               - delete_key(attributes, "log.cache")
 
+      transform/ingress:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["app.label.name"] == "ingress-nginx"
+            statements:
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
+              - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
+
+      k8sattributes:
+        auth_type: "serviceAccount"
+        passthrough: false
+        filter:
+          node_from_env_var: KUBE_NODE_NAME
+        extract:
+          metadata:
+            - k8s.namespace.name
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.pod.ip
+            - k8s.pod.start_time
+            - k8s.deployment.name
+            - k8s.deployment.uid
+            - k8s.node.name
+            - k8s.replicaset.name
+            - k8s.replicaset.uid
+            - k8s.statefulset.name
+            - k8s.statefulset.uid
+            - k8s.daemonset.name
+            - k8s.daemonset.uid
+            - k8s.job.name
+            - k8s.job.uid
+            - k8s.cronjob.name
+            - k8s.node.uid
+            - k8s.cluster.uid
+            - k8s.container.name
+            - container.image.name
+            - container.image.tag
+          labels:
+            - tag_name: app.label.ingress-nginx
+              key: ingress-nginx
+              from: pod
+            - tag_name: app.label.support-group
+              key: ccloud/support-group
+              from: pod
+            - tag_name: app.label.app_name
+              key: app.kubernetes.io/app_name
+              from: pod
+            - tag_name: app.label.component
+              key: app.kubernetes.io/component
+              from: pod
+            - tag_name: app.label.name
+              key: app.kubernetes.io/name
+              from: pod
+            - tag_name: app.label.instance
+              key: app.kubernetes.io/instance
+              from: pod
+            - tag_name: app.label.pod-template-hash
+              key: app.kubernetes.io/pod-template-hash
+              from: pod
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.ip
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.uid
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.name
+          - sources:
+              - from: connection
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 30
+      resource:
+        attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: ${cluster}
+        - action: insert
+          key: region
+          value: ${region}
+        - action: insert
+          key: k8s.node.name
+          value: ${KUBE_NODE_NAME}
+
     exporters:
       debug:
         verbosity: basic
@@ -122,16 +272,34 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-    
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.exporter" . | nindent 6 -}}
+{{- end }}
     extensions:
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-
-    service: 
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+  {{- include "failover.extension" . | nindent 6 -}}
+{{- end }}
+    connectors:
+      forward: {}
+      failover:
+        retry_interval: 2m
+        retry_gap: 30s
+        max_retries: 0
+        priority_levels:
+          - [logs/failover_a]
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+          - [logs/failover_b]
+{{- end }}
+    service:
       extensions:
         - basicauth/failover_a
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+        - basicauth/failover_b
+{{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
@@ -153,11 +321,22 @@ spec:
           region: ${region}
 {{- end }}
       pipelines:
-        logs/container:
-          receivers: [filelog/container]
+        logs/forward:
+          receivers: [forward]
           processors: [batch]
+          exporters: [failover]
+        logs/failover_a:
+          receivers: [failover]
+          processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-        logs/journal:
+{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
+    {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
+        logs/containerd:
+          receivers: [filelog/containerd]
+          processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
+          exporters: [forward]
+        logs/journald:
           receivers: [journald]
-          processors: [batch, transform/journal]
-          exporters: [opensearch/failover_a]
+          processors: [attributes/cluster,transform/journal,batch]
+          exporters: [forward]
