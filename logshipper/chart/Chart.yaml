@@ -7,10 +7,10 @@ description: A Helm chart for deploying fluent-bit with custom config
 maintainers:
   - name: ivogoman
 type: application
-version: 0.6.0
+version: 0.7.0
 appVersion: 3.2.10
 
 dependencies:
   - name: fluent-bit
     repository: https://fluent.github.io/helm-charts
-    version: 0.50.0
+    version: 0.51.0
