@@ -53,14 +53,8 @@ auditLogs:
       # -- Enables PrometheusRule resources to be created.
       create: true
 
-      # -- PrometheusRules to disable.
-      disabled: []
-
       # -- Labels for PrometheusRules.
       labels: {}
-
-      # -- Annotations for PrometheusRules.
-      annotations: {}
 
       ## This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule
       # -- Additional labels for PrometheusRule alerts.
