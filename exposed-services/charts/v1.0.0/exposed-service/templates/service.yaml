@@ -12,7 +12,7 @@ metadata:
     {{- include "exposed-service.labels" . | nindent 4 }}
   annotations:
     greenhouse.sap/expose: "true"
-    {{- include "exposed-service.serviceAnnotations" . | nindent 4 }}
+    {{- .Values.exposed-service.annotations | toYaml | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:

@@ -60,12 +60,3 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-{{/*
-Service annotations
-*/}}
-{{- define "exposed-service.serviceAnnotations" -}}
-{{- with .Values.service.annotations }}
-{{- toYaml . }}
-{{- end }}
-{{- end }}
