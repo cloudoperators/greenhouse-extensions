@@ -317,7 +317,11 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig: {}
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
+        opensearch_security.auth.type: "proxy"
+        opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
 
       # -- dashboards pod affinity rules
       affinity: {}
