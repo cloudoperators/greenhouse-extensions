@@ -15,17 +15,17 @@ plugindefinition: audit-logs
 
 {{/* Generate prometheus specific labels */}}
 {{- define "plugin.prometheusLabels" }}
-{{- if .Values.auditLogs.prometheus.additionalLabels }}
+{{- if and .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.additionalLabels }}
 {{- tpl (toYaml .Values.auditLogs.prometheus.additionalLabels) . }}
 {{- end }}
-{{- if .Values.auditLogs.prometheus.rules.labels }}
+{{- if and .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.rules.labels }}
 {{ tpl (toYaml .Values.auditLogs.prometheus.rules.labels) . }}
 {{- end }}
 {{- end }}
 
 {{/* Generate prometheus rule labels for alerts */}}
 {{- define "plugin.additionalRuleLabels" -}}
-{{- if .Values.auditLogs.prometheus.rules.additionalRuleLabels }}
+{{- if and .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.rules.additionalRuleLabels }}
 {{- tpl (toYaml .Values.auditLogs.prometheus.rules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
