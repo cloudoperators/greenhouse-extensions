@@ -659,6 +659,28 @@ cluster:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+    - name: "audit-write-role"
+      clusterPermissions:
+        - "cluster_monitor"
+        - "cluster_composite_ops"
+        - "cluster:admin/ingest/pipeline/put"
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template/get"
+        - "cluster_manage_index_templates"
+      indexPermissions:
+        - indexPatterns:
+            - "audit*"
+            - "security-audit*"
+          allowedActions:
+            - "indices:admin/template/get"
+            - "indices:admin/template/put"
+            - "indices:admin/mapping/put"
+            - "indices:admin/create"
+            - "indices:data/write/bulk*"
+            - "indices:data/write/index"
+            - "indices:data/read*"
+            - "indices:monitor*"
+            - "indices_all"
 
   # -- List of OpenSearch user configurations.
   # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
@@ -677,6 +699,14 @@ cluster:
       backendRoles: []
     - name: "dashboards2"
       secretName: "dashboards2-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "audit"
+      secretName: "audit-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "audit2"
+      secretName: "audit2-credentials"
       secretKey: "password"
       backendRoles: []
 
@@ -699,6 +729,12 @@ cluster:
     dashboards2:
       username: ""  # Specify the username for the failover user for "dashboards". If left empty, defaults to "dashboards2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    audit:
+      username: ""  # Specify the username for the "audit" user. If left empty, defaults to "audit".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    audit2:
+      username: ""  # Specify the username for the failover user for "audit". If left empty, defaults to "audit2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role
   # @default -- <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre>
@@ -715,6 +751,12 @@ cluster:
         - "dashboards2"
       roles:
         - "dashboards-role"
+    - name: "audit-write"
+      users:
+        - "audit"
+        - "audit2"
+      roles:
+        - "audit-write-role"
 
   # -- List of additional tenants. Check values.yaml file for examples.
   tenants: []
