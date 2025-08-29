@@ -71,6 +71,22 @@ spec:
       description: "Secondary user password for log ingestion to support failover authentication."
       required: true
       type: secret
+    - name: cluster.usersCredentials.audit.username
+      description: "Primary username for audit log ingestion."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit.password
+      description: "Primary user password for audit log ingestion."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit2.username
+      description: "Secondary username for audit log ingestion to support failover authentication."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit2.password
+      description: "Secondary user password for audit log ingestion to support failover authentication."
+      required: true
+      type: secret
     - name: cluster.usersCredentials.admin.password
       description: "Admin password used for initial setup and management"
       required: true
