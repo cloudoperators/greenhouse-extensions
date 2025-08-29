@@ -95,12 +95,12 @@ transform/kvm_monitoring:
       conditions:
         - attributes["log.type"] == "files-kvm-monitoring"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'level=(?P<level>[a-zA-Z]+)', true), "upsert")
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'msg="(?P<msg>[^"]*?)"', true), "upsert")
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'domain=(?P<domain>[^\\s]+)', true), "upsert")
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'runID=(?P<runID>[^\\s]+)', true), "upsert")
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'service_env=(?P<service_env>[^\\s]+)', true), "upsert")
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'service_name=(?P<service_name>[^\\s]+)', true), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<level>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domain>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "runID=(?P<runID>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "service_env=(?P<service_env>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "service_name=(?P<service_name>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "collector=\"(?P<collector>[^\"]+)"), "upsert")
         - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["level"] != nil
 
 {{- end }}
