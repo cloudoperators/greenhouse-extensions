@@ -93,7 +93,7 @@ transform/kvm_monitoring:
   log_statements:
     - context: log
       conditions:
-        - resource.attributes["k8s.daemonset.name"] == "kvm-monitoring"
+        - attributes["log.type"] == "files-kvm-monitoring"
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'level=(?P<level>[a-zA-Z]+)', true), "upsert")
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, 'msg="(?P<msg>[^"]*?)"', true), "upsert")
