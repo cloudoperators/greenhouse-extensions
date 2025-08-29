@@ -101,7 +101,7 @@ transform/kvm_monitoring:
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_env=(?P<service_env>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_name=(?P<service_name>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "collector=\"(?P<collector>[^\"]+)"), "upsert")
-        - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["level"] != nil
+        - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["loglevel"] != nil
 
 {{- end }}
 {{- define "kvm.pipeline" }}
