@@ -95,7 +95,7 @@ transform/kvm_monitoring:
       conditions:
         - attributes["log.type"] == "files-kvm-monitoring"
       statements:
-        - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<level>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<loglevel>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domain>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "runID=(?P<runID>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_env=(?P<service_env>\\S+)"), "upsert")
