@@ -8,7 +8,7 @@ metadata:
   name: {{ include "release.name" $root }}-{{ $fileName }}-alerts
   labels:
     plugindefinition: perses
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 ---
