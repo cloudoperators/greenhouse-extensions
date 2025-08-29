@@ -40,7 +40,7 @@ filelog/openvswitch_logs:
       field: attributes["log.type"]
       value: "files-openvswitch"
 filelog/kvm_monitoring:
-  include: [ /var/log/pods/kvm-monitoring_*_*/monitoring/*.log ]
+  include: [ /var/log/pods/kvm-monitoring_*/monitoring/*.log ]
   include_file_path: true
   start_at: beginning
   multiline:
