@@ -44,7 +44,7 @@ filelog/kvm_monitoring:
   include_file_path: true
   start_at: beginning
   multiline:
-    line_start_pattern: ^time=
+    line_start_pattern: ^\d{4}-\d{2}-\d{2}
   operators:
     - type: regex_parser
       regex: 'time="(?P<logtime>[^"]+)"'
