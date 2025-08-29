@@ -670,7 +670,6 @@ cluster:
       indexPermissions:
         - indexPatterns:
             - "audit*"
-            - "security-audit*"
           allowedActions:
             - "indices:admin/template/get"
             - "indices:admin/template/put"
@@ -786,6 +785,17 @@ cluster:
             attributes:
               type: object
               dynamic: true
+    - name: audit-attributes-dynamic
+      version: 1
+      allowAutoCreate: true
+      _meta:
+        description: "Enable full dynamic mapping for all audit attributes.* keys"
+      templateSpec:
+        mappings:
+          properties:
+            attributes:
+              type: object
+              dynamic: true
 
   # -- List of OpensearchIndexTemplate.
   # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream:<br>      timestamp_field:<br>        name: "@timestamp"<br>    priority: 100</pre>
@@ -807,6 +817,21 @@ cluster:
               type: date
             message:
               type: text
+      dataStream:
+        timestamp_field:
+          name: "@timestamp"
+      priority: 100
+    - name: audit-index-template
+      indexPatterns:
+        - "audit*"
+      composedOf:
+        - audit-attributes-dynamic
+      templateSpec:
+        settings:
+          index:
+            number_of_shards: 1
+            number_of_replicas: 1
+            refresh_interval: 1s
       dataStream:
         timestamp_field:
           name: "@timestamp"
@@ -836,6 +861,28 @@ cluster:
       ismTemplate:
         indexPatterns:
           - "logs*"
+        priority: 100
+    - name: audit-rollover-policy
+      defaultState: hot
+      description: "Policy to rollover audit logs after 30d, 50GB or 100M docs and delete after 365d"
+      states:
+        - name: hot
+          actions:
+            - rollover:
+                minIndexAge: "30d"
+                minSize: "50gb"
+                minDocCount: 100000000
+          transitions:
+            - stateName: delete
+              conditions:
+                minIndexAge: "365d"
+        - name: delete
+          actions:
+            - delete: {}
+          transitions: []
+      ismTemplate:
+        indexPatterns:
+          - "audit*"
         priority: 100
 
 testFramework:
