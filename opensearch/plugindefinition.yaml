@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.32
+  version: 0.0.33
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.32
+    version: 0.0.33
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -69,6 +69,22 @@ spec:
       type: secret
     - name: cluster.usersCredentials.logs2.password
       description: "Secondary user password for log ingestion to support failover authentication."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit.username
+      description: "Primary username for audit log ingestion."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit.password
+      description: "Primary user password for audit log ingestion."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit2.username
+      description: "Secondary username for audit log ingestion to support failover authentication."
+      required: true
+      type: secret
+    - name: cluster.usersCredentials.audit2.password
+      description: "Secondary user password for audit log ingestion to support failover authentication."
       required: true
       type: secret
     - name: cluster.usersCredentials.admin.password
