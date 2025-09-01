@@ -86,7 +86,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | cluster.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml |
+| cluster.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-forwarded-user\",\"x-forwarded-groups\",\"x-forwarded-email\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-forwarded-groups","opensearch_security.proxycache.user_header":"x-forwarded-user"}` | Additional properties for opensearch_dashboards.yaml |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | cluster.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | cluster.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
@@ -111,7 +111,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"3.0.0"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"3.2.0"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -123,7 +123,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v3.0.0/prometheus-exporter-3.0.0.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.2.0.0/prometheus-exporter-3.2.0.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -134,7 +134,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | cluster.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | cluster.cluster.general.vendor | string | `"Opensearch"` |  |
-| cluster.cluster.general.version | string | `"3.0.0"` | Opensearch version |
+| cluster.cluster.general.version | string | `"3.2.0"` | Opensearch version |
 | cluster.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | cluster.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | cluster.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |

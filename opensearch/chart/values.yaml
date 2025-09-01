@@ -241,7 +241,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v3.0.0/prometheus-exporter-3.0.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.2.0.0/prometheus-exporter-3.2.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -286,7 +286,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.0.0
+      version: 3.2.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -317,7 +317,11 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig: {}
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
+        opensearch_security.auth.type: "proxy"
+        opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -398,7 +402,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.0.0
+      version: 3.2.0
 
     # initHelper configuration
     initHelper:

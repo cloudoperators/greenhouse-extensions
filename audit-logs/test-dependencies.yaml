@@ -49,16 +49,3 @@ values:
       additionalLabels:
         key1: value1
         key2: value2
-
-      rules:
-        create: true
-        disabled:
-          - FilelogRefusedLogs
-
-  testFramework:
-    enabled: false
-    image:
-      registry: ghcr.io
-      repository: cloudoperators/greenhouse-extensions-integration-test
-      tag: main
-    imagePullPolicy: IfNotPresent

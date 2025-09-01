@@ -3,7 +3,6 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.serviceMonitor.labels }} 
     {{- toYaml .Values.thanos.serviceMonitor.labels | nindent 4 }}
