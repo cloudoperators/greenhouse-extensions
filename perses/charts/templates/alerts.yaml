@@ -1,16 +1,18 @@
 {{ if .Values.perses.serviceMonitor.selfMonitor }}
-{{ $root := . }}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
 {{ $fileName := base $path | trimSuffix ".yaml" }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ include "release.name" $root }}-{{ $fileName }}-alerts
+  name: {{ include "release.name" $ }}-{{ $fileName }}-alerts
   labels:
     plugindefinition: perses
-    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    {{- with $.Values.perses.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
-{{ tpl (printf "%s" $bytes) $root | indent 2 }}
+{{ tpl (printf "%s" $bytes) $ | indent 2 }}
 ---
 {{- end }}
 {{- end }}
