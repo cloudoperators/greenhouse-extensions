@@ -112,7 +112,7 @@ thanos:
     # -- Labels to add to the Thanos Query service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Query service
+    # -- Service specific annotations to add to the Thanos Query service in addition to its already configured annotations.
     serviceAnnotations: {}
 
     # -- Annotations to add to the Thanos Query resources
@@ -241,7 +241,7 @@ thanos:
     # -- Labels to add to the Thanos Store service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Store service
+    # -- Service specific annotations to add to the Thanos Store service in addition to its already configured annotations.
     serviceAnnotations: {}
 
     # -- Annotations to add to the Thanos Store resources
@@ -288,7 +288,7 @@ thanos:
     # -- Labels to add to the Thanos Compactor service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Compactor service
+    # -- Service specific annotations to add to the Thanos Compactor service in addition to its already configured annotations.
     serviceAnnotations: {}
 
     # -- Annotations to add to the Thanos Compactor resources
@@ -355,7 +355,7 @@ thanos:
     # -- Labels to add to the Thanos Ruler service
     serviceLabels: {}
 
-    # -- Annotations to add to the Thanos Ruler service
+    # -- Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations.
     serviceAnnotations: {}
 
     # -- Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"`

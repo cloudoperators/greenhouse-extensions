@@ -38,16 +38,14 @@ object-storage-configs.yaml
 {{- end }}
 {{- end }}
 
-{{/*
-Renders a single `annotations:` block by merging two maps.
-`overrideAnnotations` overrides `baseAnnotations` on key conflicts. Emits nothing if the merged map is empty.
-*/}}
 {{- define "thanos.annotations" -}}
-{{- $baseAnnotations := .a | default dict -}}
-{{- $overrideAnnotations := .b | default dict -}}
-{{- $mergedAnnotations := merge (dict) $baseAnnotations $overrideAnnotations -}}
-{{- if $mergedAnnotations -}}
+{{- if or .base .service }}
 annotations:
-{{- toYaml $mergedAnnotations | nindent 2 }}
-{{- end -}}
+{{- with .base }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .service }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
 {{- end }}

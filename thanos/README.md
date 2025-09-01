@@ -349,7 +349,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
-| thanos.compactor.serviceAnnotations | object | `{}` | Annotations to add to the Thanos Compactor service |
+| thanos.compactor.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Compactor service in addition to its already configured annotations. |
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
@@ -387,7 +387,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
 | thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
-| thanos.query.serviceAnnotations | object | `{}` | Annotations to add to the Thanos Query service |
+| thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
 | thanos.query.standalone | bool | `false` |  |
 | thanos.query.stores | list | `[]` |  |
@@ -415,7 +415,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
-| thanos.ruler.serviceAnnotations | object | `{}` | Annotations to add to the Thanos Ruler service |
+| thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
 | thanos.ruler.storage | object | `{}` |  |
 | thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
@@ -431,5 +431,5 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
 | thanos.store.logLevel | string | info | Thanos Store log level |
 | thanos.store.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Store container. |
-| thanos.store.serviceAnnotations | object | `{}` | Annotations to add to the Thanos Store service |
+| thanos.store.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Store service in addition to its already configured annotations. |
 | thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
