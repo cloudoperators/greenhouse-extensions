@@ -94,8 +94,8 @@ spec:
         name: <your-secret-name>
 ```
 
-- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, <.Release.Name>-metrics-objectstore)
-- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `thanos.yaml`).
+- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, `kube-monitoring-prometheus`)
+- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `object-storage-configs.yaml`)
 
 ### Thanos Query
 
