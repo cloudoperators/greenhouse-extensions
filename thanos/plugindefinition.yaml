@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.6.3
+  version: 0.6.4
   description: thanos
   helmChart:
     name: thanos
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.6.3
+    version: 0.6.4
   options:
     - default: null
       description: CLI param for Thanos Query
@@ -72,6 +72,13 @@ spec:
         greenhouse.sap/exposeNamedPort: "http"
       description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
       name: thanos.query.serviceLabels
+      required: false
+      type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: "http"
+      description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.query.serviceAnnotations
       required: false
       type: map
     - default: false
@@ -152,6 +159,13 @@ spec:
         greenhouse.sap/exposeNamedPort: http
       description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
       name: thanos.ruler.serviceLabels
+      required: false
+      type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: http
+      description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.ruler.serviceAnnotations
       required: false
       type: map
     - default: false

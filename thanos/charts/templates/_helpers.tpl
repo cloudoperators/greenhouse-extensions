@@ -37,3 +37,15 @@ kube-monitoring-prometheus
 object-storage-configs.yaml
 {{- end }}
 {{- end }}
+
+{{- define "thanos.annotations" -}}
+{{- if or .base .service }}
+annotations:
+{{- with .base }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .service }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
