@@ -785,17 +785,6 @@ cluster:
             attributes:
               type: object
               dynamic: true
-    - name: audit-attributes-dynamic
-      version: 1
-      allowAutoCreate: true
-      _meta:
-        description: "Enable full dynamic mapping for all audit attributes.* keys"
-      templateSpec:
-        mappings:
-          properties:
-            attributes:
-              type: object
-              dynamic: true
 
   # -- List of OpensearchIndexTemplate.
   # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
@@ -823,7 +812,7 @@ cluster:
       indexPatterns:
         - "audit*"
       composedOf:
-        - audit-attributes-dynamic
+        - logs-attributes-dynamic
       templateSpec:
         settings:
           index:
@@ -860,22 +849,20 @@ cluster:
         priority: 100
     - name: audit-rollover-policy
       defaultState: hot
-      description: "Policy to rollover audit logs after 30d, 50GB or 100M docs and delete after 365d"
+      description: "Audit policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
             - rollover:
-                minIndexAge: "30d"
-                minSize: "50gb"
-                minDocCount: 100000000
+                minSize: "10gb"
+                minDocCount: 20000000
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "365d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
-          transitions: []
       ismTemplate:
         indexPatterns:
           - "audit*"
