@@ -798,7 +798,7 @@ cluster:
               dynamic: true
 
   # -- List of OpensearchIndexTemplate.
-  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream:<br>      timestamp_field:<br>        name: "@timestamp"<br>    priority: 100</pre>
+  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
   indexTemplates:
     - name: logs-index-template
       indexPatterns:
@@ -817,9 +817,7 @@ cluster:
               type: date
             message:
               type: text
-      dataStream:
-        timestamp_field:
-          name: "@timestamp"
+      dataStream: {}
       priority: 100
     - name: audit-index-template
       indexPatterns:
@@ -838,26 +836,24 @@ cluster:
       priority: 100
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minIndexAge: "7d"<br>              minSize: "30gb"<br>              minDocCount: 50000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>        transitions: []<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
+  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Logs policy with 7-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "10gb"<br>              minDocCount: 20000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "7d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
   ismPolicies:
     - name: logs-rollover-policy
       defaultState: hot
-      description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"
+      description: "Logs policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
             - rollover:
-                minIndexAge: "7d"
-                minSize: "30gb"
-                minDocCount: 50000000
+                minSize: "10gb"
+                minDocCount: 20000000
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "30d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
-          transitions: []
       ismTemplate:
         indexPatterns:
           - "logs*"
