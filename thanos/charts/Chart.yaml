@@ -7,7 +7,7 @@ icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-lo
 type: application
 maintainers:
   - name: viennaa
-  - name: trouaux 
+  - name: trouaux
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
