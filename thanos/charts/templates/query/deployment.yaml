@@ -49,8 +49,8 @@ spec:
         {{- if .Values.thanos.ruler.enabled }}
         - --query.replica-label={{ .Values.thanos.ruler.replicaLabel }}
         {{- end }}
-        - {{ default "--web.external-prefix=/thanos" .Values.thanos.query.web.externalPrefix }}
-        - {{ default "--web.route-prefix=/thanos" .Values.thanos.query.web.routePrefix }}
+        - --web.external-prefix={{ default "/thanos" .Values.thanos.query.web.externalPrefix }}
+        - --web.route-prefix={{ default "/thanos" .Values.thanos.query.web.routePrefix }}
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}

@@ -46,7 +46,8 @@ perses:
   # @default -- <pre>service:<br>  annotations: {}<br>  labels:<br>    greenhouse.sap/expose: "true"<br>  type: "ClusterIP"<br>  portName: http<br>  port: 8080<br>  targetPort: 8080</pre>
   service:
     # -- Annotations to add to the service
-    annotations: {}
+    annotations:
+      greenhouse.sap/expose: "true"
     # -- Labeles to add to the service
     labels:
       greenhouse.sap/expose: "true"

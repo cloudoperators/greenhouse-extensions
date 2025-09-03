@@ -8,7 +8,7 @@ maintainers:
 name: kube-monitoring
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 5.1.2
+version: 5.2.1
 keywords:
   - operator
   - prometheus
@@ -17,12 +17,12 @@ dependencies:
   - name: kube-prometheus-stack
     alias: kubeMonitoring
     repository: https://prometheus-community.github.io/helm-charts
-    version: 75.15.2
+    version: 75.18.1
   - name: kubernetes-operations
     repository: https://cloudoperators.github.io/kubernetes-operations
     version: 1.2.5
   - name: prometheus-blackbox-exporter
     alias: blackboxExporter
     repository: https://prometheus-community.github.io/helm-charts
-    version: 11.2.1
+    version: 11.2.2
     condition: blackboxExporter.enabled
