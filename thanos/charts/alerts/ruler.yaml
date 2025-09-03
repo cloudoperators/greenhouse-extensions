@@ -11,7 +11,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulequeueisdroppingalerts
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleSenderIsFailingAlerts
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` is failing to send alerts to alertmanager.
@@ -22,7 +22,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulesenderisfailingalerts
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleHighRuleEvaluationFailures
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` is failing to evaluate rules.
@@ -38,7 +38,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulehighruleevaluationfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleHighRuleEvaluationWarnings
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` has high number of evaluation
@@ -50,7 +50,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulehighruleevaluationwarnings
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleRuleEvaluationLatencyHigh
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` has higher evaluation latency
@@ -66,7 +66,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosruleruleevaluationlatencyhigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleGrpcErrorRate
     annotations:
       description: Thanos Rule `{{`{{$labels.job}}`}}` is failing to handle `{{`{{$value | humanize}}`}}`%
@@ -83,7 +83,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulegrpcerrorrate
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleConfigReloadFailure
     annotations:
       description: Thanos Rule `{{`{{$labels.job}}`}}` has not been able to reload its configuration.
@@ -94,7 +94,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosruleconfigreloadfailure
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleQueryHighDNSFailures
     annotations:
       description: Thanos Rule `{{`{{$labels.job}}`}}` has `{{`{{$value | humanize}}`}}`% of failing
@@ -111,7 +111,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulequeryhighdnsfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleAlertmanagerHighDNSFailures
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` has `{{`{{$value | humanize}}`}}`% of
@@ -128,7 +128,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulealertmanagerhighdnsfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleNoEvaluationFor10Intervals
     annotations:
       description: Thanos Rule `{{`{{$labels.job}}`}}` has rule groups that did not evaluate
@@ -142,7 +142,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosrulenoevaluationfor10intervals
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosNoRuleEvaluations
     annotations:
       description: Thanos Rule `{{`{{$labels.instance}}`}}` did not perform any rule evaluations
@@ -156,7 +156,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosnoruleevaluations
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosRuleIsDown
     annotations:
       description: ThanosRule has disappeared. Prometheus target for the component
@@ -168,4 +168,4 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosruleisdown
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}

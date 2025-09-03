@@ -17,7 +17,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoregrpcerrorrate
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosStoreSeriesGateLatencyHigh
     annotations:
       description: Thanos Store `{{`{{$labels.job}}`}}` has a 99th percentile latency of `{{`{{$value}}`}}`
@@ -48,7 +48,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstorebuckethighoperationfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosStoreObjstoreOperationLatencyHigh
     annotations:
       description: Thanos Store `{{`{{$labels.job}}`}}` Bucket has a 99th percentile latency
@@ -64,7 +64,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreobjstoreoperationlatencyhigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosStoreIsDown
     annotations:
       description: ThanosStore has disappeared. Prometheus target for the component
@@ -76,4 +76,4 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosstoreisdown
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}

@@ -16,7 +16,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryhttprequestqueryerrorratehigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryHttpRequestQueryRangeErrorRateHigh
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` is failing to handle `{{`{{$value | humanize}}`}}`%
@@ -32,7 +32,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryhttprequestqueryrangeerrorratehigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryGrpcServerErrorRate
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` is failing to handle `{{`{{$value | humanize}}`}}`%
@@ -49,7 +49,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosquerygrpcservererrorrate
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryGrpcClientErrorRate
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` is failing to send `{{`{{$value | humanize}}`}}`%
@@ -65,7 +65,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosquerygrpcclienterrorrate
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryHighDNSFailures
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` have `{{`{{$value | humanize}}`}}`% of failing
@@ -81,7 +81,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryhighdnsfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryInstantLatencyHigh
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` has a 99th percentile latency of `{{`{{$value}}`}}`
@@ -97,7 +97,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryinstantlatencyhigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryRangeLatencyHigh
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` has a 99th percentile latency of `{{`{{$value}}`}}`
@@ -113,7 +113,7 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryrangelatencyhigh
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryOverload
     annotations:
       description: Thanos Query `{{`{{$labels.job}}`}}` has been overloaded for more than
@@ -130,7 +130,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryoverload
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosQueryIsDown
     annotations:
       description: ThanosQuery has disappeared. Prometheus target for the component
@@ -142,4 +142,4 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanosqueryisdown
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}

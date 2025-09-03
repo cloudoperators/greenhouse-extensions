@@ -10,7 +10,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactmultiplerunning
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHalted
     annotations:
       description: Thanos Compact `{{`{{$labels.job}}`}}` has failed to run and now is halted.
@@ -20,7 +20,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/cloudoperators/greenhouse-extensions/thanos/playbooks/ThanosCompactHalted.md
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHighCompactionFailures
     annotations:
       description: Thanos Compact `{{`{{$labels.job}}`}}` is failing to execute `{{`{{$value | humanize}}`}}`% of compactions.
@@ -36,7 +36,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthighcompactionfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactBucketHighOperationFailures
     annotations:
       description: Thanos Compact `{{`{{$labels.job}}`}}` Bucket is failing to execute `{{`{{$value | humanize}}`}}`% of operations.
@@ -52,7 +52,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactbuckethighoperationfailures
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactHasNotRun
     annotations:
       description: Thanos Compact `{{`{{$labels.job}}`}}` has not uploaded anything for 24
@@ -63,7 +63,7 @@ groups:
     labels:
       severity: info
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompacthasnotrun
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
   - alert: ThanosCompactIsDown
     annotations:
       description: ThanosCompact has disappeared. Prometheus target for the component
@@ -75,4 +75,4 @@ groups:
     labels:
       severity: warning
       playbook: https://github.com/thanos-io/thanos/tree/main/mixin/runbook.md#alert-name-thanoscompactisdown
-      {{ tpl .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
+      {{ toYaml .Values.thanos.serviceMonitor.alertLabels . | nindent 6 }}
