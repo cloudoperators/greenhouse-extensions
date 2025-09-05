@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.6.5
+  version: 0.6.6
   description: thanos
   helmChart:
     name: thanos
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.6.5
+    version: 0.6.6
   options:
     - default: null
       description: CLI param for Thanos Query
@@ -81,11 +81,6 @@ spec:
       name: thanos.query.serviceAnnotations
       required: false
       type: map
-    - default: false
-      description: Removes standard Thanos endpoints for overarching Queries
-      name: thanos.query.standalone
-      required: false
-      type: bool
     - description: Existing Secret containing the tls certificates and private keys
       name: thanos.query.tls.secretName
       required: false
@@ -140,7 +135,7 @@ spec:
       required: false
       type: bool
     - default: []
-      description: Automatically filled if Query is not standalone. If multiple Prometheis are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
+      description: If multiple Prometheus instances are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
       name: thanos.query.stores
       required: false
       type: list
