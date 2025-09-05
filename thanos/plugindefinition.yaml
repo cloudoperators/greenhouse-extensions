@@ -4,165 +4,184 @@
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
-    name: thanos
+  name: thanos
 spec:
-    version: 0.5.40
-    description: thanos
-    helmChart:
-        name: thanos
-        repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-        version: 0.5.36
-    options:
-        - default: null
-          description: CLI param for Thanos Query
-          name: thanos.grpcAddress
-          required: false
-          type: string
-        - default: null
-          description: CLI param for Thanos Query
-          name: thanos.httpAddress
-          required: false
-          type: string
-        - default: null
-          description: How images should be fetched. 
-          name: thanos.image.pullPolicy
-          required: false
-          type: string
-        - default: quay.io/thanos/thanos
-          description: Image repository
-          name: thanos.image.repository
-          required: false
-          type: string
-        - default: null
-          description: Tag of the image 
-          name: thanos.image.tag
-          required: false
-          type: string
-        - default: true
-          description: CLI option to be toggled.
-          name: thanos.query.autoDownsampling
-          required: false
-          type: bool
-        - default: false
-          description: Enable serviceMonitor for Thanos components
-          name: thanos.serviceMonitor.selfMonitor
-          required: false
-          type: bool
-        - description: ServiceMonitor labels for Thanos to expose metrics to Prometheus
-          name: thanos.serviceMonitor.additionalLabels
-          required: false
-          type: map
-        - default: null
-          description: Thanos log level for Query
-          name: thanos.query.logLevel
-          required: false
-          type: string
-        - default: prometheus_replica
-          description: thanos.query.replicaLabel
-          name: thanos.query.replicaLabel
-          required: false
-          type: string
-        - default: null
-          description: Amount of queries deployed. 
-          name: thanos.query.replicas
-          required: false
-          type: int
-        - default: 
-            greenhouse.sap/expose: "true"
-            greenhouse.sap/exposeNamedPort: "http"
-          description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
-          name: thanos.query.serviceLabels
-          required: false
-          type: map
-        - description: Existing Secret containing the tls certificates and private keys
-          name: thanos.query.tls.secretName
-          required: false
-          type: string
-        - description: Expose Thanos Query as a Plutono datasource
-          name: thanos.query.plutonoDatasource.create
-          required: false
-          type: bool
-        - description: Label selectors for the Plutono sidecar to detect this datasource
-          name: thanos.query.plutonoDatasource.selector
-          required: false
-          type: map
-        - name: thanos.query.plutonoDatasource.isDefault
-          description: Whether the Plutono datasource should be set as default for Thanos Query
-          default: true
-          required: false
-          type: bool
-        - description: Expose Thanos Query as a Perses datasource
-          name: thanos.query.persesDatasource.create
-          required: false
-          type: bool
-        - default:
-            perses.dev/resource: "true"
-          description: Label selectors for the Perses sidecar to detect this datasource
-          name: thanos.query.persesDatasource.selector
-          required: false
-          type: map
-        - name: thanos.query.plutonoDatasource.create
-          description: Expose Thanos Query as a Plutono datasource
-          required: false
-          type: bool
-          default: true
-        - name: thanos.query.plutonoDatasource.selector
-          default:
-            plutono-datasource: "true"
-          description: Label selectors for Putono sidera to detect this datasource
-          required: false
-          type: map
-        - default: true
-          description: Enable Thanos Store
-          name: thanos.store.enabled
-          required: false
-          type: bool
-        - default: true
-          description: Enable Thanos Compactor
-          name: thanos.compactor.enabled
-          required: false
-          type: bool
-        - default: false
-          description: Enable Thanos Ruler
-          name: thanos.ruler.enabled
-          required: false
-          type: bool
-        - default: [] 
-          description: If multiple Prometheus instances are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
-          name: thanos.query.stores
-          required: false
-          type: list
-        - default: null
-          description: Usually at /thanos, only specify if it differs. 
-          name: thanos.query.web.externalPrefix
-          required: false
-          type: string
-        - default: null
-          description: Usually at /thanos, only specify if it differs. 
-          name: thanos.query.web.routePrefix
-          required: false
-          type: string
-        - default: 
-            greenhouse.sap/expose: "true"
-            greenhouse.sap/exposeNamedPort: http
-          description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
-          name: thanos.ruler.serviceLabels
-          required: false
-          type: map
-        - default: false
-          description: Thanos ruler Alertmanager auth toggle
-          name: thanos.ruler.alertmanagers.authentication.enabled
-          required: false
-          type: bool
-        - name: thanos.ruler.alertmanagers.authentication.ssoCert
-          description: TLS certificate for communication with Alertmanager
-          required: false
-          type: secret
-        - name: thanos.ruler.alertmanagers.authentication.ssoKey
-          description: TLS key for communication with Alertmanager
-          required: false
-          type: secret
-        - name: thanos.serviceMonitor.alertLabels
-          description: Labels to add to the PrometheusRules alerts
-          type: string
-          required: false
+  version: 0.6.5
+  description: thanos
+  helmChart:
+    name: thanos
+    repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
+    version: 0.6.5
+  options:
+    - default: null
+      description: CLI param for Thanos Query
+      name: thanos.grpcAddress
+      required: false
+      type: string
+    - default: null
+      description: CLI param for Thanos Query
+      name: thanos.httpAddress
+      required: false
+      type: string
+    - default: null
+      description: How images should be fetched.
+      name: thanos.image.pullPolicy
+      required: false
+      type: string
+    - default: quay.io/thanos/thanos
+      description: Image repository
+      name: thanos.image.repository
+      required: false
+      type: string
+    - default: null
+      description: Tag of the image
+      name: thanos.image.tag
+      required: false
+      type: string
+    - default: true
+      description: CLI option to be toggled.
+      name: thanos.query.autoDownsampling
+      required: false
+      type: bool
+    - default: false
+      description: Enable serviceMonitor for Thanos components
+      name: thanos.serviceMonitor.selfMonitor
+      required: false
+      type: bool
+    - description: ServiceMonitor labels for Thanos to expose metrics to Prometheus
+      name: thanos.serviceMonitor.additionalLabels
+      required: false
+      type: map
+    - default: null
+      description: Thanos log level for Query
+      name: thanos.query.logLevel
+      required: false
+      type: string
+    - default: prometheus_replica
+      description: thanos.query.replicaLabel
+      name: thanos.query.replicaLabel
+      required: false
+      type: string
+    - default: null
+      description: Amount of queries deployed.
+      name: thanos.query.replicas
+      required: false
+      type: int
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposeNamedPort: "http"
+      description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.query.serviceLabels
+      required: false
+      type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: "http"
+      description: Needed for exposing Thanos Query to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.query.serviceAnnotations
+      required: false
+      type: map
+    - default: false
+      description: Removes standard Thanos endpoints for overarching Queries
+      name: thanos.query.standalone
+      required: false
+      type: bool
+    - description: Existing Secret containing the tls certificates and private keys
+      name: thanos.query.tls.secretName
+      required: false
+      type: string
+    - description: Expose Thanos Query as a Plutono datasource
+      name: thanos.query.plutonoDatasource.create
+      required: false
+      type: bool
+    - description: Label selectors for the Plutono sidecar to detect this datasource
+      name: thanos.query.plutonoDatasource.selector
+      required: false
+      type: map
+    - name: thanos.query.plutonoDatasource.isDefault
+      description: Whether the Plutono datasource should be set as default for Thanos Query
+      default: true
+      required: false
+      type: bool
+    - description: Expose Thanos Query as a Perses datasource
+      name: thanos.query.persesDatasource.create
+      required: false
+      type: bool
+    - default:
+        perses.dev/resource: "true"
+      description: Label selectors for the Perses sidecar to detect this datasource
+      name: thanos.query.persesDatasource.selector
+      required: false
+      type: map
+    - name: thanos.query.plutonoDatasource.create
+      description: Expose Thanos Query as a Plutono datasource
+      required: false
+      type: bool
+      default: true
+    - name: thanos.query.plutonoDatasource.selector
+      default:
+        plutono-datasource: "true"
+      description: Label selectors for Putono sidera to detect this datasource
+      required: false
+      type: map
+    - default: true
+      description: Enable Thanos Store
+      name: thanos.store.enabled
+      required: false
+      type: bool
+    - default: true
+      description: Enable Thanos Compactor
+      name: thanos.compactor.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Enable Thanos Ruler
+      name: thanos.ruler.enabled
+      required: false
+      type: bool
+    - default: []
+      description: Automatically filled if Query is not standalone. If multiple Prometheis are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
+      name: thanos.query.stores
+      required: false
+      type: list
+    - default: null
+      description: Usually at /thanos, only specify if it differs.
+      name: thanos.query.web.externalPrefix
+      required: false
+      type: string
+    - default: null
+      description: Usually at /thanos, only specify if it differs.
+      name: thanos.query.web.routePrefix
+      required: false
+      type: string
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposeNamedPort: http
+      description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.ruler.serviceLabels
+      required: false
+      type: map
+    - default:
+        greenhouse.sap/expose: "true"
+        greenhouse.sap/exposed-named-port: http
+      description: Needed for exposing Thanos Ruler to the service proxy. UI is accessible via http, exposing this particular port.
+      name: thanos.ruler.serviceAnnotations
+      required: false
+      type: map
+    - default: false
+      description: Thanos ruler Alertmanager auth toggle
+      name: thanos.ruler.alertmanagers.authentication.enabled
+      required: false
+      type: bool
+    - name: thanos.ruler.alertmanagers.authentication.ssoCert
+      description: TLS certificate for communication with Alertmanager
+      required: false
+      type: secret
+    - name: thanos.ruler.alertmanagers.authentication.ssoKey
+      description: TLS key for communication with Alertmanager
+      required: false
+      type: secret
+    - name: thanos.serviceMonitor.alertLabels
+      description: Labels to add to the PrometheusRules alerts
+      type: string
+      required: false

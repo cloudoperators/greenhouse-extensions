@@ -16,8 +16,6 @@ spec:
         expr: sum(time() - absent_metrics_operator_successful_reconcile_time) by (prometheusrule_namespace, prometheusrule_name) > 600
         for: 5m
         labels:
-          support_group: observability
-          service: metrics
           {{- if .Values.global.commonLabels }}
           {{ .Values.global.commonLabels | toYaml | nindent 10 }}
           {{- end }}

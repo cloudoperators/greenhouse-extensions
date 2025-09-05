@@ -7,11 +7,11 @@ icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-lo
 type: application
 maintainers:
   - name: viennaa
-  - name: richardtief
+  - name: trouaux
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.5.36
+version: 0.6.5
 keywords:
   - thanos
   - storage

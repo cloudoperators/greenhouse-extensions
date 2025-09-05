@@ -6,7 +6,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
   annotations:
-  name: opentelemetry-collector-logs
+  name: audit-collector-logs
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- if .Values.auditLogs.customLabels }}
@@ -23,7 +23,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.logs
-      app.kubernetes.io/managed-by: audit-logs
+      app.kubernetes.io/instance: {{ .Release.Namespace }}.audit-logs
+      app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
