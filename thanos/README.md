@@ -170,19 +170,21 @@ Thanos Query would check for a Thanos endpoint named like `releaseName-store`. T
 
 `--store=thanos-kube-store:10901`
 
-If you just have one occurence of this Thanos plugin dpeloyed, the default option would work and does not need anything else.
+If you just have one occurence of this Thanos plugin deployed, the default option would work and does not need anything else.
 
 ### Standalone Query
 
 ![Standalone Query](img/thanos_standalone_query.png)
 
-In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
+In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can disable all other thanos components and add your own store list. Setup your Plugin like this:
 
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.query.standalone
-    value: true
+  - name: thanos.store.enabled
+    value: false
+  - name: thanos.compactor.enabled
+    value: false
 ```
 
 This would enable you to either:
@@ -260,7 +262,7 @@ It is possible to disable certain Thanos components for your deployment. To do s
 
 | Thanos Component | Enabled by default	 | Deactivatable | Flag |
 |---|---|---|---|
-| Query | True | False | n/a |
+| Query | True | True | thanos.query.enabled |
 | Store | True | True | thanos.store.enabled |
 | Compactor | True | True | thanos.compactor.enabled |
 | Ruler | False | True | thanos.ruler.enabled |
@@ -381,7 +383,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.isDefault | bool | `true` | set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already. |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
-| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for Thanos Query |
 | thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
@@ -389,8 +391,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.standalone | bool | `false` |  |
-| thanos.query.stores | list | `[]` |  |
+| thanos.query.stores | list | `[]` | Thanos Query store endpoints |
 | thanos.query.tls.data | object | `{}` |  |
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
