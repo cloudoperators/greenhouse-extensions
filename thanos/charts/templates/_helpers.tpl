@@ -7,8 +7,7 @@ Generic plugin name
 
 {{/* Generate plugin specific labels */}}
 {{- define "plugin.labels" -}}
-plugindefinition: thanos 
-plugin: {{ $.Release.Name }}
+plugindefinition: thanos
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
