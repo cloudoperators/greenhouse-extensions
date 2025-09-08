@@ -40,7 +40,6 @@ release: {{ $root.Release.Name | quote }}
 {{- define "alerts.dashboardSelectorLabels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
-plugin: {{ $root.Release.Name }}
 {{- if $root.Values.alerts.dashboards.plutonoSelectors }}
 {{- range $i, $target := $root.Values.alerts.dashboards.plutonoSelectors }}
 {{ $target.name | required (printf "$.Values.alerts.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.alerts.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
