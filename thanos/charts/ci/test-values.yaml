@@ -30,6 +30,6 @@ thanos:
   serviceMonitor:
     selfMonitor: true
     labels: {
-      exposed: true
+      plugin: default
     }
     dashboards: false
