@@ -7,11 +7,11 @@ blackboxExporter:
 thanos:
   query:
     serviceLabels:
-      testServiceLabels: true
+      testServiceLabels: "true"
     deploymentLabels:
-      testDeploymentLabels: true
+      testDeploymentLabels: "true"
     persesDatasource:
-      create: true
+      create: "true"
       selector:
         persesDatasourceSelector: test
     stores:
