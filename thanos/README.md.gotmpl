@@ -94,8 +94,8 @@ spec:
         name: <your-secret-name>
 ```
 
-- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, <.Release.Name>-metrics-objectstore)
-- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `thanos.yaml`).
+- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, `kube-monitoring-prometheus`)
+- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `object-storage-configs.yaml`)
 
 ### Thanos Query
 
@@ -170,19 +170,21 @@ Thanos Query would check for a Thanos endpoint named like `releaseName-store`. T
 
 `--store=thanos-kube-store:10901`
 
-If you just have one occurence of this Thanos plugin dpeloyed, the default option would work and does not need anything else.
+If you just have one occurence of this Thanos plugin deployed, the default option would work and does not need anything else.
 
 ### Standalone Query
 
 ![Standalone Query](img/thanos_standalone_query.png)
 
-In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
+In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can disable all other thanos components and add your own store list. Setup your Plugin like this:
 
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.query.standalone
-    value: true
+  - name: thanos.store.enabled
+    value: false
+  - name: thanos.compactor.enabled
+    value: false
 ```
 
 This would enable you to either:
@@ -260,7 +262,7 @@ It is possible to disable certain Thanos components for your deployment. To do s
 
 | Thanos Component | Enabled by default	 | Deactivatable | Flag |
 |---|---|---|---|
-| Query | True | False | n/a |
+| Query | True | True | thanos.query.enabled |
 | Store | True | True | thanos.store.enabled |
 | Compactor | True | True | thanos.compactor.enabled |
 | Ruler | False | True | thanos.ruler.enabled |

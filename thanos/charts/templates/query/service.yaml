@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.query.annotations }}
-  annotations:
-    {{ toYaml .Values.thanos.query.annotations | nindent 8 }}
-  {{- end }}
+  {{- include "thanos.annotations" (dict
+        "base" .Values.thanos.query.annotations
+        "service" .Values.thanos.query.serviceAnnotations
+      ) }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.query.serviceLabels }}
-    {{ toYaml .Values.thanos.query.serviceLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.query.serviceLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-query
 spec:

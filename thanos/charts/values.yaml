@@ -75,10 +75,6 @@ thanos:
     # @default -- info
     logLevel:
 
-    # Disables standard prometheus-operated and Thanos Store endpoints
-    # To be used for overarching Thanos Queries with custom endpoint lists
-    standalone: false
-
     # -- Set Thanos Query auto-downsampling
     autoDownsampling: true
 
@@ -112,10 +108,13 @@ thanos:
     # -- Labels to add to the Thanos Query service
     serviceLabels: {}
 
+    # -- Service specific annotations to add to the Thanos Query service in addition to its already configured annotations.
+    serviceAnnotations: {}
+
     # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
-    # if this is a standalone query, store endpoints need to be added here, otherwise the query does nothing.
+    # -- Thanos Query store endpoints
     stores: []
 
     # Configure the ingress resource that allows you to access Thanos Query
@@ -130,6 +129,7 @@ thanos:
           paths:
             - path: /
               pathType: Prefix
+              portName: http
 
       # -- IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)
       # This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster .
@@ -188,7 +188,7 @@ thanos:
 
     ## Expose Thanos Query as a Plutono datasource
     plutonoDatasource:
-      # -- Creates a Perses datasource for standalone Thanos Query
+      # -- Creates a Perses datasource for Thanos Query
       create: false
 
       # -- set datasource as default for Plutono
@@ -238,6 +238,9 @@ thanos:
     # -- Labels to add to the Thanos Store service
     serviceLabels: {}
 
+    # -- Service specific annotations to add to the Thanos Store service in addition to its already configured annotations.
+    serviceAnnotations: {}
+
     # -- Annotations to add to the Thanos Store resources
     annotations: {}
 
@@ -281,6 +284,9 @@ thanos:
 
     # -- Labels to add to the Thanos Compactor service
     serviceLabels: {}
+
+    # -- Service specific annotations to add to the Thanos Compactor service in addition to its already configured annotations.
+    serviceAnnotations: {}
 
     # -- Annotations to add to the Thanos Compactor resources
     annotations: {}
@@ -345,6 +351,9 @@ thanos:
 
     # -- Labels to add to the Thanos Ruler service
     serviceLabels: {}
+
+    # -- Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations.
+    serviceAnnotations: {}
 
     # -- Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"`
     replicaLabel: thanos_ruler_replica

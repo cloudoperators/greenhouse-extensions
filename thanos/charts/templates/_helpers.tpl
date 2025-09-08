@@ -25,7 +25,7 @@ release: {{ $.Release.Name | quote }}
 {{- if .Values.thanos.existingObjectStoreSecret.name -}}
 {{ tpl .Values.thanos.existingObjectStoreSecret.name . }}
 {{- else -}}
-{{ include "release.name" . }}-metrics-objectstore
+kube-monitoring-prometheus
 {{- end }}
 {{- end }}
 
@@ -34,6 +34,18 @@ release: {{ $.Release.Name | quote }}
 {{- if .Values.thanos.existingObjectStoreSecret.configFile -}}
 {{ tpl .Values.thanos.existingObjectStoreSecret.configFile . }}
 {{- else -}}
-thanos.yaml
+object-storage-configs.yaml
+{{- end }}
+{{- end }}
+
+{{- define "thanos.annotations" -}}
+{{- if or .base .service }}
+annotations:
+{{- with .base }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .service }}
+{{- toYaml . | nindent 2 }}
+{{- end }}
 {{- end }}
 {{- end }}

@@ -94,8 +94,8 @@ spec:
         name: <your-secret-name>
 ```
 
-- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, <.Release.Name>-metrics-objectstore)
-- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `thanos.yaml`).
+- `name`: The name of the Kubernetes Secret containing your object storage configuration. (default, `kube-monitoring-prometheus`)
+- `configFile`: The key (file name) in the Secret where the object store config is stored (default, `object-storage-configs.yaml`)
 
 ### Thanos Query
 
@@ -170,19 +170,21 @@ Thanos Query would check for a Thanos endpoint named like `releaseName-store`. T
 
 `--store=thanos-kube-store:10901`
 
-If you just have one occurence of this Thanos plugin dpeloyed, the default option would work and does not need anything else.
+If you just have one occurence of this Thanos plugin deployed, the default option would work and does not need anything else.
 
 ### Standalone Query
 
 ![Standalone Query](img/thanos_standalone_query.png)
 
-In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can set it to `standalone` and add your own store list. Setup your Plugin like this:
+In case you want to achieve a setup like above and have an overarching Thanos Query to run with multiple Stores, you can disable all other thanos components and add your own store list. Setup your Plugin like this:
 
 ```yaml
 spec:
   optionsValues:
-  - name: thanos.query.standalone
-    value: true
+  - name: thanos.store.enabled
+    value: false
+  - name: thanos.compactor.enabled
+    value: false
 ```
 
 This would enable you to either:
@@ -260,7 +262,7 @@ It is possible to disable certain Thanos components for your deployment. To do s
 
 | Thanos Component | Enabled by default	 | Deactivatable | Flag |
 |---|---|---|---|
-| Query | True | False | n/a |
+| Query | True | True | thanos.query.enabled |
 | Store | True | True | thanos.store.enabled |
 | Compactor | True | True | thanos.compactor.enabled |
 | Ruler | False | True | thanos.ruler.enabled |
@@ -349,6 +351,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
+| thanos.compactor.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Compactor service in addition to its already configured annotations. |
 | thanos.compactor.serviceLabels | object | `{}` | Labels to add to the Thanos Compactor service |
 | thanos.compactor.volume.labels | list | `[]` | Labels to add to the Thanos Compactor PVC resource |
 | thanos.compactor.volume.size | string | 100Gi | Set Thanos Compactor PersistentVolumeClaim size in Gi |
@@ -373,22 +376,22 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.ingress.grpc.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource.(GRPC) |
 | thanos.query.ingress.grpc.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)(GRPC) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | thanos.query.ingress.grpc.tls | list | `[]` | Ingress TLS configuration. (GRPC) |
-| thanos.query.ingress.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix"}]}]` | Default host for the ingress resource |
+| thanos.query.ingress.hosts | list | `[{"host":"thanos.local","paths":[{"path":"/","pathType":"Prefix","portName":"http"}]}]` | Default host for the ingress resource |
 | thanos.query.ingress.ingressClassName | string | `""` | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+) This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster . ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/  |
 | thanos.query.ingress.tls | list | `[]` | Ingress TLS configuration |
 | thanos.query.logLevel | string | info | Thanos Query log level |
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.isDefault | bool | `true` | set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already. |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
-| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for standalone Thanos Query |
+| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for Thanos Query |
 | thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
 | thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
 | thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
+| thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.standalone | bool | `false` |  |
-| thanos.query.stores | list | `[]` |  |
+| thanos.query.stores | list | `[]` | Thanos Query store endpoints |
 | thanos.query.tls.data | object | `{}` |  |
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
@@ -413,6 +416,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
+| thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
 | thanos.ruler.storage | object | `{}` |  |
 | thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
@@ -428,4 +432,5 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
 | thanos.store.logLevel | string | info | Thanos Store log level |
 | thanos.store.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Store container. |
+| thanos.store.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Store service in addition to its already configured annotations. |
 | thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
