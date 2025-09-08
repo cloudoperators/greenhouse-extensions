@@ -7,7 +7,7 @@ metadata:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.store.deploymentLabels }}
-    {{ toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-store
 spec:
