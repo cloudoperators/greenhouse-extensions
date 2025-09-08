@@ -6,6 +6,14 @@ blackboxExporter:
 
 thanos:
   query:
+    serviceLabels:
+      testServiceLabels: true
+    deploymentLabels:
+      testDeploymentLabels: true
+    persesDatasource:
+      create: true
+      selector:
+        persesDatasourceSelector: test
     stores:
       - prometheus-operated:10901
       - prometheus-operated:10901
@@ -22,6 +30,6 @@ thanos:
   serviceMonitor:
     selfMonitor: true
     labels: {
-      plugin: default
+      exposed: true
     }
     dashboards: false
