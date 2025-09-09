@@ -10,6 +10,8 @@ thanos:
       testServiceLabels: "true"
     deploymentLabels:
       testDeploymentLabels: "true"
+    serviceAnnotations:
+      testServiceAnnotation: "true"
     persesDatasource:
       create: "true"
       selector:

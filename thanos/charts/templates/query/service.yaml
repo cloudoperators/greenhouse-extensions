@@ -5,7 +5,7 @@ metadata:
   {{- include "thanos.annotations" (dict
         "base" .Values.thanos.query.annotations
         "service" .Values.thanos.query.serviceAnnotations
-      ) }}
+      ) | indent 2 }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
