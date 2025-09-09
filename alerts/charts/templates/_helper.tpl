@@ -16,7 +16,6 @@ The longest name that gets created adds and extra 37 characters, so truncation s
 {{/* Generate basic labels */}}
 {{ define "kube-prometheus-stack.labels" }}
 plugindefinition: alerts
-plugin: {{ $.Release.Name }}
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
 {{- end }}
@@ -24,22 +23,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 release: {{ $.Release.Name | quote }}
 {{- end }}
 
-{{/* Generate basic labels */}}
-{{ define "alerts.labels" }}
-{{- $path := index . 0 -}}
-{{- $root := index . 1 -}}
-plugindefinition: alerts
-plugin: {{ $root.Release.Name }}
-{{- if $root.Values.global.commonLabels }}
-{{ tpl (toYaml $root.Values.global.commonLabels) . }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ $root.Release.Service }}
-release: {{ $root.Release.Name | quote }}
-{{- end }}
-
 {{- define "alerts.dashboardSelectorLabels" }}
 {{- $path := index . 0 -}}
 {{- $root := index . 1 -}}
+plugin: {{ $root.Release.Name }}
 {{- if $root.Values.alerts.dashboards.plutonoSelectors }}
 {{- range $i, $target := $root.Values.alerts.dashboards.plutonoSelectors }}
 {{ $target.name | required (printf "$.Values.alerts.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.alerts.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}

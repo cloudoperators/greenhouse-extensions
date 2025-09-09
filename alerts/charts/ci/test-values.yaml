@@ -5,7 +5,13 @@ global:
     baseDomain: example.com
 
 alerts:
+  defaultRules:
+    labels:
+      plugin: test
   alertmanager:
+    serviceMonitor:
+      additionalLabels:
+        plugin: test2
     ingress:
       enabled: false
       hosts:
