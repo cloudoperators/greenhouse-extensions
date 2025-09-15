@@ -43,15 +43,19 @@ filelog/kvm_monitoring:
   include: [ /var/log/pods/kvm-monitoring_*/monitoring/*.log ]
   include_file_path: true
   start_at: beginning
-  multiline:
-    line_start_pattern: ^\d{4}-\d{2}-\d{2}
   operators:
+    - id: container-parser
+      type: container
     - type: regex_parser
-      regex: 'time="(?P<logtime>[^"]+)"'
+      regex: 'time="(?P<app_timestamp>[^"]+)"'
+      parse_from: body
+      on_error: send
     - type: time_parser
-      parse_from: attributes.logtime
+      if: attributes.app_timestamp != nil
+      parse_from: attributes.app_timestamp
       layout: '%Y-%m-%dT%H:%M:%SZ'
       layout_type: strptime
+      on_error: send
     - id: file-label
       type: add
       field: attributes["log.type"]
