@@ -70,7 +70,11 @@ spec:
       filelog/containerd:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
+{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
+        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_*, /var/log/pods/kvm-monitoring_*/monitoring/*.log ]
+{{- else }}
         exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
+{{- end }}
         operators:
           - id: container-parser
             type: container
