@@ -114,6 +114,19 @@ perses:
 
   # -- Additional VolumeMounts on the output StatefulSet definition.
   volumeMounts: []
+
+  # -- OCI artifacts configuration for mounting OCI images as volumes.
+  # For more information, refer https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/ 
+  ociArtifacts:
+    {}
+  # name: perses-manifests
+  # image:
+  #   reference: "registry.example.com/perses-manifests:v1.0.0"
+  #   pullPolicy: Always  # Options: Always, IfNotPresent, Never
+  # mountPath: "/etc/perses/provisioning"  # Should match provisioning.folders path
+  # # Optional: Mount specific path from image
+  # subPath: "configs/production"
+
   # -- TLS configuration for mounting certificates from Kubernetes secrets
   # @default -- <pre>tls:<br>  enabled: false<br>  caCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/ca"<br>  clientCert:<br>    enabled: false<br>    secretName: ""<br>    mountPath: "/tls"</pre>
   tls:
@@ -201,6 +214,18 @@ perses:
       folders:
         - /etc/perses/provisioning
       interval: 3m
+
+
+  # -- Perses configuration as environment variables.
+  envVars: []
+    # - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_SECRET
+    #   value: "4711"
+    # - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_1_CLIENT_SECRET
+    #   value: "0815"
+  
+  # -- Name of existing Kubernetes Secret containing environment variables.
+  # When specified, no new Secret is created and values from envVars array are ignored.
+  envVarsExternalSecretName: ""
 
   # --  Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning
   # @default -- <pre>sidecar:<br>  enabled: true<br>  label: "perses.dev/resource"<br>  labelValue: "true"<br>  allNamespaces: true<br>  extraEnvVars: []<br>  enableSecretAccess: false</pre>
