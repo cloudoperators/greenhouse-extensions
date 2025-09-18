@@ -116,7 +116,7 @@ perses:
   volumeMounts: []
 
   # -- OCI artifacts configuration for mounting OCI images as volumes.
-  # For more information, refer https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/ 
+  # For more information, refer https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/
   ociArtifacts:
     {}
   # name: perses-manifests
