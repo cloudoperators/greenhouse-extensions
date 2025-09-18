@@ -6,18 +6,6 @@ filelog/qemu_logs:
   multiline:
     line_start_pattern: ^\d{4}-\d{2}-\d{2}
   operators:
-    - type: regex_parser
-      regex: (?P<logtime>\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}.\d{3})
-    - type: time_parser
-      if: not (attributes.logtime contains "T")
-      parse_from: attributes.logtime
-      layout: '%Y-%m-%d %H:%M:%S.%L'
-      layout_type: strptime
-    - type: time_parser
-      if: attributes.logtime contains "T"
-      parse_from: attributes.logtime
-      layout: '%Y-%m-%dT%H:%M:%S.%L'
-      layout_type: strptime
     - id: file-label
       type: add
       field: attributes["log.type"]
@@ -46,12 +34,6 @@ filelog/kvm_monitoring:
   multiline:
     line_start_pattern: ^\d{4}-\d{2}-\d{2}
   operators:
-    - type: regex_parser
-      regex: 'time="(?P<logtime>[^"]+)"'
-    - type: time_parser
-      parse_from: attributes.logtime
-      layout: '%Y-%m-%dT%H:%M:%SZ'
-      layout_type: strptime
     - id: file-label
       type: add
       field: attributes["log.type"]
@@ -65,7 +47,7 @@ transform/kvm_openvswitch:
       conditions:
         - resource.attributes["k8s.daemonset.name"] == "neutron-openvswitch-agent"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
+        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
         - set(log.attributes["config.parsed"], "kvm_openvswitch") where log.attributes["log_level"] != nil
 
 transform/kvm_nova_agent:
@@ -75,7 +57,7 @@ transform/kvm_nova_agent:
       conditions:
         - resource.attributes["k8s.daemonset.name"] == "nova-hypervisor-agents-compute-kvm"
       statements:
-        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
+        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log_level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:request.global_id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
         - set(log.attributes["config.parsed"], "kvm_nova_agent") where log.attributes["log_level"] != nil
 
 transform/kvm_logs:
@@ -87,6 +69,17 @@ transform/kvm_logs:
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601:timestamp}%{SPACE}%{GREEDYDATA:log}",true), "upsert")
         - set(log.attributes["config.parsed"], "files") where log.attributes["log_level"] != nil
+
+transform/qemu_logs:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - attributes["log.type"] == "files-qemu"
+      statements:
+        - set(log.attributes["config.parsed"], "qemu")
+        - set(log.observed_time, Now())
+        - set(log.time, log.observed_time)
 
 transform/kvm_monitoring:
   error_mode: ignore
@@ -102,7 +95,8 @@ transform/kvm_monitoring:
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_name=(?P<service_name>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "collector=\"(?P<collector>[^\"]+)"), "upsert")
         - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["loglevel"] != nil
-
+        - set(log.observed_time, Now())
+        - set(log.time, log.observed_time)
 {{- end }}
 {{- define "kvm.pipeline" }}
 logs/kvm_containerd:
@@ -111,6 +105,6 @@ logs/kvm_containerd:
   exporters: [forward]
 logs/kvm_filelog:
   receivers: [filelog/qemu_logs,filelog/openvswitch_logs,filelog/kvm_monitoring]
-  processors: [k8sattributes,attributes/cluster,transform/kvm_logs,transform/kvm_monitoring]
+  processors: [k8sattributes,attributes/cluster,transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs]
   exporters: [forward]
 {{- end }}

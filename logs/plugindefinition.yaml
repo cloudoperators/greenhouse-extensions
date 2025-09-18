@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.4
+  version: 0.11.5
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: opentelemetry-operator
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.11.4
+    version: 0.11.5
   options:
     - default: true
       description: Activates the standard configuration for logs
