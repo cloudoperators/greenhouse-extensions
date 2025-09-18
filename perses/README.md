@@ -82,7 +82,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.livenessProbe | object | <pre>livenessProbe:<br>  enabled: true<br>  initialDelaySeconds: 10<br>  periodSeconds: 60<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre> | Liveness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | perses.logLevel | string | `"warning"` | Log level for Perses be configured in available options "panic", "error", "warning", "info", "debug", "trace" |
 | perses.nameOverride | string | `""` | Override name of the chart used in Kubernetes object names. |
-| perses.ociArtifacts | object | `{}` | OCI artifacts configuration for mounting OCI images as volumes. For more information, refer https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/  |
+| perses.ociArtifacts | object | `{}` | OCI artifacts configuration for mounting OCI images as volumes. For more information, refer https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/ |
 | perses.persistence | object | <pre>persistence:<br>  enabled: false<br>  accessModes:<br>    - ReadWriteOnce<br>  size: 8Gi<br>  securityContext:<br>    fsGroup: 2000<br>  labels: {}<br>  annotations: {}</pre> | Persistence parameters |
 | perses.persistence.accessModes | list | `["ReadWriteOnce"]` | PVC Access Modes for data volume |
 | perses.persistence.annotations | object | `{}` | Annotations for the PVC |
