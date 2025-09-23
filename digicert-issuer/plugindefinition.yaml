@@ -6,14 +6,14 @@ kind: ClusterPluginDefinition
 metadata:
   name: digicert-issuer
 spec:
-  version: 1.3.0
+  version: 1.3.1
   displayName: DigiCert extensions
   description: Extensions to the cert-manager for DigiCert support
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/digicert-issuer/README.md
   helmChart:
     name: digicert-issuer
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.5.1
+    version: 2.5.2
   options:
     - name: provisioner.apiToken
       description: DigiCert cert-central API token
