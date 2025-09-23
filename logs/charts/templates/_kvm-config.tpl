@@ -38,6 +38,15 @@ filelog/kvm_monitoring:
       type: add
       field: attributes["log.type"]
       value: "files-kvm-monitoring"
+filelog/ch_logs:
+  include: [ /var/log/libvirt/ch/*.log ]
+  include_file_path: true
+  start_at: beginning
+  operators:
+    - field: attributes["log.type"]
+      id: file-label
+      type: add
+      value: files-ch
 {{- end }}
 {{- define "kvm.transform" }}
 transform/kvm_openvswitch:
@@ -97,6 +106,17 @@ transform/kvm_monitoring:
         - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["loglevel"] != nil
         - set(log.observed_time, Now())
         - set(log.time, log.observed_time)
+
+transform/ch_logs:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - attributes["log.type"] == "files-ch"
+      statements:
+      - set(log.attributes["config.parsed"], "libvirt-ch")
+      - set(log.observed_time, Now())
+      - set(log.time, log.observed_time)
 {{- end }}
 {{- define "kvm.pipeline" }}
 logs/kvm_containerd:
@@ -104,7 +124,7 @@ logs/kvm_containerd:
   processors: [k8sattributes,attributes/cluster,transform/ingress,transform/kvm_openvswitch,transform/kvm_nova_agent]
   exporters: [forward]
 logs/kvm_filelog:
-  receivers: [filelog/qemu_logs,filelog/openvswitch_logs,filelog/kvm_monitoring]
-  processors: [k8sattributes,attributes/cluster,transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs]
+  receivers: [filelog/qemu_logs,filelog/openvswitch_logs,filelog/kvm_monitoring,filelog/ch_logs]
+  processors: [k8sattributes,attributes/cluster,transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs,transform/ch_logs]
   exporters: [forward]
 {{- end }}
