@@ -466,6 +466,10 @@ kubeMonitoring:
       # @section -- Prometheus options
       additionalArgs: []
 
+    # -- Priority class assigned to the Pods
+    # @section -- Prometheus options
+    priorityClassName: ""
+
     tlsConfig:
       # -- CA certificate to verify technical clients at Prometheus Ingress
       # @section -- Prometheus options
