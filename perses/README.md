@@ -90,6 +90,13 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.persistence.labels | object | `{}` | Labels for the PVC |
 | perses.persistence.securityContext | object | `{"fsGroup":2000}` | Security context for the PVC when persistence is enabled |
 | perses.persistence.size | string | `"8Gi"` | PVC Storage Request for data volume |
+| perses.provisioningPersistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"labels":{},"size":"1Gi","storageClass":""}` | Persistence configuration for Perses provisioning.  For more information on provisioning feature, see: https://perses.dev/perses/docs/configuration/provisioning/ When enabled, a PersistentVolumeClaim (PVC) is created via StatefulSet volumeClaimTemplates. The PVC will be named: provisioning-<statefulset-name>-<ordinal> Examples:   - Release "perses-oci" → PVC: "provisioning-perses-oci-0"   - Release "my-app" → PVC: "provisioning-my-app-perses-0" This PVC can be referenced by other workloads (e.g., CronJobs) to write dashboards/datasources. |
+| perses.provisioningPersistence.accessModes | list | `["ReadWriteOnce"]` | access modes for provisioning PVC ReadWriteOnce: Only one pod can mount (cheaper, single-node storage) ReadWriteMany: Multiple pods can mount simultaneously (required for CronJobs or multiple replicas) Note: ReadWriteMany requires storage class that supports it (e.g., NFS, CephFS, Azure Files) |
+| perses.provisioningPersistence.annotations | object | `{}` | annotations for provisioning PVC |
+| perses.provisioningPersistence.enabled | bool | `false` | enable persistent volume for provisioning |
+| perses.provisioningPersistence.labels | object | `{}` | labels for provisioning PVC |
+| perses.provisioningPersistence.size | string | `"1Gi"` | size of provisioning PVC |
+| perses.provisioningPersistence.storageClass | string | `""` | storage class for provisioning PVC |
 | perses.readinessProbe | object | <pre>readinessProbe:<br>  enabled: true<br>  initialDelaySeconds: 5<br>  periodSeconds: 10<br>  timeoutSeconds: 5<br>  successThreshold: 1<br>  failureThreshold: 5</pre> | Readiness probe configuration Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | perses.replicas | int | `1` | Number of pod replicas. |
 | perses.resources | object | <pre>resources:<br>  limits:<br>    cpu: 250m<br>    memory: 500Mi<br>  requests:<br>    cpu: 250m<br>    memory: 500Mi</pre> | Resource limits & requests. Update according to your own use case as these values might be too low for a typical deployment. ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
