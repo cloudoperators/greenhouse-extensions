@@ -215,7 +215,7 @@ perses:
         - /etc/perses/provisioning
       interval: 3m
 
-  # -- Persistence configuration for Perses provisioning. 
+  # -- Persistence configuration for Perses provisioning.
   # For more information on provisioning feature, see: https://perses.dev/perses/docs/configuration/provisioning/
   # When enabled, a PersistentVolumeClaim (PVC) is created via StatefulSet volumeClaimTemplates.
   # The PVC will be named: provisioning-<statefulset-name>-<ordinal>
