@@ -25,7 +25,7 @@ Components included in this Plugin:
 
 ## Architecture
 
-![OpenTelemetry Architecture](img/otel-arch.png)
+:construction: will be updated soon :construction:
 
 ## Note
 
@@ -61,7 +61,7 @@ Based on the backend selection the telemetry data will be exporter to the backen
 
 ## Failover Connector
 
-The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
+The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the preferred user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
 
 ## Values
 
