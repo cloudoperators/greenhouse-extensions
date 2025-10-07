@@ -105,7 +105,7 @@ spec:
       required: false
       type: list
     - description: Additional labels for PrometheusRule alerts
-      name: cluster.cluster.general.monitoring.additionalRuleLabels
+      name: additionalRuleLabels
       required: false
       type: map
     - name: cluster.cluster.nodePools
