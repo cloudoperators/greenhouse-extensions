@@ -13,7 +13,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{- define "opensearch-alert-labels" -}}
-{{- with .Values.cluster.cluster.general.monitoring.additionalRuleLabels }}
+{{- with .Values.additionalRuleLabels }}
 {{ . | toYaml }}
 {{- end -}}
 {{- end -}}

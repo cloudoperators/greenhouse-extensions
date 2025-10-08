@@ -169,6 +169,8 @@ operator:
   ## If false, ClusterRoleBindings will be used
   useRoleBindings: false
 
+# -- Additional labels for PrometheusRule alerts
+additionalRuleLabels: {}
 
 cluster:
   nameOverride: ""
@@ -252,9 +254,6 @@ cluster:
 
         # -- ServiceMonitor labels
         labels: {}
-
-        # -- PrometheusRule labels
-        additionalRuleLabels: {}
 
       # -- List of Opensearch plugins to install
       pluginsList: []
