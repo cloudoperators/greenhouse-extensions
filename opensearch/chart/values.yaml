@@ -735,7 +735,6 @@ cluster:
   componentTemplates:
     - name: logs-attributes-dynamic
       version: 1
-      allowAutoCreate: true
       _meta:
         description: "Enable full dynamic mapping for all attributes.* keys"
       templateSpec:
@@ -744,6 +743,210 @@ cluster:
             attributes:
               type: object
               dynamic: true
+    - name: logs-field-mappings
+      version: 1
+      _meta:
+        description: "Explicit field mappings for log attributes to prevent type conflicts"
+      templateSpec:
+        mappings:
+          properties:
+            attributes:
+              type: object
+              properties:
+                # Ingress-nginx specific fields with correct types
+                bytes_sent:
+                  type: long
+                upstream_response_time:
+                  type: long
+                request_length:
+                  type: long
+                upstream_response_length:
+                  type: long
+                content_length:
+                  type: long
+                response:
+                  type: long
+                request_time:
+                  type: float
+                # Network and client fields
+                client.address:
+                  type: ip
+                client.ident:
+                  type: keyword
+                client.auth:
+                  type: keyword
+                server.address:
+                  type: ip
+                server.port:
+                  type: long
+                # HTTP request fields
+                request_method:
+                  type: keyword
+                request_path:
+                  type: keyword
+                network.protocol.name:
+                  type: keyword
+                network.protocol.version:
+                  type: keyword
+                user_agent:
+                  type: text
+                # Response fields
+                upstream_status:
+                  type: keyword
+                request_id:
+                  type: keyword
+                service:
+                  type: keyword
+                # Kubernetes fields
+                k8s.cluster.name:
+                  type: keyword
+                k8s.node.name:
+                  type: keyword
+                k8s.namespace.name:
+                  type: keyword
+                k8s.pod.name:
+                  type: keyword
+                k8s.pod.uid:
+                  type: keyword
+                k8s.pod.ip:
+                  type: ip
+                k8s.pod.start_time:
+                  type: date
+                k8s.deployment.name:
+                  type: keyword
+                k8s.deployment.uid:
+                  type: keyword
+                k8s.replicaset.name:
+                  type: keyword
+                k8s.replicaset.uid:
+                  type: keyword
+                k8s.statefulset.name:
+                  type: keyword
+                k8s.statefulset.uid:
+                  type: keyword
+                k8s.daemonset.name:
+                  type: keyword
+                k8s.daemonset.uid:
+                  type: keyword
+                k8s.job.name:
+                  type: keyword
+                k8s.job.uid:
+                  type: keyword
+                k8s.cronjob.name:
+                  type: keyword
+                k8s.node.uid:
+                  type: keyword
+                k8s.cluster.uid:
+                  type: keyword
+                k8s.container.name:
+                  type: keyword
+                # Container fields
+                container.image.name:
+                  type: keyword
+                container.image.tag:
+                  type: keyword
+                container.runtime:
+                  type: keyword
+                # Log fields
+                log.type:
+                  type: keyword
+                log.file.name:
+                  type: keyword
+                log.file.path:
+                  type: keyword
+                log.iostream:
+                  type: keyword
+                logtag:
+                  type: keyword
+                # System fields
+                region:
+                  type: keyword
+                failover_username_opensearch:
+                  type: keyword
+                # Journal fields
+                message:
+                  type: text
+                code_file:
+                  type: keyword
+                code_func:
+                  type: keyword
+                code_line:
+                  type: long
+                incovation_id:
+                  type: keyword
+                message_id:
+                  type: keyword
+                priority:
+                  type: keyword
+                syslog_facility:
+                  type: keyword
+                syslog_identifier:
+                  type: keyword
+                tid:
+                  type: keyword
+                unit:
+                  type: keyword
+                boot_id:
+                  type: keyword
+                cao_effective:
+                  type: keyword
+                cmdline:
+                  type: text
+                exe:
+                  type: keyword
+                gid:
+                  type: long
+                hostname:
+                  type: keyword
+                machine_id:
+                  type: keyword
+                pid:
+                  type: long
+                runtime_scope:
+                  type: keyword
+                selinux_context:
+                  type: keyword
+                source_realtime_timestamp:
+                  type: long
+                systemd_cgroup:
+                  type: keyword
+                systemd_slice:
+                  type: keyword
+                systemd_unit:
+                  type: keyword
+                transport:
+                  type: keyword
+                uid:
+                  type: long
+                cursor:
+                  type: keyword
+                monotonic_timestamp:
+                  type: long
+                # Application labels
+                app.label.ingress-nginx:
+                  type: keyword
+                app.label.support-group:
+                  type: keyword
+                app.label.app_name:
+                  type: keyword
+                app.label.component:
+                  type: keyword
+                app.label.name:
+                  type: keyword
+                app.label.instance:
+                  type: keyword
+                app.label.pod-template-hash:
+                  type: keyword
+                # Data stream fields
+                data_stream:
+                  type: object
+                  properties:
+                    dataset:
+                      type: keyword
+                    namespace:
+                      type: keyword
+                    type:
+                      type: keyword
 
   # -- List of OpensearchIndexTemplate.
   # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
@@ -753,6 +956,7 @@ cluster:
         - "logs*"
       composedOf:
         - logs-attributes-dynamic
+        - logs-field-mappings
       templateSpec:
         settings:
           index:
@@ -765,6 +969,47 @@ cluster:
               type: date
             message:
               type: text
+            body:
+              type: text
+            severity:
+              type: object
+            instrumentationScope:
+              type: object
+            observedTimestamp:
+              type: date
+            resource:
+              type: object
+              properties:
+                k8s.cluster.uid:
+                  type: keyword
+                k8s.container.name:
+                  type: keyword
+                k8s.container.restart_count:
+                  type: long
+                k8s.daemonset.name:
+                  type: keyword
+                k8s.daemonset.uid:
+                  type: keyword
+                k8s.namespace.name:
+                  type: keyword
+                k8s.node.name:
+                  type: keyword
+                k8s.node.uid:
+                  type: keyword
+                k8s.pod.ip:
+                  type: ip
+                k8s.pod.name:
+                  type: keyword
+                k8s.pod.start_time:
+                  type: date
+                k8s.pod.uid:
+                  type: keyword
+                container.image.name:
+                  type: keyword
+                container.image.tag:
+                  type: keyword
+                container.runtime:
+                  type: keyword
       dataStream: {}
       priority: 100
 
