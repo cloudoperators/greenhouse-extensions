@@ -456,7 +456,7 @@ kubeMonitoring:
 
       # -- Log level to be configured for Prometheus
       # @section -- Prometheus options
-      logLevel: ""
+      logLevel: "info"
 
       # -- Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations
       # @section -- Prometheus options

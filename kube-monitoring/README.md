@@ -321,7 +321,7 @@ spec:
 | kubeMonitoring.prometheus.prometheusSpec.additionalScrapeConfigs | string | `""` | Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations |
 | kubeMonitoring.prometheus.prometheusSpec.evaluationInterval | string | `""` | Interval between consecutive evaluations |
 | kubeMonitoring.prometheus.prometheusSpec.externalLabels | object | `{}` | External labels to add to any time series or alerts when communicating with external systems like Alertmanager |
-| kubeMonitoring.prometheus.prometheusSpec.logLevel | string | `""` | Log level to be configured for Prometheus |
+| kubeMonitoring.prometheus.prometheusSpec.logLevel | string | `"info"` | Log level to be configured for Prometheus |
 | kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector.matchLabels | object | `{ plugin: <metadata.name> }` | PodMonitors to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.probeSelector.matchLabels | object | `{ plugin: <metadata.name> }` | Probes to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.retention | string | `""` | How long to retain metrics |
