@@ -10,9 +10,9 @@ spec:
   displayName: Heureka Scanner for National Vulnerability Database
   description: Heureka Scanner for National Vulnerability Database
   helmChart:
-    name: heureka-scanner-nvd
-    repository: oci://ghcr.io/cloudoperators/heureka-scanner-nvd
-    version: main
+    name: nvd-scanner
+    repository: oci://ghcr.io/cloudoperators/heureka/charts
+    version: 0.1.0
   options:
     - name: scanner.api_token
       description: The API token for the Heureka Scanner
