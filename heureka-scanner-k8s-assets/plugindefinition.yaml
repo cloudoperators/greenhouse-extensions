@@ -10,9 +10,9 @@ spec:
   displayName: Heureka Scanner for K8s Assets
   description: Heureka Scanner for K8s Assets
   helmChart:
-    name: heureka-scanner-k8s-assets
+    name: k8s-assets-scanner
     repository: oci://ghcr.io/cloudoperators/heureka/charts
-    version: main
+    version: 0.1.0
   options:
     - name: scanner.api_token
       description: The API token for the Heureka Scanner
