@@ -55,7 +55,7 @@ openTelemetry:
       key2: value2
     rules:
       create: true
-      operator: 
+      operator:
         enabled: false
         disabled:
           - ReconcileErrors
@@ -63,7 +63,6 @@ openTelemetry:
         enabled: true
         disabled:
           - ReceiverRefusedMetric
-
 testFramework:
   enabled: true
   image:
