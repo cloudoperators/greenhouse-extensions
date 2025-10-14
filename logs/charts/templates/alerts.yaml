@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: opentelemetry-alerts
+  name: {{ printf "%s-alerts" $.Release.Name | trunc 63 }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "plugin.prometheusLabels" . | nindent 4 }}
