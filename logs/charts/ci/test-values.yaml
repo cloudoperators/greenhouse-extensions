@@ -53,11 +53,16 @@ openTelemetry:
     additionalLabels:
       key1: value1
       key2: value2
-
     rules:
       create: true
-      disabled:
-        - FilelogRefusedLogs
+      operator: 
+        enabled: false
+        disabled:
+          - ReconcileErrors
+      collector:
+        enabled: true
+        disabled:
+          - ReceiverRefusedMetric
 
 testFramework:
   enabled: true

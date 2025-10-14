@@ -1,6 +1,8 @@
 {{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.create }}
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+{{ $alertType:= base $path | trimSuffix "-alerts.yaml" }}
+{{- if ( index $root.Values.openTelemetry.prometheus.rules $alertType ).enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -21,5 +23,6 @@ spec:
 {{ tpl $content . | indent 2 }}
 {{- end }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}

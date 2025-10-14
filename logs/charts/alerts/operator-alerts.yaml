@@ -1,7 +1,7 @@
 groups:
   - name: operator-alerts
     rules:
-  {{- if not (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.disabled) }}
+  {{- if not (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.operator.disabled) }}
       - alert: ReconcileErrors
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
@@ -14,7 +14,7 @@ groups:
           description: Reconciliation errors for opentelemetrycollector are increasing
   {{- end }}
 
-  {{- if not (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.disabled) }}
+  {{- if not (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.operator.disabled) }}
       - alert: WorkqueueDepth
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m

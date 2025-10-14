@@ -95,12 +95,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
-| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"disabled":["ReconcileErrors","WorkqueueDepth","ReceiverRefusedMetric"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"collector":{"disabled":["ReceiverRefusedMetric"],"enabled":true},"create":true,"labels":{},"operator":{"disabled":[],"enabled":false}}` | Default rules for monitoring the opentelemetry components. |
 | openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
+| openTelemetry.prometheus.rules.collector | object | `{"disabled":["ReceiverRefusedMetric"],"enabled":true}` | PrometheusRules to disable for the Collector. |
 | openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| openTelemetry.prometheus.rules.disabled | list | `["ReconcileErrors","WorkqueueDepth","ReceiverRefusedMetric"]` | PrometheusRules to disable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
+| openTelemetry.prometheus.rules.operator | object | `{"disabled":[],"enabled":false}` | PrometheusRules to disable for the Operator. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |
 | openTelemetry.region | string | `nil` | Region label for Logging |
 | opentelemetry-operator.admissionWebhooks.autoGenerateCert | object | `{"recreate":false}` | Activate to use Helm to create self-signed certificates. |
