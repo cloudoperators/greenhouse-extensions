@@ -99,7 +99,7 @@ spec:
       required: false
       type: map
     - default: false
-      description: PrometheusRules to enable Collector alerts
+      description: PrometheusRules to enable Operator alerts
       name: openTelemetry.prometheus.rules.operator.enabled
       required: false
       type: bool
