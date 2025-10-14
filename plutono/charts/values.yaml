@@ -240,7 +240,8 @@ plutono:
       3000
       # targetPort: 4181 To be used with a proxy extraContainer
     # -- Service annotations. Can be templated.
-    annotations: {}
+    annotations:
+      greenhouse.sap/expose: "true"
     labels:
       greenhouse.sap/expose: "true"
     portName: service
@@ -858,7 +859,7 @@ plutono:
       # -- The Docker registry
       registry: quay.io
       repository: kiwigrid/k8s-sidecar
-      tag: 1.30.7
+      tag: 1.30.8
       sha: ""
     imagePullPolicy: IfNotPresent
     resources: {}

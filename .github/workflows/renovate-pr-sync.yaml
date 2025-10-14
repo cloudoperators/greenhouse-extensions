@@ -1,4 +1,4 @@
-name: Bump plugindefinition.yaml versions on Renovate PRs bumping Chart.yaml/values.yaml files
+name: Bump plugindefinition.yaml versions on Renovate PRs updating Chart.yaml/values.yaml files
 
 on:
   pull_request:
@@ -9,7 +9,6 @@ on:
       - "**/*/values.yaml"
       - "**/*/*/values.yaml"
 permissions:
-  actions: write
   contents: write
   pull-requests: write
 
@@ -20,13 +19,13 @@ jobs:
     steps:
       - name: Generate GitHub App Token
         id: github-app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2
         with:
           app-id: ${{ secrets.CLOUDOPERATOR_APP_ID }}
           private-key: ${{ secrets.CLOUDOPERATOR_APP_PRIVATE_KEY }}
           permission-contents: write
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
           token: ${{ steps.github-app-token.outputs.token }}
@@ -62,8 +61,8 @@ jobs:
 
       - name: Setup Git config
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "cloud-operator-bot[bot]"
+          git config user.email "224791424+cloud-operator-bot[bot]@users.noreply.github.com"
 
       - name: Bump Chart.yaml versions for values.yaml changes
         id: bump-chart
@@ -121,7 +120,7 @@ jobs:
           done
           
           if [ "$changes_made" = true ]; then
-            git commit -m "chore: bump chart versions for values.yaml changes ($UPDATE_LEVEL)"
+            git commit -m "chore: bump Chart.yaml versions for values.yaml changes ($UPDATE_LEVEL)"
             # Add the updated Chart.yaml files to the list for processing
             updated_charts=$(echo "${{ steps.filediff.outputs.values_files }}" | sed 's|values\.yaml|Chart.yaml|g')
             echo "updated_charts<<EOF"$'\n'"$updated_charts"$'\n'"EOF" >> $GITHUB_OUTPUT
@@ -186,7 +185,7 @@ jobs:
           done
           
           if [ "$changes_made" = true ]; then
-            git commit -m "chore: sync plugindefinition.yaml versions"
+            git commit -m "chore: sync plugindefinition.yaml version with Chart.yaml($UPDATE_LEVEL)"
             git push origin HEAD:${GITHUB_HEAD_REF}
             echo "changes_made=true" >> $GITHUB_OUTPUT
           fi

@@ -16,6 +16,12 @@ cluster:
     dashboards2:
       password: "CHANGE_ME_FailoverUser2025$%"
   cluster:
+    # Override dashboards configuration for local testing with basic auth
+    dashboards:
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization"]'
+        opensearch_security.auth.type: "basicauth"
+
     nodePools:
       - component: main
         diskSize: "5Gi"

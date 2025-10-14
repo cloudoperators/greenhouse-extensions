@@ -2,18 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: disco
 spec:
-  version: 1.2.3
+  version: 1.2.4
   displayName: Designate Ingress CNAME Operator (DISCO)
   description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/disco/README.md
   helmChart:
     name: disco
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.2.3
+    version: 2.4.1
   options:
     - name: record
       description: The record which should be used. e.g. 'ingress.tld.'
@@ -51,3 +51,6 @@ spec:
       description: The OpenStack domain name of the project
       required: true
       type: string
+    - name: image.repository
+      type: string
+      default: "ghcr.io/sapcc/disco"

@@ -169,6 +169,8 @@ operator:
   ## If false, ClusterRoleBindings will be used
   useRoleBindings: false
 
+# -- Additional labels for PrometheusRule alerts
+additionalRuleLabels: {}
 
 cluster:
   nameOverride: ""
@@ -241,7 +243,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/sapcc/prometheus-exporter-plugin-for-opensearch/releases/download/v2.19.2/prometheus-exporter-2.19.2.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.2.0.0/prometheus-exporter-3.2.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -252,9 +254,6 @@ cluster:
 
         # -- ServiceMonitor labels
         labels: {}
-
-        # -- PrometheusRule labels
-        additionalRuleLabels: {}
 
       # -- List of Opensearch plugins to install
       pluginsList: []
@@ -286,7 +285,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 2.19.2
+      version: 3.2.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -317,7 +316,11 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig: {}
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
+        opensearch_security.auth.type: "proxy"
+        opensearch_security.proxycache.user_header: "x-forwarded-user"
+        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -398,7 +401,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 2.19.2
+      version: 3.2.0
 
     # initHelper configuration
     initHelper:
@@ -742,7 +745,7 @@ cluster:
               dynamic: true
 
   # -- List of OpensearchIndexTemplate.
-  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream:<br>      timestamp_field:<br>        name: "@timestamp"<br>    priority: 100</pre>
+  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
   indexTemplates:
     - name: logs-index-template
       indexPatterns:
@@ -761,32 +764,28 @@ cluster:
               type: date
             message:
               type: text
-      dataStream:
-        timestamp_field:
-          name: "@timestamp"
+      dataStream: {}
       priority: 100
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minIndexAge: "7d"<br>              minSize: "30gb"<br>              minDocCount: 50000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>        transitions: []<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
+  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Logs policy with 7-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "10gb"<br>              minDocCount: 20000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "7d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
   ismPolicies:
     - name: logs-rollover-policy
       defaultState: hot
-      description: "Policy to rollover logs after 7d, 30GB or 50M docs and delete after 30d"
+      description: "Logs policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
             - rollover:
-                minIndexAge: "7d"
-                minSize: "30gb"
-                minDocCount: 50000000
+                minSize: "10gb"
+                minDocCount: 20000000
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "30d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
-          transitions: []
       ismTemplate:
         indexPatterns:
           - "logs*"

@@ -1,4 +1,4 @@
-{{ if and .Values.thanos.store.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.thanos.store.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,7 +7,7 @@ metadata:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.store.deploymentLabels }}
-    {{ toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-store
 spec:
@@ -36,7 +36,8 @@ spec:
       name: {{ include "release.name" . }}-store
     spec:
       containers:
-      - args:
+      - name: store
+        args:
         - store
         - --objstore.config-file=/etc/config/{{ include "thanos.objectStoreConfigFile" . }}
         - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
@@ -59,7 +60,8 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
-        name: store
+        resources:
+          {{- toYaml .Values.thanos.store.resources | nindent 10 }}
         ports:
         - containerPort: 10902
           name: http

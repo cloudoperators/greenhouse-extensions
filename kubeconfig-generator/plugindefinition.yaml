@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: kubeconfig-generator
 spec:
   description: Automated kubeconfig generator for kubectl-sync/kubectl-logon/u8s
-  version: 0.1.16
+  version: 0.1.17
   helmChart:
     name: kubeconfig-generator
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.16
+    version: 0.1.17
   options:
     - name: swift.authUrl
       description: Keystone endpoint to be used for authentication

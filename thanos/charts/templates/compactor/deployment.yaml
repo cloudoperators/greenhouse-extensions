@@ -1,4 +1,4 @@
-{{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.thanos.compactor.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +6,7 @@ metadata:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.compactor.deploymentLabels }}
-    {{ toYaml .Values.thanos.compactor.deploymentLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.compactor.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-compactor
 spec:
@@ -65,6 +65,8 @@ spec:
           readOnly: true
         - mountPath: /data
           name: data-volume
+        resources:
+          {{- toYaml .Values.thanos.compactor.resources | nindent 10 }}
       initContainers:
         - name: init-permissions
           {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}

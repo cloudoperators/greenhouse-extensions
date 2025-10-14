@@ -1,4 +1,4 @@
-{{/* 
+{{/*
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
@@ -15,9 +15,10 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
 {{- if $.Values.oauth2proxy.enabled }}
-    nginx.ingress.kubernetes.io/auth-signin: https://auth-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/start 
-    nginx.ingress.kubernetes.io/auth-url: https://auth-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/auth 
+    nginx.ingress.kubernetes.io/auth-signin: https://auth-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://auth-proxy.{{ required ".domain missing" $.Values.domain }}/oauth2/auth
     nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-Forwarded-User,X-Forwarded-Groups,X-Forwarded-Email"
 {{- end }}
   {{- end }}
 spec:

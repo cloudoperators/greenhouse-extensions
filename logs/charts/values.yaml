@@ -30,15 +30,17 @@ opentelemetry-operator:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
       repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-      tag: 5a4f148
+      tag: "2016982"
     image:
     # -- overrides the default image repository for the OpenTelemetry Operator image.
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.127.0
-    # -- Enable serviceMonitor for Prometheus metrics scrape
+      tag: v0.131.0
     serviceMonitor:
+    # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
+    # -- Additional labels on the ServiceMonitor
+      extraLabels: {}
   # -- the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API.
   kubeRBACProxy:
     enabled: false

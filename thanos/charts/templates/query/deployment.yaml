@@ -6,7 +6,7 @@ metadata:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.query.deploymentLabels }}
-    {{ toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-query
 spec:
@@ -49,8 +49,8 @@ spec:
         {{- if .Values.thanos.ruler.enabled }}
         - --query.replica-label={{ .Values.thanos.ruler.replicaLabel }}
         {{- end }}
-        - {{ default "--web.external-prefix=/thanos" .Values.thanos.query.web.externalPrefix }}
-        - {{ default "--web.route-prefix=/thanos" .Values.thanos.query.web.routePrefix }}
+        - --web.external-prefix={{ default "/thanos" .Values.thanos.query.web.externalPrefix }}
+        - --web.route-prefix={{ default "/thanos" .Values.thanos.query.web.routePrefix }}
         {{- range .Values.thanos.query.additionalArgs }}
         - {{ . }}
         {{- end }}

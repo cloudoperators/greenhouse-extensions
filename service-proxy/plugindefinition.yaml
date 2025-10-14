@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: service-proxy
 spec:
   description: A service proxy for exposing service in remote clusters via greenhouse
-  version: "1.2.3"
+  version: "1.2.4"
   helmChart:
     name: service-proxy
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.2.3
+    version: 1.2.4
   options:
     - name: domain
       description: basedomain for the service-proxy

@@ -2,18 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.0.2
+    version: 0.0.4
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.2
+        version: 0.0.4
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -80,7 +80,7 @@ spec:
           required: false
           type: string
         - name: auditLogs.collectorImage.tag
-          default: "5b6e153"
+          default: "d5e9d0d"
           description: Collector image tag
           required: false
           type: string

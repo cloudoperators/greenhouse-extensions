@@ -1,16 +1,16 @@
-{{ if and .Values.thanos.compactor.enabled (not .Values.thanos.query.standalone) }}
+{{ if and .Values.thanos.compactor.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- if .Values.thanos.compactor.annotations }}
-  annotations:
-    {{ toYaml .Values.thanos.compactor.annotations | nindent 8 }}
-  {{- end }}
+  {{- include "thanos.annotations" (dict
+        "base" .Values.thanos.compactor.annotations
+        "service" .Values.thanos.compactor.serviceAnnotations
+      ) | indent 2 }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.compactor.serviceLabels }}
-    {{ toYaml .Values.thanos.compactor.serviceLabels | nindent 4 }}
+    {{- toYaml .Values.thanos.compactor.serviceLabels | nindent 4 }}
     {{- end }}
   name: {{ include "release.name" . }}-compactor
 spec:

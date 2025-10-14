@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: heureka-scanner-k8s-assets
 spec:
-  version: 0.1.0
+  version: 0.1.1
   displayName: Heureka Scanner for K8s Assets
   description: Heureka Scanner for K8s Assets
   helmChart:
-    name: heureka-scanner-k8s-assets
-    repository: oci://ghcr.io/cloudoperators/heureka-scanner-k8s-assets
-    version: main
+    name: k8s-assets-scanner
+    repository: oci://ghcr.io/cloudoperators/heureka/charts
+    version: 0.1.0
   options:
     - name: scanner.api_token
       description: The API token for the Heureka Scanner

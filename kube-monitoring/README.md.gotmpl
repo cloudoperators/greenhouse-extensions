@@ -55,8 +55,6 @@ After installation, Greenhouse will provide a generated link to the Prometheus u
 
 Greenhouse regularly performs integration tests that are bundled with **kube-monitoring**. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the plugin status and also in the Greenhouse dashboard.
 
-{{ template "chart.valuesSection" . }}
-
 ## Absent-metrics-operator
 
 The **kube-monitoring** Plugin can optionally deploy and configure the [absent-metrics-operator](https://github.com/sapcc/absent-metrics-operator) to help detect missing or absent metrics in your Prometheus setup. This operator automatically generates alerts when expected metrics are not present, improving observability and alerting coverage.
@@ -170,6 +168,53 @@ spec:
           name: tls-<org-name>-prometheus-auth
 ```
 
+### Thanos object storage
+
+To enable long-term storage for Prometheus metrics using Thanos, you need to configure the `objectStorageConfig` section. This can be done in two ways:
+
+#### 1. Use an existing Secret
+
+If you already have a Kubernetes Secret containing your object storage configuration (e.g., S3 credentials, Swift, ...), you can reference it directly. In your `optionValues`, set:
+
+```yaml
+- name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.existingSecret
+  value:
+    name: <secret-name>
+    key: <secret-key>
+```
+
+- `name`: Name of the existing Secret.
+- `key`: Key in the Secret containing the object storage config (YAML or JSON).
+
+#### 2. Pass plain text config (auto-create Secret)
+
+Alternatively, you can provide the object storage configuration directly. The plugin will create a Secret for you and configure Thanos to use it. Example for Swift:
+
+```yaml
+- name: kubeMonitoring.prometheus.prometheusSpec.thanos.objectStorageConfig.secret
+  value:
+    type: SWIFT
+    config:
+      auth_url: ""
+      username: 
+      domain_name: "Default"
+      password: ""
+      project_name: "master"
+      project_domain_name: ""
+      region_name:
+      container_name:
+```
+
+- `type`: Storage backend type (e.g.,`Swift`, `S3`).
+- `config`: Key-value pairs for your backend (see [Thanos storage docs](https://thanos.io/tip/thanos/storage.md/#openstack-swift) for details).
+
+**Note:**  
+If `existingSecret` is set, the `secret` config will be ignored.
+
+This allows you to flexibly manage your Thanos object storage credentials, either by referencing an existing Kubernetes Secret or by providing the configuration inline for automatic creation of Secret.
+
+Values used here are described in the [Prometheus Operator Spec](https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1.ThanosSpec).
+
 ### Extension of the plugin
 
 **kube-monitoring** can be extended with your own _Prometheus_ alerting rules and target configurations via the Custom Resource Definitions (CRDs) of the _Prometheus_ operator. The user-defined resources to be incorporated with the desired configuration are defined via _label selections_.
@@ -216,3 +261,5 @@ spec:
     - port: http
   ...
 ```
+
+{{ template "chart.valuesSection" . }}

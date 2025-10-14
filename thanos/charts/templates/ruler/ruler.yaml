@@ -8,7 +8,7 @@ metadata:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanos.labels" . | nindent 4 }}
     {{- if .Values.thanos.ruler.labels }}
-    {{ toYaml .Values.thanos.ruler.labels | nindent 4 }}
+    {{- toYaml .Values.thanos.ruler.labels | nindent 4 }}
     {{- end }}
 spec:
   affinity:

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: heureka-scanner-keppel
 spec:
@@ -10,9 +10,9 @@ spec:
   displayName: Heureka Scanner for Keppel
   description: Heureka Scanner for Keppel
   helmChart:
-    name: heureka-scanner-keppel
-    repository: oci://ghcr.io/cloudoperators/heureka-scanner-keppel
-    version: main
+    name: keppel-scanner
+    repository: oci://ghcr.io/cloudoperators/heureka/charts
+    version: 0.1.0
   options:
     - name: scanner.api_token
       description: The API token for the Heureka Scanner

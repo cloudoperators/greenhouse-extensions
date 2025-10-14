@@ -14,7 +14,7 @@ data:
         name: {{ printf "%s %s" .Values.global.greenhouse.organizationName "OIDC Provider" }}
         clientID: ${OAUTH2_PROXY_CLIENT_ID}
         clientSecret: ${OAUTH2_PROXY_CLIENT_SECRET}
-        scope: "openid email"
+        scope: "openid email groups"
         loginURLParameters:
           - name: approval_prompt
             default: [""]
@@ -24,6 +24,7 @@ data:
         oidcConfig:
           issuerURL: {{ required "oauth2proxy.issuerURL" .Values.oauth2proxy.issuerURL }}
           emailClaim: email
+          groupsClaim: groups
           audienceClaims:
             - "aud"
     server:

@@ -24,7 +24,7 @@ spec:
               service:
                 name: {{ include "release.name" $ }}-query
                 port:
-                  name: http
+                  name: {{ .portName }}
           {{- end }}
     {{- end }}
   {{- if .Values.thanos.query.ingress.tls }}

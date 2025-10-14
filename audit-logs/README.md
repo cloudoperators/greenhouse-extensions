@@ -25,7 +25,7 @@ Components included in this Plugin:
 
 ## Architecture
 
-![OpenTelemetry Architecture](img/otel-arch.png)
+:construction: will be updated soon :construction:
 
 ## Note
 
@@ -61,7 +61,7 @@ Based on the backend selection the telemetry data will be exporter to the backen
 
 ## Failover Connector
 
-The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
+The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the preferred user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
 
 ## Values
 
@@ -69,7 +69,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 |-----|------|---------|-------------|
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"5b6e153"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"2016982"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
@@ -80,11 +80,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |
-| auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"disabled":[],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
+| auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"create":true,"labels":{}}` | Default rules for monitoring the opentelemetry components. |
 | auditLogs.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
-| auditLogs.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
 | auditLogs.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| auditLogs.prometheus.rules.disabled | list | `[]` | PrometheusRules to disable. |
 | auditLogs.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
 | auditLogs.region | string | `nil` | Region label for Logging |
