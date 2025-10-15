@@ -1,0 +1,167 @@
+name: "E2E FLux K8s"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  HELM_VERSION: v3.17.0
+  PYTHON_VERSION: "3.13"
+  CT_CONFIG: .github/configs/helm-lint-test.yaml
+  KIND_CLUSTER_NAME: chart-testing
+
+jobs:
+  e2e-k8s:
+    runs-on: macOS
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Set up Flux CLI
+        uses: fluxcd/flux2/action@main
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up chart-linting and chart-testing
+        uses: helm/chart-testing-action@0d28d3144d3a25ea2cc349d6e59901c4ff469b3b # v2.7.0
+
+      - name: Run chart-testing (list-changed)
+        id: chart-list-changed
+        run: |
+          changed_charts=$(ct list-changed --config .github/configs/helm-lint-test.yaml --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed_charts" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "$changed_charts" > changed_charts.txt
+          fi
+
+      - name: Verify only one chart changed
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          count=$(wc -l < changed_charts.txt | tr -d ' ')
+          if [[ "$count" -ne 1 ]]; then
+            echo "❌ Expected exactly 1 changed chart, found $count:"
+            cat changed_charts.txt
+            exit 1
+          fi
+          echo "✅ Single changed chart verified: $(cat changed_charts.txt)"
+
+      - name: Create kind cluster
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
+
+      - name: Install dependencies for the single changed plugin (if any)
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          chartfile="$(cat changed_charts.txt)"
+          plugin_dir="$(dirname "$chartfile")"
+          dep_file="${plugin_dir}/test-dependencies.yaml"
+          if [[ ! -f "$dep_file" ]]; then
+            echo "ℹ️ No test-dependencies.yaml for $plugin_dir"
+            exit 0
+          fi
+          echo "🔍 Found test-dependencies.yaml for $plugin_dir"
+          deps=$(yq eval '.dependencies[]' "$dep_file" 2>/dev/null || true)
+          if [[ -z "$deps" ]]; then
+            echo "⚠️ No dependencies listed."
+            exit 0
+          fi
+          values_present=$(yq eval '.values' "$dep_file" 2>/dev/null || true)
+          for dep in $deps; do
+            echo "📦 Installing dependent plugin: $dep"
+            if [[ ! -d "$dep/charts" ]]; then
+              echo "❌ Expected directory ./$dep/charts" >&2
+              exit 1
+            fi
+            if [[ -n "$values_present" && "$values_present" != "null" ]]; then
+              helm upgrade --install "$dep" "./$dep/charts" --values <(yq eval '.values' "$dep_file") --wait
+            else
+              helm upgrade --install "$dep" "./$dep/charts" --wait
+            fi
+          done
+
+      - name: Install Flux in Kubernetes Kind
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: flux install
+
+      - name: Register Flux GitRepository
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat <<EOF | kubectl apply -f -
+          apiVersion: source.toolkit.fluxcd.io/v1beta2
+          kind: GitRepository
+          metadata:
+            name: workspace
+            namespace: flux-system
+          spec:
+            interval: 1m
+            url: https://github.com/${{ github.repository }}
+            ref:
+              commit: $GITHUB_SHA
+          EOF
+
+      - name: Create HelmRelease for changed chart
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          chartfile=$(cat changed_charts.txt)
+          chart_dir="$(dirname "$chartfile")"
+          chart_yaml="$chart_dir/Chart.yaml"
+          [[ -f "$chart_yaml" ]] || { echo "No Chart.yaml at $chart_yaml"; exit 1; }
+          name="$(yq e '.name' "$chart_yaml")"
+          version="$(yq e '.version' "$chart_yaml")"
+          safe_name="$(echo "$name" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '-')"
+          echo "Applying HelmRelease for $name ($chart_dir)"
+          cat <<EOF | kubectl apply -f -
+          apiVersion: helm.toolkit.fluxcd.io/v2beta2
+          kind: HelmRelease
+          metadata:
+            name: ${safe_name}
+            namespace: flux-system
+          spec:
+            interval: 5m
+            releaseName: ${safe_name}
+            targetNamespace: default
+            chart:
+              spec:
+                chart: ./${chart_dir}
+                version: "${version}"
+                sourceRef:
+                  kind: GitRepository
+                  name: workspace
+                  namespace: flux-system
+            install:
+              remediation:
+                retries: 1
+          EOF
+          kubectl get helmreleases -n flux-system || true
+
+      - name: Print pod logs on failure
+        if: failure() && steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          echo "🔍 Printing logs for failed pods..."
+          kubectl get pods -n default
+          kubectl get deployments -n default
+          kubectl get services -n default
+          echo
+          for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
+            echo "Logs for pod $pod:"
+            kubectl logs -n default $pod --all-containers=true || true
+          done
