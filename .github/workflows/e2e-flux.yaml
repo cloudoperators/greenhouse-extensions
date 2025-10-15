@@ -106,8 +106,8 @@ jobs:
           apiVersion: source.toolkit.fluxcd.io/v1
           kind: GitRepository
           metadata:
-            name: workspace
-            namespace: flux-system
+            name: gitrepository
+            namespace: default
           spec:
             interval: 1m
             url: https://github.com/${{ github.repository }}
@@ -132,7 +132,7 @@ jobs:
           kind: HelmRelease
           metadata:
             name: ${name}
-            namespace: flux-system
+            namespace: default
           spec:
             interval: 5m
             releaseName: ${name}
@@ -143,13 +143,12 @@ jobs:
                 version: "${version}"
                 sourceRef:
                   kind: GitRepository
-                  name: workspace
-                  namespace: flux-system
+                  name: gitrepository
+                  namespace: default
             install:
               remediation:
                 retries: 1
           EOF
-          kubectl get helmreleases -n flux-system || true
 
       - name: Get HelmRelease status report
         if: steps.chart-list-changed.outputs.changed == 'true'
@@ -159,19 +158,16 @@ jobs:
           chart_dir="$chartfile"
           name=$(yq e '.name' "$chart_dir/Chart.yaml")
 
-          echo "Waiting for GitRepository workspace to be Ready..."
-          kubectl -n flux-system wait gitrepository/workspace --for=condition=Ready --timeout=2m
-
           echo "Forcing immediate reconcile of source & helmrelease"
-          flux reconcile source git workspace -n flux-system || true
-          flux reconcile helmrelease "$name" -n flux-system || true
+          flux reconcile source git gitrepository -n default || true
+          flux reconcile helmrelease "$name" -n default || true
 
           echo "Waiting for HelmRelease $name to become Ready..."
-          if ! kubectl -n flux-system wait helmrelease/"$name" --for=condition=Ready --timeout=5m; then
+          if ! kubectl -n default wait helmrelease/"$name" --for=condition=Ready --timeout=5m; then
             echo "HelmRelease not Ready, collecting diagnostics..."
-            kubectl -n flux-system get helmrelease "$name" -o yaml || true
-            kubectl -n flux-system describe helmrelease "$name" || true
-            kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
+            kubectl -n default get helmrelease "$name" -o yaml || true
+            kubectl -n default describe helmrelease "$name" || true
+            kubectl -n default logs deploy/helm-controller | tail -n 200 || true
             exit 1
           fi
           echo "HelmRelease $name is Ready."
@@ -179,10 +175,17 @@ jobs:
       - name: Print pod logs on failure
         if: failure() && steps.chart-list-changed.outputs.changed == 'true'
         run: |
+
+          chartfile=$(cat changed_charts.txt)
+          chart_dir="$chartfile"
+          name=$(yq e '.name' "$chart_dir/Chart.yaml")
+
           echo "🔍 Printing logs for failed pods..."
           kubectl get pods -n default
           kubectl get deployments -n default
           kubectl get services -n default
+          kubectl get helmrelease -n default "$name" -oyaml
+          kubectl get gitrepository -n default gitrepository -oyaml
           echo
           for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"
