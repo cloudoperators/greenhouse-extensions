@@ -102,7 +102,7 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["http_status"], log.cache["http_status"])
         - set(log.attributes["error_code"], log.cache["error_code"])
         - set(log.attributes["bytes_sent"], log.cache["bytes_sent"])
-        - set(log.attributes["bytes_received"], log.cache["bytes_received"])
+        - set(log.attributes["bytes_recvd"], log.cache["bytes_received"])
         - set(log.attributes["object_size"], log.cache["object_size"])
         - set(log.attributes["total_time"], log.cache["total_time"])
         - set(log.attributes["user_agent"], log.cache["user_agent"])
