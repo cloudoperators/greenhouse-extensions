@@ -30,7 +30,6 @@ The longest name that gets created adds and extra 37 characters, so truncation s
 {{/* Generate basic labels */}}
 {{ define "kube-prometheus-stack.labels" }}
 plugindefinition: kube-monitoring
-plugindefinition: test
 plugin: {{ $.Release.Name }}
 {{- if .Values.global.commonLabels }}
 {{ tpl (toYaml .Values.global.commonLabels) . }}
