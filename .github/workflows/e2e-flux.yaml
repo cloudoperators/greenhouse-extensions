@@ -193,7 +193,7 @@ jobs:
           echo "Running helm tests for release: $release (namespace: flux-system)"
           helm status "$release" -n flux-system
           # Run tests (if no test hooks defined this will be a no-op)
-          helm test "$release" -n flux-system --timeout 5m --logs || {
+          helm test "$release" -n flux-system --timeout 5m || {
             echo "Helm tests failed, collecting diagnostics..."
             kubectl get pods -n flux-system -o wide || true
             kubectl logs -l app.kubernetes.io/instance="$release" -n flux-system --tail=200 || true
