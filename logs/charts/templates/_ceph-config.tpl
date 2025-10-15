@@ -94,6 +94,7 @@ transform/ceph_prysm_sidecar:
       statements:
         - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
         - set(log.attributes["bucket"], log.cache["bucket"])
+        - set(log.attributes["object"], log.cache["object"])
         - set(log.attributes["remote_addr"], log.cache["remote_addr"])
         - set(log.attributes["user"], log.cache["user"])
         - set(log.attributes["operation"], log.cache["operation"])
@@ -105,6 +106,18 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["trans_id"], log.cache["trans_id"])
         - set(log.attributes["access_key_id"], log.cache["access_key_id"])
         - set(log.attributes["authentication_type"], log.cache["authentication_type"])
+        - set(log.attributes["keystone_scope.project.id"], log.cache["keystone_scope"]["project"]["id"])
+        - set(log.attributes["keystone_scope.project.name"], log.cache["keystone_scope"]["project"]["name"])
+        - set(log.attributes["keystone_scope.project.domain.id"], log.cache["keystone_scope"]["project"]["domain"]["id"])
+        - set(log.attributes["keystone_scope.project.domain.name"], log.cache["keystone_scope"]["project"]["domain"]["name"])
+        - set(log.attributes["keystone_scope.user.id"], log.cache["keystone_scope"]["user"]["id"])
+        - set(log.attributes["keystone_scope.user.name"], log.cache["keystone_scope"]["user"]["name"])
+        - set(log.attributes["keystone_scope.user.domain.id"], log.cache["keystone_scope"]["user"]["domain"]["id"])
+        - set(log.attributes["keystone_scope.user.domain.name"], log.cache["keystone_scope"]["user"]["domain"]["name"])
+        - set(log.attributes["keystone_scope.roles"], log.cache["keystone_scope"]["roles"])
+        - set(log.attributes["keystone_scope.application.credential.id"], log.cache["keystone_scope"]["application_credential"]["id"])
+        - set(log.attributes["keystone_scope.application_credential.name"], log.cache["keystone_scope"]["application_credential"]["name"])
+        - set(log.attributes["keystone_scope.application_credential.restricted"], log.cache["keystone_scope"]["application_credential"]["restricted"])
 {{- end }}
 
 {{- define "ceph.pipeline" }}
