@@ -112,7 +112,7 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["bytes_sent"], log.cache["bytes_sent"])
         - set(log.attributes["object_size"], log.cache["object_size"])
         - set(log.attributes["user_agent"], log.cache["user_agent"])
-        - set(log.attributes["trans_id"], log.cache["trans_id"])
+        - set(log.attributes["transaction_id"], log.cache["trans_id"])
         - set(log.attributes["access_key_id"], log.cache["access_key_id"])
         - set(log.attributes["authentication_type"], log.cache["authentication_type"])
         - set(log.attributes["temp_url"], log.cache["temp_url"])
