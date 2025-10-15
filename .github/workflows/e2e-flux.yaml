@@ -1,4 +1,4 @@
-name: "E2E FLux"
+name: "E2E Flux"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -32,7 +32,8 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@0d28d3144d3a25ea2cc349d6e59901c4ff469b3b # v2.7.0
 
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Run Git Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -61,7 +62,7 @@ jobs:
         if: steps.chart-list-changed.outputs.changed == 'true'
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
 
-      - name: Install dependencies for the single changed plugin (if any)
+      - name: Install plugin dependencies (if any)
         if: steps.chart-list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
@@ -92,7 +93,7 @@ jobs:
             fi
           done
 
-      - name: Install Flux in Kubernetes Kind
+      - name: Install Flux
         if: steps.chart-list-changed.outputs.changed == 'true'
         run: flux install
 
@@ -114,7 +115,7 @@ jobs:
               commit: $GITHUB_SHA
           EOF
 
-      - name: Create HelmRelease for changed chart
+      - name: Create HelmRelease
         if: steps.chart-list-changed.outputs.changed == 'true'
         shell: bash
         run: |
@@ -149,6 +150,31 @@ jobs:
                 retries: 1
           EOF
           kubectl get helmreleases -n flux-system || true
+
+      - name: Get HelmRelease status report
+        if: steps.chart-list-changed.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          chartfile=$(cat changed_charts.txt)
+          chart_dir="$chartfile"
+          name=$(yq e '.name' "$chart_dir/Chart.yaml")
+
+          echo "Waiting for GitRepository workspace to be Ready..."
+          kubectl -n flux-system wait gitrepository/workspace --for=condition=Ready --timeout=2m
+
+          echo "Forcing immediate reconcile of source & helmrelease"
+          flux reconcile source git workspace -n flux-system || true
+          flux reconcile helmrelease "$name" -n flux-system || true
+
+          echo "Waiting for HelmRelease $name to become Ready..."
+          if ! kubectl -n flux-system wait helmrelease/"$name" --for=condition=Ready --timeout=5m; then
+            echo "HelmRelease not Ready, collecting diagnostics..."
+            kubectl -n flux-system get helmrelease "$name" -o yaml || true
+            kubectl -n flux-system describe helmrelease "$name" || true
+            kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
+            exit 1
+          fi
+          echo "HelmRelease $name is Ready."
 
       - name: Print pod logs on failure
         if: failure() && steps.chart-list-changed.outputs.changed == 'true'
