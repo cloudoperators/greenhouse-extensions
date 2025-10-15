@@ -115,6 +115,7 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["trans_id"], log.cache["trans_id"])
         - set(log.attributes["access_key_id"], log.cache["access_key_id"])
         - set(log.attributes["authentication_type"], log.cache["authentication_type"])
+        - set(log.attributes["temp_url"], log.cache["temp_url"])
         - set(log.attributes["keystone_scope.project.id"], log.cache["keystone_scope"]["project"]["id"])
         - set(log.attributes["keystone_scope.project.name"], log.cache["keystone_scope"]["project"]["name"])
         - set(log.attributes["keystone_scope.project.domain.id"], log.cache["keystone_scope"]["project"]["domain"]["id"])
