@@ -10,6 +10,7 @@ env:
   REGISTRY: ghcr.io
   HELM_VERSION: v3.17.0
   PYTHON_VERSION: "3.13"
+  CT_CONFIG: .github/configs/helm-chart-testing.yaml
 
 jobs:
   e2e-flux:
@@ -39,16 +40,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run chart-testing (list-changed)
-        id: chart-list-changed
+        id: list-changed
         run: |
-          changed_charts=$(ct list-changed --config .github/configs/helm-lint-test.yaml --target-branch ${{ github.event.repository.default_branch }})
+          changed_charts=$(ct list-changed --config ${{ env.CT_CONFIG }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed_charts" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "$changed_charts" > changed_charts.txt
           fi
 
       - name: Verify only one chart changed
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
+        id: chart
         run: |
           count=$(wc -l < changed_charts.txt | tr -d ' ')
           if [[ "$count" -ne 1 ]]; then
@@ -56,18 +58,21 @@ jobs:
             cat changed_charts.txt
             exit 1
           fi
+          chart_dir="$(cat changed_charts.txt)"
+          echo "chart_yaml="$chart_dir/Chart.yaml"" >> "$GITHUB_OUTPUT"
+          echo "plugin_dir="$(dirname "$chart_dir")" >> "$GITHUB_OUTPUT"
+          echo "plugin_name=$(yq e '.name' "$chart_yaml") >> "$GITHUB_OUTPUT"
           echo "✅ Single changed chart verified: $(cat changed_charts.txt)"
 
       - name: Create kind cluster
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
 
       - name: Install plugin dependencies (if any)
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          chartfile="$(cat changed_charts.txt)"
-          plugin_dir="$(dirname "$chartfile")"
+          plugin_dir=${{ steps.chart.outputs.plugin_dir }}
           dep_file="${plugin_dir}/test-dependencies.yaml"
           if [[ ! -f "$dep_file" ]]; then
             echo "ℹ️ No test-dependencies.yaml for $plugin_dir"
@@ -94,11 +99,11 @@ jobs:
           done
 
       - name: Install Flux
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         run: flux install
 
       - name: Register Flux GitRepository
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -119,29 +124,27 @@ jobs:
           kubectl -n flux-system get gitrepository workspace -o yaml
 
       - name: Create HelmRelease
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          chart_dir="$(head -n1 changed_charts.txt)"
-          chart_yaml="$chart_dir/Chart.yaml"
-          [[ -f "$chart_yaml" ]] || { echo "No Chart.yaml at $chart_yaml"; exit 1; }
-          name="$(yq e '.name' "$chart_yaml")"
+          chart_yaml=${{ steps.chart.outputs.chart_yaml }}
+          name=${{ steps.chart.outputs.plugin_name }}
           version="$(yq e '.version' "$chart_yaml")"
-          safe_name="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//')"
           cat <<EOF | kubectl apply -f -
           apiVersion: helm.toolkit.fluxcd.io/v2
           kind: HelmRelease
           metadata:
-            name: ${safe_name}
+            name: ${name}
             namespace: flux-system
           spec:
             interval: 5m
-            releaseName: ${safe_name}
+            releaseName: ${name}
             targetNamespace: default
             chart:
               spec:
                 chart: ./${chart_dir}
+                reconcileStrategy: Revision
                 version: "${version}"
                 sourceRef:
                   kind: GitRepository
@@ -153,11 +156,10 @@ jobs:
           EOF
 
       - name: Wait for GitRepository & HelmRelease Ready
-        if: steps.chart-list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          chart_dir="$(head -n1 changed_charts.txt)"
-          hr_name="$(yq e '.name' "$chart_dir/Chart.yaml" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//')"
+          hr_name=${{ steps.chart.outputs.plugin_name }}
 
           echo "Waiting for GitRepository workspace..."
           if ! kubectl -n flux-system wait gitrepository/workspace --for=condition=Ready --timeout=3m; then
@@ -167,12 +169,8 @@ jobs:
             exit 1
           fi
 
-          echo "Forcing reconciles"
-          flux reconcile source git workspace -n flux-system --timeout=1m || true
-          flux reconcile helmrelease "$hr_name" -n flux-system --timeout=1m || true
-
           echo "Waiting for HelmRelease $hr_name..."
-            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=5m; then
+            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=1m; then
             echo "HelmRelease not Ready diagnostics:"
             kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
             kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
@@ -181,23 +179,15 @@ jobs:
           echo "HelmRelease $hr_name Ready."
 
       - name: Print pod logs on failure
-        if: failure() && steps.chart-list-changed.outputs.changed == 'true'
+        if: failure() && steps.list-changed.outputs.changed == 'true'
         run: |
-
-          chartfile=$(cat changed_charts.txt)
-          chart_dir="$chartfile"
-          name=$(yq e '.name' "$chart_dir/Chart.yaml")
-
           echo "🔍 Printing logs for failed pods..."
           kubectl get pods -A || true
           kubectl -n flux-system get gitrepository workspace -o yaml || true
-          kubectl -n flux-system get helmrelease -o yaml || true
           kubectl -n flux-system logs deploy/source-controller | tail -n 200 || true
           kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
           kubectl get deployments -n default
           kubectl get services -n default
-          kubectl get helmrelease -n flux-system "$name" -oyaml
-          kubectl get gitrepository -n flux-system gitrepository -oyaml
           echo
           for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"

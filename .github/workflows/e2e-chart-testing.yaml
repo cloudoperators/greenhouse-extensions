@@ -10,7 +10,7 @@ env:
   REGISTRY: ghcr.io
   HELM_VERSION: v3.17.0
   PYTHON_VERSION: "3.13"
-  CT_CONFIG: .github/configs/helm-lint-test.yaml
+  CT_CONFIG: .github/configs/helm-chart-testing.yaml
 
 jobs:
   e2e-helm-chart-testing:
