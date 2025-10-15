@@ -188,11 +188,12 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
+          sleep 10
           release="${{ steps.chart.outputs.plugin_name }}"
           echo "Running helm tests for release: $release (namespace: default)"
           helm status "$release" -n default || { echo "Release not found"; exit 1; }
           # Run tests (if no test hooks defined this will be a no-op)
-          helm test "$release" -n default --timeout 10m --logs || {
+          helm test "$release" -n default --timeout 5m --logs || {
             echo "Helm tests failed, collecting diagnostics..."
             kubectl get pods -n default -o wide || true
             kubectl logs -l app.kubernetes.io/instance="$release" -n default --tail=200 || true
@@ -204,7 +205,8 @@ jobs:
         run: |
           echo "🔍 Printing logs for failed pods..."
           kubectl get pods -n default || true
-          helm list
+          helm list -n flux-system
+          helm list -n default
           kubectl -n flux-system get gitrepository workspace -o yaml || true
           kubectl -n flux-system get helmrelease ${{ steps.chart.outputs.plugin_name }} -o yaml || true
           kubectl -n flux-system logs deploy/source-controller | tail -n 200 || true
