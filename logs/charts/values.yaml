@@ -104,6 +104,9 @@ openTelemetry:
         - FilelogRefusedLogs
         - LogsOTelLogsMissing
         - LogsOTelLogsDecreasing
+        - ReconcileErrors
+        - ReceiverRefusedMetric
+        - WorkqueueDepth
 
       # -- Labels for PrometheusRules.
       labels: {}
