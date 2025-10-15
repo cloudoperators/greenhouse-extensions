@@ -189,28 +189,14 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          hr_name=${{ steps.chart.outputs.plugin_name }}
-          rel=$(kubectl -n flux-system get helmrelease "$hr_name" -o jsonpath='{.spec.releaseName}')
-          ns=$(kubectl -n flux-system get helmrelease "$hr_name" -o jsonpath='{.spec.targetNamespace}')
-          echo "Waiting up to 2m for Helm release '$rel' to appear in namespace '$ns'..."
-          for i in {1..24}; do
-            if helm status "$rel" -n "$ns" >/dev/null 2>&1; then
-              echo "Release found (attempt $i)."
-              break
-            fi
-            sleep 5
-            if [[ $i -eq 24 ]]; then
-              echo "Release not found after wait. Dumping diagnostics."
-              kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
-              helm list -n "$ns" || true
-              exit 1
-            fi
-          done
-          echo "Running helm tests for release: $rel (namespace: $ns)"
-          helm test "$rel" -n "$ns" --timeout 10m --logs || {
-            echo "Helm tests failed, diagnostics:"
-            kubectl get pods -n "$ns" -o wide || true
-            kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
+          release="${{ steps.chart.outputs.plugin_name }}"
+          echo "Running helm tests for release: $release (namespace: flux-system)"
+          helm status "$release" -n flux-system
+          # Run tests (if no test hooks defined this will be a no-op)
+          helm test "$release" -n flux-system --timeout 5m --logs || {
+            echo "Helm tests failed, collecting diagnostics..."
+            kubectl get pods -n flux-system -o wide || true
+            kubectl logs -l app.kubernetes.io/instance="$release" -n flux-system --tail=200 || true
             exit 1
           }
 
@@ -218,7 +204,7 @@ jobs:
         if: failure() && steps.list-changed.outputs.changed == 'true'
         run: |
           kubectl get pods -n default || true
-          helm list -n default
+          helm list -n flux-system
           kubectl -n flux-system get gitrepository workspace -o yaml || true
           kubectl -n flux-system get helmrelease ${{ steps.chart.outputs.plugin_name }} -o yaml || true
           kubectl -n flux-system logs deploy/source-controller | tail -n 200 || true
