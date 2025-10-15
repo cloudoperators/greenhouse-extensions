@@ -102,40 +102,42 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Determine branch (PR vs push)
+          branch="${{ github.head_ref || github.ref_name }}"
           cat <<EOF | kubectl apply -f -
           apiVersion: source.toolkit.fluxcd.io/v1
           kind: GitRepository
           metadata:
-            name: gitrepository
-            namespace: default
+            name: workspace
+            namespace: flux-system
           spec:
             interval: 1m
             url: https://github.com/${{ github.repository }}
             ref:
-              commit: $GITHUB_SHA
+              branch: ${branch}
           EOF
+          kubectl -n flux-system get gitrepository workspace -o yaml
 
       - name: Create HelmRelease
         if: steps.chart-list-changed.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          chartfile=$(cat changed_charts.txt)
-          chart_dir="$chartfile"
+          chart_dir="$(head -n1 changed_charts.txt)"
           chart_yaml="$chart_dir/Chart.yaml"
           [[ -f "$chart_yaml" ]] || { echo "No Chart.yaml at $chart_yaml"; exit 1; }
           name="$(yq e '.name' "$chart_yaml")"
           version="$(yq e '.version' "$chart_yaml")"
-          echo "Applying HelmRelease for $name ($chart_dir)"
+          safe_name="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//')"
           cat <<EOF | kubectl apply -f -
           apiVersion: helm.toolkit.fluxcd.io/v2
           kind: HelmRelease
           metadata:
-            name: ${name}
-            namespace: default
+            name: ${safe_name}
+            namespace: flux-system
           spec:
             interval: 5m
-            releaseName: ${name}
+            releaseName: ${safe_name}
             targetNamespace: default
             chart:
               spec:
@@ -143,34 +145,40 @@ jobs:
                 version: "${version}"
                 sourceRef:
                   kind: GitRepository
-                  name: gitrepository
-                  namespace: default
+                  name: workspace
+                  namespace: flux-system
             install:
               remediation:
                 retries: 1
           EOF
 
-      - name: Get HelmRelease status report
+      - name: Wait for GitRepository & HelmRelease Ready
         if: steps.chart-list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          chartfile=$(cat changed_charts.txt)
-          chart_dir="$chartfile"
-          name=$(yq e '.name' "$chart_dir/Chart.yaml")
+          chart_dir="$(head -n1 changed_charts.txt)"
+          hr_name="$(yq e '.name' "$chart_dir/Chart.yaml" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+//; s/-+$//')"
 
-          echo "Forcing immediate reconcile of source & helmrelease"
-          flux reconcile source git gitrepository -n default || true
-          flux reconcile helmrelease "$name" -n default || true
-
-          echo "Waiting for HelmRelease $name to become Ready..."
-          if ! kubectl -n default wait helmrelease/"$name" --for=condition=Ready --timeout=5m; then
-            echo "HelmRelease not Ready, collecting diagnostics..."
-            kubectl -n default get helmrelease "$name" -o yaml || true
-            kubectl -n default describe helmrelease "$name" || true
-            kubectl -n default logs deploy/helm-controller | tail -n 200 || true
+          echo "Waiting for GitRepository workspace..."
+          if ! kubectl -n flux-system wait gitrepository/workspace --for=condition=Ready --timeout=3m; then
+            echo "GitRepository not Ready:"
+            kubectl -n flux-system get gitrepository workspace -o yaml || true
+            kubectl -n flux-system logs deploy/source-controller | tail -n 200 || true
             exit 1
           fi
-          echo "HelmRelease $name is Ready."
+
+          echo "Forcing reconciles"
+          flux reconcile source git workspace -n flux-system --timeout=1m || true
+          flux reconcile helmrelease "$hr_name" -n flux-system --timeout=1m || true
+
+          echo "Waiting for HelmRelease $hr_name..."
+            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=5m; then
+            echo "HelmRelease not Ready diagnostics:"
+            kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
+            kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
+            exit 1
+          fi
+          echo "HelmRelease $hr_name Ready."
 
       - name: Print pod logs on failure
         if: failure() && steps.chart-list-changed.outputs.changed == 'true'
@@ -181,11 +189,15 @@ jobs:
           name=$(yq e '.name' "$chart_dir/Chart.yaml")
 
           echo "🔍 Printing logs for failed pods..."
-          kubectl get pods -n default
+          kubectl get pods -A || true
+          kubectl -n flux-system get gitrepository workspace -o yaml || true
+          kubectl -n flux-system get helmrelease -o yaml || true
+          kubectl -n flux-system logs deploy/source-controller | tail -n 200 || true
+          kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
           kubectl get deployments -n default
           kubectl get services -n default
-          kubectl get helmrelease -n default "$name" -oyaml
-          kubectl get gitrepository -n default gitrepository -oyaml
+          kubectl get helmrelease -n flux-system "$name" -oyaml
+          kubectl get gitrepository -n flux-system gitrepository -oyaml
           echo
           for pod in $(kubectl get pods -n default --field-selector=status.phase!=Succeeded,status.phase!=Running -o jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"
