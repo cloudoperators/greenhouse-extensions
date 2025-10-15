@@ -55,9 +55,11 @@ openTelemetry:
       key2: value2
 
     rules:
-      create: true
-      disabled:
+      enabled:
         - FilelogRefusedLogs
+        - ReconcileErrors
+        - FilelogRefusedLogs
+        - LogsOTelLogsMissing
 
 testFramework:
   enabled: true

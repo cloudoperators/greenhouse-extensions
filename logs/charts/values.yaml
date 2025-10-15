@@ -99,11 +99,14 @@ openTelemetry:
       # -- Enables PrometheusRule resources to be created.
       create: true
 
-      # -- PrometheusRules to disable.
-      disabled:
+      # -- PrometheusRules to enable.
+      enabled:
+        - FilelogRefusedLogs
+        - LogsOTelLogsMissing
+        - LogsOTelLogsDecreasing
         - ReconcileErrors
-        - WorkqueueDepth
         - ReceiverRefusedMetric
+        - WorkqueueDepth
 
       # -- Labels for PrometheusRules.
       labels: {}

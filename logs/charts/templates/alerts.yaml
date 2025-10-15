@@ -1,13 +1,11 @@
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.create }}
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ printf "%s-%s" $.Release.Name $path | replace "/" "-" | trimSuffix "-yaml" | trunc 63 }}
+  name: {{ printf "%s-alerts" $.Release.Name | trunc 63 }}
   labels:
-    {{- include "plugin.labels" $root | nindent 4 }}
-    {{- include "plugin.prometheusLabels" $root | nindent 4 }}
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
 {{- if $.Values.openTelemetry.prometheus.rules.labels }}
 {{ toYaml $.Values.openTelemetry.prometheus.rules.labels | indent 4 }}
 {{- end }}
@@ -16,10 +14,84 @@ metadata:
 {{ toYaml $.Values.openTelemetry.prometheus.rules.annotations | indent 4 }}
 {{- end }}
 spec:
-{{- with $root -}}
-{{- $content := printf "%s" $bytes }}
-{{ tpl $content . | indent 2 }}
-{{- end }}
----
-{{- end }}
+groups:
+  - name: logs-plugin-alerts
+    rules:
+  {{- if (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FilelogRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"filelog"}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Logs are not successfully pushed into the filelog-receiver
+          description: Filelog receiver is increasingly rejecting logs
+  {{- end }}
+
+  {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: ReceiverRefusedMetric
+        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel is refusing metric points
+          description: The OTel Collector has refused metric points for over 5 minutes. This may indicate malformed metrics. Review configuration and incoming traffic for issues.
+  {{- end }}
+
+  {{- if (has "LogsOTelLogsMissing" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: LogsOTelLogsMissing
+        expr: sum by (region, k8s_node_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
+        for: 120m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel is not shipping logs
+          description: 'otel-logs on {{`{{ $labels.k8s_node_name }}`}} in {{`{{ $labels.region }}`}} is not shipping logs. Please check.'
+  {{- end }}
+
+ {{- if (has "LogsOTelLogsDecreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: LogsOTelLogsDecreasing
+        expr: sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
+        for: 2h
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel log volume is decreasing, check log volume.
+          description: 'OTel on {{`{{ $labels.k8s_cluster_name }}`}} in {{`{{ $labels.region }}`}} is sending 4 times fewer logs in the last 2h. Please check.'
+  {{- end }}
+
+  {{- if (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: ReconcileErrors
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OpenTelemetryCollector Reconciliation
+          description: Reconciliation errors for opentelemetrycollector are increasing
+  {{- end }}
+
+  {{- if (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: WorkqueueDepth
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: WorkqueueDepth is increasing
+          description: Check manager logs for reasons why this might happen
+  {{- end }}
 {{- end }}
