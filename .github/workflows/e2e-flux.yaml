@@ -103,7 +103,7 @@ jobs:
         run: |
           set -euo pipefail
           cat <<EOF | kubectl apply -f -
-          apiVersion: source.toolkit.fluxcd.io/v1beta2
+          apiVersion: source.toolkit.fluxcd.io/v1
           kind: GitRepository
           metadata:
             name: workspace
@@ -121,7 +121,7 @@ jobs:
         run: |
           set -euo pipefail
           chartfile=$(cat changed_charts.txt)
-          chart_dir="$(dirname "$chartfile")"
+          chart_dir="$chartfile"
           chart_yaml="$chart_dir/Chart.yaml"
           [[ -f "$chart_yaml" ]] || { echo "No Chart.yaml at $chart_yaml"; exit 1; }
           name="$(yq e '.name' "$chart_yaml")"
@@ -129,7 +129,7 @@ jobs:
           safe_name="$(echo "$name" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9-' '-')"
           echo "Applying HelmRelease for $name ($chart_dir)"
           cat <<EOF | kubectl apply -f -
-          apiVersion: helm.toolkit.fluxcd.io/v2beta2
+          apiVersion: helm.toolkit.fluxcd.io/v2
           kind: HelmRelease
           metadata:
             name: ${safe_name}
