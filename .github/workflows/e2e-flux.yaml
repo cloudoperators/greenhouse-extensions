@@ -129,6 +129,7 @@ jobs:
         run: |
           set -euo pipefail
           chart_yaml=${{ steps.chart.outputs.chart_yaml }}
+          chart_dir=${{ steps.chart.outputs.chart_dir }}
           name=${{ steps.chart.outputs.plugin_name }}
           version="$(yq e '.version' "$chart_yaml")"
           cat <<EOF | kubectl apply -f -
