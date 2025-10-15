@@ -160,6 +160,7 @@ jobs:
               remediation:
                 retries: 1
           EOF
+          kubectl -n flux-system get helmrelease ${name} -o yaml
 
       - name: Wait for GitRepository & HelmRelease Ready
         if: steps.list-changed.outputs.changed == 'true'
@@ -188,7 +189,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: |
           set -euo pipefail
-          sleep 10
+          sleep 30
           release="${{ steps.chart.outputs.plugin_name }}"
           echo "Running helm tests for release: $release (namespace: default)"
           helm status "$release" -n default
@@ -203,7 +204,6 @@ jobs:
       - name: Print pod logs on failure
         if: failure() && steps.list-changed.outputs.changed == 'true'
         run: |
-          echo "🔍 Printing logs for failed pods..."
           kubectl get pods -n default || true
           helm list -n flux-system
           helm list -n default
