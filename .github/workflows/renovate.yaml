@@ -1,4 +1,4 @@
-name: Bump plugindefinition.yaml versions on Renovate PRs updating Chart.yaml/values.yaml files
+name: Renovate
 
 on:
   pull_request:
@@ -13,7 +13,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  bump-version:
+  sync-versions:
+    name: Sync Chart.yaml and plugindeifnition.yaml versions
     if: github.actor == 'renovate[bot]'
     runs-on: ubuntu-latest
     steps:
