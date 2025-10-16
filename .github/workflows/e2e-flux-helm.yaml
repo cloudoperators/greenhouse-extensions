@@ -167,7 +167,7 @@ jobs:
           export chart_dir=${{ steps.chart.outputs.chart_dir }}
           export name=${{ steps.chart.outputs.plugin_name }}
           export version="$(yq e '.version' "$chart_yaml")"
-          export VALUES_FILE=${{ steps.chart.outputs.chart_dir }} + /ci/test-values.yaml
+          export VALUES_FILE="${chart_dir}/ci/test-values.yaml"
           yq eval '.metadata.name = strenv(name) |
             .spec.releaseName = strenv(name) |
             .spec.chart.spec.chart= "./" + strenv(chart_dir) |
