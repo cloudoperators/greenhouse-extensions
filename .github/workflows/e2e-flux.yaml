@@ -117,7 +117,7 @@ jobs:
           export branch="${{ github.head_ref || github.ref_name }}"
           export repo=${{ github.repository }}
           yq eval '.spec.url = "https://github.com/" + strenv(repo) |
-            .spec.ref.branch= strenv(branch) \'
+            .spec.ref.branch= strenv(branch)' \
           ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
           kubectl -n flux-system get gitrepository workspace -o yaml
 
