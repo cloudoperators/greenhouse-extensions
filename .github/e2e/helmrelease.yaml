@@ -1,0 +1,20 @@
+kind: HelmRelease
+metadata:
+  name: ${name}
+  namespace: flux-system
+spec:
+  interval: 5m
+  releaseName: ${name}
+  targetNamespace: default
+  chart:
+    spec:
+      chart: ./${chart_dir}
+      reconcileStrategy: Revision
+      version: "${version}"
+      sourceRef:
+        kind: GitRepository
+        name: workspace
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 1

@@ -11,6 +11,7 @@ env:
   HELM_VERSION: v3.17.0
   PYTHON_VERSION: "3.13"
   CT_CONFIG: .github/configs/helm-chart-testing.yaml
+  E2E_PATH: .github/e2e
 
 jobs:
   e2e-flux:
@@ -137,29 +138,11 @@ jobs:
           chart_dir=${{ steps.chart.outputs.chart_dir }}
           name=${{ steps.chart.outputs.plugin_name }}
           version="$(yq e '.version' "$chart_yaml")"
-          cat <<EOF | kubectl apply -f -
-          apiVersion: helm.toolkit.fluxcd.io/v2
-          kind: HelmRelease
-          metadata:
-            name: ${name}
-            namespace: flux-system
-          spec:
-            interval: 5m
-            releaseName: ${name}
-            targetNamespace: default
-            chart:
-              spec:
-                chart: ./${chart_dir}
-                reconcileStrategy: Revision
-                version: "${version}"
-                sourceRef:
-                  kind: GitRepository
-                  name: workspace
-                  namespace: flux-system
-            install:
-              remediation:
-                retries: 1
-          EOF
+          yq eval '.metadata.name = ${name}
+          | .spec.releaseName = ${name}
+          | .spec.chart.spec.chart= ./${chart_dir}
+          | .spec.chart.spec.version= "${version}"' /
+          ${{ env.CT_CONFIG }}/helmrelease.yaml | kubectl apply -f -
           kubectl -n flux-system get helmrelease ${name} -o yaml
 
       - name: Wait for GitRepository & HelmRelease Ready
