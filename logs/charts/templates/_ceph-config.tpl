@@ -98,7 +98,6 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["remote_addr"], log.cache["remote_addr"])
         - set(log.attributes["user"], log.cache["user"])
         - set(log.attributes["operation"], log.cache["operation"])
-        - set(log.attributes["uri"], log.cache["uri"])
         - set(log.attributes["http_status"], log.cache["http_status"])
         - set(log.attributes["error_code"], log.cache["error_code"])
         - set(log.attributes["bytes_sent"], log.cache["bytes_sent"])
