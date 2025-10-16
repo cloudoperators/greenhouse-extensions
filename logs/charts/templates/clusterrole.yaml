@@ -6,7 +6,7 @@ kind: ClusterRole
 metadata:
   name: logs-collector
   labels:
-    app: logs-collector
+    {{- include "serviceAccount.labels" . | nindent 4 }}
     {{- include "plugin.labels" . | nindent 4 }} 
 rules:
 - apiGroups: [""]

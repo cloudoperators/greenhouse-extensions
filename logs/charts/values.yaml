@@ -49,6 +49,10 @@ opentelemetry-operator:
 openTelemetry:
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
+  
+  # -- Labels applied to the ServiceAccount and related RBAC resources
+  serviceAccountLabels:
+    app: logs-collector
 
   openSearchLogs:
     # -- Endpoint URL for OpenSearch

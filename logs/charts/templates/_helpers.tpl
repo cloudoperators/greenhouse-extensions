@@ -13,6 +13,13 @@ plugindefinition: logs
 {{- end }}
 {{- end }}
 
+{{/* Generate serviceAccount specific labels */}}
+{{- define "serviceAccount.labels" -}}
+{{- if .Values.openTelemetry.serviceAccountLabels }}
+{{ tpl (toYaml .Values.openTelemetry.serviceAccountLabels) . }}
+{{- end }}
+{{- end }}
+
 {{/* Generate prometheus specific labels */}}
 {{- define "plugin.prometheusLabels" }}
 {{- if .Values.openTelemetry.prometheus.additionalLabels }}
