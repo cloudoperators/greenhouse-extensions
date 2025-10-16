@@ -135,13 +135,13 @@ jobs:
         run: |
           set -euo pipefail
           chart_yaml=${{ steps.chart.outputs.chart_yaml }}
-          chart_dir=${{ steps.chart.outputs.chart_dir }}
-          name=${{ steps.chart.outputs.plugin_name }}
-          version="$(yq e '.version' "$chart_yaml")"
-          yq eval '.metadata.name = ${name}
-          | .spec.releaseName = ${name}
-          | .spec.chart.spec.chart= ./${chart_dir}
-          | .spec.chart.spec.version= "${version}"' /
+          export chart_dir=${{ steps.chart.outputs.chart_dir }}
+          export name=${{ steps.chart.outputs.plugin_name }}
+          export version="$(yq e '.version' "$chart_yaml")"
+          yq eval '.metadata.name = strenv(name) |
+          .spec.releaseName = strenv(name) |
+          .spec.chart.spec.chart= "./" + strenv(chart_dir) |
+          .spec.chart.spec.version= strenv(version)' \
           ${{ env.CT_CONFIG }}/helmrelease.yaml | kubectl apply -f -
           kubectl -n flux-system get helmrelease ${name} -o yaml
 
