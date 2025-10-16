@@ -1,5 +1,12 @@
 name: "E2E Flux/Helm"
 on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: "Target Plugin"
+        required: true
+        default: "kube-monitoring"
+        type: string
   pull_request:
     types: [opened, synchronize, reopened]
   push:
@@ -33,10 +40,40 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Validate plugin input
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          PLUGIN="${{ inputs.plugin }}"
+          [[ -n "$PLUGIN" ]] || { echo "plugin input empty"; exit 1; }
+          # Allow only safe characters to prevent path traversal
+          if [[ ! "$PLUGIN" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "Invalid plugin name '$PLUGIN' (allowed: a-zA-Z0-9._-)" >&2
+            exit 1
+          fi
+          # Must exist as a directory and contain charts/ subdir
+          if [[ ! -d "$PLUGIN" ]]; then
+            echo "Directory '$PLUGIN' not found in repo root"; ls -1; exit 1
+          fi
+          if [[ ! -d "$PLUGIN/charts" ]]; then
+            echo "Directory '$PLUGIN/charts' not found"; ls -1 "$PLUGIN"; exit 1
+          fi
+          echo "✅ Plugin '$PLUGIN' validated."
 
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
+          # If manually triggered with a plugin input, force that chart as "changed"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.plugin }}" ]]; then
+            forced="${{ inputs.plugin }}/charts"
+            echo "Manual run: forcing changed chart path: $forced"
+            echo "$forced" > changed_charts.txt
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            cat changed_charts.txt
+            exit 0
+          fi
+
           changed_charts=$(ct list-changed --config ${{ env.CT_CONFIG }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed_charts" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
