@@ -1,4 +1,4 @@
-name: "E2E Flux"
+name: "E2E Flux/Helm"
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -14,7 +14,7 @@ env:
   E2E_PATH: .github/e2e
 
 jobs:
-  e2e-flux:
+  e2e-flux-helm:
     runs-on: [default]
     steps:
       - name: Set up Helm
@@ -131,9 +131,9 @@ jobs:
           export name=${{ steps.chart.outputs.plugin_name }}
           export version="$(yq e '.version' "$chart_yaml")"
           yq eval '.metadata.name = strenv(name) |
-          .spec.releaseName = strenv(name) |
-          .spec.chart.spec.chart= "./" + strenv(chart_dir) |
-          .spec.chart.spec.version= strenv(version)' \
+            .spec.releaseName = strenv(name) |
+            .spec.chart.spec.chart= "./" + strenv(chart_dir) |
+            .spec.chart.spec.version= strenv(version)' \
           ${{ env.E2E_PATH }}/helmrelease.yaml | kubectl apply -f -
           kubectl -n flux-system get helmrelease ${name} -o yaml
 
