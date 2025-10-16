@@ -142,7 +142,7 @@ jobs:
           .spec.releaseName = strenv(name) |
           .spec.chart.spec.chart= "./" + strenv(chart_dir) |
           .spec.chart.spec.version= strenv(version)' \
-          ${{ env.CT_CONFIG }}/helmrelease.yaml | kubectl apply -f -
+          ${{ env.E2E_PATH }}/helmrelease.yaml | kubectl apply -f -
           kubectl -n flux-system get helmrelease ${name} -o yaml
 
       - name: Wait for GitRepository & HelmRelease Ready
