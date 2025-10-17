@@ -44,5 +44,5 @@ oauth2proxy:
   image:
     registry: "quay.io"
     repository: "oauth2-proxy/oauth2-proxy"
-    version: "v7.11.0"
+    version: "v7.12.0"
   providerDisplayName: ""
