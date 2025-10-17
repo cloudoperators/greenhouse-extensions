@@ -6,7 +6,7 @@ kind: ClusterPluginDefinition
 metadata:
   name: heureka
 spec:
-  description:
+  description: "Heureka is a Security Posture Management tool"
   version: "1.0.1"
   weight: 2
   uiApplication:
