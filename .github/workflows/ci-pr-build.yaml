@@ -18,7 +18,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    runs-on: [ default ]
+    runs-on: [ ubuntu-latest ]
     if: contains(github.event.pull_request.labels.*.name,'pr-build-chart')
     strategy:
       fail-fast: false
@@ -103,7 +103,7 @@ jobs:
     permissions:
       packages: write
     if: contains(github.event.pull_request.labels.*.name,'cleanup-pr-chart') || github.event_name.types == 'closed'
-    runs-on: [ default ]
+    runs-on: [ ubuntu-latest ]
     steps:
         - name: Delete PR container image tag
           uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1

@@ -10,7 +10,7 @@ on:
 
 jobs:
   trigger:
-    runs-on: [ default ]
+    runs-on: [ ubuntu-latest ]
 
     steps:
       - name: Generate GitHub App Token
