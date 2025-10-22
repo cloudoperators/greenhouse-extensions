@@ -6,7 +6,7 @@ kind: ClusterPluginDefinition
 metadata:
   name: ingress-nginx
 spec:
-  version: 1.2.2
+  version: 1.2.3
   displayName: Ingress NGINX
   description: Ingress NGINX controller for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
