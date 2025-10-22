@@ -64,3 +64,18 @@ spec:
       default: true
       required: false
       type: bool
+    - name: controller.metrics.enabled
+      description: Whether to enable metrics on controller
+      default: false
+      required: false
+      type: bool
+    - name: controller.metrics.serviceMonitor.enabled
+      description: Whether to enable metrics via ServiceMonitor
+      default: false
+      required: false
+      type: bool
+    - name: controller.metrics.serviceMonitor.additionalLabels
+      description: Additional labels to add service monitor
+      default: false
+      required: false
+      type: map
