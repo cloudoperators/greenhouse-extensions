@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: heureka
 spec:
