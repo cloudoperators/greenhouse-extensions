@@ -1,0 +1,207 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+  name: careinstructions.shoot-grafter.cloudoperators
+spec:
+  group: shoot-grafter.cloudoperators
+  names:
+    kind: CareInstruction
+    listKind: CareInstructionList
+    plural: careinstructions
+    singular: careinstruction
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .spec.seedClusterName
+      name: SeedCluster
+      type: string
+    - jsonPath: .status.statusConditions.conditions[?(@.type == "Ready")].status
+      name: Ready
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CareInstructionSpec holds the configuration for how to onboard
+              Gardener shoots to Greenhouse.
+            properties:
+              additionalLabels:
+                additionalProperties:
+                  type: string
+                description: AdditionalLabels are labels that will be added to every
+                  Greenhouse Cluster created by this CareInstruction.
+                type: object
+              gardenClusterKubeConfigSecretName:
+                description: |-
+                  GardenClusterKubeConfigSecretName is a reference to the secret containing the kubeconfig for the Garden cluster.
+                  This is mutually exclusive to referring to the GardenCluster by a Greenhouse Cluster resource via GardenClusterName.
+                  Order is 1. GardenClusterKubeConfigSecretName 2. GardenClusterName
+                properties:
+                  key:
+                    description: Key in the secret to select the value from.
+                    type: string
+                  name:
+                    description: Name of the secret in the same namespace.
+                    type: string
+                required:
+                - key
+                - name
+                type: object
+              gardenClusterName:
+                description: |-
+                  GardenClusterName is the name of the Greenhouse Cluster representing the Gardener seed cluster from which the shoots will be reconciled.
+                  This is mutually exclusive to referring to the GardenCluster by a kubeconfig secret via GardenClusterKubeConfigSecretName.
+                  Order is 1. GardenClusterKubeConfigSecretName 2. GardenClusterNames
+                type: string
+              gardenNamespace:
+                description: GardenNamespace is the namespace in which Greenhouse
+                  will look for shoots on the seed cluster.
+                type: string
+              shootSelector:
+                description: ShootSelector is a label selector targeting shoots that
+                  should be reconciled.
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements.
+                      The requirements are ANDed.
+                    items:
+                      description: |-
+                        A label selector requirement is a selector that contains values, a key, and an operator that
+                        relates the key and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies
+                            to.
+                          type: string
+                        operator:
+                          description: |-
+                            operator represents a key's relationship to a set of values.
+                            Valid operators are In, NotIn, Exists and DoesNotExist.
+                          type: string
+                        values:
+                          description: |-
+                            values is an array of string values. If the operator is In or NotIn,
+                            the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                            the values array must be empty. This array is replaced during a strategic
+                            merge patch.
+                          items:
+                            type: string
+                          type: array
+                          x-kubernetes-list-type: atomic
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                      map is equivalent to an element of matchExpressions, whose key field is "key", the
+                      operator is "In", and the values array contains only "value". The requirements are ANDed.
+                    type: object
+                type: object
+                x-kubernetes-map-type: atomic
+              transportLabels:
+                description: TransportLabels is a list of labels that will be transported
+                  from shoot to Greenhouse Cluster.
+                items:
+                  type: string
+                type: array
+            required:
+            - gardenNamespace
+            type: object
+          status:
+            description: CareInstructionStatus holds the status of the CareInstruction.
+            properties:
+              createdClusters:
+                description: CreatedClusters is the number of clusters created by
+                  this CareInstruction.
+                type: integer
+              failedClusters:
+                description: FailedClusters is the number of clusters that failed
+                  to be created by this CareInstruction.
+                type: integer
+              failedShoots:
+                description: FailedShoots is the number of shoots that failed to be
+                  onboarded to Greenhouse.
+                type: integer
+              lastUpdateTime:
+                description: LastUpdateTime is the last time the all shoots targeted
+                  by this CareInstruction were reconciled.
+                format: date-time
+                type: string
+              statusConditions:
+                description: StatusConditions represent the latest available observations
+                  of the CareInstruction's current state.
+                properties:
+                  conditions:
+                    items:
+                      description: Condition contains additional information on the
+                        state of a resource.
+                      properties:
+                        lastTransitionTime:
+                          description: LastTransitionTime is the last time the condition
+                            transitioned from one status to another.
+                          format: date-time
+                          type: string
+                        message:
+                          description: Message is an optional human-readable message
+                            indicating details about the last transition.
+                          type: string
+                        reason:
+                          description: Reason is a one-word, CamelCase reason for
+                            the condition's last transition.
+                          type: string
+                        status:
+                          description: Status of the condition.
+                          type: string
+                        type:
+                          description: Type of the condition.
+                          type: string
+                      required:
+                      - lastTransitionTime
+                      - status
+                      - type
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - type
+                    x-kubernetes-list-type: map
+                type: object
+              totalShootCount:
+                description: TotalShootCount is the total number of shoots targeted
+                  by this CareInstruction.
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
