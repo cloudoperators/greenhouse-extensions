@@ -6,6 +6,10 @@ Learn more about the **Logs** Plugin. Use it to enable the ingestion, collection
 
 The main terminologies used in this document can be found in [core-concepts](https://cloudoperators.github.io/greenhouse/docs/getting-started/core-concepts).
 
+## Requirements
+
+The **Logs** Plugin requires pre-installed OpenTelemetry Collector CRDs. These can be installed via the **Logs Operator** Plugin.
+
 ## Overview
 
 OpenTelemetry is an observability framework and toolkit for creating and managing telemetry data such as metrics, logs and traces. Unlike other observability tools, OpenTelemetry is vendor and tool agnostic, meaning it can be used with a variety of observability backends, including open source tools such as _OpenSearch_ and _Prometheus_.
@@ -14,7 +18,6 @@ The focus of the Plugin is to provide easy-to-use configurations for common use 
 
 Components included in this Plugin:
 
-- [Operator](https://opentelemetry.io/docs/kubernetes/operator/)
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
     - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
@@ -40,7 +43,7 @@ This guide provides a quick and straightforward way to use **OpenTelemetry** for
 
 - A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
 - For logs, a OpenSearch instance to store. If you don't have one, reach out to your observability team to get access to one.
-- We recommend a running cert-manager in the cluster before installing the **Logs** Plugin
+- We recommend a running OpenTelemetry Operator in the cluster before installing the **Logs** Plugin
 - To gather metrics, you **must** have a Prometheus instance in the onboarded cluster for storage and for managing Prometheus specific CRDs. If you don not have an instance, install the [kube-monitoring](https://cloudoperators.github.io/greenhouse/docs/reference/catalog/kube-monitoring) Plugin first.
 
 **Step 1:**
@@ -51,7 +54,7 @@ You can install the `Logs` package in your cluster by installing it with [Helm](
 
 **Step 2:**
 
-The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting metrics and logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview):
+By default, the package will include a configuration for collecting metrics and logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview):
 - Files via the Filelog Receiver
 - Kubernetes Events from the Kubernetes API server
 - Journald events from systemd journal
@@ -62,7 +65,7 @@ The `logsCollector` comes with a standard set of log-processing, such as adding 
 In addition we provide default pipelines for common log types. Currently the following log types have default configurations that can be enabled (requires `logsCollector.enabled` to `true`):
   1. KVM: `openTelemetry.logsCollector.kvmConfig`: Logs from Kernel-based Virtual Machines (KVMs) providing insights into virtualization activities, resource usage, and system performance
   2. Ceph:`openTelemetry.logsCollector.cephConfig`: Logs from Ceph storage systems, capturing information about cluster operations, performance metrics, and health status
- 
+
 These default configurations provide common labels and Grok parsing for logs emitted through the respective services.
 
 Based on the backend selection the telemetry data will be exporter to the backend.
