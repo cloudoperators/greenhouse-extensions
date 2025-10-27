@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 openTelemetry:
+  collectorImage:
+    repository: ghcr.io/cloudoperators/opentelemetry-collectorghcr.io/cloudoperators/opentelemetry-collector-contrib
+    tag: "2016982"
   openSearchLogs:
     endpoint: test
     failover_username_a: test

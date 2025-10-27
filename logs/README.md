@@ -81,6 +81,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 |-----|------|---------|-------------|
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collectorghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"2016982"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collectorghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"2016982"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
