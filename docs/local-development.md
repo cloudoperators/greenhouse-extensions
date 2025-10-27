@@ -5,7 +5,7 @@ can be used to generate local `PluginDefinitions`.
 
 ### Prerequisites
 
-- Please follow the [Setting up a local development environment](https://github.com/cloudoperators/greenhouse/blob/main/dev-env/localenv/README.md#setting-up-a-local-development-environment) guide to setup the local environment
+- Please follow the [Setting up a local development environment](https://github.com/cloudoperators/greenhouse/blob/main/docs/contribute/local-dev.md#setting-up-the-development-environment) guide to setup the local environment
 - Follow the instructions in [Test Plugin / Greenhouse Extension charts locally](https://github.com/cloudoperators/greenhouse/blob/main/dev-env/localenv/README.md#test-plugin--greenhouse-extension-charts-locally) to setup a local extension testing environment
 
 ### Usage
