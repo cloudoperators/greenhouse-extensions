@@ -82,11 +82,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
-| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","ReceiverRefusedMetric"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["ReconcileErrors","WorkqueueDepth"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
 | openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
 | openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| openTelemetry.prometheus.rules.enabled | list | `["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","ReceiverRefusedMetric"]` | PrometheusRules to enable. |
+| openTelemetry.prometheus.rules.enabled | list | `["ReconcileErrors","WorkqueueDepth"]` | PrometheusRules to enable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |
 | opentelemetry-operator.admissionWebhooks.autoGenerateCert | object | `{"recreate":false}` | Activate to use Helm to create self-signed certificates. |
