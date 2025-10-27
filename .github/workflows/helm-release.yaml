@@ -18,6 +18,7 @@ on:
       - obenbao/charts/**
       - opensearch/chart/**
       - logs/charts/**
+      - logs-operator/charts/**
       - perses/charts/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**

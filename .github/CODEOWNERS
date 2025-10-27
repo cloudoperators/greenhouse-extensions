@@ -33,6 +33,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend
 /logs/                    @cloudoperators/greenhouse-observability
+/logs-operator/           @cloudoperators/greenhouse-observability
 /opensearch/              @cloudoperators/greenhouse-observability
 /plutono                  @cloudoperators/greenhouse-observability
 /perses                   @cloudoperators/greenhouse-observability

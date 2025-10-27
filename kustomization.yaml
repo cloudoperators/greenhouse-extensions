@@ -12,6 +12,7 @@ resources:
   - kube-monitoring/plugindefinition.yaml
   - openbao/plugindefinition.yaml
   - logs/plugindefinition.yaml
+  - logs-operator/plugindefinition.yaml
   - perses/plugindefinition.yaml
   - plutono/plugindefinition.yaml
   - service-proxy/plugindefinition.yaml

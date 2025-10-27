@@ -1,0 +1,45 @@
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.prometheus.rules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-alerts" $.Release.Name | trunc 63 }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+{{- if $.Values.openTelemetry.prometheus.rules.labels }}
+{{ toYaml $.Values.openTelemetry.prometheus.rules.labels | indent 4 }}
+{{- end }}
+{{- if $.Values.openTelemetry.prometheus.rules.annotations }}
+  annotations:
+{{ toYaml $.Values.openTelemetry.prometheus.rules.annotations | indent 4 }}
+{{- end }}
+spec:
+  groups:
+  - name: logs-operator-plugin-alerts
+    rules:
+  {{- if (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: ReconcileErrors
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OpenTelemetryCollector Reconciliation
+          description: Reconciliation errors for opentelemetrycollector are increasing
+  {{- end }}
+
+  {{- if (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: WorkqueueDepth
+        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: WorkqueueDepth is increasing
+          description: Check manager logs for reasons why this might happen
+  {{- end }}
+{{- end }}

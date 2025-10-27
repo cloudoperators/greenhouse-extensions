@@ -6,14 +6,14 @@ kind: ClusterPluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.11
+  version: 0.0.1
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
-    name: opentelemetry-operator
+    name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.11.11
+    version: 0.0.1
   options:
     - default: true
       description: Activates the standard configuration for logs
@@ -90,19 +90,6 @@ spec:
       name: openTelemetry.prometheus.rules.enabled
       required: false
       type: map
-    - default: true
-      description: Activate to use the CertManager for generating self-signed certificates
-      name: opentelemetry-operator.admissionWebhooks.certManager.enabled
-      type: bool
-    - description: Additional labels for PrometheusRule alerts
-      name: openTelemetry.prometheus.rules.additionalRuleLabels
-      required: false
-      type: map
-    - default: false
-      description: Activate to use Helm to create self-signed certificates
-      name: opentelemetry-operator.admissionWebhooks.autoGenerateCert.enabled
-      required: false
-      type: bool
     - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
       description: openTelemetry.manager.collectorImage.repository
       name: openTelemetry.manager.collectorImage.repository

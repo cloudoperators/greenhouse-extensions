@@ -26,6 +26,7 @@ header:
     - 'thanos/**' # ignore the license for this directory
     - 'opensearch/**' # ignore the license for the opensearch charts
     - 'logs/**' # ignore the license for the opentelemetry charts
+    - 'logs-operator/**' # ignore the license for the logs-operator charts
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'

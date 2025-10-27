@@ -1,0 +1,94 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# -- common labels to apply to all resources.
+commonLabels: {}
+
+# opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
+opentelemetry-operator:
+  # -- Provide a name in place of the default name `opentelemetry-operator`.
+  nameOverride: "operator"
+
+  crds:
+    # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
+    # --  The required CRDs used by this dependency are version-controlled in this repository under ./crds. If you want to use the upstream CRDs, set this variable to `true``.
+    create: true
+  admissionWebhooks:
+    # -- Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server.
+    failurePolicy: 'Ignore'
+
+    # If cert-manager should be used, the CRDs for cert-manager needs to exists before OpenTelemetry installs cert-manager.
+    # -- Activate to use the CertManager for generating self-signed certificates.
+    certManager:
+      enabled: false
+    # -- Activate to use Helm to create self-signed certificates.
+    autoGenerateCert:
+    # -- Activate to recreate the cert after a defined period (certPeriodDays default is 365).
+      recreate: false
+  manager:
+    collectorImage:
+    # -- overrides the default image repository for the OpenTelemetry Collector image.
+      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    # -- overrides the default image tag for the OpenTelemetry Collector image.
+      tag: "2016982"
+    image:
+    # -- overrides the default image repository for the OpenTelemetry Operator image.
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+    # -- overrides the default tag repository for the OpenTelemetry Operator image.
+      tag: v0.131.0
+    serviceMonitor:
+    # -- Enable serviceMonitor for Prometheus metrics scrape
+      enabled: true
+    # -- Additional labels on the ServiceMonitor
+      extraLabels: {}
+  # -- the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API.
+  kubeRBACProxy:
+    enabled: false
+
+openTelemetry:
+  prometheus:
+      # -- Activates the service-monitoring for the Logs Collector.
+      serviceMonitor:
+        enabled: true
+      # -- Activates the pod-monitoring for the Logs Collector.
+      podMonitor:
+        enabled: true
+      # -- Label selectors for the Prometheus resources to be picked up by prometheus-operator.
+      additionalLabels: {}
+      # plugin: kube-monitoring
+      # prometheus: infra
+
+      # -- Default rules for monitoring the opentelemetry components.
+      rules:
+        # -- Enables PrometheusRule resources to be created.
+        create: true
+
+        # -- PrometheusRules to enable.
+        enabled:
+          - ReconcileErrors
+          - WorkqueueDepth
+
+        # -- Labels for PrometheusRules.
+        labels: {}
+
+        # -- Annotations for PrometheusRules.
+        annotations: {}
+
+        ## This is useful for adding additional labels such as "support_group" or "service" for the routing of alerts to each rule
+        # -- Additional labels for PrometheusRule alerts.
+        additionalRuleLabels:
+          # support_group: support
+          # service: my-service
+
+testFramework:
+  # -- Activates the Helm chart testing framework.
+  enabled: true
+  image:
+    # -- Defines the image registry for the test framework.
+    registry: ghcr.io
+    # -- Defines the image repository for the test framework.
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    # -- Defines the image tag for the test framework.
+    tag: main
+  # -- Defines the image pull policy for the test framework.
+  imagePullPolicy: IfNotPresent

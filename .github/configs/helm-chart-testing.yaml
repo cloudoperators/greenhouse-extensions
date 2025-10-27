@@ -20,6 +20,7 @@ chart-dirs:
   - logshipper
   - opensearch
   - logs
+  - logs-operator
   - audit-logs
   - thanos
   - perses

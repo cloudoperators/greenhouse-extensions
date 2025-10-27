@@ -80,19 +80,6 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | commonLabels | object | `{}` | common labels to apply to all resources. |
-| openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
-| openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
-| openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
-| openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
-| openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
-| openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
-| openTelemetry.openSearchLogs.failover_password_b | string | `nil` | Second Password (as a failover) for OpenSearch endpoint |
-| openTelemetry.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
-| openTelemetry.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
-| openTelemetry.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
 | openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","ReceiverRefusedMetric"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
@@ -102,7 +89,19 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.prometheus.rules.enabled | list | `["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","ReceiverRefusedMetric"]` | PrometheusRules to enable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |
-| openTelemetry.region | string | `nil` | Region label for Logging |
+| opentelemetry-operator.admissionWebhooks.autoGenerateCert | object | `{"recreate":false}` | Activate to use Helm to create self-signed certificates. |
+| opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate | bool | `false` | Activate to recreate the cert after a defined period (certPeriodDays default is 365). |
+| opentelemetry-operator.admissionWebhooks.certManager | object | `{"enabled":false}` | Activate to use the CertManager for generating self-signed certificates. |
+| opentelemetry-operator.admissionWebhooks.failurePolicy | string | `"Ignore"` | Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server. |
+| opentelemetry-operator.crds.create | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./crds. If you want to use the upstream CRDs, set this variable to `true``. |
+| opentelemetry-operator.kubeRBACProxy | object | `{"enabled":false}` | the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API. |
+| opentelemetry-operator.manager.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
+| opentelemetry-operator.manager.collectorImage.tag | string | `"2016982"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
+| opentelemetry-operator.manager.image.tag | string | `"v0.131.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
+| opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
+| opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |
+| opentelemetry-operator.nameOverride | string | `"operator"` | Provide a name in place of the default name `opentelemetry-operator`. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
