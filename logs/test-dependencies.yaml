@@ -28,24 +28,3 @@ values:
         enabled: false
     kubeRBACProxy:
       enabled: false
-
-  openTelemetry:
-    openSearchLogs:
-      endpoint: test
-      failover_username_a: test
-      failover_password_a: test
-      failover_username_b: test
-      failover_password_b: test
-      index: test
-    cluster: test
-    region: test
-    logsCollector:
-      enabled: true
-      failover:
-        enabled: false
-    metricsCollector:
-      enabled: false
-    prometheus:
-      additionalLabels:
-        key1: value1
-        key2: value2
