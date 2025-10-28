@@ -51,7 +51,8 @@ You can install the `Logs` package in your cluster by installing it with [Helm](
 
 **Step 2:**
 
-The package will deploy the OpenTelemetry Operator which works as a manager for the collectors and auto-instrumentation of the workload. By default, the package will include a configuration for collecting metrics and logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
+You can choose if you want to deploy the OpenTelemetry Operator including the collectors or set `opentelemetry-operator.enabled` to `false` in case you already have an existing Operator deployed in your cluster. The OpenTelemetry Operator works as a manager for the collectors and auto-instrumentation of the workload. 
+By default, the package will include a configuration for collecting metrics and logs. The log-collector is currently processing data from the [preconfigured receivers](#Overview): 
 - Files via the Filelog Receiver
 - Kubernetes Events from the Kubernetes API server
 - Journald events from systemd journal
