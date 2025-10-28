@@ -61,6 +61,9 @@ spec:
         - --grpc-client-tls-key=/etc/tls/client/tls.key
         - --grpc-client-tls-secure
         {{- end }}
+        {{- if .Values.thanos.query.engine }}
+        - --query.promql-engine=thanos
+        {{- end }}
         image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
         livenessProbe:

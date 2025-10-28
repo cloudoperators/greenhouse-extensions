@@ -68,6 +68,9 @@ thanos:
     # -- Enable Thanos Query component
     enabled: true
 
+    # -- Enable experimental Thanos PromQL engine
+    engine: false
+
     # -- Number of Thanos Query replicas to deploy
     replicas:
 

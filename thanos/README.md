@@ -369,6 +369,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
 | thanos.query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
 | thanos.query.enabled | bool | `true` | Enable Thanos Query component |
+| thanos.query.engine | bool | `false` | Enable experimental Thanos PromQL engine |
 | thanos.query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
 | thanos.query.ingress.enabled | bool | `false` | Enable ingress controller resource |
 | thanos.query.ingress.grpc.annotations | object | `{}` | Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
