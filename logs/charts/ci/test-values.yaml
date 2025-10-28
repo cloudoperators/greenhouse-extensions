@@ -3,7 +3,7 @@
 
 openTelemetry:
   collectorImage:
-    repository: ghcr.io/cloudoperators/opentelemetry-collectorghcr.io/cloudoperators/opentelemetry-collector-contrib
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     tag: "2016982"
   openSearchLogs:
     endpoint: test
