@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 opentelemetry-operator:
+  enabled: true
   crds:
-    create: false
+    create: true
   admissionWebhooks:
     create: true
     failurePolicy: 'Ignore'
@@ -13,9 +14,6 @@ opentelemetry-operator:
       enabled: true
       recreate: false
   manager:
-    collectorImage:
-      repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-      tag: main
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
       tag: v0.114.1
@@ -29,6 +27,9 @@ opentelemetry-operator:
     enabled: false
 
 openTelemetry:
+  collectorImage:
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    tag: main
   openSearchLogs:
     endpoint: test
     failover_username_a: test
@@ -52,7 +53,6 @@ openTelemetry:
     additionalLabels:
       key1: value1
       key2: value2
-
     rules:
       enabled:
         - FilelogRefusedLogs

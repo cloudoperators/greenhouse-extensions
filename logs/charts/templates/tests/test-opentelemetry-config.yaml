@@ -19,15 +19,21 @@ data:
     
     DETIK_CLIENT_NAME="kubectl"
     
+    {{- if ".Values.opentelemetry-operator.enabled" }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }} pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}'"
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
     }
-
     @test "Verify successful deployment of the {{ .Release.Name }} service" {
         verify "there is 1 service named '{{ .Release.Name }}\$'"
     }
-
+    @test "Verify presence of custom resource definitions (CRDs) for {{ .Release.Name }}" {
+        verify "there is 1 customresourcedefinition named 'instrumentations.opentelemetry.io'"
+        verify "there is 1 customresourcedefinition named 'opampbridges.opentelemetry.io'"
+        verify "there is 1 customresourcedefinition named 'opentelemetrycollectors.opentelemetry.io'"
+        verify "there is 1 customresourcedefinition named 'targetallocators.opentelemetry.io'"
+    }
+    {{- end -}}
     {{- if .Values.openTelemetry.logsCollector.enabled }}
     @test "Verify successful deployment and running status of the logs-collector" {
         try "at most 5 times every 10s to get pods named 'logs-collector' and verify that '.status.phase' is 'running'"
@@ -39,10 +45,4 @@ data:
         try "at most 5 times every 10s to get pods named 'metrics-collector' and verify that '.status.phase' is 'running'"
     }
     {{- end }}
-    @test "Verify presence of custom resource definitions (CRDs) for {{ .Release.Name }}" {
-        verify "there is 1 customresourcedefinition named 'instrumentations.opentelemetry.io'"
-        verify "there is 1 customresourcedefinition named 'opampbridges.opentelemetry.io'"
-        verify "there is 1 customresourcedefinition named 'opentelemetrycollectors.opentelemetry.io'"
-        verify "there is 1 customresourcedefinition named 'targetallocators.opentelemetry.io'"
-    }
 {{- end -}}
