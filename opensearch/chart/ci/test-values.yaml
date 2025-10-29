@@ -16,6 +16,76 @@ cluster:
     dashboards2:
       password: "CHANGE_ME_FailoverUser2025$%"
   cluster:
+    name: "opensearch-logs"
+    # Disable monitoring for test environment
+    general:
+      monitoring:
+        enable: false
+    # Override dashboards configuration for local testing with basic auth
+    dashboards:
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization"]'
+        opensearch_security.auth.type: "basicauth"
+
+    nodePools:
+      - component: main
+        diskSize: "5Gi"
+        replicas: 1
+        roles:
+          - "cluster_manager"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: 1
+      - component: data
+        diskSize: "5Gi"
+        replicas: 1
+        roles:
+          - "data"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: 2
+      - component: client
+        diskSize: "5Gi"
+        replicas: 1
+        roles:
+          - "client"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: 1
+
+siem:
+  usersCredentials:
+    siem-admin:
+      username: "siem-admin"
+      password: "admin"
+      hash: "$2y$12$0OYo7uyzgytbPat9qpklL.4PsvvuU0.HX1ZkK7Lq1js/YHXf37VCK"  # bcrypt hash for "admin"
+    siem:
+      username: "siem"
+      password: "CHANGE_ME_SIEMUser2025!@#"
+    siem2:
+      username: "siem2"
+      password: "CHANGE_ME_SIEMFailoverUser2025$%"
+    siem-dashboards:
+      username: "siem-dashboards"
+      password: "CHANGE_ME_SIEMDashboards2025!@#"
+  cluster:
+    name: "opensearch-siem"
+    # Disable monitoring for test environment
+    general:
+      monitoring:
+        enable: false
     # Override dashboards configuration for local testing with basic auth
     dashboards:
       additionalConfig:

@@ -17,3 +17,25 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ . | toYaml }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Get the logs cluster name
+*/}}
+{{- define "opensearch.logs-cluster-name" -}}
+{{- if .Values.cluster.cluster.name }}
+{{- .Values.cluster.cluster.name }}
+{{- else }}
+{{- printf "%s-logs" .Release.Name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Get the SIEM cluster name
+*/}}
+{{- define "opensearch.siem-cluster-name" -}}
+{{- if .Values.siem.cluster.name }}
+{{- .Values.siem.cluster.name }}
+{{- else }}
+{{- printf "%s-siem" .Release.Name }}
+{{- end }}
+{{- end }}
