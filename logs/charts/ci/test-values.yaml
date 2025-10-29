@@ -16,7 +16,7 @@ opentelemetry-operator:
   manager:
     image:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.114.1
+      tag: v0.131.0
     prometheusRule:
       enabled: false
       defaultRules:
