@@ -4,7 +4,7 @@
 opentelemetry-operator:
   enabled: true
   crds:
-    create: true
+    create: false
   admissionWebhooks:
     create: true
     failurePolicy: 'Ignore'
@@ -25,6 +25,9 @@ opentelemetry-operator:
       enabled: false
   kubeRBACProxy:
     enabled: false
+
+customCRDs:
+  enabled: true
 
 openTelemetry:
   collectorImage:
