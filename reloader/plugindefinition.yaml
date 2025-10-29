@@ -54,6 +54,10 @@ spec:
       description: Enable to scrape Reloader's Prometheus metrics
       required: false
       type: bool
+    - name: reloader.podMonitor.labels
+      description: Set labels that can be matched by Prometheus podMonitorSelector
+      required: false
+      type: map
     - name: reloader.deployment.securityContext
       description: Set pod security context
       required: false
