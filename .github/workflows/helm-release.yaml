@@ -61,7 +61,7 @@ jobs:
           - chartDir: opensearch/chart
             chartName: opensearch
           - chartDir: logs/charts
-            chartName: opentelemetry-operator
+            chartName: logs
           - chartDir: perses/charts
             chartName: perses
           - chartDir: plutono/charts
