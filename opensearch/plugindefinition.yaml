@@ -13,7 +13,7 @@ spec:
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.36
+    version: 0.0.35
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
