@@ -11,7 +11,7 @@ metadata:
   name: {{ include "release.name" . }}-query
 spec:
   progressDeadlineSeconds: 600
-  replicas: {{ default 1 .Values.thanos.query.replicas }}
+  replicas: {{ .Values.thanos.query.replicas }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
