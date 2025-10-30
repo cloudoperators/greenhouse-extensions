@@ -7,7 +7,6 @@ metadata:
   name: reloader
 spec:
   version: 1.0.0
-  weight: 0
   displayName: Reloader
   description: Reloader is a Kubernetes controller that automatically triggers rollouts of workloads (like Deployments, StatefulSets, and more) whenever referenced Secrets or ConfigMaps are updated.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/reloader/README.md
