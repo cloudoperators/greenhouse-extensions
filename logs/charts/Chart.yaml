@@ -19,5 +19,5 @@ dependencies:
   version: 0.93.0
   condition: opentelemetry-operator.enabled
 - name: crds
-  version: 0.0.0
+  version: 0.0.1
   condition: customCRDs.enabled
