@@ -150,7 +150,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.initHelper.resources | object | `{}` | initHelper pod cpu and memory resources |
 | cluster.cluster.initHelper.version | string | `"1.36"` | initHelper version |
 | cluster.cluster.labels | object | `{}` | OpenSearchCluster labels |
-| cluster.cluster.name | string | `""` | OpenSearchCluster name, by default release name is used |
+| cluster.cluster.name | string | `"opensearch-logs"` | OpenSearchCluster name, by default release name is used |
 | cluster.cluster.nodePools | list | <pre>nodePools:<br>  - component: main<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "2Gi"<br>        cpu: 1</pre> | Opensearch nodes configuration |
 | cluster.cluster.security.config.adminCredentialsSecret | object | `{"name":"admin-credentials"}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
 | cluster.cluster.security.config.adminSecret | object | `{"name":"opensearch-admin-cert"}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
@@ -177,6 +177,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. |
 | cluster.usersCredentials | object | <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
 | cluster.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role |
+| enableSecretInjection | bool | `false` | Enable secret injection for security config. When true, uses {{ resolve }} pattern for secret injector. When false, uses direct values from values.yaml |
 | operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |

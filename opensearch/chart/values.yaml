@@ -43,6 +43,10 @@ certManager:
   httpDnsNames:
     - opensearch-client.tld
 
+# -- Enable secret injection for security config. When true, uses {{ resolve }} pattern for secret injector.
+# When false, uses direct values from values.yaml
+enableSecretInjection: false
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -189,7 +193,7 @@ cluster:
   # OpenSearchCluster configuration
   cluster:
     # -- OpenSearchCluster name, by default release name is used
-    name: ""
+    name: "opensearch-logs"
 
     # -- OpenSearchCluster annotations
     annotations: {}

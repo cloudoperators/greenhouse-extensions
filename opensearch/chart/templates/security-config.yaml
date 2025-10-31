@@ -15,7 +15,7 @@ stringData:
     config:
       dynamic:
         kibana:
-          server_username: {{ .Values.cluster.usersCredentials.dashboards.username }}
+          server_username: {{- if .Values.enableSecretInjection }} {{ printf "{{ resolve %q }}" "cluster.usersCredentials.dashboards.username" }}{{- else }} {{ .Values.cluster.usersCredentials.dashboards.username }}{{- end }}
         http:
           anonymous_auth_enabled: false
           xff:
@@ -53,7 +53,7 @@ stringData:
       type: "internalusers"
       config_version: 2
     admin:
-      hash: {{ .Values.cluster.usersCredentials.admin.hash | quote }}
+      hash: {{- if .Values.enableSecretInjection }} {{ printf "{{ resolve %q }}" "cluster.usersCredentials.admin.hash" }}{{- else }} {{ .Values.cluster.usersCredentials.admin.hash | quote }}{{- end }}
       reserved: true
       backend_roles:
         - "admin"
