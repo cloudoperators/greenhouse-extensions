@@ -47,3 +47,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
 /repo-guard/              @cloudoperators/greenhouse-backend
+/reloader/                @cloudoperators/greenhouse-backend
