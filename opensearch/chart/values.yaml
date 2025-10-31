@@ -193,7 +193,7 @@ cluster:
   # OpenSearchCluster configuration
   cluster:
     # -- OpenSearchCluster name, by default release name is used
-    name: "opensearch-logs"
+    name: ""
 
     # -- OpenSearchCluster annotations
     annotations: {}
