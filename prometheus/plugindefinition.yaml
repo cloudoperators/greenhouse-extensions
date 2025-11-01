@@ -1,5 +1,5 @@
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: prometheus
 spec:
