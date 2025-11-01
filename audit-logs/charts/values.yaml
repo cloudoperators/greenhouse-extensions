@@ -18,6 +18,9 @@ auditLogs:
   cluster:
   # -- Region label for Logging
   region:
+  logsCollector:
+    # -- Activates the standard configuration for Logs.
+    enabled: true
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
