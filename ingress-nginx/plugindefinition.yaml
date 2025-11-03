@@ -6,7 +6,7 @@ kind: ClusterPluginDefinition
 metadata:
   name: ingress-nginx
 spec:
-  version: 1.2.3
+  version: 1.2.4
   displayName: Ingress NGINX
   description: Ingress NGINX controller for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
@@ -76,6 +76,5 @@ spec:
       type: bool
     - name: controller.metrics.serviceMonitor.additionalLabels
       description: Additional labels to add service monitor
-      default: false
       required: false
       type: map
