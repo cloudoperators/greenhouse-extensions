@@ -9,7 +9,6 @@ metadata:
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
-    nginx.ingress.kubernetes.io/proxy-buffer-size: 32k
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
   {{- end }}
   name: {{ $fullName }}
