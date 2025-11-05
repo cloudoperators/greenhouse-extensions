@@ -7,11 +7,11 @@ metadata:
   name: service-proxy
 spec:
   description: A service proxy for exposing service in remote clusters via greenhouse
-  version: "1.2.4"
+  version: "1.2.5"
   helmChart:
     name: service-proxy
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.2.4
+    repository: ghcr.io/kengou4/greenhouse-extensions/charts
+    version: 1.2.5
   options:
     - name: domain
       description: basedomain for the service-proxy
