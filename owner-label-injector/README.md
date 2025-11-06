@@ -18,10 +18,10 @@ The **Owner Label Injector** is a Kubernetes mutating admission webhook that aut
 
 The webhook automatically adds these labels to resources:
 
-- `ccloud/support-group` - The team responsible for the resource
-- `ccloud/service` - The service the resource belongs to (optional)
+- `<org>/support-group` - The team responsible for the resource
+- `<org>/service` - The service the resource belongs to (optional)
 
-Both the prefix (`ccloud`) and suffixes can be customized via plugin configuration.
+Both the prefix (`<org>`) and suffixes can be customized via plugin configuration (`config.labels.prefix`).
 
 ## How It Works
 
