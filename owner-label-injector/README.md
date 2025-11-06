@@ -50,7 +50,6 @@ This plugin deploys:
 - **Mutating Webhook** - Intercepts resource creation/updates to inject labels
 - **Manager** - Webhook server with health/metrics endpoints
 - **CronJob (optional)** - Periodic labeller to backfill existing resources
-- **ServiceMonitor (optional)** - Prometheus metrics integration
 
 ## Configuration
 
@@ -59,7 +58,7 @@ This plugin deploys:
 | Option | Description | Default |
 |--------|-------------|---------|
 | `replicaCount` | Number of webhook replicas for HA | `3` |
-| `config.labels.prefix` | Prefix for injected labels | `ccloud` |
+| `config.labels.prefix` | Prefix for injected labels | `` |
 | `config.labels.supportGroupSuffix` | Suffix for support group label | `support-group` |
 | `config.labels.serviceSuffix` | Suffix for service label | `service` |
 | `config.helm.ownerConfigMapPrefix` | Prefix for owner ConfigMaps | `owner-of-` |
@@ -71,16 +70,25 @@ This plugin deploys:
 Configure regex-based rules when owner ConfigMaps don't exist:
 
 ```yaml
-config:
-  staticRules:
-    rules:
-      - helmReleaseName: ".*"
-        helmReleaseNamespace: "kube-system"
-        supportGroup: "platform"
-        service: "kubernetes"
-      - helmReleaseName: "prometheus-.*"
-        helmReleaseNamespace: ".*"
-        supportGroup: "observability"
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: owner-label-injector
+spec:
+  pluginDefinition: owner-label-injector
+  optionValues:
+    - name: config.labels.prefix
+      value: "myorg"
+    - name: config.staticRules
+      value:
+        rules:
+          - helmReleaseName: ".*"
+            helmReleaseNamespace: "kube-system"
+            supportGroup: "platform"
+            service: "kubernetes"
+          - helmReleaseName: "prometheus-.*"
+            helmReleaseNamespace: ".*"
+            supportGroup: "observability"
 ```
 
 ## Resource Requirements
@@ -108,11 +116,13 @@ This creates `owner-of-<release>` ConfigMaps automatically.
 
 ## Monitoring
 
-When `prometheus.enabled: true`, the plugin exposes:
+The plugin exposes the following endpoints:
 
 - `/metrics` - Prometheus metrics on port 8080
 - `/healthz` - Health probe on port 8081
 - `/readyz` - Readiness probe on port 8081
+
+Prometheus scraping is controlled via pod annotations (`prometheus.scrape` and `prometheus.targets` options).
 
 ## Security
 
@@ -124,7 +134,7 @@ When `prometheus.enabled: true`, the plugin exposes:
 
 - **Source Code**: [github.com/cloudoperators/owner-label-injector](https://github.com/cloudoperators/owner-label-injector)
 - **Documentation**: [README.md](https://github.com/cloudoperators/owner-label-injector/blob/main/README.md)
-- **Helm Chart**: [system/owner-label-injector](https://github.com/sapcc/helm-charts/tree/master/system/owner-label-injector)
+- **Helm Chart**: [charts/owner-label-injector](https://github.com/cloudoperators/owner-label-injector/tree/main/charts/owner-label-injector)
 
 ## Support
 
