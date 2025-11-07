@@ -1177,6 +1177,8 @@ spec:
                 default: 30s
                 format: duration
                 type: string
+              dnsPolicy:
+                type: string
               env:
                 items:
                   properties:
@@ -2098,6 +2100,11 @@ spec:
                 - managed
                 - unmanaged
                 type: string
+              networkPolicy:
+                properties:
+                  enabled:
+                    type: boolean
+                type: object
               nodeSelector:
                 additionalProperties:
                   type: string
@@ -2110,6 +2117,10 @@ spec:
                         type: boolean
                       enableMetrics:
                         type: boolean
+                      extraLabels:
+                        additionalProperties:
+                          type: string
+                        type: object
                     type: object
                 type: object
               podAnnotations:
@@ -2238,6 +2249,8 @@ spec:
                       type: string
                     hostPort:
                       format: int32
+                      maximum: 65535
+                      minimum: 0
                       type: integer
                     name:
                       type: string
@@ -2575,6 +2588,8 @@ spec:
                   - whenUnsatisfiable
                   type: object
                 type: array
+              trafficDistribution:
+                type: string
               volumeMounts:
                 items:
                   properties:
