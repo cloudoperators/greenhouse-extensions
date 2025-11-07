@@ -25,7 +25,7 @@ Components included in this Plugin:
 
 ## Architecture
 
-:construction: will be updated soon :construction:
+![OpenTelemetry Architecture](img/otel-arch.png)
 
 ## Note
 
@@ -61,7 +61,7 @@ Based on the backend selection the telemetry data will be exporter to the backen
 
 ## Failover Connector
 
-The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the preferred user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
+The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
 
 ## Values
 
@@ -71,6 +71,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
 | auditLogs.collectorImage.tag | string | `"2016982"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
+| auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
