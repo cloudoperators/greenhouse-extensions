@@ -25,8 +25,8 @@ data:
         try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
     }
 
-    @test "Verify successful deployment of the {{ .Release.Name }}-operator service" {
-        verify "there is 1 service named '{{ .Release.Name }}-operator\$'"
+    @test "Verify successful deployment of the {{ .Release.Name }} service" {
+        verify "there is 1 service named '{{ .Release.Name }}\$'"
     }
     {{- end -}}
 
