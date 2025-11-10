@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: reloader
+spec:
+  version: 1.0.0
+  displayName: Reloader
+  description: Reloader is a Kubernetes controller that automatically triggers rollouts of workloads (like Deployments, StatefulSets, and more) whenever referenced Secrets or ConfigMaps are updated.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/reloader/README.md
+  icon: https://raw.githubusercontent.com/stakater/Reloader/master/assets/web/reloader.jpg
+  helmChart:
+    # renovate depName=ghcr.io/stakater/charts/reloader
+    name: reloader
+    repository: oci://ghcr.io/stakater/charts
+    version: 2.2.3
+  options:
+    - name: reloader.watchGlobally
+      description: Allow Reloader to watch in all namespaces (true) or just in a single namespace (false)
+      required: false
+      type: bool
+    - name: reloader.ignoreSecrets
+      description: To ignore secrets. Valid value are either true or false. Either ignoreSecrets or ignoreConfigMaps can be ignored, not both at the same time
+      required: false
+      type: bool
+    - name: reloader.ignoreConfigMaps
+      description: To ignore configmaps. Valid value are either true or false
+      required: false
+      type: bool
+    - name: reloader.reloadOnCreate
+      description: Enable reload on create events. Valid value are either true or false
+      required: false
+      type: bool
+    - name: reloader.reloadOnDelete
+      description: Enable reload on delete events. Valid value are either true or false
+      required: false
+      type: bool
+    - name: reloader.syncAfterRestart
+      description: Enable sync after Reloader restarts for Add events, works only when reloadOnCreate is true. Valid value are either true or false
+      required: false
+      type: bool
+    - name: reloader.enableHA
+      description: Enable leadership election allowing you to run multiple replicas
+      required: false
+      type: bool
+    - name: reloader.deployment.replicas
+      description: Number of replicas, if you wish to run multiple replicas set reloader.enableHA = true. The replicas will be limited to 1 when reloader.enableHA = false
+      required: false
+      type: int
+    - name: reloader.podMonitor.enabled
+      description: Enable to scrape Reloader's Prometheus metrics
+      required: false
+      type: bool
+    - name: reloader.podMonitor.labels
+      description: Set labels that can be matched by Prometheus podMonitorSelector
+      required: false
+      type: map
+    - name: reloader.deployment.securityContext
+      description: Set pod security context
+      required: false
+      type: map
+    - name: reloader.deployment.containerSecurityContext
+      description: Set container security context
+      required: false
+      type: map

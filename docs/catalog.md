@@ -19,3 +19,4 @@ This following table provides an overview of the currently available Plugins in 
 | logs|This Plugin is intended for ingesting, generating, collecting, and exporting logs.|0.8.0|
 | opensearch|The OpenSearch plugin sets up an OpenSearch environment using the OpenSearch Operator, automating deployment, provisioning, management, and orchestration of OpenSearch clusters and dashboards.|0.0.5|
 | teams2slack|Manage Slack handles and channels based on Greenhouse teams and their members|1.1.0|
+| reloader|Reloader controller to automatically trigger rollouts of workloads whenever referenced Secrets or ConfigMaps are updated|1.0.0|
