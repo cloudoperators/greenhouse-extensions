@@ -17,7 +17,7 @@ cluster:
       password: "CHANGE_ME_FailoverUser2025$%"
   cluster:
     name: "opensearch-logs"
-    # Disable monitoring for test environment
+    # Disable monitoring for local test environment
     general:
       monitoring:
         enable: false
