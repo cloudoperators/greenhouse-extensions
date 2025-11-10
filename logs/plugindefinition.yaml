@@ -2,19 +2,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.12
+  version: 0.11.15
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
-    name: opentelemetry-operator
+    name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.11.12
+    version: 0.0.3
   options:
+    - default: true
+      description: Set to true to enable the installation of the OpenTelemetry Operator.
+      name: opentelemetry-operator.enabled
+      required: false
+      type: bool
+    - default: true
+      description: Set this to true to create the custom CRDs required by the OpenTelemetry Operator. Set to false if another chart is already installing the CRDs.
+      name: customCRDs.enabled
+      required: false
+      type: bool
     - default: true
       description: Activates the standard configuration for logs
       name: openTelemetry.logsCollector.enabled
@@ -104,12 +114,12 @@ spec:
       required: false
       type: bool
     - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
-      description: openTelemetry.manager.collectorImage.repository
-      name: openTelemetry.manager.collectorImage.repository
+      description: openTelemetry.collectorImage.repository
+      name: openTelemetry.collectorImage.repository
       required: false
       type: string
     - default: "2016982"
-      description: openTelemetry.manager.collectorImage.tag
-      name: openTelemetry.manager.collectorImage.tag
+      description: openTelemetry.collectorImage.tag
+      name: openTelemetry.collectorImage.tag
       required: false
       type: string
