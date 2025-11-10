@@ -173,7 +173,6 @@ operator:
 additionalRuleLabels: {}
 
 cluster:
-  # -- Override the name used by the subchart. By default uses release name with -logs suffix
   nameOverride: ""
   fullnameOverride: ""
 
@@ -189,9 +188,7 @@ cluster:
 
   # OpenSearchCluster configuration
   cluster:
-    # -- OpenSearchCluster name. If empty, subchart defaults to release name.
-    # For proper naming, set this to "{{Release.Name}}-logs" or leave empty and set via values file.
-    # Note: Helm values.yaml doesn't support templating, so this must be set explicitly or via --set/values file.
+    # -- OpenSearchCluster name, by default release name is used
     name: ""
 
     # -- OpenSearchCluster annotations
@@ -796,7 +793,7 @@ cluster:
 
 # SIEM OpenSearch Cluster Configuration
 siem:
-  # -- Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM data.
+  # -- Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM.
   enabled: false
 
   # -- Override the name used by the subchart. By default uses release name with -siem suffix
