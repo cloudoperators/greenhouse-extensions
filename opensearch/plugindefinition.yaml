@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.36
+  version: 0.0.37
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.36
+    version: 0.0.37
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -137,6 +137,11 @@ spec:
       required: false
       type: string
     # SIEM cluster configuration options
+    - name: siem.enabled
+      description: "Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM."
+      required: false
+      type: bool
+      default: false
     - name: siem.cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin for the second cluster. Leave blank to use the default monitoring configuration."
       required: false
@@ -169,29 +174,37 @@ spec:
       description: "Specifies custom metadata labels for the dashboards service for the SIEM cluster."
       required: false
       type: map
-    - name: siem.usersCredentials.siem.username
-      description: "Primary username for SIEM data ingestion in the SIEM cluster."
-      required: true
-      type: secret
-    - name: siem.usersCredentials.siem.password
-      description: "Primary user password for SIEM data ingestion in the SIEM cluster."
-      required: true
-      type: secret
-    - name: siem.usersCredentials.siem2.username
-      description: "Secondary username for SIEM data ingestion to support failover authentication in the SIEM cluster."
-      required: true
-      type: secret
-    - name: siem.usersCredentials.siem2.password
-      description: "Secondary user password for SIEM data ingestion to support failover authentication in the SIEM cluster."
-      required: true
-      type: secret
-    - name: siem.usersCredentials.siem-admin.password
+    - name: siem.usersCredentials.siemAdmin.password
       description: "Admin password used for initial setup and management of the SIEM cluster"
-      required: true
+      required: false
       type: secret
-    - name: siem.usersCredentials.siem-admin.hash
+    - name: siem.usersCredentials.siemAdmin.hash
       description: "Admin password hash (bcrypt format) for the SIEM cluster"
-      required: true
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemLogs.username
+      description: "Primary username for SIEM data ingestion in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemLogs.password
+      description: "Primary user password for SIEM data ingestion in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemLogs2.username
+      description: "Secondary username for SIEM data ingestion to support failover authentication in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemLogs2.password
+      description: "Secondary user password for SIEM data ingestion to support failover authentication in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemDashboards.username
+      description: "Username for SIEM dashboards access in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemDashboards.password
+      description: "Password for SIEM dashboards access in the SIEM cluster."
+      required: false
       type: secret
     - name: siem.usersRoleBinding
       description: "Define user role bindings for the SIEM cluster."

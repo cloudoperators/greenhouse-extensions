@@ -1,3 +1,4 @@
+{{- if .Values.siem.enabled }}
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
@@ -15,7 +16,7 @@ stringData:
     config:
       dynamic:
         kibana:
-          server_username: {{ (index .Values.siem.usersCredentials "siem-dashboards").username | default "siem-dashboards" }}
+          server_username: {{ .Values.siem.usersCredentials.siemDashboards.username | default "siem-dashboards" }}
         http:
           anonymous_auth_enabled: false
           xff:
@@ -53,7 +54,7 @@ stringData:
       type: "internalusers"
       config_version: 2
     admin:
-      hash: {{ (index .Values.siem.usersCredentials "siem-admin").hash | quote }}
+      hash: {{ (index .Values.siem.usersCredentials "siemAdmin").hash | quote }}
       reserved: true
       backend_roles:
         - "admin"
@@ -78,3 +79,4 @@ stringData:
     _meta:
       type: "tenants"
       config_version: 2
+{{- end }}

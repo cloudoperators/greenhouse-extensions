@@ -1,5 +1,5 @@
 {{- $root := . -}}
-{{- if .Values.cluster.cluster.general.monitoring.enable }}
+{{- if or .Values.cluster.cluster.general.monitoring.enable (and .Values.siem.enabled .Values.siem.cluster.general.monitoring.enable) }}
 {{- range $path, $bytes := .Files.Glob "alerts/opensearch-cluster.yaml" }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -15,23 +15,7 @@ spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
-{{- if .Values.siem.cluster.general.monitoring.enable }}
-{{- range $path, $bytes := .Files.Glob "alerts/opensearch-cluster-siem.yaml" }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: {{ printf "%s-%s" $.Release.Name ($path | trimSuffix ".yaml") | replace "/" "-" | trunc 63 }}
-  labels:
-    {{- include "opensearch.labels" $ | nindent 4 }}
-    {{- if $.Values.siem.cluster.general.monitoring.labels }}
-    {{- toYaml $.Values.siem.cluster.general.monitoring.labels | nindent 4 }}
-    {{- end }}
-spec:
-{{ tpl (printf "%s" $bytes) $root | indent 2 }}
-{{- end }}
-{{- end }}
-{{- if or .Values.cluster.cluster.general.monitoring.enable .Values.siem.cluster.general.monitoring.enable }}
+{{- if or .Values.cluster.cluster.general.monitoring.enable (and .Values.siem.enabled .Values.siem.cluster.general.monitoring.enable) }}
 {{- range $path, $bytes := .Files.Glob "alerts/opensearch-operator.yaml" }}
 ---
 apiVersion: monitoring.coreos.com/v1

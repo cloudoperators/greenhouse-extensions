@@ -20,7 +20,7 @@ data:
 {{ printf "%s" $bytes | indent 4 }}
 {{- end }}
 {{- end }}
-{{- if .Values.siem.cluster.general.monitoring.enable }}
+{{- if and .Values.siem.enabled .Values.siem.cluster.general.monitoring.enable }}
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "dashboards/*.json" }}
 ---

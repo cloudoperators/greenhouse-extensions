@@ -796,6 +796,9 @@ cluster:
 
 # SIEM OpenSearch Cluster Configuration
 siem:
+  # -- Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM data.
+  enabled: false
+
   # -- Override the name used by the subchart. By default uses release name with -siem suffix
   nameOverride: ""
   fullnameOverride: ""
@@ -981,7 +984,7 @@ siem:
       # -- Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied
       # if a custom securityconfig is provided
       opensearchCredentialsSecret:
-          name: "siem-dashboards-credentials"
+          name: "siemdashboards-credentials"
 
       # -- List of dashboards plugins to install
       pluginsList: []
@@ -1109,7 +1112,7 @@ siem:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
         adminCredentialsSecret:
-          name: "siem-admin-credentials"
+          name: "siemadmin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -1237,34 +1240,6 @@ siem:
             - "indices:data/read*"
             - "indices:monitor*"
             - "indices_all"
-    - name: "siem-read-role"
-      clusterPermissions:
-        - "read"
-        - "cluster:monitor/nodes/stats"
-        - "cluster:admin/opensearch/ql/datasources/read"
-        - "cluster:monitor/task/get"
-        - 'cluster:admin/opendistro/reports/definition/create'
-        - 'cluster:admin/opendistro/reports/definition/update'
-        - 'cluster:admin/opendistro/reports/definition/on_demand'
-        - 'cluster:admin/opendistro/reports/definition/delete'
-        - 'cluster:admin/opendistro/reports/definition/get'
-        - 'cluster:admin/opendistro/reports/definition/list'
-        - 'cluster:admin/opendistro/reports/instance/list'
-        - 'cluster:admin/opendistro/reports/instance/get'
-        - 'cluster:admin/opendistro/reports/menu/download'
-        - 'cluster:admin/opensearch/ppl'
-      indexPermissions:
-        - indexPatterns:
-            - "*"
-          allowedActions:
-            - "search"
-            - "read"
-            - "get"
-            - "indices:monitor/settings/get"
-            - "indices:admin/create"
-            - "indices:admin/mappings/get"
-            - "indices:data/read/search*"
-            - "indices:admin/get"
     - name: "siem-dashboards-role"
       clusterPermissions:
         - "cluster_monitor"
@@ -1286,14 +1261,14 @@ siem:
             - "indices:admin/get"
 
   # -- List of OpenSearch user configurations for SIEM cluster.
-  # @default -- <pre>users:<br>  - name: "siem"<br>    secretName: "siem-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
+  # @default -- <pre>users:<br>  - name: "siem-logs"<br>    secretName: "siem-logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
-    - name: "siem"
-      secretName: "siem-credentials"
+    - name: "siem-logs"
+      secretName: "siem-logs-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siem2"
-      secretName: "siem2-credentials"
+    - name: "siem-logs2"
+      secretName: "siem-logs2-credentials"
       secretKey: "password"
       backendRoles: []
     - name: "siem-dashboards"
@@ -1302,29 +1277,29 @@ siem:
       backendRoles: []
 
   # -- List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
-  # @default -- <pre>usersCredentials:<br>  siem-admin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre>
+  # @default -- <pre>usersCredentials:<br>  siemAdmin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre>
   usersCredentials:
-    siem-admin:
+    siemAdmin:
       username: ""  # Specify the username for the "siem-admin" user. If left empty, defaults to "siem-admin".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
       hash: ""      # Optional bcrypt hash of the password.
-    siem:
-      username: ""  # Specify the username for the "siem" user. If left empty, defaults to "siem".
+    siemLogs:
+      username: ""  # Specify the username for the "siem-logs" user. If left empty, defaults to "siem-logs".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siem2:
-      username: ""  # Specify the username for the failover user for "siem". If left empty, defaults to "siem2".
+    siemLogs2:
+      username: ""  # Specify the username for the failover user for "siem-logs". If left empty, defaults to "siem-logs2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siem-dashboards:
+    siemDashboards:
       username: ""  # Specify the username for the "siem-dashboards" user. If left empty, defaults to "siem-dashboards".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role
-  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem"<br>      - "siem2"<br>    roles:<br>      - "siem-write-role"</pre>
+  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem-logs"<br>      - "siem-logs2"<br>    roles:<br>      - "siem-write-role"</pre>
   usersRoleBinding:
     - name: "siem-write"
       users:
-        - "siem"
-        - "siem2"
+        - "siem-logs"
+        - "siem-logs2"
       roles:
         - "siem-write-role"
     - name: "siem-dashboards"
