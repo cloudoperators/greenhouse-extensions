@@ -29,38 +29,38 @@ cluster:
 
     nodePools:
       - component: main
-        diskSize: "5Gi"
+        diskSize: "2Gi"
         replicas: 1
         roles:
           - "cluster_manager"
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "200m"
           limits:
             memory: "2Gi"
             cpu: 1
       - component: data
-        diskSize: "5Gi"
+        diskSize: "2Gi"
         replicas: 1
         roles:
           - "data"
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "200m"
           limits:
             memory: "4Gi"
             cpu: 2
       - component: client
-        diskSize: "5Gi"
+        diskSize: "2Gi"
         replicas: 1
         roles:
           - "client"
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "512Mi"
+            cpu: "200m"
           limits:
             memory: "2Gi"
             cpu: 1
