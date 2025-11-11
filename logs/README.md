@@ -119,7 +119,6 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.manager.image.tag | string | `"v0.131.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
 | opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |
-| opentelemetry-operator.nameOverride | string | `"operator"` | Provide a name in place of the default name `opentelemetry-operator`. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
