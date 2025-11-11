@@ -10,3 +10,6 @@ act_*.json
 
 # ignore IntelliJ IDEA files
 .idea
+
+# ignore VSCode files
+.vscode/
