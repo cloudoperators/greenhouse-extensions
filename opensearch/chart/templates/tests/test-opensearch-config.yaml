@@ -62,63 +62,63 @@ data:
     # ===== OpenSearch logs Cluster Tests =====
 
     @test "Verify OpenSearch logs main pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-main-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-main-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch logs data pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-data-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-data-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch logs client pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-client-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-client-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     # The dashboards pod will not be scheduled if the ServiceMonitor CRD is missing. If the following test fails, please ensure the ServiceMonitor CRD is installed (e.g. via the kube-monitoring plugin).
     @test "Verify OpenSearch logs dashboards pod is running" {
-        try "at most 24 times every 15s to get pods named '{{ .Release.Name }}-dashboards-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 24 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-dashboards-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch logs main service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-main' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-main'"
+        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-main' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-main'"
     }
 
     @test "Verify OpenSearch logs data service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-data' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-data'"
+        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-data' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-data'"
     }
 
     @test "Verify OpenSearch logs client service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-client' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-client'"
+        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-client' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-client'"
     }
 
 {{- if .Values.siem.enabled }}
     # ===== OpenSearch siem Cluster Tests =====
 
     @test "Verify OpenSearch siem main pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-siem-main-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-main-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch siem data pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-siem-data-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-data-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch siem client pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Release.Name }}-siem-client-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-client-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch siem dashboards pod is running" {
-        try "at most 24 times every 15s to get pods named '{{ .Release.Name }}-siem-dashboards-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
+        try "at most 24 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-dashboards-' in namespace '{{ .Release.Namespace }}' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify OpenSearch siem main service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-siem-main' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-siem-main'"
+        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-main' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-main'"
     }
 
     @test "Verify OpenSearch siem data service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-siem-data' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-siem-data'"
+        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-data' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-data'"
     }
 
     @test "Verify OpenSearch siem client service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Release.Name }}-siem-client' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Release.Name }}-siem-client'"
+        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-client' in namespace '{{ .Release.Namespace }}' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-client'"
     }
 {{- end }}
 
