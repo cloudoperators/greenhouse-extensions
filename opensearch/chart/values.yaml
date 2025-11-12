@@ -243,7 +243,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.2.0.0/prometheus-exporter-3.2.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -285,7 +285,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.2.0
+      version: 3.3.2
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -401,7 +401,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.2.0
+      version: 3.3.2
 
     # initHelper configuration
     initHelper:
@@ -869,7 +869,7 @@ siem:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.2.0.0/prometheus-exporter-3.2.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -911,7 +911,7 @@ siem:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.2.0
+      version: 3.3.2
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -1027,7 +1027,7 @@ siem:
       tolerations: []
 
       # -- dashboards version
-      version: 3.2.0
+      version: 3.3.2
 
     # initHelper configuration
     initHelper:
