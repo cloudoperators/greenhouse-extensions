@@ -189,7 +189,7 @@ cluster:
   # OpenSearchCluster configuration
   cluster:
     # -- OpenSearchCluster name, by default release name is used
-    name: ""
+    name: "opensearch-logs"
 
     # -- OpenSearchCluster annotations
     annotations: {}
@@ -815,7 +815,7 @@ siem:
     # -- OpenSearchCluster name. If empty, subchart defaults to release name.
     # For proper naming, set this to "{{Release.Name}}-siem" or leave empty and set via values file.
     # Note: Helm values.yaml doesn't support templating, so this must be set explicitly or via --set/values file.
-    name: ""
+    name: "opensearch-siem"
 
     # -- OpenSearchCluster annotations
     annotations: {}

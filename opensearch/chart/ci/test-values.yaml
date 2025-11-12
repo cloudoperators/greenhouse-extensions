@@ -16,7 +16,6 @@ cluster:
     dashboards2:
       password: "CHANGE_ME_FailoverUser2025$%"
   cluster:
-    name: "opensearch-logs"
     # Disable monitoring for local test environment
     general:
       monitoring:
@@ -82,7 +81,6 @@ siem:
       username: "siem-dashboards"
       password: "CHANGE_ME_SIEMDashboards2025!@#"
   cluster:
-    name: "opensearch-siem"
     # Disable monitoring for test environment
     general:
       monitoring:
