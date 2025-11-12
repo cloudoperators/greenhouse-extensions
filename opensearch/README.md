@@ -112,7 +112,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"3.3.2"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -285,7 +285,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | siem.cluster.dashboards.tls.secret | object | `{"name":"opensearch-siem-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | siem.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| siem.cluster.dashboards.version | string | `"3.3.2"` | dashboards version |
+| siem.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
 | siem.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | siem.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | siem.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
