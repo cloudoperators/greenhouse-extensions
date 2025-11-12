@@ -51,7 +51,7 @@ spec:
       description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
       type: list
-    - name: certManager.digicert
+    - name: certManager.issuer.digicert
       description: "Configure DigiCert certificate issuer."
       required: false
       type: map
