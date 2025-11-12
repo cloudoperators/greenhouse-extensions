@@ -401,7 +401,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.3.2
+      version: 3.3.0
 
     # initHelper configuration
     initHelper:
@@ -1027,7 +1027,7 @@ siem:
       tolerations: []
 
       # -- dashboards version
-      version: 3.3.2
+      version: 3.3.0
 
     # initHelper configuration
     initHelper:
