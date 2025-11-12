@@ -7,7 +7,7 @@ metadata:
     greenhouse.sap/expose: "true"
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
-    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default .Release.Name }}
+    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default (printf "%s-logs" .Release.Name) }}
     {{- with .Values.cluster.cluster.dashboards.service.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -19,5 +19,5 @@ spec:
       targetPort: 5601
       protocol: TCP
   selector:
-    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default .Release.Name }}
+    opensearch.cluster.dashboards: {{ .Values.cluster.cluster.name | default (printf "%s-logs" .Release.Name) }}
 {{- end }}

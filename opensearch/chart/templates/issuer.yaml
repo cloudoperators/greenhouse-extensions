@@ -19,4 +19,16 @@ metadata:
 spec:
   ca:
     secretName: opensearch-ca-cert
+{{- if .Values.siem.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: opensearch-siem-ca-issuer
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: opensearch-siem-ca-cert
+{{- end }}
 {{- end }}
