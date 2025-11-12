@@ -1,0 +1,26 @@
+# All alert severities are set to 'info' for setup only.
+groups:
+  - name: kafka-operator
+    interval: 30s
+    rules:
+      - alert: StrimziOperatorDown
+        expr: up{job=~".*strimzi.*operator.*"} == 0
+        for: 10m
+        labels:
+          severity: info
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/StrimziOperatorDown.md
+          {{- include "kafka.alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "Strimzi Kafka Operator is down"
+          description: "Strimzi Kafka Operator {{`{{ $labels.instance }}`}} has been down for more than 10 minutes"
+
+      - alert: StrimziOperatorHighRestartRate
+        expr: rate(kube_pod_container_status_restarts_total{pod=~".*strimzi.*operator.*"}[15m]) > 0.1
+        for: 15m
+        labels:
+          severity: info
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/StrimziOperatorHighRestartRate.md
+          {{- include "kafka.alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "Strimzi Operator has high restart rate"
+          description: "Strimzi Operator pod {{`{{ $labels.pod }}`}} has restarted {{`{{ $value }}`}} times in the last 15 minutes"

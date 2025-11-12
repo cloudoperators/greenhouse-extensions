@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.kafka.enabled .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.kafka.name }}-kafka
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/cluster: {{ .Values.kafka.name }}
+      strimzi.io/kind: Kafka
+      strimzi.io/name: {{ .Values.kafka.name }}-kafka
+  endpoints:
+  - port: tcp-prometheus
+    interval: 30s
+    path: /metrics
+{{- end }}
