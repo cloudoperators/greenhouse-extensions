@@ -15,7 +15,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  HELM_VERSION: v3.17.0
   PYTHON_VERSION: "3.13"
   CT_CONFIG: .github/configs/helm-chart-testing.yaml
   E2E_PATH: .github/e2e
@@ -27,7 +26,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
-          version: ${{ env.HELM_VERSION }}
+          version: "v3.19.2"
 
       - name: Set up Flux CLI
         uses: fluxcd/flux2/action@4a15fa6a023259353ef750acf1c98fe88407d4d0 # v2.7.2
