@@ -132,3 +132,17 @@ monitoring:
 
   # -- Additional labels for PrometheusRule alerts
   additionalRuleLabels: {}
+
+# Test framework configuration
+testFramework:
+  # -- Activates the Helm chart testing framework.
+  enabled: true
+  image:
+    # -- Defines the image registry for the test framework.
+    registry: ghcr.io
+    # -- Defines the image repository for the test framework.
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    # -- Defines the image tag for the test framework.
+    tag: main
+    # -- Defines the image pull policy for the test framework.
+    pullPolicy: Always
