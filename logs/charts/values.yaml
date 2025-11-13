@@ -109,6 +109,7 @@ openTelemetry:
         - FilelogRefusedLogs
         - LogsOTelLogsMissing
         - LogsOTelLogsDecreasing
+        - LogsExportingFailed
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
