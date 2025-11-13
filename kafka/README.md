@@ -79,3 +79,8 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | monitoring.additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
 | monitoring.enabled | bool | `true` | Enable Prometheus monitoring |
 | operator.enabled | bool | `true` | Enable or disable the Strimzi Kafka Operator installation |
+| testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
+| testFramework.image.pullPolicy | string | `"Always"` | Defines the image pull policy for the test framework. |
+| testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
+| testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
+| testFramework.image.tag | string | `"main"` | Defines the image tag for the test framework. |
