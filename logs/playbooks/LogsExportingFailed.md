@@ -51,9 +51,8 @@ Permission issues with missing, wrong or out-of-sync credentials
   1. Check which credentials is being used by checking the secret:
 ```bash
     kubectl get ds/logs-collector -n <namespace> -o=jsonpath='{.spec.template.spec.containers[].envFrom[].secretRef.name}'
-```
-  1. Action: Update secrets for credentials used by the collector and update accordingly.
-  1. Action: Restart the logs-collector:
+  2. Action: Update secrets for credentials used by the collector and update accordingly.
+  3. Action: Restart the logs-collector:
 ```bash
     kubectl rollout restart daemonset/logs-collector -n <namespace>
 ```
