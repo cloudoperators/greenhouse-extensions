@@ -35,8 +35,8 @@ Configuration issue, syntax problem, indentation issue within the pipeline
   kubectl get ds/logs-collector -n <namespace> -o=jsonpath='{.spec.template.spec.volumes[].configMap.name}'
   kubectl get cm -n <namespace> --sort-by=.metadata.creationTimestamp
 ```
-  1. Action: update configMap, deploy a fix.
-  1. Action: Restart the logs-collector:
+  2. Action: update configMap, deploy a fix.
+  3. Action: Restart the logs-collector:
 ```bash
     kubectl rollout restart daemonset/logs-collector -n <namespace>
 ```
