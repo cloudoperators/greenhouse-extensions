@@ -58,8 +58,8 @@ Permission issues with missing, wrong or out-of-sync credentials
     kubectl rollout restart daemonset/logs-collector -n <namespace>
 ```
 
-### 3. Ensure that the pods has been recreated by the operator after some time
+### Ensure that the pods has been recreated by the operator after some time
 
-### 4. Observe the logs for the Pod to ensure that the problem has been resolved.
+### Observe the logs for the Pod to ensure that the problem has been resolved.
 
-### 5. Done.
+### Done.
