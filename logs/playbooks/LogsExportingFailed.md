@@ -44,8 +44,8 @@ Configuration issue, syntax problem, indentation issue within the pipeline
 #### Is it a connection issue between the collector and the sink?
 There could be an issue with the throttling, latency, connection timeouts when exporting to the sink
    1. Check if the sink is running and accepting connections
-   1. Check if the sink enough resources to accept new logs (cpu, memory, storage).
-   1. Action: Refer to documentation relating to the logs sink.
+   2. Check if the sink enough resources to accept new logs (cpu, memory, storage).
+   3. Action: Refer to documentation relating to the logs sink.
 #### Is it a authentication/authorization issue between the collector and the sink?
 Permission issues with missing, wrong or out-of-sync credentials
   1. Check which credentials is being used by checking the secret:
