@@ -369,6 +369,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
 | thanos.query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
 | thanos.query.enabled | bool | `true` | Enable Thanos Query component |
+| thanos.query.engine | bool | `false` | Enable experimental Thanos PromQL engine |
 | thanos.query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
 | thanos.query.ingress.enabled | bool | `false` | Enable ingress controller resource |
 | thanos.query.ingress.grpc.annotations | object | `{}` | Additional annotations for the Ingress resource.(GRPC) To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
@@ -387,7 +388,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
-| thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
+| thanos.query.replicas | int | `1` | Number of Thanos Query replicas to deploy |
 | thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
@@ -431,6 +432,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.store.enabled | bool | `true` | Enable Thanos Store component |
 | thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
 | thanos.store.logLevel | string | info | Thanos Store log level |
+| thanos.store.replicas | int | `1` | Number of Thanos Store replcias |
 | thanos.store.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Store container. |
 | thanos.store.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Store service in addition to its already configured annotations. |
 | thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |
