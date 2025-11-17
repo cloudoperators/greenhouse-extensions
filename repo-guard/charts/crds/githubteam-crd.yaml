@@ -66,11 +66,32 @@ spec:
                       distributionListID:
                         type: string
                     type: object
+                  genericHTTP:
+                    properties:
+                      group:
+                        type: string
+                      provider:
+                        type: string
+                    type: object
+                  ldap:
+                    properties:
+                      group:
+                        type: string
+                      provider:
+                        type: string
+                    type: object
                   ldapGroup:
                     properties:
                       group:
                         type: string
                       ldapGroupProvider:
+                        type: string
+                    type: object
+                  static:
+                    properties:
+                      group:
+                        type: string
+                      provider:
                         type: string
                     type: object
                 type: object
