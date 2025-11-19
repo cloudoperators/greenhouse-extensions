@@ -362,7 +362,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.httpAddress | string | 0.0.0.0:10902 | HTTP-address used across the stack |
 | thanos.image.pullPolicy | string | `"IfNotPresent"` | Thanos image pull policy |
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
-| thanos.image.tag | string | `"v0.39.2"` | Thanos image tag |
+| thanos.image.tag | string | `"v0.40.1"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
 | thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` | Set Thanos Query auto-downsampling |
