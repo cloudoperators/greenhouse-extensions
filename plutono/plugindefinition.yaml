@@ -6,8 +6,8 @@ metadata:
   name: plutono
 spec:
   description: Plutono is a fork of Grafana 7.5.17 limited to maintenance and security updates.
-  version: 0.3.5
+  version: 0.3.6
   helmChart:
     name: plutono
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.3.5
+    version: 0.3.6
