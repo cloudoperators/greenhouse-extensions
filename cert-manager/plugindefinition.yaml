@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: cert-manager
 spec:
-  version: 1.18.2
+  version: 1.18.3
   displayName: Certificate manager
   description: Automated TLS certificate management
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: cert-manager
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.18.2
+    version: 1.18.3
   options:
     - name: cert-manager.installCRDs
       description: Whether to install CRDs
