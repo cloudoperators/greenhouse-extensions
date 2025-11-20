@@ -8,9 +8,6 @@ commonLabels: {}
 opentelemetry-operator:
   # -- Set to true to enable the installation of the OpenTelemetry Operator.
   enabled: true
-  # -- Provide a name in place of the default name `opentelemetry-operator`.
-  nameOverride: "operator"
-
   crds:
     # This is required because there is no other Plugin that would install them, and because automatic CRD installs are not supported due to a limitation with helm, see [HIP0011](https://github.com/helm/community/blob/main/hips/hip-0011.md).
     # --  If you want to use the upstream CRDs, set this variable to `true``.

@@ -3,7 +3,6 @@
 
 opentelemetry-operator:
   enabled: true
-  nameOverride: "operator"
   crds:
     create: false
   admissionWebhooks:

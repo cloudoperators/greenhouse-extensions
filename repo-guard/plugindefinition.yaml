@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: repo-guard
 spec:
-  version: "1.4.5"
+  version: "1.5.0"
   displayName: Repo Guard
   description: Manages Github teams, team memberships and repository & team assignments
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/README.md
@@ -14,14 +14,30 @@ spec:
   helmChart:
     name: repo-guard
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.4.5
+    version: 1.5.0
   options:
+    - name: manager
+      description: Manager configuration
+      required: false
+      type: map
     - name: ldap
       description: LDAP configuration for external member provider
       required: false
       type: map
     - name: distributionListAPI
       description: HTTP remote API configuration for external member provider
+      required: false
+      type: map
+    - name: genericExternalMemberProviders
+      description: Generic external member provider configuration
+      required: false
+      type: list
+    - name: staticMemberProviders
+      description: Static member provider configuration
+      required: false
+      type: list
+    - name: openSourceManagementPortalAPI
+      description: HTTP remote API configuration for OpenSourceManagementPortal
       required: false
       type: map
     - name: githubs

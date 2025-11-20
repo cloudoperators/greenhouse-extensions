@@ -38,7 +38,6 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /perses                   @cloudoperators/greenhouse-observability
 /prometheus               @cloudoperators/greenhouse-observability
 /service-proxy/           @cloudoperators/greenhouse-backend
-/teams2slack/             @cloudoperators/greenhouse-backend @voigts
 /thanos/                  @cloudoperators/greenhouse-observability
 ui/                       @cloudoperators/greenhouse-frontend
 /heureka/                 @cloudoperators/greenhouse-src @cloudoperators/greenhouse-frontend @dimtas
@@ -47,3 +46,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /heureka-scanner-nvd/     @cloudoperators/greenhouse-src @dimtas
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
 /repo-guard/              @cloudoperators/greenhouse-backend
+/reloader/                @cloudoperators/greenhouse-backend

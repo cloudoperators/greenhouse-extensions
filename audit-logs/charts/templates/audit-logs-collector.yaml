@@ -2,6 +2,7 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
+{{- if .Values.auditLogs.logsCollector.enabled }}
 
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -341,3 +342,4 @@ spec:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
           exporters: [forward]
+{{- end }}
