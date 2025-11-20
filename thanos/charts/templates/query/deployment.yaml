@@ -11,7 +11,7 @@ metadata:
   name: {{ include "release.name" . }}-query
 spec:
   progressDeadlineSeconds: 600
-  replicas: {{ default 1 .Values.thanos.query.replicas }}
+  replicas: {{ .Values.thanos.query.replicas }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -60,6 +60,9 @@ spec:
         - --grpc-client-tls-cert=/etc/tls/client/tls.crt
         - --grpc-client-tls-key=/etc/tls/client/tls.key
         - --grpc-client-tls-secure
+        {{- end }}
+        {{- if .Values.thanos.query.engine }}
+        - --query.promql-engine=thanos
         {{- end }}
         image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
