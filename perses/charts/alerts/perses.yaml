@@ -15,10 +15,10 @@ groups:
 
       - alert: PersesHealthEndpointFailure
         annotations:
-          description: Perses health endpoint hasn't responded with a successful status for 5 minutes.
+          description: Perses health endpoint hasn't responded with a successful status for 15 minutes.
           summary: Perses health endpoint is failing.
         expr: |
-          sum(rate(perses_http_request_total{handler="/perses/api/v1/health",code="200"}[5m])) == 0
+          sum(rate(perses_http_request_total{handler="{{ .Values.perses.config.api_prefix }}/api/v1/health",code="200"}[5m])) == 0
         for: 15m
         labels:
           severity: warning
@@ -35,22 +35,6 @@ groups:
           /
             sum(rate(perses_http_request_total[5m]))
           ) * 100 > 5
-        for: 10m
-        labels:
-          severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
-          {{- include "perses.alertLabels" . | nindent 10 }}
-
-      - alert: PersesElevatedHttpLatency
-        annotations:
-          description: Perses has a high latency of {{`{{$value}}`}} seconds for API requests.
-          summary: Perses API response time is high.
-        expr: |
-          (
-            histogram_quantile(0.95, sum by (handler, le) (rate(perses_http_request_duration_second_bucket{handler=~"/perses/api/.*"}[5m]))) > 1
-          and
-            sum by (handler) (rate(perses_http_request_duration_second_count{handler=~"/perses/api/.*"}[5m])) > 0
-          )
         for: 10m
         labels:
           severity: warning
