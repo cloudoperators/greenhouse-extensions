@@ -318,15 +318,9 @@ kubeMonitoring:
       # @section -- Prometheus options
       enabled: false
 
-      # By default, the alerts plugin deploys a ca-bundle to enable tls between Prometheus and Alertmanager
-      # Move to plugindef ?
+      # -- Prometheus Ingress Annotations
       # @ignored
-      annotations:
-        disco: "true"
-        kubernetes.io/tls-acme: "true"
-        nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
-        nginx.ingress.kubernetes.io/auth-tls-verify-client: "true"
-        nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
+      annotations: {}
 
       # -- Must be provided if Ingress is enabled
       # @section -- Prometheus options
