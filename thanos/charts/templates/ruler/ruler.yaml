@@ -25,6 +25,10 @@ spec:
             values:
             - {{ .Release.Name }}
         topologyKey: kubernetes.io/hostname
+  {{- if .Values.thanos.ruler.alertRelabelConfigs }}
+  alertRelabelConfigs:
+    thanos-ruler-{{ include "release.name" . }}-alert-relabel-config: alert-relabel-configs.yaml
+  {{- end }}
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
   {{- if .Values.thanos.ruler.externalPrefix }}
   externalPrefix: {{ .Values.thanos.ruler.externalPrefix }}
