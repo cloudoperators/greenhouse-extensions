@@ -51,7 +51,7 @@ spec:
   {{- end }}
   # Select rules across all namespaces
   ruleNamespaceSelector: 
-    {{- toYaml .Values.thanos.ruler.ruleNamespaceSelector | nindent 4 }}"
+    {{- toYaml .Values.thanos.ruler.ruleNamespaceSelector | nindent 4 }}
   ruleSelector:
     matchLabels:
     {{- if .Values.thanos.ruler.ruleSelector }}
