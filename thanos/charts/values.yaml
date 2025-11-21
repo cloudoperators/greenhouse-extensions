@@ -398,6 +398,12 @@ thanos:
         cpu:
         memory:
 
+    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
+    ruleNamespaceSelector: {}
+
+    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed 
+    ruleSelector:
+
     # -- SecurityContext holds pod-level security attributes and common container settings.
     securityContext:
       fsGroup: 2000

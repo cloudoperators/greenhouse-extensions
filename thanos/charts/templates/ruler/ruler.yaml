@@ -50,10 +50,15 @@ spec:
     name: "{{ .Values.thanos.ruler.objectStorageConfig.existingSecret.name }}"
   {{- end }}
   # Select rules across all namespaces
-  ruleNamespaceSelector: {}
+  ruleNamespaceSelector: 
+    {{- toYaml .Values.thanos.ruler.ruleNamespaceSelector | nindent 4 }}"
   ruleSelector:
     matchLabels:
+    {{- if .Values.thanos.ruler.ruleSelector }}
+      {{- toYaml .Values.thanos.ruler.ruleSelector | nindent 4 }}
+    {{- else }}
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
+    {{- end }}
   serviceName: {{ include "release.name" . }}-ruler
   queryEndpoints:
     - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}
