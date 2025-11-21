@@ -415,6 +415,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
 | thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
+| thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used  |
+| thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed  |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
 | thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
