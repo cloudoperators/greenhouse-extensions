@@ -27,6 +27,21 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
   - create
@@ -52,18 +67,6 @@ rules:
   - shoot-grafter.cloudoperators
   resources:
   - careinstructions
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - shoot-grafter.cloudoperators
-  resources:
-  - careinstructions/status
   verbs:
   - create
   - delete
