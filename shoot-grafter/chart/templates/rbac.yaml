@@ -75,3 +75,11 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - shoot-grafter.cloudoperators
+  resources:
+  - careinstructions/status
+  verbs:
+  - get
+  - patch
+  - update
