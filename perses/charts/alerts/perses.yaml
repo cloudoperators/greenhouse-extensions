@@ -3,10 +3,10 @@ groups:
     rules:
       - alert: PersesServiceDown
         annotations:
-          description: Perses service has disappeared. Prometheus target for the component cannot be discovered.
-          summary: Perses service is down.
+          description: "The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is down for more than 10 minutes"
+          summary: "Perses service is down"
         expr: |
-          absent(up{job=~".*perses.*"} == 1)
+          up{job=~".*perses.*"} == 0 
         for: 10m
         labels:
           severity: warning
@@ -15,10 +15,12 @@ groups:
 
       - alert: PersesHealthEndpointFailure
         annotations:
-          description: Perses health endpoint hasn't responded with a successful status for 15 minutes.
+          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is running but the health endpoint has not returned a success status for 15 minutes. 
           summary: Perses health endpoint is failing.
         expr: |
-          sum(rate(perses_http_request_total{handler="{{ .Values.perses.config.api_prefix }}/api/v1/health",code="200"}[5m])) == 0
+          sum by (pod, namespace) (
+            rate(perses_http_request_total{handler="{{ .Values.perses.config.api_prefix }}/api/v1/health",code="200"}[5m])
+          ) == 0
         for: 15m
         labels:
           severity: warning
@@ -27,13 +29,13 @@ groups:
 
       - alert: PersesHighHttpErrorRate
         annotations:
-          description: Perses is failing to handle {{`{{$value | humanize}}`}}% of HTTP requests.
-          summary: Perses has an elevated HTTP error rate.
+          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is failing {{`{{ $value | humanize }}`}}% of requests.
+          summary: High HTTP error rate on {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}}
         expr: |
           (
-            sum(rate(perses_http_request_total{code=~"5..|4.."}[5m]))
+            sum by (pod, namespace) (rate(perses_http_request_total{code=~"5..|4..", code!="404"}[5m]))
           /
-            sum(rate(perses_http_request_total[5m]))
+            sum by (pod, namespace)(rate(perses_http_request_total[5m]))
           ) * 100 > 5
         for: 10m
         labels:
@@ -46,7 +48,7 @@ groups:
           description: Perses failed to load plugin schemas {{`{{$value}}`}} times.
           summary: Perses plugin schema loading has failures.
         expr: |
-          sum(perses_plugin_schemas_load_attempts{status="error"}) > 0
+          sum by (pod, namespace) (increase(perses_plugin_schemas_load_attempts{status="error"}[15m])) > 0
         for: 15m
         labels:
           severity: warning
@@ -55,8 +57,8 @@ groups:
 
       - alert: PersesHighFileDescriptorUsage
         annotations:
-          description: Perses is using {{`{{$value | humanize}}`}}% of available file descriptors.
-          summary: Perses file descriptor usage is high.
+          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is using {{`{{ $value | humanize }}`}}% of available file descriptors.
+          summary: High FD usage on {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}}
         expr: |
           (process_open_fds / process_max_fds) * 100 > 70
         for: 15m
