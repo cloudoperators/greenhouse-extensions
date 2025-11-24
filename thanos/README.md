@@ -396,6 +396,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
 | thanos.query.web.routePrefix | string | `nil` |  |
+| thanos.ruler.alertRelabelConfigs | list | `[]` | alertRelabelConfigs defines the alert relabeling in Thanos Ruler. |
 | thanos.ruler.alertmanagers | object | nil | Configures the list of Alertmanager endpoints to send alerts to. The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager. |
 | thanos.ruler.alertmanagers.authentication.enabled | bool | `true` | Enable Alertmanager authentication for Thanos Ruler |
 | thanos.ruler.alertmanagers.authentication.ssoCert | string | `nil` | SSO Cert for Alertmanager authentication |

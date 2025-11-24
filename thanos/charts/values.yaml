@@ -346,6 +346,13 @@ thanos:
     # -- Annotations to add to the Thanos Ruler resources
     annotations: {}
 
+    # -- alertRelabelConfigs defines the alert relabeling in Thanos Ruler.
+    alertRelabelConfigs: []
+      # - separator: ;
+      #   regex: prometheus_replica
+      #   replacement: $1
+      #   action: labeldrop
+
     # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
