@@ -58,12 +58,14 @@ spec:
                 description: AdditionalLabels are labels that will be added to every
                   Greenhouse Cluster created by this CareInstruction.
                 type: object
-              disableRBAC:
-                default: false
-                description: DisableRBAC indicates whether the automatic configuration
-                  of RBAC roles and role bindings for the Greenhouse service account
-                  on the shoot cluster should be disabled. Defaulted to false.
-                type: boolean
+              authenticationConfigMapRef:
+                description: |-
+                  AuthenticationConfigMapRef is a reference to a ConfigMap in the Greenhouse cluster
+                  containing an AuthenticationConfiguration (config.yaml key with apiserver.config.k8s.io/v1beta1 content).
+                  When set, the shoot controller will merge this configuration with any existing configuration
+                  on the Garden cluster and configure the Shoot to use the merged authentication configuration.
+                  This allows specifying multiple OIDC issuers or having more control over the authentication setup.
+                type: string
               gardenClusterKubeConfigSecretName:
                 description: |-
                   GardenClusterKubeConfigSecretName is a reference to the secret containing the kubeconfig for the Garden cluster.
@@ -84,7 +86,7 @@ spec:
                 description: |-
                   GardenClusterName is the name of the Greenhouse Cluster representing the Gardener seed cluster from which the shoots will be reconciled.
                   This is mutually exclusive to referring to the GardenCluster by a kubeconfig secret via GardenClusterKubeConfigSecretName.
-                  Order is 1. GardenClusterKubeConfigSecretName 2. GardenClusterNames
+                  Order is 1. GardenClusterKubeConfigSecretName 2. GardenClusterName
                 type: string
               gardenNamespace:
                 description: GardenNamespace is the namespace in which Greenhouse
@@ -166,6 +168,18 @@ spec:
                   by this CareInstruction were reconciled.
                 format: date-time
                 type: string
+              notReadyClusterNames:
+                description: NotReadyClusterNames is the list of cluster names that
+                  are not ready.
+                items:
+                  type: string
+                type: array
+              readyClusterNames:
+                description: ReadyClusterNames is the list of cluster names that are
+                  ready.
+                items:
+                  type: string
+                type: array
               statusConditions:
                 description: StatusConditions represent the latest available observations
                   of the CareInstruction's current state.
