@@ -70,16 +70,16 @@ spec:
   {{- end }}
 
  {{- if (has "LogsExportingFailed" .Values.openTelemetry.prometheus.rules.enabled) }}
-  - alert: LogsExportingFailed
-    expr: sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
-    for: 1h
-    labels:
-      severity: info
-      playbook: 'docs/support/playbook/logs/otel-logs-exporting-failed'
-      {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
-    annotations:
-      summary:  OTel log exporting is failing. Check logs and exporter connectivity.
-      description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
+      - alert: LogsExportingFailed
+        expr: sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
+        for: 1h
+        labels:
+          severity: info
+          playbook: 'docs/support/playbook/logs/otel-logs-exporting-failed'
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary:  OTel log exporting is failing. Check logs and exporter connectivity.
+          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
   {{- end }}
 {{- if and (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) (".Values.opentelemetry-operator.enabled") }}
       - alert: ReconcileErrors
