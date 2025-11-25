@@ -322,14 +322,14 @@ spec:
 | kubeMonitoring.prometheus.prometheusSpec.evaluationInterval | string | `""` | Interval between consecutive evaluations |
 | kubeMonitoring.prometheus.prometheusSpec.externalLabels | object | `{}` | External labels to add to any time series or alerts when communicating with external systems like Alertmanager |
 | kubeMonitoring.prometheus.prometheusSpec.logLevel | string | `""` | Log level to be configured for Prometheus |
-| kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector.matchLabels | object | `{ plugin: <metadata.name> }` | PodMonitors to be selected for target discovery. |
-| kubeMonitoring.prometheus.prometheusSpec.probeSelector.matchLabels | object | `{ plugin: <metadata.name> }` | Probes to be selected for target discovery. |
+| kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | PodMonitors to be selected for target discovery. |
+| kubeMonitoring.prometheus.prometheusSpec.probeSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | Probes to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.retention | string | `""` | How long to retain metrics |
-| kubeMonitoring.prometheus.prometheusSpec.ruleSelector.matchLabels | object | `{ plugin: <metadata.name> }` | PrometheusRules to be selected for target discovery. If {}, select all PrometheusRules |
-| kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector.matchLabels | object | `{ plugin: <metadata.name> }` | scrapeConfigs to be selected for target discovery. |
+| kubeMonitoring.prometheus.prometheusSpec.ruleSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | PrometheusRules to be selected for target discovery. If {}, select all PrometheusRules |
+| kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | scrapeConfigs to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeInterval | string | `""` | Interval between consecutive scrapes. Defaults to 30s |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeTimeout | string | `""` | Number of seconds to wait for target to respond before erroring |
-| kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector.matchLabels | object | `{ plugin: <metadata.name> }` | ServiceMonitors to be selected for target discovery. If {}, select all ServiceMonitors |
+| kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | ServiceMonitors to be selected for target discovery. If {}, select all ServiceMonitors |
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources | object | `{"requests":{"storage":"50Gi"}}` | How large the persistent volume should be to house the Prometheus database. Default 50Gi. |
 | kubeMonitoring.prometheus.tlsConfig.caCert | string | `"Secret"` | CA certificate to verify technical clients at Prometheus Ingress |
 
