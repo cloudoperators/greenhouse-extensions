@@ -372,42 +372,32 @@ kubeMonitoring:
       # How long to retain metrics
       # retention: 10d
 
-      serviceMonitorSelector:
+      serviceMonitorSelector: {}
         # -- ServiceMonitors to be selected for target discovery.
         # If {}, select all ServiceMonitors
         # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
-      podMonitorSelector:
+      podMonitorSelector: {}
         # -- PodMonitors to be selected for target discovery.
         # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
-      probeSelector:
+      probeSelector: {}
         # -- Probes to be selected for target discovery.
         # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
-      scrapeConfigSelector:
+      scrapeConfigSelector: {}
         # -- scrapeConfigs to be selected for target discovery.
         # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
-      ruleSelector:
+      ruleSelector: {}
         # -- PrometheusRules to be selected for target discovery.
         # If {}, select all PrometheusRules
         # @default -- `{ plugin: <metadata.name> }`
         # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
 
       storageSpec:
         volumeClaimTemplate:
