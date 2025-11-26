@@ -372,42 +372,32 @@ kubeMonitoring:
       # How long to retain metrics
       # retention: 10d
 
-      serviceMonitorSelector:
-        # -- ServiceMonitors to be selected for target discovery.
-        # If {}, select all ServiceMonitors
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- ServiceMonitors to be selected for target discovery.
+      # If {}, select all ServiceMonitors
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      serviceMonitorSelector: {}
 
-      podMonitorSelector:
-        # -- PodMonitors to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- PodMonitors to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      podMonitorSelector: {}
 
-      probeSelector:
-        # -- Probes to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- Probes to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      probeSelector: {}
 
-      scrapeConfigSelector:
-        # -- scrapeConfigs to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- scrapeConfigs to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      scrapeConfigSelector: {}
 
-      ruleSelector:
-        # -- PrometheusRules to be selected for target discovery.
-        # If {}, select all PrometheusRules
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- PrometheusRules to be selected for target discovery.
+      # If {}, select all PrometheusRules
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      ruleSelector: {}
 
       storageSpec:
         volumeClaimTemplate:
