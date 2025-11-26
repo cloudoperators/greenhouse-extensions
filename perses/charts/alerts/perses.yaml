@@ -13,19 +13,16 @@ groups:
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
-      - alert: PersesHealthEndpointFailure
+      - alert: PersesScrapeTargetLost
         annotations:
-          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is running but the health endpoint has not returned a success status for 15 minutes. 
-          summary: Perses health endpoint is failing.
+          description: "Prometheus has lost all scrape targets for the job {{ $labels.job }}, indicating a StatefulSet, ServiceMonitor, or endpoint configuration failure (like scaling to zero)."
+          summary: "Perses targets are missing from Prometheus (Job: {{ $labels.job }})."
         expr: |
-          sum by (pod, namespace) (
-            rate(perses_http_request_total{handler="{{ .Values.perses.config.api_prefix }}/api/v1/health",code="200"}[5m])
-          ) == 0
-        for: 15m
+          absent(up{job=~".*perses.*"})
+        for: 5m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
-          {{- include "perses.alertLabels" . | nindent 10 }}
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/service_discovery_issue.md
 
       - alert: PersesHighHttpErrorRate
         annotations:
