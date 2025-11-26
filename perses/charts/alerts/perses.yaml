@@ -15,14 +15,15 @@ groups:
 
       - alert: PersesScrapeTargetLost
         annotations:
-          description: "Prometheus has lost all scrape targets for the job {{ $labels.job }}, indicating a StatefulSet, ServiceMonitor, or endpoint configuration failure (like scaling to zero)."
-          summary: "Perses targets are missing from Prometheus (Job: {{ $labels.job }})."
+          description: "Prometheus has lost all scrape targets for the job {{`{{ $labels.job }}`}}, indicating a StatefulSet, ServiceMonitor, or endpoint configuration failure (like scaling to zero)."
+          summary: "Perses targets are missing from Prometheus (Job: {{`{{ $labels.job }}`}})."
         expr: |
           absent(up{job=~".*perses.*"})
         for: 10m
         labels:
           severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
+          {{- include "perses.alertLabels" . | nindent 10 }}
 
       - alert: PersesHighHttpErrorRate
         annotations:
