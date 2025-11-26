@@ -101,3 +101,38 @@ spec:
       default: false
       required: false
       type: bool
+    - name: kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector
+      description: ServiceMonitors to be selected for target discovery.
+      default:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      required: false
+      type: map
+    - name: kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector
+      description: PodMonitors to be selected for target discovery.
+      default:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      required: false
+      type: map
+    - name: kubeMonitoring.prometheus.prometheusSpec.probeSelector
+      description: Probes to be selected for target discovery.
+      default:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      required: false
+      type: map
+    - name: kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector
+      description: ScrapeConfigs to be selected for target discovery.
+      default:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      required: false
+      type: map
+    - name: kubeMonitoring.prometheus.prometheusSpec.ruleSelector
+      description: PrometheusRules to be selected for target discovery.
+      default:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+      required: false
+      type: map

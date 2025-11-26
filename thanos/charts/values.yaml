@@ -343,6 +343,13 @@ thanos:
     # -- Annotations to add to the Thanos Ruler resources
     annotations: {}
 
+    # -- alertRelabelConfigs defines the alert relabeling in Thanos Ruler.
+    alertRelabelConfigs: []
+      # - separator: ;
+      #   regex: prometheus_replica
+      #   replacement: $1
+      #   action: labeldrop
+
     # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
@@ -397,6 +404,12 @@ thanos:
       limits:
         cpu:
         memory:
+
+    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
+    ruleNamespaceSelector: {}
+
+    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed 
+    ruleSelector:
 
     # -- SecurityContext holds pod-level security attributes and common container settings.
     securityContext:
