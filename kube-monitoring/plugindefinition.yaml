@@ -105,34 +105,34 @@ spec:
       description:
       default: 
         matchLabels:
-          plugin: kube-monitoring
+          plugin: "{{ $.Release.Name }}"
       required: false
       type: map
     - name: kubeMonitoring.prometheus.prometheusSpec.podMonitorSelector
       description:
       default: 
         matchLabels:
-          plugin: kube-monitoring
+          plugin: "{{ $.Release.Name }}"
       required: false
       type: map
     - name: kubeMonitoring.prometheus.prometheusSpec.probeSelector
       description:
       default: 
         matchLabels:
-          plugin: kube-monitoring
+          plugin: "{{ $.Release.Name }}"
       required: false
       type: map
     - name: kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector
       description:
       default: 
         matchLabels:
-          plugin: kube-monitoring
+          plugin: "{{ $.Release.Name }}"
       required: false
       type: map
     - name: kubeMonitoring.prometheus.prometheusSpec.ruleSelector
       description:
       default: 
         matchLabels:
-          plugin: kube-monitoring
+          plugin: "{{ $.Release.Name }}"
       required: false
       type: map
