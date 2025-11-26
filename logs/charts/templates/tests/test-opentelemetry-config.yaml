@@ -22,11 +22,11 @@ data:
     {{- if ".Values.opentelemetry-operator.enabled" }}
     @test "Verify successful deployment and running status of the {{ .Release.Name }} pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}'"
-        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-opentelemetry-operator-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
+        try "at most 4 times every 5s to get pods named '{{ .Release.Name }}-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$' and verify that '.status.phase' is 'running'" 
     }
 
-    @test "Verify successful deployment of the {{ .Release.Name }}-opentelemetry-operator service" {
-        verify "there is 1 service named '{{ .Release.Name }}-opentelemetry-operator\$'"
+    @test "Verify successful deployment of the {{ .Release.Name }} service" {
+        verify "there is 1 service named '{{ .Release.Name }}\$'"
     }
     {{- end -}}
 
