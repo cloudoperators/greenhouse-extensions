@@ -19,10 +19,10 @@ groups:
           summary: "Perses targets are missing from Prometheus (Job: {{ $labels.job }})."
         expr: |
           absent(up{job=~".*perses.*"})
-        for: 5m
+        for: 10m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/service_discovery_issue.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
 
       - alert: PersesHighHttpErrorRate
         annotations:
