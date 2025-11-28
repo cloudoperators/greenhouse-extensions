@@ -12,7 +12,7 @@ groups:
         for: 10m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/PersesServiceDown.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
       - alert: PersesHighHttpErrorRate
@@ -28,7 +28,6 @@ groups:
         for: 10m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
       - alert: PersesPluginSchemaLoadFailures
@@ -40,7 +39,6 @@ groups:
         for: 15m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
       - alert: PersesHighFileDescriptorUsage
@@ -52,5 +50,4 @@ groups:
         for: 15m
         labels:
           severity: info
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/playbook.md
           {{- include "perses.alertLabels" . | nindent 10 }}
