@@ -4,11 +4,11 @@ kind: Secret
 metadata:
   name: {{ printf "%s-%s" $.Release.Name "plutono-datasource" }}
   labels:
-{{ include "plugin.labels" . | nindent 4 }}
-{{ include "thanos.labels" . | nindent 4 }}
-{{- with .Values.thanos.query.plutonoDatasource.selector }}
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- with .Values.thanos.query.plutonoDatasource.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 data:
   {{ printf "%s-%s" $.Release.Name "datasource.yaml" }}: {{ include (print $.Template.BasePath "/_datasource.tpl") . | b64enc }}
 {{- end }}
