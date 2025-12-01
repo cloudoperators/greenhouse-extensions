@@ -123,7 +123,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -296,7 +296,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | siem.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | siem.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"` | Custom URL for the monitoring plugin |
+| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
 | siem.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | siem.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | siem.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
