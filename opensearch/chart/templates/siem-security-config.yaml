@@ -53,7 +53,7 @@ stringData:
     _meta:
       type: "internalusers"
       config_version: 2
-    admin:
+    {{ .Values.siem.usersCredentials.siemAdmin.username | default "siem-admin" }}:
       hash: {{ (index .Values.siem.usersCredentials "siemAdmin").hash | quote }}
       reserved: true
       backend_roles:
@@ -73,7 +73,7 @@ stringData:
       backend_roles:
         - "admin"
       users:
-        - "admin"
+        - {{ .Values.siem.usersCredentials.siemAdmin.username | default "siem-admin" | quote }}
 
   tenants.yml: |-
     _meta:
