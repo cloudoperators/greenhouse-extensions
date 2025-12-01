@@ -349,7 +349,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | siem.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
 | siem.users | list | <pre>users:<br>  - name: "siem-logs"<br>    secretName: "siem-logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations for SIEM cluster. |
-| siem.usersCredentials | object | <pre>usersCredentials:<br>  siemAdmin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
+| siem.usersCredentials | object | <pre>usersCredentials:<br>  siemadmin:<br>    username: "siemadmin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
 | siem.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem-logs"<br>      - "siem-logs2"<br>    roles:<br>      - "siem-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
