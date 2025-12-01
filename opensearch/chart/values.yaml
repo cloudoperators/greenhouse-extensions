@@ -1260,48 +1260,49 @@ siem:
   # -- List of OpenSearch user configurations for SIEM cluster.
   # @default -- <pre>users:<br>  - name: "siem-logs"<br>    secretName: "siem-logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
-    - name: "siem-logs"
-      secretName: "siem-logs-credentials"
+    - name: "siemlogs"
+      secretName: "siemlogs-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siem-logs2"
-      secretName: "siem-logs2-credentials"
+    - name: "siemlogs2"
+      secretName: "siemlogs2-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siem-dashboards"
-      secretName: "siem-dashboards-credentials"
+    - name: "siemdashboards"
+      secretName: "siemdashboards-credentials"
       secretKey: "password"
       backendRoles: []
 
   # -- List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
-  # @default -- <pre>usersCredentials:<br>  siemAdmin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre>
+  # @default -- <pre>usersCredentials:<br>  siemadmin:<br>    username: "siemadmin"<br>    password: "admin"<br>    hash: ""</pre>
   usersCredentials:
-    siemAdmin:
-      username: ""  # Specify the username for the "siem-admin" user. If left empty, defaults to "siem-admin".
+    siemadmin:
+      username: ""  # Specify the username for the admin user. If left empty, defaults to "siemadmin".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
       hash: ""      # Optional bcrypt hash of the password.
-    siemLogs:
-      username: ""  # Specify the username for the "siem-logs" user. If left empty, defaults to "siem-logs".
+    siemlogs:
+      username: ""  # Specify the username for the logs user. If left empty, defaults to "siemlogs".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemLogs2:
-      username: ""  # Specify the username for the failover user for "siem-logs". If left empty, defaults to "siem-logs2".
+    siemlogs2:
+      username: ""  # Specify the username for the failover logs user. If left empty, defaults to "siemlogs2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemDashboards:
-      username: ""  # Specify the username for the "siem-dashboards" user. If left empty, defaults to "siem-dashboards".
+    siemdashboards:
+      username: ""  # Specify the username for the dashboards user. If left empty, defaults to "siemdashboards".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+      hash: ""      # Optional bcrypt hash of the password.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role
   # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem-logs"<br>      - "siem-logs2"<br>    roles:<br>      - "siem-write-role"</pre>
   usersRoleBinding:
     - name: "siem-write"
       users:
-        - "siem-logs"
-        - "siem-logs2"
+        - "siemlogs"
+        - "siemlogs2"
       roles:
         - "siem-write-role"
     - name: "siem-dashboards"
       users:
-        - "siem-dashboards"
+        - "siemdashboards"
       roles:
         - "siem-dashboards-role"
 

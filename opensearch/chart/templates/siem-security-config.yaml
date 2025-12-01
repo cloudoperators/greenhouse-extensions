@@ -16,7 +16,7 @@ stringData:
     config:
       dynamic:
         kibana:
-          server_username: {{ .Values.siem.usersCredentials.siemDashboards.username | default "siem-dashboards" }}
+          server_username: {{ .Values.siem.usersCredentials.siemdashboards.username | default "siemdashboards" }}
         http:
           anonymous_auth_enabled: false
           xff:
@@ -53,8 +53,8 @@ stringData:
     _meta:
       type: "internalusers"
       config_version: 2
-    admin:
-      hash: {{ (index .Values.siem.usersCredentials "siemAdmin").hash | quote }}
+    {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" }}:
+      hash: {{ .Values.siem.usersCredentials.siemadmin.hash | quote }}
       reserved: true
       backend_roles:
         - "admin"
@@ -73,7 +73,7 @@ stringData:
       backend_roles:
         - "admin"
       users:
-        - "admin"
+        - {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" | quote }}
 
   tenants.yml: |-
     _meta:
