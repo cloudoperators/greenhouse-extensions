@@ -206,10 +206,6 @@ spec:
       description: "Password for SIEM dashboards access in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemdashboards.hash
-      description: "Password hash (bcrypt format) for SIEM dashboards user in the SIEM cluster."
-      required: false
-      type: secret
     - name: siem.usersRoleBinding
       description: "Define user role bindings for the SIEM cluster."
       required: false
