@@ -5,6 +5,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-ca-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -21,6 +22,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-transport-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -44,6 +46,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-admin-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -61,6 +64,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-http-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -84,6 +88,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-http-cert-external
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
