@@ -47,3 +47,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
 /repo-guard/              @cloudoperators/greenhouse-backend
 /reloader/                @cloudoperators/greenhouse-backend
+/owner-label-injector/    @cloudoperators/greenhouse-backend
