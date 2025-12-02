@@ -6,6 +6,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: opensearch-siem-security-config
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 stringData:

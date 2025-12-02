@@ -5,6 +5,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: {{ .Values.certManager.issuer.selfSigned.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -14,6 +15,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: {{ .Values.certManager.issuer.ca.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -25,6 +27,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: opensearch-siem-ca-issuer
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
