@@ -4,7 +4,8 @@ kind: Secret
 metadata:
   name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config
   labels:
-    thanos: {{ include "release.name" . }}
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
 data:
   alertManagerConfig.yaml: |
     {{ include "alertmanagers.config" . | indent 4 | b64enc }}
