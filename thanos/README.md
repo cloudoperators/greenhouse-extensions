@@ -347,7 +347,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.enabled | bool | `true` | Enable Thanos Compactor component |
 | thanos.compactor.httpGracePeriod | string | 120s | Set Thanos Compactor http-grace-period |
 | thanos.compactor.logLevel | string | info | Thanos Compactor log level |
-| thanos.compactor.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Compactor container. |
+| thanos.compactor.resources | object | `{}` | Resource requests and limits for the Thanos Compactor container. |
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
@@ -414,7 +414,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.objectStorageConfig.existingSecret | object | `{}` |  |
 | thanos.ruler.replicaLabel | string | `"thanos_ruler_replica"` | Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"` |
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
-| thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
+| thanos.ruler.resources | object | `{}` | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
 | thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used  |
 | thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed  |

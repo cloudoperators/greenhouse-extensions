@@ -254,7 +254,6 @@ thanos:
     logLevel:
 
     # -- Resource requests and limits for the Thanos Compactor container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
     resources: {}
 
     # -- Labels to add to the Thanos Compactor deployment
@@ -377,7 +376,6 @@ thanos:
         # key: object-storage-configs.yaml
 
     # -- Resource requests and limits for the Thanos Ruler container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
     resources: {}
 
     # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
