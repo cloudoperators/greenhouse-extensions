@@ -42,8 +42,10 @@ spec:
       {{- include "thanos.labels" . | nindent 6 }}
   evaluationInterval: {{ .Values.thanos.ruler.evaluationInterval }}
   logLevel: {{ default "info" .Values.thanos.ruler.logLevel }}
+  {{- with .Values.thanos.ruler.resources }}
   resources:
-    {{- toYaml .Values.thanos.ruler.resources | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   retention: {{ .Values.thanos.ruler.retention }}
   {{- if .Values.thanos.ruler.storage }}
   storage:
