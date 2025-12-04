@@ -1,0 +1,9 @@
+image:
+  registry: ghcr.io
+  repository: cloudoperators/absent-metrics-operator
+  tag: "edge"
+
+labels: {}
+
+rules:
+  labels: {}

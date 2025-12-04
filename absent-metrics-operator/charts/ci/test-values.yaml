@@ -1,0 +1,11 @@
+image:
+  registry: ghcr.io
+  repository: cloudoperators/absent-metrics-operator
+  tag: "edge"
+
+labels:
+  test: foo
+
+rules:
+  labels:
+    test: foo
