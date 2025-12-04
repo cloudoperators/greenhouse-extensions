@@ -65,8 +65,10 @@ spec:
           readOnly: true
         - mountPath: /data
           name: data-volume
+        {{- with .Values.thanos.compactor.resources }}
         resources:
-          {{- toYaml .Values.thanos.compactor.resources | nindent 10 }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       initContainers:
         - name: init-permissions
           {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
