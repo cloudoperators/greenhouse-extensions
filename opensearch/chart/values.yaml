@@ -764,9 +764,7 @@ cluster:
               type: date
             message:
               type: text
-      dataStream:
-        timestamp_field:
-          name: "@timestamp"
+      dataStream: {}
       priority: 100
 
   # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
@@ -1389,9 +1387,7 @@ siem:
               type: keyword
             source:
               type: keyword
-      dataStream:
-        timestamp_field:
-          name: "@timestamp"
+      dataStream: {}
       priority: 100
 
   # -- List of OpenSearchISMPolicy for SIEM cluster. Check values.yaml file for examples.
