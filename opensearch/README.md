@@ -341,7 +341,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.enabled | bool | `false` | Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM. |
 | siem.fullnameOverride | string | `""` |  |
 | siem.indexTemplates | list | See values.yaml | List of OpensearchIndexTemplate for SIEM cluster. Includes templates for siem-logs* and siem-audit* data streams. |
-| siem.ismPolicies | list | See values.yaml | List of OpenSearchISMPolicy for SIEM cluster. Includes 30-day retention policies for siem-logs* and siem-audit* indices. |
+| siem.ismPolicies | list | See values.yaml | List of OpenSearchISMPolicy for SIEM cluster. Includes 7-day retention policies for siem-logs* and siem-audit* indices. |
 | siem.nameOverride | string | `""` | Override the name used by the subchart. By default uses release name with -siem suffix |
 | siem.roles | list | See values.yaml | List of OpensearchRole for SIEM cluster. Includes write roles for siem-logs* and siem-audit* indices. |
 | siem.serviceAccount.annotations | object | `{}` | Service Account annotations |
