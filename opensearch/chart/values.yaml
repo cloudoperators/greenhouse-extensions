@@ -587,8 +587,8 @@ cluster:
         #      - example.com
         #    secretName: tls-secret
 
-  # -- List of OpensearchRole. See values.yaml file for a full example.
-  # @default -- <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>
+  # -- List of OpensearchRole. Includes read and write roles for logs* indices.
+  # @default -- See values.yaml
   roles:
     - name: "logs-write-role"
       clusterPermissions:
@@ -729,8 +729,8 @@ cluster:
   #      - indices:admin/aliases/exists
   #    type: index
 
-  # -- List of OpensearchComponentTemplate. Check values.yaml file for examples.
-  # @default -- <pre>componentTemplates:<br>  - name: logs-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre>
+  # -- List of OpensearchComponentTemplate.
+  # @default -- See values.yaml
   componentTemplates:
     - name: logs-attributes-dynamic
       version: 1
@@ -744,8 +744,8 @@ cluster:
               type: object
               dynamic: true
 
-  # -- List of OpensearchIndexTemplate.
-  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
+  # -- List of OpensearchIndexTemplate. Includes template for logs* data stream.
+  # @default -- See values.yaml
   indexTemplates:
     - name: logs-index-template
       indexPatterns:
@@ -767,8 +767,8 @@ cluster:
       dataStream: {}
       priority: 100
 
-  # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Logs policy with 7-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "10gb"<br>              minDocCount: 20000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "7d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
+  # -- List of OpenSearchISMPolicy. Includes 7-day retention policy for logs* indices.
+  # @default -- See values.yaml
   ismPolicies:
     - name: logs-rollover-policy
       defaultState: hot
@@ -1213,8 +1213,8 @@ siem:
         #      - example.com
         #    secretName: tls-secret
 
-  # -- List of OpensearchRole for SIEM cluster. See values.yaml file for a full example.
-  # @default -- <pre>roles:<br>  - name: "siem-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "siem-logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"<br>  - name: "siem-audit-write-role"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "siem-audit*"</pre>
+  # -- List of OpensearchRole for SIEM cluster. Includes write roles for siem-logs* and siem-audit* indices.
+  # @default -- See values.yaml
   roles:
     - name: "siem-write-role"
       clusterPermissions:
@@ -1389,8 +1389,8 @@ siem:
   #      - indices:admin/aliases/exists
   #    type: index
 
-  # -- List of OpensearchComponentTemplate for SIEM cluster. Check values.yaml file for examples.
-  # @default -- <pre>componentTemplates:<br>  - name: siem-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre>
+  # -- List of OpensearchComponentTemplate for SIEM cluster.
+  # @default -- See values.yaml
   componentTemplates:
     - name: siem-attributes-dynamic
       version: 1
@@ -1404,8 +1404,8 @@ siem:
               type: object
               dynamic: true
 
-  # -- List of OpensearchIndexTemplate for SIEM cluster.
-  # @default -- <pre>indexTemplates:<br>  - name: "siem-logs-index-template"<br>    indexPatterns:<br>      - "siem-logs*"<br>    dataStream: {}<br>    priority: 100<br>  - name: "siem-audit-index-template"<br>    indexPatterns:<br>      - "siem-audit*"<br>    dataStream: {}<br>    priority: 100</pre>
+  # -- List of OpensearchIndexTemplate for SIEM cluster. Includes templates for siem-logs* and siem-audit* data streams.
+  # @default -- See values.yaml
   indexTemplates:
     - name: siem-logs-index-template
       indexPatterns:
@@ -1454,12 +1454,12 @@ siem:
       dataStream: {}
       priority: 100
 
-  # -- List of OpenSearchISMPolicy for SIEM cluster. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: siem-logs-rollover-policy<br>    defaultState: hot<br>    description: "SIEM logs policy with 30-day retention and size-based rollover"<br>    ismTemplate:<br>      indexPatterns:<br>        - "siem-logs*"<br>      priority: 100<br>  - name: siem-audit-rollover-policy<br>    defaultState: hot<br>    description: "SIEM audit policy with 30-day retention and size-based rollover"<br>    ismTemplate:<br>      indexPatterns:<br>        - "siem-audit*"<br>      priority: 100</pre>
+  # -- List of OpenSearchISMPolicy for SIEM cluster. Includes 7-day retention policies for siem-logs* and siem-audit* indices.
+  # @default -- See values.yaml
   ismPolicies:
     - name: siem-logs-rollover-policy
       defaultState: hot
-      description: "SIEM logs policy with 30-day retention and size-based rollover"
+      description: "SIEM logs policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
@@ -1469,7 +1469,7 @@ siem:
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "30d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
@@ -1479,7 +1479,7 @@ siem:
         priority: 100
     - name: siem-audit-rollover-policy
       defaultState: hot
-      description: "SIEM audit policy with 30-day retention and size-based rollover"
+      description: "SIEM audit policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
@@ -1489,7 +1489,7 @@ siem:
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "30d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
