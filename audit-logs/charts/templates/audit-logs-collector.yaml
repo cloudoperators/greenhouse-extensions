@@ -69,8 +69,8 @@ spec:
 
       filelog/containerd:
         include_file_path: true
-        include: [ /var/log/containers/*.log ]
-        exclude: [ /var/log/containers/audit-logs_* ]
+        include: [ /var/log/pods/*.log ]
+        exclude: [ /var/log/pods/audit-logs* ]
         operators:
           - id: container-parser
             type: container
