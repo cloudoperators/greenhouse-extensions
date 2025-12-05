@@ -77,9 +77,15 @@ siem:
     siemlogs2:
       username: "siemlogs2"
       password: "CHANGE_ME_SIEMFailoverUser2025$%"
+    siemaudit:
+      username: "siemaudit"
+      password: "CHANGE_ME_SIEMAudit2025!@#"
+    siemaudit2:
+      username: "siemaudit2"
+      password: "CHANGE_ME_SIEMAuditFailover2025$%"
     siemdashboards:
       username: "siemdashboards"
-      password: "CHANGE_ME_SIEMDashboards2025!@#"
+      password: "CHANGE_ME_Strong_P@ssw0rd_2025!"
       hash: "$2y$12$0OYo7uyzgytbPat9qpklL.4PsvvuU0.HX1ZkK7Lq1js/YHXf37VCK"  # bcrypt hash for "admin" (for testing only)
   cluster:
     # Disable monitoring for test environment
