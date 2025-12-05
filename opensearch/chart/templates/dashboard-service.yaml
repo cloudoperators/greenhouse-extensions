@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.cluster.cluster.name | default .Release.Name }}
+  name: {{ .Values.cluster.cluster.name | default .Release.Name }}-dashboards-ui
   namespace: {{ .Release.Namespace }}
   annotations:
     greenhouse.sap/expose: "true"
