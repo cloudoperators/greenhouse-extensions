@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:12.11@sha256:731dd1380d6a8d170a695dbeb17fe0eade0e1c29f654cf0a3a07f372191c3f4b AS journal
+FROM --platform=${BUILDPLATFORM:-linux/amd64} debian:13.2@sha256:8f6a88feef3ed01a300dafb87f208977f39dccda1fd120e878129463f7fa3b8f AS journal
 RUN apt update  \
   && apt upgrade -y  \
   && apt autoremove -y \
