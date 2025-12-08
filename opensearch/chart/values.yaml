@@ -800,6 +800,12 @@ siem:
   nameOverride: ""
   fullnameOverride: ""
 
+  # Certificate configuration for SIEM cluster
+  certManager:
+    # -- Override HTTP DNS names for SIEM OpenSearch client endpoints
+    httpDnsNames:
+      - opensearch-siem-client.tld
+
   serviceAccount:
     # -- Create Service Account
     create: false

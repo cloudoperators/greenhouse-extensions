@@ -102,7 +102,7 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-siem-http-cert-external
   dnsNames:
-{{ toYaml .Values.certManager.httpDnsNames | indent 4 }}
+{{ toYaml .Values.siem.certManager.httpDnsNames | indent 4 }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 {{- end }}
