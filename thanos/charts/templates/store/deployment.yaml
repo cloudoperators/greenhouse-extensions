@@ -11,7 +11,7 @@ metadata:
     {{- end }}
   name: {{ include "release.name" . }}-store
 spec:
-  replicas: 1
+  replicas: {{ default 1 .Values.thanos.store.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/managed-by: {{ include "release.name" . }}

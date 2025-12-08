@@ -69,7 +69,7 @@ thanos:
     enabled: true
 
     # -- Number of Thanos Query replicas to deploy
-    replicas:
+    replicas: 1
 
     # -- Thanos Query log level
     # @default -- info
@@ -207,6 +207,9 @@ thanos:
   store:
     # -- Enable Thanos Store component
     enabled: true
+
+    # -- Set Thanos Store replica count
+    replicas: 1
 
     # -- Resource requests and limits for the Thanos Store container.
     resources:
