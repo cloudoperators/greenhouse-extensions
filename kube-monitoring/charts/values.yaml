@@ -348,18 +348,14 @@ kubeMonitoring:
       # Expected values are the secret name and key
       # Cannot be used with additionalAlertManagerConfigs
       # @ignored
-      additionalAlertManagerConfigsSecret:
-        name: "{{ $.Release.Name }}-alertmanager-config"
-        key: config.yaml
+      additionalAlertManagerConfigsSecret: {}
 
       # If additional alert relabel configurations are already deployed in a single secret, or you want to manage
       # them separately from the helm deployment, you can use this section.
       # Expected values are the secret name and key
       # Cannot be used with additionalAlertRelabelConfigs
       # @ignored
-      additionalAlertRelabelConfigsSecret:
-        name: "{{ $.Release.Name }}-alertmanager-config"
-        key: relabelConfig.yaml
+      additionalAlertRelabelConfigsSecret: {}
 
       # Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
       # The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
