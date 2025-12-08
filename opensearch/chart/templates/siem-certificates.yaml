@@ -106,4 +106,26 @@ spec:
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 {{- end }}
+
+{{- if .Values.siem.cluster.ingress.dashboards.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: opensearch-siem-dashboards-cert-external
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+spec:
+  duration: {{ .Values.certManager.defaults.durations.leaf }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer.digicert | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  secretName: opensearch-siem-dashboards-cert-external
+  dnsNames:
+{{ toYaml .Values.siem.certManager.dashboardsDnsNames | indent 4 }}
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+{{- end }}
 {{- end }}
