@@ -24,6 +24,7 @@ kafka:
   replicas: 3
 
   # -- Kafka broker configuration
+  # @default -- See values.yaml for production defaults
   config:
     offsets.topic.replication.factor: 3
     transaction.state.log.replication.factor: 3
@@ -36,6 +37,7 @@ kafka:
     auto.create.topics.enable: false
 
   # -- Storage configuration for Kafka brokers
+  # @default -- JBOD with 100Gi persistent volume per broker
   storage:
     type: jbod
     volumes:
@@ -46,6 +48,7 @@ kafka:
       class: ""
 
   # -- Resource configuration for Kafka brokers
+  # @default -- requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU
   resources:
     requests:
       memory: "2Gi"
@@ -55,11 +58,13 @@ kafka:
       cpu: "2000m"
 
   # -- JVM options for Kafka brokers
+  # @default -- xms: 1024m, xmx: 2048m
   jvmOptions:
     xms: "1024m"
     xmx: "2048m"
 
   # -- Listener configuration
+  # @default -- plaintext on 9092, TLS on 9093
   listeners:
     - name: plain
       port: 9092
@@ -78,6 +83,8 @@ entityOperator:
   # -- Enable Entity Operator
   enabled: true
 
+  # -- Topic Operator resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
   topicOperator:
     resources:
       requests:
@@ -87,6 +94,8 @@ entityOperator:
         memory: "256Mi"
         cpu: "200m"
 
+  # -- User Operator resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
   userOperator:
     resources:
       requests:
@@ -101,9 +110,13 @@ kafkaExporter:
   # -- Enable Kafka Exporter
   enabled: false
 
+  # -- Consumer group regex for metrics export
   groupRegex: ".*"
+  # -- Topic regex for metrics export
   topicRegex: ".*"
 
+  # -- Kafka Exporter resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
   resources:
     requests:
       memory: "128Mi"
@@ -117,6 +130,8 @@ cruiseControl:
   # -- Enable Cruise Control
   enabled: false
 
+  # -- Cruise Control resource configuration
+  # @default -- requests: 512Mi memory, 500m CPU; limits: 1Gi memory, 1 CPU
   resources:
     requests:
       memory: "512Mi"
@@ -137,6 +152,8 @@ monitoring:
 testFramework:
   # -- Activates the Helm chart testing framework.
   enabled: true
+  # -- Test framework image configuration
+  # @default -- ghcr.io/cloudoperators/greenhouse-extensions-integration-test:main
   image:
     # -- Defines the image registry for the test framework.
     registry: ghcr.io
@@ -148,6 +165,7 @@ testFramework:
     pullPolicy: Always
 
 # Kafka Topics configuration
+# Topics for OpenSearch pull-based ingestion
 topics:
   # Topic for operational logs
   logs:
