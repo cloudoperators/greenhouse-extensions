@@ -1437,7 +1437,11 @@ siem:
             message:
               type: text
             severity:
-              type: keyword
+              properties:
+                number:
+                  type: long
+                text:
+                  type: keyword
             source:
               type: keyword
       dataStream: {}
