@@ -84,3 +84,21 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |
 | testFramework.image.tag | string | `"main"` | Defines the image tag for the test framework. |
+| topics.audit.cleanupPolicy | string | `"delete"` | Cleanup policy |
+| topics.audit.compressionType | string | `"producer"` | Compression type |
+| topics.audit.enabled | bool | `true` | Enable this topic |
+| topics.audit.maxMessageBytes | int | `1048576` | Max message size (1 MB) |
+| topics.audit.minInsyncReplicas | int | `2` | Min in-sync replicas |
+| topics.audit.partitions | int | `3` | Number of partitions (should match OpenSearch index shards) |
+| topics.audit.replicas | int | `3` | Replication factor |
+| topics.audit.retention | int | `86400000` | Retention period (24 hours = 86400000 ms) |
+| topics.audit.segmentBytes | int | `1073741824` | Segment size (1 GB) |
+| topics.logs.cleanupPolicy | string | `"delete"` | Cleanup policy |
+| topics.logs.compressionType | string | `"producer"` | Compression type |
+| topics.logs.enabled | bool | `true` | Enable this topic |
+| topics.logs.maxMessageBytes | int | `1048576` | Max message size (1 MB) |
+| topics.logs.minInsyncReplicas | int | `2` | Min in-sync replicas |
+| topics.logs.partitions | int | `3` | Number of partitions (should match OpenSearch index shards) |
+| topics.logs.replicas | int | `3` | Replication factor |
+| topics.logs.retention | int | `86400000` | Retention period (24 hours = 86400000 ms) |
+| topics.logs.segmentBytes | int | `1073741824` | Segment size (1 GB) |
