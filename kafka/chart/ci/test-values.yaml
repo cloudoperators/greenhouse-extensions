@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-# CI values for testing the Kafka Helm chart with KRaft mode
 operator:
   enabled: true
 
@@ -31,3 +30,12 @@ entityOperator:
 
 monitoring:
   enabled: false
+
+topics:
+  logs:
+    replicas: 1  # Single replica for test
+    minInsyncReplicas: 1  # Single broker
+
+  audit:
+    replicas: 1  # Single replica for test
+    minInsyncReplicas: 1  # Single broker

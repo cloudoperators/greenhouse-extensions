@@ -4,7 +4,7 @@
 # -- common labels to apply to all resources.
 commonLabels: {}
 
-# Strimzi Kafka Operator configuration (dependency)
+# Strimzi Kafka Operator configuration
 operator:
   # -- Enable or disable the Strimzi Kafka Operator installation
   enabled: true
@@ -146,3 +146,47 @@ testFramework:
     tag: main
     # -- Defines the image pull policy for the test framework.
     pullPolicy: Always
+
+# Kafka Topics configuration
+topics:
+  # Topic for operational logs
+  logs:
+    # -- Enable this topic
+    enabled: true
+    # -- Number of partitions (should match OpenSearch index shards)
+    partitions: 3
+    # -- Replication factor
+    replicas: 3
+    # -- Retention period (24 hours = 86400000 ms)
+    retention: 86400000
+    # -- Segment size (1 GB)
+    segmentBytes: 1073741824
+    # -- Compression type
+    compressionType: "producer"
+    # -- Min in-sync replicas
+    minInsyncReplicas: 2
+    # -- Cleanup policy
+    cleanupPolicy: "delete"
+    # -- Max message size (1 MB)
+    maxMessageBytes: 1048576
+
+  # Topic for audit logs for siem
+  audit:
+    # -- Enable this topic
+    enabled: true
+    # -- Number of partitions (should match OpenSearch index shards)
+    partitions: 3
+    # -- Replication factor
+    replicas: 3
+    # -- Retention period (24 hours = 86400000 ms)
+    retention: 86400000
+    # -- Segment size (1 GB)
+    segmentBytes: 1073741824
+    # -- Compression type
+    compressionType: "producer"
+    # -- Min in-sync replicas
+    minInsyncReplicas: 2
+    # -- Cleanup policy
+    cleanupPolicy: "delete"
+    # -- Max message size (1 MB)
+    maxMessageBytes: 1048576
