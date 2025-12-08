@@ -3,7 +3,6 @@
 
 apiVersion: v2
 description: Base chart for absent-metrics-operator deployments
-icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png
 type: application
 maintainers:
   - name: trouaux
