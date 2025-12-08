@@ -246,6 +246,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | siem.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
 | siem.cluster.bootstrap.affinity | object | `{}` | bootstrap pod affinity rules |
