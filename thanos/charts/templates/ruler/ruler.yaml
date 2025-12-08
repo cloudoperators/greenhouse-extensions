@@ -27,7 +27,8 @@ spec:
         topologyKey: kubernetes.io/hostname
   {{- if .Values.thanos.ruler.alertRelabelConfigs }}
   alertRelabelConfigs:
-    thanos-ruler-{{ include "release.name" . }}-alert-relabel-config: alert-relabel-configs.yaml
+    key : alert-relabel-configs.yaml
+    name: thanos-ruler-{{ include "release.name" . }}-alert-relabel-config
   {{- end }}
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
   {{- if .Values.thanos.ruler.externalPrefix }}
@@ -41,8 +42,10 @@ spec:
       {{- include "thanos.labels" . | nindent 6 }}
   evaluationInterval: {{ .Values.thanos.ruler.evaluationInterval }}
   logLevel: {{ default "info" .Values.thanos.ruler.logLevel }}
+  {{- with .Values.thanos.ruler.resources }}
   resources:
-    {{- toYaml .Values.thanos.ruler.resources | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   retention: {{ .Values.thanos.ruler.retention }}
   {{- if .Values.thanos.ruler.storage }}
   storage:

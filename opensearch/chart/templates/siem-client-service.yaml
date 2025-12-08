@@ -5,6 +5,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ $.Values.siem.cluster.name | default (printf "%s-siem" $.Release.Name) }}-client-external
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
     opster.io/opensearch-cluster: {{ $.Values.siem.cluster.name | default (printf "%s-siem" $.Release.Name) }}

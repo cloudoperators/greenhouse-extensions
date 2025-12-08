@@ -243,7 +243,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -587,8 +587,8 @@ cluster:
         #      - example.com
         #    secretName: tls-secret
 
-  # -- List of OpensearchRole. See values.yaml file for a full example.
-  # @default -- <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>
+  # -- List of OpensearchRole. Includes read and write roles for logs* indices.
+  # @default -- See values.yaml
   roles:
     - name: "logs-write-role"
       clusterPermissions:
@@ -729,8 +729,8 @@ cluster:
   #      - indices:admin/aliases/exists
   #    type: index
 
-  # -- List of OpensearchComponentTemplate. Check values.yaml file for examples.
-  # @default -- <pre>componentTemplates:<br>  - name: logs-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre>
+  # -- List of OpensearchComponentTemplate.
+  # @default -- See values.yaml
   componentTemplates:
     - name: logs-attributes-dynamic
       version: 1
@@ -744,8 +744,8 @@ cluster:
               type: object
               dynamic: true
 
-  # -- List of OpensearchIndexTemplate.
-  # @default -- <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
+  # -- List of OpensearchIndexTemplate. Includes template for logs* data stream.
+  # @default -- See values.yaml
   indexTemplates:
     - name: logs-index-template
       indexPatterns:
@@ -767,8 +767,8 @@ cluster:
       dataStream: {}
       priority: 100
 
-  # -- List of OpenSearchISMPolicy. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Logs policy with 7-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "10gb"<br>              minDocCount: 20000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "7d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre>
+  # -- List of OpenSearchISMPolicy. Includes 7-day retention policy for logs* indices.
+  # @default -- See values.yaml
   ismPolicies:
     - name: logs-rollover-policy
       defaultState: hot
@@ -869,7 +869,7 @@ siem:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -1213,8 +1213,8 @@ siem:
         #      - example.com
         #    secretName: tls-secret
 
-  # -- List of OpensearchRole for SIEM cluster. See values.yaml file for a full example.
-  # @default -- <pre>roles:<br>  - name: "siem-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "siem*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre>
+  # -- List of OpensearchRole for SIEM cluster. Includes write roles for siem-logs* and siem-audit* indices.
+  # @default -- See values.yaml
   roles:
     - name: "siem-write-role"
       clusterPermissions:
@@ -1226,7 +1226,28 @@ siem:
         - "cluster_manage_index_templates"
       indexPermissions:
         - indexPatterns:
-            - "siem*"
+            - "siem-logs*"
+          allowedActions:
+            - "indices:admin/template/get"
+            - "indices:admin/template/put"
+            - "indices:admin/mapping/put"
+            - "indices:admin/create"
+            - "indices:data/write/bulk*"
+            - "indices:data/write/index"
+            - "indices:data/read*"
+            - "indices:monitor*"
+            - "indices_all"
+    - name: "siem-audit-write-role"
+      clusterPermissions:
+        - "cluster_monitor"
+        - "cluster_composite_ops"
+        - "cluster:admin/ingest/pipeline/put"
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template/get"
+        - "cluster_manage_index_templates"
+      indexPermissions:
+        - indexPatterns:
+            - "siem-audit*"
           allowedActions:
             - "indices:admin/template/get"
             - "indices:admin/template/put"
@@ -1256,52 +1277,101 @@ siem:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+    - name: "siem-read-role"
+      clusterPermissions:
+        - "read"
+        - "cluster:monitor/nodes/stats"
+        - "cluster:admin/opensearch/ql/datasources/read"
+        - "cluster:monitor/task/get"
+        - 'cluster:admin/opendistro/reports/definition/create'
+        - 'cluster:admin/opendistro/reports/definition/update'
+        - 'cluster:admin/opendistro/reports/definition/on_demand'
+        - 'cluster:admin/opendistro/reports/definition/delete'
+        - 'cluster:admin/opendistro/reports/definition/get'
+        - 'cluster:admin/opendistro/reports/definition/list'
+        - 'cluster:admin/opendistro/reports/instance/list'
+        - 'cluster:admin/opendistro/reports/instance/get'
+        - 'cluster:admin/opendistro/reports/menu/download'
+        - 'cluster:admin/opensearch/ppl'
+      indexPermissions:
+        - indexPatterns:
+            - "*"
+          allowedActions:
+            - "search"
+            - "read"
+            - "get"
+            - "indices:monitor/settings/get"
+            - "indices:admin/create"
+            - "indices:admin/mappings/get"
+            - "indices:data/read/search*"
+            - "indices:admin/get"
 
   # -- List of OpenSearch user configurations for SIEM cluster.
-  # @default -- <pre>users:<br>  - name: "siem-logs"<br>    secretName: "siem-logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
+  # @default -- <pre>users:<br>  - name: "siemlogs"<br>    secretName: "siemlogs-credentials"<br>    secretKey: "password"<br>    backendRoles: []<br>  - name: "siemaudit"<br>    secretName: "siemaudit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
-    - name: "siem-logs"
-      secretName: "siem-logs-credentials"
+    - name: "siemlogs"
+      secretName: "siemlogs-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siem-logs2"
-      secretName: "siem-logs2-credentials"
+    - name: "siemlogs2"
+      secretName: "siemlogs2-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siem-dashboards"
-      secretName: "siem-dashboards-credentials"
+    - name: "siemaudit"
+      secretName: "siemaudit-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "siemaudit2"
+      secretName: "siemaudit2-credentials"
+      secretKey: "password"
+      backendRoles: []
+    - name: "siemdashboards"
+      secretName: "siemdashboards-credentials"
       secretKey: "password"
       backendRoles: []
 
   # -- List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
-  # @default -- <pre>usersCredentials:<br>  siemAdmin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre>
+  # @default -- <pre>usersCredentials:<br>  siemadmin:<br>    username: "siemadmin"<br>    password: "admin"<br>    hash: ""<br>  siemlogs:<br>    username: "siemlogs"<br>    password: ""<br>  siemaudit:<br>    username: "siemaudit"<br>    password: ""</pre>
   usersCredentials:
-    siemAdmin:
-      username: ""  # Specify the username for the "siem-admin" user. If left empty, defaults to "siem-admin".
+    siemadmin:
+      username: ""  # Specify the username for the admin user. If left empty, defaults to "siemadmin".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
       hash: ""      # Optional bcrypt hash of the password.
-    siemLogs:
-      username: ""  # Specify the username for the "siem-logs" user. If left empty, defaults to "siem-logs".
+    siemlogs:
+      username: ""  # Specify the username for the logs user. If left empty, defaults to "siemlogs".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemLogs2:
-      username: ""  # Specify the username for the failover user for "siem-logs". If left empty, defaults to "siem-logs2".
+    siemlogs2:
+      username: ""  # Specify the username for the failover logs user. If left empty, defaults to "siemlogs2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemDashboards:
-      username: ""  # Specify the username for the "siem-dashboards" user. If left empty, defaults to "siem-dashboards".
+    siemaudit:
+      username: ""  # Specify the username for the audit user. If left empty, defaults to "siemaudit".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    siemaudit2:
+      username: ""  # Specify the username for the failover audit user. If left empty, defaults to "siemaudit2".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+    siemdashboards:
+      username: ""  # Specify the username for the dashboards user. If left empty, defaults to "siemdashboards".
+      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
+      hash: ""      # Optional bcrypt hash of the password.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role
-  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem-logs"<br>      - "siem-logs2"<br>    roles:<br>      - "siem-write-role"</pre>
+  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siemlogs"<br>      - "siemlogs2"<br>    roles:<br>      - "siem-write-role"<br>  - name: "siem-audit-write"<br>    users:<br>      - "siemaudit"<br>      - "siemaudit2"<br>    roles:<br>      - "siem-audit-write-role"</pre>
   usersRoleBinding:
     - name: "siem-write"
       users:
-        - "siem-logs"
-        - "siem-logs2"
+        - "siemlogs"
+        - "siemlogs2"
       roles:
         - "siem-write-role"
+    - name: "siem-audit-write"
+      users:
+        - "siemaudit"
+        - "siemaudit2"
+      roles:
+        - "siem-audit-write-role"
     - name: "siem-dashboards"
       users:
-        - "siem-dashboards"
+        - "siemdashboards"
       roles:
         - "siem-dashboards-role"
 
@@ -1319,8 +1389,8 @@ siem:
   #      - indices:admin/aliases/exists
   #    type: index
 
-  # -- List of OpensearchComponentTemplate for SIEM cluster. Check values.yaml file for examples.
-  # @default -- <pre>componentTemplates:<br>  - name: siem-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre>
+  # -- List of OpensearchComponentTemplate for SIEM cluster.
+  # @default -- See values.yaml
   componentTemplates:
     - name: siem-attributes-dynamic
       version: 1
@@ -1334,12 +1404,35 @@ siem:
               type: object
               dynamic: true
 
-  # -- List of OpensearchIndexTemplate for SIEM cluster.
-  # @default -- <pre>indexTemplates:<br>  - name: "siem-index-template"<br>    indexPatterns:<br>      - "siem*"<br>    composedOf:<br>      - siem-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre>
+  # -- List of OpensearchIndexTemplate for SIEM cluster. Includes templates for siem-logs* and siem-audit* data streams.
+  # @default -- See values.yaml
   indexTemplates:
-    - name: siem-index-template
+    - name: siem-logs-index-template
       indexPatterns:
-        - "siem*"
+        - "siem-logs*"
+      composedOf:
+        - siem-attributes-dynamic
+      templateSpec:
+        settings:
+          index:
+            number_of_shards: 1
+            number_of_replicas: 1
+            refresh_interval: 1s
+        mappings:
+          properties:
+            "@timestamp":
+              type: date
+            message:
+              type: text
+            severity:
+              type: keyword
+            source:
+              type: keyword
+      dataStream: {}
+      priority: 100
+    - name: siem-audit-index-template
+      indexPatterns:
+        - "siem-audit*"
       composedOf:
         - siem-attributes-dynamic
       templateSpec:
@@ -1361,12 +1454,12 @@ siem:
       dataStream: {}
       priority: 100
 
-  # -- List of OpenSearchISMPolicy for SIEM cluster. Check values.yaml file for examples.
-  # @default -- <pre>ismPolicies:<br>  - name: siem-rollover-policy<br>    defaultState: hot<br>    description: "SIEM policy with 30-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "5gb"<br>              minDocCount: 10000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "siem*"<br>      priority: 100</pre>
+  # -- List of OpenSearchISMPolicy for SIEM cluster. Includes 7-day retention policies for siem-logs* and siem-audit* indices.
+  # @default -- See values.yaml
   ismPolicies:
-    - name: siem-rollover-policy
+    - name: siem-logs-rollover-policy
       defaultState: hot
-      description: "SIEM policy with 30-day retention and size-based rollover"
+      description: "SIEM logs policy with 7-day retention and size-based rollover"
       states:
         - name: hot
           actions:
@@ -1376,13 +1469,33 @@ siem:
           transitions:
             - stateName: delete
               conditions:
-                minIndexAge: "30d"
+                minIndexAge: "7d"
         - name: delete
           actions:
             - delete: {}
       ismTemplate:
         indexPatterns:
-          - "siem*"
+          - "siem-logs*"
+        priority: 100
+    - name: siem-audit-rollover-policy
+      defaultState: hot
+      description: "SIEM audit policy with 7-day retention and size-based rollover"
+      states:
+        - name: hot
+          actions:
+            - rollover:
+                minSize: "5gb"
+                minDocCount: 10000000
+          transitions:
+            - stateName: delete
+              conditions:
+                minIndexAge: "7d"
+        - name: delete
+          actions:
+            - delete: {}
+      ismTemplate:
+        indexPatterns:
+          - "siem-audit*"
         priority: 100
 
 testFramework:

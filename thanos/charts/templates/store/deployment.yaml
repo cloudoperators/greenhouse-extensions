@@ -60,8 +60,10 @@ spec:
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
+        {{- with .Values.thanos.store.resources }}
         resources:
-          {{- toYaml .Values.thanos.store.resources | nindent 10 }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - containerPort: 10902
           name: http
