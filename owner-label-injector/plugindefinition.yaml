@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: owner-label-injector
 spec:
-  version: 2.0.1
+  version: 2.1.0
   displayName: Owner Label Injector
   description: Kubernetes mutating admission webhook that ensures every relevant resource carries standardized owner labels (support-group and service) for auditable ownership tracking, incident routing, cost allocation, and cleanup automation.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/owner-label-injector/main/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: owner-label-injector
     repository: oci://ghcr.io/cloudoperators/owner-label-injector/charts
-    version: 2.0.1
+    version: 2.1.0
   options:
     - name: replicaCount
       displayName: Replica Count
@@ -124,3 +124,15 @@ spec:
       description: YAML object with "rules" array for regex-based mapping from Helm releases to owner data when no owner ConfigMap exists
       required: false
       type: map
+
+    - name: webhook.timeoutSeconds
+      displayName: Webhook Timeout
+      description: Timeout in seconds for webhook admission decisions (default 10, max 30).
+      required: false
+      type: int
+
+    - name: webhook.namespaceSelector.excludedNamespaces
+      displayName: Excluded Namespaces
+      description: List of namespace names to exclude from webhook processing. The webhook will not intercept resources in these namespaces.
+      required: false
+      type: list
