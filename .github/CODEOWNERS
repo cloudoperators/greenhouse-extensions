@@ -19,6 +19,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /hack/                    @cloudoperators/greenhouse-backend
 
 # The following paths are owned by the respective maintainers
+/absent-metrics-operator/ @cloudoperators/greenhouse-observability
 /alerts/                  @cloudoperators/greenhouse-observability
 /audit-logs/              @cloudoperators/greenhouse-observability
 /cert-manager/            @cloudoperators/greenhouse-backend
@@ -47,3 +48,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /openbao/                 @cloudoperators/greenhouse-src @dimtas
 /repo-guard/              @cloudoperators/greenhouse-backend
 /reloader/                @cloudoperators/greenhouse-backend
+/owner-label-injector/    @cloudoperators/greenhouse-backend

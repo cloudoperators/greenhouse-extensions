@@ -123,7 +123,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -164,12 +164,12 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.security.tls.transport.nodesDn | list | `["CN=opensearch-transport"]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
 | cluster.cluster.security.tls.transport.perNode | bool | `false` | Separate certificate per node |
 | cluster.cluster.security.tls.transport.secret | object | `{"name":"opensearch-transport-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
-| cluster.componentTemplates | list | <pre>componentTemplates:<br>  - name: logs-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre> | List of OpensearchComponentTemplate. Check values.yaml file for examples. |
+| cluster.componentTemplates | list | See values.yaml | List of OpensearchComponentTemplate. |
 | cluster.fullnameOverride | string | `""` |  |
-| cluster.indexTemplates | list | <pre>indexTemplates:<br>  - name: "logs-index-template"<br>    indexPatterns:<br>      - "logs*"<br>    composedOf:<br>      - logs-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre> | List of OpensearchIndexTemplate. |
-| cluster.ismPolicies | list | <pre>ismPolicies:<br>  - name: logs-rollover-policy<br>    defaultState: hot<br>    description: "Logs policy with 7-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "10gb"<br>              minDocCount: 20000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "7d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "logs*"<br>      priority: 100</pre> | List of OpenSearchISMPolicy. Check values.yaml file for examples. |
+| cluster.indexTemplates | list | See values.yaml | List of OpensearchIndexTemplate. Includes template for logs* data stream. |
+| cluster.ismPolicies | list | See values.yaml | List of OpenSearchISMPolicy. Includes 7-day retention policy for logs* indices. |
 | cluster.nameOverride | string | `""` |  |
-| cluster.roles | list | <pre>roles:<br>  - name: "logs-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "logs*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre> | List of OpensearchRole. See values.yaml file for a full example. |
+| cluster.roles | list | See values.yaml | List of OpensearchRole. Includes read and write roles for logs* indices. |
 | cluster.serviceAccount.annotations | object | `{}` | Service Account annotations |
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
@@ -246,6 +246,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | siem.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
 | siem.cluster.bootstrap.affinity | object | `{}` | bootstrap pod affinity rules |
@@ -296,7 +297,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | siem.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | siem.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.1.0/prometheus-exporter-3.3.1.0.zip"` | Custom URL for the monitoring plugin |
+| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
 | siem.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | siem.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | siem.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -337,20 +338,20 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.security.tls.transport.nodesDn | list | `["CN=opensearch-siem-transport"]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
 | siem.cluster.security.tls.transport.perNode | bool | `false` | Separate certificate per node |
 | siem.cluster.security.tls.transport.secret | object | `{"name":"opensearch-siem-transport-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
-| siem.componentTemplates | list | <pre>componentTemplates:<br>  - name: siem-attributes-dynamic<br>    version: 1<br>    allowAutoCreate: true<br>    _meta:<br>      description: "Enable full dynamic mapping for all attributes.* keys"<br>    templateSpec:<br>      mappings:<br>        properties:<br>          attributes:<br>            type: object<br>            dynamic: true</pre> | List of OpensearchComponentTemplate for SIEM cluster. Check values.yaml file for examples. |
+| siem.componentTemplates | list | See values.yaml | List of OpensearchComponentTemplate for SIEM cluster. |
 | siem.enabled | bool | `false` | Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM. |
 | siem.fullnameOverride | string | `""` |  |
-| siem.indexTemplates | list | <pre>indexTemplates:<br>  - name: "siem-index-template"<br>    indexPatterns:<br>      - "siem*"<br>    composedOf:<br>      - siem-attributes-dynamic<br>    templateSpec:<br>      settings:<br>        index:<br>          number_of_shards: 1<br>          number_of_replicas: 1<br>          refresh_interval: 1s<br>      mappings:<br>        properties:<br>          "@timestamp":<br>            type: date<br>          message:<br>            type: text<br>    dataStream: {}<br>    priority: 100</pre> | List of OpensearchIndexTemplate for SIEM cluster. |
-| siem.ismPolicies | list | <pre>ismPolicies:<br>  - name: siem-rollover-policy<br>    defaultState: hot<br>    description: "SIEM policy with 30-day retention and size-based rollover"<br>    states:<br>      - name: hot<br>        actions:<br>          - rollover:<br>              minSize: "5gb"<br>              minDocCount: 10000000<br>        transitions:<br>          - stateName: delete<br>            conditions:<br>              minIndexAge: "30d"<br>      - name: delete<br>        actions:<br>          - delete: {}<br>    ismTemplate:<br>      indexPatterns:<br>        - "siem*"<br>      priority: 100</pre> | List of OpenSearchISMPolicy for SIEM cluster. Check values.yaml file for examples. |
+| siem.indexTemplates | list | See values.yaml | List of OpensearchIndexTemplate for SIEM cluster. Includes templates for siem-logs* and siem-audit* data streams. |
+| siem.ismPolicies | list | See values.yaml | List of OpenSearchISMPolicy for SIEM cluster. Includes 7-day retention policies for siem-logs* and siem-audit* indices. |
 | siem.nameOverride | string | `""` | Override the name used by the subchart. By default uses release name with -siem suffix |
-| siem.roles | list | <pre>roles:<br>  - name: "siem-write-role"<br>    clusterPermissions:<br>      - "cluster_monitor"<br>    indexPermissions:<br>      - indexPatterns:<br>          - "siem*"<br>        allowedActions:<br>          - "indices:admin/template/get"</pre> | List of OpensearchRole for SIEM cluster. See values.yaml file for a full example. |
+| siem.roles | list | See values.yaml | List of OpensearchRole for SIEM cluster. Includes write roles for siem-logs* and siem-audit* indices. |
 | siem.serviceAccount.annotations | object | `{}` | Service Account annotations |
 | siem.serviceAccount.create | bool | `false` | Create Service Account |
 | siem.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
 | siem.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
-| siem.users | list | <pre>users:<br>  - name: "siem-logs"<br>    secretName: "siem-logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations for SIEM cluster. |
-| siem.usersCredentials | object | <pre>usersCredentials:<br>  siemAdmin:<br>    username: "siem-admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
-| siem.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siem-logs"<br>      - "siem-logs2"<br>    roles:<br>      - "siem-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role |
+| siem.users | list | <pre>users:<br>  - name: "siemlogs"<br>    secretName: "siemlogs-credentials"<br>    secretKey: "password"<br>    backendRoles: []<br>  - name: "siemaudit"<br>    secretName: "siemaudit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations for SIEM cluster. |
+| siem.usersCredentials | object | <pre>usersCredentials:<br>  siemadmin:<br>    username: "siemadmin"<br>    password: "admin"<br>    hash: ""<br>  siemlogs:<br>    username: "siemlogs"<br>    password: ""<br>  siemaudit:<br>    username: "siemaudit"<br>    password: ""</pre> | List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
+| siem.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siemlogs"<br>      - "siemlogs2"<br>    roles:<br>      - "siem-write-role"<br>  - name: "siem-audit-write"<br>    users:<br>      - "siemaudit"<br>      - "siemaudit2"<br>    roles:<br>      - "siem-audit-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |

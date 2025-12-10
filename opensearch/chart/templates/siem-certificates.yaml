@@ -5,6 +5,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-siem-ca-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -21,6 +22,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-siem-transport-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -45,6 +47,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-siem-admin-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -63,6 +66,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-siem-http-cert
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -87,6 +91,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: opensearch-siem-http-cert-external
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
@@ -97,7 +102,7 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-siem-http-cert-external
   dnsNames:
-{{ toYaml .Values.certManager.httpDnsNames | indent 4 }}
+{{ toYaml .Values.siem.certManager.httpDnsNames | indent 4 }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 {{- end }}

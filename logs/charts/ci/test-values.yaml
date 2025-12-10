@@ -62,6 +62,7 @@ openTelemetry:
         - ReconcileErrors
         - FilelogRefusedLogs
         - LogsOTelLogsMissing
+        - LogsExportingFailed
 
 testFramework:
   enabled: true

@@ -6,6 +6,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: {{ printf "%s-%s" $.Release.Name ($path | trimSuffix ".yaml") | replace "/" "-" | trunc 63 }}
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" $ | nindent 4 }}
     {{- if $.Values.cluster.cluster.general.monitoring.labels }}
@@ -22,6 +23,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: {{ printf "%s-%s" $.Release.Name ($path | trimSuffix ".yaml") | replace "/" "-" | trunc 63 }}
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" $ | nindent 4 }}
 spec:

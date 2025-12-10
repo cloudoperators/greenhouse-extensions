@@ -348,18 +348,14 @@ kubeMonitoring:
       # Expected values are the secret name and key
       # Cannot be used with additionalAlertManagerConfigs
       # @ignored
-      additionalAlertManagerConfigsSecret:
-        name: "{{ $.Release.Name }}-alertmanager-config"
-        key: config.yaml
+      additionalAlertManagerConfigsSecret: {}
 
       # If additional alert relabel configurations are already deployed in a single secret, or you want to manage
       # them separately from the helm deployment, you can use this section.
       # Expected values are the secret name and key
       # Cannot be used with additionalAlertRelabelConfigs
       # @ignored
-      additionalAlertRelabelConfigsSecret:
-        name: "{{ $.Release.Name }}-alertmanager-config"
-        key: relabelConfig.yaml
+      additionalAlertRelabelConfigsSecret: {}
 
       # Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
       # The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
@@ -372,42 +368,32 @@ kubeMonitoring:
       # How long to retain metrics
       # retention: 10d
 
-      serviceMonitorSelector:
-        # -- ServiceMonitors to be selected for target discovery.
-        # If {}, select all ServiceMonitors
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- ServiceMonitors to be selected for target discovery.
+      # If {}, select all ServiceMonitors
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      serviceMonitorSelector: {}
 
-      podMonitorSelector:
-        # -- PodMonitors to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- PodMonitors to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      podMonitorSelector: {}
 
-      probeSelector:
-        # -- Probes to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- Probes to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      probeSelector: {}
 
-      scrapeConfigSelector:
-        # -- scrapeConfigs to be selected for target discovery.
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- scrapeConfigs to be selected for target discovery.
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      scrapeConfigSelector: {}
 
-      ruleSelector:
-        # -- PrometheusRules to be selected for target discovery.
-        # If {}, select all PrometheusRules
-        # @default -- `{ plugin: <metadata.name> }`
-        # @section -- Prometheus options
-        matchLabels:
-          plugin: "{{ $.Release.Name }}"
+      # -- PrometheusRules to be selected for target discovery.
+      # If {}, select all PrometheusRules
+      # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
+      # @section -- Prometheus options
+      ruleSelector: {}
 
       storageSpec:
         volumeClaimTemplate:
