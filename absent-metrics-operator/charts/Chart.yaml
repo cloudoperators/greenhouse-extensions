@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: v2
-description: Base chart for thanos monitoring deployments
-icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png
+description: Base chart for absent-metrics-operator deployments
 type: application
 maintainers:
-  - name: viennaa
   - name: trouaux
-name: thanos
+name: absent-metrics-operator
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.7.8
+version: 0.0.1
 keywords:
-  - thanos
-  - storage
-  - metrics
+  - absent-metrics-operator

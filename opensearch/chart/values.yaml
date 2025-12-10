@@ -764,6 +764,12 @@ cluster:
               type: date
             message:
               type: text
+            severity:
+              properties:
+                number:
+                  type: long
+                text:
+                  type: keyword
       dataStream: {}
       priority: 100
 
@@ -1431,7 +1437,11 @@ siem:
             message:
               type: text
             severity:
-              type: keyword
+              properties:
+                number:
+                  type: long
+                text:
+                  type: keyword
             source:
               type: keyword
       dataStream: {}
@@ -1454,7 +1464,11 @@ siem:
             message:
               type: text
             severity:
-              type: keyword
+              properties:
+                number:
+                  type: long
+                text:
+                  type: keyword
             source:
               type: keyword
       dataStream: {}
