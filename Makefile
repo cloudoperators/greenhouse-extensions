@@ -14,9 +14,9 @@ endif
 
 ## tools versions
 KUSTOMIZE_VERSION ?= 5.7.1
-YQ_VERSION ?= v4.47.1
+YQ_VERSION ?= v4.47.2
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.74.6
+PINT_VERSION ?= 0.74.8
 HELM_VERSION ?= 3.18.6
 
 ## Location to install dependencies to
