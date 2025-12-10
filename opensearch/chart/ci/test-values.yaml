@@ -4,6 +4,8 @@
 certManager:
   httpDnsNames:
     - opensearch-logs-client.local
+  dashboardsDnsNames:
+    - logs.local
   issuer:
     digicert:
       name: opensearch-ca-issuer  # Internal CA instead of Digicert for testing
@@ -55,6 +57,19 @@ cluster:
               - opensearch-logs-client.local
             secretName: opensearch-http-cert-external
 
+      dashboards:
+        enabled: true
+        className: nginx
+        hosts:
+          - host: logs.local
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - logs.local
+            secretName: opensearch-http-cert
+
     nodePools:
       - component: main
         diskSize: "2Gi"
@@ -98,6 +113,8 @@ siem:
   certManager:
     httpDnsNames:
       - opensearch-siem-client.local
+    dashboardsDnsNames:
+      - siem.local
   usersCredentials:
     siemadmin:
       username: "siemadmin"
@@ -150,6 +167,19 @@ siem:
           - hosts:
               - opensearch-siem-client.local
             secretName: opensearch-siem-http-cert-external
+
+      dashboards:
+        enabled: true
+        className: nginx
+        hosts:
+          - host: siem.local
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - siem.local
+            secretName: opensearch-siem-http-cert
 
     nodePools:
       - component: main
