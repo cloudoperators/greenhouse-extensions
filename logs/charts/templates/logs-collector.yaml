@@ -58,6 +58,8 @@ spec:
     receivers:
       journald:
         directory: /var/log/journal
+        start_at: beginning
+        storage: file_storage/journald
         operators:
           - id: journal-label
             type: add
@@ -153,12 +155,12 @@ spec:
           - context: log
             statements:
               - merge_maps(log.cache, body, "upsert") where IsMatch(log.body, "^\\{")
-              - set(log.attributes["message"], log.cache["MESSAGE"])
+              - set(log.attributes["msg"], log.cache["MESSAGE"])
               - set(log.attributes["code_file"], log.cache["CODE_FILE"])
               - set(log.attributes["code_func"], log.cache["CODE_FUNC"])
               - set(log.attributes["code_line"], log.cache["CODE_LINE"])
               - set(log.attributes["incovation_id"], log.cache["INVOCATION_ID"])
-              - set(log.attributes["message_id"], log.cache["MESSAGE_ID"])
+              - set(log.attributes["msg_id"], log.cache["MESSAGE_ID"])
               - set(log.attributes["priority"], log.cache["PRIORITY"])
               - set(log.attributes["syslog_facility"], log.cache["SYSLOG_FACILITY"])
               - set(log.attributes["syslog_identifier"], log.cache["SYSLOG_IDENTIFIER"])
@@ -191,7 +193,7 @@ spec:
             conditions:
               - resource.attributes["app.label.name"] == "ingress-nginx"
             statements:
-              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request.method} %{NOTSPACE:request.path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request.length:int} %{BASE10NUM:request.time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request.id}", true),"upsert")
               - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
               - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
@@ -307,6 +309,8 @@ spec:
 {{- end }}
 
     extensions:
+      file_storage/journald:
+        directory: .
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -327,6 +331,7 @@ spec:
         max_retries: 0
     service:
       extensions:
+        - file_storage/journald
         - basicauth/failover_a
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
         - basicauth/failover_b
