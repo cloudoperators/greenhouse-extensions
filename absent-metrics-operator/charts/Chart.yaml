@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: Base chart for absent-metrics-operator deployments
+type: application
+maintainers:
+  - name: trouaux
+name: absent-metrics-operator
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+version: 0.0.1
+keywords:
+  - absent-metrics-operator

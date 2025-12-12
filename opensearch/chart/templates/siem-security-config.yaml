@@ -1,0 +1,83 @@
+{{- if .Values.siem.enabled }}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: opensearch-siem-security-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+stringData:
+  config.yml: |-
+    _meta:
+      type: "config"
+      config_version: 2
+    config:
+      dynamic:
+        kibana:
+          server_username: {{ .Values.siem.usersCredentials.siemdashboards.username | default "siemdashboards" }}
+        http:
+          anonymous_auth_enabled: false
+          xff:
+            enabled: true
+            internalProxies: '.*'  # Trust all internal proxies (service-proxy)
+            remoteIpHeader: 'x-forwarded-for'
+        authc:
+          proxy_auth_domain:
+            description: "Authenticate via proxy headers from OAuth2 proxy"
+            http_enabled: true
+            transport_enabled: true
+            order: 0
+            http_authenticator:
+              type: proxy
+              challenge: false
+              config:
+                user_header: "x-forwarded-user"
+                roles_header: "x-forwarded-groups"
+                roles_separator: ","
+            authentication_backend:
+              type: noop
+          basic_internal_auth_domain:
+            description: "Authenticate via HTTP Basic against internal users database"
+            http_enabled: true
+            transport_enabled: true
+            order: 1
+            http_authenticator:
+              type: basic
+              challenge: true
+            authentication_backend:
+              type: intern
+
+  internal_users.yml: |-
+    _meta:
+      type: "internalusers"
+      config_version: 2
+    {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" }}:
+      hash: {{ .Values.siem.usersCredentials.siemadmin.hash | quote }}
+      reserved: true
+      backend_roles:
+        - "admin"
+
+  roles.yml: |-
+    _meta:
+      type: "roles"
+      config_version: 2
+
+  roles_mapping.yml: |-
+    _meta:
+      type: "rolesmapping"
+      config_version: 2
+    all_access:
+      reserved: false
+      backend_roles:
+        - "admin"
+      users:
+        - {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" | quote }}
+
+  tenants.yml: |-
+    _meta:
+      type: "tenants"
+      config_version: 2
+{{- end }}

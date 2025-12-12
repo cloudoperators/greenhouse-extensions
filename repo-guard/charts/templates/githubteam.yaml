@@ -20,7 +20,7 @@ metadata:
     githubguard.sap/require-osmp-check: "true"
     {{- end }}
 spec:
-  {{- if or $team.distributionListID $team.ldapGroup }}
+  {{- if or $team.distributionListID $team.ldapGroup $team.ldap $team.genericHTTP $team.static }}
   externalMemberProvider:
     {{- if $team.distributionListID }}
     distributionList:
@@ -31,6 +31,25 @@ spec:
     ldapGroup:
       ldapGroupProvider: "{{ $.Values.ldap.name }}"
       group: {{ $team.ldapGroup }}
+    {{- end }}
+    {{- if $team.ldap }}
+    ldap:
+      {{- if $team.ldap.provider }}
+      provider: {{ $team.ldap.provider }}
+      {{- else if $.Values.ldap.name }}
+      provider: "{{ $.Values.ldap.name }}"
+      {{- end }}
+      group: {{ $team.ldap.group }}
+    {{- end }}
+    {{- if $team.genericHTTP }}
+    genericHTTP:
+      provider: {{ $team.genericHTTP.provider }}
+      group: {{ $team.genericHTTP.group }}
+    {{- end }}
+    {{- if $team.static }}
+    static:
+      provider: {{ $team.static.provider }}
+      group: {{ $team.static.group }}
     {{- end }}
   {{- end }}
   github: {{ $githubKey }}

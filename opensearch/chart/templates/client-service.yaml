@@ -4,10 +4,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $.Values.cluster.cluster.name | default $.Release.Name }}-client-external
+  name: {{ $.Values.cluster.cluster.name | default (printf "%s-logs" $.Release.Name) }}-client-external
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
-    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default $.Release.Name }}
+    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default (printf "%s-logs" $.Release.Name) }}
     opster.io/opensearch-nodepool: client
   annotations:
 {{ toYaml $.Values.cluster.cluster.client.service.annotations | indent 4 }}
@@ -20,6 +21,6 @@ spec:
   ports:
 {{ toYaml $.Values.cluster.cluster.client.service.ports | indent 4 }}
   selector:
-    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default $.Release.Name }}
+    opster.io/opensearch-cluster: {{ $.Values.cluster.cluster.name | default (printf "%s-logs" $.Release.Name) }}
     opster.io/opensearch-nodepool: client
 {{- end }}

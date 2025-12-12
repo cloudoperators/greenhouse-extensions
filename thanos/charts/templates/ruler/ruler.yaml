@@ -25,6 +25,11 @@ spec:
             values:
             - {{ .Release.Name }}
         topologyKey: kubernetes.io/hostname
+  {{- if .Values.thanos.ruler.alertRelabelConfigs }}
+  alertRelabelConfigs:
+    key : alert-relabel-configs.yaml
+    name: thanos-ruler-{{ include "release.name" . }}-alert-relabel-config
+  {{- end }}
   image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
   {{- if .Values.thanos.ruler.externalPrefix }}
   externalPrefix: {{ .Values.thanos.ruler.externalPrefix }}
@@ -37,8 +42,10 @@ spec:
       {{- include "thanos.labels" . | nindent 6 }}
   evaluationInterval: {{ .Values.thanos.ruler.evaluationInterval }}
   logLevel: {{ default "info" .Values.thanos.ruler.logLevel }}
+  {{- with .Values.thanos.ruler.resources }}
   resources:
-    {{- toYaml .Values.thanos.ruler.resources | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   retention: {{ .Values.thanos.ruler.retention }}
   {{- if .Values.thanos.ruler.storage }}
   storage:
@@ -50,10 +57,15 @@ spec:
     name: "{{ .Values.thanos.ruler.objectStorageConfig.existingSecret.name }}"
   {{- end }}
   # Select rules across all namespaces
-  ruleNamespaceSelector: {}
+  ruleNamespaceSelector: 
+    {{- toYaml .Values.thanos.ruler.ruleNamespaceSelector | nindent 4 }}
   ruleSelector:
     matchLabels:
+    {{- if .Values.thanos.ruler.ruleSelector }}
+      {{- toYaml .Values.thanos.ruler.ruleSelector | nindent 4 }}
+    {{- else }}
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
+    {{- end }}
   serviceName: {{ include "release.name" . }}-ruler
   queryEndpoints:
     - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}

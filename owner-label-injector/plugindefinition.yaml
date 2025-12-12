@@ -1,0 +1,138 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: owner-label-injector
+spec:
+  version: 2.1.0
+  displayName: Owner Label Injector
+  description: Kubernetes mutating admission webhook that ensures every relevant resource carries standardized owner labels (support-group and service) for auditable ownership tracking, incident routing, cost allocation, and cleanup automation.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/owner-label-injector/main/README.md
+  icon: https://raw.githubusercontent.com/kubernetes/community/master/icons/svg/resources/labeled/pod.svg
+  helmChart:
+    name: owner-label-injector
+    repository: oci://ghcr.io/cloudoperators/owner-label-injector/charts
+    version: 2.1.0
+  options:
+    - name: replicaCount
+      displayName: Replica Count
+      description: Number of webhook replicas to run for high availability
+      default: 3
+      required: false
+      type: int
+
+    - name: global.region
+      displayName: Global Region
+      description: Region identifier for the deployment
+      required: false
+      type: string
+
+    - name: cronjob.enabled
+      displayName: Enable CronJob
+      description: Enable periodic reconciliation via CronJob
+      default: false
+      required: false
+      type: bool
+
+    - name: cronjob.schedule
+      displayName: CronJob Schedule
+      description: Cron schedule expression for periodic reconciliation
+      default: "0 */6 * * *"
+      required: false
+      type: string
+
+    - name: prometheus.scrape
+      displayName: Prometheus Scrape
+      description: Enable Prometheus scraping
+      default: "true"
+      required: false
+      type: string
+
+    - name: prometheus.targets
+      displayName: Prometheus Targets
+      description: Prometheus targets configuration
+      default: "kubernetes"
+      required: false
+      type: string
+
+    - name: config.labels.prefix
+      displayName: Label Prefix
+      description: Prefix for all injected owner labels
+      required: true
+      type: string
+
+    - name: config.labels.supportGroupSuffix
+      displayName: Support Group Label Suffix
+      description: Suffix for the support group label (combined with prefix to form 'prefix/suffix')
+      default: support-group
+      required: false
+      type: string
+
+    - name: config.labels.serviceSuffix
+      displayName: Service Label Suffix
+      description: Suffix for the service label (combined with prefix to form 'prefix/suffix')
+      default: service
+      required: false
+      type: string
+
+    - name: config.labels.dataSourceAnnotationSuffix
+      displayName: Data Source Annotation Suffix
+      description: Suffix for the annotation tracking data source (combined with prefix)
+      default: support-group-datasource
+      required: false
+      type: string
+
+    - name: config.helm.ownerConfigMapPrefix
+      displayName: Owner ConfigMap Prefix
+      description: Prefix for primary owner ConfigMaps (e.g., 'owner-of-<release>')
+      default: owner-of-
+      required: false
+      type: string
+
+    - name: config.helm.ownerConfigMapFallbackPrefix
+      displayName: Owner ConfigMap Fallback Prefix
+      description: Prefix for fallback owner ConfigMaps (e.g., 'early-owner-of-<release>')
+      default: early-owner-of-
+      required: false
+      type: string
+
+    - name: config.helm.supportGroupDataKey
+      displayName: Support Group Data Key
+      description: Key in owner ConfigMaps for support group data
+      default: support-group
+      required: false
+      type: string
+
+    - name: config.helm.serviceDataKey
+      displayName: Service Data Key
+      description: Key in owner ConfigMaps for service data
+      default: service
+      required: false
+      type: string
+
+    - name: config.traversal.vicePresidentAnnotationKey
+      displayName: Vice President Annotation Key
+      description: Annotation key for TLS cert ingress discovery during owner traversal
+      default: vice-president/claimed-by-ingress
+      required: false
+      type: string
+
+    - name: config.staticRules
+      displayName: Static Rules
+      description: YAML object with "rules" array for regex-based mapping from Helm releases to owner data when no owner ConfigMap exists
+      required: false
+      type: map
+
+    - name: webhook.timeoutSeconds
+      displayName: Webhook Timeout
+      description: Timeout in seconds for webhook admission decisions (default 10, max 30).
+      required: false
+      type: int
+
+    - name: webhook.namespaceSelector.excludedNamespaces
+      displayName: Excluded Namespaces
+      description: List of namespace names to exclude from webhook processing. The webhook will not intercept resources in these namespaces.
+      required: false
+      type: list

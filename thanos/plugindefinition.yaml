@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.7.2
+  version: 0.7.8
   description: thanos
   helmChart:
     name: thanos
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.7.2
+    version: 0.7.8
   options:
     - default: null
       description: CLI param for Thanos Query

@@ -2,6 +2,7 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
+{{- if .Values.auditLogs.logsCollector.enabled }}
 
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -68,8 +69,8 @@ spec:
 
       filelog/containerd:
         include_file_path: true
-        include: [ /var/log/containers/*.log ]
-        exclude: [ /var/log/containers/audit-logs_* ]
+        include: [ /var/log/pods/*.log ]
+        exclude: [ /var/log/pods/audit-logs* ]
         operators:
           - id: container-parser
             type: container
@@ -341,3 +342,4 @@ spec:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
           exporters: [forward]
+{{- end }}

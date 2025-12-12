@@ -1,6 +1,13 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+certManager:
+  httpDnsNames:
+    - opensearch-logs-client.local
+  issuer:
+    digicert:
+      name: opensearch-ca-issuer  # Internal CA instead of Digicert for testing
+
 cluster:
   usersCredentials:
     admin:
@@ -16,11 +23,133 @@ cluster:
     dashboards2:
       password: "CHANGE_ME_FailoverUser2025$%"
   cluster:
+    # Disable monitoring for local test environment
+    general:
+      monitoring:
+        enable: false
     # Override dashboards configuration for local testing with basic auth
     dashboards:
       additionalConfig:
         opensearch.requestHeadersAllowlist: '["securitytenant","Authorization"]'
         opensearch_security.auth.type: "basicauth"
+
+    ingress:
+      opensearch:
+        enabled: true
+        className: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          nginx.ingress.kubernetes.io/enable-access-log: "false"
+          nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-ssl-name: opensearch.opensearch-logs.svc.cluster.local
+          nginx.ingress.kubernetes.io/proxy-ssl-secret: opensearch-logs/opensearch-ca-cert
+          nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
+          nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
+        hosts:
+          - host: opensearch-logs-client.local
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - opensearch-logs-client.local
+            secretName: opensearch-http-cert-external
+
+    nodePools:
+      - component: main
+        diskSize: "2Gi"
+        replicas: 1
+        roles:
+          - "cluster_manager"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: 1
+      - component: data
+        diskSize: "2Gi"
+        replicas: 1
+        roles:
+          - "data"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "4Gi"
+            cpu: 2
+      - component: client
+        diskSize: "2Gi"
+        replicas: 1
+        roles:
+          - "client"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: 1
+
+siem:
+  enabled: true
+  certManager:
+    httpDnsNames:
+      - opensearch-siem-client.local
+  usersCredentials:
+    siemadmin:
+      username: "siemadmin"
+      password: "admin"
+      hash: "$2y$12$0OYo7uyzgytbPat9qpklL.4PsvvuU0.HX1ZkK7Lq1js/YHXf37VCK"  # bcrypt hash for "admin"
+    siemlogs:
+      username: "siemlogs"
+      password: "CHANGE_ME_SIEMUser2025!@#"
+    siemlogs2:
+      username: "siemlogs2"
+      password: "CHANGE_ME_SIEMFailoverUser2025$%"
+    siemaudit:
+      username: "siemaudit"
+      password: "CHANGE_ME_TestPass2025!@#"
+    siemaudit2:
+      username: "siemaudit2"
+      password: "CHANGE_ME_TestFailover2025$%"
+    siemdashboards:
+      username: "siemdashboards"
+      password: "CHANGE_ME_Strong_P@ssw0rd_2025!"
+  cluster:
+    # Disable monitoring for test environment
+    general:
+      monitoring:
+        enable: false
+    # Override dashboards configuration for local testing with basic auth
+    dashboards:
+      additionalConfig:
+        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization"]'
+        opensearch_security.auth.type: "basicauth"
+
+    ingress:
+      opensearch:
+        enabled: true
+        className: nginx
+        annotations:
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          nginx.ingress.kubernetes.io/enable-access-log: "false"
+          nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-ssl-name: opensearch-siem.opensearch-logs.svc.cluster.local
+          nginx.ingress.kubernetes.io/proxy-ssl-secret: opensearch-logs/opensearch-siem-ca-cert
+          nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
+          nginx.ingress.kubernetes.io/proxy-ssl-verify: "on"
+        hosts:
+          - host: opensearch-siem-client.local
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - opensearch-siem-client.local
+            secretName: opensearch-siem-http-cert-external
 
     nodePools:
       - component: main

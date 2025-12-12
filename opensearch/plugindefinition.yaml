@@ -2,18 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: ClusterPluginDefinition
+kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.34
+  version: 0.0.46
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.34
+    version: 0.0.46
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -51,7 +51,7 @@ spec:
       description: "DNS names used for issuing HTTP certificates and configuring service annotations and ingress for client nodes receiving logs."
       required: true
       type: list
-    - name: certManager.digicert
+    - name: certManager.issuer.digicert
       description: "Configure DigiCert certificate issuer."
       required: false
       type: map
@@ -134,5 +134,112 @@ spec:
       type: string
     - name: operator.kubeRbacProxy.image.tag
       description: "Specifies the image tag for the kube-rbac-proxy image."
+      required: false
+      type: string
+    # SIEM cluster configuration options
+    - name: siem.enabled
+      description: "Enable or disable the SIEM OpenSearch cluster. When enabled, a second OpenSearch cluster will be deployed for SIEM."
+      required: false
+      type: bool
+      default: false
+    - name: siem.cluster.cluster.general.monitoring.pluginUrl
+      description: "Defines a custom URL for the monitoring plugin for the second cluster. Leave blank to use the default monitoring configuration."
+      required: false
+      type: string
+    - name: siem.cluster.cluster.general.monitoring.labels
+      description: "Specifies custom labels for the ServiceMonitor to expose OpenSearch metrics to Prometheus for the SIEM cluster."
+      required: false
+      type: map
+    - name: siem.cluster.cluster.client.service.enabled
+      description: "Enables the service for the external log ingestion for the SIEM cluster."
+      required: false
+      type: bool
+    - name: siem.cluster.cluster.client.service.loadBalancerSourceRanges
+      description: "List of allowed IP ranges for external access when service type is LoadBalancer for the SIEM cluster."
+      required: false
+      type: list
+    - name: siem.cluster.cluster.client.service.externalIPs
+      description: "List of allowed IP ranges for external access when service type is LoadBalancer for the SIEM cluster."
+      required: false
+      type: list
+    - name: siem.cluster.cluster.client.service.annotations
+      description: "Specifies custom annotations for the external client service for the SIEM cluster, commonly used to configure external DNS services or load balancer behavior."
+      required: false
+      type: map
+    - name: siem.cluster.cluster.client.service.type
+      description: "Defines the type of service for the external client for the SIEM cluster, such as ClusterIP, NodePort, or LoadBalancer."
+      required: false
+      type: string
+    - name: siem.cluster.cluster.dashboards.service.labels
+      description: "Specifies custom metadata labels for the dashboards service for the SIEM cluster."
+      required: false
+      type: map
+    - name: siem.usersCredentials.siemadmin.password
+      description: "Admin password used for initial setup and management of the SIEM cluster"
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemadmin.hash
+      description: "Admin password hash (bcrypt format) for the SIEM cluster"
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemlogs.username
+      description: "Primary username for SIEM data ingestion in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemlogs.password
+      description: "Primary user password for SIEM data ingestion in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemlogs2.username
+      description: "Secondary username for SIEM data ingestion to support failover authentication in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemlogs2.password
+      description: "Secondary user password for SIEM data ingestion to support failover authentication in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemdashboards.username
+      description: "Username for SIEM dashboards access in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersCredentials.siemdashboards.password
+      description: "Password for SIEM dashboards access in the SIEM cluster."
+      required: false
+      type: secret
+    - name: siem.usersRoleBinding
+      description: "Define user role bindings for the SIEM cluster."
+      required: false
+      type: list
+    - name: siem.cluster.cluster.ingress.opensearch.enabled
+      description: "Enables the Opensearch ingress for log ingestion for the SIEM cluster."
+      required: false
+      type: bool
+    - name: siem.cluster.cluster.ingress.opensearch.className
+      description: "Ingress class name for Opensearch in the SIEM cluster."
+      default: "nginx"
+      required: false
+      type: string
+    - name: siem.cluster.cluster.ingress.opensearch.annotations
+      description: "Opensearch ingress annotations for the SIEM cluster"
+      required: false
+      type: map
+    - name: siem.cluster.cluster.ingress.opensearch.hosts
+      description: "Opensearch ingress hosts for the SIEM cluster"
+      required: false
+      type: list
+    - name: siem.cluster.cluster.ingress.opensearch.tls
+      description: "Opensearch ingress tls configuration for the SIEM cluster"
+      required: false
+      type: list
+    - name: siem.cluster.cluster.nodePools
+      description: "Node pool configuration for the SIEM cluster."
+      required: false
+      type: list
+    - name: siem.cluster.cluster.general.image
+      description: "Specifies the full image repository for the OpenSearch image for the SIEM cluster."
+      required: false
+      type: string
+    - name: siem.cluster.cluster.general.version
+      description: "Specifies the OpenSearch version for the SIEM cluster."
       required: false
       type: string
