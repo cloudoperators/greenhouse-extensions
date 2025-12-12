@@ -481,6 +481,8 @@ absentMetricsOperator:
   # @section -- absent-metrics-operator options
   enabled: false
   # @ignored
+  promRuleName: "{{\"{{\"}} index .metadata.labels \"plugin\" {{\"}}\"}}"
+  # @ignored
   image:
     registry: ghcr.io
     repository: sapcc/absent-metrics-operator
