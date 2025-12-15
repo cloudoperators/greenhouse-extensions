@@ -483,8 +483,8 @@ absentMetricsOperator:
   # @ignored
   image:
     registry: ghcr.io
-    repository: sapcc/absent-metrics-operator
-    tag: "20250515130640"
+    repository: cloudoperators/absent-metrics-operator
+    tag: "sha-66c6e9dbac6efaf0ccacad5ba6f50a3446b0223d"
   # @ignored
   imagePullPolicy: IfNotPresent
 
