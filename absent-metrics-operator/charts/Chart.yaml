@@ -9,6 +9,6 @@ maintainers:
 name: absent-metrics-operator
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.0.1
+version: 0.0.2
 keywords:
   - absent-metrics-operator

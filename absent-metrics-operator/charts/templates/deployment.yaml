@@ -34,7 +34,7 @@ spec:
           image: "{{ .Values.image.registry}}/{{ .Values.image.repository}}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           args:
-            - --prom-rule-name={{"{{"}} index .metadata.labels "plugin" {{"}}"}}
+            - --prom-rule-name={{ .Values.promRuleName }}
           resources:
             requests:
               cpu: "20m"
