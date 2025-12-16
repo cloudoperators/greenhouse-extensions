@@ -13,7 +13,7 @@ spec:
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.8
+    version: 0.0.9
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
