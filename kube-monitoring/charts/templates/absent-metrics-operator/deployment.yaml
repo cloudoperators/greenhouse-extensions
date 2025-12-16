@@ -29,18 +29,12 @@ spec:
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
       containers:
         - name: operator
-          image: "{{ .Values.absentMetricsOperator.image.registry}}/{{ .Values.absentMetricsOperator.image.repository}}:{{ .Values.absentMetricsOperator.image.tag }}"
+          image: "{{ .Values.absentMetricsOperator.image.registry }}/{{ .Values.absentMetricsOperator.image.repository }}:{{ .Values.absentMetricsOperator.image.tag }}"
           imagePullPolicy: IfNotPresent
           args:
-            - --prom-rule-name={{"{{"}} index .metadata.labels "plugin" {{"}}"}}
-          # NOTE: observed usage in eu-de-1 (as of 2021-10)
-          # - CPU: ~10m during load
-          # - RAM: ~45Mi during load
+            - --prom-rule-name={{ .Values.absentMetricsOperator.promRuleName }}
           resources:
             requests:
-              cpu: "20m"
-              memory: "100Mi"
-            limits:
               cpu: "20m"
               memory: "100Mi"
           ports:
