@@ -1,5 +1,5 @@
 {{/* 
-SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
 
@@ -26,3 +26,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: shoot-grafter
         command: ["/shoot-grafter"]
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP

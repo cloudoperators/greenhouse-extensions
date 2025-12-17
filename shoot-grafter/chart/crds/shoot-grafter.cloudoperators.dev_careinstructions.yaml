@@ -63,10 +63,9 @@ spec:
               authenticationConfigMapName:
                 description: |-
                   AuthenticationConfigMapName is a reference to a ConfigMap in the Greenhouse cluster
-                  containing an AuthenticationConfiguration (config.yaml key with apiserver.config.k8s.io/v1beta1 content).
+                  containing an AuthenticationConfiguration same as Gardener uses: https://gardener.cloud/docs/guides/administer-shoots/oidc-login/#configure-the-shoot-cluster
                   When set, the shoot controller will merge this configuration with any existing configuration
                   on the Garden cluster and configure the Shoot to use the merged authentication configuration.
-                  This allows specifying multiple OIDC issuers or having more control over the authentication setup.
                 type: string
               enableRBAC:
                 default: true
