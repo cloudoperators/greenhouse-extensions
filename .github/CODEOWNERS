@@ -49,3 +49,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /repo-guard/              @cloudoperators/greenhouse-backend
 /reloader/                @cloudoperators/greenhouse-backend
 /owner-label-injector/    @cloudoperators/greenhouse-backend
+/shoot-grafter/         @cloudoperators/greenhouse-backend
