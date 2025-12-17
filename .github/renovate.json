@@ -184,6 +184,20 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "mikefarah/yq",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump shoot-grafter image version in Chart.yaml",
+      "managerFilePatterns": [
+        "^shoot-grafter/chart/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "appVersion: \"(?<currentValue>sha-[a-f0-9]+)@sha256:[a-f0-9]+\""
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
+      "currentValueTemplate": "{{{currentValue}}}",
+      "extractVersionTemplate": "^(?<version>sha-.*)$"
     }
   ],
   "packageRules": [
