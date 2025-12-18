@@ -481,7 +481,7 @@ absentMetricsOperator:
   # @section -- absent-metrics-operator options
   enabled: false
   # @ignored
-  promRuleName: "{{\"{{\"}} index .metadata.labels \"plugin\" {{\"}}\"}}"
+  promRuleName: '{{ if index .metadata.labels "plugin" }}{{ index .metadata.labels "plugin" }}{{ else }}{{ index .metadata.labels "prometheus" }}{{ end }}'
   # @ignored
   image:
     registry: ghcr.io
