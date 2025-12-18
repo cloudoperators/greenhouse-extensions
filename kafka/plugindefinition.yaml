@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: kafka
+spec:
+  version: 0.0.1
+  displayName: Kafka
+  description: Creates and manages an Apache Kafka environment using the Strimzi Kafka Operator.
+  icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kafka/logo.png'
+  helmChart:
+    name: kafka
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.0.1
+  options:
+    - name: operator.enabled
+      description: "Enable or disable the Strimzi Kafka Operator installation."
+      required: false
+      type: bool
+      default: true
+    - name: kafka.enabled
+      description: "Enable or disable the Kafka cluster deployment."
+      required: false
+      type: bool
+      default: true
+    - name: monitoring.enabled
+      description: "Enable Prometheus metrics monitoring for Kafka cluster."
+      required: false
+      type: bool
+      default: true
+    - name: monitoring.additionalRuleLabels
+      description: "Additional labels for PrometheusRule alerts."
+      required: false
+      type: map
+    - name: operator.image.repository
+      description: "Image repository for the Strimzi Kafka Operator."
+      required: false
+      type: string
+    - name: operator.image.tag
+      description: "Image tag for the Strimzi Kafka Operator."
+      required: false
+      type: string
