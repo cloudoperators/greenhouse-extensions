@@ -1,0 +1,32 @@
+{{/* 
+SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shoot-grafter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: shoot-grafter
+spec:
+  selector:
+    matchLabels:
+      app: shoot-grafter
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: shoot-grafter
+    spec:
+      serviceAccountName: shoot-grafter
+      containers:
+      - image: "{{required ".Values.image.registry is missing" .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: shoot-grafter
+        command: ["/shoot-grafter"]
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP

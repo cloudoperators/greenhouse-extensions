@@ -347,7 +347,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.compactor.enabled | bool | `true` | Enable Thanos Compactor component |
 | thanos.compactor.httpGracePeriod | string | 120s | Set Thanos Compactor http-grace-period |
 | thanos.compactor.logLevel | string | info | Thanos Compactor log level |
-| thanos.compactor.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Compactor container. |
+| thanos.compactor.resources | object | `{}` | Resource requests and limits for the Thanos Compactor container. |
 | thanos.compactor.retentionResolution1h | string | 157680000s | Set Thanos Compactor retention.resolution-1h |
 | thanos.compactor.retentionResolution5m | string | 7776000s | Set Thanos Compactor retention.resolution-5m |
 | thanos.compactor.retentionResolutionRaw | string | 7776000s | Set Thanos Compactor retention.resolution-raw |
@@ -387,8 +387,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
 | thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
-| thanos.query.replicas | string | `nil` | Number of Thanos Query replicas to deploy |
-| thanos.query.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Query container. |
+| thanos.query.replicas | int | `1` | Number of Thanos Query replicas to deploy |
+| thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
 | thanos.query.stores | list | `[]` | Thanos Query store endpoints |
@@ -396,6 +396,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
 | thanos.query.web.routePrefix | string | `nil` |  |
+| thanos.ruler.alertRelabelConfigs | list | `[]` | alertRelabelConfigs defines the alert relabeling in Thanos Ruler. |
 | thanos.ruler.alertmanagers | object | nil | Configures the list of Alertmanager endpoints to send alerts to. The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager. |
 | thanos.ruler.alertmanagers.authentication.enabled | bool | `true` | Enable Alertmanager authentication for Thanos Ruler |
 | thanos.ruler.alertmanagers.authentication.ssoCert | string | `nil` | SSO Cert for Alertmanager authentication |
@@ -413,8 +414,10 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.objectStorageConfig.existingSecret | object | `{}` |  |
 | thanos.ruler.replicaLabel | string | `"thanos_ruler_replica"` | Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"` |
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
-| thanos.ruler.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Ruler container. |
+| thanos.ruler.resources | object | `{}` | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
+| thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used  |
+| thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed  |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
 | thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
@@ -431,6 +434,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.store.enabled | bool | `true` | Enable Thanos Store component |
 | thanos.store.indexCacheSize | string | 1GB | Set Thanos Store index-cache-size |
 | thanos.store.logLevel | string | info | Thanos Store log level |
-| thanos.store.resources | object | <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre> | Resource requests and limits for the Thanos Store container. |
+| thanos.store.replicas | int | `1` | Set Thanos Store replica count |
+| thanos.store.resources | object | `{"requests":{"ephemeral-storage":"200Mi"}}` | Resource requests and limits for the Thanos Store container. |
 | thanos.store.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Store service in addition to its already configured annotations. |
 | thanos.store.serviceLabels | object | `{}` | Labels to add to the Thanos Store service |

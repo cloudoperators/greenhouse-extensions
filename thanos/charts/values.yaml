@@ -69,7 +69,7 @@ thanos:
     enabled: true
 
     # -- Number of Thanos Query replicas to deploy
-    replicas:
+    replicas: 1
 
     # -- Thanos Query log level
     # @default -- info
@@ -86,14 +86,7 @@ thanos:
       routePrefix:
 
     # -- Resource requests and limits for the Thanos Query container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
-    resources:
-      requests:
-        cpu:
-        memory:
-      limits:
-        cpu:
-        memory:
+    resources: {}
 
     # -- Adding additional arguments to Thanos Query
     additionalArgs: []
@@ -215,16 +208,13 @@ thanos:
     # -- Enable Thanos Store component
     enabled: true
 
+    # -- Set Thanos Store replica count
+    replicas: 1
+
     # -- Resource requests and limits for the Thanos Store container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
     resources:
       requests:
-        cpu:
-        memory:
         ephemeral-storage: 200Mi
-      limits:
-        cpu:
-        memory:
 
     # -- Adding additional arguments to Thanos Store
     additionalArgs: []
@@ -267,14 +257,7 @@ thanos:
     logLevel:
 
     # -- Resource requests and limits for the Thanos Compactor container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
-    resources:
-      requests:
-        cpu:
-        memory:
-      limits:
-        cpu:
-        memory:
+    resources: {}
 
     # -- Labels to add to the Thanos Compactor deployment
     deploymentLabels: {}
@@ -343,6 +326,13 @@ thanos:
     # -- Annotations to add to the Thanos Ruler resources
     annotations: {}
 
+    # -- alertRelabelConfigs defines the alert relabeling in Thanos Ruler.
+    alertRelabelConfigs: []
+      # - separator: ;
+      #   regex: prometheus_replica
+      #   replacement: $1
+      #   action: labeldrop
+
     # -- Set Thanos Ruler external prefix
     externalPrefix: /ruler
 
@@ -389,14 +379,13 @@ thanos:
         # key: object-storage-configs.yaml
 
     # -- Resource requests and limits for the Thanos Ruler container.
-    # @default -- <pre>ressources:<br>  requests:<br>    memory:<br>    cpu:<br>  limits:<br>    memory:<br>    cpu:<br></pre>
-    resources:
-      requests:
-        cpu:
-        memory:
-      limits:
-        cpu:
-        memory:
+    resources: {}
+
+    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
+    ruleNamespaceSelector: {}
+
+    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed 
+    ruleSelector:
 
     # -- SecurityContext holds pod-level security attributes and common container settings.
     securityContext:

@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.38
+  version: 0.0.46
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.38
+    version: 0.0.46
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -174,35 +174,35 @@ spec:
       description: "Specifies custom metadata labels for the dashboards service for the SIEM cluster."
       required: false
       type: map
-    - name: siem.usersCredentials.siemAdmin.password
+    - name: siem.usersCredentials.siemadmin.password
       description: "Admin password used for initial setup and management of the SIEM cluster"
       required: false
       type: secret
-    - name: siem.usersCredentials.siemAdmin.hash
+    - name: siem.usersCredentials.siemadmin.hash
       description: "Admin password hash (bcrypt format) for the SIEM cluster"
       required: false
       type: secret
-    - name: siem.usersCredentials.siemLogs.username
+    - name: siem.usersCredentials.siemlogs.username
       description: "Primary username for SIEM data ingestion in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemLogs.password
+    - name: siem.usersCredentials.siemlogs.password
       description: "Primary user password for SIEM data ingestion in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemLogs2.username
+    - name: siem.usersCredentials.siemlogs2.username
       description: "Secondary username for SIEM data ingestion to support failover authentication in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemLogs2.password
+    - name: siem.usersCredentials.siemlogs2.password
       description: "Secondary user password for SIEM data ingestion to support failover authentication in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemDashboards.username
+    - name: siem.usersCredentials.siemdashboards.username
       description: "Username for SIEM dashboards access in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemDashboards.password
+    - name: siem.usersCredentials.siemdashboards.password
       description: "Password for SIEM dashboards access in the SIEM cluster."
       required: false
       type: secret

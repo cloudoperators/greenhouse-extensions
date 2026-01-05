@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: absent-metrics-operator
+spec:
+  version: 0.0.2
+  description: absent-metrics-operator
+  helmChart:
+    name: absent-metrics-operator
+    repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
+    version: 0.0.2
