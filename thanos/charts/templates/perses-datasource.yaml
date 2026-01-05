@@ -4,11 +4,11 @@ kind: ConfigMap
 metadata:
   name: {{ printf "%s-%s" $.Release.Name "perses-datasource" }}
   labels:
-{{ include "plugin.labels" . | indent 4 }}
-{{ include "thanos.labels" . | indent 4 }}
-{{- with .Values.thanos.query.persesDatasource.selector }}
-{{ toYaml . | indent 4}}
-{{- end }}
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- with .Values.thanos.query.persesDatasource.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 data:
   {{ printf "%s-%s" $.Release.Name "perses-datasource.json" }}: |
     {

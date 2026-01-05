@@ -21,6 +21,7 @@ on:
       - perses/charts/**
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
+      - shoot-grafter/charts/**
       - thanos/charts/**
       - repo-guard/charts/**
 
@@ -68,6 +69,8 @@ jobs:
             chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
+          - chartDir: shoot-grafter/charts
+            chartName: shoot-grafter
           - chartDir: thanos/charts
             chartName: thanos
           - chartDir: repo-guard/charts

@@ -4,7 +4,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.siem.cluster.name | default (printf "%s-siem" .Release.Name) }}-dashboards-external
+  name: {{ .Values.siem.cluster.name | default (printf "%s-siem" .Release.Name) }}-dashboards-ui
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    greenhouse.sap/expose: "true"
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
     opensearch.cluster.dashboards: {{ .Values.siem.cluster.name | default (printf "%s-siem" .Release.Name) }}
