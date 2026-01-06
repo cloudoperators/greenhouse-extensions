@@ -533,7 +533,7 @@ blackboxExporter:
 
 # Network Policies configuration
 # Allows creating multiple NetworkPolicy resources from a list
-# @section -- Network Policy options
+# @ignored
 networkPolicies: []
   # -- List of network policies to create
   # @section -- Network Policy options
