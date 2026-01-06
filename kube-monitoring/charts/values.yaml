@@ -530,3 +530,45 @@ blackboxExporter:
   extraVolumeMounts:
     - name: blackbox-exporter-tls
       mountPath: /etc/blackbox/tls
+
+# Network Policies configuration
+# Allows creating multiple NetworkPolicy resources from a list
+# @section -- Network Policy options
+networkPolicies: []
+  # -- List of network policies to create
+  # @section -- Network Policy options
+  # Example configuration:
+  # - enabled: true
+  #   nameSuffix: prometheus-ingress
+  #   namespace: monitoring
+  #   labels:
+  #     app: prometheus
+  #   annotations:
+  #     description: "Allow ingress to Prometheus"
+  #   podSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: prometheus
+  #   policyTypes:
+  #     - Ingress
+  #     - Egress
+  #   ingress:
+  #     - from:
+  #       - namespaceSelector:
+  #           matchLabels:
+  #             name: ingress-nginx
+  #       ports:
+  #       - protocol: TCP
+  #         port: 9090
+  #   egress:
+  #     - to:
+  #       - namespaceSelector: {}
+  #       ports:
+  #       - protocol: TCP
+  #         port: 443
+  #     - to:
+  #       - namespaceSelector: {}
+  #       ports:
+  #       - protocol: TCP
+  #         port: 53
+  #       - protocol: UDP
+  #         port: 53
