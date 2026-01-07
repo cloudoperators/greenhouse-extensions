@@ -536,7 +536,6 @@ blackboxExporter:
 # @ignored
 networkPolicies: []
   # -- List of network policies to create
-  # @section -- Network Policy options
   # Example configuration:
   # - enabled: true
   #   nameSuffix: prometheus-ingress
@@ -559,16 +558,4 @@ networkPolicies: []
   #       ports:
   #       - protocol: TCP
   #         port: 9090
-  #   egress:
-  #     - to:
-  #       - namespaceSelector: {}
-  #       ports:
-  #       - protocol: TCP
-  #         port: 443
-  #     - to:
-  #       - namespaceSelector: {}
-  #       ports:
-  #       - protocol: TCP
-  #         port: 53
-  #       - protocol: UDP
-  #         port: 53
+

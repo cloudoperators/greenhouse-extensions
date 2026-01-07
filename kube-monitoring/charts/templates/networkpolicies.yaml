@@ -8,7 +8,7 @@ metadata:
   name: {{ include "kube-prometheus-stack.fullname" $ }}{{ if $policy.nameSuffix }}-{{ $policy.nameSuffix }}{{ else if gt (len $.Values.networkPolicies) 1 }}-{{ $idx }}{{ end }}
   namespace: {{ $policy.namespace | default $.Release.Namespace }}
   labels:
-    {{- include "kube-prometheus-stack.labels" $ | nindent 4 }}
+    {{- include "kube-prometheus-stack.labels" $ | indent 4 }}
     {{- with $policy.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
