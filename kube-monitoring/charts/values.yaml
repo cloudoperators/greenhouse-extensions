@@ -534,7 +534,26 @@ blackboxExporter:
 # Network Policies configuration
 # Allows creating multiple NetworkPolicy resources from a list
 # @ignored
-networkPolicies: []
+networkPolicies: 
+  namespaceLookup:
+    enabled: false
+    regex: ".*"
+    policy:
+      ingress:
+      - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-monitoring
+        ports:
+        - port: 9090
+          protocol: TCP
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+      policyTypes:
+      - Ingress
+      - Egress
+  list: []
   # -- List of network policies to create
   # Example configuration:
   # - enabled: true
@@ -558,4 +577,3 @@ networkPolicies: []
   #       ports:
   #       - protocol: TCP
   #         port: 9090
-
