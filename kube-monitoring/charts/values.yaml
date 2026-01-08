@@ -536,23 +536,12 @@ blackboxExporter:
 # @ignored
 networkPolicies: 
   namespaceLookup:
-    enabled: false
+    enabled: true
     regex: ".*"
     policy:
-      ingress:
-      - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-monitoring
-        ports:
-        - port: 9090
-          protocol: TCP
       podSelector:
         matchLabels:
           app.kubernetes.io/name: prometheus
-      policyTypes:
-      - Ingress
-      - Egress
   list: []
   # -- List of network policies to create
   # Example configuration:
