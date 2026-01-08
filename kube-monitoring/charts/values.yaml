@@ -534,7 +534,15 @@ blackboxExporter:
 # Network Policies configuration
 # Allows creating multiple NetworkPolicy resources from a list
 # @ignored
-networkPolicies: []
+networkPolicies: 
+  namespaceLookup:
+    enabled: true
+    regex: ".*"
+    policy:
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+  list: []
   # -- List of network policies to create
   # Example configuration:
   # - enabled: true
@@ -558,4 +566,3 @@ networkPolicies: []
   #       ports:
   #       - protocol: TCP
   #         port: 9090
-
