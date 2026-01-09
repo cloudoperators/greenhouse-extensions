@@ -536,8 +536,9 @@ blackboxExporter:
 # @ignored
 networkPolicies: 
   namespaceLookup:
-    enabled: true
-    regex: ".*"
+    enabled: false
+    # Every matching namespace will have a netpol deployed which may limit network connectivity
+    regex: "your-regex"
     policy:
       podSelector:
         matchLabels:
