@@ -3,7 +3,7 @@ RUN apt update  \
   && apt upgrade -y  \
   && apt autoremove -y \
   && apt install -y systemd libssl-dev libargon2-1 libgcrypt20  libgpg-error0 libip4tc2
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.141.0@sha256:b14234c4bc1b7364629af272e564913bb57bdc9736d45b8b6db5ab3417dc75f9
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.143.1@sha256:f051aff195ad50ed5ad9d95bcdd51d7258200c937def3797cf830366ed62e034
 LABEL source_repository="https://github.com/greenhouse-extensions"
 COPY --from=journal /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
 COPY --from=journal /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
