@@ -536,8 +536,8 @@ blackboxExporter:
 # @ignored
 networkPolicies: 
   namespaceLookup:
-    enabled: true
-    regex: ".*"
+    enabled: false
+    regex: "your-regex"
     policy:
       podSelector:
         matchLabels:
