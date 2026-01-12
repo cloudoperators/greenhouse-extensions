@@ -9,8 +9,6 @@ RUN chmod +x ./ocb
 COPY builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-ARG OTEL_VERSION=0.135.0
-
 FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/debian:stable-slim
 
 RUN apt-get update && \
