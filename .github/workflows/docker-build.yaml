@@ -23,9 +23,11 @@ jobs:
       max-parallel: 6
       matrix:
         include:
-          - Dockerfiles: Dockerfile.integration-test
+          - Context: .
+            Dockerfiles: Dockerfile.integration-test
             Imagename: greenhouse-extensions-integration-test
-          - Dockerfiles: Dockerfile.otel-collector
+          - Context: logs/build
+            Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
 
     permissions:
@@ -95,7 +97,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
-          context: .
+          context: ${{ matrix.Context }}
           file: ${{ matrix.Dockerfiles }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -133,9 +135,11 @@ jobs:
       max-parallel: 6
       matrix:
         include:
-          - Dockerfiles: Dockerfile.integration-test
+          - Context: .
+            Dockerfiles: Dockerfile.integration-test
             Imagename: greenhouse-extensions-integration-test
-          - Dockerfiles: Dockerfile.otel-collector
+          - Context: logs/build
+            Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
 
     name: Vulnerability Scan

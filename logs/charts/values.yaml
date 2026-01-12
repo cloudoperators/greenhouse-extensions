@@ -29,7 +29,7 @@ opentelemetry-operator:
     # -- overrides the default image repository for the OpenTelemetry Operator image.
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.141.0
+      tag: v0.142.0
     serviceMonitor:
     # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
