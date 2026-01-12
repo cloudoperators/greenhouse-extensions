@@ -6,6 +6,8 @@ image:
   repository: cloudoperators/absent-metrics-operator
   tag: "edge"
 
+promRuleName: "{{\"{{\"}} index .metadata.labels \"plugin\" {{\"}}\"}}"
+
 labels: {}
 
 rules:

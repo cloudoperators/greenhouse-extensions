@@ -481,6 +481,8 @@ absentMetricsOperator:
   # @section -- absent-metrics-operator options
   enabled: false
   # @ignored
+  promRuleName: '{{ if index .metadata.labels "plugin" }}{{ index .metadata.labels "plugin" }}{{ else }}{{ index .metadata.labels "prometheus" }}{{ end }}'
+  # @ignored
   image:
     registry: ghcr.io
     repository: cloudoperators/absent-metrics-operator
@@ -528,3 +530,40 @@ blackboxExporter:
   extraVolumeMounts:
     - name: blackbox-exporter-tls
       mountPath: /etc/blackbox/tls
+
+# Network Policies configuration
+# Allows creating multiple NetworkPolicy resources from a list
+# @ignored
+networkPolicies: 
+  namespaceLookup:
+    enabled: false
+    # Every matching namespace will have a netpol deployed which may limit network connectivity
+    regex: "your-regex"
+    policy:
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+  list: []
+  # -- List of network policies to create
+  # Example configuration:
+  # - enabled: true
+  #   nameSuffix: prometheus-ingress
+  #   namespace: monitoring
+  #   labels:
+  #     app: prometheus
+  #   annotations:
+  #     description: "Allow ingress to Prometheus"
+  #   podSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: prometheus
+  #   policyTypes:
+  #     - Ingress
+  #     - Egress
+  #   ingress:
+  #     - from:
+  #       - namespaceSelector:
+  #           matchLabels:
+  #             name: ingress-nginx
+  #       ports:
+  #       - protocol: TCP
+  #         port: 9090

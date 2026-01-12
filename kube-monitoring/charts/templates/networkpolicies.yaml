@@ -1,0 +1,93 @@
+{{- if .Values.networkPolicies.list }}
+{{- range $idx, $policy := .Values.networkPolicies.list }}
+{{- if $policy.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kube-prometheus-stack.fullname" $ }}{{ if $policy.nameSuffix }}-{{ $policy.nameSuffix }}{{ else if gt (len $.Values.networkPolicies) 1 }}-{{ $idx }}{{ end }}
+  namespace: {{ $policy.namespace | default $.Release.Namespace }}
+  labels:
+    {{- include "kube-prometheus-stack.labels" $ | indent 4 }}
+    {{- with $policy.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $policy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  podSelector:
+    {{- if $policy.podSelector }}
+    {{- toYaml $policy.podSelector | nindent 4 }}
+    {{- else }}
+    matchLabels:
+      plugin: {{ $.Release.Name }}
+    {{- end }}
+  policyTypes:
+    {{- if $policy.policyTypes }}
+    {{- toYaml $policy.policyTypes | nindent 4 }}
+    {{- else }}
+    - Ingress
+    - Egress
+    {{- end }}
+  {{- if $policy.ingress }}
+  ingress:
+    {{- toYaml $policy.ingress | nindent 4 }}
+  {{- end }}
+  {{- if $policy.egress }}
+  egress:
+    {{- toYaml $policy.egress | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{ if .Values.networkPolicies.namespaceLookup.enabled }}
+{{- $namespaces := lookup "v1" "Namespace" "" "" }}
+{{- $regex := .Values.networkPolicies.namespaceLookup.regex }}
+{{- $policy := .Values.networkPolicies.namespaceLookup.policy }}
+{{- if $namespaces }}
+{{- range $namespaces.items }}
+{{- if regexMatch $regex .metadata.name }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $.Release.Namespace }}-{{ include "kube-prometheus-stack.fullname" $ }}
+  namespace: {{ .metadata.name }}
+  labels:
+    {{- include "kube-prometheus-stack.labels" $ | indent 4 }}
+    {{- with $policy.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $policy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  podSelector:
+    {{- if $policy.podSelector }}
+    {{- toYaml $policy.podSelector | nindent 4 }}
+    {{- else }}
+    matchLabels:
+      plugin: {{ $.Release.Name }}
+    {{- end }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+          kubernetes.io/metadata.name: {{ $.Release.Namespace }}
+      ports:
+        - port: 9090
+          protocol: TCP
+  {{- if $policy.egress }}
+  egress:
+    {{- toYaml $policy.egress | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

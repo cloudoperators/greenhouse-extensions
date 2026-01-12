@@ -59,6 +59,8 @@ spec:
     receivers:
       journald:
         directory: /var/log/journal
+        start_at: beginning
+        storage: file_storage/journald
         operators:
           - id: journal-label
             type: add
@@ -308,6 +310,8 @@ spec:
 {{- end }}
 
     extensions:
+      file_storage/journald:
+        directory: .
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -328,6 +332,7 @@ spec:
         max_retries: 0
     service:
       extensions:
+        - file_storage/journald
         - basicauth/failover_a
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
         - basicauth/failover_b
