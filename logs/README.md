@@ -116,7 +116,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.enabled | bool | `true` | Set to true to enable the installation of the OpenTelemetry Operator. |
 | opentelemetry-operator.kubeRBACProxy | object | `{"enabled":false}` | the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API. |
 | opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
-| opentelemetry-operator.manager.image.tag | string | `"v0.141.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
+| opentelemetry-operator.manager.image.tag | string | `"v0.142.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
 | opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
