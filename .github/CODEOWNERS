@@ -11,6 +11,7 @@
 
 Makefile                  @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-observability
 ct.yaml                   @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-observability
+otel-collector-builder-config.yaml @cloudoperators/greenhouse-observability
 Dockerfile.otel-collector @cloudoperators/greenhouse-observability
 Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/greenhouse-observability
 
