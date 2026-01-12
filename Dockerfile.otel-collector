@@ -1,4 +1,4 @@
-FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/golang AS BUILD
+FROM golang AS BUILD
 
 ARG OTEL_VERSION=0.142.0
 
@@ -9,7 +9,7 @@ RUN chmod +x ./ocb
 COPY builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/debian:stable-slim
+FROM debian:stable-slim
 
 RUN apt-get update && \
     apt-get install -y systemd wget && \
