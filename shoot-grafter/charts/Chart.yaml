@@ -6,7 +6,7 @@ description: Automatic onboarding of Gardener Shoots to Greenhouse
 type: application
 name: shoot-grafter
 version: 0.1.9
-appVersion: "sha-b590d69ade55d8ba16a1fe2bc1e19e61dc2702e6@sha256:26f4453ab1727d9c21af94ae73fa9331c89a47f6b1f3fecb17612ff058e12a1c"
+appVersion: "sha-b590d69ade55d8ba16a1fe2bc1e19e61dc2702e6"
 keywords:
 - operator
 - gardener 
