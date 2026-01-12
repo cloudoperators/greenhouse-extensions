@@ -18,7 +18,7 @@ kafka:
   name: kafka-cluster
 
   # -- Kafka version
-  version: "3.9.0"
+  version: "4.1.0"
 
   # -- Number of Kafka broker/controller replicas (for KRaft mode)
   replicas: 3

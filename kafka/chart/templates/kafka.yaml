@@ -8,9 +8,6 @@ metadata:
   name: {{ .Values.kafka.name }}
   labels:
     {{- include "kafka.labels" . | nindent 4 }}
-  annotations:
-    strimzi.io/kraft: enabled
-    strimzi.io/node-pools: enabled
 spec:
   kafka:
     version: {{ .Values.kafka.version | quote }}
