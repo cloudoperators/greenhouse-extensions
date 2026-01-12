@@ -1,11 +1,6 @@
-FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/golang
+FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/golang AS BUILD
 
 ARG OTEL_VERSION=0.142.0
-
-RUN apt-get update && \
-    apt-get install -y systemd wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
 
 RUN wget "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd/builder/v${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64" && \
     mv "ocb_${OTEL_VERSION}_linux_amd64" ocb
@@ -16,9 +11,16 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
 ARG OTEL_VERSION=0.135.0
 
-COPY config.yaml config.yaml
-RUN cp dist/otelcol /usr/local/bin/otelcol && \
-    chmod +x /usr/local/bin/otelcol
+FROM keppel.eu-de-1.cloud.sap/ccloud-dockerhub-mirror/library/debian:stable-slim
+
+RUN apt-get update && \
+    apt-get install -y systemd wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY bin/config.yaml config.yaml
+COPY --from=BUILD /go/dist/otelcol /usr/local/bin/otelcol
+RUN chmod +x /usr/local/bin/otelcol
 
 RUN groupadd --system --gid 10001 otel && \
 useradd --system --uid 10001 --gid otel otel
