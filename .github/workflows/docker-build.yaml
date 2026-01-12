@@ -27,7 +27,7 @@ jobs:
             Dockerfiles: Dockerfile.integration-test
             Imagename: greenhouse-extensions-integration-test
           - Context: logs/build
-            Dockerfiles: Dockerfile
+            Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
 
     permissions:
@@ -139,7 +139,7 @@ jobs:
             Dockerfiles: Dockerfile.integration-test
             Imagename: greenhouse-extensions-integration-test
           - Context: logs/build
-            Dockerfiles: Dockerfile
+            Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
 
     name: Vulnerability Scan
