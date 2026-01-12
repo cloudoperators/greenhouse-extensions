@@ -5,7 +5,7 @@ apiVersion: v2
 description: Automatic onboarding of Gardener Shoots to Greenhouse
 type: application
 name: shoot-grafter
-version: 0.1.9
+version: 0.1.10
 appVersion: "sha-b590d69ade55d8ba16a1fe2bc1e19e61dc2702e6"
 keywords:
 - operator
