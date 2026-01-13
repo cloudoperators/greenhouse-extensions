@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {{- if .Values.kafka.enabled }}
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: {{ .Values.kafka.name }}
