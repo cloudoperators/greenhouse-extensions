@@ -6,7 +6,6 @@ operator:
 
 kafka:
   enabled: true
-  name: kafka-test
   replicas: 1
   config:
     offsets.topic.replication.factor: 1
@@ -23,13 +22,13 @@ kafka:
     limits:
       memory: "2Gi"
       cpu: "1000m"
-  metricsEnabled: false
+  metricsEnabled: true
 
 entityOperator:
   enabled: true
 
 monitoring:
-  enabled: false
+  enabled: true
 
 topics:
   logs:
