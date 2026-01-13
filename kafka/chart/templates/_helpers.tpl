@@ -14,17 +14,6 @@ plugindefinition: kafka
 {{- end }}
 
 {{/*
-Get the Kafka cluster name
-*/}}
-{{- define "kafka.cluster-name" -}}
-{{- if .Values.kafka.cluster.name }}
-{{- .Values.kafka.cluster.name }}
-{{- else }}
-{{- printf "%s-kafka" .Release.Name }}
-{{- end }}
-{{- end }}
-
-{{/*
 Prometheus rule labels for alerts
 */}}
 {{- define "kafka.alert-labels" -}}
