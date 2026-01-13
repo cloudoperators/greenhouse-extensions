@@ -15,6 +15,8 @@ The **Strimzi Kafka Operator** simplifies the management of Kafka clusters on Ku
 
 - [Strimzi Kafka Operator](https://github.com/strimzi/strimzi-kafka-operator)
 - Apache Kafka Cluster Management (KRaft mode)
+- Kafka Connect (optional)
+- Kafka Bridge (optional)
 - Kafka Exporter for Metrics (optional)
 - Cruise Control for Cluster Optimization (optional)
 - Entity Operator for Topic and User Management
@@ -50,10 +52,10 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |
-| kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM options for Kafka brokers |
+| kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM heap settings for Kafka brokers. xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory for OS page cache, which Kafka relies on heavily for performance. See: https://docs.confluent.io/platform/current/kafka/deployment.html |
 | kafka.listeners | list | plaintext on 9092, TLS on 9093 | Listener configuration |
 | kafka.metricsEnabled | bool | `true` | Enable metrics |
-| kafka.name | string | `"kafka-cluster"` | Name of the Kafka cluster |
+| kafka.name | string | `"kafka"` | Name of the Kafka cluster |
 | kafka.replicas | int | `3` | Number of Kafka broker/controller replicas (for KRaft mode) |
 | kafka.resources | object | requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU | Resource configuration for Kafka brokers |
 | kafka.storage | object | JBOD with 100Gi persistent volume per broker | Storage configuration for Kafka brokers |
