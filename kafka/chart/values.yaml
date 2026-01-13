@@ -15,7 +15,7 @@ kafka:
   enabled: true
 
   # -- Name of the Kafka cluster
-  name: kafka-cluster
+  name: kafka
 
   # -- Kafka version
   version: "4.1.0"
@@ -57,7 +57,10 @@ kafka:
       memory: "4Gi"
       cpu: "2000m"
 
-  # -- JVM options for Kafka brokers
+  # -- JVM heap settings for Kafka brokers.
+  # xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory
+  # for OS page cache, which Kafka relies on heavily for performance.
+  # See: https://docs.confluent.io/platform/current/kafka/deployment.html
   # @default -- xms: 1024m, xmx: 2048m
   jvmOptions:
     xms: "1024m"
