@@ -3,9 +3,9 @@
 
 {{- if and .Values.kafka.enabled .Values.monitoring.enabled }}
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
-  name: {{ .Values.kafka.name }}-metrics
+  name: {{ .Values.kafka.name }}
   labels:
     {{- include "kafka.labels" . | nindent 4 }}
 spec:
@@ -13,8 +13,8 @@ spec:
     matchLabels:
       strimzi.io/cluster: {{ .Values.kafka.name }}-cluster
       strimzi.io/kind: Kafka
-      strimzi.io/name: {{ .Values.kafka.name }}-cluster-kafka
-  endpoints:
+      strimzi.io/component-type: kafka
+  podMetricsEndpoints:
   - port: tcp-prometheus
     interval: 30s
     path: /metrics
