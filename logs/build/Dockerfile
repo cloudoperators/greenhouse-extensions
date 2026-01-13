@@ -1,4 +1,4 @@
-FROM golang AS BUILD
+FROM golang AS build
 
 ARG OTEL_VERSION=0.142.0
 
@@ -16,7 +16,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=BUILD /go/dist/otelcol /usr/local/bin/otelcol
+COPY --from=build /go/dist/otelcol /usr/local/bin/otelcol
 RUN chmod +x /usr/local/bin/otelcol
 
 RUN groupadd --system --gid 10001 otel && \
