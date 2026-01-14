@@ -22,8 +22,6 @@ RUN chmod +x /usr/local/bin/otelcol
 RUN groupadd --system --gid 10001 otel && \
 useradd --system --uid 10001 --gid otel otel
 
-RUN usermod -aG systemd-journal otel
-
 USER otel
 
 ENTRYPOINT ["/usr/local/bin/otelcol"]
