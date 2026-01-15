@@ -568,6 +568,7 @@ networkPolicies:
   #       - protocol: TCP
   #         port: 9090
 
+# @ignored
 additionalScrapeConfigs:
   namespaceLookup:
     enabled: false
