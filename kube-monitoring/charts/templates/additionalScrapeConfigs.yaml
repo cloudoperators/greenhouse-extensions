@@ -1,0 +1,25 @@
+{{ if .Values.additionalScrapeConfigs.namespaceLookup.enabled }}
+{{- $namespaces := lookup "v1" "Namespace" "" "" }}
+{{- $regex := .Values.additionalScrapeConfigs.namespaceLookup.regex }}
+{{- $prometheusName := .Values.additionalScrapeConfigs.namespaceLookup.prometheusName }}
+{{- if $namespaces }}
+{{- $targets := list }}
+{{- range $namespaces.items }}
+{{- if regexMatch $regex .metadata.name }}
+{{- $targets = append $targets (printf "    - %s.%s.svc:80" $prometheusName .metadata.name) }}
+{{- end }}
+{{- end }}
+{{- if $targets }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $prometheusName }}-scrape-confg
+  namespace: {{ template "kube-prometheus-stack.namespace" $ }}
+  labels:
+    app: {{ template "kube-prometheus-stack.name" $ }}-prometheus-scrape-confg
+{{ include "kube-prometheus-stack.labels" $ | indent 4 }}
+data:
+  additional-scrape-configs.yaml: {{ printf "- enable_http2: true\n  honor_labels: true\n  job_name: federate\n  metrics_path: /federate\n  metric_relabel_configs:\n    - action: drop\n      regex: \".*\"\n      source_labels:\n      - prometheus_replica\n  params:\n    match[]:\n      - '{__name__!~\"ALERTS.*}'\n  scrape_interval: 1m\n  scrape_timeout: 10s\n  static_configs:\n  - targets:\n%s" (join "\n" $targets) | b64enc | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
