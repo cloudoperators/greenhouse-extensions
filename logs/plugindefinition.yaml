@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.21
+  version: 0.11.24
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.10
+    version: 0.0.13
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -116,10 +116,5 @@ spec:
     - default: ghcr.io/cloudoperators/opentelemetry-collector-contrib
       description: openTelemetry.collectorImage.repository
       name: openTelemetry.collectorImage.repository
-      required: false
-      type: string
-    - default: "2016982"
-      description: openTelemetry.collectorImage.tag
-      name: openTelemetry.collectorImage.tag
       required: false
       type: string
