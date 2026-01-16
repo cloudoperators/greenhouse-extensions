@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
-{{- if and .Values.kafka.enabled .Values.monitoring.enabled }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.kafka.enabled .Values.monitoring.enabled  }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
