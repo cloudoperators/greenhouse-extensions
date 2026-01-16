@@ -1,0 +1,28 @@
+{{ if .Values.additionalScrapeConfigs.namespaceLookup.enabled }}
+{{- $namespaces := lookup "v1" "Namespace" "" "" }}
+{{- $regex := .Values.additionalScrapeConfigs.namespaceLookup.regex }}
+{{- $prometheusName := .Values.additionalScrapeConfigs.namespaceLookup.prometheusName }}
+{{- $prometheusPort := .Values.additionalScrapeConfigs.namespaceLookup.prometheusPort | toString }}
+{{- if $namespaces }}
+{{- $targets := list }}
+{{- range $namespaces.items }}
+{{- if regexMatch $regex .metadata.name }}
+{{- $targets = append $targets (printf "%s.%s.svc:%s" $prometheusName .metadata.name $prometheusPort) }}
+{{- end }}
+{{- end }}
+{{- if $targets }}
+{{- $metricRelabelConfigs := .Values.additionalScrapeConfigs.namespaceLookup.metricRelabelConfigs }}
+{{- $params := .Values.additionalScrapeConfigs.namespaceLookup.params }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $prometheusName }}-scrape-config
+  namespace: {{ template "kube-prometheus-stack.namespace" $ }}
+  labels:
+    app: {{ template "kube-prometheus-stack.name" $ }}-prometheus-scrape-confg
+{{ include "kube-prometheus-stack.labels" $ | indent 4 }}
+data:
+  additional-scrape-configs.yaml: {{ include "kubeMonitoring.additionalScrapeConfigsYaml" (dict "targets" $targets "metricRelabelConfigs" $metricRelabelConfigs "params" $params) | b64enc | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

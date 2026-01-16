@@ -129,3 +129,36 @@ release: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Generate additional scrape configs YAML content from a configuration dict
+Usage: {{ include "kubeMonitoring.additionalScrapeConfigsYaml" (dict "targets" $targets "metricRelabelConfigs" $metricRelabelConfigs "params" $params) }}
+Parameters:
+  - targets: (required) List of target endpoints
+  - metricRelabelConfigs: (optional) List of metric relabel config rules
+  - params: (optional) Dict of parameters (e.g., match[])
+*/}}
+{{- define "kubeMonitoring.additionalScrapeConfigsYaml" -}}
+{{- $targets := .targets | required "targets is required" -}}
+{{- $metricRelabelConfigs := .metricRelabelConfigs | default list -}}
+{{- $params := .params | default dict -}}
+- enable_http2: true
+  honor_labels: true
+  job_name: federate
+  metrics_path: /federate
+{{- if $metricRelabelConfigs }}
+  metric_relabel_configs:
+{{ toYaml $metricRelabelConfigs | indent 4 }}
+{{- end }}
+{{- if $params }}
+  params:
+{{ toYaml $params | indent 4 }}
+{{- end }}
+  scrape_interval: 1m
+  scrape_timeout: 10s
+  static_configs:
+  - targets:
+{{- range $targets }}
+    - {{ . }}
+{{- end }}
+{{- end -}}
