@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.kafka.enabled }}
+{{- range $name, $topic := .Values.topics }}
+{{- if $topic.enabled }}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "kafka.labels" $ | nindent 4 }}
+    strimzi.io/cluster: {{ $.Values.kafka.name }}
+spec:
+  # Number of partitions - should match OpenSearch index shards
+  partitions: {{ $topic.partitions | default 3 }}
+
+  # Replication factor - should match kafka.config.default.replication.factor
+  replicas: {{ $topic.replicas | default (index $.Values.kafka.config "default.replication.factor" | default 3) }}
+
+  config:
+    # Retention period in milliseconds
+    {{- if $topic.retention }}
+    retention.ms: {{ $topic.retention }}
+    {{- end }}
+
+    # Segment size
+    {{- if $topic.segmentBytes }}
+    segment.bytes: {{ $topic.segmentBytes }}
+    {{- end }}
+
+    # Compression type
+    compression.type: {{ $topic.compressionType | default "producer" }}
+
+    # Min in-sync replicas
+    min.insync.replicas: {{ $topic.minInsyncReplicas | default (index $.Values.kafka.config "min.insync.replicas" | default 2) }}
+
+    # Cleanup policy
+    cleanup.policy: {{ $topic.cleanupPolicy | default "delete" }}
+
+    # Max message size
+    {{- if $topic.maxMessageBytes }}
+    max.message.bytes: {{ $topic.maxMessageBytes }}
+    {{- end }}
+
+    {{- with $topic.additionalConfig }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

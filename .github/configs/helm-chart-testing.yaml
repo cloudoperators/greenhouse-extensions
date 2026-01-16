@@ -16,6 +16,7 @@ chart-dirs:
   - exposed-services/charts/v2.0.0
   - kube-monitoring
   - kubeconfig-generator
+  - kafka
   - service-proxy/charts/1.0.0
   - logshipper
   - opensearch
@@ -28,6 +29,7 @@ chart-dirs:
 chart-repos:
   - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
+  - kafka=https://strimzi.io/charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
   - logshipper=https://fluent.github.io/helm-charts

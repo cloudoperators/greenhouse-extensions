@@ -12,6 +12,7 @@ on:
       - cert-manager/charts/**
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
+      - kafka/chart/**
       - kube-monitoring/charts/**
       - kubeconfig-generator/chart/**
       - logshipper/chart/**

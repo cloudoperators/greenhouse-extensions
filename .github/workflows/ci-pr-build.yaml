@@ -34,6 +34,8 @@ jobs:
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
             chartName: exposed-services
+          - chartDir: kafka/chart
+            chartName: kafka
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring
           - chartDir: kubeconfig-generator/chart
