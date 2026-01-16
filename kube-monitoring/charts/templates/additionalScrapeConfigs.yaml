@@ -13,7 +13,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ $prometheusName }}-scrape-confg
+  name: {{ $prometheusName }}-scrape-config
   namespace: {{ template "kube-prometheus-stack.namespace" $ }}
   labels:
     app: {{ template "kube-prometheus-stack.name" $ }}-prometheus-scrape-confg
