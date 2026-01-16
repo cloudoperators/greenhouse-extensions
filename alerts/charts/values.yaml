@@ -288,6 +288,8 @@ alerts:
         #      - name: alertname
         #        matchType: "=~"
 
+extraManifests: []
+
 testFramework:
   enabled: true
   image:
