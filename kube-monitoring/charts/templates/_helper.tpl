@@ -129,3 +129,30 @@ release: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Generate additional scrape configs YAML content from a list of targets
+Usage: {{ include "kubeMonitoring.additionalScrapeConfigsYaml" (list $targets) }}
+*/}}
+{{- define "kubeMonitoring.additionalScrapeConfigsYaml" -}}
+{{- $targets := index . 0 -}}
+- enable_http2: true
+  honor_labels: true
+  job_name: federate
+  metrics_path: /federate
+  metric_relabel_configs:
+    - action: drop
+      regex: ".*"
+      source_labels:
+      - prometheus_replica
+  params:
+    match[]:
+      - '{__name__!~"ALERTS.*}'
+  scrape_interval: 1m
+  scrape_timeout: 10s
+  static_configs:
+  - targets:
+{{- range $targets }}
+    - {{ . }}
+{{- end }}
+{{- end -}}
