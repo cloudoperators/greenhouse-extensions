@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.kafka.enabled }}
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: {{ .Values.kafka.name }}
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+spec:
+  kafka:
+    version: {{ .Values.kafka.version | quote }}
+    listeners:
+      {{- toYaml .Values.kafka.listeners | nindent 6 }}
+    config:
+      {{- toYaml .Values.kafka.config | nindent 6 }}
+    {{- if .Values.kafka.metricsEnabled }}
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: {{ .Values.kafka.name }}-metrics
+          key: kafka-metrics-config.yml
+    {{- end }}
+  {{- if .Values.entityOperator.enabled }}
+  entityOperator:
+    topicOperator:
+      resources:
+        {{- toYaml .Values.entityOperator.topicOperator.resources | nindent 8 }}
+    userOperator:
+      resources:
+        {{- toYaml .Values.entityOperator.userOperator.resources | nindent 8 }}
+  {{- end }}
+  {{- if .Values.kafkaExporter.enabled }}
+  kafkaExporter:
+    topicRegex: {{ .Values.kafkaExporter.topicRegex | quote }}
+    groupRegex: {{ .Values.kafkaExporter.groupRegex | quote }}
+    resources:
+      {{- toYaml .Values.kafkaExporter.resources | nindent 6 }}
+  {{- end }}
+  {{- if .Values.cruiseControl.enabled }}
+  cruiseControl:
+    resources:
+      {{- toYaml .Values.cruiseControl.resources | nindent 6 }}
+  {{- end }}
+{{- end }}

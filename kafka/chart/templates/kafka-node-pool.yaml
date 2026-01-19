@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.kafka.enabled }}
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: controllers
+  labels:
+    strimzi.io/cluster: {{ .Values.kafka.name }}
+    {{- include "kafka.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.kafka.replicas }}
+  roles:
+    - controller
+    - broker
+  storage:
+    {{- toYaml .Values.kafka.storage | nindent 4 }}
+  resources:
+    {{- toYaml .Values.kafka.resources | nindent 4 }}
+  jvmOptions:
+    -Xms: {{ .Values.kafka.jvmOptions.xms | quote }}
+    -Xmx: {{ .Values.kafka.jvmOptions.xmx | quote }}
+{{- end }}

@@ -29,6 +29,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /external-dns/            @cloudoperators/greenhouse-backend
 /heureka/                 @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
 /ingress-nginx/           @cloudoperators/greenhouse-backend
+/kafka/                   @cloudoperators/greenhouse-observability
 /kube-monitoring/         @cloudoperators/greenhouse-observability
 /kubeconfig-generator/    @Nuckal777 @ivogoman @uwe-mayer
 /logshipper/              @cloudoperators/greenhouse-observability @cloudoperators/greenhouse-backend

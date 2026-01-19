@@ -1,0 +1,213 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# -- common labels to apply to all resources.
+commonLabels: {}
+
+# Strimzi Kafka Operator configuration
+operator:
+  # -- Enable or disable the Strimzi Kafka Operator installation
+  enabled: true
+
+# Kafka cluster configuration
+kafka:
+  # -- Enable or disable Kafka cluster deployment
+  enabled: true
+
+  # -- Name of the Kafka cluster
+  name: kafka
+
+  # -- Kafka version
+  version: "4.1.0"
+
+  # -- Number of Kafka broker/controller replicas (for KRaft mode)
+  replicas: 3
+
+  # -- Kafka broker configuration
+  # @default -- See values.yaml for production defaults
+  config:
+    offsets.topic.replication.factor: 3
+    transaction.state.log.replication.factor: 3
+    transaction.state.log.min.isr: 2
+    default.replication.factor: 3
+    min.insync.replicas: 2
+    log.retention.hours: 168
+    log.segment.bytes: 1073741824
+    log.retention.check.interval.ms: 300000
+    auto.create.topics.enable: false
+
+  # -- Storage configuration for Kafka brokers
+  # @default -- JBOD with 100Gi persistent volume per broker
+  storage:
+    type: jbod
+    volumes:
+    - id: 0
+      type: persistent-claim
+      size: 100Gi
+      deleteClaim: false
+      class: ""
+
+  # -- Resource configuration for Kafka brokers
+  # @default -- requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+  # -- JVM heap settings for Kafka brokers.
+  # xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory
+  # for OS page cache, which Kafka relies on heavily for performance.
+  # See: https://docs.confluent.io/platform/current/kafka/deployment.html
+  # @default -- xms: 1024m, xmx: 2048m
+  jvmOptions:
+    xms: "1024m"
+    xmx: "2048m"
+
+  # -- Listener configuration
+  # @default -- plaintext on 9092, TLS on 9093
+  listeners:
+    - name: plain
+      port: 9092
+      type: internal
+      tls: false
+    - name: tls
+      port: 9093
+      type: internal
+      tls: true
+
+  # -- Enable metrics
+  metricsEnabled: true
+
+# Entity Operator configuration
+entityOperator:
+  # -- Enable Entity Operator
+  enabled: true
+
+  # -- Topic Operator resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
+  topicOperator:
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+  # -- User Operator resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
+  userOperator:
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+# Kafka Exporter configuration
+kafkaExporter:
+  # -- Enable Kafka Exporter
+  enabled: false
+
+  # -- Consumer group regex for metrics export
+  groupRegex: ".*"
+  # -- Topic regex for metrics export
+  topicRegex: ".*"
+
+  # -- Kafka Exporter resource configuration
+  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Cruise Control configuration
+cruiseControl:
+  # -- Enable Cruise Control
+  enabled: false
+
+  # -- Cruise Control resource configuration
+  # @default -- requests: 512Mi memory, 500m CPU; limits: 1Gi memory, 1 CPU
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Monitoring configuration
+monitoring:
+  # -- Enable Prometheus monitoring
+  enabled: true
+
+  # -- Additional labels for PrometheusRule alerts
+  additionalRuleLabels: {}
+
+# Test framework configuration
+testFramework:
+  # -- Activates the Helm chart testing framework.
+  enabled: true
+  # -- Test framework image configuration
+  # @default -- ghcr.io/cloudoperators/greenhouse-extensions-integration-test:main
+  image:
+    # -- Defines the image registry for the test framework.
+    registry: ghcr.io
+    # -- Defines the image repository for the test framework.
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    # -- Defines the image tag for the test framework.
+    tag: main
+    # -- Defines the image pull policy for the test framework.
+    pullPolicy: Always
+
+# Kafka Topics configuration
+# Topics for OpenSearch pull-based ingestion
+topics:
+  # Topic for operational logs
+  logs:
+    # -- Enable this topic
+    enabled: true
+    # -- Number of partitions (should match OpenSearch index shards)
+    partitions: 3
+    # -- Replication factor
+    replicas: 3
+    # -- Retention period (24 hours = 86400000 ms)
+    retention: 86400000
+    # -- Segment size (1 GB)
+    segmentBytes: 1073741824
+    # -- Compression type
+    compressionType: "producer"
+    # -- Min in-sync replicas
+    minInsyncReplicas: 2
+    # -- Cleanup policy
+    cleanupPolicy: "delete"
+    # -- Max message size (1 MB)
+    maxMessageBytes: 1048576
+
+  # Topic for audit logs for siem
+  audit:
+    # -- Enable this topic
+    enabled: true
+    # -- Number of partitions (should match OpenSearch index shards)
+    partitions: 3
+    # -- Replication factor
+    replicas: 3
+    # -- Retention period (24 hours = 86400000 ms)
+    retention: 86400000
+    # -- Segment size (1 GB)
+    segmentBytes: 1073741824
+    # -- Compression type
+    compressionType: "producer"
+    # -- Min in-sync replicas
+    minInsyncReplicas: 2
+    # -- Cleanup policy
+    cleanupPolicy: "delete"
+    # -- Max message size (1 MB)
+    maxMessageBytes: 1048576
