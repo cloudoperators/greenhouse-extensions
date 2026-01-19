@@ -57,7 +57,9 @@ spec:
 {{- end }}
 
   initContainers:
-{{- include "auditd.initContainer" . | nindent 2 -}}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.initContainer" . | nindent 2 -}}
+{{ end }}
 
   image: {{ .Values.auditLogs.collectorImage.repository }}:{{ .Values.auditLogs.collectorImage.tag }}
   volumeMounts:
@@ -68,6 +70,9 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.initContainerVolumes" . | nindent 2 -}}
+{{ end }}
   config:
     receivers:
       journald:
@@ -97,7 +102,9 @@ spec:
             field: attributes["log.type"]
             value: "containerd"
 
-{{- include "auditd.receiver" . | nindent 6 -}}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.receiver" . | nindent 6 -}}
+{{ end }}
 
     processors:
       batch:
@@ -105,7 +112,9 @@ spec:
         timeout: 5s
         send_batch_size : 10
 
-{{- include "auditd.processors" . | nindent 6 -}}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.processors" . | nindent 6 -}}
+{{ end }}
 
       attributes/cluster:
         actions:
@@ -352,7 +361,9 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- include "auditd.pipelines" . | nindent 8 -}}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.pipelines" . | nindent 8 -}}
+{{ end }}
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
