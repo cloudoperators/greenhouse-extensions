@@ -15,8 +15,6 @@ The **Strimzi Kafka Operator** simplifies the management of Kafka clusters on Ku
 
 - [Strimzi Kafka Operator](https://github.com/strimzi/strimzi-kafka-operator)
 - Apache Kafka Cluster Management (KRaft mode)
-- Kafka Connect (optional)
-- Kafka Bridge (optional)
 - Kafka Exporter for Metrics (optional)
 - Cruise Control for Cluster Optimization (optional)
 - Entity Operator for Topic and User Management
