@@ -35,6 +35,8 @@ The OpenSearch Operator automates the management of OpenSearch clusters within a
 
 ## Note
 
+The initial data stream must be created manually via the OpenSearch Dashboards UI before OpenTelemetry collectors can send logs to OpenSearch. Otherwise, OpenTelemetry will create a regular index instead of a data stream.
+
 More configurations will be added over time, and contributions of custom configurations are highly appreciated.
 If you discover bugs or want to add functionality to the plugin, feel free to create a pull request.
 
