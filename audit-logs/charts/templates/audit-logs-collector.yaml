@@ -66,12 +66,15 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.volumeMounts" . | nindent 2 -}}
+{{ end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
-  {{- include "auditd.initContainerVolumes" . | nindent 2 -}}
+  {{- include "auditd.volumes" . | nindent 2 -}}
 {{ end }}
   config:
     receivers:

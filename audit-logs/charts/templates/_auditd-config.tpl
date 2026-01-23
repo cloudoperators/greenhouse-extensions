@@ -23,7 +23,13 @@
           fieldPath: spec.nodeName
 {{ end }}
 
-{{- define "auditd.initContainerVolumes" }}
+{{- define "auditd.volumeMounts" }}
+- name: host
+  mountPath: "/host"
+  readOnly: true
+{{ end }}
+
+{{- define "auditd.volumes" }}
 - name: host
   hostPath:
     path: "/"
