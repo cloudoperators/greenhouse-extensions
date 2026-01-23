@@ -220,7 +220,7 @@ gatewayLogs:
     # -- Defines the image repository for the OpenTelemetry Collector used in the logs gateway.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Defines the image tag for the OpenTelemetry Collector used in the logs gateway.
-    tag: "cacb425"
+    tag: "27c182f"
   openSearchLogs:
     # -- OpenSearch endpoint for logs ingestion
     endpoint: 
