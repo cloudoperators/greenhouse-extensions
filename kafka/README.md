@@ -48,6 +48,13 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | entityOperator.enabled | bool | `true` | Enable Entity Operator |
 | entityOperator.topicOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
 | entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
+| gatewayLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Defines the image repository for the OpenTelemetry Collector used in the logs gateway. |
+| gatewayLogs.collectorImage.tag | string | `"27c182f"` | Defines the image tag for the OpenTelemetry Collector used in the logs gateway. |
+| gatewayLogs.enabled | bool | `true` | Enable Logs Gateway |
+| gatewayLogs.openSearchLogs.endpoint | string | `nil` | OpenSearch endpoint for logs ingestion |
+| gatewayLogs.openSearchLogs.failover_password_a | string | `""` | OpenSearch failover password A |
+| gatewayLogs.openSearchLogs.failover_username_a | string | `""` | OpenSearch failover username A |
+| gatewayLogs.openSearchLogs.index | string | `nil` | OpenSearch index for logs |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |
 | kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM heap settings for Kafka brokers. xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory for OS page cache, which Kafka relies on heavily for performance. See: https://docs.confluent.io/platform/current/kafka/deployment.html |
