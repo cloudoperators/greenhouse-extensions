@@ -77,16 +77,16 @@ auditd/auditd_logs:
     #-a exit,always -F arch=b32 -F euid>=500 -S execve -k user_acct
 
     ## Watch for configuration changes to privilege escalation.
-    - "-a always,exit -F path=/hostfs/etc/sudoers -F perm=wa -F key=10.2.2-priv-config-changes"
-    - "-a always,exit -F dir=/hostfs/etc/sudoers.d/ -F perm=wa -F key=10.2.2-priv-config-changes"
+    - "-a always,exit -F path=/host/etc/sudoers -F perm=wa -F key=10.2.2-priv-config-changes"
+    - "-a always,exit -F dir=/host/etc/sudoers.d/ -F perm=wa -F key=10.2.2-priv-config-changes"
 
     ## 10.2.3 Access to all audit trails.
-    #-a always,exit -F dir=/hostfs/var/log/audit/ -F perm=r -F auid>=1000 -F auid!=unset -F key=10.2.3-access-audit-trail
-    #-a always,exit -F path=/hostfs/usr/sbin/ausearch -F perm=x -F key=10.2.3-access-audit-trail
-    #-a always,exit -F path=/hostfs/usr/sbin/aureport -F perm=x -F key=10.2.3-access-audit-trail
-    - "-a always,exit -F path=/hostfs/usr/bin/aulast -F perm=x -F key=10.2.3-access-audit-trail"
-    #-a always,exit -F path=/hostfs/usr/sbin/aulastlogin -F perm=x -F key=10.2.3-access-audit-trail
-    - "-a always,exit -F path=/hostfs/usr/bin/auvirt -F perm=x -F key=10.2.3-access-audit-trail"
+    #-a always,exit -F dir=/host/var/log/audit/ -F perm=r -F auid>=1000 -F auid!=unset -F key=10.2.3-access-audit-trail
+    #-a always,exit -F path=/host/usr/sbin/ausearch -F perm=x -F key=10.2.3-access-audit-trail
+    #-a always,exit -F path=/host/usr/sbin/aureport -F perm=x -F key=10.2.3-access-audit-trail
+    - "-a always,exit -F path=/host/usr/bin/aulast -F perm=x -F key=10.2.3-access-audit-trail"
+    #-a always,exit -F path=/host/usr/sbin/aulastlogin -F perm=x -F key=10.2.3-access-audit-trail
+    - "-a always,exit -F path=/host/usr/bin/auvirt -F perm=x -F key=10.2.3-access-audit-trail"
 
     ## 10.2.4 Invalid logical access attempts. This is naturally met by pam. You
     ## can find these events with: ausearch --start today -m user_login -sv no -i
@@ -106,11 +106,11 @@ auditd/auditd_logs:
     ## 10.2.5.c All changes, additions, or deletions to any account are logged
     ## This is implicitly covered by shadow-utils. We will place some rules
     ## in case someone tries to hand edit the trusted databases
-    - "-a always,exit -F path=/hostfs/etc/group -F perm=wa -F key=10.2.5.c-accounts"
-    - "-a always,exit -F path=/hostfs/etc/passwd -F perm=wa -F key=10.2.5.c-accounts"
-    - "-a always,exit -F path=/hostfs/etc/gshadow -F perm=wa -F key=10.2.5.c-accounts"
-    - "-a always,exit -F path=/hostfs/etc/shadow -F perm=wa -F key=10.2.5.c-accounts"
-    - "-a always,exit -F path=/hostfs/etc/security/opasswd -F perm=wa -F key=10.2.5.c-accounts"
+    - "-a always,exit -F path=/host/etc/group -F perm=wa -F key=10.2.5.c-accounts"
+    - "-a always,exit -F path=/host/etc/passwd -F perm=wa -F key=10.2.5.c-accounts"
+    - "-a always,exit -F path=/host/etc/gshadow -F perm=wa -F key=10.2.5.c-accounts"
+    - "-a always,exit -F path=/host/etc/shadow -F perm=wa -F key=10.2.5.c-accounts"
+    - "-a always,exit -F path=/host/etc/security/opasswd -F perm=wa -F key=10.2.5.c-accounts"
 
     ## 10.2.6 Verify the following are logged:
     ## Initialization of audit logs
@@ -132,7 +132,7 @@ auditd/auditd_logs:
     # Introduced in 2.6.39, commented out because it can make false positives
     #-a always,exit -F arch=b32 -S clock_adjtime -F key=10.4.2b-time-change
     #-a always,exit -F arch=b64 -S clock_adjtime -F key=10.4.2b-time-change
-    #-w /hostfs/etc/localtime -p wa -k 10.4.2b-time-change
+    #-w /host/etc/localtime -p wa -k 10.4.2b-time-change
 
     ## 10.5 Secure audit trails so they cannot be altered
     ## The audit system protects audit logs by virtue of being the root user.
@@ -158,7 +158,7 @@ auditd/auditd_logs:
     ## See discussion in 10.5 above
 
     ## 10.5.5 Use file-integrity monitoring or change-detection software on logs
-    #-a always,exit -F dir=/hostfs/var/log/audit/ -F perm=wa -F key=10.5.5-modification-audit
+    #-a always,exit -F dir=/host/var/log/audit/ -F perm=wa -F key=10.5.5-modification-audit
 
     ## Feel free to add watches on other critical logs
     # -a always,exit -F path=path-to-log -F perm=wa -F key=10.5.5-modification-log
