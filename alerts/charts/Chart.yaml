@@ -5,10 +5,11 @@ type: application
 maintainers:
   - name: richardtief
   - name: viennaa
+  - name: trouaux
 name: alerts
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 4.0.4
+version: 4.0.5
 keywords:
   - prometheus-alertmanager
 dependencies:
