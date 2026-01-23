@@ -18,6 +18,7 @@ The **Strimzi Kafka Operator** simplifies the management of Kafka clusters on Ku
 - Kafka Exporter for Metrics (optional)
 - Cruise Control for Cluster Optimization (optional)
 - Entity Operator for Topic and User Management
+- OpenTelemetry Collector to receive logs from Kafka and export them to a backend
 
 ## Note
 
@@ -31,6 +32,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 - A running and Greenhouse-onboarded Kubernetes cluster.
 - Sufficient cluster resources for running Kafka (minimum 3 nodes recommended for production).
 - Prometheus Operator installed if you want to enable monitoring (recommended).
+- The OpenTelemetry Collector CRD (only if `gatewayLogs.enabled` is set to `true`). This can be added with the `logs` plugin.
 
 ### Installation
 
