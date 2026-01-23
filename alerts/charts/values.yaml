@@ -13,6 +13,9 @@ global:
     # base domain of the greenhouse organisation
     baseDomain:
 
+# @ignored
+defaultNotificationTemplates: true
+
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
@@ -287,8 +290,6 @@ alerts:
         #    matchers:
         #      - name: alertname
         #        matchType: "=~"
-
-extraManifests: []
 
 testFramework:
   enabled: true
