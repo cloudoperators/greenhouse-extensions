@@ -38,3 +38,14 @@ topics:
   audit:
     replicas: 1  # Single replica for test
     minInsyncReplicas: 1  # Single broker
+
+gatewayLogs:
+  enabled: true
+  collectorImage:
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    tag: "cacb425"
+  openSearchLogs:
+    endpoint: test-endpoint
+    index: test-index
+    failover_username_a: test-username
+    failover_password_a: test-password

@@ -211,3 +211,23 @@ topics:
     cleanupPolicy: "delete"
     # -- Max message size (1 MB)
     maxMessageBytes: 1048576
+  
+# Logs Gateway configuration
+gatewayLogs:
+  # -- Enable Logs Gateway
+  enabled: true
+  collectorImage:
+    # -- Defines the image repository for the OpenTelemetry Collector used in the logs gateway.
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    # -- Defines the image tag for the OpenTelemetry Collector used in the logs gateway.
+    tag: "cacb425"
+  openSearchLogs:
+    # -- OpenSearch endpoint for logs ingestion
+    endpoint: 
+    # -- OpenSearch index for logs
+    index:
+    # -- OpenSearch failover username A
+    failover_username_a: ""
+    # -- OpenSearch failover password A
+    failover_password_a: ""
+ 

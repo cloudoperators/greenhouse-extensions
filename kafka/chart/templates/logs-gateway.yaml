@@ -1,0 +1,60 @@
+
+{{- if .Values.gatewayLogs.enabled }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  annotations:
+  name: {{ .Values.kafka.name }}-logs-gateway
+  labels:
+    {{- include "kafka.labels" $ | nindent 4 }}
+spec:
+  mode: deployment
+  env:
+    - name: index
+      value: "{{ .Values.gatewayLogs.openSearchLogs.index }}"
+  envFrom:
+    - secretRef:
+         name: logs-gateway-auth
+  image: {{ .Values.gatewayLogs.collectorImage.repository }}:{{ .Values.gatewayLogs.collectorImage.tag }}
+  config:
+    exporters:
+      opensearch/gateway:
+        http:
+          auth:
+            authenticator: basicauth/opensearch
+          endpoint: {{ .Values.gatewayLogs.openSearchLogs.endpoint }}
+        logs_index: ${index}-datastream
+        retry_on_failure:
+          enabled: true
+          max_elapsed_time: 0s
+        timeout: 30s
+    extensions:
+      basicauth/opensearch:
+        client_auth:
+          username: {{ .Values.gatewayLogs.openSearchLogs.failover_username_a }}
+          password: {{ .Values.gatewayLogs.openSearchLogs.failover_password_a }}
+    receivers:
+      kafka/gateway:
+        brokers: {{ .Values.kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092
+        initial_offset: earliest
+        logs:
+          encoding: otlp_json
+          topic: audit
+    service:
+      extensions:
+      - basicauth/opensearch
+      pipelines:
+        logs/gateway:
+          exporters:
+          - opensearch/gateway
+          receivers:
+          - kafka/gateway
+      telemetry:
+        metrics:
+          readers:
+          - pull:
+              exporter:
+                prometheus:
+                  host: 0.0.0.0
+                  port: 8888
+{{- end }}
