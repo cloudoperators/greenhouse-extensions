@@ -72,6 +72,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.collectorImage.tag | string | `"ef0c1e4"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| auditLogs.openSearchLogs.elastic.enabled | bool | `true` | Activates the configuration for Elastic. |
+| auditLogs.openSearchLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
+| auditLogs.openSearchLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
+| auditLogs.openSearchLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |

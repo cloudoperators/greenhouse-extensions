@@ -50,10 +50,16 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if .Values.auditLogs.elastic.enabled }}
+  {{- include "es.volumeMounts" . | nindent 2 }}
+{{- end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if .Values.auditLogs.elastic.enabled }}
+  {{- include "es.volumes" . | nindent 2 }}
+{{- end }}
   config:
     receivers:
       journald:
@@ -88,7 +94,9 @@ spec:
         send_batch_max_size: 500
         timeout: 5s
         send_batch_size : 10
-
+{{- if .Values.auditLogs.elastic.enabled }}
+    {{- include "es.labels" . | nindent 6 -}}
+{{- end }}
       attributes/cluster:
         actions:
           - action: insert
@@ -277,6 +285,9 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+{{- if .Values.auditLogs.elastic.enabled }}
+    {{- include "es.exporters" . | nindent 6 -}}
+{{- end }}
     extensions:
       basicauth/failover_a:
         client_auth:
@@ -333,6 +344,9 @@ spec:
           exporters: [opensearch/failover_a]
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.elastic.enabled }}
+   {{- include "es.pipeline" . | nindent 8 -}}
 {{- end }}
         logs/containerd:
           receivers: [filelog/containerd]
