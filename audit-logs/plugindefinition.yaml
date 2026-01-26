@@ -12,7 +12,7 @@ spec:
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
-        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts/dev
+        repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
         version: 0.0.8
     options:
         - name: auditLogs.region
