@@ -51,10 +51,16 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if .Values.openTelemetry.elastic.enabled }}
+  {{- include "es.volumeMounts" . | nindent 2 }}
+{{- end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if .Values.openTelemetry.elastic.enabled }}
+  {{- include "es.volumes" . | nindent 2 }}
+{{- end }}
   config:
     receivers:
       journald:
@@ -100,6 +106,9 @@ spec:
         timeout: 5s
         send_batch_size : 10
 
+{{- if .Values.openTelemetry.elastic.enabled }}
+    {{- include "es.labels" . | nindent 6 -}}
+{{- end }}
       attributes/cluster:
         actions:
           - action: insert
@@ -308,7 +317,9 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
-
+{{- if .Values.openTelemetry.elastic.enabled }}
+    {{- include "es.exporters" . | nindent 6 -}}
+{{- end }}
     extensions:
       file_storage/journald:
         directory: .
@@ -380,6 +391,9 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.openTelemetry.elastic.enabled }}
+   {{- include "es.pipeline" . | nindent 8 -}}
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]

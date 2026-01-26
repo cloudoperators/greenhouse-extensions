@@ -67,7 +67,19 @@ openTelemetry:
     # -- Second Password (as a failover) for OpenSearch endpoint
     failover_password_b:
     # -- Name for OpenSearch index
-    index:
+    index:  
+  elastic:
+    # -- Activates the configuration for Elastic.
+    enabled: true
+    # -- Endpoint URL for Elastic
+    endpoint:
+    # -- TLS certificate for Elastic
+    tls:
+      crt: 
+      key: 
+    # -- Labels to be added to Elastic logs
+    labels: []
+
   # -- Cluster label for Logging
   cluster:
   # -- Region label for Logging
@@ -84,9 +96,11 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
+
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:

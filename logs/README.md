@@ -87,6 +87,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"27c182f"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
+| openTelemetry.elastic.enabled | bool | `true` | Activates the configuration for Elastic. |
+| openTelemetry.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
+| openTelemetry.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
+| openTelemetry.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
