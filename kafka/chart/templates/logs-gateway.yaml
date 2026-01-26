@@ -35,7 +35,7 @@ spec:
           password: {{ .Values.gatewayLogs.openSearchLogs.failover_password_a }}
     receivers:
       kafka/gateway:
-        brokers: {{ .Values.kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092
+        brokers: {{ .Values.gatewayLogs.brokerEndpoint }}
         initial_offset: earliest
         logs:
           encoding: otlp_json

@@ -216,6 +216,8 @@ topics:
 gatewayLogs:
   # -- Enable Logs Gateway
   enabled: true
+  # -- Kafka broker endpoint for logs ingestion. Per default the endpoint consists of {{ .kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092
+  brokerEndpoint: 
   collectorImage:
     # -- Defines the image repository for the OpenTelemetry Collector used in the logs gateway.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib

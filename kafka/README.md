@@ -50,6 +50,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | entityOperator.enabled | bool | `true` | Enable Entity Operator |
 | entityOperator.topicOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
 | entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
+| gatewayLogs.brokerEndpoint | string | `nil` | Kafka broker endpoint for logs ingestion. Per default the endpoint consists of {{ .kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092 |
 | gatewayLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Defines the image repository for the OpenTelemetry Collector used in the logs gateway. |
 | gatewayLogs.collectorImage.tag | string | `"27c182f"` | Defines the image tag for the OpenTelemetry Collector used in the logs gateway. |
 | gatewayLogs.enabled | bool | `true` | Enable Logs Gateway |

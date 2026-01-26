@@ -41,6 +41,7 @@ topics:
 
 gatewayLogs:
   enabled: true
+  brokerEndpoint: kafka-kafka-bootstrap.kafka.svc:9092
   collectorImage:
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     tag: "cacb425"
