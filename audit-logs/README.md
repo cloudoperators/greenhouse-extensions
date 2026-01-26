@@ -69,8 +69,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 |-----|------|---------|-------------|
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"ef0c1e4"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"27c182f"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
+| auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
