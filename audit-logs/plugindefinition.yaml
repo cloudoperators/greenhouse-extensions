@@ -80,7 +80,11 @@ spec:
           required: false
           type: string
         - name: auditLogs.collectorImage.tag
-          default: "d5e9d0d"
+          default: "27c182f"
           description: Collector image tag
           required: false
           type: string
+        - name: auditLogs.logsCollector.auditd.enabled
+          description: Enable auditd ingestion
+          required: false
+          type: bool

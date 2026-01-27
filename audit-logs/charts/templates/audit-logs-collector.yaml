@@ -15,6 +15,16 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+  hostPID: true
+  securityContext:
+    privileged: true
+    runAsUser: 0
+    capabilities:
+      add:
+        # Capabilities needed for auditd
+        - 'AUDIT_READ'
+        - 'AUDIT_WRITE'
+        - 'AUDIT_CONTROL'
   tolerations:
   - operator: Exists
   env:
@@ -45,6 +55,12 @@ spec:
     - name: prometheus
       port: 8888
 {{- end }}
+
+  initContainers:
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.initContainer" . | nindent 2 -}}
+{{ end }}
+
   image: {{ .Values.auditLogs.collectorImage.repository }}:{{ .Values.auditLogs.collectorImage.tag }}
   volumeMounts:
   - mountPath: /var/log
@@ -53,6 +69,9 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
   {{- include "es.volumeMounts" . | nindent 2 }}
 {{- end }}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.volumeMounts" . | nindent 2 -}}
+{{ end }}
   volumes:
   - name: varlog
     hostPath:
@@ -60,6 +79,9 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
   {{- include "es.volumes" . | nindent 2 }}
 {{- end }}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.volumes" . | nindent 2 -}}
+{{ end }}
   config:
     receivers:
       journald:
@@ -89,6 +111,10 @@ spec:
             field: attributes["log.type"]
             value: "containerd"
 
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.receiver" . | nindent 6 -}}
+{{ end }}
+
     processors:
       batch:
         send_batch_max_size: 500
@@ -97,6 +123,11 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.labels" . | nindent 6 -}}
 {{- end }}
+
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.processors" . | nindent 6 -}}
+{{ end }}
+
       attributes/cluster:
         actions:
           - action: insert
@@ -348,6 +379,9 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
    {{- include "es.pipeline" . | nindent 8 -}}
 {{- end }}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
+  {{- include "auditd.pipelines" . | nindent 8 -}}
+{{ end }}
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
