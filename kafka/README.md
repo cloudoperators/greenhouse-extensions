@@ -53,7 +53,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | gatewayLogs.brokerEndpoint | string | `nil` | Kafka broker endpoint for logs ingestion. Per default the endpoint consists of {{ .kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092 |
 | gatewayLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Defines the image repository for the OpenTelemetry Collector used in the logs gateway. |
 | gatewayLogs.collectorImage.tag | string | `"27c182f"` | Defines the image tag for the OpenTelemetry Collector used in the logs gateway. |
-| gatewayLogs.enabled | bool | `true` | Enable Logs Gateway |
+| gatewayLogs.enabled | bool | `false` | Enable Logs Gateway |
 | gatewayLogs.openSearchLogs.endpoint | string | `nil` | OpenSearch endpoint for logs ingestion |
 | gatewayLogs.openSearchLogs.failover_password_a | string | `""` | OpenSearch failover password A |
 | gatewayLogs.openSearchLogs.failover_username_a | string | `""` | OpenSearch failover username A |

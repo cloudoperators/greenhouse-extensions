@@ -215,7 +215,7 @@ topics:
 # Logs Gateway configuration
 gatewayLogs:
   # -- Enable Logs Gateway
-  enabled: true
+  enabled: false
   # -- Kafka broker endpoint for logs ingestion. Per default the endpoint consists of {{ .kafka.name }}-kafka-bootstrap.{{ .Release.Namespace }}.svc:9092
   brokerEndpoint: 
   collectorImage:
