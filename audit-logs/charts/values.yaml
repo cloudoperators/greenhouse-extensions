@@ -42,7 +42,7 @@ auditLogs:
     failover_password_b:
     elastic:
       # -- Activates the configuration for Elastic.
-      enabled: true
+      enabled: false
       # -- Endpoint URL for Elastic
       endpoint:
       # -- TLS certificate for Elastic
