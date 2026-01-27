@@ -73,7 +73,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
-| auditLogs.openSearchLogs.elastic.enabled | bool | `true` | Activates the configuration for Elastic. |
+| auditLogs.openSearchLogs.elastic.enabled | bool | `false` | Activates the configuration for Elastic. |
 | auditLogs.openSearchLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
 | auditLogs.openSearchLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
 | auditLogs.openSearchLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
