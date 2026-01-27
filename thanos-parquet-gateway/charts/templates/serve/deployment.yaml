@@ -1,0 +1,116 @@
+{{ if and .Values.thanos.store.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.store.deploymentLabels }}
+    {{- toYaml .Values.thanos.store.deploymentLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-store
+spec:
+  replicas: {{ default 1 .Values.thanos.store.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: {{ include "release.name" . }}
+      app.kubernetes.io/name: store
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- if .Values.thanos.store.annotations }}
+      annotations:
+        {{ toYaml .Values.thanos.store.annotations | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/managed-by: {{ include "release.name" . }}
+        app.kubernetes.io/name: store
+        {{- if .Values.thanos.store.containerLabels }}
+        {{ toYaml .Values.thanos.store.containerLabels | nindent 8 }}
+        {{- end }}
+      name: {{ include "release.name" . }}-store
+    spec:
+      containers:
+      - name: store
+        args:
+        - store
+        - --objstore.config-file=/etc/config/{{ include "thanos.objectStoreConfigFile" . }}
+        - --grpc-address={{ default "0.0.0.0:10901" .Values.thanos.grpcAddress }}
+        - --http-address={{ default "0.0.0.0:10902" .Values.thanos.httpAddress }}
+        - --log.level={{ default "info" .Values.thanos.store.logLevel }}
+        - --index-cache-size={{ default "1GB" .Values.thanos.store.indexCacheSize }}
+        - --chunk-pool-size={{ default "4GB" .Values.thanos.store.chunkPoolSize }}
+        {{- range .Values.thanos.store.additionalArgs }}
+        - {{ . }}
+        {{- end }}
+        image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
+        imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /-/healthy
+            port: 10902
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        {{- with .Values.thanos.store.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        ports:
+        - containerPort: 10902
+          name: http
+          protocol: TCP
+        - containerPort: 10901
+          name: grpc
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /-/ready
+            port: 10902
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /etc/config/
+          name: objectstore-secret
+          readOnly: true
+        - mountPath: /data
+          name: data
+      initContainers:
+      - name: init-permissions
+        {{- $registry := .Values.global.imageRegistry | default .Values.thanos.initChownData.image.registry -}}
+        {{- if .Values.thanos.initChownData.image.sha }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+        {{- else }}
+        image: "{{ $registry }}/{{ .Values.thanos.initChownData.image.repository }}:{{ .Values.thanos.initChownData.image.tag }}"
+        {{- end }}
+        command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      volumes:
+      - name: objectstore-secret
+        secret:
+          defaultMode: 420
+          secretName: {{ include "thanos.objectStoreSecretName" . }}
+      - name: data
+        emptyDir: {}
+{{ end }}

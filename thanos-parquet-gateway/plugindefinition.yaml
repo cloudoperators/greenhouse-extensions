@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: thanos-parquet-gateway
+spec:
+  version: 0.0.1
+  description: thanos-parquet-gateway
+  helmChart:
+    name: thanos-parquet-gateway
+    repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
+    version: 0.0.1

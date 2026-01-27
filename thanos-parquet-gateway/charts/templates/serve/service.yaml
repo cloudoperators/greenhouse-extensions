@@ -1,0 +1,29 @@
+{{ if and .Values.thanos.store.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  {{- include "thanos.annotations" (dict
+        "base" .Values.thanos.store.annotations
+        "service" .Values.thanos.store.serviceAnnotations
+      ) | indent 2 }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.store.serviceLabels }}
+    {{- toYaml .Values.thanos.store.serviceLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-store
+spec:
+  ports:
+  - name: grpc
+    port: 10901
+    protocol: TCP
+    targetPort: grpc
+  - name: http
+    port: 10902
+    protocol: TCP
+    targetPort: http
+  selector:
+    app.kubernetes.io/managed-by: {{ include "release.name" . }}
+    app.kubernetes.io/name: store
+{{ end }}

@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: Base chart for thanos-parquet-gateway deployments
+type: application
+maintainers:
+  - name: trouaux
+name: thanos-parquet-gateway
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+version: 0.0.1
+keywords:
+  - thanos
+  - parquet
+  - metrics

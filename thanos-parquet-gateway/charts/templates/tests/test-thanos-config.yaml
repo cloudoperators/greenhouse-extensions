@@ -1,0 +1,97 @@
+{{- if .Values.testFramework.enabled -}}
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+data:
+  run.sh: |-
+
+    #!/usr/bin/env bats
+
+    load "/usr/lib/bats/bats-detik/utils"
+    load "/usr/lib/bats/bats-detik/detik"
+
+    DETIK_CLIENT_NAME="kubectl"
+
+    @test "Verify {{ .Release.Name }} Query" {
+      verify "there is 1 deployment named '{{ .Release.Name }}-query'"
+      verify "there is 1 service named '{{ .Release.Name }}-query'"
+      verify "there is 1 configmap named '{{ .Release.Name }}-sd-config'"
+      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get pods named 'prometheus-.*-[0-9]$' and verify that '.status.containerStatuses[*].name' is 'config-reloader,prometheus,thanos-sidecar'"
+
+      endpoints=$(kubectl get cm {{ .Release.Name }}-sd-config -oyaml | yq '.data["endpoint-targets.yaml"] | select(. != null)' | yq '.endpoints[].address')
+      for endpoint in $endpoints; do
+        if [[ $endpoint =~ :443$ ]];
+        then
+          run grpc_health_probe -addr=${endpoint} -tls -tls-ca-cert /tls-assets/ca.crt
+        else
+          run grpc_health_probe -addr=${endpoint}
+        fi
+        echo "${output}"
+        [ "$status" -eq "0" ]
+      done
+    }
+
+    {{ if and .Values.thanos.store.enabled }}
+    @test "Verify {{ .Release.Name }} Store" {
+      verify "there is 1 deployment named '{{ .Release.Name }}-store'"
+      verify "there is 1 service named '{{ .Release.Name }}-store'"
+      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-store' and verify that '.status.phase' is 'running'"
+    }
+    {{ end }}
+
+    {{ if and .Values.thanos.compactor.enabled }}
+    @test "Verify {{ .Release.Name }} Compactor" {
+      verify "there is 1 deployment named '{{ .Release.Name }}-compactor'"
+      verify "there is 1 service named '{{ .Release.Name }}-compactor'"
+      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get persistentvolumeclaims named '{{ .Release.Name }}-compactor' and verify that '.status.phase' is 'Bound'"
+    }
+    {{ end }}
+
+    {{ if .Values.thanos.ruler.enabled }}
+    @test "Verify succesful creation, running status and rulefiles population of Thanos Ruler" {
+      verify "there is 1 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
+      verify "there is 1 service named '{{ .Release.Name }}-ruler'"
+      verify "there is 1 thanosruler named '{{ .Release.Name }}'"
+      try "at most 3 times every 5s to get pods named 'thanos-ruler-{{ .Release.Name }}' and verify that '.status.phase' is 'running'"
+      try "at most 3 times every 5s to get configmaps named '.*(ruler)+.*(rulefiles)+.*' and verify that '.data' matches '.*yaml.*'"
+    }
+    {{ else }}
+    @test "Verify that no Thanos Ruler ressource is created" {
+      verify "there is 0 statefulset named 'thanos-ruler-{{ .Release.Name }}'"
+      verify "there is 0 thanosruler named '{{ .Release.Name }}'"
+      verify "there is 0 service named '{{ .Release.Name }}-ruler'"
+    }
+    {{ end }}
+
+    {{ if .Values.thanos.serviceMonitor.selfMonitor }}
+    @test "Verify succesful creation of ServiceMonitor" {
+      verify "there is 1 servicemonitor named '{{ .Release.Name }}$'"
+    }
+    {{ end }}
+
+    {{- if and .Values.thanos.query.ingress.grpc.enabled .Values.thanos.query.ingress.grpc.hosts .Values.thanos.query.ingress.grpc.tls (not .Values.ci.enabled ) }}
+    @test "Verify the availability of the Thanos Query API Ingress hostname by using the created certificates" {
+      url="{{ (first .Values.thanos.query.ingress.grpc.hosts).host }}:443"
+
+      run grpc_health_probe -addr=${url} -tls -tls-ca-cert /tls-assets/ca.crt
+      [ "$status" -eq "0" ]
+      [[ "$output" =~ "SERVING" ]]
+    }
+    {{- end }}
+
+    {{- if .Values.blackboxExporter.enabled }}
+    @test "Verify successful deployment and running status of the blackbox-exporter pod" {
+        verify "there is 1 deployment named 'blackbox-exporter'"
+        try "at most 2 times every 5s to get pods named 'blackbox-exporter' and verify that '.status.phase' is 'running'"
+    }
+    {{- end }}
+
+{{- end -}}
