@@ -1,6 +1,6 @@
 FROM golang AS build
 
-ARG OTEL_VERSION=0.142.0
+ARG OTEL_VERSION=0.144.0
 
 RUN wget "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd/builder/v${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64" && \
     mv "ocb_${OTEL_VERSION}_linux_amd64" ocb

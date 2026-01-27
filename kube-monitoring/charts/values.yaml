@@ -131,6 +131,10 @@ kubeMonitoring:
   # @ignored
   crds:
     enabled: true
+    # @ignored
+    upgradeJob:
+      enabled: true
+      forceConflicts: true
 
   # Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
   # @ignored

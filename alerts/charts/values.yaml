@@ -13,6 +13,9 @@ global:
     # base domain of the greenhouse organisation
     baseDomain:
 
+# @ignored
+defaultNotificationTemplates: true
+
 # kube-prometheus-stack configuration scoped to alerts
 alerts:
 
@@ -138,7 +141,7 @@ alerts:
   ##
   prometheusOperator:
     ## Deploy prometheus-operator
-    enabled: true
+    enabled: false
 
   ## Configuration for alertmanager
   ## ref: https://prometheus.io/docs/alerting/alertmanager/

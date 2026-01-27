@@ -1,4 +1,4 @@
-{{- if .Values.alerts.alertmanager.enabled }}
+{{- if and .Values.alerts.alertmanager.enabled .Values.defaultNotificationTemplates }}
 apiVersion: v1
 kind: ConfigMap
 

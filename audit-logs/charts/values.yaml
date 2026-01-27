@@ -10,7 +10,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "ef0c1e4"
+    tag: "27c182f"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
@@ -21,6 +21,9 @@ auditLogs:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    auditd:
+      # -- Activates the ingestion of auditd logs.
+      enabled: true
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
@@ -37,6 +40,18 @@ auditLogs:
     failover_username_b:
     # -- Second Password (as a failover) for OpenSearch endpoint
     failover_password_b:
+    elastic:
+      # -- Activates the configuration for Elastic.
+      enabled: false
+      # -- Endpoint URL for Elastic
+      endpoint:
+      # -- TLS certificate for Elastic
+      tls:
+        crt: 
+        key: 
+      # -- Labels to be added to Elastic logs
+      labels: []
+
 
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.

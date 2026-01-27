@@ -9,6 +9,7 @@ resources:
   - external-dns/plugindefinition.yaml
   - repo-guard/plugindefinition.yaml
   - ingress-nginx/plugindefinition.yaml
+  - kafka/plugindefinition.yaml
   - kube-monitoring/plugindefinition.yaml
   - openbao/plugindefinition.yaml
   - logs/plugindefinition.yaml

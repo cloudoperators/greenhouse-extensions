@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: logs
-version: 0.0.13
+version: 0.0.15
 description: OpenTelemetry Operator Helm chart for Kubernetes
 icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e9e3ac0c8817cb/projects/opentelemetry/icon/color/opentelemetry-icon-color.png
 type: application
@@ -19,5 +19,5 @@ dependencies:
   version: 0.100.0
   condition: opentelemetry-operator.enabled
 - name: crds
-  version: 0.0.2
+  version: 0.0.3
   condition: customCRDs.enabled

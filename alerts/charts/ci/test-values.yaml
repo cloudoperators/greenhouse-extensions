@@ -5,6 +5,8 @@ global:
     baseDomain: example.com
 
 alerts:
+  prometheusOperator:
+    enabled: true
   defaultRules:
     labels:
       plugin: test

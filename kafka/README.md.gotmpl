@@ -1,0 +1,41 @@
+---
+title: Kafka
+---
+
+## Kafka Plugin
+
+The **Kafka** plugin sets up an Apache Kafka environment using the **Strimzi Kafka Operator**, automating deployment, provisioning, management, and orchestration of Kafka clusters with KRaft mode (without ZooKeeper).
+
+## Overview
+
+Apache Kafka is a distributed event streaming platform designed for high-throughput, fault-tolerant, real-time data processing.
+The **Strimzi Kafka Operator** simplifies the management of Kafka clusters on Kubernetes.
+
+### Components included in this Plugin:
+
+- [Strimzi Kafka Operator](https://github.com/strimzi/strimzi-kafka-operator)
+- Apache Kafka Cluster Management (KRaft mode)
+- Kafka Exporter for Metrics (optional)
+- Cruise Control for Cluster Optimization (optional)
+- Entity Operator for Topic and User Management
+
+## Note
+
+More configurations will be added over time, and contributions of custom configurations are highly appreciated.
+If you discover bugs or want to add functionality to the plugin, feel free to create a pull request.
+
+## Quick Start
+
+### Prerequisites
+
+- A running and Greenhouse-onboarded Kubernetes cluster.
+- Sufficient cluster resources for running Kafka (minimum 3 nodes recommended for production).
+- Prometheus Operator installed if you want to enable monitoring (recommended).
+
+### Installation
+
+1. Navigate to the **Greenhouse Dashboard**.
+2. Select the **Kafka** plugin from the catalog.
+3. Specify the target cluster and configuration options.
+
+{{ template "chart.valuesSection" . }}
