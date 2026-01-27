@@ -571,3 +571,13 @@ networkPolicies:
   #       ports:
   #       - protocol: TCP
   #         port: 9090
+
+# @ignored
+additionalScrapeConfigs:
+  namespaceLookup:
+    enabled: false
+    regex: "your-regex"
+    prometheusName: prometheus
+    prometheusPort: 80
+    metricRelabelConfigs: []
+    params: []
