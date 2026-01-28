@@ -40,17 +40,17 @@ auditLogs:
     failover_username_b:
     # -- Second Password (as a failover) for OpenSearch endpoint
     failover_password_b:
-    elastic:
-      # -- Activates the configuration for Elastic.
-      enabled: false
-      # -- Endpoint URL for Elastic
-      endpoint:
-      # -- TLS certificate for Elastic
-      tls:
-        crt: 
-        key: 
-      # -- Labels to be added to Elastic logs
-      labels: []
+  elastic:
+    # -- Activates the configuration for Elastic.
+    enabled: false
+    # -- Endpoint URL for Elastic
+    endpoint:
+    # -- TLS certificate for Elastic
+    tls:
+      crt: 
+      key: 
+    # -- Labels to be added to Elastic logs
+    labels: []
 
 
   prometheus:
