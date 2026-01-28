@@ -13,16 +13,31 @@
 {{- if $targets }}
 {{- $metricRelabelConfigs := .Values.additionalScrapeConfigs.namespaceLookup.metricRelabelConfigs }}
 {{- $params := .Values.additionalScrapeConfigs.namespaceLookup.params }}
-apiVersion: v1
-kind: Secret
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
 metadata:
-  name: {{ $prometheusName }}-scrape-config
-  namespace: {{ template "kube-prometheus-stack.namespace" $ }}
+  name: namespace-lookup-scrape-configs
   labels:
-    app: {{ template "kube-prometheus-stack.name" $ }}-prometheus-scrape-confg
-{{ include "kube-prometheus-stack.labels" $ | indent 4 }}
-data:
-  additional-scrape-configs.yaml: {{ include "kubeMonitoring.additionalScrapeConfigsYaml" (dict "targets" $targets "metricRelabelConfigs" $metricRelabelConfigs "params" $params) | b64enc | quote }}
+    {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  staticConfigs:
+  - targets:
+    {{- range $targets }}
+      - {{ . }}
+    {{- end }}
+  metricsPath: /federate
+{{- if $params }}
+  params:
+{{ toYaml $params | indent 4 }}
+{{- end }}
+{{- if $metricRelabelConfigs }}
+  metricRelabelings:
+{{ toYaml $metricRelabelConfigs | indent 4 }}
+{{- end }}
+  scrapeInterval: 1m
+  scrapeTimeout: 10s
+  honorLabels: true
+  enableHTTP2: true
 {{- end }}
 {{- end }}
 {{- end }}
