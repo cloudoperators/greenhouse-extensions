@@ -1,0 +1,20 @@
+{{- if .Values.thanosParquetGateway.convert.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  {{- include "thanosParquetGateway.annotations" (dict
+        "base" .Values.thanosParquetGateway.convert.annotations
+        "service" .Values.thanosParquetGateway.convert.serviceAnnotations
+      ) | indent 2 }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanosParquetGateway.labels" . | nindent 4 }}
+    {{- if .Values.thanosParquetGateway.convert.serviceLabels }}
+    {{- toYaml .Values.thanosParquetGateway.convert.serviceLabels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-convert
+spec:
+  selector:
+    app.kubernetes.io/managed-by: {{ include "release.name" . }}
+    app.kubernetes.io/name: convert
+{{- end }}

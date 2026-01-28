@@ -1,37 +1,8 @@
 ci:
-  enabled: true
+  enabled: false
 
-blackboxExporter:
-  enabled: true
-
-thanos:
-  query:
-    serviceLabels:
-      testServiceLabels: "true"
-    deploymentLabels:
-      testDeploymentLabels: "true"
-    serviceAnnotations:
-      testServiceAnnotation: "true"
-    persesDatasource:
-      create: "true"
-      selector:
-        persesDatasourceSelector: test
-    stores:
-      - prometheus-operated:10901
-      - prometheus-operated:10901
-  ruler:
+thanosParquetGateway:
+  serve:
     enabled: true
-    matchLabel: thanos
-    alertmanagers:
-      enabled: true
-      authentication:
-        enabled: true
-        ssoCert: xxx
-        ssoKey: xxx
-      hosts:
-  serviceMonitor:
-    selfMonitor: true
-    labels: {
-      plugin: default
-    }
-    dashboards: false
+  convert:
+    enabled: true

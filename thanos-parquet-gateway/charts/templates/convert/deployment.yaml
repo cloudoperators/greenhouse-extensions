@@ -1,4 +1,4 @@
-{{ if and .Values.thanosParquetGateway.serve.enabled }}
+{{ if and .Values.thanosParquetGateway.convert.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,16 +6,16 @@ metadata:
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
     {{- include "thanosParquetGateway.labels" . | nindent 4 }}
-    {{- if .Values.thanosParquetGateway.serve.deploymentLabels }}
-    {{- toYaml .Values.thanosParquetGateway.serve.deploymentLabels | nindent 4 }}
+    {{- if .Values.thanosParquetGateway.convert.deploymentLabels }}
+    {{- toYaml .Values.thanosParquetGateway.convert.deploymentLabels | nindent 4 }}
     {{- end }}
-  name: {{ include "release.name" . }}-store
+  name: {{ include "release.name" . }}-convert
 spec:
-  replicas: {{ default 1 .Values.thanosParquetGateway.serve.replicas }}
+  replicas: {{ default 1 .Values.thanosParquetGateway.convert.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/managed-by: {{ include "release.name" . }}
-      app.kubernetes.io/name: serve
+      app.kubernetes.io/name: convert
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -23,33 +23,28 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      {{- if .Values.thanosParquetGateway.serve.annotations }}
+      {{- if .Values.thanosParquetGateway.convert.annotations }}
       annotations:
-        {{ toYaml .Values.thanosParquetGateway.serve.annotations | nindent 8 }}
+        {{ toYaml .Values.thanosParquetGateway.convert.annotations | nindent 8 }}
       {{- end }}
       labels:
         app.kubernetes.io/managed-by: {{ include "release.name" . }}
-        app.kubernetes.io/name: store
-        {{- if .Values.thanosParquetGateway.serve.containerLabels }}
-        {{ toYaml .Values.thanosParquetGateway.serve.containerLabels | nindent 8 }}
+        app.kubernetes.io/name: convert
+        {{- if .Values.thanosParquetGateway.convert.containerLabels }}
+        {{ toYaml .Values.thanosParquetGateway.convert.containerLabels | nindent 8 }}
         {{- end }}
-      name: {{ include "release.name" . }}-serve
+      name: {{ include "release.name" . }}-convert
     spec:
       containers:
-      - name: serve
+      - name: convert
         args:
-        - serve
+        - convert
+        - --tsdb.objstore-config-file=/etc/config/{{ include "thanosParquetGateway.objectStoreConfigFile" . }}
         - --parquet.objstore-config-file=/etc/config/{{ include "thanosParquetGateway.objectStoreConfigFile" . }}
-        - --http.internal.port={{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
-        - --http.prometheus.port={{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
-        - --http.thanos.port={{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
-        - --block.syncer.interval={{ default "30m" .Values.thanosParquetGateway.serve.syncerInterval }}
-        - --block.syncer.concurrency={{ default 32 .Values.thanosParquetGateway.serve.syncerConcurrency }}
-        - --block.discovery.interval={{ default "30m" .Values.thanosParquetGateway.serve.discoveryInterval }}
-        - --block.discovery.concurrency={{ default 32 .Values.thanosParquetGateway.serve.discoveryConcurrency }}
-        - --query.external-label=prometheus={{ default "my-prometheus" .Values.thanosParquetGateway.serve.externalLabelPrometheus }}
-        - --query.external-label=replica={{ default "ha-1" .Values.thanosParquetGateway.serve.externalLabelReplica }}
-        {{- range .Values.thanosParquetGateway.serve.additionalArgs }}
+        {{- range .Values.thanosParquetGateway.convert.args.sortingLabels }}
+        - --convert.sorting.label={{ . }}
+        {{- end }}
+        {{- range .Values.thanosParquetGateway.convert.additionalArgs }}
         - {{ . }}
         {{- end }}
         image: "{{ .Values.thanosParquetGateway.image.repository }}:{{ .Values.thanosParquetGateway.image.tag }}"
@@ -58,28 +53,28 @@ spec:
           failureThreshold: 2
           httpGet:
             path: /-/healthy
-            port: {{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+            port: 10902
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
-        {{- with .Values.thanosParquetGateway.serve.resources }}
+        {{- with .Values.thanosParquetGateway.convert.resources }}
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: {{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+        - containerPort: 10902
           name: http
           protocol: TCP
-        - containerPort: {{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
+        - containerPort: 10901
           name: grpc
           protocol: TCP
         readinessProbe:
           failureThreshold: 2
           httpGet:
             path: /-/ready
-            port: {{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+            port: 10902
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
@@ -95,7 +90,7 @@ spec:
       - name: init-permissions
         {{- $registry := .Values.global.imageRegistry | default .Values.thanosParquetGateway.initChownData.image.registry -}}
         {{- if .Values.thanosParquetGateway.initChownData.image.sha }}
-        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
+        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}@sha256:{{ .Values.thanosParquetGateway.initChownData.image.sha }}"
         {{- else }}
         image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}"
         {{- end }}

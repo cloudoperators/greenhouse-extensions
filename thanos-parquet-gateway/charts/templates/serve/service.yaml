@@ -1,18 +1,18 @@
-{{ if and .Values.thanos.store.enabled }}
+{{- if .Values.thanosParquetGateway.serve.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  {{- include "thanos.annotations" (dict
-        "base" .Values.thanos.store.annotations
-        "service" .Values.thanos.store.serviceAnnotations
+  {{- include "thanosParquetGateway.annotations" (dict
+        "base" .Values.thanosParquetGateway.serve.annotations
+        "service" .Values.thanosParquetGateway.serve.serviceAnnotations
       ) | indent 2 }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
-    {{- include "thanos.labels" . | nindent 4 }}
-    {{- if .Values.thanos.store.serviceLabels }}
-    {{- toYaml .Values.thanos.store.serviceLabels | nindent 4 }}
+    {{- include "thanosParquetGateway.labels" . | nindent 4 }}
+    {{- if .Values.thanosParquetGateway.serve.serviceLabels }}
+    {{- toYaml .Values.thanosParquetGateway.serve.serviceLabels | nindent 4 }}
     {{- end }}
-  name: {{ include "release.name" . }}-store
+  name: {{ include "release.name" . }}-serve
 spec:
   ports:
   - name: grpc
@@ -25,5 +25,5 @@ spec:
     targetPort: http
   selector:
     app.kubernetes.io/managed-by: {{ include "release.name" . }}
-    app.kubernetes.io/name: store
-{{ end }}
+    app.kubernetes.io/name: serve
+{{- end }}
