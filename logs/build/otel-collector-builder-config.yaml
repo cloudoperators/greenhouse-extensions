@@ -11,7 +11,7 @@ receivers:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/journaldreceiver v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/k8seventsreceiver v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.144.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/auditdreceiver v0.144.0
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/auditdreceiver v0.144.1
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkareceiver v0.144.0
 
