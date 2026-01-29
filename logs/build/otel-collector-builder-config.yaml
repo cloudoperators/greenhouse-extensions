@@ -47,4 +47,4 @@ exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/opensearchexporter v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v0.144.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/exporter/kafkaexporter v0.144.3
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/exporter/kafkaexporter v0.144.4
