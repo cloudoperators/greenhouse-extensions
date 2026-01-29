@@ -69,7 +69,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 |-----|------|---------|-------------|
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"13e2807"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"13b191d"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.elastic.enabled | bool | `false` | Activates the configuration for Elastic. |
 | auditLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
