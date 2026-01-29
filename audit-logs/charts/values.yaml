@@ -10,7 +10,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "13e2807"
+    tag: "13b191d"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
