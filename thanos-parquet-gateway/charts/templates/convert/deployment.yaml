@@ -109,7 +109,7 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "thanos-parquet-gateway.objectStoreSecretName" . }}
+          secretName: {{ include "thanosParquetGateway.objectStoreSecretName" . }}
       - name: data
         emptyDir: {}
 {{ end }}

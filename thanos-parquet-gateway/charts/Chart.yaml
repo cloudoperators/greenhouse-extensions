@@ -3,13 +3,14 @@
 
 apiVersion: v2
 description: Base chart for thanos-parquet-gateway deployments
+icon: https://raw.githubusercontent.com/thanos-io/thanos/main/docs/img/Thanos-logo_fullmedium.png
 type: application
 maintainers:
   - name: trouaux
 name: thanos-parquet-gateway
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.0.1
+version: 0.1.0
 keywords:
   - thanos
   - parquet

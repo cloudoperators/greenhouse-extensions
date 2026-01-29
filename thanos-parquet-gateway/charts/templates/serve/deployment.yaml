@@ -9,7 +9,7 @@ metadata:
     {{- if .Values.thanosParquetGateway.serve.deploymentLabels }}
     {{- toYaml .Values.thanosParquetGateway.serve.deploymentLabels | nindent 4 }}
     {{- end }}
-  name: {{ include "release.name" . }}-store
+  name: {{ include "release.name" . }}-serve
 spec:
   replicas: {{ default 1 .Values.thanosParquetGateway.serve.replicas }}
   selector:
@@ -29,7 +29,7 @@ spec:
       {{- end }}
       labels:
         app.kubernetes.io/managed-by: {{ include "release.name" . }}
-        app.kubernetes.io/name: store
+        app.kubernetes.io/name: serve
         {{- if .Values.thanosParquetGateway.serve.containerLabels }}
         {{ toYaml .Values.thanosParquetGateway.serve.containerLabels | nindent 8 }}
         {{- end }}
@@ -114,7 +114,7 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "thanos-parquet-gateway.objectStoreSecretName" . }}
+          secretName: {{ include "thanosParquetGateway.objectStoreSecretName" . }}
       - name: data
         emptyDir: {}
 {{ end }}

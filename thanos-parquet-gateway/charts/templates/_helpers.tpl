@@ -42,3 +42,14 @@ release: {{ $.Release.Name | quote }}
 object-storage-configs.yaml
 {{- end }}
 {{- end }}
+
+
+
+{{/* Object Store Secret Name */}}
+{{- define "thanosParquetGateway.objectStoreSecretName" -}}
+{{- if .Values.thanosParquetGateway.existingObjectStoreSecret.name -}}
+{{ tpl .Values.thanosParquetGateway.existingObjectStoreSecret.name . }}
+{{- else -}}
+kube-monitoring-prometheus
+{{- end }}
+{{- end }}

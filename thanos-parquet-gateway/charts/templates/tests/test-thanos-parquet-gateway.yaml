@@ -23,29 +23,9 @@ spec:
         - name: tests
           mountPath: /tests
           readOnly: true
-  {{- if and .Values.thanos.query.ingress.grpc.enabled .Values.thanos.query.ingress.grpc.hosts .Values.thanos.query.ingress.grpc.tls }}
-        - name: tls-cert
-          mountPath: /tls-assets
-          readOnly: true
-  {{- else if .Values.thanos.query.tls.data }}
-        - name: tls-cert
-          mountPath: /tls-assets
-          readOnly: true
-  {{- end }}
   volumes:
     - name: tests
       configMap:
         name: {{ .Release.Name }}-test
-  {{- if and .Values.thanos.query.ingress.grpc.enabled .Values.thanos.query.ingress.grpc.hosts .Values.thanos.query.ingress.grpc.tls }}
-    - name: tls-cert
-      secret:
-        defaultMode: 420
-        secretName: "{{ (first .Values.thanos.query.ingress.grpc.tls).secretName }}"
-  {{- else if .Values.thanos.query.tls.data }}
-    - name: tls-cert
-      secret:
-        defaultMode: 420
-        secretName: "{{ .Release.Name }}-tls"
-  {{- end }}
   restartPolicy: Never
 {{- end -}}

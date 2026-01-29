@@ -12,3 +12,5 @@ spec:
     name: thanos-parquet-gateway
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
     version: 0.0.1
+  options:
+    - TODO

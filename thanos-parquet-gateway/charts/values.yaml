@@ -2,10 +2,43 @@
 # SPDX-License-Identifier: Apache-2.0
 
 thanosParquetGateway:
+
+  image:
+    repository: quay.io/thanos/thanos
+    tag: v0.39.2
+    pullPolicy: IfNotPresent
+
+  # @ignored
+  # Init container to set permissions
+  initChownData:
+    # initChownData container image
+    image:
+      # -- The Docker registry
+      registry: docker.io
+      repository: library/busybox
+      tag: "stable"
+      sha: ""
+
+  objectStorageConfig:
+    existingSecret: {}
+
+
+  existingObjectStoreSecret:
+    # -- Use existing objectStorageConfig Secret data and configure it to be used by Thanos Compactor and Store
+    # https://thanos.io/tip/thanos/storage.md/#s3
+    # @default -- {{ include "release.name" . }}-metrics-objectstore
+    name:
+    # -- Object store config file name
+    # @default -- thanos.yaml
+    configFile:
+
   serve:
     enabled: true
   convert:
     enabled: true
+    args:
+      sortingLabels: []
+
 
 
 global:
@@ -16,13 +49,6 @@ global:
   # -- Overrides the registry globally for all images
   imageRegistry: null
 
-image:
-  # -- Thanos image repository
-  repository: quay.io/thanos/thanos
-  # -- Thanos image tag
-  tag: v0.39.2
-  # -- Thanos image pull policy
-  pullPolicy: IfNotPresent
 
 # -- GRPC-address used across the stack
 # @default -- 0.0.0.0:10901
@@ -50,7 +76,7 @@ initChownData:
 # @ignored
 testFramework:
   # -- Enable Thanos test framework
-  enabled: false
+  enabled: enable
   image:
     registry: ghcr.io
     repository: cloudoperators/greenhouse-extensions-integration-test
