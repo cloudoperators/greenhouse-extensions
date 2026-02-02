@@ -141,7 +141,7 @@ alerts:
   ##
   prometheusOperator:
     ## Deploy prometheus-operator
-    enabled: true
+    enabled: false
 
   ## Configuration for alertmanager
   ## ref: https://prometheus.io/docs/alerting/alertmanager/

@@ -1,0 +1,43 @@
+{{ if .Values.additionalScrapeConfigs.namespaceLookup.enabled }}
+{{- $namespaces := lookup "v1" "Namespace" "" "" }}
+{{- $regex := .Values.additionalScrapeConfigs.namespaceLookup.regex }}
+{{- $prometheusName := .Values.additionalScrapeConfigs.namespaceLookup.prometheusName }}
+{{- $prometheusPort := .Values.additionalScrapeConfigs.namespaceLookup.prometheusPort | toString }}
+{{- if $namespaces }}
+{{- $targets := list }}
+{{- range $namespaces.items }}
+{{- if regexMatch $regex .metadata.name }}
+{{- $targets = append $targets (printf "%s.%s.svc:%s" $prometheusName .metadata.name $prometheusPort) }}
+{{- end }}
+{{- end }}
+{{- if $targets }}
+{{- $metricRelabelConfigs := .Values.additionalScrapeConfigs.namespaceLookup.metricRelabelConfigs }}
+{{- $params := .Values.additionalScrapeConfigs.namespaceLookup.params }}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: namespace-lookup-scrape-configs
+  labels:
+    {{- include "kube-prometheus-stack.labels" . | indent 4 }}
+spec:
+  staticConfigs:
+  - targets:
+    {{- range $targets }}
+      - {{ . }}
+    {{- end }}
+  metricsPath: /federate
+{{- if $params }}
+  params:
+{{ toYaml $params | indent 4 }}
+{{- end }}
+{{- if $metricRelabelConfigs }}
+  metricRelabelings:
+{{ toYaml $metricRelabelConfigs | indent 4 }}
+{{- end }}
+  scrapeInterval: 1m
+  scrapeTimeout: 10s
+  honorLabels: true
+  enableHTTP2: true
+{{- end }}
+{{- end }}
+{{- end }}
