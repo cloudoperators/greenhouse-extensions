@@ -43,6 +43,10 @@ certManager:
   httpDnsNames:
     - opensearch-client.tld
 
+  # -- Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate)
+  dashboardsDnsNames:
+    - opensearch-dashboards.tld
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -811,6 +815,10 @@ siem:
     # -- Override HTTP DNS names for SIEM OpenSearch client endpoints
     httpDnsNames:
       - opensearch-siem-client.tld
+
+    # -- Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate)
+    dashboardsDnsNames:
+      - opensearch-siem-dashboards.tld
 
   serviceAccount:
     # -- Create Service Account
