@@ -1,0 +1,98 @@
+{{- if .Values.thanosParquetGateway.convert.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "release.name" . }}-convert
+data:
+  convert_source.yaml: |
+    type: S3
+    config:
+      bucket: {{ .Values.thanosParquetGateway.convert.source.bucket | quote }}
+      endpoint: {{  .Values.thanosParquetGateway.convert.source.endpoint | quote }}
+      region: ""
+      disable_dualstack: false
+      aws_sdk_auth: false
+      access_key: {{ required "thanosParquetGateway.convert.source.access_key" .Values.thanosParquetGateway.convert.source.access_key }}
+      insecure: true
+      signature_version2: false
+      secret_key: {{ required "thanosParquetGateway.convert.source.secret_key" .Values.thanosParquetGateway.convert.source.secret_key }}
+      session_token: ""
+      put_user_metadata: {}
+      http_config:
+        idle_conn_timeout: 1m30s
+        response_header_timeout: 2m
+        insecure_skip_verify: false
+        tls_handshake_timeout: 10s
+        expect_continue_timeout: 1s
+        max_idle_conns: 100
+        max_idle_conns_per_host: 100
+        max_conns_per_host: 0
+        tls_config:
+          ca_file: ""
+          cert_file: ""
+          key_file: ""
+          server_name: ""
+          insecure_skip_verify: false
+        disable_compression: false
+      trace:
+        enable: false
+      list_objects_version: ""
+      bucket_lookup_type: auto
+      send_content_md5: true
+      disable_multipart: false
+      part_size: 67108864
+      sse_config:
+        type: ""
+        kms_key_id: ""
+        kms_encryption_context: {}
+        encryption_key: ""
+      sts_endpoint: ""
+      max_retries: 0
+    prefix: ""
+
+  convert_destination.yaml: |
+    type: S3
+    config:
+      bucket:  {{ .Values.thanosParquetGateway.convert.destination.bucket }}
+      endpoint: {{ .Values.thanosParquetGateway.convert.destination.endpoint }}
+      region: ""
+      disable_dualstack: false
+      aws_sdk_auth: false
+      access_key: {{ required "thanosParquetGateway.convert.destination.access_key" .Values.thanosParquetGateway.convert.destination.access_key }}
+      insecure: true
+      signature_version2: false
+      secret_key: {{ required "thanosParquetGateway.convert.destination.secret_key" .Values.thanosParquetGateway.convert.destination.secret_key }}
+      session_token: ""
+      put_user_metadata: {}
+      http_config:
+        idle_conn_timeout: 1m30s
+        response_header_timeout: 2m
+        insecure_skip_verify: false
+        tls_handshake_timeout: 10s
+        expect_continue_timeout: 1s
+        max_idle_conns: 100
+        max_idle_conns_per_host: 100
+        max_conns_per_host: 0
+        tls_config:
+          ca_file: ""
+          cert_file: ""
+          key_file: ""
+          server_name: ""
+          insecure_skip_verify: false
+        disable_compression: false
+      trace:
+        enable: false
+      list_objects_version: ""
+      bucket_lookup_type: auto
+      send_content_md5: true
+      disable_multipart: false
+      part_size: 67108864
+      sse_config:
+        type: ""
+        kms_key_id: ""
+        kms_encryption_context: {}
+        encryption_key: ""
+      sts_endpoint: ""
+      max_retries: 0
+    prefix: ""
+{{ end }}

@@ -2,10 +2,36 @@
 # SPDX-License-Identifier: Apache-2.0
 
 thanosParquetGateway:
+  enabled: true
+  serve:
+    enabled: true
+    bucket: "abc"
+    endpoint: "127.0.0.1:9000"
+    access_key: ""
+    secret_key: ""
+
+  convert:
+    enabled: true
+    source:
+      bucket: "source"
+      endpoint: "127.0.0.1:9000"
+      access_key: ""
+      secret_key: ""
+    destination:
+      bucket: "destination"
+      endpoint: "127.0.0.1:9000"
+      access_key: ""
+      secret_key: ""
+    args:
+      sortingLabels: []
+
+
+
+
 
   image:
-    repository: quay.io/thanos/thanos
-    tag: v0.39.2
+    repository: keppel.global.cloud.sap/ccloud/thanos-parquet-gateway
+    tag: "20260123125451"
     pullPolicy: IfNotPresent
 
   # @ignored
@@ -32,12 +58,6 @@ thanosParquetGateway:
     # @default -- thanos.yaml
     configFile:
 
-  serve:
-    enabled: true
-  convert:
-    enabled: true
-    args:
-      sortingLabels: []
 
 
 
