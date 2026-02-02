@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-
 dist:
   name: otelcol
   description: Basic OTel Collector distribution
@@ -47,7 +46,4 @@ exporters:
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/opensearchexporter v0.144.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v0.144.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/kafkaexporter v0.144.0
-
-replaces:
-  - github.com/open-telemetry/opentelemetry-collector-contrib/exporter/kafkaexporter => github.com/cloudoperators/opentelemetry-collector-contrib/exporter/kafkaexporter v0.144.1
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/exporter/kafkaexporter v0.144.9
