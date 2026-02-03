@@ -85,7 +85,7 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.downloadDashboardsImage.registry | string | `"docker.io"` | The Docker registry |
 | plutono.downloadDashboardsImage.repository | string | `"curlimages/curl"` |  |
 | plutono.downloadDashboardsImage.sha | string | `""` |  |
-| plutono.downloadDashboardsImage.tag | string | `"8.14.1"` |  |
+| plutono.downloadDashboardsImage.tag | string | `"8.18.0"` |  |
 | plutono.enableKubeBackwardCompatibility | bool | `false` | Enable backward compatibility of kubernetes where version below 1.13 doesn't have the enableServiceLinks option |
 | plutono.enableServiceLinks | bool | `true` |  |
 | plutono.env | object | `{}` |  |
