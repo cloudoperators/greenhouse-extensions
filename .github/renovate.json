@@ -13,7 +13,7 @@
         "/^ingress-nginx.plugindefinition.yaml$/"
       ],
       "matchStrings": [
-        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*v?(?<currentValue>(?:\\d+\\.){0,2}\\d+)"
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "kubernetes/ingress-nginx",
