@@ -34,43 +34,6 @@
     },
     {
       "customType": "regex",
-      "description": "Bump cert-manager version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^cert-manager.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "cert-manager/cert-manager",
-      "extractVersionTemplate": "^(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump kube-monitoring version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^kube-monitoring.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump alerts version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^alerts.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
       "description": "Bump reloader version in the plugindefinition",
       "managerFilePatterns": [
         "/^reloader.plugindefinition.yaml$/"
