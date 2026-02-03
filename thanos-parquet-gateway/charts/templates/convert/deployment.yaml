@@ -39,8 +39,9 @@ spec:
       - name: convert
         args:
         - convert
-        - --tsdb.objstore-config-file=/etc/config/{{ include "thanosParquetGateway.objectStoreConfigFile" . }}
-        - --parquet.objstore-config-file=/etc/config/{{ include "thanosParquetGateway.objectStoreConfigFile" . }}
+        - --tsdb.objstore-config-file=/etc/config/convert_source.yaml
+        - --parquet.objstore-config-file=/etc/config/convert_destination.yaml
+        - --http.internal.port=6060
         {{- range .Values.thanosParquetGateway.convert.args.sortingLabels }}
         - --convert.sorting.label={{ . }}
         {{- end }}
@@ -53,7 +54,7 @@ spec:
           failureThreshold: 2
           httpGet:
             path: /-/healthy
-            port: 10902
+            port: 6060
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
@@ -64,17 +65,14 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         ports:
-        - containerPort: 10902
+        - containerPort: 6060
           name: http
-          protocol: TCP
-        - containerPort: 10901
-          name: grpc
           protocol: TCP
         readinessProbe:
           failureThreshold: 2
           httpGet:
             path: /-/ready
-            port: 10902
+            port: 6060
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
@@ -84,22 +82,6 @@ spec:
         - mountPath: /etc/config/
           name: objectstore-secret
           readOnly: true
-        - mountPath: /data
-          name: data
-      initContainers:
-      - name: init-permissions
-        {{- $registry := .Values.global.imageRegistry | default .Values.thanosParquetGateway.initChownData.image.registry -}}
-        {{- if .Values.thanosParquetGateway.initChownData.image.sha }}
-        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}@sha256:{{ .Values.thanosParquetGateway.initChownData.image.sha }}"
-        {{- else }}
-        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}"
-        {{- end }}
-        command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
-        securityContext:
-          runAsUser: 0
-        volumeMounts:
-        - mountPath: /data
-          name: data
       restartPolicy: Always
       securityContext:
         runAsUser: 1000
@@ -109,7 +91,5 @@ spec:
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "thanosParquetGateway.objectStoreSecretName" . }}
-      - name: data
-        emptyDir: {}
+          secretName: {{ include "release.name" . }}-convert
 {{ end }}

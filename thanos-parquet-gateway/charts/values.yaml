@@ -5,25 +5,25 @@ thanosParquetGateway:
   enabled: true
   serve:
     enabled: true
-    bucket: "abc"
-    endpoint: "127.0.0.1:9000"
+    bucket: "destination"
+    endpoint: "host.docker.internal:9000"
     access_key: ""
     secret_key: ""
 
   convert:
-    enabled: true
+    enabled: false
     source:
       bucket: "source"
-      endpoint: "127.0.0.1:9000"
+      endpoint: "host.docker.internal:9000"
       access_key: ""
       secret_key: ""
     destination:
       bucket: "destination"
-      endpoint: "127.0.0.1:9000"
+      endpoint: "host.docker.internal:9000"
       access_key: ""
       secret_key: ""
     args:
-      sortingLabels: []
+      sortingLabels: ["__name__", "namespace"]
 
 
 

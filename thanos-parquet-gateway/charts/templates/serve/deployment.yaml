@@ -39,7 +39,7 @@ spec:
       - name: serve
         args:
         - serve
-        - --parquet.objstore-config-file=/etc/config/{{ include "thanosParquetGateway.objectStoreConfigFile" . }}
+        - --parquet.objstore-config-file=/etc/config/store_config.yaml
         - --http.internal.port={{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
         - --http.prometheus.port={{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
         - --http.thanos.port={{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
@@ -54,11 +54,14 @@ spec:
         {{- end }}
         image: "{{ .Values.thanosParquetGateway.image.repository }}:{{ .Values.thanosParquetGateway.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanosParquetGateway.image.pullPolicy }}
+        env:
+        - name: TMPDIR
+          value: /tmp
         livenessProbe:
           failureThreshold: 2
           httpGet:
             path: /-/healthy
-            port: {{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+            port: {{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
@@ -79,42 +82,29 @@ spec:
           failureThreshold: 2
           httpGet:
             path: /-/ready
-            port: {{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+            port: {{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 30
           successThreshold: 1
           timeoutSeconds: 5
         volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: data
+          mountPath: /data
         - mountPath: /etc/config/
           name: objectstore-secret
           readOnly: true
-        - mountPath: /data
-          name: data
-      initContainers:
-      - name: init-permissions
-        {{- $registry := .Values.global.imageRegistry | default .Values.thanosParquetGateway.initChownData.image.registry -}}
-        {{- if .Values.thanosParquetGateway.initChownData.image.sha }}
-        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
-        {{- else }}
-        image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}"
-        {{- end }}
-        command: ['sh', '-c', 'chown 1000:3000 /data && chmod 750 /data']
-        securityContext:
-          runAsUser: 0
-        volumeMounts:
-        - mountPath: /data
-          name: data
-      restartPolicy: Always
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 3000
-        fsGroup: 2000
       volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: data
+        emptyDir:
+          sizeLimit: 10Gi
       - name: objectstore-secret
         secret:
           defaultMode: 420
-          secretName: {{ include "thanosParquetGateway.objectStoreSecretName" . }}
-      - name: data
-        emptyDir: {}
+          secretName: {{ include "release.name" . }}-serve
 {{ end }}

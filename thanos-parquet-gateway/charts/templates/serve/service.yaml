@@ -16,11 +16,15 @@ metadata:
 spec:
   ports:
   - name: grpc
-    port: 10901
+    port: 9091
     protocol: TCP
     targetPort: grpc
   - name: http
-    port: 10902
+    port: 9090
+    protocol: TCP
+    targetPort: http
+  - name: health
+    port: 6060
     protocol: TCP
     targetPort: http
   selector:
