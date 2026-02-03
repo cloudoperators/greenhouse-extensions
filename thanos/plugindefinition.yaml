@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.7.9
+  version: 0.8.0
   description: thanos
   helmChart:
     name: thanos
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.7.9
+    version: 0.8.0
   options:
     - default: null
       description: CLI param for Thanos Query
