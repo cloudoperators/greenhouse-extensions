@@ -113,7 +113,7 @@ Data sources are selected from `Secrets` across namespaces. The plugin searches 
 | plutono.image.registry | string | `"ghcr.io"` |  |
 | plutono.image.repository | string | `"credativ/plutono"` |  |
 | plutono.image.sha | string | `""` |  |
-| plutono.image.tag | string | `"v7.5.39"` | Overrides the Plutono image tag whose default is the chart appVersion |
+| plutono.image.tag | string | `"v7.5.45"` | Overrides the Plutono image tag whose default is the chart appVersion |
 | plutono.ingress.annotations | object | `{}` |  |
 | plutono.ingress.enabled | bool | `false` |  |
 | plutono.ingress.extraPaths | list | `[]` | Extra paths to prepend to every host configuration. This is useful when working with annotation based services. |
