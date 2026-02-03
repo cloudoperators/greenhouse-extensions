@@ -157,6 +157,21 @@ jobs:
           ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
           kubectl -n flux-system get gitrepository workspace -o yaml
 
+      - name: Ensure test-values.yaml exists
+        if: steps.list-changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          chart_dir=${{ steps.chart.outputs.chart_dir }}
+          test_values_file="${chart_dir}/ci/test-values.yaml"
+          if [[ ! -f "$test_values_file" ]]; then
+            echo "ℹ️ test-values.yaml not found, creating empty file at $test_values_file"
+            mkdir -p "${chart_dir}/ci"
+            echo "{}" > "$test_values_file"
+          else
+            echo "✅ test-values.yaml already exists at $test_values_file"
+          fi
+
       - name: Create HelmRelease
         if: steps.list-changed.outputs.changed == 'true'
         shell: bash
