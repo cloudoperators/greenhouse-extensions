@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: ingress-nginx
     repository: oci://registry.k8s.io/ingress-nginx/charts
-    version: 4.14.3
+    version: v4.14.3
   options:
     - name: controller.service.loadBalancerIP
       description: IP address of the associated load balancer.
