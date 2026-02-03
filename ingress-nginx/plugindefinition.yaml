@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: ingress-nginx
 spec:
-  version: 1.2.5
+  version: 1.2.6
   displayName: Ingress NGINX
   description: Ingress NGINX controller for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/ingress-nginx/README.md
