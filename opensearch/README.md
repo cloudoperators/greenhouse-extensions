@@ -63,6 +63,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
+| certManager.dashboardsDnsNames | list | `["opensearch-dashboards.tld"]` | Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
 | certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
 | certManager.defaults.privateKey.algorithm | string | `"RSA"` | Algorithm used for generating private keys |
@@ -248,6 +249,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.certManager.dashboardsDnsNames | list | `["opensearch-siem-dashboards.tld"]` | Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | siem.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
