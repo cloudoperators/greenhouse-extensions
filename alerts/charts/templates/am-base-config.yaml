@@ -41,7 +41,7 @@ spec:
             name: {{ $.Release.Name }}-webhook-urls
           username: {{ default "Greenhouse" $route.username }}
           title: {{"'{{template \"slack.title\" . }}'"}}
-          titleLink: {{"'{{template \"slack.titlelink\" . }}'"}}
+          titleLink: https://{{"'{{template \"slack.titlelink\" . }}'"}}
           text: {{"'{{template \"slack.text\" . }}'"}}
           pretext: {{"'{{template \"slack.pretext\" . }}'"}}
           iconEmoji: {{"'{{template \"slack.iconemoji\" . }}'"}}
