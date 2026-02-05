@@ -16,11 +16,6 @@ opensearch/failover_b:
   retry_on_failure:
     enabled: true
     max_elapsed_time: 0s
-  sending_queue:
-    enabled: true
-    queue_size: 100000
-    num_consumers: 2
-    block_on_overflow: true
   timeout: 30s
 {{- end }}
 
