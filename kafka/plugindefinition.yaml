@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: kafka
 spec:
-  version: 0.1.1
+  version: 0.1.2
   displayName: Kafka
   description: Creates and manages an Apache Kafka environment using the Strimzi Kafka Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kafka/logo.png'
   helmChart:
     name: kafka
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.1
+    version: 0.1.2
   options:
     - name: operator.enabled
       description: "Enable or disable the Strimzi Kafka Operator installation."

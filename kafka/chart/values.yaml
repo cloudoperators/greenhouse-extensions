@@ -45,7 +45,7 @@ kafka:
       type: persistent-claim
       size: 100Gi
       deleteClaim: false
-      class: ""
+      class: default
 
   # -- Resource configuration for Kafka brokers
   # @default -- requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU
