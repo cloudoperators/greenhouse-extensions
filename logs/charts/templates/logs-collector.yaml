@@ -299,11 +299,6 @@ spec:
         retry_on_failure:
           enabled: true
           max_elapsed_time: 0s
-        sending_queue:
-          enabled: true
-          queue_size: 100000
-          num_consumers: 2
-          block_on_overflow: true
         timeout: 30s
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
@@ -328,8 +323,11 @@ spec:
           - [logs/failover_b]
 {{- end }}
         retry_interval: 2m
-        retry_gap: 30s
-        max_retries: 0
+        sending_queue:
+          enabled: true
+          queue_size: 100000
+          num_consumers: 2
+          block_on_overflow: true
     service:
       extensions:
         - file_storage/journald
