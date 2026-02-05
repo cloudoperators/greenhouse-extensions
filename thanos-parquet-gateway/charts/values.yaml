@@ -27,7 +27,12 @@ thanosParquetGateway:
 
 
 
-
+  initChownData:
+    image:
+      registry: docker.io
+      repository: library/busybox
+      tag: "stable"
+      sha: ""
 
   image:
     repository: keppel.global.cloud.sap/ccloud/thanos-parquet-gateway
