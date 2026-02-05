@@ -46,6 +46,34 @@ spec:
     - name: prometheus
       port: 8888
 {{- end }}
+{{- if and .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
+    - name: syslogtcp
+      port: 514
+      protocol: TCP
+      hostPort: 514
+    - name: syslogudp
+      port: 514
+      protocol: UDP
+      hostPort: 514
+{{- else }}
+  ports:
+    - name: syslogtcp
+      port: 514
+      protocol: TCP
+      hostPort: 514
+    - name: syslogudp
+      port: 514
+      protocol: UDP
+      hostPort: 514
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+  service:
+    enabled: true
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    annotations:
+      projectcalico.org/loadBalancerIPs: ["{{.Values.openTelemetry.logsCollector.syslogConfig.externalip}}"]
+{{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
   - mountPath: /var/log
@@ -92,6 +120,17 @@ spec:
 
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.receiver" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+      syslog:
+        tcp:
+          listen_address: "0.0.0.0:514"
+        protocol: rfc5424
+        udp:
+          listen_address: "0.0.0.0:514"
+        protocol: rfc3164
+        location: UTC
 {{- end }}
 
     processors:
@@ -380,6 +419,12 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }
+        syslog:
+          receivers: [syslog]
+          processors: [batch]
+          exporters: [forward]
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]

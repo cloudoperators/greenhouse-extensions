@@ -51,6 +51,7 @@ openTelemetry:
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
     tag: "13b191d"
+  external_ip: 0.0.0.0
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -84,6 +85,9 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+    syslogConfig:
+      enabled: false
+      externalip: 0.0.0.0
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
