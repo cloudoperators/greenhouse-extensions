@@ -84,6 +84,14 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+    # -- Activates the configuration for Kafka Exporter (requires logsCollector to be enabled). 
+    kafkaExporter:
+        enabled: false
+        # -- List of Kafka brokers to export telemetry data to.
+        brokers: []
+        # -- Kafka topic to export telemetry data to.
+        topic: 
+    
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
