@@ -290,6 +290,12 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if .Values.openTelemetry.logsCollector.kafkaExporter.enabled }}  
+      kafka:
+        brokers: {{ .Values.openTelemetry.logsCollector.kafkaExporter.brokers | toJson }}
+        encoding: opensearch_json
+        topic: {{ .Values.openTelemetry.logsCollector.kafkaExporter.topic }}
+{{- end }}
       opensearch/failover_a:
         http:
           auth:
@@ -360,6 +366,12 @@ spec:
           receivers: [forward]
           processors: [batch]
           exporters: [failover]
+{{- if .Values.openTelemetry.logsCollector.kafkaExporter.enabled }}
+        logs/kafka:
+          receivers: [forward]
+          processors: [batch]
+          exporters: [kafka]
+{{- end }}
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]

@@ -90,6 +90,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
+| openTelemetry.logsCollector.kafkaExporter | object | `{"brokers":[],"enabled":false,"topic":null}` | Activates the configuration for Kafka Exporter (requires logsCollector to be enabled).  |
+| openTelemetry.logsCollector.kafkaExporter.brokers | list | `[]` | List of Kafka brokers to export telemetry data to. |
+| openTelemetry.logsCollector.kafkaExporter.topic | string | `nil` | Kafka topic to export telemetry data to. |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |

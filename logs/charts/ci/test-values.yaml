@@ -50,6 +50,12 @@ openTelemetry:
       enabled: false
     failover:
       enabled: false
+    kafkaExporter:
+        enabled: true
+        brokers:
+          - test-broker:9092
+          - test-broker2:9092
+        topic: test-topic
   metricsCollector:
     enabled: false
   prometheus:
