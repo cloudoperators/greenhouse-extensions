@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.29
+  version: 0.11.30
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
