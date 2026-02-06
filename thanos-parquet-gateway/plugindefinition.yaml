@@ -6,11 +6,90 @@ kind: PluginDefinition
 metadata:
   name: thanos-parquet-gateway
 spec:
-  version: 0.0.1
+  version: 0.1.0
   description: thanos-parquet-gateway
   helmChart:
     name: thanos-parquet-gateway
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.0.1
+    version: 0.1.0
   options:
-    - TODO
+    - name: thanosParquetGateway.convert.enable
+      description: Enable Thanos Parquet Gateway Convert
+      default: true
+      required: false
+      type: bool
+    - name: thanosParquetGateway.serve.enable
+      description: Enable Thanos Parquet Gateway Serve
+      default: true
+      required: false
+      type: bool
+    - name: thanosParquetGateway.serve.internalPort
+      description: Thanos Parquet Gateway Serve internal port
+      default: 6060
+      required: false
+      type: int
+    - name: thanosParquetGateway.serve.prometheusPort
+      description: Thanos Parquet Gateway Serve Prometheus port
+      default: 9090
+      required: false
+      type: int
+    - name: thanosParquetGateway.serve.thanosPort
+      description: Thanos Parquet Gateway Serve Thanos port
+      default: 9091
+      required: false
+      type: int
+    - name: thanosParquetGateway.serve.syncerInterval
+      description: Thanos Parquet Gateway Serve Syncer interval
+      default: "30m"
+      required: false
+      type: string
+    - name: thanosParquetGateway.serve.syncerConcurrency
+      description: Thanos Parquet Gateway Serve Syncer concurency
+      default: 32
+      required: false
+      type: int
+    - name: thanosParquetGateway.serve.discoveryInterval
+      description: Thanos Parquet Gateway Serve Discovery interval
+      default: "30m"
+      required: false
+      type: string
+    - name: thanosParquetGateway.serve.discoveryConcurrency
+      description: Thanos Parquet Gateway Serve Discovery concurency
+      default: 32
+      required: false
+      type: int
+    - name: thanosParquetGateway.serve.externalLabelPrometheus
+      description: Thanos Parquet Gateway Serve external Prometheus label
+      default: "my-prometheus"
+      required: false
+      type: string
+    - name: thanosParquetGateway.serve.externalLabelReplica
+      description: Thanos Parquet Gateway Serve external replica label
+      default: "ha-1"
+      required: false
+      type: string
+    - name: thanosParquetGateway.serve.additionalArgs
+      description: Thanos Parquet Gateway Serve additional arguments
+      default: null
+      required: false
+      type: map
+    - name: thanosParquetGateway.image.repository
+      description: Thanos Parquet Gateway image repository
+      default: "keppel.global.cloud.sap/ccloud/thanos-parquet-gateway"
+      required: false
+      type: string
+    - name: thanosParquetGateway.image.tag
+      description:  Thanos Parquet Gateway image tag
+      default: "20260123125451"
+      required: false
+      type: string
+    - name: thanosParquetGateway.convert.args.sortingLabels
+      description: Thanos Parquet Gateway convert arguments sorting labels
+      default: ["__name__", "namespace"]
+      required: false
+      type: list
+    - name: thanosParquetGateway.convert.additionalArgs
+      description: Thanos Parquet Gateway convert additional arguments
+      default: null
+      required: false
+      type: map
