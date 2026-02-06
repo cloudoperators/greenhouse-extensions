@@ -29,6 +29,9 @@ entityOperator:
 
 monitoring:
   enabled: true
+  podMonitor:
+    labels:
+      test-environment: test
 
 topics:
   logs:
