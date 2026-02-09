@@ -538,7 +538,7 @@ blackboxExporter:
 # Network Policies configuration
 # Allows creating multiple NetworkPolicy resources from a list
 # @ignored
-networkPolicies: 
+networkPolicies:
   namespaceLookup:
     enabled: false
     # Every matching namespace will have a netpol deployed which may limit network connectivity
