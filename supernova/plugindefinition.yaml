@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: supernova
+spec:
+  version: 0.0.1
+  weight: 0
+  displayName: Alerts
+  description: This plugin provides the Alert overview UI, called Supernova. It needs an alertmanager endpoint.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
+  uiApplication:
+    name: supernova
+    version: "latest"
+  options:
+    # supernova options
+    - name: endpoint
+      description: Alertmanager API Endpoint URL
+      required: true
+      type: string
+    - name: filterLabels
+      description: "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The format is a list of strings."
+      required: false
+      type: list
+    - name: silenceExcludedLabels
+      description: "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The format is a list of strings."
+      required: false
+      type: list
+    - name: silenceTemplates
+      description: "SilenceTemplates are pre-defined silence templates that can be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title."
+      required: false
+      type: list
+    - name: predefinedFilters
+      description: "PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, display name and matchers (map containing matchers as name and expression pairs)"
+      required: false
+      type: list
