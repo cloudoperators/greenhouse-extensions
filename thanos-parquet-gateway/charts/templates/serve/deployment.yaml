@@ -35,52 +35,22 @@ spec:
         {{- end }}
       name: {{ include "release.name" . }}-serve
     spec:
-      # initContainers:
-      #   - name: init-permissions
-      #     {{- $registry := .Values.global.imageRegistry | default .Values.thanosParquetGateway.initChownData.image.registry -}}
-      #     {{- if .Values.thanosParquetGateway.initChownData.image.sha }}
-      #     image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}@sha256:{{ .Values.thanos.initChownData.image.sha }}"
-      #     {{- else }}
-      #     image: "{{ $registry }}/{{ .Values.thanosParquetGateway.initChownData.image.repository }}:{{ .Values.thanosParquetGateway.initChownData.image.tag }}"
-      #     {{- end }}
-      #     command: ['sh', '-c', 'chown 1000:3000 /tmp && chmod 750 /tmp']
-      #     volumeMounts:
-      #     - mountPath: /tmp
-      #       name: tmp
-      #     securityContext:
-      #       runAsUser: 0
-      # securityContext:
-      #   runAsUser: 1000
-      #   runAsGroup: 3000
-      #   fsGroup: 2000
-      # initContainers:
-      # - name: init-sleep
-      #   image: busybox
-      #   command: ['sh', '-c', 'sleep 300000']
       containers:
       - name: serve
-        command: ["/bin/sh", "-c"]
+        workingDir: /tmp
         args:
-        - |
-          cp /bin/thanos-parquet-gateway /tmp/thanos-parquet-gateway
-          cd /tmp
-          /tmp/thanos-parquet-gateway serve --parquet.objstore-config-file=/etc/config/store_config.yaml \
-          --logger.level=DEBUG --http.internal.port=6060 --http.prometheus.port=9090 --http.thanos.port=9091 \
-          --block.syncer.interval=1m --block.syncer.concurrency=32 --block.discovery.interval=1m \
-          --block.discovery.concurrency=32 --query.external-label=prometheus=my-prometheus \
-          --query.external-label=replica=ha-1
-        # - serve
-        # - --logger.level=DEBUG
-        # - --parquet.objstore-config-file=/etc/config/store_config.yaml
-        # - --http.internal.port={{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
-        # - --http.prometheus.port={{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
-        # - --http.thanos.port={{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
-        # - --block.syncer.interval={{ default "30m" .Values.thanosParquetGateway.serve.syncerInterval }}
-        # - --block.syncer.concurrency={{ default 32 .Values.thanosParquetGateway.serve.syncerConcurrency }}
-        # - --block.discovery.interval={{ default "30m" .Values.thanosParquetGateway.serve.discoveryInterval }}
-        # - --block.discovery.concurrency={{ default 32 .Values.thanosParquetGateway.serve.discoveryConcurrency }}
-        # - --query.external-label=prometheus={{ default "my-prometheus" .Values.thanosParquetGateway.serve.externalLabelPrometheus }}
-        # - --query.external-label=replica={{ default "ha-1" .Values.thanosParquetGateway.serve.externalLabelReplica }}
+        - serve
+        - --logger.level=DEBUG
+        - --parquet.objstore-config-file=/etc/config/store_config.yaml
+        - --http.internal.port={{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
+        - --http.prometheus.port={{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
+        - --http.thanos.port={{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
+        - --block.syncer.interval={{ default "30m" .Values.thanosParquetGateway.serve.syncerInterval }}
+        - --block.syncer.concurrency={{ default 32 .Values.thanosParquetGateway.serve.syncerConcurrency }}
+        - --block.discovery.interval={{ default "30m" .Values.thanosParquetGateway.serve.discoveryInterval }}
+        - --block.discovery.concurrency={{ default 32 .Values.thanosParquetGateway.serve.discoveryConcurrency }}
+        - --query.external-label=prometheus={{ default "my-prometheus" .Values.thanosParquetGateway.serve.externalLabelPrometheus }}
+        - --query.external-label=replica={{ default "ha-1" .Values.thanosParquetGateway.serve.externalLabelReplica }}
         {{- range .Values.thanosParquetGateway.serve.additionalArgs }}
         - {{ . }}
         {{- end }}

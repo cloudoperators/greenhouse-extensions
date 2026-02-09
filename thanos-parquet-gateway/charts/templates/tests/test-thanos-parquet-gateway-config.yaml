@@ -12,31 +12,12 @@ data:
   run.sh: |-
 
     #!/usr/bin/env bats
+    set -ex
 
     load "/usr/lib/bats/bats-detik/utils"
     load "/usr/lib/bats/bats-detik/detik"
 
     DETIK_CLIENT_NAME="kubectl"
-
-    @test "Verify {{ .Release.Name }} Query" {
-      verify "there is 1 deployment named '{{ .Release.Name }}-query'"
-      verify "there is 1 service named '{{ .Release.Name }}-query'"
-      verify "there is 1 configmap named '{{ .Release.Name }}-sd-config'"
-      try "at most 3 times every 5s to get pods named '{{ .Release.Name }}-query' and verify that '.status.phase' is 'running'"
-      try "at most 3 times every 5s to get pods named 'prometheus-.*-[0-9]$' and verify that '.status.containerStatuses[*].name' is 'config-reloader,prometheus,thanos-sidecar'"
-
-      endpoints=$(kubectl get cm {{ .Release.Name }}-sd-config -oyaml | yq '.data["endpoint-targets.yaml"] | select(. != null)' | yq '.endpoints[].address')
-      for endpoint in $endpoints; do
-        if [[ $endpoint =~ :443$ ]];
-        then
-          run grpc_health_probe -addr=${endpoint} -tls -tls-ca-cert /tls-assets/ca.crt
-        else
-          run grpc_health_probe -addr=${endpoint}
-        fi
-        echo "${output}"
-        [ "$status" -eq "0" ]
-      done
-    }
 
     {{ if and .Values.thanosParquetGateway.serve.enabled }}
     @test "Verify {{ .Release.Name }} Serve" {

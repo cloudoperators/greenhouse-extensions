@@ -11,7 +11,7 @@ thanosParquetGateway:
     secret_key: ""
 
   convert:
-    enabled: false
+    enabled: true
     source:
       bucket: "source"
       endpoint: "host.docker.internal:9000"
