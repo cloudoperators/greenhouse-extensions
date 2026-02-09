@@ -1,0 +1,27 @@
+{{ define "slack.color" }}{{ if .Alerts.Firing | and .Alerts.Resolved }}warning{{ else if .Alerts.Firing }}danger{{ else }}good{{ end }}{{ end }}
+{{ define "slack.iconemoji" }}:prometheus:{{ end }}
+{{ define "slack.title" }}{{ end }}
+{{ define "slack.titlelink" }}{{ end }}
+{{ define "slack.pretext" }} {{- end }}
+
+{{ define "slack.text" }}
+{{ if .Alerts.Firing }}*[{{ .CommonLabels.severity | toUpper }}{{ if gt (len .Alerts.Firing) 1 | or .Alerts.Resolved }} - {{ .Alerts.Firing | len }}{{ end }}]* {{ if .CommonLabels.cluster }}*[{{ .CommonLabels.cluster }}]* {{ end -}}*{{ .GroupLabels.alertname }}* - {{ .CommonAnnotations.summary }}{{ end }}
+
+{{- $generatorURL := "" }}
+{{ range .Alerts.Firing -}}
+  {{ if eq .Labels.severity "warning" }}:warning: {{ end -}}
+  {{ if eq .Labels.severity "critical" }}:warning-red: {{ end -}}
+  {{ if eq .Labels.severity "info" }}:information_source: {{ end -}}
+  {{ .Annotations.description }}
+{{- $generatorURL = .GeneratorURL }}
+{{ end -}}
+
+{{ if .Alerts.Resolved }}*[RESOLVED{{ if gt (len .Alerts.Resolved) 1 | or .Alerts.Firing }} - {{ .Alerts.Resolved | len }}{{ end }}]* {{ if .CommonLabels.cluster }}*[{{ .CommonLabels.cluster }}]* {{ end -}}*{{ .GroupLabels.alertname }}* - {{ .CommonAnnotations.summary }}{{ end }}
+{{ range .Alerts.Resolved -}}
+  :green-checkmark: {{ .Annotations.description }}
+{{- if not $generatorURL }}{{ $generatorURL = .GeneratorURL }}{{ end }}
+{{ end -}}
+
+*<{{ $generatorURL }}|Prometheus>* {{ if .CommonLabels.playbook }}*<{{ .CommonLabels.playbook }}|Playbook>* {{ end -}}
+{{ if .CommonAnnotations.documentation }}*<{{ .CommonAnnotations.documentation }}|Documentation>* {{ end -}}
+{{ end }}

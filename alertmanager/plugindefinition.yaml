@@ -1,0 +1,88 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: alerts
+spec:
+  version: 0.0.1
+  weight: 0
+  displayName: Alerts
+  description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
+  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
+  helmChart:
+    # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/alerts
+    name: alerts
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 5.0.0
+  options:
+    - name: global.caCert
+      description: Additional caCert to add to the CA bundle
+      required: false
+      type: secret
+    # prometheus-operator options
+    - name: alerts.prometheusOperator.enabled
+      description: Deploy Prometheus Operator if kube-monitoring has not already installed it once.
+      required: false
+      default: false
+      type: bool
+    - name: alerts.crds.enabled
+      description: Install Prometheus Operator CRDs if kube-monitoring has not already installed them.
+      required: false
+      default: false
+      type: bool
+    # cert-manager options
+    - name: alerts.certManager.enabled
+      description: Needs the `cert-manager` Plugin installed first. Creates `jetstack/cert-manager` resources to generate Issuer and Certificates for Prometheus authentication.
+      required: true
+      default: true
+      type: bool
+    - name: alerts.caCert
+      description: CA cert of this release to add to the CA bundle
+      required: false
+      type: secret
+    # alertmanager options
+    - name: alerts.defaultRules.create
+      description: Additional labels for Alertmanager PrometheusRule alerts. Name of the kube-monitoring Plugin to evaluate Alertmanager alerts.
+      default: true
+      required: false
+      type: bool
+    - name: alerts.defaultRules.labels
+      description: Create default rules for monitoring Alertmanager. Deactivate if you bring your own Alertmanager.
+      default:
+        plugin: kube-monitoring
+      required: false
+      type: map
+    - name: alerts.dashboard.create
+      description: Whether to install the default dashboards for self-monitoring Prometheus Alertmanger.
+      default: true
+      type: bool
+    - name: alerts.alertmanager.enabled
+      description: Deploy Alertmanager. Deactivate if you bring your own Alertmanager.
+      required: true
+      type: bool
+    - name: alerts.alertmanager.ingress.enabled
+      description: Enable Alertmanager Ingress.
+      default: true
+      required: false
+      type: bool
+    - name: alerts.alertmanager.ingress.hosts
+      description: List of hostnames for that Prometheus. Must be provided if Ingress is enabled.
+      required: false
+      type: list
+    - name: alerts.alertmanager.serviceMonitor.additionalLabels
+      description: Additional ServiceMonitor labels. Name of the kube-monitoring Plugin to monitor Alertmanager.
+      default:
+        plugin: kube-monitoring
+      required: false
+      type: map
+    - name: alerts.alertmanagerConfig.slack.routes
+      description: List of Slack routes containing name, channel, matchers and webhookURL.
+      required: false
+      type: list
+    - name: alerts.alertmanagerConfig.webhook.routes
+      description: List of Webhook routes containing name, matchers and url.
+      required: false
+      type: list

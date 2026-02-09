@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+global:
+  greenhouse:
+    baseDomain: example.com
+
+alerts:
+  prometheusOperator:
+    enabled: true
+  crds:
+    enabled: true
+  defaultRules:
+    labels:
+      plugin: test
+  alertmanager:
+    serviceMonitor:
+      additionalLabels:
+        plugin: test2
+    ingress:
+      enabled: false
+      hosts:
+        - dummy-host
+
+  alertmanagerConfig:
+    slack:
+      routes:
+        - name: slack-info-route
+          channel: slack-info-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "info"
+        - name: slack-warning-route
+          channel: slack-warning-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "warning"
+        - name: slack-critical-route
+          channel: slack-critical-channel
+          webhookURL: https://hooks.slack.com/services/some-id
+          matchers:
+            - name: severity
+              matchType: "="
+              value: "critical"
+  certManager:
+    enabled: true

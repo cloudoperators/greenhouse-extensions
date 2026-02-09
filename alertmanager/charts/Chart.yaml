@@ -1,0 +1,19 @@
+apiVersion: v2
+description: A Helm chart for installing the Prometheus Alertmanager via operator
+icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
+type: application
+maintainers:
+  - name: richardtief
+  - name: viennaa
+  - name: trouaux
+name: alerts
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+version: 5.0.0
+keywords:
+  - prometheus-alertmanager
+dependencies:
+  - name: kube-prometheus-stack
+    alias: alerts
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 81.2.2

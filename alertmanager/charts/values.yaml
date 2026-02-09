@@ -1,0 +1,300 @@
+global:
+  ## common labels to apply to all resources
+  ##
+  commonLabels: {}
+
+  ## Additional caCert to add to the CA bundle
+  ##
+  caCert: ""
+
+  ## common greenhouse values to use
+  ##
+  greenhouse:
+    # base domain of the greenhouse organisation
+    baseDomain:
+
+# @ignored
+defaultNotificationTemplates: true
+
+# kube-prometheus-stack configuration scoped to alerts
+alerts:
+
+  ## ca cert which is created with this release
+  caCert: ""
+
+  # Use certmanager to generate alertmanager certs
+  certManager:
+    enabled: true
+    # self-signed root certificate
+    rootCert:
+      duration: ""  # default to be 5y
+    admissionCert:
+      duration: ""  # default to be 1y
+    issuerRef: {}
+    #   name: "issuer"
+    #   kind: "ClusterIssuer"
+
+  ## Create default rules for monitoring the cluster
+  ##
+  defaultRules:
+    create: true
+    rules:
+      alertmanager: true
+      etcd: false
+      configReloaders: false
+      general: false
+      k8sContainerCpuUsageSecondsTotal: false
+      k8sContainerMemoryCache: false
+      k8sContainerMemoryRss: false
+      k8sContainerMemorySwap: false
+      k8sContainerResource: false
+      k8sPodOwner: false
+      kubeApiserverAvailability: false
+      kubeApiserverBurnrate: false
+      kubeApiserverHistogram: false
+      kubeApiserverSlos: false
+      kubeControllerManager: false
+      kubelet: false
+      kubeProxy: false
+      kubePrometheusGeneral: false
+      kubePrometheusNodeRecording: false
+      kubernetesApps: false
+      kubernetesResources: false
+      kubernetesStorage: false
+      kubernetesSystem: false
+      kubeSchedulerAlerting: false
+      kubeSchedulerRecording: false
+      kubeStateMetrics: false
+      network: false
+      node: false
+      nodeExporterAlerting: false
+      nodeExporterRecording: false
+      prometheus: false
+      prometheusOperator: false
+      windows: false
+
+  ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
+  ##
+  dashboards:
+    create: true
+
+    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
+    plutonoSelectors:
+      - name: plutono-dashboard
+        value: '"true"'
+
+  ## Flag to disable all the kubernetes component scrapers
+  ##
+  kubernetesServiceMonitors:
+    enabled: false
+
+  ## Setting to true produces cleaner resource names, but requires a data migration because the name of the persistent volume changes. Therefore this should only be set once on initial installation.
+  ##
+  cleanPrometheusOperatorObjectNames: true
+
+  ## Install Prometheus Operator CRDs
+  ##
+  crds:
+    enabled: false
+
+  windowsMonitoring:
+  ## Deploys the windows-exporter and Windows-specific dashboards and rules (job name must be 'windows-exporter')
+    enabled: false
+
+  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  ##
+  grafana:
+    enabled: false
+
+  ## Configuration for thanosRuler
+  ## ref: https://thanos.io/tip/components/rule.md/
+  ##
+  thanosRuler:
+
+    ## Deploy thanosRuler
+    ##
+    enabled: false
+
+
+  ## Configuration for the Prometheus instance
+  ##
+  prometheus:
+
+    ## Deploy Prometheus
+    ##
+    enabled: false
+
+  ## Deploy node exporter as a daemonset to all nodes
+  ##
+  nodeExporter:
+    ## Deploy prometheus node-exporter
+    ##
+    enabled: false
+
+  ## Component scraping kube state metrics
+  ##
+  kubeStateMetrics:
+    ## Deploy kube-state-metrics subchart
+    enabled: false
+
+  ## Manages Prometheus and Alertmanager components
+  ##
+  prometheusOperator:
+    ## Deploy prometheus-operator
+    enabled: false
+
+  ## Configuration for alertmanager
+  ## ref: https://prometheus.io/docs/alerting/alertmanager/
+  ##
+  alertmanager:
+
+    ## Deploy alertmanager
+    ##
+    enabled: true
+
+    ## Enable access to Alertmanager disabled features.
+    ##
+    enableFeatures:
+      - receiver-name-in-metrics
+
+    ## Alertmanager configuration directives
+    ## ref: https://prometheus.io/docs/alerting/configuration/#configuration-file
+    ##      https://prometheus.io/webtools/alerting/routing-tree-editor/
+    ##
+    config:
+      global:
+        resolve_timeout: 5m
+      inhibit_rules:
+        - source_matchers:
+            - 'severity = critical'
+          target_matchers:
+            - 'severity =~ warning|info'
+          equal:
+            - 'namespace'
+            - 'alertname'
+        - source_matchers:
+            - 'severity = warning'
+          target_matchers:
+            - 'severity = info'
+          equal:
+            - 'namespace'
+            - 'alertname'
+        - source_matchers:
+            - 'alertname = InfoInhibitor'
+          target_matchers:
+            - 'severity = info'
+          equal:
+            - 'namespace'
+      route:
+        group_by:
+          - organization
+          - alertname
+          - cluster
+          - region
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        continue: false
+        receiver: 'null'
+        routes:
+          - matchers:
+            - alertname =~ "Watchdog|InfoInhibitor"
+            receiver: "null"
+            continue: false
+
+      receivers:
+        - name: 'null'
+
+      templates:
+        - '/etc/alertmanager/config/*.tmpl'
+        - '/etc/alertmanager/notification-templates/*.tmpl'
+
+
+    ingress:
+      enabled: false
+
+      ## By default, a ca-bundle is deployed to enable tls between Prometheus and Alertmanager
+      annotations:
+        disco: "true"
+        kubernetes.io/tls-acme: "true"
+        nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
+        nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+        nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
+        nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type
+        nginx.ingress.kubernetes.io/cors-allow-methods: DELETE
+        nginx.ingress.kubernetes.io/enable-cors: "true"
+      ingressClassName: nginx
+
+    ## Settings affecting alertmanagerSpec
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerspec
+
+    alertmanagerSpec:
+
+      # Name of the governing service
+      serviceName: "{{ $.Release.Name }}-alertmanager"
+
+      ## Defines the strategy used by AlertmanagerConfig objects to match alerts.
+      ##
+      alertmanagerConfigMatcherStrategy:
+        type: OnNamespace
+
+      ## AlertmanagerConfigs to be selected to merge and configure Alertmanager with.
+      ##
+      alertmanagerConfigSelector:
+        matchLabels:
+          plugin: "{{ $.Release.Name }}"
+
+      ## Additional volumes on the output StatefulSet definition.
+      volumeMounts:
+        - mountPath: /etc/alertmanager/notification-templates
+          name: alertmanager-notification-templates
+          readOnly: true
+
+      ## Additional VolumeMounts on the output StatefulSet definition.
+      volumes:
+        - configMap:
+            name: alertmanager-notification-templates
+          name: alertmanager-notification-templates
+
+  ## Alertmanager integration with Slack and Webhooks
+  alertmanagerConfig:
+    slack:
+      routes:
+        #  - name: slack-info-route
+        #    channel: slack-info-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "info"
+        #  - name: slack-warning-route
+        #    channel: slack-warning-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "warning"
+        #  - name: slack-critical-route
+        #    channel: slack-critical-channel
+        #    webhookURL: https://hooks.slack.com/services/some-id
+        #    matchers:
+        #      - name: severity
+        #        matchType: "="
+        #        value: "critical"
+
+
+    webhook:
+      routes:
+        #  - name: webhook-route
+        #    url: https://some-webhook-url
+        #    matchers:
+        #      - name: alertname
+        #        matchType: "=~"
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent

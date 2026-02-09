@@ -1,0 +1,40 @@
+{{- if .Values.testFramework.enabled -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: integration-test
+{{- include "kube-prometheus-stack.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+spec:
+  serviceAccountName: {{ .Release.Name }}-{{ .Release.Namespace }}-test
+  containers:
+    - name: bats-test
+      image: "{{ .Values.testFramework.image.registry}}/{{ .Values.testFramework.image.repository}}:{{ .Values.testFramework.image.tag }}"
+      imagePullPolicy: {{ .Values.testFramework.image.pullPolicy }}
+      command: ["bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+        - name: tests
+          mountPath: /tests
+          readOnly: true
+  {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+        - name: tls-cert
+          mountPath: /tls-assets
+          readOnly: true
+  {{- end }}
+  volumes:
+    - name: tests
+      configMap:
+        name: {{ .Release.Name }}-test
+  {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+    - name: tls-cert
+      secret:
+        defaultMode: 420
+        secretName: tls-prometheus-{{ .Release.Namespace }} 
+  {{- end }}
+  restartPolicy: Never
+{{- end -}}

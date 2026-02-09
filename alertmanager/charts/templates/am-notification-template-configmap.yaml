@@ -1,0 +1,18 @@
+{{- if and .Values.alerts.alertmanager.enabled .Values.defaultNotificationTemplates }}
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: alertmanager-notification-templates
+  labels:
+    pluginDefinition: alerts
+    plugin: {{ $.Release.Name }}
+    app: prometheus-alertmanager
+    alertmanager: {{ include "kube-prometheus-stack.name" . }}
+
+data:
+  {{- range $path, $bytes := .Files.Glob "notification-templates/*.tmpl" }}
+{{ printf "%s" $path | replace "/" "-" | indent 2}}: |
+{{ printf "%s" $bytes | indent 4 }}
+  {{- end }}
+{{- end }}
