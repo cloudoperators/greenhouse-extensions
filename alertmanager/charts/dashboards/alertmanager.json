@@ -115,7 +115,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "count by (version) (alertmanager_build_info{job=~\"alerts-$alertmanager\"})",
+          "expr": "count by (version) (alertmanager_build_info{job=~\"alertmanager-$alertmanager\"})",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -177,7 +177,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "time() - alertmanager_config_last_reload_success_timestamp_seconds{job=~\"alerts-$alertmanager\"}",
+          "expr": "time() - alertmanager_config_last_reload_success_timestamp_seconds{job=~\"alertmanager-$alertmanager\"}",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -260,7 +260,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(alertmanager_config_last_reload_successful{job=~\"alerts-$alertmanager\"})",
+          "expr": "max(alertmanager_config_last_reload_successful{job=~\"alertmanager-$alertmanager\"})",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -342,7 +342,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(alertmanager_cluster_members{job=~\"alerts-$alertmanager\"})",
+          "expr": "max(alertmanager_cluster_members{job=~\"alertmanager-$alertmanager\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -433,7 +433,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(alertmanager_alerts{state=\"active\", job=~\"alerts-$alertmanager\"})",
+          "expr": "max(alertmanager_alerts{state=\"active\", job=~\"alertmanager-$alertmanager\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -524,7 +524,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(alertmanager_alerts{state=\"suppressed\", job=~\"alerts-$alertmanager\"})",
+          "expr": "max(alertmanager_alerts{state=\"suppressed\", job=~\"alertmanager-$alertmanager\"})",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -612,7 +612,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "max(alertmanager_silences{state=\"active\", job=~\"alerts-$alertmanager\"})",
+          "expr": "max(alertmanager_silences{state=\"active\", job=~\"alertmanager-$alertmanager\"})",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -715,7 +715,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(increase(alertmanager_notifications_total{job=~\"alerts-$alertmanager\"}[5m])) by (receiver_name)",
+          "expr": "sum(increase(alertmanager_notifications_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (receiver_name)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -724,7 +724,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(increase(alertmanager_notifications_failed_total{jobs=~\"alerts-$alertmanager\"}[5m])) by (receiver_name)      ",
+          "expr": "sum(increase(alertmanager_notifications_failed_total{jobs=~\"alertmanager-$alertmanager\"}[5m])) by (receiver_name)      ",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -847,7 +847,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(histogram_quantile(0.9,rate(alertmanager_notification_latency_seconds_bucket{job=~\"alerts-$alertmanager\"}[5m]))) by (receiver_name)",
+          "expr": "sum(histogram_quantile(0.9,rate(alertmanager_notification_latency_seconds_bucket{job=~\"alertmanager-$alertmanager\"}[5m]))) by (receiver_name)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -856,7 +856,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(histogram_quantile(0.99,rate(alertmanager_notification_latency_seconds_bucket{job=~\"alerts-$alertmanager\"}[5m]))) by (receiver_name)",
+          "expr": "sum(histogram_quantile(0.99,rate(alertmanager_notification_latency_seconds_bucket{job=~\"alertmanager-$alertmanager\"}[5m]))) by (receiver_name)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -983,7 +983,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(alertmanager_alerts{job=~\"alerts-$alertmanager\"}) by (state)",
+              "expr": "sum(alertmanager_alerts{job=~\"alertmanager-$alertmanager\"}) by (state)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1100,7 +1100,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(increase(alertmanager_alerts_received_total{job=~\"alerts-$alertmanager\"}[5m])) by (status)",
+              "expr": "sum(increase(alertmanager_alerts_received_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (status)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1229,7 +1229,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_cluster_health_score{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_cluster_health_score{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Cluster health score",
@@ -1342,14 +1342,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_cluster_members{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_cluster_members{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Number of cluster members",
               "refId": "A"
             },
             {
-              "expr": "alertmanager_cluster_failed_peers{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_cluster_failed_peers{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Number of failed peers",
@@ -1463,7 +1463,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_cluster_peers_left_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_cluster_peers_left_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1472,7 +1472,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_cluster_peers_joined_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_cluster_peers_joined_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1587,7 +1587,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_cluster_reconnections_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_cluster_reconnections_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1596,7 +1596,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_cluster_reconnections_failed_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_cluster_reconnections_failed_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1718,7 +1718,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(increase(alertmanager_cluster_messages_sent_total{job=~\"alerts-$alertmanager\"}[5m])) by (msg_type)",
+              "expr": "sum(increase(alertmanager_cluster_messages_sent_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (msg_type)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1727,7 +1727,7 @@
             },
             {
               "exemplar": true,
-              "expr": "sum(increase(alertmanager_cluster_messages_received_total{job=~\"alerts-$alertmanager\"}[5m])) by (msg_type)",
+              "expr": "sum(increase(alertmanager_cluster_messages_received_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (msg_type)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1849,7 +1849,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "sum(increase(alertmanager_cluster_messages_sent_size_total{job=~\"alerts-$alertmanager\"}[5m])) by (msg_type)",
+              "expr": "sum(increase(alertmanager_cluster_messages_sent_size_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (msg_type)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1858,7 +1858,7 @@
             },
             {
               "exemplar": true,
-              "expr": "sum(increase(alertmanager_cluster_messages_received_size_total{job=~\"alerts-$alertmanager\"}[5m])) by (msg_type)",
+              "expr": "sum(increase(alertmanager_cluster_messages_received_size_total{job=~\"alertmanager-$alertmanager\"}[5m])) by (msg_type)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -1971,14 +1971,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_cluster_messages_pruned_total{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_cluster_messages_pruned_total{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Pruned messaged",
               "refId": "A"
             },
             {
-              "expr": "alertmanager_cluster_messages_queued{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_cluster_messages_queued{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Queued messages",
@@ -2111,7 +2111,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_oversized_gossip_message_sent_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_oversized_gossip_message_sent_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -2121,7 +2121,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_oversized_gossip_message_dropped_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_oversized_gossip_message_dropped_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2129,7 +2129,7 @@
               "refId": "B"
             },
             {
-              "expr": "increase(alertmanager_oversized_gossip_message_failure_total{job=~\"alerts-$alertmanager\"}[$__interval])",
+              "expr": "increase(alertmanager_oversized_gossip_message_failure_total{job=~\"alertmanager-$alertmanager\"}[$__interval])",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "failed {{key}}",
@@ -2242,7 +2242,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "histogram_quantile(1,rate(alertmanager_oversize_gossip_message_duration_seconds_bucket{job=~\"alerts-$alertmanager\"}[5m]))",
+              "expr": "histogram_quantile(1,rate(alertmanager_oversize_gossip_message_duration_seconds_bucket{job=~\"alertmanager-$alertmanager\"}[5m]))",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -2357,7 +2357,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_silences_gossip_messages_propagated_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_silences_gossip_messages_propagated_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -2367,7 +2367,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_nflog_gossip_messages_propagated_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_nflog_gossip_messages_propagated_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2496,7 +2496,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_nflog_queries_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_nflog_queries_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2505,7 +2505,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_nflog_query_errors_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_nflog_query_errors_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2619,7 +2619,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "histogram_quantile(1,rate(alertmanager_nflog_query_duration_seconds_bucket{job=~\"alerts-$alertmanager\"}[5m]))",
+              "expr": "histogram_quantile(1,rate(alertmanager_nflog_query_duration_seconds_bucket{job=~\"alertmanager-$alertmanager\"}[5m]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -2732,7 +2732,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_nflog_snapshot_size_bytes{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_nflog_snapshot_size_bytes{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Nf log snapshot size",
@@ -2845,7 +2845,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(alertmanager_nflog_snapshot_duration_seconds_sum{job=~\"alerts-$alertmanager\"}[5m]) / rate(alertmanager_nflog_snapshot_duration_seconds_sum{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "rate(alertmanager_nflog_snapshot_duration_seconds_sum{job=~\"alertmanager-$alertmanager\"}[5m]) / rate(alertmanager_nflog_snapshot_duration_seconds_sum{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -2960,7 +2960,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(alertmanager_nflog_gc_duration_seconds_sum{job=~\"alerts-$alertmanager\"}[5m]) / \nrate(alertmanager_nflog_gc_duration_seconds_count{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "rate(alertmanager_nflog_gc_duration_seconds_sum{job=~\"alertmanager-$alertmanager\"}[5m]) / \nrate(alertmanager_nflog_gc_duration_seconds_count{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3088,7 +3088,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_silences{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_silences{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
@@ -3202,7 +3202,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_silences_queries_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_silences_queries_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -3212,7 +3212,7 @@
             },
             {
               "exemplar": true,
-              "expr": "increase(alertmanager_silences_query_errors_total{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "increase(alertmanager_silences_query_errors_total{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -3326,7 +3326,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "histogram_quantile(1,rate(alertmanager_silences_query_duration_seconds_bucket{job=~\"alerts-$alertmanager\"}[5m]))",
+              "expr": "histogram_quantile(1,rate(alertmanager_silences_query_duration_seconds_bucket{job=~\"alertmanager-$alertmanager\"}[5m]))",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -3440,7 +3440,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "alertmanager_silences_snapshot_size_bytes{job=~\"alerts-$alertmanager\"}",
+              "expr": "alertmanager_silences_snapshot_size_bytes{job=~\"alertmanager-$alertmanager\"}",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 1,
@@ -3554,7 +3554,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(alertmanager_silences_snapshot_duration_seconds_sum{job=~\"alerts-$alertmanager\"}[5m]) /\nrate(alertmanager_silences_snapshot_duration_seconds_count{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "rate(alertmanager_silences_snapshot_duration_seconds_sum{job=~\"alertmanager-$alertmanager\"}[5m]) /\nrate(alertmanager_silences_snapshot_duration_seconds_count{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -3670,7 +3670,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(alertmanager_silences_gc_duration_seconds_count{job=~\"alerts-$alertmanager\"}[5m])",
+              "expr": "rate(alertmanager_silences_gc_duration_seconds_count{job=~\"alertmanager-$alertmanager\"}[5m])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -4099,8 +4099,8 @@
         "allValue": "",
         "current": {
           "selected": false,
-          "text": "alertmanager-alerts-ccloud-0",
-          "value": "alertmanager-alerts-ccloud-0"
+          "text": "alertmanager-alertmanager-ccloud-0",
+          "value": "alertmanager-alertmanager-ccloud-0"
         },
         "datasource": "$datasource",
         "definition": "label_values(alertmanager_build_info{namespace=~\"$namespace\"}, pod)",

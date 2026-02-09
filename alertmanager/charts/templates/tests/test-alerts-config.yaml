@@ -16,7 +16,7 @@ data:
     load "/usr/lib/bats/bats-detik/detik"
 
     DETIK_CLIENT_NAME="kubectl"
-    {{- if .Values.alerts.prometheusOperator.enabled }}
+    {{- if .Values.alertmanager.prometheusOperator.enabled }}
     @test "Verify successful deployment, service and running status of the {{ .Release.Name }}-operator pod" {
         verify "there is 1 deployment named '{{ .Release.Name }}-operator'"
         verify "there is 1 service named '{{ .Release.Name }}-operator'"
@@ -24,14 +24,14 @@ data:
     }
     {{- end }}
    
-    {{- if .Values.alerts.alertmanager.enabled }}
+    {{- if .Values.alertmanager.alertmanager.enabled }}
     @test "Verify that alertmanager is available and reconciled" {
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[0].status' is 'True'"
         try "at most 5 times every 5s to get alertmanagers named  '{{ .Release.Name }}' and verify that '.status.conditions[1].status' is 'True'"
     }
     {{- end }}
 
-    {{- if .Values.alerts.crds.enabled }}
+    {{- if .Values.alertmanager.crds.enabled }}
     @test "Verify creation of required custom resource definitions (CRDs) for {{ .Release.Name }}" {
         verify "there is 1 customresourcedefinition named 'alertmanagerconfigs'"
         verify "there is 1 customresourcedefinition named 'alertmanagers'"
@@ -46,11 +46,11 @@ data:
     }
     {{- end }}
 
-    {{- if .Values.alerts.certManager.enabled }}
+    {{- if .Values.alertmanager.certManager.enabled }}
     @test "Generated server certificates for the Prometheus Alertmanager to use" {
-        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-issuer$'"
-        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alerts-root-issuer$'"
-        verify "there is 1 certificate named '^{{ .Release.Namespace }}-alerts-root-cert$'"
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alertmanager-issuer$'"
+        verify "there is 1 issuer named '^{{ .Release.Namespace }}-alertmanager-root-issuer$'"
+        verify "there is 1 certificate named '^{{ .Release.Namespace }}-alertmanager-root-cert$'"
         verify "there is 1 certificate named '^alertmanager-{{ .Release.Namespace }}-cert$'"
         verify "there is 1 certificate named '^prometheus-{{ .Release.Namespace }}-cert$'"
         verify "there is 1 secret named '^tls-alertmanager-{{ .Release.Namespace }}$'"
@@ -58,9 +58,9 @@ data:
     }
     {{- end }}
 
-    {{- if  and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+    {{- if  and .Values.alertmanager.alertmanager.ingress.enabled .Values.alertmanager.alertmanager.ingress.hosts .Values.alertmanager.certManager.enabled }}
     @test "Verify the availability of the Alertmanager API by using the certificates created" {
-        url="https://{{ first .Values.alerts.alertmanager.ingress.hosts }}/-/healthy"
+        url="https://{{ first .Values.alertmanager.alertmanager.ingress.hosts }}/-/healthy"
 
         run curl --cert /tls-assets/tls.crt --key /tls-assets/tls.key ${url}
         [ "$status" -eq "0" ]

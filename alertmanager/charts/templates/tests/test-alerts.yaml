@@ -21,7 +21,7 @@ spec:
         - name: tests
           mountPath: /tests
           readOnly: true
-  {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+  {{- if and .Values.alertmanager.alertmanager.ingress.enabled .Values.alertmanager.alertmanager.ingress.hosts .Values.alertmanager.certManager.enabled }}
         - name: tls-cert
           mountPath: /tls-assets
           readOnly: true
@@ -30,7 +30,7 @@ spec:
     - name: tests
       configMap:
         name: {{ .Release.Name }}-test
-  {{- if and .Values.alerts.alertmanager.ingress.enabled .Values.alerts.alertmanager.ingress.hosts .Values.alerts.certManager.enabled }}
+  {{- if and .Values.alertmanager.alertmanager.ingress.enabled .Values.alertmanager.alertmanager.ingress.hosts .Values.alertmanager.certManager.enabled }}
     - name: tls-cert
       secret:
         defaultMode: 420

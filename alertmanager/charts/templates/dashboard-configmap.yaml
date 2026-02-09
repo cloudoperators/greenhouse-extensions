@@ -1,4 +1,4 @@
-{{- if .Values.alerts.dashboards.create }}
+{{- if .Values.alertmanager.dashboards.create }}
 {{ $root := . }}
 {{- range $path, $bytes := .Files.Glob "dashboards/*.json" }}
 ---
@@ -7,7 +7,7 @@ kind: ConfigMap
 metadata:
   name: {{ printf "%s-%s" $root.Release.Name $path | replace "/" "-" | trunc 63 }}
   labels:
-{{ include "alerts.dashboardSelectorLabels" (list $path $root) | indent 4 }}
+{{ include "alertmanager.dashboardSelectorLabels" (list $path $root) | indent 4 }}
 {{ include "kube-prometheus-stack.labels" $root | indent 4 }}
 data:
 {{ printf "%s: |-" $path | replace "/" "-" | indent 2 }}

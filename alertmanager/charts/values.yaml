@@ -17,7 +17,7 @@ global:
 defaultNotificationTemplates: true
 
 # kube-prometheus-stack configuration scoped to alerts
-alerts:
+alertmanager:
 
   ## ca cert which is created with this release
   caCert: ""

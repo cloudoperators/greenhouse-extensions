@@ -1,11 +1,11 @@
-{{- if and .Values.alerts.alertmanager.enabled .Values.defaultNotificationTemplates }}
+{{- if and .Values.alertmanager.alertmanager.enabled .Values.defaultNotificationTemplates }}
 apiVersion: v1
 kind: ConfigMap
 
 metadata:
   name: alertmanager-notification-templates
   labels:
-    pluginDefinition: alerts
+    pluginDefinition: alertmanager
     plugin: {{ $.Release.Name }}
     app: prometheus-alertmanager
     alertmanager: {{ include "kube-prometheus-stack.name" . }}

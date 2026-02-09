@@ -6,14 +6,14 @@ maintainers:
   - name: richardtief
   - name: viennaa
   - name: trouaux
-name: alerts
+name: alertmanager
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 5.0.0
+version: 0.0.1
 keywords:
   - prometheus-alertmanager
 dependencies:
   - name: kube-prometheus-stack
-    alias: alerts
+    alias: alertmanager
     repository: https://prometheus-community.github.io/helm-charts
     version: 81.2.2
