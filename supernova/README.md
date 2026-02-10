@@ -13,7 +13,7 @@ This plugin provides the stand alone UI application Supernova and needs an [_Pro
 
 - [Supernova](https://github.com/cloudoperators/juno/tree/main/apps/supernova)
 
-This Plugin usually is deployed along the **kube-monitoring** Plugin and the *alerts* Plugin.
+This Plugin usually is deployed on the greenhouse cluster, one per greenhouse organization.
 
 ## Disclaimer
 
@@ -27,21 +27,19 @@ This guide provides a quick and straightforward way to use **alerts** as a Green
 
 **Prerequisites**
 
-- A running and Greenhouse-onboarded Kubernetes cluster. If you don't have one, follow the [Cluster onboarding](https://cloudoperators.github.io/greenhouse/docs/user-guides/cluster/onboarding) guide.
-- kube-monitoring plugin (which brings in Prometheus Operator) **OR** stand alone: awareness to enable the deployment of Prometheus Operator with this plugin
-- alerts plugin *OR* stand alone Alertmanager URL
+- A running Greenhouse cluster. [Greenhouse Docs](https://cloudoperators.github.io/greenhouse/docs/)
+- alerts plugin *OR* standalone Alertmanager URL
 
 
 **Step 1:**
 
-You can install the `alerts` package in your cluster with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
+You can install the `supernova` package in your cluster with [Helm](https://helm.sh/docs/helm/helm_install) manually or let the Greenhouse platform lifecycle it for you automatically. For the latter, you can either:
   1. Go to Greenhouse dashboard and select the **Supernova** Plugin from the catalog. Specify the cluster and required option values.
   2. Create and specify a `Plugin` resource in your Greenhouse central cluster according to the [examples](#examples).
 
 **Step 2:**
 
-After the installation, you can access the **Supernova** UI by navigating to the `Alerts` tab in the Greenhouse dashboard. Every instance of the Supernova plugin will provide a new entry in the Greenhouse dashboard side panel. 
-
+After the installation, you can access the **Supernova** UI by navigating to the tab in the Greenhouse dashboard. Every instance of the Supernova plugin will provide a new entry in the Greenhouse dashboard side panel. 'displayName' will be used as button label.
 
 ## Configuration
 
