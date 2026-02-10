@@ -8,8 +8,8 @@ metadata:
 spec:
   version: 0.0.1
   weight: 0
-  displayName: Alerts
-  description: This plugin provides the Alert overview UI, called Supernova. It needs an alertmanager endpoint.
+  displayName: Alerts # default displayName 
+  description: The Supernova plugin provides the enhanced UI for Prometheus Alertmanager. It needs an alertmanager endpoint.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
   uiApplication:
