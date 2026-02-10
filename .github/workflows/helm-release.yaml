@@ -23,7 +23,6 @@ on:
       - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - shoot-grafter/charts/**
-      - supernova/charts/**
       - thanos/charts/**
       - repo-guard/charts/**
 
@@ -75,8 +74,6 @@ jobs:
             chartName: service-proxy
           - chartDir: shoot-grafter/charts
             chartName: shoot-grafter
-          - chartDir: supernova/charts
-            chartName: supernova
           - chartDir: thanos/charts
             chartName: thanos
           - chartDir: repo-guard/charts
