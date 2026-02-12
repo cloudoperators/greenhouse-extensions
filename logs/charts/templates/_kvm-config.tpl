@@ -57,7 +57,7 @@ transform/kvm_openvswitch:
         - resource.attributes["k8s.daemonset.name"] == "neutron-openvswitch-agent"
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log.level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:global.request.id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
-        - set(log.attributes["config.parsed"], "kvm_openvswitch") where log.attributes["log_level"] != nil
+        - set(log.attributes["config.parsed"], "kvm_openvswitch") where log.attributes["log.level"] != nil
 
 transform/kvm_nova_agent:
   error_mode: ignore
@@ -67,7 +67,7 @@ transform/kvm_nova_agent:
         - resource.attributes["k8s.daemonset.name"] == "nova-hypervisor-agents-compute-kvm"
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601}%{SPACE}%{NUMBER:process.id}%{SPACE}%{WORD:log.level}%{SPACE}%{NOTSPACE:process.name}%{SPACE}\\[%{REQUEST_ID:request.id}%{SPACE}%{REQUEST_ID:global.request.id}", true, ["REQUEST_ID=([A-Za-z0-9-]+)"]), "upsert")
-        - set(log.attributes["config.parsed"], "kvm_nova_agent") where log.attributes["log_level"] != nil
+        - set(log.attributes["config.parsed"], "kvm_nova_agent") where log.attributes["log.level"] != nil
 
 transform/kvm_logs:
   error_mode: ignore
@@ -97,12 +97,16 @@ transform/kvm_monitoring:
       conditions:
         - attributes["log.type"] == "files-kvm-monitoring"
       statements:
-        - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<log.level>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
-        - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domain>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<loglevel>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domainid>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "runID=(?P<runID>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_env=(?P<service_env>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_name=(?P<service_name>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "collector=\"(?P<collector>[^\"]+)"), "upsert")
+        - set(attributes["log.level"], attributes["loglevel"])
+        - delete_key(attributes, "loglevel")
+        - set(attributes["domain.id"], attributes["domainid"])
+        - delete_key(attributes, "domainid")
         - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["log.level"] != nil
         - set(log.observed_time, Now())
         - set(log.time, log.observed_time)
