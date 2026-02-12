@@ -98,13 +98,15 @@ transform/kvm_monitoring:
         - attributes["log.type"] == "files-kvm-monitoring"
       statements:
         - merge_maps(log.attributes, ExtractPatterns(log.body, "level=(?P<loglevel>\\w+) msg=\"(?P<msg>[^\"]+)"), "upsert")
-        - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domain>\\S+)"), "upsert")
+        - merge_maps(log.attributes, ExtractPatterns(log.body, "domain=(?P<domainid>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "runID=(?P<runID>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_env=(?P<service_env>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "service_name=(?P<service_name>\\S+)"), "upsert")
         - merge_maps(log.attributes, ExtractPatterns(log.body, "collector=\"(?P<collector>[^\"]+)"), "upsert")
         - set(attributes["log.level"], attributes["loglevel"])
         - delete_key(attributes, "loglevel")
+        - set(attributes["domain.id"], attributes["domainid"])
+        - delete_key(attributes, "domainid")
         - set(log.attributes["config.parsed"], "kvm_monitoring") where log.attributes["log.level"] != nil
         - set(log.observed_time, Now())
         - set(log.time, log.observed_time)
