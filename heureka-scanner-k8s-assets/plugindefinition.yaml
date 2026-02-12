@@ -8,21 +8,65 @@ metadata:
 spec:
   version: 0.1.1
   displayName: Heureka Scanner for K8s Assets
-  description: Heureka Scanner for K8s Assets
+  description: The scanner discovers and reports Kubernetes assets (pods, containers, images) to Heureka
   helmChart:
     name: k8s-assets-scanner
     repository: oci://ghcr.io/cloudoperators/heureka/charts
     version: 0.1.0
   options:
-    - name: scanner.api_token
-      description: The API token for the Heureka Scanner
+    - name: scanner.k8s_cluster_name
+      description: The name of the Kubernetes cluster being scanned
       required: true
       type: string
+    - name: scanner.k8s_cluster_region
+      description: The region where the Kubernetes cluster is located
+      required: true
+      type: string
+    - name: scanner.api_token
+      description: The API token for authenticating with the Heureka API
+      required: true
+      type: secret
     - name: scanner.heureka_url
       description: The URL of the Heureka API
       required: true
       type: string
     - name: scanner.schedule
       description: The schedule for the Heureka Scanner. Use a cron expression (e.g. "0 * * * *")
-      required: true
+      required: false
       type: string
+      default: "0 * * * *"
+    - name: scanner.scanner_timeout
+      description: Timeout for scanner operations
+      required: false
+      type: string
+      default: "30s"
+    - name: scanner.support_group_label
+      description: Kubernetes label key used to identify support groups
+      required: false
+      type: string
+      default: "ccloud/support-group"
+    - name: scanner.service_label
+      description: Kubernetes label key used to identify services
+      required: false
+      type: string
+      default: "ccloud/service"
+    - name: scanner.default_keppel_registry
+      description: Default Keppel registry for container images
+      required: false
+      type: string
+      default: "keppel.com"
+    - name: image.repository
+      description: Container image repository
+      required: false
+      type: string
+      default: "ghcr.io/cloudoperators/heureka-scanner-k8s-assets"
+    - name: image.tag
+      description: Container image tag
+      required: false
+      type: string
+      default: "latest"
+    - name: image.pullPolicy
+      description: Image pull policy (Always, IfNotPresent, Never)
+      required: false
+      type: string
+      default: "Always"
