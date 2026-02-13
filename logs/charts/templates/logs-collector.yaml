@@ -48,31 +48,23 @@ spec:
 {{- end }}
 {{- if and .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: syslogtcp
-      port: 514
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
       protocol: TCP
-      hostPort: 514
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
     - name: syslogudp
-      port: 514
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
       protocol: UDP
-      hostPort: 514
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- else }}
   ports:
     - name: syslogtcp
-      port: 514
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
       protocol: TCP
-      hostPort: 514
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
     - name: syslogudp
-      port: 514
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
       protocol: UDP
-      hostPort: 514
-{{- end }}
-{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
-  service:
-    enabled: true
-    type: LoadBalancer
-    externalTrafficPolicy: Local
-    annotations:
-      projectcalico.org/loadBalancerIPs: ["{{.Values.openTelemetry.logsCollector.syslogConfig.externalip}}"]
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
@@ -421,7 +413,7 @@ spec:
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }
-        syslog:
+        logs/syslog:
           receivers: [syslog]
           processors: [batch]
           exporters: [forward]

@@ -1,0 +1,29 @@
+{{- if and .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: logs-collector-external
+  annotations:
+    disco: "true"
+    disco/record: logs-collector-external.{{ .Values.openTelemetry.region }}.{{ .Values.openTelemetry.tld }}.
+    disco/record-type: A
+    projectcalico.org/loadBalancerIPs: '["{{ .Values.openTelemetry.logsCollector.externalConfig.external_ip }}"]'
+spec:
+  selector:
+    app.kubernetes.io/component: opentelemetry-collector
+    app.kubernetes.io/instance: {{ .Release.Namespace }}.logs
+    app.kubernetes.io/managed-by: opentelemetry-operator
+    app.kubernetes.io/part-of: opentelemetry
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - name: syslogtcp
+      protocol: TCP
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      targetPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+    - name: syslogudp
+      protocol: UDP
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      targetPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+{{- end }}

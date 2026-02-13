@@ -73,6 +73,7 @@ openTelemetry:
   cluster:
   # -- Region label for Logging
   region:
+  tld:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
@@ -85,9 +86,13 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+    externalConfig:
+      enabled: false
+      external_ip: 0.0.0.0
     syslogConfig:
       enabled: false
-      externalip: 0.0.0.0
+      tcp_port: 514
+      udp_port: 514
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
