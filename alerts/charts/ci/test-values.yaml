@@ -7,6 +7,8 @@ global:
 alerts:
   prometheusOperator:
     enabled: true
+  crds:
+    enabled: true
   defaultRules:
     labels:
       plugin: test

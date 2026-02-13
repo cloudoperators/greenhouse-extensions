@@ -43,6 +43,10 @@ certManager:
   httpDnsNames:
     - opensearch-client.tld
 
+  # -- Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate)
+  dashboardsDnsNames:
+    - opensearch-dashboards.tld
+
 operator:
   namespace: ""
   nameOverride: ""
@@ -243,7 +247,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -285,7 +289,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.3.2
+      version: 3.4.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -401,7 +405,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.3.0
+      version: 3.4.0
 
     # initHelper configuration
     initHelper:
@@ -812,6 +816,10 @@ siem:
     httpDnsNames:
       - opensearch-siem-client.tld
 
+    # -- Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate)
+    dashboardsDnsNames:
+      - opensearch-siem-dashboards.tld
+
   serviceAccount:
     # -- Create Service Account
     create: false
@@ -881,7 +889,7 @@ siem:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -923,7 +931,7 @@ siem:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.3.2
+      version: 3.4.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -1039,7 +1047,7 @@ siem:
       tolerations: []
 
       # -- dashboards version
-      version: 3.3.0
+      version: 3.4.0
 
     # initHelper configuration
     initHelper:

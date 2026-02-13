@@ -1,9 +1,0 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-# SPDX-License-Identifier: Apache-2.0
-
-apiVersion: v2
-name: repo-guard
-description: A Helm chart for Kubernetes
-type: application
-version: 1.5.1
-appVersion: "1.5.0"

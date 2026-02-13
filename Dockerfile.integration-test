@@ -1,8 +1,8 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.12.0@sha256:0257e4f5326dd37046e94d4b8ce07c293447be80a9db6d6dfff1d50d07617e2e
+FROM --platform=${BUILDPLATFORM:-linux/amd64} bats/bats:1.13.0@sha256:ba5704b9c118b7e9f358700b8973800aaaa5bce36800ee8db375fe59fb5f4e09
 
 ARG KUBECTL_VERSION=v1.35.0
-ARG GRPC_HEALTH_PROBE_VERSION=v0.4.43
-ARG YQ_VERSION=v4.50.1
+ARG GRPC_HEALTH_PROBE_VERSION=v0.4.44
+ARG YQ_VERSION=v4.52.2
 
 # Add packages
 RUN apk upgrade --no-cache --no-progress \  

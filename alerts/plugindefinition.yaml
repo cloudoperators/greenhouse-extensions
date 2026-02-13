@@ -6,46 +6,22 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 5.0.6
+  version: 6.0.1
   weight: 0
   displayName: Alerts
-  description: The Alerts Plugin consists of both Prometheus Alertmanager and Supernova, the holistic alert management UI
+  description: Deploy and manage prometheus alertmanager instances
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/README.md
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/alerts/logo.png
   helmChart:
     # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/alerts
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 4.0.6
-  uiApplication:
-    name: supernova
-    version: "latest"
+    version: 5.0.1
   options:
     - name: global.caCert
       description: Additional caCert to add to the CA bundle
       required: false
       type: secret
-    # supernova options
-    - name: endpoint
-      description: Alertmanager API Endpoint URL
-      required: true
-      type: string
-    - name: filterLabels
-      description: "FilterLabels are the labels shown in the filter dropdown, enabling users to filter alerts based on specific criteria. The format is a list of strings."
-      required: false
-      type: list
-    - name: silenceExcludedLabels
-      description: "SilenceExcludedLabels are labels that are initially excluded by default when creating a silence. However, they can be added if necessary when utilizing the advanced options in the silence form. The format is a list of strings."
-      required: false
-      type: list
-    - name: silenceTemplates
-      description: "SilenceTemplates are pre-defined silence templates that can be used to scheduled maintenance windows. The format consists of a list of objects including description, editable_labels (array of strings specifying the labels that users can modify), fixed_labels (map containing fixed labels and their corresponding values), status, and title."
-      required: false
-      type: list
-    - name: predefinedFilters
-      description: "PredefinedFilters are filters applied through TabNavigation in the UI to differentiate between contexts such as Production, QA, and others. They are loaded by default when the application is loaded. The format is a list of objects including name, display name and matchers (map containing matchers as name and expression pairs)"
-      required: false
-      type: list
     # prometheus-operator options
     - name: alerts.prometheusOperator.enabled
       description: Deploy Prometheus Operator if kube-monitoring has not already installed it once.

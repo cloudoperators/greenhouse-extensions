@@ -35,7 +35,7 @@ jobs:
         uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
 
       - name: Run Git Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -106,6 +106,13 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Single changed chart: $chart_dir (name=$plugin_name)"
 
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        id: ct-lint
+        run: |
+          set -euo pipefail
+          ct lint --config ${{ env.CT_CONFIG }} --target-branch ${{ github.event.repository.default_branch }}
+
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab # v1.13.0
@@ -156,6 +163,21 @@ jobs:
             .spec.ref.branch= strenv(branch)' \
           ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
           kubectl -n flux-system get gitrepository workspace -o yaml
+
+      - name: Ensure test-values.yaml exists
+        if: steps.list-changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          chart_dir=${{ steps.chart.outputs.chart_dir }}
+          test_values_file="${chart_dir}/ci/test-values.yaml"
+          if [[ ! -f "$test_values_file" ]]; then
+            echo "ℹ️ test-values.yaml not found, creating empty file at $test_values_file"
+            mkdir -p "${chart_dir}/ci"
+            echo "{}" > "$test_values_file"
+          else
+            echo "✅ test-values.yaml already exists at $test_values_file"
+          fi
 
       - name: Create HelmRelease
         if: steps.list-changed.outputs.changed == 'true'
@@ -214,7 +236,7 @@ jobs:
           }
 
       - name: Print pod logs on failure
-        if: failure() && steps.list-changed.outputs.changed == 'true'
+        if: failure() && steps.list-changed.outputs.changed == 'true' && steps.ct-lint.outcome == 'success'
         run: |
           kubectl get pods -n default || true
           helm list -n flux-system

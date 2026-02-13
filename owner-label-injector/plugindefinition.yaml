@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: owner-label-injector
 spec:
-  version: 2.1.0
+  version: 2.2.1
   displayName: Owner Label Injector
   description: Kubernetes mutating admission webhook that ensures every relevant resource carries standardized owner labels (support-group and service) for auditable ownership tracking, incident routing, cost allocation, and cleanup automation.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/owner-label-injector/main/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: owner-label-injector
     repository: oci://ghcr.io/cloudoperators/owner-label-injector/charts
-    version: 2.1.0
+    version: 2.2.1
   options:
     - name: replicaCount
       displayName: Replica Count

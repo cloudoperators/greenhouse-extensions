@@ -7,7 +7,7 @@ metadata:
   name: heureka
 spec:
   description: "Heureka is a Security Posture Management tool"
-  version: "1.0.1"
+  version: 1.0.1
   weight: 2
   uiApplication:
     name: heureka
@@ -15,7 +15,7 @@ spec:
   helmChart:
     name: heureka
     repository: oci://ghcr.io/cloudoperators/heureka/charts
-    version: 0.3.1
+    version: 0.3.0
   options:
     - name: apiEndpoint
       description: Endpoint URL of the API

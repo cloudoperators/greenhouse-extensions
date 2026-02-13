@@ -63,6 +63,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
+| certManager.dashboardsDnsNames | list | `["opensearch-dashboards.tld"]` | Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
 | certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
 | certManager.defaults.privateKey.algorithm | string | `"RSA"` | Algorithm used for generating private keys |
@@ -114,7 +115,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"3.4.0"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -125,7 +126,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -136,7 +137,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | cluster.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | cluster.cluster.general.vendor | string | `"Opensearch"` |  |
-| cluster.cluster.general.version | string | `"3.3.2"` | Opensearch version |
+| cluster.cluster.general.version | string | `"3.4.0"` | Opensearch version |
 | cluster.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | cluster.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | cluster.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |
@@ -248,6 +249,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.certManager.dashboardsDnsNames | list | `["opensearch-siem-dashboards.tld"]` | Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | siem.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
@@ -288,7 +290,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | siem.cluster.dashboards.tls.secret | object | `{"name":"opensearch-siem-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | siem.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| siem.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
+| siem.cluster.dashboards.version | string | `"3.4.0"` | dashboards version |
 | siem.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | siem.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | siem.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -299,7 +301,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | siem.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | siem.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
+| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"` | Custom URL for the monitoring plugin |
 | siem.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | siem.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | siem.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -310,7 +312,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | siem.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | siem.cluster.general.vendor | string | `"Opensearch"` |  |
-| siem.cluster.general.version | string | `"3.3.2"` | Opensearch version |
+| siem.cluster.general.version | string | `"3.4.0"` | Opensearch version |
 | siem.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | siem.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | siem.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |
