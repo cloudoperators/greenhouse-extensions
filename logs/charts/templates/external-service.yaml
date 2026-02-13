@@ -6,7 +6,7 @@ metadata:
   name: logs-collector-external
   annotations:
     disco: "true"
-    disco/record: logs-collector-external.{{ .Values.openTelemetry.region }}.{{ .Values.openTelemetry.tld }}.
+    disco/record: logs-collector-external.{{ .Values.openTelemetry.region }}.{{ .Values.openTelemetry.logsCollector.externalConfig.tld }}.
     disco/record-type: A
     projectcalico.org/loadBalancerIPs: '["{{ .Values.openTelemetry.logsCollector.externalConfig.external_ip }}"]'
 spec:

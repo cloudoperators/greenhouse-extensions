@@ -42,7 +42,6 @@ openTelemetry:
     index: test
   cluster: test
   region: test
-  tld: test
   logsCollector:
     enabled: true
     cephConfig:
@@ -53,6 +52,7 @@ openTelemetry:
       enabled: false
     externalConfig:
       enabled: false
+      tld: test
       external_ip: 0.0.0.0
     syslogConfig:
       enabled: false

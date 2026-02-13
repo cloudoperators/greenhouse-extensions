@@ -51,7 +51,6 @@ openTelemetry:
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
     tag: "13b191d"
-  external_ip: 0.0.0.0
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -73,7 +72,6 @@ openTelemetry:
   cluster:
   # -- Region label for Logging
   region:
-  tld:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
@@ -88,7 +86,8 @@ openTelemetry:
       enabled: false
     externalConfig:
       enabled: false
-      external_ip: 0.0.0.0
+      tld:
+      external_ip:
     syslogConfig:
       enabled: false
       tcp_port: 514
