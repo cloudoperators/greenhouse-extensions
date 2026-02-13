@@ -62,7 +62,7 @@ jobs:
             chartName: shoot-grafter
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
             fetch-depth: 0
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             ${{ matrix.chartDir }}/**
@@ -112,7 +112,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     steps:
         - name: Delete PR container image tag
-          uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1
+          uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
           with:
             tags: ${{ env.PR_NUMBER }}-pr
             packages: ${{ github.event.repository.name }}/charts/*

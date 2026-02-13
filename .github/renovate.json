@@ -34,43 +34,6 @@
     },
     {
       "customType": "regex",
-      "description": "Bump cert-manager version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^cert-manager.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "github-tags",
-      "depNameTemplate": "cert-manager/cert-manager",
-      "extractVersionTemplate": "^(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump kube-monitoring version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^kube-monitoring.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump alerts version in the plugindefinition",
-      "managerFilePatterns": [
-        "/^alerts.plugindefinition.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "helm"
-    },
-    {
-      "customType": "regex",
       "description": "Bump reloader version in the plugindefinition",
       "managerFilePatterns": [
         "/^reloader.plugindefinition.yaml$/"
@@ -187,17 +150,55 @@
     },
     {
       "customType": "regex",
-      "description": "Bump shoot-grafter image version in Chart.yaml",
+      "description": "Update shoot-grafter appVersion in Chart.yaml",
       "managerFilePatterns": [
-        "^shoot-grafter/chart/Chart\\.yaml$"
+        "^shoot-grafter/charts/Chart\\.yaml$"
       ],
       "matchStrings": [
-        "appVersion: \"(?<currentValue>sha-[a-f0-9]+)@sha256:[a-f0-9]+\""
+        "appVersion:\\s*\"(?<currentValue>sha-[a-f0-9]+)\""
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "currentValueTemplate": "{{{currentValue}}}",
-      "extractVersionTemplate": "^(?<version>sha-.*)$"
+      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump shoot-grafter chart version in Chart.yaml",
+      "managerFilePatterns": [
+        "^shoot-grafter/charts/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "name:\\s*shoot-grafter\\nversion:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
+      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump shoot-grafter spec.version in plugindefinition.yaml",
+      "managerFilePatterns": [
+        "^shoot-grafter/plugindefinition\\.yaml$"
+      ],
+      "matchStrings": [
+        "description:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
+      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Bump shoot-grafter helmChart.version in plugindefinition.yaml",
+      "managerFilePatterns": [
+        "^shoot-grafter/plugindefinition\\.yaml$"
+      ],
+      "matchStrings": [
+        "helmChart:\\n\\s+name:\\s*shoot-grafter\\n\\s+repository:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
+      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
     }
   ],
   "packageRules": [
@@ -313,6 +314,25 @@
         "Makefile"
       ],
       "groupName": "Makefile dependencies"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/cloudoperators/shoot-grafter"
+      ],
+      "matchFileNames": [
+        "shoot-grafter/charts/Chart.yaml",
+        "shoot-grafter/plugindefinition.yaml"
+      ],
+      "groupName": "shoot-grafter image and versions",
+      "commitMessageTopic": "shoot-grafter",
+      "commitMessageExtra": "to {{newValue}}",
+      "additionalBranchPrefix": "shoot-grafter-",
+      "semanticCommits": "enabled",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
     }
   ],
   "separateMinorPatch": true

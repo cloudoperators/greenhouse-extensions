@@ -7,10 +7,11 @@ metadata:
   name: {{ .Values.kafka.name }}
   labels:
     {{- include "kafka.labels" . | nindent 4 }}
+    {{- toYaml .Values.monitoring.podMonitor.labels | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      strimzi.io/cluster: {{ .Values.kafka.name }}-cluster
+      strimzi.io/cluster: {{ .Values.kafka.name }}
       strimzi.io/kind: Kafka
       strimzi.io/component-type: kafka
   podMetricsEndpoints:
