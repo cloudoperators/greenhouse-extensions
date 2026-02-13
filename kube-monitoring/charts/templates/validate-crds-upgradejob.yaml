@@ -1,0 +1,3 @@
+{{- if and .Values.kubeMonitoring.crds.enabled (not .Values.kubeMonitoring.crds.upgradeJob.enabled) -}}
+{{- fail "Invalid configuration: kubeMonitoring.crds.upgradeJob.enabled must be true when kubeMonitoring.crds.enabled is true. Reason: Helm does not upgrade CRDs during chart upgrades. This job upgrades CRDs using Helm hooks (pre-install, pre-upgrade)." -}}
+{{- end -}}
