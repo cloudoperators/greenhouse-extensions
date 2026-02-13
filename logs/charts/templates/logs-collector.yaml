@@ -115,14 +115,25 @@ spec:
 {{- end }}
 
 {{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
-      syslog:
-        tcp:
-          listen_address: "0.0.0.0:514"
+      syslog/tcp:
+        operators:
+        - field: attributes.log.type
+          id: syslogtcp
+          type: add
+          value: syslogtcp
         protocol: rfc5424
-        udp:
-          listen_address: "0.0.0.0:514"
-        protocol: rfc3164
+        tcp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      syslog/udp:
         location: UTC
+        operators:
+        - field: attributes.log.type
+          id: syslogudp
+          type: add
+          value: syslogudp
+        protocol: rfc3164
+        udp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- end }}
 
     processors:
@@ -413,8 +424,12 @@ spec:
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }
-        logs/syslog:
-          receivers: [syslog]
+        logs/syslog_tcp:
+          receivers: [syslog/tcp]
+          processors: [batch]
+          exporters: [forward]
+        logs/syslog_udp:
+          receivers: [syslog/ucp]
           processors: [batch]
           exporters: [forward]
 {{- end }}
