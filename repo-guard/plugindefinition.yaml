@@ -12,7 +12,7 @@ spec:
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/repo-guard/refs/heads/main/README.md
   helmChart:
     name: repo-guard
-    repository: oci://ghcr.io/cloudoperators/charts/repo-guard
+    repository: oci://ghcr.io/cloudoperators/charts
     version: 1.6.0
   options:
     - name: manager
