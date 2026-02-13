@@ -89,8 +89,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| openTelemetry.logsCollector.externalConfig.enabled | bool | `false` |  |
+| openTelemetry.logsCollector.externalConfig.external_ip | string | `nil` |  |
+| openTelemetry.logsCollector.externalConfig.tld | string | `nil` |  |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.syslogConfig.enabled | bool | `false` |  |
+| openTelemetry.logsCollector.syslogConfig.tcp_port | int | `514` |  |
+| openTelemetry.logsCollector.syslogConfig.udp_port | int | `514` |  |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
