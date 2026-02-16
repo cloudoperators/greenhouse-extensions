@@ -40,7 +40,7 @@ opentelemetry-operator:
     enabled: false
 
 customCRDs:
-  # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. 
+  # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds.
   enabled: true
 
 # Empty variables will fail during rollout
@@ -84,6 +84,14 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+    externalConfig:
+      enabled: false
+      tld:
+      external_ip:
+    syslogConfig:
+      enabled: false
+      tcp_port: 514
+      udp_port: 514
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
