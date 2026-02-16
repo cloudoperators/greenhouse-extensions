@@ -421,7 +421,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
         logs/syslog_tcp:
           receivers: [syslog/tcp]
           processors: [batch]
