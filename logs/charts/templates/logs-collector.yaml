@@ -41,12 +41,13 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
       port: 8888
 {{- end }}
-{{- if and .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
     - name: syslogtcp
       port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
       protocol: TCP
@@ -55,16 +56,7 @@ spec:
       port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
       protocol: UDP
       hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
-{{- else }}
-  ports:
-    - name: syslogtcp
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
-      protocol: TCP
-      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
-    - name: syslogudp
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
-      protocol: UDP
-      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+{{- end }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
