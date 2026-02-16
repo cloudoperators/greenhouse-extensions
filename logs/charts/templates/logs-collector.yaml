@@ -427,7 +427,7 @@ spec:
           processors: [batch]
           exporters: [forward]
         logs/syslog_udp:
-          receivers: [syslog/ucp]
+          receivers: [syslog/udp]
           processors: [batch]
           exporters: [forward]
 {{- end }}
