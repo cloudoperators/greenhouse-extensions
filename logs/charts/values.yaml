@@ -40,7 +40,7 @@ opentelemetry-operator:
     enabled: false
 
 customCRDs:
-  # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. 
+  # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds.
   enabled: true
 
 # Empty variables will fail during rollout
