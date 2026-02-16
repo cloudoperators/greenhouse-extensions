@@ -37,14 +37,14 @@ spec:
     spec:
       containers:
       - name: serve
-        workingDir: /tmp
+        workingDir: /data-volume
         args:
         - serve
         - --logger.level=DEBUG
         - --parquet.objstore-config-file=/etc/config/store_config.yaml
         - --http.internal.port={{ default 6060 .Values.thanosParquetGateway.serve.internalPort }}
-        - --http.prometheus.port={{ default 9090 .Values.thanosParquetGateway.serve.prometheusPort }}
-        - --http.thanos.port={{ default 9091 .Values.thanosParquetGateway.serve.thanosPort }}
+        - --http.prometheus.port={{ default 19090 .Values.thanosParquetGateway.serve.prometheusPort }}
+        - --http.thanos.port={{ default 19091 .Values.thanosParquetGateway.serve.thanosPort }}
         - --block.syncer.interval={{ default "30m" .Values.thanosParquetGateway.serve.syncerInterval }}
         - --block.syncer.concurrency={{ default 32 .Values.thanosParquetGateway.serve.syncerConcurrency }}
         - --block.discovery.interval={{ default "30m" .Values.thanosParquetGateway.serve.discoveryInterval }}
@@ -58,7 +58,7 @@ spec:
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanosParquetGateway.image.pullPolicy }}
         env:
         - name: TMPDIR
-          value: /tmp
+          value: /data-volume
         livenessProbe:
           failureThreshold: 2
           httpGet:
@@ -93,6 +93,8 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /tmp
+        - name: data-volume
+          mountPath: /data-volume
         - name: data
           mountPath: /data
         - mountPath: /etc/config/
@@ -105,6 +107,9 @@ spec:
       - name: data
         emptyDir:
           sizeLimit: 10Gi
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ include "release.name" . }}-serve
       - name: objectstore-secret
         secret:
           defaultMode: 420

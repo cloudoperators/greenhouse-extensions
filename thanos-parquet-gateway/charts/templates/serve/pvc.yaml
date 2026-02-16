@@ -1,0 +1,22 @@
+{{ if and .Values.thanosParquetGateway.serve.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  {{- if .Values.thanosParquetGateway.serve.annotations }}
+  annotations:
+    {{ toYaml .Values.thanosParquetGateway.serve.annotations | nindent 8 }}
+  {{- end }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanosParquetGateway.labels" . | nindent 4 }}
+    {{- if .Values.thanosParquetGateway.serve.volume.labels }}
+    {{- toYaml .Values.thanosParquetGateway.serve.volume.labels | nindent 4 }}
+    {{- end }}
+  name: {{ include "release.name" . }}-serve
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ default "100Gi" .Values.thanosParquetGateway.serve.volume.size }}
+{{ end }}

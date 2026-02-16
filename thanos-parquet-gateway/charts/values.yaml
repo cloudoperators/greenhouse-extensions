@@ -9,6 +9,9 @@ thanosParquetGateway:
     endpoint: "host.docker.internal:9000"
     access_key: ""
     secret_key: ""
+    volume:
+      size:
+      labels: []
 
   convert:
     enabled: true
@@ -73,16 +76,6 @@ global:
 
   # -- Overrides the registry globally for all images
   imageRegistry: null
-
-
-# -- GRPC-address used across the stack
-# @default -- 0.0.0.0:10901
-grpcAddress:
-
-# -- HTTP-address used across the stack
-# @default -- 0.0.0.0:10902
-httpAddress:
-
 
 # @ignored
 # Init container to set permissions

@@ -30,12 +30,12 @@ spec:
       type: int
     - name: thanosParquetGateway.serve.prometheusPort
       description: Thanos Parquet Gateway Serve Prometheus port
-      default: 9090
+      default: 19090
       required: false
       type: int
     - name: thanosParquetGateway.serve.thanosPort
       description: Thanos Parquet Gateway Serve Thanos port
-      default: 9091
+      default: 19091
       required: false
       type: int
     - name: thanosParquetGateway.serve.syncerInterval
