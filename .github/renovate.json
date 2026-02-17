@@ -155,11 +155,11 @@
         "^shoot-grafter/charts/Chart\\.yaml$"
       ],
       "matchStrings": [
-        "appVersion:\\s*\"(?<currentValue>sha-[a-f0-9]+)\""
+        "appVersion:\\s*\"(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -172,7 +172,8 @@
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -185,7 +186,8 @@
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -198,7 +200,8 @@
       ],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "versioningTemplate": "regex:^sha-(?<major>[a-f0-9]+)$"
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
