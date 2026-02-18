@@ -152,7 +152,7 @@
       "customType": "regex",
       "description": "Update shoot-grafter appVersion in Chart.yaml",
       "managerFilePatterns": [
-        "^shoot-grafter/charts/Chart\\.yaml$"
+        "/^shoot-grafter/charts/Chart\\.yaml$/"
       ],
       "matchStrings": [
         "appVersion:\\s*\"(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
@@ -165,7 +165,7 @@
       "customType": "regex",
       "description": "Bump shoot-grafter chart version in Chart.yaml",
       "managerFilePatterns": [
-        "^shoot-grafter/charts/Chart\\.yaml$"
+        "/^shoot-grafter/charts/Chart\\.yaml$/"
       ],
       "matchStrings": [
         "name:\\s*shoot-grafter\\nversion:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
@@ -179,7 +179,7 @@
       "customType": "regex",
       "description": "Bump shoot-grafter spec.version in plugindefinition.yaml",
       "managerFilePatterns": [
-        "^shoot-grafter/plugindefinition\\.yaml$"
+        "/^shoot-grafter/plugindefinition\\.yaml$/"
       ],
       "matchStrings": [
         "description:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
@@ -193,7 +193,7 @@
       "customType": "regex",
       "description": "Bump shoot-grafter helmChart.version in plugindefinition.yaml",
       "managerFilePatterns": [
-        "^shoot-grafter/plugindefinition\\.yaml$"
+        "/^shoot-grafter/plugindefinition\\.yaml$/"
       ],
       "matchStrings": [
         "helmChart:\\n\\s+name:\\s*shoot-grafter\\n\\s+repository:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
