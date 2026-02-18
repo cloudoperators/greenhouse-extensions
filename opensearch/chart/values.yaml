@@ -1,6 +1,21 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+# OIDC Authentication Configuration
+# Enable native OpenID Connect authentication for OpenSearch and Dashboards
+auth:
+  oidc:
+    # -- Enable OIDC authentication. When enabled, adds an OpenID Connect auth domain to OpenSearch.
+    enabled: false
+    # -- OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration)
+    provider: ""
+    # -- Claim key to use as username from the OIDC token
+    subjectKey: "name"
+    # -- Claim key to use for roles from the OIDC token
+    rolesKey: "roles"
+    # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
+    caPath: "certs/admin/ca.crt"
+
 certManager:
   # -- Enable cert-manager integration for issuing TLS certificates
   enable: true
@@ -320,11 +335,31 @@ cluster:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig:
-        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
-        opensearch_security.auth.type: "proxy"
-        opensearch_security.proxycache.user_header: "x-forwarded-user"
-        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
+      # Configure via plugin preset. For proxy auth:
+      #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
+      #   opensearch_security.auth.type: "proxy"
+      #   opensearch_security.proxycache.user_header: "x-forwarded-user"
+      #   opensearch_security.proxycache.roles_header: "x-forwarded-groups"
+      # For OIDC auth (when auth.oidc.enabled=true):
+      #   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'
+      #   opensearch_security.auth.type: '["openid"]'
+      #   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"
+      #   opensearch_security.openid.client_id: "${OIDC_CLIENT_ID}"
+      #   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"
+      #   opensearch_security.openid.scope: "openid email profile"
+      #   opensearch_security.openid.base_redirect_url: "https://dashboards.example.com/"
+      additionalConfig: {}
+
+      # OIDC client configuration for dashboards
+      oidc:
+        # -- OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true)
+        clientId: ""
+        # -- OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true)
+        clientSecret: ""
+        # -- OIDC scopes to request
+        scope: "openid email profile"
+        # -- Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/)
+        baseRedirectUrl: ""
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -339,6 +374,18 @@ cluster:
       enable: true
 
       # -- dashboards pod env variables
+      # When using OIDC, add environment variables for OIDC credentials:
+      # env:
+      #   - name: OIDC_CLIENT_ID
+      #     valueFrom:
+      #       secretKeyRef:
+      #         name: opensearch-dashboards-oidc
+      #         key: client_id
+      #   - name: OIDC_CLIENT_SECRET
+      #     valueFrom:
+      #       secretKeyRef:
+      #         name: opensearch-dashboards-oidc
+      #         key: client_secret
       env: []
 
       # -- dashboards image
@@ -810,6 +857,21 @@ siem:
   nameOverride: ""
   fullnameOverride: ""
 
+  # OIDC Authentication Configuration for SIEM cluster
+  # Enable native OpenID Connect authentication for SIEM OpenSearch and Dashboards
+  auth:
+    oidc:
+      # -- Enable OIDC authentication for SIEM cluster. When enabled, adds an OpenID Connect auth domain.
+      enabled: false
+      # -- OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration)
+      provider: ""
+      # -- Claim key to use as username from the OIDC token
+      subjectKey: "name"
+      # -- Claim key to use for roles from the OIDC token
+      rolesKey: "roles"
+      # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
+      caPath: "certs/admin/ca.crt"
+
   # Certificate configuration for SIEM cluster
   certManager:
     # -- Override HTTP DNS names for SIEM OpenSearch client endpoints
@@ -962,11 +1024,31 @@ siem:
     # OpenSearchCluster dashboards configuration
     dashboards:
       # -- Additional properties for opensearch_dashboards.yaml
-      additionalConfig:
-        opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
-        opensearch_security.auth.type: "proxy"
-        opensearch_security.proxycache.user_header: "x-forwarded-user"
-        opensearch_security.proxycache.roles_header: "x-forwarded-groups"
+      # Configure via plugin preset. For proxy auth:
+      #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
+      #   opensearch_security.auth.type: "proxy"
+      #   opensearch_security.proxycache.user_header: "x-forwarded-user"
+      #   opensearch_security.proxycache.roles_header: "x-forwarded-groups"
+      # For OIDC auth (when siem.auth.oidc.enabled=true):
+      #   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'
+      #   opensearch_security.auth.type: '["openid"]'
+      #   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"
+      #   opensearch_security.openid.client_id: "${OIDC_CLIENT_ID}"
+      #   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"
+      #   opensearch_security.openid.scope: "openid email profile"
+      #   opensearch_security.openid.base_redirect_url: "https://siem-dashboards.example.com/"
+      additionalConfig: {}
+
+      # OIDC client configuration for SIEM dashboards
+      oidc:
+        # -- OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
+        clientId: ""
+        # -- OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
+        clientSecret: ""
+        # -- OIDC scopes to request
+        scope: "openid email profile"
+        # -- Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/)
+        baseRedirectUrl: ""
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -981,6 +1063,18 @@ siem:
       enable: true
 
       # -- dashboards pod env variables
+      # When using OIDC, add environment variables for OIDC credentials:
+      # env:
+      #   - name: OIDC_CLIENT_ID
+      #     valueFrom:
+      #       secretKeyRef:
+      #         name: opensearch-siem-dashboards-oidc
+      #         key: client_id
+      #   - name: OIDC_CLIENT_SECRET
+      #     valueFrom:
+      #       secretKeyRef:
+      #         name: opensearch-siem-dashboards-oidc
+      #         key: client_secret
       env: []
 
       # -- dashboards image
