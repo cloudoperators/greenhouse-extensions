@@ -334,13 +334,15 @@ cluster:
 
     # OpenSearchCluster dashboards configuration
     dashboards:
-      # -- Additional properties for opensearch_dashboards.yaml
-      # Configure via plugin preset. For proxy auth:
+      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
+      #
+      # Example proxy auth config:
       #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
       #   opensearch_security.auth.type: "proxy"
       #   opensearch_security.proxycache.user_header: "x-forwarded-user"
       #   opensearch_security.proxycache.roles_header: "x-forwarded-groups"
-      # For OIDC auth (when auth.oidc.enabled=true):
+      #
+      # Example OIDC auth config (when auth.oidc.enabled=true):
       #   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'
       #   opensearch_security.auth.type: '["openid"]'
       #   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"
@@ -1023,13 +1025,15 @@ siem:
 
     # OpenSearchCluster dashboards configuration
     dashboards:
-      # -- Additional properties for opensearch_dashboards.yaml
-      # Configure via plugin preset. For proxy auth:
+      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
+      #
+      # Example proxy auth config:
       #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
       #   opensearch_security.auth.type: "proxy"
       #   opensearch_security.proxycache.user_header: "x-forwarded-user"
       #   opensearch_security.proxycache.roles_header: "x-forwarded-groups"
-      # For OIDC auth (when siem.auth.oidc.enabled=true):
+      #
+      # Example OIDC auth config (when siem.auth.oidc.enabled=true):
       #   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'
       #   opensearch_security.auth.type: '["openid"]'
       #   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"
