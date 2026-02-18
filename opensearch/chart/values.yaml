@@ -334,8 +334,6 @@ cluster:
 
     # OpenSearchCluster dashboards configuration
     dashboards:
-      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
-      #
       # Example proxy auth config:
       #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
       #   opensearch_security.auth.type: "proxy"
@@ -350,6 +348,7 @@ cluster:
       #   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"
       #   opensearch_security.openid.scope: "openid email profile"
       #   opensearch_security.openid.base_redirect_url: "https://dashboards.example.com/"
+      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
       additionalConfig: {}
 
       # OIDC client configuration for dashboards
@@ -1025,8 +1024,6 @@ siem:
 
     # OpenSearchCluster dashboards configuration
     dashboards:
-      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
-      #
       # Example proxy auth config:
       #   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'
       #   opensearch_security.auth.type: "proxy"
@@ -1041,6 +1038,7 @@ siem:
       #   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"
       #   opensearch_security.openid.scope: "openid email profile"
       #   opensearch_security.openid.base_redirect_url: "https://siem-dashboards.example.com/"
+      # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
       additionalConfig: {}
 
       # OIDC client configuration for SIEM dashboards
