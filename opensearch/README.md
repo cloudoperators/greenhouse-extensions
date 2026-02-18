@@ -63,6 +63,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
+| auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| auth.oidc.enabled | bool | `false` | Enable OIDC authentication. When enabled, adds an OpenID Connect auth domain to OpenSearch. |
+| auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
+| auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
+| auth.oidc.subjectKey | string | `"name"` | Claim key to use as username from the OIDC token |
 | certManager.dashboardsDnsNames | list | `["opensearch-dashboards.tld"]` | Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
 | certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
@@ -90,17 +95,21 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | cluster.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| cluster.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-forwarded-user\",\"x-forwarded-groups\",\"x-forwarded-email\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-forwarded-groups","opensearch_security.proxycache.user_header":"x-forwarded-user"}` | Additional properties for opensearch_dashboards.yaml |
+| cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml Configure via plugin preset. For proxy auth:   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'   opensearch_security.auth.type: "proxy"   opensearch_security.proxycache.user_header: "x-forwarded-user"   opensearch_security.proxycache.roles_header: "x-forwarded-groups" For OIDC auth (when auth.oidc.enabled=true):   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'   opensearch_security.auth.type: '["openid"]'   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"   opensearch_security.openid.client_id: "${OIDC_CLIENT_ID}"   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"   opensearch_security.openid.scope: "openid email profile"   opensearch_security.openid.base_redirect_url: "https://dashboards.example.com/" |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | cluster.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | cluster.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
 | cluster.cluster.dashboards.enable | bool | `true` | Enable dashboards deployment |
-| cluster.cluster.dashboards.env | list | `[]` | dashboards pod env variables |
+| cluster.cluster.dashboards.env | list | `[]` | dashboards pod env variables When using OIDC, add environment variables for OIDC credentials: env:   - name: OIDC_CLIENT_ID     valueFrom:       secretKeyRef:         name: opensearch-dashboards-oidc         key: client_id   - name: OIDC_CLIENT_SECRET     valueFrom:       secretKeyRef:         name: opensearch-dashboards-oidc         key: client_secret |
 | cluster.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | cluster.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
 | cluster.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | cluster.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
+| cluster.cluster.dashboards.oidc.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
+| cluster.cluster.dashboards.oidc.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| cluster.cluster.dashboards.oidc.clientSecret | string | `""` | OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| cluster.cluster.dashboards.oidc.scope | string | `"openid email profile"` | OIDC scopes to request |
 | cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{"name":"dashboards-credentials"}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | cluster.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
 | cluster.cluster.dashboards.podSecurityContext | object | `{}` | dasboards pod security context configuration |
@@ -249,6 +258,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| siem.auth.oidc.enabled | bool | `false` | Enable OIDC authentication for SIEM cluster. When enabled, adds an OpenID Connect auth domain. |
+| siem.auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
+| siem.auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
+| siem.auth.oidc.subjectKey | string | `"name"` | Claim key to use as username from the OIDC token |
 | siem.certManager.dashboardsDnsNames | list | `["opensearch-siem-dashboards.tld"]` | Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
@@ -265,17 +279,21 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | siem.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | siem.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| siem.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-forwarded-user\",\"x-forwarded-groups\",\"x-forwarded-email\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-forwarded-groups","opensearch_security.proxycache.user_header":"x-forwarded-user"}` | Additional properties for opensearch_dashboards.yaml |
+| siem.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml Configure via plugin preset. For proxy auth:   opensearch.requestHeadersAllowlist: '["securitytenant","Authorization","x-forwarded-for","x-forwarded-user","x-forwarded-groups","x-forwarded-email"]'   opensearch_security.auth.type: "proxy"   opensearch_security.proxycache.user_header: "x-forwarded-user"   opensearch_security.proxycache.roles_header: "x-forwarded-groups" For OIDC auth (when siem.auth.oidc.enabled=true):   opensearch.requestHeadersAllowlist: '["Authorization", "security_tenant"]'   opensearch_security.auth.type: '["openid"]'   opensearch_security.openid.connect_url: "https://provider.example.com/.well-known/openid-configuration"   opensearch_security.openid.client_id: "${OIDC_CLIENT_ID}"   opensearch_security.openid.client_secret: "${OIDC_CLIENT_SECRET}"   opensearch_security.openid.scope: "openid email profile"   opensearch_security.openid.base_redirect_url: "https://siem-dashboards.example.com/" |
 | siem.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | siem.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | siem.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
 | siem.cluster.dashboards.enable | bool | `true` | Enable dashboards deployment |
-| siem.cluster.dashboards.env | list | `[]` | dashboards pod env variables |
+| siem.cluster.dashboards.env | list | `[]` | dashboards pod env variables When using OIDC, add environment variables for OIDC credentials: env:   - name: OIDC_CLIENT_ID     valueFrom:       secretKeyRef:         name: opensearch-siem-dashboards-oidc         key: client_id   - name: OIDC_CLIENT_SECRET     valueFrom:       secretKeyRef:         name: opensearch-siem-dashboards-oidc         key: client_secret |
 | siem.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | siem.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | siem.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
 | siem.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | siem.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
+| siem.cluster.dashboards.oidc.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/) |
+| siem.cluster.dashboards.oidc.clientId | string | `""` | OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.cluster.dashboards.oidc.clientSecret | string | `""` | OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.cluster.dashboards.oidc.scope | string | `"openid email profile"` | OIDC scopes to request |
 | siem.cluster.dashboards.opensearchCredentialsSecret | object | `{"name":"siemdashboards-credentials"}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | siem.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
 | siem.cluster.dashboards.podSecurityContext | object | `{}` | dasboards pod security context configuration |
