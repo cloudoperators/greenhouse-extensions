@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.48
+  version: 0.0.49
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.48
+    version: 0.0.49
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -241,5 +241,81 @@ spec:
       type: string
     - name: siem.cluster.cluster.general.version
       description: "Specifies the OpenSearch version for the SIEM cluster."
+      required: false
+      type: string
+    # OIDC Authentication options for main cluster
+    - name: auth.oidc.enabled
+      description: "Enable OIDC authentication for OpenSearch and Dashboards"
+      required: false
+      type: bool
+      default: false
+    - name: auth.oidc.provider
+      description: "OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration)"
+      required: false
+      type: string
+    - name: auth.oidc.subjectKey
+      description: "OIDC claim key to use as username"
+      required: false
+      type: string
+    - name: auth.oidc.rolesKey
+      description: "OIDC claim key to use for roles"
+      required: false
+      type: string
+    - name: auth.oidc.caPath
+      description: "Path to CA certificate for OIDC provider verification"
+      required: false
+      type: string
+    - name: cluster.cluster.dashboards.oidc.clientId
+      description: "OIDC client ID for OpenSearch Dashboards"
+      required: false
+      type: secret
+    - name: cluster.cluster.dashboards.oidc.clientSecret
+      description: "OIDC client secret for OpenSearch Dashboards"
+      required: false
+      type: secret
+    - name: cluster.cluster.dashboards.oidc.scope
+      description: "OIDC scopes to request (e.g., 'openid email profile')"
+      required: false
+      type: string
+    - name: cluster.cluster.dashboards.oidc.baseRedirectUrl
+      description: "Base redirect URL for OIDC callback (your dashboards URL)"
+      required: false
+      type: string
+    # OIDC Authentication options for SIEM cluster
+    - name: siem.auth.oidc.enabled
+      description: "Enable OIDC authentication for SIEM OpenSearch and Dashboards"
+      required: false
+      type: bool
+      default: false
+    - name: siem.auth.oidc.provider
+      description: "OpenID Connect provider URL for SIEM cluster"
+      required: false
+      type: string
+    - name: siem.auth.oidc.subjectKey
+      description: "OIDC claim key to use as username for SIEM cluster"
+      required: false
+      type: string
+    - name: siem.auth.oidc.rolesKey
+      description: "OIDC claim key to use for roles for SIEM cluster"
+      required: false
+      type: string
+    - name: siem.auth.oidc.caPath
+      description: "Path to CA certificate for OIDC provider verification for SIEM cluster"
+      required: false
+      type: string
+    - name: siem.cluster.dashboards.oidc.clientId
+      description: "OIDC client ID for SIEM OpenSearch Dashboards"
+      required: false
+      type: secret
+    - name: siem.cluster.dashboards.oidc.clientSecret
+      description: "OIDC client secret for SIEM OpenSearch Dashboards"
+      required: false
+      type: secret
+    - name: siem.cluster.dashboards.oidc.scope
+      description: "OIDC scopes to request for SIEM cluster"
+      required: false
+      type: string
+    - name: siem.cluster.dashboards.oidc.baseRedirectUrl
+      description: "Base redirect URL for OIDC callback for SIEM dashboards"
       required: false
       type: string

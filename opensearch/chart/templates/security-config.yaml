@@ -48,6 +48,26 @@ stringData:
               challenge: true
             authentication_backend:
               type: intern
+          {{- if .Values.auth.oidc.enabled }}
+          openid_auth_domain:
+            description: "Authenticate via OpenID Connect"
+            http_enabled: true
+            transport_enabled: false
+            order: 2
+            http_authenticator:
+              type: openid
+              challenge: true
+              config:
+                subject_key: {{ .Values.auth.oidc.subjectKey | quote }}
+                roles_key: {{ .Values.auth.oidc.rolesKey | quote }}
+                openid_connect_url: {{ .Values.auth.oidc.provider | quote }}
+                enable_ssl: true
+                openid_connect_idp:
+                  enable_ssl: true
+                  pemtrustedcas_filepath: {{ .Values.auth.oidc.caPath | quote }}
+            authentication_backend:
+              type: noop
+          {{- end }}
 
   internal_users.yml: |-
     _meta:
