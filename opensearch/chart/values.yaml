@@ -1097,7 +1097,7 @@ siem:
       # -- Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied
       # if a custom securityconfig is provided
       opensearchCredentialsSecret:
-          name: "siemdashboards-credentials"
+        name: "siemdashboards-credentials"
 
       # -- List of dashboards plugins to install
       pluginsList: []
