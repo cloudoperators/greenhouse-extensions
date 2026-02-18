@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 11.5.0
+  version: 11.5.1
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -143,9 +143,3 @@ spec:
         key: config.yaml
       required: false
       type: map
-    - name: kubeMonitoring.prometheus.prometheusSpec.scrapeNativeHistograms
-      value: true
-    - name: kubeMonitoring.prometheus.prometheusSpec.scrapeClassicHistograms
-      value: true
-    - name: kubeMonitoring.prometheus.prometheusSpec.convertClassicHistogramsToNHCB
-      value: true
