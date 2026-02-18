@@ -100,7 +100,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | cluster.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
 | cluster.cluster.dashboards.enable | bool | `true` | Enable dashboards deployment |
-| cluster.cluster.dashboards.env | list | `[]` | dashboards pod env variables When using OIDC, add environment variables for OIDC credentials: env:   - name: OIDC_CLIENT_ID     valueFrom:       secretKeyRef:         name: opensearch-dashboards-oidc         key: client_id   - name: OIDC_CLIENT_SECRET     valueFrom:       secretKeyRef:         name: opensearch-dashboards-oidc         key: client_secret |
+| cluster.cluster.dashboards.env | list | `[]` | dashboards pod env variables |
 | cluster.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | cluster.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
@@ -284,7 +284,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | siem.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
 | siem.cluster.dashboards.enable | bool | `true` | Enable dashboards deployment |
-| siem.cluster.dashboards.env | list | `[]` | dashboards pod env variables When using OIDC, add environment variables for OIDC credentials: env:   - name: OIDC_CLIENT_ID     valueFrom:       secretKeyRef:         name: opensearch-siem-dashboards-oidc         key: client_id   - name: OIDC_CLIENT_SECRET     valueFrom:       secretKeyRef:         name: opensearch-siem-dashboards-oidc         key: client_secret |
+| siem.cluster.dashboards.env | list | `[]` | dashboards pod env variables |
 | siem.cluster.dashboards.image | string | `"docker.io/opensearchproject/opensearch-dashboards"` | dashboards image |
 | siem.cluster.dashboards.imagePullPolicy | string | `"IfNotPresent"` | dashboards image pull policy |
 | siem.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |

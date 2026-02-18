@@ -374,7 +374,6 @@ cluster:
       # -- Enable dashboards deployment
       enable: true
 
-      # -- dashboards pod env variables
       # When using OIDC, add environment variables for OIDC credentials:
       # env:
       #   - name: OIDC_CLIENT_ID
@@ -387,6 +386,7 @@ cluster:
       #       secretKeyRef:
       #         name: opensearch-dashboards-oidc
       #         key: client_secret
+      # -- dashboards pod env variables
       env: []
 
       # -- dashboards image
@@ -1064,7 +1064,6 @@ siem:
       # -- Enable dashboards deployment
       enable: true
 
-      # -- dashboards pod env variables
       # When using OIDC, add environment variables for OIDC credentials:
       # env:
       #   - name: OIDC_CLIENT_ID
@@ -1077,6 +1076,7 @@ siem:
       #       secretKeyRef:
       #         name: opensearch-siem-dashboards-oidc
       #         key: client_secret
+      # -- dashboards pod env variables
       env: []
 
       # -- dashboards image
