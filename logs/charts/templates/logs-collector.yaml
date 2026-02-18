@@ -41,10 +41,22 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
       port: 8888
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+    - name: syslogtcp
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      protocol: TCP
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+    - name: syslogudp
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      protocol: UDP
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+{{- end }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
@@ -92,6 +104,28 @@ spec:
 
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.receiver" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+      syslog/tcp:
+        operators:
+        - field: attributes.log.type
+          id: syslogtcp
+          type: add
+          value: syslogtcp
+        protocol: rfc5424
+        tcp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      syslog/udp:
+        location: UTC
+        operators:
+        - field: attributes.log.type
+          id: syslogudp
+          type: add
+          value: syslogudp
+        protocol: rfc3164
+        udp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- end }}
 
     processors:
@@ -378,6 +412,16 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+        logs/syslog_tcp:
+          receivers: [syslog/tcp]
+          processors: [batch]
+          exporters: [forward]
+        logs/syslog_udp:
+          receivers: [syslog/udp]
+          processors: [batch]
+          exporters: [forward]
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]

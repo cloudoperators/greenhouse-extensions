@@ -50,6 +50,14 @@ openTelemetry:
       enabled: false
     failover:
       enabled: false
+    externalConfig:
+      enabled: false
+      tld: test
+      external_ip: 0.0.0.0
+    syslogConfig:
+      enabled: false
+      tcp_port: 514
+      udp_port: 514
   metricsCollector:
     enabled: false
   prometheus:
