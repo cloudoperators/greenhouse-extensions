@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # OIDC Authentication Configuration
-# Enable native OpenID Connect authentication for OpenSearch and Dashboards
+# Enable OpenID Connect authentication for OpenSearch and Dashboards
 auth:
   oidc:
     # -- Enable OIDC authentication. When enabled, adds an OpenID Connect auth domain to OpenSearch.
@@ -15,6 +15,16 @@ auth:
     rolesKey: "roles"
     # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
     caPath: "certs/admin/ca.crt"
+    # Dashboards OIDC client configuration (creates a secret for env var injection)
+    dashboards:
+      # -- OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true)
+      clientId: ""
+      # -- OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true)
+      clientSecret: ""
+      # -- OIDC scopes to request
+      scope: "openid email profile"
+      # -- Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/)
+      baseRedirectUrl: ""
 
 certManager:
   # -- Enable cert-manager integration for issuing TLS certificates
@@ -350,17 +360,6 @@ cluster:
       #   opensearch_security.openid.base_redirect_url: "https://dashboards.example.com/"
       # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
       additionalConfig: {}
-
-      # OIDC client configuration for dashboards
-      oidc:
-        # -- OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true)
-        clientId: ""
-        # -- OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true)
-        clientSecret: ""
-        # -- OIDC scopes to request
-        scope: "openid email profile"
-        # -- Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/)
-        baseRedirectUrl: ""
 
       # -- dashboards pod affinity rules
       affinity: {}
@@ -872,6 +871,16 @@ siem:
       rolesKey: "roles"
       # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
       caPath: "certs/admin/ca.crt"
+      # Dashboards OIDC client configuration for SIEM (creates a secret for env var injection)
+      dashboards:
+        # -- OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
+        clientId: ""
+        # -- OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
+        clientSecret: ""
+        # -- OIDC scopes to request
+        scope: "openid email profile"
+        # -- Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/)
+        baseRedirectUrl: ""
 
   # Certificate configuration for SIEM cluster
   certManager:
@@ -1040,17 +1049,6 @@ siem:
       #   opensearch_security.openid.base_redirect_url: "https://siem-dashboards.example.com/"
       # -- Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset.
       additionalConfig: {}
-
-      # OIDC client configuration for SIEM dashboards
-      oidc:
-        # -- OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
-        clientId: ""
-        # -- OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)
-        clientSecret: ""
-        # -- OIDC scopes to request
-        scope: "openid email profile"
-        # -- Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/)
-        baseRedirectUrl: ""
 
       # -- dashboards pod affinity rules
       affinity: {}
