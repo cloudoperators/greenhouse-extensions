@@ -64,6 +64,10 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
 | auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
+| auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| auth.oidc.dashboards.scope | string | `"openid email profile"` | OIDC scopes to request |
 | auth.oidc.enabled | bool | `false` | Enable OIDC authentication. When enabled, adds an OpenID Connect auth domain to OpenSearch. |
 | auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
 | auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
@@ -106,10 +110,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
 | cluster.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | cluster.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
-| cluster.cluster.dashboards.oidc.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
-| cluster.cluster.dashboards.oidc.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
-| cluster.cluster.dashboards.oidc.clientSecret | string | `""` | OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
-| cluster.cluster.dashboards.oidc.scope | string | `"openid email profile"` | OIDC scopes to request |
 | cluster.cluster.dashboards.opensearchCredentialsSecret | object | `{"name":"dashboards-credentials"}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | cluster.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
 | cluster.cluster.dashboards.podSecurityContext | object | `{}` | dasboards pod security context configuration |
@@ -259,6 +259,10 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
 | siem.auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| siem.auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/) |
+| siem.auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.auth.oidc.dashboards.scope | string | `"openid email profile"` | OIDC scopes to request |
 | siem.auth.oidc.enabled | bool | `false` | Enable OIDC authentication for SIEM cluster. When enabled, adds an OpenID Connect auth domain. |
 | siem.auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
 | siem.auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
@@ -290,10 +294,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.imagePullSecrets | list | `[]` | dashboards image pull secrets |
 | siem.cluster.dashboards.labels | object | `{}` | dashboards labels |
 | siem.cluster.dashboards.nodeSelector | object | `{}` | dashboards pod node selectors |
-| siem.cluster.dashboards.oidc.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/) |
-| siem.cluster.dashboards.oidc.clientId | string | `""` | OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
-| siem.cluster.dashboards.oidc.clientSecret | string | `""` | OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
-| siem.cluster.dashboards.oidc.scope | string | `"openid email profile"` | OIDC scopes to request |
 | siem.cluster.dashboards.opensearchCredentialsSecret | object | `{"name":"siemdashboards-credentials"}` | Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied if a custom securityconfig is provided |
 | siem.cluster.dashboards.pluginsList | list | `[]` | List of dashboards plugins to install |
 | siem.cluster.dashboards.podSecurityContext | object | `{}` | dasboards pod security context configuration |
