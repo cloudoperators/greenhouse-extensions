@@ -15,7 +15,7 @@ spec:
     # renovate depName=ghcr.io/stakater/charts/reloader
     name: reloader
     repository: oci://ghcr.io/stakater/charts
-    version: 2.2.3
+    version: 2.2.8
   options:
     - name: reloader.watchGlobally
       description: Allow Reloader to watch in all namespaces (true) or just in a single namespace (false)
