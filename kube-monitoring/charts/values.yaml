@@ -390,15 +390,15 @@ kubeMonitoring:
 
       # -- Enable scraping of native histograms.
       # @section -- Prometheus options
-      scrapeNativeHistograms: true
+      scrapeNativeHistograms: false
 
       # -- Enable scraping of classic histograms when scrapeNativeHistograms is enabled.
       # @section -- Prometheus options
-      scrapeClassicHistograms: true
+      scrapeClassicHistograms: false
 
       # -- Enable conversion of classic histograms to NHCB format when scrapeNativeHistograms is enabled.
       # @section -- Prometheus options
-      convertClassicHistogramsToNHCB: true
+      convertClassicHistogramsToNHCB: false
 
       # -- scrapeConfigs to be selected for target discovery.
       # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
