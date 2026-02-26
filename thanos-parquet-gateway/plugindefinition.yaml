@@ -13,12 +13,82 @@ spec:
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
     version: 0.1.0
   options:
-    - name: thanosParquetGateway.convert.enable
+    - name: thanosParquetGateway.enabled
+      desciption: Enable Thanos Parquet Gateway plugin
+      default: false
+      required: true
+      type: bool
+    - name: thanosParquetGateway.convert.enabled
       description: Enable Thanos Parquet Gateway Convert
       default: true
       required: false
       type: bool
-    - name: thanosParquetGateway.serve.enable
+    - name: thanosParquetGateway.convert.destination.access_key
+      decription: Thanos Parquet Gateway Convert access key for destination bucket
+      default: ""
+      required: true
+      type: string
+    - name: thanosParquetGateway.convert.destination.bucket
+      decription: Thanos Parquet Gateway Convert destination bucket name
+      default: "destination"
+      required: true
+      type: string
+    - name: thanosParquetGateway.convert.destination.endpoint
+      decription: Thanos Parquet Gateway Convert destination endpoint URL
+      default: host.docker.internal:9000
+      required: true
+      type: string
+    - name: thanosParquetGateway.convert.destination.secret_key
+      decription: Thanos Parquet Gateway Convert secret key for destination bucket
+      default: ""
+      required: true
+      type: string
+    - name: hanosParquetGateway.convert.source.access_key
+      decription: Thanos Parquet Gateway Convert access key for source bucket
+      default: ""
+      required: true
+      type: string
+    - name: hanosParquetGateway.convert.source.bucket
+      decription: Thanos Parquet Gateway Convert source bucket name
+      default: "source"
+      required: true
+      type: string
+    - name: thanosParquetGateway.convert.source.endpoint
+      decription: Thanos Parquet Gateway Convert source endpoint URL
+      default: host.docker.internal:9000
+      required: true
+      type: string
+    - name: thanosParquetGateway.convert.source.secret_key
+      decription: Thanos Parquet Gateway Convert secret key for source bucket
+      default: ""
+      required: true
+      type: string
+    - name: thanosParquetGateway.serve.access_key
+      decription: Thanos Parquet Gateway Serve access key for serve bucket
+      default: ""
+      required: true
+      type: string
+    - name: thanosParquetGateway.serve.bucket
+      decription: Thanos Parquet Gateway Serve bucket name
+      default: destination
+      required: true
+      type: string
+    - name: thanosParquetGateway.serve.endpoint
+      decription:  Thanos Parquet Gateway Serve endpoint URL
+      default: host.docker.internal:9000
+      required: true
+      type: string
+    - name: thanosParquetGateway.serve.secret_key
+      decription: Thanos Parquet Gateway Serve secret key for serve bucket
+      default: ""
+      required: true
+      type: string
+    - name: thanosParquetGateway.serve.volume.size
+      decription: Thanos Parquet Gateway Serve volume size
+      default: 100Gi
+      required: false
+      type: string
+    - name: thanosParquetGateway.serve.enabled
       description: Enable Thanos Parquet Gateway Serve
       default: true
       required: false
@@ -81,6 +151,11 @@ spec:
     - name: thanosParquetGateway.image.tag
       description:  Thanos Parquet Gateway image tag
       default: "20260123125451"
+      required: false
+      type: string
+    - name: thanosParquetGateway.image.pullPolicy
+      decription: Thanos Parquet Gateway image pull policy
+      default: "IfNotPresent"
       required: false
       type: string
     - name: thanosParquetGateway.convert.args.sortingLabels
