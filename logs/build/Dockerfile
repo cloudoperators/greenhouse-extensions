@@ -1,4 +1,4 @@
-FROM golang AS build
+FROM golang@sha256:9edf71320ef8a791c4c33ec79f90496d641f306a91fb112d3d060d5c1cee4e20 AS build
 
 ARG OTEL_VERSION=0.144.0
 
