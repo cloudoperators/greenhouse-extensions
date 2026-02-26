@@ -13,7 +13,7 @@ maintainers:
 home: https://github.com/sapcc/helm-charts/tree/master/system/opensearch-operator
 sources:
   - https://github.com/opensearch-project/opensearch-k8s-operator
-appVersion: v3.4.0
+appVersion: v3.5.0
 dependencies:
   - name: opensearch-operator
     alias: operator
