@@ -18,12 +18,19 @@ stringData:
         kibana:
           server_username: {{ .Values.cluster.usersCredentials.dashboards.username }}
         http:
+          {{- if .Values.auth.oidc.enabled }}
+          anonymous_auth_enabled: true
+          xff:
+            enabled: false
+          {{- else }}
           anonymous_auth_enabled: false
           xff:
             enabled: true
             internalProxies: '.*'  # Trust all internal proxies (service-proxy)
             remoteIpHeader: 'x-forwarded-for'
+          {{- end }}
         authc:
+          {{- if not .Values.auth.oidc.enabled }}
           proxy_auth_domain:
             description: "Authenticate via proxy headers from OAuth2 proxy"
             http_enabled: true
@@ -38,14 +45,22 @@ stringData:
                 roles_separator: ","
             authentication_backend:
               type: noop
+          {{- end }}
           basic_internal_auth_domain:
             description: "Authenticate via HTTP Basic against internal users database"
             http_enabled: true
             transport_enabled: true
+            {{- if .Values.auth.oidc.enabled }}
+            order: 1
+            http_authenticator:
+              type: basic
+              challenge: false
+            {{- else }}
             order: 1
             http_authenticator:
               type: basic
               challenge: true
+            {{- end }}
             authentication_backend:
               type: intern
           {{- if .Values.auth.oidc.enabled }}
@@ -62,9 +77,11 @@ stringData:
                 roles_key: {{ .Values.auth.oidc.rolesKey | quote }}
                 openid_connect_url: {{ .Values.auth.oidc.provider | quote }}
                 enable_ssl: true
+                {{- if .Values.auth.oidc.caPath }}
                 openid_connect_idp:
                   enable_ssl: true
                   pemtrustedcas_filepath: {{ .Values.auth.oidc.caPath | quote }}
+                {{- end }}
             authentication_backend:
               type: noop
           {{- end }}
