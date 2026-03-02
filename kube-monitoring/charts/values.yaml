@@ -345,7 +345,7 @@ kubeMonitoring:
     # @ignored
     persesDatasource:
       create: true
-      isDefault: false 
+      isDefault: false
 
     prometheusSpec:
 
