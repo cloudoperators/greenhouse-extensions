@@ -364,6 +364,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
 | thanos.image.tag | string | `"v0.40.1"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
+| thanos.query.additionalStores | list | `[]` | Additional Thanos Query store endpoints appended to the default ones. Use this to add extra stores without losing the defaults. |
 | thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` | Set Thanos Query auto-downsampling |
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
@@ -391,7 +392,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.stores | list | `[]` | Thanos Query store endpoints |
+| thanos.query.stores | list | `[]` | Thanos Query store endpoints. Setting this **replaces** the default store endpoints entirely. |
 | thanos.query.tls.data | object | `{}` |  |
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
@@ -416,8 +417,8 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
 | thanos.ruler.resources | object | `{}` | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
-| thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used  |
-| thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed  |
+| thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used. |
+| thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed. |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
 | thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |

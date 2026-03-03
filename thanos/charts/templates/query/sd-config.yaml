@@ -12,7 +12,6 @@ metadata:
 data:
   endpoint-targets.yaml: |-
     endpoints:
-{{- /* Technically it is possible to add stores and have the default stores all together.*/}}
 {{- if not (empty .Values.thanos.query.stores) }}
 {{- range .Values.thanos.query.stores }}
       - address: "{{ . }}"
@@ -21,4 +20,7 @@ data:
       - address: "kube-monitoring-prometheus:10901"
       - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"
 {{- end }}
+{{- range .Values.thanos.query.additionalStores }}
+      - address: "{{ . }}"
+{{- end -}}
 {{- end }}
