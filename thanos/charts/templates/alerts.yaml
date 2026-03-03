@@ -1,4 +1,4 @@
-{{ if .Values.thanos.serviceMonitor.selfMonitor }}
+{{ if and .Values.thanos.serviceMonitor.selfMonitor (not .Values.thanos.serviceMonitor.excludePrometheusRules) }}
 {{ $root := . }}
 {{- range $path, $bytes := .Files.Glob "alerts/*.yaml" }}
 {{ $fileName := base $path | trimSuffix ".yaml" }}
