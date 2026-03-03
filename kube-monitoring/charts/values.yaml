@@ -343,7 +343,9 @@ kubeMonitoring:
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
     # @ignored
-    persesDatasource: true
+    persesDatasource:
+      create: true
+      isDefault: false
 
     prometheusSpec:
 
