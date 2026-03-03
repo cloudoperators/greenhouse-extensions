@@ -364,6 +364,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
 | thanos.image.tag | string | `"v0.40.1"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
+| thanos.query.additionalStores | list | `[]` | Additional Thanos Query store endpoints appended to the default ones. Use this to add extra stores without losing the defaults. |
 | thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` | Set Thanos Query auto-downsampling |
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
@@ -391,7 +392,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.stores | list | `[]` | Thanos Query store endpoints |
+| thanos.query.stores | list | `[]` | Thanos Query store endpoints. Setting this **replaces** the default store endpoints entirely. |
 | thanos.query.tls.data | object | `{}` |  |
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
@@ -424,6 +425,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.storage | object | `{}` |  |
 | thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
 | thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
+| thanos.serviceMonitor.excludePrometheusRules | bool | `false` | Optionally when `selfMonitor` is `true` you can exclude the deployment of PrometheusRules for Thanos components. This might be required when running inside a shared cluster in which another monitoring stack is taking care of monitoring and thus defines alerts for this stack already. |
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
 | thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |
