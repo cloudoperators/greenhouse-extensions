@@ -337,6 +337,23 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+      kafka:
+        brokers:
+{{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
+        topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
+        encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
+        producer:
+          max_message_bytes: {{ .Values.openTelemetry.logsCollector.kafka.max_message_bytes }}
+          compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
+          required_acks: {{ .Values.openTelemetry.logsCollector.kafka.required_acks }}
+          max_retries: {{ .Values.openTelemetry.logsCollector.kafka.max_retries }}
+          retry_backoff: {{ .Values.openTelemetry.logsCollector.kafka.retry_backoff }}
+        timeout: {{ .Values.openTelemetry.logsCollector.kafka.timeout }}
+{{- end }}
 
     extensions:
       file_storage/journald:
@@ -393,7 +410,11 @@ spec:
         logs/forward:
           receivers: [forward]
           processors: [batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
           exporters: [failover]
+{{- end }}
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]

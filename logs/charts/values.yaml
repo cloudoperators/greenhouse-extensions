@@ -78,6 +78,30 @@ openTelemetry:
     # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
     failover:
       enabled: true
+    # -- Kafka exporter configuration for buffering logs
+    kafka:
+      # -- Enable Kafka exporter for logs buffering
+      enabled: false
+      # -- Kafka broker addresses (comma-separated list)
+      brokers: []
+      # -- Kafka topic name for logs
+      topic: "otel-logs"
+      # -- Kafka protocol version
+      protocol_version: "3.9.0"
+      # -- Message encoding format (otlp_json, otlp_proto, raw)
+      encoding: "otlp_json"
+      # -- Maximum message size in bytes
+      max_message_bytes: 1048576
+      # -- Compression type (none, gzip, snappy, lz4, zstd)
+      compression: "gzip"
+      # -- Number of required acks from Kafka (0, 1, -1/all)
+      required_acks: 1
+      # -- Maximum number of retries
+      max_retries: 5
+      # -- Retry backoff duration
+      retry_backoff: "100ms"
+      # -- Timeout for Kafka operations
+      timeout: "10s"
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
       enabled: false
