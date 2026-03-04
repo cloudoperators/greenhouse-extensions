@@ -347,12 +347,7 @@ spec:
         topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
         encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
         producer:
-          max_message_bytes: {{ .Values.openTelemetry.logsCollector.kafka.max_message_bytes }}
           compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
-          required_acks: {{ .Values.openTelemetry.logsCollector.kafka.required_acks }}
-          max_retries: {{ .Values.openTelemetry.logsCollector.kafka.max_retries }}
-          retry_backoff: {{ .Values.openTelemetry.logsCollector.kafka.retry_backoff }}
-        timeout: {{ .Values.openTelemetry.logsCollector.kafka.timeout }}
 {{- end }}
 
     extensions:

@@ -93,17 +93,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.externalConfig.external_ip | string | `nil` |  |
 | openTelemetry.logsCollector.externalConfig.tld | string | `nil` |  |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
-| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"gzip","enabled":false,"encoding":"otlp_json","max_message_bytes":1048576,"max_retries":5,"protocol_version":"3.9.0","required_acks":1,"retry_backoff":"100ms","timeout":"10s","topic":"otel-logs"}` | Kafka exporter configuration for buffering logs |
-| openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (comma-separated list) |
+| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"gzip","enabled":false,"encoding":"opensearch_json","protocol_version":"3.9.0","topic":"otel-logs"}` | Kafka exporter configuration for buffering logs |
+| openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses |
 | openTelemetry.logsCollector.kafka.compression | string | `"gzip"` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for logs buffering |
-| openTelemetry.logsCollector.kafka.encoding | string | `"otlp_json"` | Message encoding format (otlp_json, otlp_proto, raw) |
-| openTelemetry.logsCollector.kafka.max_message_bytes | int | `1048576` | Maximum message size in bytes |
-| openTelemetry.logsCollector.kafka.max_retries | int | `5` | Maximum number of retries |
+| openTelemetry.logsCollector.kafka.encoding | string | `"opensearch_json"` | Message encoding format (otlp_json, otlp_proto, raw, opensearch_json) |
 | openTelemetry.logsCollector.kafka.protocol_version | string | `"3.9.0"` | Kafka protocol version |
-| openTelemetry.logsCollector.kafka.required_acks | int | `1` | Number of required acks from Kafka (0, 1, -1/all) |
-| openTelemetry.logsCollector.kafka.retry_backoff | string | `"100ms"` | Retry backoff duration |
-| openTelemetry.logsCollector.kafka.timeout | string | `"10s"` | Timeout for Kafka operations |
 | openTelemetry.logsCollector.kafka.topic | string | `"otel-logs"` | Kafka topic name for logs |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.syslogConfig.enabled | bool | `false` |  |
