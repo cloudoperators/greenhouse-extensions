@@ -82,16 +82,16 @@ openTelemetry:
     kafka:
       # -- Enable Kafka exporter for logs buffering
       enabled: false
-      # -- Kafka broker addresses
+      # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
       brokers: []
-      # -- Kafka topic name for logs
-      topic: "otel-logs"
-      # -- Kafka protocol version
-      protocol_version: "3.9.0"
+      # -- Kafka topic name for logs (e.g., "logs")
+      topic: ""
+      # -- Kafka protocol version (e.g., "3.9.0")
+      protocol_version: ""
       # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_json)
-      encoding: "opensearch_json"
+      encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
-      compression: "gzip"
+      compression: ""
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
       enabled: false
