@@ -6,12 +6,12 @@ kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.8.0
+  version: 0.8.1
   description: thanos
   helmChart:
     name: thanos
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.8.0
+    version: 0.8.1
   options:
     - default: null
       description: CLI param for Thanos Query
@@ -135,6 +135,31 @@ spec:
       required: false
       type: bool
     - default: []
+      description: List of Thanos Query endpoints for ThanosRuler to query. Defaults to the local thanos-query service if not set.
+      name: thanos.ruler.queryEndpoints
+      required: false
+      type: list
+    - default: {}
+      description: Flat key-value label pairs used to select PrometheusRules for ThanosRuler. Wrapped in matchLabels automatically. Defaults to { thanos-ruler: <Release.Name> } if not set.
+      name: thanos.ruler.ruleSelector
+      required: false
+      type: map
+    - default: ""
+      description: Label value used to match PrometheusRules for ThanosRuler via the thanos-ruler label. Defaults to the Helm release name if not set. Mutually exclusive with thanos.ruler.ruleSelector.
+      name: thanos.ruler.matchLabel
+      required: false
+      type: string
+    - default: ""
+      description: External Thanos Query URL set as the source link in alerts dispatched to Alertmanager. Maps to the --alert.query-url CLI flag. Leave empty to omit.
+      name: thanos.ruler.alertQueryUrl
+      required: false
+      type: string
+    - default: {}
+      description: Namespace selector for PrometheusRule discovery. An empty selector ({}) matches all namespaces.
+      name: thanos.ruler.ruleNamespaceSelector
+      required: false
+      type: map
+    - default: []
       description: If multiple Prometheus instances are deployed, all Prometheus, Thanos Query and Thanos Store services need to be added to this list manually e.g. kube-monitoring-prometheus:10901 or thanos-store:10901.
       name: thanos.query.stores
       required: false
@@ -163,6 +188,10 @@ spec:
       name: thanos.ruler.serviceAnnotations
       required: false
       type: map
+    - name: thanos.ruler.alertmanagers.hosts
+      description: "Alertmanager static_configs entries for ThanosRuler. Each entry follows the Thanos static_configs format (https://thanos.io/tip/components/rule.md/#alertmanager), e.g. [{targets: [host:port]}]."
+      required: false
+      type: list
     - default: false
       description: Thanos ruler Alertmanager auth toggle
       name: thanos.ruler.alertmanagers.authentication.enabled
