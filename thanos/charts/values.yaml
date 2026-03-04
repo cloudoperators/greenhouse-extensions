@@ -111,12 +111,8 @@ thanos:
     # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
-    # -- Thanos Query store endpoints. Setting this **replaces** the default store endpoints entirely.
+    # -- Thanos Query store endpoints
     stores: []
-
-    # -- Additional Thanos Query store endpoints appended to the default ones.
-    # Use this to add extra stores without losing the defaults.
-    additionalStores: []
 
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/

@@ -364,7 +364,6 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.image.repository | string | `"quay.io/thanos/thanos"` | Thanos image repository |
 | thanos.image.tag | string | `"v0.40.1"` | Thanos image tag |
 | thanos.query.additionalArgs | list | `[]` | Adding additional arguments to Thanos Query |
-| thanos.query.additionalStores | list | `[]` | Additional Thanos Query store endpoints appended to the default ones. Use this to add extra stores without losing the defaults. |
 | thanos.query.annotations | object | `{}` | Annotations to add to the Thanos Query resources |
 | thanos.query.autoDownsampling | bool | `true` | Set Thanos Query auto-downsampling |
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
@@ -392,7 +391,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
-| thanos.query.stores | list | `[]` | Thanos Query store endpoints. Setting this **replaces** the default store endpoints entirely. |
+| thanos.query.stores | list | `[]` | Thanos Query store endpoints |
 | thanos.query.tls.data | object | `{}` |  |
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
