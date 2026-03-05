@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: alerts
 spec:
-  version: 6.0.2
+  version: 6.1.0
   weight: 0
   displayName: Alerts
   description: Deploy and manage prometheus alertmanager instances
@@ -16,7 +16,7 @@ spec:
     # renovate depName=ghcr.io/cloudoperators/greenhouse-extensions/charts/alerts
     name: alerts
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 5.0.2
+    version: 5.1.0
   options:
     - name: global.caCert
       description: Additional caCert to add to the CA bundle
