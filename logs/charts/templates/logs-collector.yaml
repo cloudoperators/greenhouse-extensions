@@ -337,6 +337,18 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+      kafka:
+        brokers:
+{{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
+        topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
+        encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
+        producer:
+          compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
+{{- end }}
 
     extensions:
       file_storage/journald:
@@ -393,7 +405,11 @@ spec:
         logs/forward:
           receivers: [forward]
           processors: [batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
           exporters: [failover]
+{{- end }}
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]
