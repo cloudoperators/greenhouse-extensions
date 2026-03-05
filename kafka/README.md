@@ -64,6 +64,8 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | kafkaExporter.topicRegex | string | `".*"` | Topic regex for metrics export |
 | monitoring.additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
 | monitoring.enabled | bool | `true` | Enable Prometheus monitoring |
+| monitoring.podMonitor | object | `{"labels":{}}` | Pod Monitor configuration |
+| monitoring.podMonitor.labels | object | `{}` | Labels to add to the PodMonitor so Prometheus can discover it. |
 | operator.enabled | bool | `true` | Enable or disable the Strimzi Kafka Operator installation |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image | object | ghcr.io/cloudoperators/greenhouse-extensions-integration-test:main | Test framework image configuration |

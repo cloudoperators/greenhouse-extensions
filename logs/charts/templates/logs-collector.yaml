@@ -41,10 +41,22 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
       port: 8888
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+    - name: syslogtcp
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      protocol: TCP
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+    - name: syslogudp
+      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      protocol: UDP
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+{{- end }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
@@ -92,6 +104,28 @@ spec:
 
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.receiver" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+      syslog/tcp:
+        operators:
+        - field: attributes.log.type
+          id: syslogtcp
+          type: add
+          value: syslogtcp
+        protocol: rfc5424
+        tcp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      syslog/udp:
+        location: UTC
+        operators:
+        - field: attributes.log.type
+          id: syslogudp
+          type: add
+          value: syslogudp
+        protocol: rfc3164
+        udp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- end }}
 
     processors:
@@ -194,7 +228,7 @@ spec:
             conditions:
               - resource.attributes["app.label.name"] == "ingress-nginx"
             statements:
-              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request.method} %{NOTSPACE:request.path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request.length:int} %{BASE10NUM:request.time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request.id}", true),"upsert")
               - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
               - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
@@ -299,11 +333,6 @@ spec:
         retry_on_failure:
           enabled: true
           max_elapsed_time: 0s
-        sending_queue:
-          enabled: true
-          queue_size: 100000
-          num_consumers: 2
-          block_on_overflow: true
         timeout: 30s
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
@@ -328,8 +357,11 @@ spec:
           - [logs/failover_b]
 {{- end }}
         retry_interval: 2m
-        retry_gap: 30s
-        max_retries: 0
+        sending_queue:
+          enabled: true
+          queue_size: 100000
+          num_consumers: 2
+          block_on_overflow: true
     service:
       extensions:
         - file_storage/journald
@@ -380,6 +412,16 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+        logs/syslog_tcp:
+          receivers: [syslog/tcp]
+          processors: [batch]
+          exporters: [forward]
+        logs/syslog_udp:
+          receivers: [syslog/udp]
+          processors: [batch]
+          exporters: [forward]
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]

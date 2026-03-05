@@ -6,26 +6,29 @@ kind: PluginDefinition
 metadata:
   name: repo-guard
 spec:
-  version: "1.5.0"
+  version: "1.6.0"
   displayName: Repo Guard
-  description: Manages Github teams, team memberships and repository & team assignments
-  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/README.md
-  icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/repo-guard/img/logo.png
+  description: Repo Guard automates GitHub organization management using Kubernetes Custom Resources (CRDs)
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/repo-guard/refs/heads/main/README.md
   helmChart:
     name: repo-guard
-    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.5.0
+    repository: oci://ghcr.io/cloudoperators/charts
+    version: 1.6.0
   options:
     - name: manager
       description: Manager configuration
       required: false
       type: map
-    - name: ldap
-      description: LDAP configuration for external member provider
+    - name: ttl
+      description: TTL for team and organization operations and status management
       required: false
       type: map
-    - name: distributionListAPI
-      description: HTTP remote API configuration for external member provider
+    - name: monitoring
+      description: Monitoring configuration
+      required: false
+      type: map
+    - name: ldap
+      description: LDAP configuration for external member provider
       required: false
       type: map
     - name: genericExternalMemberProviders
@@ -36,10 +39,6 @@ spec:
       description: Static member provider configuration
       required: false
       type: list
-    - name: openSourceManagementPortalAPI
-      description: HTTP remote API configuration for OpenSourceManagementPortal
-      required: false
-      type: map
     - name: githubs
       description: Github configuration to be managed by the plugin
       required: false

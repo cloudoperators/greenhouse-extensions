@@ -81,16 +81,22 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | commonLabels | object | `{}` | common labels to apply to all resources. |
-| customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds.  |
+| customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"13b191d"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"ddc58e7"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"13b191d"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"ddc58e7"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| openTelemetry.logsCollector.externalConfig.enabled | bool | `false` |  |
+| openTelemetry.logsCollector.externalConfig.external_ip | string | `nil` |  |
+| openTelemetry.logsCollector.externalConfig.tld | string | `nil` |  |
 | openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.syslogConfig.enabled | bool | `false` |  |
+| openTelemetry.logsCollector.syslogConfig.tcp_port | int | `514` |  |
+| openTelemetry.logsCollector.syslogConfig.udp_port | int | `514` |  |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |

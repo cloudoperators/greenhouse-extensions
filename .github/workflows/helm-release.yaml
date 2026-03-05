@@ -7,6 +7,7 @@ on:
         - main
     paths:
       - .github/workflows/helm-release.yaml
+      - absent-metrics-operator/charts/**
       - alerts/charts/**
       - audit-logs/charts/**
       - cert-manager/charts/**
@@ -42,6 +43,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - chartDir: absent-metrics-operator/charts
+            chartName: absent-metrics-operator
           - chartDir: alerts/charts
             chartName: alerts
           - chartDir: audit-logs/charts
@@ -52,6 +55,8 @@ jobs:
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
             chartName: exposed-services
+          - chartDir: kafka/chart
+            chartName: kafka
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring
           - chartDir: kubeconfig-generator/chart

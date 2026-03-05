@@ -63,6 +63,15 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
+| auth.oidc.caPath | string | `""` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) Leave empty to use system CA bundle |
+| auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
+| auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
+| auth.oidc.dashboards.scope | string | `"openid email profile"` | OIDC scopes to request |
+| auth.oidc.enabled | bool | `false` | Enable OIDC authentication. When enabled, adds an OpenID Connect auth domain to OpenSearch. |
+| auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
+| auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
+| auth.oidc.subjectKey | string | `"name"` | Claim key to use as username from the OIDC token |
 | certManager.dashboardsDnsNames | list | `["opensearch-dashboards.tld"]` | Override DNS names for OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | certManager.defaults.durations.ca | string | `"8760h"` | Validity period for CA certificates (1 year) |
 | certManager.defaults.durations.leaf | string | `"4800h"` | Validity period for leaf certificates (200 days to comply with CA/B Forum baseline requirements) |
@@ -90,7 +99,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | cluster.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | cluster.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| cluster.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-forwarded-user\",\"x-forwarded-groups\",\"x-forwarded-email\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-forwarded-groups","opensearch_security.proxycache.user_header":"x-forwarded-user"}` | Additional properties for opensearch_dashboards.yaml |
+| cluster.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset. |
 | cluster.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | cluster.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | cluster.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
@@ -115,7 +124,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| cluster.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
+| cluster.cluster.dashboards.version | string | `"3.4.0"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -126,7 +135,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | cluster.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | cluster.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
+| cluster.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"` | Custom URL for the monitoring plugin |
 | cluster.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | cluster.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | cluster.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -137,7 +146,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | cluster.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | cluster.cluster.general.vendor | string | `"Opensearch"` |  |
-| cluster.cluster.general.version | string | `"3.3.2"` | Opensearch version |
+| cluster.cluster.general.version | string | `"3.4.0"` | Opensearch version |
 | cluster.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | cluster.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | cluster.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |
@@ -249,6 +258,15 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
+| siem.auth.oidc.caPath | string | `""` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) Leave empty to use system CA bundle (recommended for publicly trusted providers) |
+| siem.auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/) |
+| siem.auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
+| siem.auth.oidc.dashboards.scope | string | `"openid email profile"` | OIDC scopes to request |
+| siem.auth.oidc.enabled | bool | `false` | Enable OIDC authentication for SIEM cluster. When enabled, adds an OpenID Connect auth domain. |
+| siem.auth.oidc.provider | string | `""` | OpenID Connect provider URL (e.g., https://provider.example.com/.well-known/openid-configuration) |
+| siem.auth.oidc.rolesKey | string | `"roles"` | Claim key to use for roles from the OIDC token |
+| siem.auth.oidc.subjectKey | string | `"name"` | Claim key to use as username from the OIDC token |
 | siem.certManager.dashboardsDnsNames | list | `["opensearch-siem-dashboards.tld"]` | Override DNS names for SIEM OpenSearch Dashboards endpoints (used for dashboards ingress certificate) |
 | siem.certManager.httpDnsNames | list | `["opensearch-siem-client.tld"]` | Override HTTP DNS names for SIEM OpenSearch client endpoints |
 | siem.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
@@ -265,7 +283,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.client.service.ports | list | `[{"name":"http","port":9200,"protocol":"TCP","targetPort":9200}]` | Ports to expose for the client service. |
 | siem.cluster.client.service.type | string | `"ClusterIP"` | Kubernetes service type. Defaults to `ClusterIP`, but should be set to `LoadBalancer` to expose OpenSearch client nodes externally. |
 | siem.cluster.confMgmt.smartScaler | bool | `true` | Enable nodes to be safely removed from the cluster |
-| siem.cluster.dashboards.additionalConfig | object | `{"opensearch.requestHeadersAllowlist":"[\"securitytenant\",\"Authorization\",\"x-forwarded-for\",\"x-forwarded-user\",\"x-forwarded-groups\",\"x-forwarded-email\"]","opensearch_security.auth.type":"proxy","opensearch_security.proxycache.roles_header":"x-forwarded-groups","opensearch_security.proxycache.user_header":"x-forwarded-user"}` | Additional properties for opensearch_dashboards.yaml |
+| siem.cluster.dashboards.additionalConfig | object | `{}` | Additional properties for opensearch_dashboards.yaml. Configure auth (proxy or OIDC) via plugin preset. |
 | siem.cluster.dashboards.affinity | object | `{}` | dashboards pod affinity rules |
 | siem.cluster.dashboards.annotations | object | `{}` | dashboards annotations |
 | siem.cluster.dashboards.basePath | string | `""` | dashboards Base Path for Opensearch Clusters running behind a reverse proxy |
@@ -290,7 +308,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.tls.generate | bool | `false` | generate certificate, if false secret must be provided |
 | siem.cluster.dashboards.tls.secret | object | `{"name":"opensearch-siem-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | siem.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
-| siem.cluster.dashboards.version | string | `"3.3.0"` | dashboards version |
+| siem.cluster.dashboards.version | string | `"3.4.0"` | dashboards version |
 | siem.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | siem.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | siem.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
@@ -301,7 +319,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.monitoring.enable | bool | `true` | Enable cluster monitoring |
 | siem.cluster.general.monitoring.labels | object | `{}` | ServiceMonitor labels |
 | siem.cluster.general.monitoring.monitoringUserSecret | string | `""` | Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it. |
-| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.3.2.0/prometheus-exporter-3.3.2.0.zip"` | Custom URL for the monitoring plugin |
+| siem.cluster.general.monitoring.pluginUrl | string | `"https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"` | Custom URL for the monitoring plugin |
 | siem.cluster.general.monitoring.scrapeInterval | string | `"30s"` | How often to scrape metrics |
 | siem.cluster.general.monitoring.tlsConfig | object | `{"insecureSkipVerify":true}` | Override the tlsConfig of the generated ServiceMonitor |
 | siem.cluster.general.pluginsList | list | `[]` | List of Opensearch plugins to install |
@@ -312,7 +330,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.general.setVMMaxMapCount | bool | `true` | Enable setVMMaxMapCount. OpenSearch requires the Linux kernel vm.max_map_count option to be set to at least 262144 |
 | siem.cluster.general.snapshotRepositories | list | `[]` | Opensearch snapshot repositories configuration |
 | siem.cluster.general.vendor | string | `"Opensearch"` |  |
-| siem.cluster.general.version | string | `"3.3.2"` | Opensearch version |
+| siem.cluster.general.version | string | `"3.4.0"` | Opensearch version |
 | siem.cluster.ingress.dashboards.annotations | object | `{}` | dashboards ingress annotations |
 | siem.cluster.ingress.dashboards.className | string | `""` | Ingress class name |
 | siem.cluster.ingress.dashboards.enabled | bool | `false` | Enable ingress for dashboards service |

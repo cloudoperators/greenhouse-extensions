@@ -1,6 +1,15 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+# OIDC Authentication - disabled by default for local testing
+auth:
+  oidc:
+    enabled: false
+    provider: ""
+    dashboards:
+      clientId: ""
+      clientSecret: ""
+
 certManager:
   httpDnsNames:
     - opensearch-logs-client.local
