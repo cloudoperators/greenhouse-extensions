@@ -343,7 +343,9 @@ kubeMonitoring:
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
     # @ignored
-    persesDatasource: true
+    persesDatasource:
+      create: true
+      isDefault: false
 
     prometheusSpec:
 
@@ -387,6 +389,18 @@ kubeMonitoring:
       # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
       # @section -- Prometheus options
       probeSelector: {}
+
+      # -- Enable scraping of native histograms.
+      # @section -- Prometheus options
+      scrapeNativeHistograms: false
+
+      # -- Enable scraping of classic histograms when scrapeNativeHistograms is enabled.
+      # @section -- Prometheus options
+      scrapeClassicHistograms: false
+
+      # -- Enable conversion of classic histograms to NHCB format when scrapeNativeHistograms is enabled.
+      # @section -- Prometheus options
+      convertClassicHistogramsToNHCB: false
 
       # -- scrapeConfigs to be selected for target discovery.
       # @default -- <pre>matchLabels<br>  plugin: <metadata.name></pre>
