@@ -14,7 +14,8 @@ auth:
     # -- Claim key to use for roles from the OIDC token
     rolesKey: "roles"
     # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
-    caPath: "certs/admin/ca.crt"
+    # Leave empty to use system CA bundle
+    caPath: ""
     # Dashboards OIDC client configuration (creates a secret for env var injection)
     dashboards:
       # -- OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true)
@@ -870,7 +871,8 @@ siem:
       # -- Claim key to use for roles from the OIDC token
       rolesKey: "roles"
       # -- Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir)
-      caPath: "certs/admin/ca.crt"
+      # Leave empty to use system CA bundle (recommended for publicly trusted providers)
+      caPath: ""
       # Dashboards OIDC client configuration for SIEM (creates a secret for env var injection)
       dashboards:
         # -- OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true)

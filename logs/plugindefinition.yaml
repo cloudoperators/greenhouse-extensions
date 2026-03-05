@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.11.34
+  version: 0.11.35
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
@@ -40,7 +40,7 @@ spec:
       name: openTelemetry.logsCollector.cephConfig.enabled
       required: false
       type: bool
-    - default: false
+    - default: true
       description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
       name: openTelemetry.logsCollector.failover.enabled
       required: false

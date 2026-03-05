@@ -63,7 +63,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
-| auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| auth.oidc.caPath | string | `""` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) Leave empty to use system CA bundle |
 | auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
 | auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
 | auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
@@ -258,7 +258,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
 | siem.actionGroups | list | `[]` | List of OpensearchActionGroup for SIEM cluster. Check values.yaml file for examples. |
-| siem.auth.oidc.caPath | string | `"certs/admin/ca.crt"` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) |
+| siem.auth.oidc.caPath | string | `""` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) Leave empty to use system CA bundle (recommended for publicly trusted providers) |
 | siem.auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your SIEM dashboards URL, e.g., https://siem-dashboards.example.com/) |
 | siem.auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
 | siem.auth.oidc.dashboards.clientSecret | string | `""` | OIDC client secret for SIEM OpenSearch Dashboards (required when siem.auth.oidc.enabled is true) |
