@@ -9,7 +9,7 @@ RUN chmod +x ./ocb
 COPY otel-collector-builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-FROM debian:stable-slim
+FROM debian:stable-slim@sha256:85dfcffff3c1e193877f143d05eaba8ae7f3f95cb0a32e0bc04a448077e1ac69
 
 RUN apt-get update && \
     apt-get install -y systemd wget && \
