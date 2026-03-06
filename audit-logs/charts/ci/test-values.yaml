@@ -10,8 +10,8 @@ auditLogs:
     endpoint: test-endpoint
     index: test
   elastic:
-      enabled: true
-      endpoint: test
+    enabled: true
+    endpoint: test
       tls:
         crt: testcrt
         key: testkey
