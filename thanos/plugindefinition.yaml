@@ -140,7 +140,7 @@ spec:
       required: false
       type: list
     - default: {}
-      description: Flat key-value label pairs used to select PrometheusRules for ThanosRuler. Wrapped in matchLabels automatically. Defaults to { thanos-ruler: <Release.Name> } if not set.
+      description: "Flat key-value label pairs used to select PrometheusRules for ThanosRuler. Wrapped in matchLabels automatically. Defaults to { thanos-ruler: <Release.Name> } if not set."
       name: thanos.ruler.ruleSelector
       required: false
       type: map
