@@ -319,7 +319,7 @@ spec:
 | kubeMonitoring.prometheus.ingress.ingressClassname | string | `"nginx"` | Specifies the ingress-controller |
 | kubeMonitoring.prometheus.prometheusSpec.additionalArgs | list | `[]` | Allows setting additional arguments for the Prometheus container |
 | kubeMonitoring.prometheus.prometheusSpec.additionalScrapeConfigs | string | `""` | Next to `ScrapeConfig` CRD, you can use AdditionalScrapeConfigs, which allows specifying additional Prometheus scrape configurations |
-| kubeMonitoring.prometheus.prometheusSpec.convertClassicHistogramsToNHCB | bool | `true` | Enable conversion of classic histograms to NHCB format when scrapeNativeHistograms is enabled. |
+| kubeMonitoring.prometheus.prometheusSpec.convertClassicHistogramsToNHCB | bool | `false` | Enable conversion of classic histograms to NHCB format when scrapeNativeHistograms is enabled. |
 | kubeMonitoring.prometheus.prometheusSpec.evaluationInterval | string | `""` | Interval between consecutive evaluations |
 | kubeMonitoring.prometheus.prometheusSpec.externalLabels | object | `{}` | External labels to add to any time series or alerts when communicating with external systems like Alertmanager |
 | kubeMonitoring.prometheus.prometheusSpec.logLevel | string | `""` | Log level to be configured for Prometheus |
@@ -327,10 +327,10 @@ spec:
 | kubeMonitoring.prometheus.prometheusSpec.probeSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | Probes to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.retention | string | `""` | How long to retain metrics |
 | kubeMonitoring.prometheus.prometheusSpec.ruleSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | PrometheusRules to be selected for target discovery. If {}, select all PrometheusRules |
-| kubeMonitoring.prometheus.prometheusSpec.scrapeClassicHistograms | bool | `true` | Enable scraping of classic histograms when scrapeNativeHistograms is enabled. |
+| kubeMonitoring.prometheus.prometheusSpec.scrapeClassicHistograms | bool | `false` | Enable scraping of classic histograms when scrapeNativeHistograms is enabled. |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeConfigSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | scrapeConfigs to be selected for target discovery. |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeInterval | string | `""` | Interval between consecutive scrapes. Defaults to 30s |
-| kubeMonitoring.prometheus.prometheusSpec.scrapeNativeHistograms | bool | `true` | Enable scraping of native histograms. |
+| kubeMonitoring.prometheus.prometheusSpec.scrapeNativeHistograms | bool | `false` | Enable scraping of native histograms. |
 | kubeMonitoring.prometheus.prometheusSpec.scrapeTimeout | string | `""` | Number of seconds to wait for target to respond before erroring |
 | kubeMonitoring.prometheus.prometheusSpec.serviceMonitorSelector | object | <pre>matchLabels<br>  plugin: <metadata.name></pre> | ServiceMonitors to be selected for target discovery. If {}, select all ServiceMonitors |
 | kubeMonitoring.prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources | object | `{"requests":{"storage":"50Gi"}}` | How large the persistent volume should be to house the Prometheus database. Default 50Gi. |

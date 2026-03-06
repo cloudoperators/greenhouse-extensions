@@ -62,13 +62,20 @@ spec:
   ruleSelector:
     matchLabels:
     {{- if .Values.thanos.ruler.ruleSelector }}
-      {{- toYaml .Values.thanos.ruler.ruleSelector | nindent 4 }}
+      {{- toYaml .Values.thanos.ruler.ruleSelector | nindent 6 }}
     {{- else }}
       thanos-ruler: {{ .Values.thanos.ruler.matchLabel | default .Release.Name }}
     {{- end }}
   serviceName: {{ include "release.name" . }}-ruler
   queryEndpoints:
+  {{- if .Values.thanos.ruler.queryEndpoints }}
+    {{- toYaml .Values.thanos.ruler.queryEndpoints | nindent 4 }}
+  {{- else }}
     - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}
+  {{- end }}
+  {{- if .Values.thanos.ruler.alertQueryUrl }}
+  alertQueryUrl: {{ .Values.thanos.ruler.alertQueryUrl | quote }}
+  {{- end }}
   replicas: {{ .Values.thanos.ruler.replicas }}
   {{- if .Values.thanos.ruler.externalLabels }}
   labels:
@@ -81,8 +88,8 @@ spec:
     - {{ .Values.thanos.query.replicaLabel }}
     - {{ .Values.thanos.ruler.replicaLabel }}
   alertmanagersConfig:
-    key: alertManagerConfig.yaml # Key name for alert manager config yaml
-    name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing alert manager config
+    key: alertManagerConfig.yaml # Key name for Alertmanager config YAML
+    name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing Alertmanager config
   {{- end }}
   {{- if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
   containers:

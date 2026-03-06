@@ -396,6 +396,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.tls.secretName | string | `""` |  |
 | thanos.query.web.externalPrefix | string | `nil` |  |
 | thanos.query.web.routePrefix | string | `nil` |  |
+| thanos.ruler.alertQueryUrl | string | `""` | External Thanos Query URL embedded as the source link in alerts sent to Alertmanager. Maps to the '--alert.query-url' CLI flag. Leave empty to use no external link. |
 | thanos.ruler.alertRelabelConfigs | list | `[]` | alertRelabelConfigs defines the alert relabeling in Thanos Ruler. |
 | thanos.ruler.alertmanagers | object | nil | Configures the list of Alertmanager endpoints to send alerts to. The configuration format is defined at https://thanos.io/tip/components/rule.md/#alertmanager. |
 | thanos.ruler.alertmanagers.authentication.enabled | bool | `true` | Enable Alertmanager authentication for Thanos Ruler |
@@ -412,12 +413,13 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.logLevel | string | info | Thanos Ruler log level |
 | thanos.ruler.matchLabel | string | `nil` | PrometheusRule objects to be selected for rule evaluation |
 | thanos.ruler.objectStorageConfig.existingSecret | object | `{}` |  |
+| thanos.ruler.queryEndpoints | list | `[]` | List of Thanos Query endpoints for ThanosRuler to evaluate rules against. Defaults to the local thanos-query service if not set. |
 | thanos.ruler.replicaLabel | string | `"thanos_ruler_replica"` | Set Thanos Rule replica-label. Only change this when you also guarantee to add the same as an external label with a value of `"$(POD_NAME)"` |
 | thanos.ruler.replicas | int | `1` | Set Thanos Ruler replica count |
 | thanos.ruler.resources | object | `{}` | Resource requests and limits for the Thanos Ruler container. |
 | thanos.ruler.retention | string | `"24h"` | Time duration ThanosRuler shall retain data for. Default is ‘24h’, and must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years). |
-| thanos.ruler.ruleNamespaceSelector | object | `{}` | If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used  |
-| thanos.ruler.ruleSelector | string | `nil` | Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed  |
+| thanos.ruler.ruleNamespaceSelector | object | `{}` | Namespace selector for PrometheusRule discovery. Empty {} matches all namespaces. |
+| thanos.ruler.ruleSelector | string | `nil` | Label selector for PrometheusRules. Defaults to thanos-ruler: <matchLabel or .Release.Name>. Usually needs to be changed if a custom ruler is deployed. |
 | thanos.ruler.securityContext | object | `{"fsGroup":2000,"runAsGroup":2000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext holds pod-level security attributes and common container settings. |
 | thanos.ruler.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Ruler service in addition to its already configured annotations. |
 | thanos.ruler.serviceLabels | object | `{}` | Labels to add to the Thanos Ruler service |
