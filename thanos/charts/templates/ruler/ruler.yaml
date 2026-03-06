@@ -74,7 +74,7 @@ spec:
     - dnssrv+_http._tcp.{{ include "release.name" . }}-query.{{ .Release.Namespace }}.svc{{ default "/thanos" .Values.thanos.query.web.routePrefix }}
   {{- end }}
   {{- if .Values.thanos.ruler.alertQueryUrl }}
-  alertQueryUrl: {{ .Values.thanos.ruler.alertQueryUrl }}
+  alertQueryUrl: {{ .Values.thanos.ruler.alertQueryUrl | quote }}
   {{- end }}
   replicas: {{ .Values.thanos.ruler.replicas }}
   {{- if .Values.thanos.ruler.externalLabels }}
