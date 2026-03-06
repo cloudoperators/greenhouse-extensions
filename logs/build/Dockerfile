@@ -7,7 +7,7 @@ RUN wget "https://github.com/open-telemetry/opentelemetry-collector-releases/rel
 
 RUN chmod +x ./ocb
 COPY otel-collector-builder-config.yaml builder-config.yaml
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOPROXY=direct ./ocb --config builder-config.yaml
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
 FROM debian:stable-slim@sha256:85dfcffff3c1e193877f143d05eaba8ae7f3f95cb0a32e0bc04a448077e1ac69
 
