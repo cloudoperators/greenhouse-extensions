@@ -29,16 +29,13 @@ auditLogs:
     endpoint:
     # -- Name for OpenSearch index
     index:
-    # -- Username for OpenSearch endpoint
+    # -- Username for OpenSearch endpoint (primary)
     failover_username_a:
-    # -- Password for OpenSearch endpoint
+    # -- Password for OpenSearch endpoint (primary)
     failover_password_a:
-    # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
-    failover:
-      enabled: true
-    # -- Second Username (as a failover) for OpenSearch endpoint
+    # -- Username for OpenSearch endpoint (failover/secondary)
     failover_username_b:
-    # -- Second Password (as a failover) for OpenSearch endpoint
+    # -- Password for OpenSearch endpoint (failover/secondary)
     failover_password_b:
   elastic:
     # -- Activates the configuration for Elastic.
@@ -47,8 +44,8 @@ auditLogs:
     endpoint:
     # -- TLS certificate for Elastic
     tls:
-      crt: 
-      key: 
+      crt:
+      key:
     # -- Labels to be added to Elastic logs
     labels: []
 

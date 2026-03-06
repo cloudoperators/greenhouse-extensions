@@ -34,7 +34,7 @@ otlp/es:
 
 {{- define "es.pipeline" }}
 logs/es:
-  receivers: [forward]
+  receivers: [failover]
   processors: [attributes/es]
   exporters: [otlp/es]
 {{- end }}
