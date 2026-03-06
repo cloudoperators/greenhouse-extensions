@@ -424,6 +424,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.ruler.storage | object | `{}` |  |
 | thanos.serviceMonitor.alertLabels | string | <pre> alertLabels: \| <br>   support_group: "default" <br>   meta: "" </pre> | Labels to add to the PrometheusRules alerts. |
 | thanos.serviceMonitor.dashboards | bool | `true` | Create configmaps containing Perses dashboards |
+| thanos.serviceMonitor.excludePrometheusRules | bool | `false` | Optionally when `selfMonitor` is `true` you can exclude the deployment of PrometheusRules for Thanos components. This might be required when running inside a shared cluster in which another monitoring stack is taking care of monitoring and thus defines alerts for this stack already. |
 | thanos.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"` |
 | thanos.serviceMonitor.selfMonitor | bool | `false` | Create a ServiceMonitor and PrometheusRules for Thanos components. Disabled by default since label is required for Prometheus serviceMonitorSelector/ruleSelector. |
 | thanos.store.additionalArgs | list | `[]` | Adding additional arguments to Thanos Store |

@@ -41,6 +41,10 @@ thanos:
     # serviceMonitorSelector/ruleSelector.
     selfMonitor: false
 
+    # -- Optionally when `selfMonitor` is `true` you can exclude the deployment of PrometheusRules for Thanos components. This might be required when
+    # running inside a shared cluster in which another monitoring stack is taking care of monitoring and thus defines alerts for this stack already.
+    excludePrometheusRules: false
+
     # -- Labels to add to the ServiceMonitor/PrometheusRules. Make sure label is matching your Prometheus serviceMonitorSelector/ruleSelector configs
     # by default Greenhouse kube-monitoring follows this label pattern `plugin: "{{ $.Release.Name }}"`
     labels: {}
