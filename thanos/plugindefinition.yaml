@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: thanos
 spec:
-  version: 0.8.1
+  version: 0.8.2
   description: thanos
   helmChart:
     name: thanos
