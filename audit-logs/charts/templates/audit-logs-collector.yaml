@@ -15,6 +15,12 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: "20%"
+  terminationGracePeriodSeconds: 10
   hostPID: true
   securityContext:
     privileged: true
@@ -174,9 +180,11 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.attributes" . | nindent 6 -}}
-{{- end }}
+      attributes/failover_username_b:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_b}
       transform/journal:
         error_mode: ignore
         log_statements:
@@ -212,7 +220,7 @@ spec:
               - set(log.attributes["uid"], log.cache["_UID"])
               - set(log.attributes["cursor"], log.cache["__CURSOR"])
               - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
-              - delete_key(attributes, "log.cache")
+              - delete_key(log.attributes, "cache")
 
       transform/ingress:
         error_mode: ignore
@@ -313,9 +321,24 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.exporter" . | nindent 6 -}}
-{{- end }}
+        retry_on_failure:
+          enabled: true
+          initial_interval: 500ms
+          max_interval: 2s
+          max_elapsed_time: 8s
+        timeout: 5s
+      opensearch/failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
+        logs_index: ${index}-datastream
+        retry_on_failure:
+          enabled: true
+          initial_interval: 500ms
+          max_interval: 2s
+          max_elapsed_time: 8s
+        timeout: 5s
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.exporters" . | nindent 6 -}}
 {{- end }}
@@ -324,26 +347,28 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.extension" . | nindent 6 -}}
-{{- end }}
+      basicauth/failover_b:
+        client_auth:
+          username: ${failover_username_b}
+          password: ${failover_password_b}
     connectors:
-      forward: {}
       failover:
         retry_interval: 2m
         retry_gap: 30s
         max_retries: 0
         priority_levels:
           - [logs/failover_a]
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
           - [logs/failover_b]
-{{- end }}
+        sending_queue:
+          block_on_overflow: true
+          enabled: true
+          num_consumers: 10
+          queue_size: 10000
+          sizer: requests
     service:
       extensions:
         - basicauth/failover_a
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
         - basicauth/failover_b
-{{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
@@ -365,17 +390,14 @@ spec:
           region: ${region}
 {{- end }}
       pipelines:
-        logs/forward:
-          receivers: [forward]
-          processors: [batch]
-          exporters: [failover]
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-    {{- include "failover.pipeline" . | nindent 8 -}}
-{{- end }}
+        logs/failover_b:
+          receivers: [failover]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/failover_b]
 {{- if .Values.auditLogs.elastic.enabled }}
    {{- include "es.pipeline" . | nindent 8 -}}
 {{- end }}
@@ -385,9 +407,13 @@ spec:
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
-          exporters: [forward]
+          exporters: [failover]
         logs/journald:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
-          exporters: [forward]
+          exporters: [failover]
+        logs/k8sevents:
+          receivers: [k8s_events]
+          processors: [attributes/k8sevents,attributes/cluster,transform/consolidate_label,batch]
+          exporters: [failover]
 {{- end }}
