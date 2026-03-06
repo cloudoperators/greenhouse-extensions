@@ -1,6 +1,6 @@
-FROM golang AS build
+FROM golang@sha256:fb612b7831d53a89cbc0aaa7855b69ad7b0caf603715860cf538df854d047b84 AS build
 
-ARG OTEL_VERSION=0.144.0
+ARG OTEL_VERSION=0.147.0
 
 RUN wget "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd/builder/v${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64" && \
     mv "ocb_${OTEL_VERSION}_linux_amd64" ocb
@@ -9,7 +9,7 @@ RUN chmod +x ./ocb
 COPY otel-collector-builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-FROM debian:stable-slim
+FROM debian:stable-slim@sha256:85dfcffff3c1e193877f143d05eaba8ae7f3f95cb0a32e0bc04a448077e1ac69
 
 RUN apt-get update && \
     apt-get install -y systemd wget && \
