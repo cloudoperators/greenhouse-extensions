@@ -44,8 +44,8 @@ auditLogs:
     endpoint:
     # -- TLS certificate for Elastic
     tls:
-      crt: 
-      key: 
+      crt:
+      key:
     # -- Labels to be added to Elastic logs
     labels: []
 
