@@ -1,0 +1,100 @@
+{{- /*
+  This template creates Probe CRDs for monitoring plugin exposed services.
+  
+  It uses Helm's lookup function to discover plugins with exposed services.
+  The lookup will return empty if:
+  - The Plugin CRD doesn't exist on this cluster
+  - No plugins are found in the namespace
+  
+  This is expected behavior - the template gracefully handles missing CRDs.
+  
+  Namespace Restriction:
+  - This template ONLY runs when Release.Namespace matches organizationName
+  - For example: if organizationName=sci, Probes are only created in sci namespace
+  - When deployed to other namespaces (e.g., greenhouse), this template is silently skipped
+  
+  Configuration:
+  - Requires .Values.blackboxExporter.enabled to be true
+  - Set .Values.pluginProbe.enabled to false to disable entirely
+  - Set .Values.pluginProbe.pluginDefinition to filter by plugin type
+*/ -}}
+
+{{- /* Get organization namespace - this is where Plugins are located */ -}}
+{{- $orgNamespace := .Values.global.greenhouse.organizationName | default "demo" }}
+
+{{- /* FIRST CHECK: Only proceed if Release.Namespace matches organizationName */ -}}
+{{- /* This ensures Probes are only created in the organization namespace */ -}}
+{{- if eq $.Release.Namespace $orgNamespace }}
+
+{{- /* SECOND CHECK: Blackbox exporter must be enabled */ -}}
+{{- if .Values.blackboxExporter.enabled }}
+
+{{- /* Check if plugin probe is enabled (defaults to true if not specified) */ -}}
+{{- $pluginProbeEnabled := true }}
+{{- if hasKey .Values "pluginProbe" }}
+{{- if hasKey .Values.pluginProbe "enabled" }}
+{{- $pluginProbeEnabled = .Values.pluginProbe.enabled }}
+{{- end }}
+{{- end }}
+
+{{- if $pluginProbeEnabled }}
+{{- /* Get pluginDefinition filter from values (empty string means no filter) */ -}}
+{{- $pluginDefinitionFilter := .Values.pluginProbe.pluginDefinition | default "kube-monitoring" }}
+
+{{- /* Safely attempt lookup - returns empty map if CRD doesn't exist */ -}}
+{{- $plugins := lookup "greenhouse.sap/v1alpha1" "Plugin" $orgNamespace "" | default dict }}
+{{- if and $plugins $plugins.items }}
+{{- range $plugins.items }}
+{{- /* Filter: Only process Plugins matching pluginDefinition (if filter is set) */ -}}
+{{- if (eq .spec.pluginDefinitionRef.name $pluginDefinitionFilter) }}
+{{- if .status }}
+{{- if .status.exposedServices }}
+{{- $plugin := . }}
+{{- $clusterName := .spec.clusterName | default "unknown" }}
+{{- /* Create probes for all plugins with exposed services */ -}}
+{{- range $url, $service := .status.exposedServices }}
+---
+# Probe for plugin {{ $plugin.metadata.name }} on cluster {{ $clusterName }} - service {{ $service.name }}
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: plugin-{{ $plugin.metadata.name }}-{{ $service.name }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app: plugin-probe
+    plugin: kube-monitoring
+    component: plugin-monitoring
+    release: {{ $.Release.Name }}
+    cluster: {{ $clusterName }}
+    service: {{ $service.name }}
+spec:
+  interval: 30s
+  scrapeTimeout: 10s
+  prober:
+    url: {{ $.Release.Name }}-blackbox-exporter.{{ $.Release.Namespace }}.svc.cluster.local:9115
+    path: /probe
+  module: http_2xx
+  targets:
+    staticConfig:
+      static:
+      - {{ $url }}
+      labels:
+        job: plugin-exposed-services
+        cluster: {{ $clusterName }}
+        plugin_name: {{ $plugin.metadata.name }}
+  metricRelabelings:
+  - sourceLabels: [instance]
+    targetLabel: target
+  - regex: instance
+    action: labeldrop
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

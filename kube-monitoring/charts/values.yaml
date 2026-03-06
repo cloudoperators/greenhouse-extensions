@@ -3,6 +3,27 @@ global:
   # This can be used to add a `support_group` or `service` label to all resources and alerting rules.
   # @section -- Global options
   commonLabels: {}
+  
+  # Greenhouse-specific configuration
+  greenhouse:
+    # -- Organization name for Greenhouse Plugin deployment
+    # Used by probe-plugin-exposed-services.yaml template to discover Plugins in the organization namespace
+    # IMPORTANT: The probe template only creates Probes when installing in the organization namespace.
+    # When installing in other namespaces (e.g., greenhouse), probes will be automatically skipped.
+    # @section -- Global options
+    organizationName: "sci"
+    
+    # IMPORTANT NOTE ON MULTI-NAMESPACE INSTALLATIONS:
+    # When installing this chart in multiple namespaces, you MUST use different release names
+    # to avoid ClusterRole conflicts from the kube-state-metrics subchart.
+    # 
+    # Example:
+    #   helm install kube-monitoring-sci ./charts --namespace sci
+    #   helm install kube-monitoring-greenhouse ./charts --namespace greenhouse
+    # 
+    # The probe-plugin-exposed-services.yaml template will automatically:
+    # - Create Probes when Release.Namespace == organizationName (e.g., sci)
+    # - Skip Probe creation when Release.Namespace != organizationName (e.g., greenhouse)
 
 # kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
@@ -518,7 +539,7 @@ testFramework:
 blackboxExporter:
   # -- To enable Blackbox Exporter (supported probers: grpc-prober)
   # @section -- Blackbox exporter config
-  enabled: false
+  enabled: true
 
   # @ignored
   secretConfig: true
@@ -533,8 +554,16 @@ blackboxExporter:
             ca_file: /etc/blackbox/tls/ca.crt
             cert_file: /etc/blackbox/tls/tls.crt
             key_file: /etc/blackbox/tls/tls.key
+      http_2xx:
+        prober: http
+        timeout: 5s
+        http:
+          valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+          valid_status_codes: []
+          method: GET
+          preferred_ip_protocol: "ip4"
 
-  # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter.
+  # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter with gRPC.
   # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>
   # @section -- Blackbox exporter config
   extraVolumes: []
@@ -543,9 +572,36 @@ blackboxExporter:
     #     defaultMode: 420
     #     secretName: <secretName>
   # @ignored
+  # extraVolumeMounts: []
+  # # Example:
   extraVolumeMounts:
     - name: blackbox-exporter-tls
       mountPath: /etc/blackbox/tls
+
+# Plugin exposed services monitoring configuration
+# This section is used by the probe-plugin-exposed-services.yaml template to automatically
+# generate Probe CRDs for monitoring Plugin exposed services discovered via Helm lookup
+pluginProbe:
+  # -- Enable automatic Probe generation for Plugin exposed services
+  # @section -- Plugin monitoring options
+  enabled: true
+  
+  # -- Filter Plugins by pluginDefinition field. Only Plugins matching this value will have Probes created.
+  # Set to empty string "" to monitor all Plugins regardless of pluginDefinition.
+  # @section -- Plugin monitoring options
+  pluginDefinition: "kube-monitoring"
+  
+  # -- Probe interval for Plugin exposed service checks
+  # @section -- Plugin monitoring options
+  interval: "30s"
+  
+  # -- Scrape timeout for Plugin exposed service checks
+  # @section -- Plugin monitoring options
+  scrapeTimeout: "10s"
+  
+  # -- Blackbox exporter module to use for probing
+  # @section -- Plugin monitoring options
+  module: "http_2xx"
 
 # Network Policies configuration
 # Allows creating multiple NetworkPolicy resources from a list
