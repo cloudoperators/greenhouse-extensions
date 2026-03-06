@@ -107,8 +107,12 @@ thanos:
     # -- Annotations to add to the Thanos Query resources
     annotations: {}
 
-    # -- Thanos Query store endpoints
+    # -- Thanos Query store endpoints. Setting this **replaces** the default store endpoints entirely.
     stores: []
+
+    # -- Additional Thanos Query store endpoints appended to the default ones.
+    # Use this to add extra stores without losing the defaults.
+    additionalStores: []
 
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
@@ -381,10 +385,10 @@ thanos:
     # -- Resource requests and limits for the Thanos Ruler container.
     resources: {}
 
-    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
+    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used.
     ruleNamespaceSelector: {}
 
-    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed 
+    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed.
     ruleSelector:
 
     # -- SecurityContext holds pod-level security attributes and common container settings.
