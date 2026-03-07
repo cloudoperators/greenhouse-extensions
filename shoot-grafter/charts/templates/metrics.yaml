@@ -1,0 +1,47 @@
+{{/* 
+SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shoot-grafter-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: shoot-grafter
+spec:
+  type: ClusterIP
+  selector:
+    app: shoot-grafter
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: shoot-grafter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: shoot-grafter
+    {{- with .Values.monitoring.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+    - honorLabels: true
+      interval: 30s
+      port: metrics
+      scheme: http
+      path: /metrics
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: shoot-grafter
