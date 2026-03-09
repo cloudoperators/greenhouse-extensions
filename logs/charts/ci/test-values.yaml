@@ -14,9 +14,9 @@ opentelemetry-operator:
       enabled: true
       recreate: false
   manager:
-    image:
-      repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-      tag: v0.131.0
+    # image:  # Commented out to use the defaults from values.yaml
+    #   repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
+    #   tag: v0.145.0
     prometheusRule:
       enabled: false
       defaultRules:
