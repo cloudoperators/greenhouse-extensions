@@ -11,6 +11,7 @@ maintainers:
   - name: timojohlo
   - name: kuckkuck
   - name: olandr
+  - name: joluc
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
 dependencies:
