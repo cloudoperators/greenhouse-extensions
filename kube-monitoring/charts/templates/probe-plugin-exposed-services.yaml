@@ -19,17 +19,17 @@
   - Set .Values.pluginProbe.pluginDefinition to filter by plugin type
 */ -}}
 
-{{- /* Get organization namespace - this is where Plugins are located */ -}}
+# Get organization namespace - this is where Plugins are located 
 {{- $orgNamespace := .Values.global.greenhouse.organizationName | default "demo" }}
 
-{{- /* FIRST CHECK: Only proceed if Release.Namespace matches organizationName */ -}}
+# FIRST CHECK: Only proceed if Release.Namespace matches organizationName
 {{- /* This ensures Probes are only created in the organization namespace */ -}}
 {{- if eq $.Release.Namespace $orgNamespace }}
 
-{{- /* SECOND CHECK: Blackbox exporter must be enabled */ -}}
+# SECOND CHECK: Blackbox exporter must be enabled
 {{- if .Values.blackboxExporter.enabled }}
 
-{{- /* Check if plugin probe is enabled (defaults to true if not specified) */ -}}
+# Check if plugin probe is enabled (defaults to true if not specified)
 {{- $pluginProbeEnabled := true }}
 {{- if hasKey .Values "pluginProbe" }}
 {{- if hasKey .Values.pluginProbe "enabled" }}
@@ -38,20 +38,23 @@
 {{- end }}
 
 {{- if $pluginProbeEnabled }}
-{{- /* Get pluginDefinition filter from values (empty string means no filter) */ -}}
+
+# Get pluginDefinition filter from values (empty string means no filter)
 {{- $pluginDefinitionFilter := .Values.pluginProbe.pluginDefinition | default "kube-monitoring" }}
 
-{{- /* Safely attempt lookup - returns empty map if CRD doesn't exist */ -}}
+# Safely attempt lookup - returns empty map if CRD doesn't exist
 {{- $plugins := lookup "greenhouse.sap/v1alpha1" "Plugin" $orgNamespace "" | default dict }}
 {{- if and $plugins $plugins.items }}
 {{- range $plugins.items }}
-{{- /* Filter: Only process Plugins matching pluginDefinition (if filter is set) */ -}}
+
+# Filter: Only process Plugins matching pluginDefinition (if filter is set)
 {{- if (eq .spec.pluginDefinitionRef.name $pluginDefinitionFilter) }}
 {{- if .status }}
 {{- if .status.exposedServices }}
 {{- $plugin := . }}
 {{- $clusterName := .spec.clusterName | default "unknown" }}
-{{- /* Create probes for all plugins with exposed services */ -}}
+
+# Create probes for all plugins with exposed services
 {{- range $url, $service := .status.exposedServices }}
 ---
 # Probe for plugin {{ $plugin.metadata.name }} on cluster {{ $clusterName }} - service {{ $service.name }}
