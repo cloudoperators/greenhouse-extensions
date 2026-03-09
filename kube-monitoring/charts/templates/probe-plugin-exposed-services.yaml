@@ -23,7 +23,7 @@
 {{- $orgNamespace := .Values.global.greenhouse.organizationName | default "demo" }}
 
 # FIRST CHECK: Only proceed if Release.Namespace matches organizationName
-{{- /* This ensures Probes are only created in the organization namespace */ -}}
+# This ensures Probes are only created in the organization namespace
 {{- if eq $.Release.Namespace $orgNamespace }}
 
 # SECOND CHECK: Blackbox exporter must be enabled
