@@ -3,20 +3,39 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "release.name" . }}-sd-config
-  labels:  
-    {{- include "plugin.labels" . | nindent 4 }}  
-    {{- include "thanos.labels" . | nindent 4 }}  
-    {{- if .Values.thanos.query.deploymentLabels }}  
-    {{- toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}  
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "thanos.labels" . | nindent 4 }}
+    {{- if .Values.thanos.query.deploymentLabels }}
+    {{- toYaml .Values.thanos.query.deploymentLabels | nindent 4 }}
     {{- end }}
 data:
   endpoint-targets.yaml: |-
     endpoints:
-{{- /* Technically it is possible to add stores and have the default stores all together.*/}}
-{{- if not (empty .Values.thanos.query.stores) }}
-{{- range .Values.thanos.query.stores }}
+{{- if or .Values.thanos.query.discoverOtherQueries (not (empty .Values.thanos.query.stores)) }}
+  {{- $hasStores := false -}}
+  {{- /* Output manually configured stores */ -}}
+  {{- range .Values.thanos.query.stores }}
+    {{- $hasStores = true -}}
       - address: "{{ . }}"
-{{- end -}}
+  {{- end }}
+  {{- /* Output discovered stores if discovery is enabled */ -}}
+  {{- if .Values.thanos.query.discoverOtherQueries }}
+    {{- $discoveredJson := include "thanos.discoverOtherQueries" . -}}
+    {{- $discoveredStores := list -}}
+    {{- if $discoveredJson }}
+      {{- $discoveredStores = fromJsonArray $discoveredJson -}}
+    {{- end }}
+    {{- range $discoveredStores }}
+    {{- $hasStores = true -}}
+      - address: "{{ . }}"
+    {{- end }}
+  {{- end }}
+  {{- /* If no stores were found, use defaults */ -}}
+  {{- if not $hasStores }}
+      - address: "kube-monitoring-prometheus:10901"
+      - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"
+  {{- end }}
 {{- else }}
       - address: "kube-monitoring-prometheus:10901"
       - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"

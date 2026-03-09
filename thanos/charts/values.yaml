@@ -110,6 +110,10 @@ thanos:
     # -- Thanos Query store endpoints
     stores: []
 
+    # -- Enable automatic discovery of other Thanos Query instances in the cluster.
+    # When enabled, discovers all Thanos plugins with GRPC ingress enabled and adds them as query endpoints.
+    discoverOtherQueries: false
+
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
     ingress:

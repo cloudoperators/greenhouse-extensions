@@ -251,6 +251,101 @@ spec:
 ```
 Pay attention to port numbers. The default port for GRPC is `443`.
 
+### Automatic Cross-Query Discovery
+
+For complex multi-cluster setups, you can enable automatic discovery of other Thanos Query instances. This feature allows a Thanos Query to automatically find and query other Thanos Query instances deployed via Greenhouse plugins across all namespaces.
+
+#### Enabling Discovery
+
+```yaml
+spec:
+  optionValues:
+  - name: thanos.query.discoverOtherQueries
+    value: true
+```
+
+#### How It Works
+
+When enabled, the Thanos Query will:
+1. Search for all `Plugin` CRs with `pluginDefinition: thanos` across all namespaces
+2. Filter for plugins that have GRPC ingress enabled (`thanos.query.ingress.grpc.enabled: true`)
+3. Extract the hostname from `thanos.query.ingress.grpc.hosts[0].host`
+4. Add these as query endpoints with port 443 (TLS ingress default)
+5. Merge with any manually configured `thanos.query.stores`
+
+#### Discovery Criteria
+
+A Thanos plugin will be discovered if:
+- ✅ It is a Thanos plugin (`pluginDefinition: thanos`)
+- ✅ It is not disabled (`spec.disabled != true`)
+- ✅ It is not the current plugin instance (self-exclusion)
+- ✅ It has GRPC ingress enabled with a valid host configured
+- ✅ It does not have the label `greenhouse.sap/thanos-discovery: "false"`
+
+**Note:** Plugins are discoverable by default. The discovery label only needs to be set if you want to explicitly exclude a plugin.
+
+#### Excluding Plugins from Discovery
+
+If you want a Thanos plugin to be excluded from discovery by other instances, add the exclusion label:
+
+```yaml
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: thanos-internal
+  labels:
+    greenhouse.sap/thanos-discovery: "false"
+spec:
+  pluginDefinition: thanos
+  optionValues:
+  - name: thanos.query.ingress.grpc.enabled
+    value: true
+```
+
+#### Example: Global Query with Discovery
+
+```yaml
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: thanos-global
+spec:
+  pluginDefinition: thanos
+  clusterName: global-cluster
+  releaseNamespace: kube-monitoring
+  optionValues:
+  # Disable store and compactor for global query
+  - name: thanos.store.enabled
+    value: false
+  - name: thanos.compactor.enabled
+    value: false
+  # Enable automatic discovery
+  - name: thanos.query.discoverOtherQueries
+    value: true
+  # Optionally add manual stores that will be merged with discovered queries
+  - name: thanos.query.stores
+    value:
+      - external-prometheus:10901
+```
+
+This global query will automatically discover all other Thanos Query instances with GRPC ingress enabled and query them for data.
+
+#### Combining Discovery with Manual Configuration
+
+Discovery is **additive** - discovered endpoints are merged with manually configured stores:
+
+```yaml
+optionValues:
+- name: thanos.query.discoverOtherQueries
+  value: true
+- name: thanos.query.stores
+  value:
+    - manual-prometheus:10901
+    - external-thanos:443
+```
+
+The final endpoint list will include both the manual stores and all discovered Thanos queries.
+
 ### Disable Individual Thanos Components
 It is possible to disable certain Thanos components for your deployment. To do so add the necessary configuration to your Plugin (currently it is not possible to disable the query component)
 ```yaml
@@ -368,6 +463,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.autoDownsampling | bool | `true` | Set Thanos Query auto-downsampling |
 | thanos.query.containerLabels | object | `{}` | Labels to add to the Thanos Query container |
 | thanos.query.deploymentLabels | object | `{}` | Labels to add to the Thanos Query deployment |
+| thanos.query.discoverOtherQueries | bool | `false` | Enable automatic discovery of other Thanos Query instances in the cluster. When enabled, discovers all Thanos plugins with GRPC ingress enabled and adds them as query endpoints. |
 | thanos.query.enabled | bool | `true` | Enable Thanos Query component |
 | thanos.query.ingress.annotations | object | `{}` | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. For a full list of possible ingress annotations, please see ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md |
 | thanos.query.ingress.enabled | bool | `false` | Enable ingress controller resource |
