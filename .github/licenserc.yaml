@@ -46,7 +46,6 @@ header:
     - '**/.gitkeep'
     - '**/*.txt'
     - '**/nginx.conf'
-    - 'openbao/**' # openbao has HashiCorp, Inc. license
 
   comment: on-failure
 

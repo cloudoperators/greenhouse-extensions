@@ -63,8 +63,6 @@ jobs:
             chartName: kubeconfig-generator
           - chartDir: logshipper/chart
             chartName: logshipper
-          - chartDir: openbao/charts/openbao
-            chartName: openbao
           - chartDir: opensearch/chart
             chartName: opensearch
           - chartDir: logs/charts
