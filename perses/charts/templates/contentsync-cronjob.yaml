@@ -98,7 +98,7 @@ spec:
                   mountPath: {{ .Values.contentSync.provisioningMountPath }}
           restartPolicy: OnFailure
           schedulerName: default-scheduler
-          terminationGracePeriodSeconds: 30 
+          terminationGracePeriodSeconds: 30
           volumes:
             - name: perses-content-volume
               persistentVolumeClaim:
