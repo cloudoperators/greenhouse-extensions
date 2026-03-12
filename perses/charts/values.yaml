@@ -380,7 +380,6 @@ contentSync:
   # -- Provisioning mount path (should match perses provisioning folder)
   provisioningMountPath: "/etc/perses/provisioning"
 
-
   # -- Pod affinity configuration to co-locate with the Perses pod.
   # Required when the provisioning PVC uses ReadWriteOnce (RWO) access mode,
   # since the PVC can only be mounted on a single node.
