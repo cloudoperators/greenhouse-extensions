@@ -96,7 +96,7 @@ spec:
               volumeMounts:
                 - name: perses-content-volume
                   mountPath: {{ .Values.contentSync.provisioningMountPath }}
-          restartPolicy: OnFailure 
+          restartPolicy: OnFailure
           schedulerName: default-scheduler
           terminationGracePeriodSeconds: 30 
           volumes:
