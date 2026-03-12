@@ -339,6 +339,59 @@ perses:
     #       -----BEGIN CERTIFICATE-----
     #       -----END CERTIFICATE-----
 
+# -- Content sync CronJob configuration.
+# Syncs OCI artifact content of Perses Resources such as (dashboards/datasources) into the Perses provisioning PVC.
+# @default -- See individual parameters below
+contentSync:
+  # -- Enable the content sync CronJob
+  enabled: false
+
+  # -- Cron schedule expression
+  schedule: "*/5 * * * *"
+
+  # -- Enable debug logging in the sync script
+  debug: false
+
+  # -- OCI image reference to sync content from.
+  # Must be set when contentSync is enabled.
+  ociImageRef: ""
+
+  # -- Container image for the crane tool.
+  # Must be set when contentSync is enabled.
+  # @default -- <pre>image:<br>  repository: ""<br>  tag: ""<br>  pullPolicy: IfNotPresent</pre>
+  image:
+    # -- Crane image repository (e.g. "registry.example.com/go-containerregistry/crane")
+    repository: ""
+    # -- Crane image tag (e.g. "debug")
+    tag: ""
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+
+  # -- Resource limits and requests for the content-sync container
+  # @default -- <pre>resources:<br>  limits:<br>    cpu: 200m<br>    memory: 256Mi<br>  requests:<br>    cpu: 200m<br>    memory: 256Mi</pre>
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+  # -- Provisioning mount path (should match perses provisioning folder)
+  provisioningMountPath: "/etc/perses/provisioning"
+
+
+  # -- Pod affinity configuration to co-locate with the Perses pod.
+  # Required when the provisioning PVC uses ReadWriteOnce (RWO) access mode,
+  # since the PVC can only be mounted on a single node.
+  # Can be disabled when using ReadWriteMany (RWX) storage.
+  # @default -- <pre>podAffinity:<br>  enabled: true<br>  topologyKey: "kubernetes.io/hostname"</pre>
+  podAffinity:
+    # -- Enable pod affinity to schedule on the same node as the Perses pod
+    enabled: true
+    # -- Topology key for pod affinity scheduling
+    topologyKey: "kubernetes.io/hostname"
+
 greenhouse:
   defaultDashboards:
     # -- By setting this to true, You will get Perses Self-monitoring dashboards
