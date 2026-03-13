@@ -83,9 +83,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"2b561bd"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"8dd075b"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"2b561bd"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"8dd075b"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
@@ -129,7 +129,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.enabled | bool | `true` | Set to true to enable the installation of the OpenTelemetry Operator. |
 | opentelemetry-operator.kubeRBACProxy | object | `{"enabled":false}` | the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API. |
 | opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
-| opentelemetry-operator.manager.image.tag | string | `"v0.142.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
+| opentelemetry-operator.manager.image.tag | string | `"v0.145.0"` | overrides the default tag repository for the OpenTelemetry Operator image. |
 | opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
 | opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
