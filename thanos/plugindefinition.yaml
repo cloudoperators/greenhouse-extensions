@@ -164,11 +164,6 @@ spec:
       name: thanos.query.stores
       required: false
       type: list
-    - default: false
-      description: Enable automatic discovery of other Thanos Query instances across all namespaces. When enabled, discovers all Thanos plugins with GRPC ingress enabled and adds them as query endpoints.
-      name: thanos.query.discoverOtherQueries
-      required: false
-      type: bool
     - default: null
       description: Usually at /thanos, only specify if it differs.
       name: thanos.query.web.externalPrefix

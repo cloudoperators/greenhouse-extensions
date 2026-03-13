@@ -12,30 +12,10 @@ metadata:
 data:
   endpoint-targets.yaml: |-
     endpoints:
-{{- if or .Values.thanos.query.discoverOtherQueries (not (empty .Values.thanos.query.stores)) }}
-  {{- $hasStores := false -}}
-  {{- /* Output manually configured stores */ -}}
-  {{- range .Values.thanos.query.stores }}
-    {{- $hasStores = true }}
+{{- if not (empty .Values.thanos.query.stores) }}
+{{- range .Values.thanos.query.stores }}
       - address: "{{ . }}"
-  {{- end }}
-  {{- /* Output discovered stores if discovery is enabled */ -}}
-  {{- if .Values.thanos.query.discoverOtherQueries }}
-    {{- $discoveredJson := include "thanos.discoverOtherQueries" . -}}
-    {{- $discoveredStores := list -}}
-    {{- if $discoveredJson }}
-      {{- $discoveredStores = fromJsonArray $discoveredJson -}}
-    {{- end }}
-    {{- range $discoveredStores }}
-    {{- $hasStores = true }}
-      - address: "{{ . }}"
-    {{- end }}
-  {{- end }}
-  {{- /* If no stores were found, use defaults */ -}}
-  {{- if not $hasStores }}
-      - address: "kube-monitoring-prometheus:10901"
-      - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"
-  {{- end }}
+{{- end }}
 {{- else }}
       - address: "kube-monitoring-prometheus:10901"
       - address: "{{ include "release.name" . }}-store:{{ default "10901" .Values.thanos.grpcAddress }}"
