@@ -251,6 +251,230 @@ spec:
 ```
 Pay attention to port numbers. The default port for GRPC is `443`.
 
+### Regional Cross-Query Discovery with Plugin Integration
+
+For multi-cluster regional setups, you can use Greenhouse's Plugin Integration feature to automatically discover other Thanos Query instances in the same region. This approach uses `valueFrom.ref` to query Plugin CRs at reconciliation time, enabling dynamic discovery without manual endpoint configuration.
+
+#### Overview
+
+Regional discovery allows a Thanos Query to automatically find and query other Thanos instances within the same geographic region. This is particularly useful for:
+- **Multi-cluster observability**: Aggregate metrics from multiple clusters (e.g., `rt-eu-de-1`, `obs-eu-de-1`, `mgmt-eu-de-1`) in the same region
+- **Automatic updates**: When new clusters are added or removed, discovery automatically adjusts
+- **Flexible routing**: Same-cluster queries use internal endpoints (`:10901`), cross-cluster queries use external GRPC ingress (`:443`)
+
+#### Architecture
+
+```
+Region: eu-de-1
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ rt-eu-de-1      │  │ obs-eu-de-1     │  │ mgmt-eu-de-1    │
+│                 │  │                 │  │                 │
+│ Thanos Query    │  │ Regional Thanos │  │ Thanos Query    │
+│                 │  │ Query           │  │                 │
+│ GRPC Ingress ●──┼──┼──► external:443 │  │                 │
+│                 │  │                 │◄─┼── GRPC Ingress ●│
+│                 │  │                 │  │                 │
+│                 │  │ Local Thanos ●──┼──┼► internal:10901 │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+The regional Thanos Query in `obs-eu-de-1` discovers:
+- Queries in **other clusters** (same region) → contacted via GRPC ingress (`host:443`)
+- Queries in the **same cluster** → contacted via internal service (`service:10901`)
+
+#### Prerequisites
+
+- **Feature flag**: Greenhouse `integrationEnabled` feature flag must be enabled
+- **Cluster labels**: Clusters must have `metadata.greenhouse.sap/region` label set (e.g., `eu-de-1`)
+- **GRPC ingress**: Thanos plugins for cross-cluster communication must have GRPC ingress configured
+- **Network connectivity**: Clusters must be able to reach each other's GRPC ingress endpoints
+
+#### How It Works
+
+The discovery mechanism uses Greenhouse's `valueFrom.ref` feature with a CEL expression that:
+
+1. **Selects all Thanos plugins** in your organization (via label selector)
+2. **Filters by region**: Checks if `global.greenhouse.metadata.region` matches the current plugin's region
+3. **Excludes opted-out plugins**: Respects the `greenhouse.sap/thanos-discovery: "false"` label
+4. **Determines endpoint type**:
+   - **Same cluster** (`greenhouse.sap/cluster` matches): Uses internal service endpoint
+   - **Different cluster**: Extracts GRPC ingress hostname
+5. **Self-exclusion**: Greenhouse automatically excludes the current plugin from results
+
+**Endpoint format:**
+- Internal (same cluster): `<releaseName>-query.<namespace>.svc:10901`
+- External (different cluster): `<grpc-ingress-host>:443`
+
+#### The Discovery Expression Explained
+
+The CEL expression performs these steps:
+
+```yaml
+expression: |
+  # Step 1: Check if the plugin is in the same region
+  object.spec.optionValues.exists(o, 
+    o.name == 'global.greenhouse.metadata.region' && 
+    o.value == '${global.greenhouse.metadata.region}'
+  )
+  ? (
+      # Step 2: Determine if it's the same cluster or different cluster
+      object.metadata.labels['greenhouse.sap/cluster'] == '${global.greenhouse.clusterName}'
+      ? (
+          # Same cluster: Use internal service endpoint
+          object.spec.releaseName + '-query.' + object.spec.releaseNamespace + '.svc:10901'
+        )
+      : (
+          # Different cluster: Extract GRPC ingress host
+          size(object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')) > 0
+          ? (
+              size(object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')[0].value) > 0
+              ? object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')[0].value[0].host + ':443'
+              : ''
+            )
+          : ''
+        )
+    )
+  : ''
+```
+
+**Key variables:**
+- `${global.greenhouse.metadata.region}`: Current plugin's cluster region (e.g., `eu-de-1`)
+- `${global.greenhouse.clusterName}`: Current plugin's cluster name (e.g., `obs-eu-de-1`)
+- `object.metadata.labels['greenhouse.sap/cluster']`: Referenced plugin's cluster name
+- `object.spec.releaseName`: Referenced plugin's Helm release name
+- `object.spec.releaseNamespace`: Referenced plugin's namespace
+- `object.spec.optionValues`: Referenced plugin's configuration values
+
+Empty strings (`''`) returned for non-matching plugins are filtered out automatically.
+
+#### Opting Out of Discovery
+
+To exclude a Thanos plugin from being discovered by regional aggregators, add this label:
+
+```yaml
+apiVersion: greenhouse.sap/v1alpha1
+kind: Plugin
+metadata:
+  name: thanos-internal
+  labels:
+    greenhouse.sap/thanos-discovery: "false"  # Exclude from discovery
+spec:
+  pluginDefinitionRef:
+    kind: PluginDefinition
+    name: thanos
+  clusterName: internal-cluster
+  optionValues:
+    - name: thanos.query.enabled
+      value: true
+```
+
+#### Example: Regional Thanos PluginPreset
+
+This example deploys Thanos to observability clusters and configures automatic regional discovery:
+
+```yaml
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginPreset
+metadata:
+  name: thanos-regional
+  namespace: my-organization
+spec:
+  # Deploy to observability clusters only
+  clusterSelector:
+    matchLabels:
+      metadata.greenhouse.sap/cluster-type: obs
+
+  plugin:
+    pluginDefinitionRef:
+      kind: PluginDefinition
+      name: thanos
+
+    optionValues:
+      # Basic Thanos configuration
+      - name: thanos.query.enabled
+        value: true
+      
+      - name: thanos.query.replicas
+        value: 1
+
+      # Enable GRPC ingress for cross-cluster communication
+      - name: thanos.query.ingress.grpc.enabled
+        value: true
+      
+      - name: thanos.query.ingress.grpc.hosts
+        expression: |
+          - host: thanos-grpc.${global.greenhouse.clusterName}.example.com
+
+      # Regional discovery: automatically find other Thanos queries in the same region
+      #
+      # This expression:
+      # 1. Selects all Thanos plugins (via selector matchLabels)
+      # 2. Excludes opted-out plugins (via matchExpressions)
+      # 3. Filters to same-region plugins (via CEL expression)
+      # 4. Returns internal endpoint for same-cluster, external for different-cluster
+      # 5. Self is automatically excluded by Greenhouse
+      #
+      - name: thanos.query.stores
+        valueFrom:
+          ref:
+            kind: Plugin
+            selector:
+              matchLabels:
+                plugindefinition: thanos
+              matchExpressions:
+                # Respect opt-out label
+                - key: greenhouse.sap/thanos-discovery
+                  operator: NotIn
+                  values: ["false"]
+            expression: |
+              object.spec.optionValues.exists(o, 
+                o.name == 'global.greenhouse.metadata.region' && 
+                o.value == '${global.greenhouse.metadata.region}'
+              )
+              ? (
+                  object.metadata.labels['greenhouse.sap/cluster'] == '${global.greenhouse.clusterName}'
+                  ? (
+                      object.spec.releaseName + '-query.' + object.spec.releaseNamespace + '.svc:10901'
+                    )
+                  : (
+                      size(object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')) > 0
+                      ? (
+                          size(object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')[0].value) > 0
+                          ? object.spec.optionValues.filter(o, o.name == 'thanos.query.ingress.grpc.hosts')[0].value[0].host + ':443'
+                          : ''
+                        )
+                      : ''
+                    )
+                )
+              : ''
+
+      # Additional Thanos configuration
+      - name: thanos.store.enabled
+        value: true
+      
+      - name: thanos.compactor.enabled
+        value: true
+```
+
+#### Combining Discovery with Manual Stores
+
+You can combine automatic discovery with manually configured stores by setting both:
+
+```yaml
+optionValues:
+  # Manual stores (always included)
+  - name: thanos.query.stores
+    value:
+      - external-prometheus.example.com:10901
+      - legacy-thanos.example.com:443
+  
+  # Automatic regional discovery (merged with manual stores)
+  # Note: Cannot use valueFrom.ref and value on the same optionValue
+  # You must choose one approach or use separate optionValues
+```
+
+**Note:** The `value` and `valueFrom` fields are mutually exclusive. If you need both manual and discovered endpoints, consider managing them as separate configurations or use only discovery with all endpoints properly labeled.
+
 ### Disable Individual Thanos Components
 It is possible to disable certain Thanos components for your deployment. To do so add the necessary configuration to your Plugin (currently it is not possible to disable the query component)
 ```yaml
