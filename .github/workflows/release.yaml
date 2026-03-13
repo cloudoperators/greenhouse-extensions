@@ -1,0 +1,110 @@
+name: Release Plugins
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/plugindefinition.yaml'
+
+jobs:
+  detect-changes:
+    runs-on: [self-hosted]
+    outputs:
+      changed-plugins: ${{ steps.build-matrix.outputs.plugins }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install 'yq'
+        uses: yokawasa/action-setup-kube-tools@v0.11.2
+        with:
+          yq: v4.25.1
+          setup-tools: |
+            yq
+
+      - name: Prepare change detection
+        id: prepare-filters
+        run: |
+          # Find all plugin directories with plugindefinition.yaml
+          PLUGINS=$(find . -name 'plugindefinition.yaml' -not -path '*/\.*' | sed 's|/plugindefinition.yaml||' | sed 's|^\./||')
+          
+          # Create filter.yml for dorny/paths-filter
+          yq e -n '.root = "."' > filter.yml
+          echo "$PLUGINS" | while read plugin; do
+            yq e -i ".$plugin = \"$plugin/plugindefinition.yaml\"" filter.yml
+          done
+          yq e -i 'del(.root)' filter.yml
+          cat filter.yml
+
+      - name: Detect changed plugins
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: ./filter.yml
+
+      - name: Build plugin matrix
+        id: build-matrix
+        run: |
+          CHANGED_PLUGINS='${{ steps.filter.outputs.changes }}'
+          
+          if [ "$CHANGED_PLUGINS" = "[]" ]; then
+            echo "No plugins changed"
+            echo "plugins=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Build JSON array with plugin metadata
+          PLUGINS="[]"
+          for plugin in $(echo "$CHANGED_PLUGINS" | jq -c -r '.[]'); do
+            if [ -f "$plugin/plugindefinition.yaml" ]; then
+              PLUGIN_NAME=$(yq e '.metadata.name' "$plugin/plugindefinition.yaml")
+              PLUGIN_VERSION=$(yq e '.spec.version' "$plugin/plugindefinition.yaml")
+          
+              PLUGINS=$(echo "$PLUGINS" | jq -c ". += [{\"name\": \"$PLUGIN_NAME\", \"version\": \"$PLUGIN_VERSION\", \"dir\": \"$plugin\"}]")
+            fi
+          done
+          
+          echo "plugins=$PLUGINS" >> $GITHUB_OUTPUT
+          echo "Changed plugins: $PLUGINS"
+
+  release:
+    if: needs.detect-changes.outputs.changed-plugins != '[]'
+    runs-on: [self-hosted]
+    needs: [detect-changes]
+    name: Release Plugin ${{ matrix.plugin.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJson(needs.detect-changes.outputs.changed-plugins) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Release (${{ matrix.plugin.name }})
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pluginName = '${{ matrix.plugin.name }}';
+            const pluginVersion = '${{ matrix.plugin.version }}';
+            const tagName = `${pluginName}/${pluginVersion}`;
+            
+            console.log(`Creating tag ${tagName}`);
+            
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tagName}`,
+                sha: context.sha
+              });
+              console.log(`Successfully created tag ${tagName}`);
+            } catch (error) {
+              if (error.status === 422 && error.message.includes('already exists')) {
+                console.log(`Tag ${tagName} already exists, skipping...`);
+              } else {
+                throw error;
+              }
+            }
