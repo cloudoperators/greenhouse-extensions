@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Test case: Verify YAML list formatting with multiple explicit stores
+# This prevents regression of the whitespace bug where list items
+# were concatenated on a single line instead of proper YAML formatting.
+
+thanos:
+  query:
+    stores:
+      - store-a.example.com:10901
+      - store-b.example.com:10901
+      - store-c.example.com:10901
+    # Discovery disabled to isolate manual stores test
+    discoverOtherQueries: false

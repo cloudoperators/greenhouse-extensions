@@ -16,7 +16,7 @@ data:
   {{- $hasStores := false -}}
   {{- /* Output manually configured stores */ -}}
   {{- range .Values.thanos.query.stores }}
-    {{- $hasStores = true -}}
+    {{- $hasStores = true }}
       - address: "{{ . }}"
   {{- end }}
   {{- /* Output discovered stores if discovery is enabled */ -}}
@@ -27,7 +27,7 @@ data:
       {{- $discoveredStores = fromJsonArray $discoveredJson -}}
     {{- end }}
     {{- range $discoveredStores }}
-    {{- $hasStores = true -}}
+    {{- $hasStores = true }}
       - address: "{{ . }}"
     {{- end }}
   {{- end }}
