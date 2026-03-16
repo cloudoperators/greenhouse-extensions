@@ -2,7 +2,7 @@
 
 ## Local Development of Helm Chart and PluginDefinition
 
-The following is a walk-through to PluginDefinition development using the `exposed-service` as an example. A simple change (introduce pod labels on the deployment) of the Helm chart is used to illustrade PluginDefinition development.
+The following is a walk-through to PluginDefinition development using the `exposed-service` as an example. A simple change (introduce pod labels on the deployment) of the Helm chart is used to illustrate PluginDefinition development. All changes made are part of this feature branch. All cli commands are executed from the `kt-session` folder.
 
 ### Setup local env
 
@@ -48,7 +48,6 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
 - change deployment.yaml `labels`
 
   ```yaml
-          helm-chart: exposed-service
           {{- include "exposed-service.selectorLabels" . | nindent 8 }}
           {{- with .Values.pod.additionalLabels }}
           {{- toYaml . | nindent 8 }}
@@ -59,13 +58,13 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
 - package and push chart
   
   ```bash
-  export PKG=$(helm package $PWD/exposed-services/charts/v2.0.0/exposed-service -d ./bin | awk '{print $NF}')
+  export PKG=$(helm package $PWD/../charts/v2.0.0/exposed-service -d ./bin | awk '{print $NF}')
   helm push $PKG $OCI --ca-file "$REGISTRY_CA" --plain-http=false
   ```
 
 - bump PD version and apply to Greenhouse cluster
 - Look at PD error
-- replace repository with local registry on PluginDefinition
+- replace repository with local registry on PluginDefinition: `ghcr.io` to `registry.flux-system.svc.cluster.local:5000`
 
 ### Set default labels on PD
 
@@ -120,7 +119,7 @@ Push your helm chart to ghcr. [Use cloudoperators workflow](https://github.com/c
   kubectl apply -f catalog-feature-branch.yaml -n <your-org>
   ```
 
-- deploy the PluginPreset and adust the `clusterSelector``
+- deploy the PluginPreset and adust the `clusterSelector`
   
   ```bash
   kubectl apply -f pluginpreset.aml -n <your-org>
@@ -134,6 +133,7 @@ Push your helm chart to ghcr. [Use cloudoperators workflow](https://github.com/c
 - Use a [Catalog following tags](./Catalog-tagged.yaml)
 - Publish a new tag of `exposed-services`.
   - release workflow used in cloudoperators/greenhouse-extensions: publishes git-tag on PD.version update
+- Have look at [some example renovate config](./renovate.json) for Catalog bumps with PD git tag releases.
 - Trigger renovate run
 - Have a look at the renovate PR
 - For further staggering of rollouts: Look at renovate [automerge](https://docs.renovatebot.com/key-concepts/automerge/), especially with [time delays](https://docs.renovatebot.com/configuration-options/#await-x-time-duration-before-automerging).

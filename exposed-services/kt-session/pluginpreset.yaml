@@ -4,14 +4,13 @@ metadata:
   labels:
     greenhouse.sap/owned-by: "demo"
   name: exposed-service
-  namespace: demo
 spec:
   clusterSelector:
     matchExpressions:
-    - key: greenhouse.sap/cluster
+    - key: cluster-type
       operator: In
       values:
-      - kind-greenhouse-remote
+      - demo
   plugin:
     optionValues:
     - name: pod.additionalLabels
@@ -19,5 +18,5 @@ spec:
         cluster-type: greenhouse-remote
     pluginDefinitionRef:
       kind: PluginDefinition
-      name:  exposed-service
+      name:  exposed-service-feature
     releaseNamespace: exposed-service

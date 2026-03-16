@@ -3,11 +3,11 @@ kind: Catalog
 metadata:
   labels:
     greenhouse.sap/owned-by: demo
-  name: example-catalog-tagged
+  name: example-catalog-feature
 spec:
   sources:
   - overrides:
-    - alias: exposed-service-tagged
+    - alias: exposed-service-feature
       name: exposed-service
     ref:
       branch: feat/kt-session

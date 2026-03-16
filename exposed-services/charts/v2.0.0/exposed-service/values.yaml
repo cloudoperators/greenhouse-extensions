@@ -19,6 +19,8 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
+pod:
+  additionalLabels: {}
 
 service:
   annotations: {}
