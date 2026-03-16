@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   detect-changes:
-    runs-on: [self-hosted]
+    runs-on: [ ubuntu-latest ]
     outputs:
       changed-plugins: ${{ steps.build-matrix.outputs.plugins }}
     steps:
