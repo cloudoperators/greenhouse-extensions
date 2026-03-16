@@ -3,3 +3,7 @@ perses:
     selfMonitor: true
     labels:
       prometheus: monitoring
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: perses
+        app.kubernetes.io/instance: perses
