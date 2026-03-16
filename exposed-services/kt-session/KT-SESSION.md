@@ -36,7 +36,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
 
 ### Deploy exposed-service PD with PP
 
-- Deploy files with kubectl to greenhouse-admin
+- Deploy files with kubectl to `kind-greenhouse-admin`
 
   ```bash
   kubectl apply -f ../plugindefinition.yaml -n demo --context kind-greenhouse-admin
@@ -45,7 +45,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
 
 ### Update helm chart 
 
-- change deployment.yaml `labels`
+- change [deployment.yaml](./../charts/v2.0.0/exposed-service/templates/deployment.yaml) `labels`
 
   ```yaml
           {{- include "exposed-service.selectorLabels" . | nindent 8 }}
@@ -54,7 +54,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
           {{- end }}
   ```
 
-- bump chart version
+- bump [chart](./../charts/v2.0.0/exposed-service/Chart.yaml) version
 - package and push chart
   
   ```bash
@@ -62,7 +62,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
   helm push $PKG $OCI --ca-file "$REGISTRY_CA" --plain-http=false
   ```
 
-- bump PD version and apply to Greenhouse cluster
+- bump PD version and apply to `kind-greenhouse-admin`
 - Look at PD error
 - replace repository with local registry on PluginDefinition: `ghcr.io` to `registry.flux-system.svc.cluster.local:5000`
 
@@ -80,7 +80,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
         type: map
   ```
 
-- bump PD version and apply to Greenhouse cluster
+- bump PD version and apply to `kind-greenhouse-admin`
 
 ### Set cluster-specific labels on PP
 
@@ -95,7 +95,7 @@ https://cloudoperators.github.io/greenhouse/docs/contribute/local-dev/#test-gree
           cluster-type: greenhouse-remote
   ```
 
-- apply PP to Greenhouse cluster
+- apply to `kind-greenhouse-admin`
 
 > Note: overrides PluginDefinition labels
 
@@ -111,7 +111,7 @@ Commit changes to exposed-service helm-chart and PD to `feat/kt-session`
 
 Push your helm chart to ghcr. [Use cloudoperators workflow](https://github.com/cloudoperators/greenhouse-extensions/actions/workflows/helm-release.yaml).
 
-### Deploy Catalog watching this feature branch to greenhouse-playground
+### Deploy Catalog watching this feature branch to your Greenhouse Organization
 
 - deploy Catalog to your running Greenhouse Organization
   
@@ -125,14 +125,13 @@ Push your helm chart to ghcr. [Use cloudoperators workflow](https://github.com/c
   kubectl apply -f pluginpreset.aml -n <your-org>
   ```
 
-- explain registry override in Catalog
 - publish some update to the PD (change default label)
 
 ## Prod LCM of PD
 
 - Use a [Catalog following tags](./Catalog-tagged.yaml)
 - Publish a new tag of `exposed-services`.
-  - release workflow used in cloudoperators/greenhouse-extensions: publishes git-tag on PD.version update
+  - [release workflow used in cloudoperators/greenhouse-extensions](./../../.github/workflows/release.yaml): publishes git-tag on PD.version update
 - Have look at [some example renovate config](./renovate.json) for Catalog bumps with PD git tag releases.
 - Trigger renovate run
 - Have a look at the renovate PR
