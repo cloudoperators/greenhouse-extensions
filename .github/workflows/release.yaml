@@ -7,6 +7,9 @@ on:
     paths:
       - '**/plugindefinition.yaml'
 
+permissions:
+  contents: write
+
 jobs:
   detect-changes:
     runs-on: [self-hosted]
