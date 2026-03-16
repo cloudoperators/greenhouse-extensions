@@ -22,6 +22,9 @@ spec:
       {{- end }}
       labels:
         {{- include "exposed-service.selectorLabels" . | nindent 8 }}
+        {{- with .Values.pod.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       containers:
         - name: nginx

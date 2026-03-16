@@ -1,0 +1,16 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: Catalog
+metadata:
+  labels:
+    greenhouse.sap/owned-by: demo
+  name: example-catalog-tagged
+spec:
+  sources:
+  - overrides:
+    - alias: exposed-service-tagged
+      name: exposed-service
+    ref:
+      tag: exposed-service/2.1.1
+    repository: https://github.com/cloudoperators/greenhouse-extensions
+    resources:
+    - exposed-services/plugindefinition.yaml

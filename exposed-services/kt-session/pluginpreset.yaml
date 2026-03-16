@@ -1,0 +1,23 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginPreset
+metadata:
+  labels:
+    greenhouse.sap/owned-by: "demo"
+  name: exposed-service
+  namespace: demo
+spec:
+  clusterSelector:
+    matchExpressions:
+    - key: greenhouse.sap/cluster
+      operator: In
+      values:
+      - kind-greenhouse-remote
+  plugin:
+    optionValues:
+    - name: pod.additionalLabels
+      value:
+        cluster-type: greenhouse-remote
+    pluginDefinitionRef:
+      kind: PluginDefinition
+      name:  exposed-service
+    releaseNamespace: exposed-service

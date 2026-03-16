@@ -1,0 +1,60 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "dependencyDashboard": true,
+  "extends": [
+    "config:recommended"
+  ],
+  "customManagers": [
+    {
+      "customType": "jsonata",
+      "fileFormat": "yaml",
+      "description": "Update extension tags in tagged catalog",
+      "managerFilePatterns": [
+        "/^exposed-services\\/kt-session\\/catalog-tagged\\.yaml$/"
+      ],
+      "matchStrings": [
+        "spec.sources[ref.tag and $match(ref.tag, /^[^\\/]+\\/\\d+\\.\\d+\\.\\d+$/)].({\"depName\": $split(ref.tag, '/')[0], \"packageName\": $substringAfter(repository, 'https://') ~> $replace('github.wdf.sap.corp/', 'github.wdf.sap.corp:') ~> $replace('github.com/', ''), \"currentValue\": ref.tag, \"datasource\": 'github-tags', \"registryUrl\": $match(repository, /^https:\\/\\/[^\\/]+/).match, \"versioning\": 'regex:^' & $split(ref.tag, '/')[0] & '/(?<major>\\\\d+)\\\\.(?<minor>\\\\d+)\\\\.(?<patch>\\\\d+)$'})"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "exposed-services/kt-session/catalog-tagged.yaml"
+      ],
+      "matchManagers": [
+        "custom.jsonata"
+      ],
+      "branchName": "renovate/catalog-greenhouse-extensions-tagged-{{{depNameSanitized}}}-{{{newValue}}}",
+      "commitMessageTopic": "catalog greenhouse-extensions-tagged {{{depName}}}",
+      "commitMessageExtra": "from {{{currentValue}}} to {{{newValue}}}",
+      "semanticCommits": "enabled",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "containers",
+      "prBodyColumns": [
+        "Package",
+        "Update",
+        "Change"
+      ],
+      "prBodyDefinitions": {
+        "Change": "`{{{currentValue}}}` → `{{{newValue}}}`"
+      },
+      "separateMinorPatch": true,
+      "separateMajorMinor": true,
+      "separateMultipleMajor": true,
+      "separateMultipleMinor": true,
+      "minimumReleaseAge": "0 days",
+      "prConcurrentLimit": 0,
+      "recreateWhen": "auto",
+      "rebaseWhen": "behind-base-branch",
+      "bumpVersions": [
+        {
+          "name": "If Catalog is part of a helm chart: Bump Chart version on catalog changes",
+          "filePatterns": ["path/to/your/Chart\\.yaml"],
+          "matchStrings": ["version:\\s+(?<version>[^\\s]+)"],
+          "bumpType": "patch"
+        }
+      ]
+    }
+  ]
+}

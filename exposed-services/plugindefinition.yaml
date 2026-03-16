@@ -7,8 +7,15 @@ metadata:
   name: exposed-service
 spec:
   description: A test plugin for validating service exposure via Greenhouse
-  version: "2.1.1"
+  version: "2.1.7"
   helmChart:
     name: exposed-service
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 2.1.1
+    version: 2.1.7
+  options:
+    - name: pod.additionalLabels
+      description: Labels used on pod
+      default: 
+        organization: demo
+      required: false
+      type: map
