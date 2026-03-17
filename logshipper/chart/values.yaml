@@ -41,6 +41,8 @@ fluent-bit:
       port: 2021
       containerPort: 2021
       protocol: TCP
+  systemd:
+    enabled: true
   livenessProbe:
     httpGet:
       path: /
