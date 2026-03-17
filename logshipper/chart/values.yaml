@@ -41,11 +41,13 @@ fluent-bit:
       port: 2021
       containerPort: 2021
       protocol: TCP
+  systemd:
+    enabled: true
   livenessProbe:
     httpGet:
       path: /
-      port: prometheus
+      port: http
   readinessProbe:
     httpGet:
       path: /api/v1/health
-      port: prometheus
+      port: http
