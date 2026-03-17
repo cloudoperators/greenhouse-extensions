@@ -22,6 +22,8 @@ data:
           HTTP_Listen  0.0.0.0
           HTTP_Port    {{ index .Values "fluent-bit" "metricsPort" }}
           Health_Check On
+          HC_Errors_Count        5
+          HC_Retry_Failure_Count 5
 
       [INPUT]
           Name             tail
