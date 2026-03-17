@@ -44,8 +44,8 @@ fluent-bit:
   livenessProbe:
     httpGet:
       path: /
-      port: prometheus
+      port: http
   readinessProbe:
     httpGet:
       path: /api/v1/health
-      port: prometheus
+      port: http
