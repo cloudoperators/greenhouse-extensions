@@ -10,17 +10,17 @@ auditLogs:
     endpoint: test-endpoint
     index: test
   elastic:
-      enabled: true
-      endpoint: test
-      tls:
-        crt: testcrt
+    enabled: true
+    endpoint: test
+    tls:
+      crt: testcrt
+      key: testkey
+    labels:
+      - action: insert
         key: testkey
-      labels:
-        - action: insert
-          key: testkey
-          value: testvalue
-        - action: insert
-          key: testkey
-          value: testvalue
+        value: testvalue
+      - action: insert
+        key: testkey
+        value: testvalue
   cluster: test
   region: test
