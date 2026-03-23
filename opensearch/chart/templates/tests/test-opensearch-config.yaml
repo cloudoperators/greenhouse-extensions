@@ -21,43 +21,43 @@ data:
     DETIK_CLIENT_NAMESPACE="{{ .Release.Namespace }}"
 
     @test "Verify successful deployment and running status of the operator pod" {
-        try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-operator-controller-manager-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
+        try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-operator-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
     }
 
     @test "Verify successful deployment of the operator service" {
-        verify "there is 1 service named '{{ .Release.Name }}-operator-controller-manager-metrics-service$'"
+        verify "there is 1 service named '{{ .Release.Name }}-operator$'"
     }
 
     @test "Verify presence of OpenSearchCluster resource" {
-      [ "$(kubectl get opensearchclusters.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchclusters.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchIndexTemplate resource" {
-      [ "$(kubectl get opensearchindextemplates.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchindextemplates.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchRole resource" {
-      [ "$(kubectl get opensearchroles.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchroles.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchUser resource" {
-      [ "$(kubectl get opensearchusers.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchusers.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchUserRoleBinding resource" {
-      [ "$(kubectl get opensearchuserrolebindings.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchuserrolebindings.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchISMPolicy resource" {
-      [ "$(kubectl get opensearchismpolicies.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchismpolicies.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchComponentTemplate resource" {
-      [ "$(kubectl get opensearchcomponenttemplates.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
+      [ "$(kubectl get opensearchcomponenttemplates.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
     @test "Verify presence of OpenSearchTenant resource" {
-      [ "$(kubectl get opensearchtenants.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
+      [ "$(kubectl get opensearchtenants.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
     }
 
     # ===== OpenSearch logs Cluster Tests =====
