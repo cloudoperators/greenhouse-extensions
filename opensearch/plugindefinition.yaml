@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.0.52
+  version: 0.1.0
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.0.52
+    version: 0.1.0
   options:
     - name: cluster.cluster.general.monitoring.pluginUrl
       description: "Defines a custom URL for the monitoring plugin. Leave blank to use the default monitoring configuration."
@@ -128,12 +128,12 @@ spec:
       description: "Specifies the OpenSearch version."
       required: false
       type: string
-    - name: operator.kubeRbacProxy.image.repository
-      description: "Specifies the image repository for the kube-rbac-proxy image."
+    - name: cluster.cluster.initHelper.image
+      description: "Specifies the image repository for the init helper (busybox) container used to set vm.max_map_count."
       required: false
       type: string
-    - name: operator.kubeRbacProxy.image.tag
-      description: "Specifies the image tag for the kube-rbac-proxy image."
+    - name: siem.cluster.initHelper.image
+      description: "Specifies the image repository for the init helper (busybox) container used to set vm.max_map_count for the SIEM cluster."
       required: false
       type: string
     # SIEM cluster configuration options
