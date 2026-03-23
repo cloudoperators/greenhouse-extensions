@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: opensearchismpolicies.opensearch.opster.io
+  name: opensearchismpolicies.opensearch.org
 spec:
-  group: opensearch.opster.io
+  group: opensearch.org
   names:
     kind: OpenSearchISMPolicy
     listKind: OpenSearchISMPolicyList
@@ -196,7 +196,7 @@ spec:
                                   of the specified attributes.
                                 type: string
                               require:
-                                description: Don’t allocate the index to a node with
+                                description: Don't allocate the index to a node with
                                   any of the specified attributes.
                                 type: string
                               waitFor:
@@ -342,7 +342,7 @@ spec:
                                 type: string
                             type: object
                           snapshot:
-                            description: Back up your cluster’s indexes and state
+                            description: Back up your cluster's indexes and state
                             properties:
                               repository:
                                 description: The repository name that you register
@@ -367,7 +367,7 @@ spec:
                     transitions:
                       description: The next states and the conditions required to
                         transition to those states. If no transitions exist, the policy
-                        assumes that it’s complete and can now stop managing the index
+                        assumes that it's complete and can now stop managing the index
                       items:
                         properties:
                           conditions:
