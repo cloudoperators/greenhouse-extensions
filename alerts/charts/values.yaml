@@ -209,21 +209,8 @@ alerts:
         - '/etc/alertmanager/config/*.tmpl'
         - '/etc/alertmanager/notification-templates/*.tmpl'
 
-
     ingress:
       enabled: false
-
-      ## By default, a ca-bundle is deployed to enable tls between Prometheus and Alertmanager
-      annotations:
-        disco: "true"
-        kubernetes.io/tls-acme: "true"
-        nginx.ingress.kubernetes.io/auth-tls-secret: "{{ $.Release.Namespace }}/{{ $.Release.Namespace }}-ca-bundle"
-        nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
-        nginx.ingress.kubernetes.io/auth-tls-verify-depth: "3"
-        nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type
-        nginx.ingress.kubernetes.io/cors-allow-methods: DELETE
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-      ingressClassName: nginx
 
     ## Settings affecting alertmanagerSpec
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#alertmanagerspec
@@ -236,7 +223,7 @@ alerts:
       ## Defines the strategy used by AlertmanagerConfig objects to match alerts.
       ##
       alertmanagerConfigMatcherStrategy:
-        type: OnNamespace
+        type: None
 
       ## AlertmanagerConfigs to be selected to merge and configure Alertmanager with.
       ##
