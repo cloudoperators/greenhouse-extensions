@@ -23,7 +23,7 @@ spec:
         name: {{ $.Release.Name }}-absent-metrics-operator
       annotations:
         greenhouse/scrape: "true"
-        greenhouse/targets: {{ $.Release.Name | quote }}
+        greenhouse/target: {{ $.Release.Name | quote }}
     spec:
       serviceAccount: {{ $.Release.Name }}-absent-metrics-operator
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
