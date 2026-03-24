@@ -457,6 +457,9 @@ cluster:
 
     # initHelper configuration
     initHelper:
+      # -- initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors.
+      image: docker.io/busybox
+
       # -- initHelper image pull policy
       imagePullPolicy: "IfNotPresent"
 
@@ -1176,6 +1179,9 @@ siem:
 
     # initHelper configuration
     initHelper:
+      # -- initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors.
+      image: docker.io/busybox
+
       # -- initHelper image pull policy
       imagePullPolicy: "IfNotPresent"
 
