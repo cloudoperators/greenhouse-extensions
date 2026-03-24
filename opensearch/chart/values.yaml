@@ -669,6 +669,8 @@ cluster:
     - name: "logs-read-role"
       clusterPermissions:
         - "read"
+        - "cluster_monitor"
+        - "cluster_composite_ops"
         - "cluster:monitor/nodes/stats"
         - "cluster:admin/opensearch/ql/datasources/read"
         - "cluster:monitor/task/get"
@@ -682,7 +684,22 @@ cluster:
         - 'cluster:admin/opendistro/reports/instance/get'
         - 'cluster:admin/opendistro/reports/menu/download'
         - 'cluster:admin/opensearch/ppl'
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template*"
+        - "indices:data/read/scroll*"
       indexPermissions:
+        - indexPatterns:
+            - ".kibana*"
+            - ".opensearch_dashboards*"
+          allowedActions:
+            - "crud"
+            - "read"
+            - "search"
+            - "get"
+            - "indices:data/read/*"
+            - "indices:data/write/*"
+            - "indices:admin/get"
+            - "indices:admin/mappings/get"
         - indexPatterns:
             - "*"
           allowedActions:
@@ -690,10 +707,19 @@ cluster:
             - "read"
             - "get"
             - "indices:monitor/settings/get"
-            - "indices:admin/create"
             - "indices:admin/mappings/get"
             - "indices:data/read/search*"
             - "indices:admin/get"
+            - "indices:data/read/get"
+            - "indices:admin/aliases/get"
+            - "indices:admin/mappings/fields/get*"
+            - "indices:admin/resolve/index"
+      tenantPermissions:
+        - tenantPatterns:
+            - "*"
+          allowedActions:
+            - "kibana_all_read"
+            - "kibana_all_write"
     - name: "dashboards-role"
       clusterPermissions:
         - "cluster_monitor"
@@ -713,6 +739,9 @@ cluster:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+            - "indices:data/read/search*"
+            - "indices:data/read/get"
+            - "read"
 
   # -- List of OpenSearch user configurations.
   # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
@@ -1399,9 +1428,14 @@ siem:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+            - "indices:data/read/search*"
+            - "indices:data/read/get"
+            - "read"
     - name: "siem-read-role"
       clusterPermissions:
         - "read"
+        - "cluster_monitor"
+        - "cluster_composite_ops"
         - "cluster:monitor/nodes/stats"
         - "cluster:admin/opensearch/ql/datasources/read"
         - "cluster:monitor/task/get"
@@ -1415,7 +1449,22 @@ siem:
         - 'cluster:admin/opendistro/reports/instance/get'
         - 'cluster:admin/opendistro/reports/menu/download'
         - 'cluster:admin/opensearch/ppl'
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template*"
+        - "indices:data/read/scroll*"
       indexPermissions:
+        - indexPatterns:
+            - ".kibana*"
+            - ".opensearch_dashboards*"
+          allowedActions:
+            - "crud"
+            - "read"
+            - "search"
+            - "get"
+            - "indices:data/read/*"
+            - "indices:data/write/*"
+            - "indices:admin/get"
+            - "indices:admin/mappings/get"
         - indexPatterns:
             - "*"
           allowedActions:
@@ -1423,10 +1472,19 @@ siem:
             - "read"
             - "get"
             - "indices:monitor/settings/get"
-            - "indices:admin/create"
             - "indices:admin/mappings/get"
             - "indices:data/read/search*"
             - "indices:admin/get"
+            - "indices:data/read/get"
+            - "indices:admin/aliases/get"
+            - "indices:admin/mappings/fields/get*"
+            - "indices:admin/resolve/index"
+      tenantPermissions:
+        - tenantPatterns:
+            - "*"
+          allowedActions:
+            - "kibana_all_read"
+            - "kibana_all_write"
 
   # -- List of OpenSearch user configurations for SIEM cluster.
   # @default -- <pre>users:<br>  - name: "siemlogs"<br>    secretName: "siemlogs-credentials"<br>    secretKey: "password"<br>    backendRoles: []<br>  - name: "siemaudit"<br>    secretName: "siemaudit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
