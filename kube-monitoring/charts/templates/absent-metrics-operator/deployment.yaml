@@ -22,8 +22,8 @@ spec:
         {{- include "kube-prometheus-stack.labels" . | indent 8 }}
         name: {{ $.Release.Name }}-absent-metrics-operator
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/targets: "kubernetes"
+        greenhouse/scrape: "true"
+        greenhouse/target: {{ $.Release.Name | quote }}
     spec:
       serviceAccount: {{ $.Release.Name }}-absent-metrics-operator
       serviceAccountName: {{ $.Release.Name }}-absent-metrics-operator
