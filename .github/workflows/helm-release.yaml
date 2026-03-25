@@ -26,6 +26,7 @@ on:
       - shoot-grafter/charts/**
       - thanos/charts/**
       - repo-guard/charts/**
+      - oidc-discovery-access/**
 
 
 permissions:
@@ -79,6 +80,8 @@ jobs:
             chartName: thanos
           - chartDir: repo-guard/charts
             chartName: repo-guard
+          - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
+            chartName: oidc-discovery-access
 
 
     steps:
