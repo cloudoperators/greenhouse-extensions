@@ -26,14 +26,14 @@ attributes/audit_logs:
 {{- define "audit.pipeline" }}
 logs/audit_journald:
   receivers: [filelog/journald]
-  processors: [k8sattributes,attributes/cluster]
-  exporters: [forward]
+  processors: [k8sattributes,attributes/cluster,batch]
+  exporters: [failover]
 logs/audit_containerd:
   receivers: [filelog/containerd]
-  processors: [k8sattributes,attributes/cluster]
-  exporters: [forward]
+  processors: [k8sattributes,attributes/cluster,batch]
+  exporters: [failover]
 logs/audit_filelog:
   receivers: [filelog/audit_logs]
-  processors: [k8sattributes,attributes/cluster]
-  exporters: [forward]
+  processors: [k8sattributes,attributes/cluster,batch]
+  exporters: [failover]
 {{- end }}
