@@ -18,5 +18,5 @@ dependencies:
   - name: strimzi-kafka-operator
     alias: operator
     repository: https://strimzi.io/charts/
-    version: 0.50.0
+    version: 0.50.1
     condition: operator.enabled
