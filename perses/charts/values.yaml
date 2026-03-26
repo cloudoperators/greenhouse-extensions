@@ -391,6 +391,23 @@ contentSync:
     # -- Topology key for pod affinity scheduling
     topologyKey: "kubernetes.io/hostname"
 
+  # -- Pod-level security context for the content-sync CronJob pod.
+  # Default fsGroup should match persistence.securityContext.fsGroup to ensure
+  # shared PVC write access with the Perses StatefulSet pod.
+  podSecurityContext:
+    # -- Group ID that owns mounted volumes (must match the Perses pod's fsGroup for shared PVC access)
+    fsGroup: 2000
+    # -- UID to run the entrypoint of the container process
+    # runAsUser: 1000
+    # -- GID to run the entrypoint of the container process
+    # runAsGroup: 3000
+    # -- Indicates that containers must run as a non-root user
+    # runAsNonRoot: true
+    # -- How volume ownership and permissions are changed
+    # fsGroupChangePolicy: OnRootMismatch
+    # -- List of additional groups for the first process in containers
+    # supplementalGroups: [2000, 3000]
+
 greenhouse:
   defaultDashboards:
     # -- By setting this to true, You will get Perses Self-monitoring dashboards
