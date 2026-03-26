@@ -38,6 +38,10 @@ spec:
                           - perses
                   topologyKey: {{ .Values.contentSync.podAffinity.topologyKey }}
           {{- end }}
+          {{- with .Values.contentSync.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           containers:
             - name: content-sync
               image: "{{ .Values.contentSync.image.repository }}:{{ .Values.contentSync.image.tag }}"
