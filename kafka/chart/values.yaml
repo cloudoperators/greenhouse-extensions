@@ -111,7 +111,7 @@ entityOperator:
 # Kafka Exporter configuration
 kafkaExporter:
   # -- Enable Kafka Exporter
-  enabled: false
+  enabled: true
 
   # -- Consumer group regex for metrics export
   groupRegex: ".*"
