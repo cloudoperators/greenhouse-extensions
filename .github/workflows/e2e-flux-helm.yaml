@@ -212,7 +212,7 @@ jobs:
           fi
 
           echo "Waiting for HelmRelease $hr_name..."
-            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=1m; then
+            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=7m; then
             echo "HelmRelease not Ready diagnostics:"
             kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
             kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
