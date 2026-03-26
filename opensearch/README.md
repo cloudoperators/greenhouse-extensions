@@ -157,6 +157,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.ingress.opensearch.enabled | bool | `false` | Enable ingress for Opensearch service |
 | cluster.cluster.ingress.opensearch.hosts | list | `[]` | Opensearch Ingress hostnames |
 | cluster.cluster.ingress.opensearch.tls | list | `[]` | Opensearch tls configuration |
+| cluster.cluster.initHelper.image | string | `"docker.io/busybox"` | initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors. |
 | cluster.cluster.initHelper.imagePullPolicy | string | `"IfNotPresent"` | initHelper image pull policy |
 | cluster.cluster.initHelper.imagePullSecrets | list | `[]` | initHelper image pull secret |
 | cluster.cluster.initHelper.resources | object | `{}` | initHelper pod cpu and memory resources |
@@ -341,6 +342,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.ingress.opensearch.enabled | bool | `false` | Enable ingress for Opensearch service |
 | siem.cluster.ingress.opensearch.hosts | list | `[]` | Opensearch Ingress hostnames |
 | siem.cluster.ingress.opensearch.tls | list | `[]` | Opensearch tls configuration |
+| siem.cluster.initHelper.image | string | `"docker.io/busybox"` | initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors. |
 | siem.cluster.initHelper.imagePullPolicy | string | `"IfNotPresent"` | initHelper image pull policy |
 | siem.cluster.initHelper.imagePullSecrets | list | `[]` | initHelper image pull secret |
 | siem.cluster.initHelper.resources | object | `{}` | initHelper pod cpu and memory resources |

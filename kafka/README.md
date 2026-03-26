@@ -58,7 +58,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | kafka.resources | object | requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU | Resource configuration for Kafka brokers |
 | kafka.storage | object | JBOD with 100Gi persistent volume per broker | Storage configuration for Kafka brokers |
 | kafka.version | string | `"4.1.0"` | Kafka version |
-| kafkaExporter.enabled | bool | `false` | Enable Kafka Exporter |
+| kafkaExporter.enabled | bool | `true` | Enable Kafka Exporter |
 | kafkaExporter.groupRegex | string | `".*"` | Consumer group regex for metrics export |
 | kafkaExporter.resources | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Kafka Exporter resource configuration |
 | kafkaExporter.topicRegex | string | `".*"` | Topic regex for metrics export |

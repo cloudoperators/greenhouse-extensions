@@ -60,6 +60,8 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | contentSync.podAffinity | object | <pre>podAffinity:<br>  enabled: true<br>  topologyKey: "kubernetes.io/hostname"</pre> | Pod affinity configuration to co-locate with the Perses pod. Required when the provisioning PVC uses ReadWriteOnce (RWO) access mode, since the PVC can only be mounted on a single node. Can be disabled when using ReadWriteMany (RWX) storage. |
 | contentSync.podAffinity.enabled | bool | `true` | Enable pod affinity to schedule on the same node as the Perses pod |
 | contentSync.podAffinity.topologyKey | string | `"kubernetes.io/hostname"` | Topology key for pod affinity scheduling |
+| contentSync.podSecurityContext | object | `{"fsGroup":2000}` | Pod-level security context for the content-sync CronJob pod. Default fsGroup should match persistence.securityContext.fsGroup to ensure shared PVC write access with the Perses StatefulSet pod. |
+| contentSync.podSecurityContext.fsGroup | int | `2000` | Group ID that owns mounted volumes (must match the Perses pod's fsGroup for shared PVC access) |
 | contentSync.provisioningMountPath | string | `"/etc/perses/provisioning"` | Provisioning mount path (should match perses provisioning folder) |
 | contentSync.resources | object | <pre>resources:<br>  limits:<br>    cpu: 200m<br>    memory: 256Mi<br>  requests:<br>    cpu: 200m<br>    memory: 256Mi</pre> | Resource limits and requests for the content-sync container |
 | contentSync.schedule | string | `"*/5 * * * *"` | Cron schedule expression |
