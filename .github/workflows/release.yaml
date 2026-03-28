@@ -17,12 +17,12 @@ jobs:
       changed-plugins: ${{ steps.build-matrix.outputs.plugins }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 2
 
       - name: Install 'yq'
-        uses: yokawasa/action-setup-kube-tools@v0.11.2
+        uses: yokawasa/action-setup-kube-tools@9e25a4277af127b60011c95b6ed2da7e3b3613b1 # v0.11.2
         with:
           yq: v4.25.1
           setup-tools: |
@@ -43,7 +43,7 @@ jobs:
           cat filter.yml
 
       - name: Detect changed plugins
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
         id: filter
         with:
           filters: ./filter.yml
@@ -84,10 +84,10 @@ jobs:
         plugin: ${{ fromJson(needs.detect-changes.outputs.changed-plugins) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Release (${{ matrix.plugin.name }})
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const pluginName = '${{ matrix.plugin.name }}';
