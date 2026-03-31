@@ -9,8 +9,9 @@ title: Perses
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
 - [Create a custom dashboard](#create-a-custom-dashboard)
-- [Add Dashboards as ConfigMaps](#add-dashboards-as-configmaps)
+- [Manage Resources with ConfigMaps](#manage-resources-with-configmaps)
     - [Recommended folder structure](#recommended-folder-structure)
+- [Manage Resources with OCI Artifacts](#manage-resources-with-oci-artifacts)
 
 Learn more about the **Perses** Plugin. Use it to visualize Prometheus/Thanos metrics for your Greenhouse remote cluster.
 
@@ -19,8 +20,6 @@ The main terminologies used in this document can be found in [core-concepts](htt
 ## Overview
 
 Observability is often required for the operation and automation of service offerings. [Perses](https://perses.dev/) is a CNCF project and it aims to become an open-standard for dashboards and visualization. It provides you with tools to display Prometheus metrics on live dashboards with insightful charts and visualizations. In the Greenhouse context, this complements the **kube-monitoring** plugin, which automatically acts as a Perses data source which is recognized by Perses. In addition, the Plugin provides a mechanism that automates the lifecycle of datasources and dashboards without having to restart Perses.
-
-![Perses Architecture](img/perses-arch.png)
 
 ## Disclaimer
 
@@ -35,14 +34,14 @@ This guide provides a quick and straightforward way how to use Perses as a Green
 **Prerequisites**
 
 - A running and Greenhouse-managed Kubernetes remote cluster
-- `kube-monitoring` Plugin will integrate into Perses automatically with its own datasource 
-- `thanos` Plugin can be enabled alongside `kube-monitoring`. Perses then will have both datasources (`thanos`, `kube-monitoring`) and will default to `thanos` to provide access to long term metrics 
+- `kube-monitoring` Plugin will integrate into Perses automatically with its own datasource
+- `thanos` Plugin can be enabled alongside `kube-monitoring`. Perses then will have both datasources (`thanos`, `kube-monitoring`) and will default to `thanos` to provide access to long term metrics
 
 The plugin works by default with anonymous access enabled. This plugin comes with some default dashboards and datasources will be automatically discovered by the plugin.
 
 **Step 1: Add your dashboards and datasources**
 
-Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `perses.dev/resource: "true"` and imports them into Perses. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. Please [refer this section](#add-dashboards-as-configmaps) for more information.
+Dashboards are selected from `ConfigMaps` across namespaces. The plugin searches for `ConfigMaps` with the label `perses.dev/resource: "true"` and imports them into Perses. The `ConfigMap` must contain a key like `my-dashboard.json` with the dashboard JSON content. Please [refer this section](#manage-resources-with-configmaps) for more information.
 
 A guide on how to create custom dashboards on the UI can be found [here](#create-a-custom-dashboard).
 
@@ -50,6 +49,22 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| contentSync | object | See individual parameters below | Content sync CronJob configuration. Syncs OCI artifact content of Perses Resources such as (dashboards/datasources) into the Perses provisioning PVC. |
+| contentSync.debug | bool | `false` | Enable debug logging in the sync script |
+| contentSync.enabled | bool | `false` | Enable the content sync CronJob |
+| contentSync.image | object | <pre>image:<br>  repository: ""<br>  tag: ""<br>  pullPolicy: IfNotPresent</pre> | Container image for the crane tool. Must be set when contentSync is enabled. |
+| contentSync.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| contentSync.image.repository | string | `""` | Crane image repository (e.g. "registry.example.com/go-containerregistry/crane") |
+| contentSync.image.tag | string | `""` | Crane image tag (e.g. "debug") |
+| contentSync.ociImageRef | string | `""` | OCI image reference to sync content from. Must be set when contentSync is enabled. |
+| contentSync.podAffinity | object | <pre>podAffinity:<br>  enabled: true<br>  topologyKey: "kubernetes.io/hostname"</pre> | Pod affinity configuration to co-locate with the Perses pod. Required when the provisioning PVC uses ReadWriteOnce (RWO) access mode, since the PVC can only be mounted on a single node. Can be disabled when using ReadWriteMany (RWX) storage. |
+| contentSync.podAffinity.enabled | bool | `true` | Enable pod affinity to schedule on the same node as the Perses pod |
+| contentSync.podAffinity.topologyKey | string | `"kubernetes.io/hostname"` | Topology key for pod affinity scheduling |
+| contentSync.podSecurityContext | object | `{"fsGroup":2000}` | Pod-level security context for the content-sync CronJob pod. Default fsGroup should match persistence.securityContext.fsGroup to ensure shared PVC write access with the Perses StatefulSet pod. |
+| contentSync.podSecurityContext.fsGroup | int | `2000` | Group ID that owns mounted volumes (must match the Perses pod's fsGroup for shared PVC access) |
+| contentSync.provisioningMountPath | string | `"/etc/perses/provisioning"` | Provisioning mount path (should match perses provisioning folder) |
+| contentSync.resources | object | <pre>resources:<br>  limits:<br>    cpu: 200m<br>    memory: 256Mi<br>  requests:<br>    cpu: 200m<br>    memory: 256Mi</pre> | Resource limits and requests for the content-sync container |
+| contentSync.schedule | string | `"*/5 * * * *"` | Cron schedule expression |
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
 | greenhouse.alertLabels | object | <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre> | Labels to add to the PrometheusRules alerts. |
 | greenhouse.defaultDashboards.enabled | bool | `true` | By setting this to true, You will get Perses Self-monitoring dashboards |
@@ -150,12 +165,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
    - Copy the entire JSON model.
    - See the next section for detailed instructions on how and where to paste the copied dashboard JSON model.
 
-### Dashboard-as-Code
-
-Perses offers the possibility to define **dashboards as code (DaC)** instead of going through manipulations on the UI.
-But why would you want to do this? Basically Dashboard-as-Code (DaC) is something that becomes useful at scale, when you have many dashboards to maintain, to keep aligned on certain parts, etc. If you are interested in this, you can check the [Perses documentation](https://perses.dev/perses/docs/dac/getting-started/) for more information.
-
-## Add Dashboards as ConfigMaps
+## Manage Resources with ConfigMaps
 
 By default, a sidecar container is deployed in the Perses pod. This container watches all configmaps in the cluster and filters out the ones with a label `perses.dev/resource: "true"`. The files defined in those configmaps are written to a folder and this folder is accessed by Perses. Changes to the configmaps are continuously monitored and are reflected in Perses within 10 minutes.
 
@@ -192,3 +202,39 @@ data:
 
 {{- end }}
 ```
+## Manage Resources with OCI Artifacts
+
+As an alternative to ConfigMap-based provisioning, Perses resources such as dashboards and datasources can be synced from an OCI artifact using a CronJob. This is useful when:
+
+- Resources exceed the ConfigMap size limit (1 MiB)
+- You want to version and distribute resources as OCI images
+
+The CronJob periodically checks the OCI image for changes and only updates the provisioning volume when a new version is detected.
+
+For more information on packaging Perses resources as OCI artifacts, see the [Perses OCI Artifacts documentation](https://perses.dev/helm-charts/docs/packaging-resources-as-oci-artifacts/).
+
+**Prerequisites**
+
+- `perses.provisioningPersistence.enabled` must be set to `true`
+- An OCI artifact containing the Perses resources to sync
+
+**Example configuration:**
+
+```yaml
+perses:
+  provisioningPersistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+
+contentSync:
+  enabled: true
+  schedule: "*/5 * * * *"
+  ociImageRef: "registry.example.com/perses-content:latest"
+  image:
+    repository: "registry.example.com/go-containerregistry/crane"
+    tag: "debug"
+```
+
+> **Note:** When using `ReadWriteOnce` storage, pod affinity (enabled by default) ensures the CronJob runs on the same node as the Perses pod. For multi-node setups, use `ReadWriteMany` storage and disable pod affinity.

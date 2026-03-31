@@ -381,11 +381,19 @@ thanos:
     # -- Resource requests and limits for the Thanos Ruler container.
     resources: {}
 
-    # -- If {} it is selecting all namespaces. Otherwise MatchExpressions or MatchLabels have to be used 
+    # -- Namespace selector for PrometheusRule discovery. Empty {} matches all namespaces.
     ruleNamespaceSelector: {}
 
-    # -- Matches to thanos-ruler: $matchLabel by default. Usually needs to be changed if a custom ruler is deployed 
+    # -- Label selector for PrometheusRules. Defaults to thanos-ruler: <matchLabel or .Release.Name>. Usually needs to be changed if a custom ruler is deployed.
     ruleSelector:
+
+    # -- List of Thanos Query endpoints for ThanosRuler to evaluate rules against.
+    # Defaults to the local thanos-query service if not set.
+    queryEndpoints: []
+
+    # -- External Thanos Query URL embedded as the source link in alerts sent to Alertmanager.
+    # Maps to the '--alert.query-url' CLI flag. Leave empty to use no external link.
+    alertQueryUrl: ""
 
     # -- SecurityContext holds pod-level security attributes and common container settings.
     securityContext:

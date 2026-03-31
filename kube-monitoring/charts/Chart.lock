@@ -7,6 +7,6 @@ dependencies:
   version: 1.2.7
 - name: prometheus-blackbox-exporter
   repository: https://prometheus-community.github.io/helm-charts
-  version: 11.7.0
-digest: sha256:2eda72bebacc749f38766c05b3dbc76d7d6607917d164766b9691360610e1528
-generated: "2026-02-03T14:41:26.526828884Z"
+  version: 11.7.1
+digest: sha256:02712a7920d4f65610a683c021d432a975b9cad73ab717f53387b4bc048f0d77
+generated: "2026-03-05T12:57:27.527925148Z"

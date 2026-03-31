@@ -324,6 +324,7 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       opensearch/failover_a:
         http:
           auth:
@@ -337,10 +338,24 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+      kafka:
+        brokers:
+{{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
+        topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
+        encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
+        producer:
+          compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
+{{- end }}
 
     extensions:
       file_storage/journald:
         directory: .
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -348,8 +363,10 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.extension" . | nindent 6 -}}
 {{- end }}
+{{- end }}
     connectors:
       forward: {}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       failover:
         priority_levels:
           - [logs/failover_a]
@@ -362,12 +379,15 @@ spec:
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
+{{- end }}
     service:
       extensions:
         - file_storage/journald
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
         - basicauth/failover_a
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
         - basicauth/failover_b
+{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
@@ -393,6 +413,9 @@ spec:
         logs/forward:
           receivers: [forward]
           processors: [batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
           exporters: [failover]
         logs/failover_a:
           receivers: [failover]
@@ -400,6 +423,7 @@ spec:
           exporters: [opensearch/failover_a]
 {{- if .Values.openTelemetry.logsCollector.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
 {{- end }}
 {{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
         logs/containerd:

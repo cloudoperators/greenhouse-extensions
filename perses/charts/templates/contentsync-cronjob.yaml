@@ -1,0 +1,110 @@
+{{- if .Values.contentSync.enabled }}
+{{- include "contentSync.validate" . }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "release.name" . }}-content-sync
+  labels:
+    {{- include "perses.labels" . | nindent 4 }}
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  schedule: {{ .Values.contentSync.schedule | quote }}
+  suspend: false
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "perses.labels" . | nindent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "perses.labels" . | nindent 12 }}
+        spec:
+          {{- if .Values.contentSync.podAffinity.enabled }}
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app.kubernetes.io/instance
+                        operator: In
+                        values:
+                          - {{ .Release.Name }}
+                      - key: app.kubernetes.io/name
+                        operator: In
+                        values:
+                          - perses
+                  topologyKey: {{ .Values.contentSync.podAffinity.topologyKey }}
+          {{- end }}
+          {{- with .Values.contentSync.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: content-sync
+              image: "{{ .Values.contentSync.image.repository }}:{{ .Values.contentSync.image.tag }}"
+              imagePullPolicy: {{ .Values.contentSync.image.pullPolicy }}
+              command:
+                - /busybox/sh
+              args:
+                - -c
+                - |
+                  set -e
+                  [ "$DEBUG" = "true" ] && echo "Starting content sync at $(date)"
+                  IMAGE_REF="{{ .Values.contentSync.ociImageRef }}"
+                  SHA_FILE="{{ .Values.contentSync.provisioningMountPath }}/.last_sha"
+                  [ "$DEBUG" = "true" ] && echo "Fetching current image digest..."
+                  CURRENT_SHA=$(crane digest "$IMAGE_REF")
+                  [ "$DEBUG" = "true" ] && echo "Current image SHA: $CURRENT_SHA"
+                  if [ -f "$SHA_FILE" ]; then
+                    LAST_SHA=$(cat "$SHA_FILE")
+                    [ "$DEBUG" = "true" ] && echo "Previous SHA: $LAST_SHA"
+                    if [ "$CURRENT_SHA" = "$LAST_SHA" ]; then
+                      echo "Content sync completed at $(date) - no update required"
+                      exit 0
+                    else
+                      echo "SHA changed - new content detected"
+                      echo "  Previous: $LAST_SHA"
+                      echo "  Current:  $CURRENT_SHA"
+                    fi
+                  else
+                    [ "$DEBUG" = "true" ] && echo "No previous SHA found - first run or SHA file missing"
+                  fi
+                  TEMP_DIR="/tmp/perses-extract"
+                  mkdir -p "$TEMP_DIR"
+                  [ "$DEBUG" = "true" ] && echo "Pulling image: $IMAGE_REF"
+                  crane export "$IMAGE_REF" - | tar -xf - -C "$TEMP_DIR"
+                  [ "$DEBUG" = "true" ] && echo "Clearing existing content..."
+                  rm -rf {{ .Values.contentSync.provisioningMountPath }}/* || true
+                  [ "$DEBUG" = "true" ] && echo "Copying content to PVC..."
+                  cp -r "$TEMP_DIR/perses-content"/* {{ .Values.contentSync.provisioningMountPath }}/
+                  echo "$CURRENT_SHA" > "$SHA_FILE"
+                  [ "$DEBUG" = "true" ] && echo "Stored current SHA for future comparison"
+                  if [ "$DEBUG" = "true" ]; then
+                    echo "Content successfully synced. Files in PVC:"
+                    echo "Total JSON files: $(find {{ .Values.contentSync.provisioningMountPath }} -name "*.json" | wc -l)"
+                  fi
+                  rm -rf "$TEMP_DIR"
+                  echo "Content sync completed at $(date) - update successful"
+              env:
+                - name: DEBUG
+                  value: {{ .Values.contentSync.debug | quote }}
+              {{- with .Values.contentSync.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - name: perses-content-volume
+                  mountPath: {{ .Values.contentSync.provisioningMountPath }}
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: perses-content-volume
+              persistentVolumeClaim:
+                claimName: {{ include "perses.pvcClaimName" . }}
+{{- end }}

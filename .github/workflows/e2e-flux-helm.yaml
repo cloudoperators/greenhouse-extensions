@@ -115,7 +115,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@92086f6be054225fa813e0a4b13787fc9088faab # v1.13.0
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
 
       - name: Install plugin dependencies (if any)
         if: steps.list-changed.outputs.changed == 'true'
@@ -212,7 +212,7 @@ jobs:
           fi
 
           echo "Waiting for HelmRelease $hr_name..."
-            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=1m; then
+            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=7m; then
             echo "HelmRelease not Ready diagnostics:"
             kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
             kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true

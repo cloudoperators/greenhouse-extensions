@@ -13,6 +13,8 @@ fluent-bit:
       http_user: top-secret-audit
       http_password: top-secret-audit
       host: "audit.test"
+      port: 9200
+      logstash_prefix: audit
       tls:
         enabled: true
         verify: true
@@ -45,14 +47,16 @@ fluent-bit:
           name: fluent-bit-secrets
           key: AUDIT_PWD
 
+  systemd:
+    enabled: false
   filter:
     additionalValues:
       - key: region
-        name: qa
+        value: qa
   customConfig:
     inputs: |
       [INPUT]
-          Name             tail-audit
+          Name             tail
           Path             /var/log/containers/greenhouse-controller*.log
           Parser           cri
           Tag              audit.*
@@ -65,10 +69,10 @@ fluent-bit:
         [FILTER]
             Name               grep
             Match              audit.*
-            Regex              MyAuditLogTag
+            Regex              log  MyAuditLogTag
     outputs: |
         [OUTPUT]
-            Name  audit
+            Name  opensearch
             Match audit.*
             Host  {{ index .Values "fluent-bit" "backend" "audit" "host" }}
             Port  {{ index .Values "fluent-bit" "backend" "audit" "port" }}

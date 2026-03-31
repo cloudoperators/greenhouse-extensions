@@ -191,7 +191,7 @@ operator:
 
     image:
       repository: "quay.io/brancz/kube-rbac-proxy"
-      tag: "v0.19.1"
+      tag: "v0.20.2"
 
   ## If this is set to true, RoleBindings will be used instead of ClusterRoleBindings, inorder to restrict ClusterRoles
   ## to the namespace where the operator and OpenSearch cluster are in. In that case, specify the namespace where they
@@ -273,7 +273,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.5.0.0/prometheus-exporter-3.5.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -315,7 +315,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.4.0
+      version: 3.5.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -453,10 +453,13 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.4.0
+      version: 3.5.0
 
     # initHelper configuration
     initHelper:
+      # -- initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors.
+      image: docker.io/busybox
+
       # -- initHelper image pull policy
       imagePullPolicy: "IfNotPresent"
 
@@ -666,6 +669,8 @@ cluster:
     - name: "logs-read-role"
       clusterPermissions:
         - "read"
+        - "cluster_monitor"
+        - "cluster_composite_ops"
         - "cluster:monitor/nodes/stats"
         - "cluster:admin/opensearch/ql/datasources/read"
         - "cluster:monitor/task/get"
@@ -679,7 +684,22 @@ cluster:
         - 'cluster:admin/opendistro/reports/instance/get'
         - 'cluster:admin/opendistro/reports/menu/download'
         - 'cluster:admin/opensearch/ppl'
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template*"
+        - "indices:data/read/scroll*"
       indexPermissions:
+        - indexPatterns:
+            - ".kibana*"
+            - ".opensearch_dashboards*"
+          allowedActions:
+            - "crud"
+            - "read"
+            - "search"
+            - "get"
+            - "indices:data/read/*"
+            - "indices:data/write/*"
+            - "indices:admin/get"
+            - "indices:admin/mappings/get"
         - indexPatterns:
             - "*"
           allowedActions:
@@ -687,10 +707,19 @@ cluster:
             - "read"
             - "get"
             - "indices:monitor/settings/get"
-            - "indices:admin/create"
             - "indices:admin/mappings/get"
             - "indices:data/read/search*"
             - "indices:admin/get"
+            - "indices:data/read/get"
+            - "indices:admin/aliases/get"
+            - "indices:admin/mappings/fields/get*"
+            - "indices:admin/resolve/index"
+      tenantPermissions:
+        - tenantPatterns:
+            - "*"
+          allowedActions:
+            - "kibana_all_read"
+            - "kibana_all_write"
     - name: "dashboards-role"
       clusterPermissions:
         - "cluster_monitor"
@@ -710,6 +739,9 @@ cluster:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+            - "indices:data/read/search*"
+            - "indices:data/read/get"
+            - "read"
 
   # -- List of OpenSearch user configurations.
   # @default -- <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
@@ -963,7 +995,7 @@ siem:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.4.0.0/prometheus-exporter-3.4.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.5.0.0/prometheus-exporter-3.5.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -1005,7 +1037,7 @@ siem:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.4.0
+      version: 3.5.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -1143,10 +1175,13 @@ siem:
       tolerations: []
 
       # -- dashboards version
-      version: 3.4.0
+      version: 3.5.0
 
     # initHelper configuration
     initHelper:
+      # -- initHelper image repository for the init container used to set vm.max_map_count. Override for registry mirrors.
+      image: docker.io/busybox
+
       # -- initHelper image pull policy
       imagePullPolicy: "IfNotPresent"
 
@@ -1393,9 +1428,14 @@ siem:
           allowedActions:
             - "indices:admin/aliases*"
             - "indices:admin/get"
+            - "indices:data/read/search*"
+            - "indices:data/read/get"
+            - "read"
     - name: "siem-read-role"
       clusterPermissions:
         - "read"
+        - "cluster_monitor"
+        - "cluster_composite_ops"
         - "cluster:monitor/nodes/stats"
         - "cluster:admin/opensearch/ql/datasources/read"
         - "cluster:monitor/task/get"
@@ -1409,7 +1449,22 @@ siem:
         - 'cluster:admin/opendistro/reports/instance/get'
         - 'cluster:admin/opendistro/reports/menu/download'
         - 'cluster:admin/opensearch/ppl'
+        - "cluster:admin/ingest/pipeline/get"
+        - "indices:admin/template*"
+        - "indices:data/read/scroll*"
       indexPermissions:
+        - indexPatterns:
+            - ".kibana*"
+            - ".opensearch_dashboards*"
+          allowedActions:
+            - "crud"
+            - "read"
+            - "search"
+            - "get"
+            - "indices:data/read/*"
+            - "indices:data/write/*"
+            - "indices:admin/get"
+            - "indices:admin/mappings/get"
         - indexPatterns:
             - "*"
           allowedActions:
@@ -1417,10 +1472,19 @@ siem:
             - "read"
             - "get"
             - "indices:monitor/settings/get"
-            - "indices:admin/create"
             - "indices:admin/mappings/get"
             - "indices:data/read/search*"
             - "indices:admin/get"
+            - "indices:data/read/get"
+            - "indices:admin/aliases/get"
+            - "indices:admin/mappings/fields/get*"
+            - "indices:admin/resolve/index"
+      tenantPermissions:
+        - tenantPatterns:
+            - "*"
+          allowedActions:
+            - "kibana_all_read"
+            - "kibana_all_write"
 
   # -- List of OpenSearch user configurations for SIEM cluster.
   # @default -- <pre>users:<br>  - name: "siemlogs"<br>    secretName: "siemlogs-credentials"<br>    secretKey: "password"<br>    backendRoles: []<br>  - name: "siemaudit"<br>    secretName: "siemaudit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
