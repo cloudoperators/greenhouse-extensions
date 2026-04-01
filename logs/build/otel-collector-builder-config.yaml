@@ -36,7 +36,6 @@ services:
   - gomod: go.opentelemetry.io/collector/service/telemetryservice" v0.147.0
 
 connectors:
-  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/failoverconnector v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.147.0
 
