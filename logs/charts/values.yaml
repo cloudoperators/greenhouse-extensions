@@ -75,9 +75,6 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
-    # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
-    failover:
-      enabled: true
     # -- Kafka exporter configuration for buffering logs
     kafka:
       # -- Enable Kafka exporter for logs buffering
@@ -98,12 +95,14 @@ openTelemetry:
     # -- Activates the configuration for Ceph logs (requires logsCollector to be enabled).
     cephConfig:
       enabled: false
+    # -- Activates the configuration for OpenStack logs (requires logsCollector to be enabled).
+    openstackConfig:
+      enabled: false
+    # -- Activates the configuration for external logs (requires logsCollector to be enabled).
     externalConfig:
       enabled: false
       tld:
       external_ip:
-    syslogConfig:
-      enabled: false
       tcp_port: 514
       udp_port: 514
   # -- Activates the standard configuration for metrics.

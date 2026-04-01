@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.12.0
+  version: 0.12.1
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.0
+    version: 0.1.1
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -40,9 +40,14 @@ spec:
       name: openTelemetry.logsCollector.cephConfig.enabled
       required: false
       type: bool
-    - default: true
-      description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
-      name: openTelemetry.logsCollector.failover.enabled
+    - default: false
+      description: Activates the configuration for OpenStack logs (requires logsCollector enabled)
+      name: openTelemetry.logsCollector.openstackConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the configuration for receiving Syslog from external sources (requires logsCollector enabled)
+      name: openTelemetry.logsCollector.externalConfig.enabled
       required: false
       type: bool
     - default: true

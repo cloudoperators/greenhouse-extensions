@@ -48,14 +48,14 @@ openTelemetry:
       enabled: true
     kvmConfig:
       enabled: false
+    openstackConfig:
+      enabled: true
     failover:
       enabled: false
     externalConfig:
       enabled: false
       tld: test
       external_ip: 0.0.0.0
-    syslogConfig:
-      enabled: false
       tcp_port: 514
       udp_port: 514
   metricsCollector:
