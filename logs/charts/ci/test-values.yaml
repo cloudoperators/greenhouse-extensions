@@ -50,8 +50,6 @@ openTelemetry:
       enabled: false
     openstackConfig:
       enabled: true
-    failover:
-      enabled: false
     externalConfig:
       enabled: false
       tld: test
