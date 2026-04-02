@@ -16,13 +16,19 @@ Components included in this Plugin:
 
 - [Operator](https://opentelemetry.io/docs/kubernetes/operator/)
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
-- [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
-    - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
-    - [k8sevents Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
-    - [journald Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
-    - [prometheus/internal](https://opentelemetry.io/docs/collector/internal-telemetry/)
-- [Connector](https://opentelemetry.io/docs/collector/building/connector/)
-- [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
+  - [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
+      - [Filelog](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
+      - [k8sevents](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
+      - [journald](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
+      - [Syslog](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/syslogreceiver/README.md)
+      - [Prometheus](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver)
+  - [Connectors](https://opentelemetry.io/docs/collector/building/connector/)
+      - [Routing](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/connector/routingconnector/README.md)
+      - [Failover](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector)
+  - [Exporters](https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter)
+      - [OpenSearch](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
+      - [Kafka](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/kafkaexporter)
+      - [Prometheus](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/prometheusexporter)
 
 ## Architecture
 
@@ -56,6 +62,7 @@ By default, the package will include a configuration for collecting metrics and 
 - Files via the Filelog Receiver
 - Kubernetes Events from the Kubernetes API server
 - Journald events from systemd journal
+- Syslogs received over TCP or UDP
 - its own metrics
 
 You can disable the collection of logs by setting `openTelemetry.logCollector.enabled` to `false`. The same is true for disabling the collection of metrics by setting `openTelemetry.metricsCollector.enabled` to `false`.
@@ -63,7 +70,9 @@ The `logsCollector` comes with a standard set of log-processing, such as adding 
 In addition we provide default pipelines for common log types. Currently the following log types have default configurations that can be enabled (requires `logsCollector.enabled` to `true`):
   1. KVM: `openTelemetry.logsCollector.kvmConfig`: Logs from Kernel-based Virtual Machines (KVMs) providing insights into virtualization activities, resource usage, and system performance
   2. Ceph:`openTelemetry.logsCollector.cephConfig`: Logs from Ceph storage systems, capturing information about cluster operations, performance metrics, and health status
- 
+  3. OpenStack: `openTelemetry.logCollector.openstackConfig`: Specific Parsing for [OpenStack](https://www.openstack.org/) services for example Neutron or Keystone
+  4. External: `openTelemetry.logCollector.externalConfig`: Enables a Load Balancer that accepts Syslog via UDP and TCP from external systems.
+
 These default configurations provide common labels and Grok parsing for logs emitted through the respective services.
 
 Based on the backend selection the telemetry data will be exporter to the backend.
@@ -83,16 +92,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"8dd075b"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a390c72"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"8dd075b"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"a390c72"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
-| openTelemetry.logsCollector.externalConfig.enabled | bool | `false` |  |
-| openTelemetry.logsCollector.externalConfig.external_ip | string | `nil` |  |
-| openTelemetry.logsCollector.externalConfig.tld | string | `nil` |  |
-| openTelemetry.logsCollector.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
+| openTelemetry.logsCollector.externalConfig | object | `{"enabled":false,"external_ip":null,"tcp_port":514,"tld":null,"udp_port":514}` | Activates the configuration for external logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","topic":""}` | Kafka exporter configuration for buffering logs |
 | openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
@@ -101,9 +107,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.syslogConfig.enabled | bool | `false` |  |
-| openTelemetry.logsCollector.syslogConfig.tcp_port | int | `514` |  |
-| openTelemetry.logsCollector.syslogConfig.udp_port | int | `514` |  |
+| openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |

@@ -23,6 +23,7 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/k8sattributesprocessor v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.147.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.147.0
  
 providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.52.0
@@ -36,8 +37,8 @@ services:
   - gomod: go.opentelemetry.io/collector/service/telemetryservice" v0.147.0
 
 connectors:
-  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/failoverconnector v0.147.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.147.0
 
 extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
