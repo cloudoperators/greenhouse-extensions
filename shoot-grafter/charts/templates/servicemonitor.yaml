@@ -3,26 +3,7 @@ SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: shoot-grafter-metrics
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app: shoot-grafter
-spec:
-  type: ClusterIP
-  selector:
-    app: shoot-grafter
-  ports:
-  - name: metrics
-    port: 8080
-    targetPort: 8080
-    protocol: TCP
-
 {{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" }}
----
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
