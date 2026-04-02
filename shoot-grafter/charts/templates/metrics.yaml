@@ -21,6 +21,7 @@ spec:
     targetPort: 8080
     protocol: TCP
 
+{{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -45,3 +46,4 @@ spec:
   selector:
     matchLabels:
       app: shoot-grafter
+{{- end }}
