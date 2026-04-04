@@ -39,18 +39,13 @@ spec:
           description: Password for OpenSearch endpoint
           required: true
           type: secret
-        - name: auditLogs.openSearchLogs.failover.enabled
-          default: false
-          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
-          required: false
-          type: bool
         - name: auditLogs.openSearchLogs.failover_username_b
           description: Second Username (as a failover) for OpenSearch endpoint
-          required: false
+          required: true
           type: secret
         - name: auditLogs.openSearchLogs.failover_password_b
           description: Second Username (as a failover) for OpenSearch endpoint
-          required: false
+          required: true
           type: secret  
         - name: auditLogs.prometheus.podMonitor.enabled
           default: false
