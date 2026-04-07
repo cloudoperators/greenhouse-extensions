@@ -1,4 +1,4 @@
-{{- if and .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.externalConfig.enabled  }}
 apiVersion: v1
 kind: Service
 
@@ -20,10 +20,10 @@ spec:
   ports:
     - name: syslogtcp
       protocol: TCP
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
-      targetPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      port: {{ .Values.openTelemetry.logsCollector.externalConfig.tcp_port }}
+      targetPort: {{ .Values.openTelemetry.logsCollector.externalConfig.tcp_port }}
     - name: syslogudp
       protocol: UDP
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
-      targetPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      port: {{ .Values.openTelemetry.logsCollector.externalConfig.udp_port }}
+      targetPort: {{ .Values.openTelemetry.logsCollector.externalConfig.udp_port }}
 {{- end }}
