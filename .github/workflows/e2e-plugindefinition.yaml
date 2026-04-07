@@ -33,23 +33,22 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
+      - name: Checkout greenhouse repo as main workspace
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ env.GREENHOUSE_REPO }}
+          ref: ${{ env.GREENHOUSE_VERSION }}
+          persist-credentials: false
+
       - name: Checkout greenhouse-extensions
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           path: greenhouse-extensions
 
-      - name: Checkout greenhouse repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: ${{ env.GREENHOUSE_REPO }}
-          ref: ${{ env.GREENHOUSE_VERSION }}
-          path: greenhouse
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Detect changed PluginDefinitions
         id: detect-changes
-        working-directory: greenhouse-extensions
+        working-directory: ${{ github.workspace }}/greenhouse-extensions
         run: |
           set -euo pipefail
           
@@ -119,7 +118,7 @@ jobs:
       - name: Extract PluginDefinition metadata
         if: steps.detect-changes.outputs.changed == 'true'
         id: metadata
-        working-directory: greenhouse-extensions
+        working-directory: ${{ github.workspace }}/greenhouse-extensions
         run: |
           set -euo pipefail
           plugin_dir=${{ steps.detect-changes.outputs.plugin_dir }}
@@ -152,15 +151,15 @@ jobs:
           
           PLUGIN_DIR="${{ steps.detect-changes.outputs.plugin_dir }}"
           
-          echo "📋 Copying PluginDefinition and chart from greenhouse-extensions to greenhouse..."
+          echo "📋 Copying PluginDefinition and chart from greenhouse-extensions..."
           
           # Copy PluginDefinition
-          mkdir -p greenhouse/e2e/plugin/testdata/external
-          cp "greenhouse-extensions/${PLUGIN_DIR}/plugindefinition.yaml" "greenhouse/e2e/plugin/testdata/external/"
+          mkdir -p e2e/plugin/testdata/external
+          cp "greenhouse-extensions/${PLUGIN_DIR}/plugindefinition.yaml" "e2e/plugin/testdata/external/"
           
           # Copy the entire chart directory
-          mkdir -p "greenhouse/e2e/plugin/testdata/external/charts"
-          cp -r "greenhouse-extensions/${PLUGIN_DIR}/charts" "greenhouse/e2e/plugin/testdata/external/"
+          mkdir -p "e2e/plugin/testdata/external/charts"
+          cp -r "greenhouse-extensions/${PLUGIN_DIR}/charts" "e2e/plugin/testdata/external/"
           
           echo "✅ Files copied successfully"
 
@@ -178,16 +177,15 @@ jobs:
           admin-k8s-version: "v1.33.7"
           remote-k8s-version: "v1.32.11"
           scenario: plugin
-          admin-config: ${{ github.workspace }}/greenhouse/e2e/greenhouse-admin-cluster.yaml
-          remote-config: ${{ github.workspace }}/greenhouse/dev-env/greenhouse-remote-cluster.yaml
+          admin-config: e2e/greenhouse-admin-cluster.yaml
+          remote-config: dev-env/greenhouse-remote-cluster.yaml
 
       - name: Display E2E logs
         if: steps.detect-changes.outputs.changed == 'true'
         continue-on-error: true
-        working-directory: greenhouse
         env:
           SCENARIO: plugin
-          E2E_RESULT_DIR: ${{ github.workspace }}/greenhouse/bin
+          E2E_RESULT_DIR: ${{ github.workspace }}/bin
         run: |
           make show-e2e-logs
 
