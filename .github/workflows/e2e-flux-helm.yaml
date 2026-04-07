@@ -113,6 +113,128 @@ jobs:
           set -euo pipefail
           ct lint --config ${{ env.CT_CONFIG }} --target-branch ${{ github.event.repository.default_branch }}
 
+      - name: Check plugindefinition version bump
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          
+          # Function to compare semantic versions and determine bump type
+          compare_versions() {
+            local base_ver="$1"
+            local current_ver="$2"
+            local name="$3"
+            
+            IFS='.' read -r base_major base_minor base_patch <<< "$base_ver"
+            IFS='.' read -r curr_major curr_minor curr_patch <<< "$current_ver"
+            
+            # Remove any non-numeric suffixes (e.g., -alpha, -beta)
+            base_major="${base_major%%[^0-9]*}"
+            base_minor="${base_minor%%[^0-9]*}"
+            base_patch="${base_patch%%[^0-9]*}"
+            curr_major="${curr_major%%[^0-9]*}"
+            curr_minor="${curr_minor%%[^0-9]*}"
+            curr_patch="${curr_patch%%[^0-9]*}"
+            
+            if [[ "$curr_major" -gt "$base_major" ]]; then
+              echo "major"
+            elif [[ "$curr_major" -eq "$base_major" ]] && [[ "$curr_minor" -gt "$base_minor" ]]; then
+              echo "minor"
+            elif [[ "$curr_major" -eq "$base_major" ]] && [[ "$curr_minor" -eq "$base_minor" ]] && [[ "$curr_patch" -gt "$base_patch" ]]; then
+              echo "patch"
+            elif [[ "$base_ver" == "$current_ver" ]]; then
+              echo "none"
+            else
+              echo "invalid"
+            fi
+          }
+          
+          plugin_dir=${{ steps.chart.outputs.plugin_dir }}
+          chart_yaml=${{ steps.chart.outputs.chart_yaml }}
+          plugindef_file="${plugin_dir}/plugindefinition.yaml"
+          
+          if [[ ! -f "$plugindef_file" ]]; then
+            echo "⚠️ No plugindefinition.yaml found at $plugindef_file, skipping version check"
+            exit 0
+          fi
+          
+          # Skip for manual workflow runs
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "ℹ️ Manual workflow run, skipping version bump check"
+            exit 0
+          fi
+          
+          base_branch="${{ github.event.repository.default_branch }}"
+          
+          # Get current versions
+          chart_current_ver=$(yq e '.version' "$chart_yaml")
+          plugin_current_ver=$(yq e '.spec.version' "$plugindef_file")
+          
+          echo "📊 Current versions:"
+          echo "   Chart:            $chart_current_ver"
+          echo "   PluginDefinition: $plugin_current_ver"
+          
+          # Get base branch versions
+          if ! git show "origin/${base_branch}:${chart_yaml}" > /tmp/base_chart.yaml 2>/dev/null; then
+            echo "ℹ️ Could not fetch base branch Chart.yaml (new plugin?), skipping version comparison"
+            exit 0
+          fi
+          
+          if ! git show "origin/${base_branch}:${plugindef_file}" > /tmp/base_plugindef.yaml 2>/dev/null; then
+            echo "ℹ️ Could not fetch base branch plugindefinition.yaml (new plugin?), skipping version comparison"
+            exit 0
+          fi
+          
+          chart_base_ver=$(yq e '.version' /tmp/base_chart.yaml)
+          plugin_base_ver=$(yq e '.spec.version' /tmp/base_plugindef.yaml)
+          
+          echo ""
+          echo "📊 Base branch ($base_branch) versions:"
+          echo "   Chart:            $chart_base_ver"
+          echo "   PluginDefinition: $plugin_base_ver"
+          echo ""
+          
+          # Determine bump types
+          chart_bump=$(compare_versions "$chart_base_ver" "$chart_current_ver" "Chart")
+          plugin_bump=$(compare_versions "$plugin_base_ver" "$plugin_current_ver" "PluginDefinition")
+          
+          echo "🔍 Version bump analysis:"
+          echo "   Chart bump:            $chart_bump ($chart_base_ver → $chart_current_ver)"
+          echo "   PluginDefinition bump: $plugin_bump ($plugin_base_ver → $plugin_current_ver)"
+          echo ""
+          
+          # Check if plugindefinition was bumped
+          if [[ "$plugin_bump" == "none" ]]; then
+            echo "❌ ERROR: PluginDefinition version has not been bumped!"
+            echo "   When modifying a chart, you must also bump the plugindefinition version."
+            exit 1
+          fi
+          
+          if [[ "$plugin_bump" == "invalid" ]]; then
+            echo "❌ ERROR: PluginDefinition version appears to have been downgraded!"
+            echo "   Base: $plugin_base_ver → Current: $plugin_current_ver"
+            exit 1
+          fi
+          
+          # Verify plugindefinition bump matches or exceeds chart bump
+          declare -A bump_weight=( ["patch"]=1 ["minor"]=2 ["major"]=3 )
+          
+          chart_weight=${bump_weight[$chart_bump]:-0}
+          plugin_weight=${bump_weight[$plugin_bump]:-0}
+          
+          if [[ $plugin_weight -lt $chart_weight ]]; then
+            echo "❌ ERROR: PluginDefinition version bump is insufficient!"
+            echo "   Chart was bumped by:            $chart_bump"
+            echo "   PluginDefinition was bumped by: $plugin_bump"
+            echo ""
+            echo "   The plugindefinition version bump must be at least as significant as the chart bump."
+            echo "   For example, if the chart has a minor bump, the plugindefinition must have at least a minor bump."
+            exit 1
+          fi
+          
+          echo "✅ PluginDefinition version bump is appropriate!"
+          echo "   Chart:            $chart_bump bump"
+          echo "   PluginDefinition: $plugin_bump bump"
+
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # v1.14.0
