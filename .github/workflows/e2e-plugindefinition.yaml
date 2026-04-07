@@ -1,0 +1,198 @@
+name: "E2E PluginDefinition Test"
+on:
+  workflow_dispatch:
+    inputs:
+      plugindefinition:
+        description: "Target PluginDefinition directory"
+        required: true
+        default: "kube-monitoring"
+        type: string
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '*/plugindefinition.yaml'
+      - '*/charts/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '*/plugindefinition.yaml'
+      - '*/charts/**'
+
+env:
+  GREENHOUSE_REPO: cloudoperators/greenhouse
+  GREENHOUSE_VERSION: main
+  GO_VERSION: '1.23'
+
+jobs:
+  e2e-plugindefinition:
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Checkout greenhouse-extensions
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          path: greenhouse-extensions
+
+      - name: Checkout greenhouse repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ env.GREENHOUSE_REPO }}
+          ref: ${{ env.GREENHOUSE_VERSION }}
+          path: greenhouse
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect changed PluginDefinitions
+        id: detect-changes
+        working-directory: greenhouse-extensions
+        run: |
+          set -euo pipefail
+          
+          # If manually triggered, use the input
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.plugindefinition }}" ]]; then
+            plugin_dir="${{ inputs.plugindefinition }}"
+            echo "Manual run: using plugindefinition: $plugin_dir"
+            
+            # Validate
+            if [[ ! -d "$plugin_dir" ]]; then
+              echo "Directory '$plugin_dir' not found"; exit 1
+            fi
+            if [[ ! -f "$plugin_dir/plugindefinition.yaml" ]]; then
+              echo "File '$plugin_dir/plugindefinition.yaml' not found"; exit 1
+            fi
+            
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "plugin_dir=$plugin_dir" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Detect changed files
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+          else
+            base_ref="HEAD^"
+          fi
+          
+          changed_files=$(git diff --name-only "$base_ref" HEAD)
+          echo "Changed files:"
+          echo "$changed_files"
+          
+          # Find directories with plugindefinition.yaml that have changes
+          plugin_dirs=$(echo "$changed_files" | grep -E '^[^/]+/(plugindefinition\.yaml|charts/)' | cut -d'/' -f1 | sort -u || true)
+          
+          if [[ -z "$plugin_dirs" ]]; then
+            echo "No PluginDefinition changes detected"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          # Verify only one plugin changed
+          count=$(echo "$plugin_dirs" | wc -l | tr -d ' ')
+          if [[ "$count" -ne 1 ]]; then
+            echo "Expected exactly 1 changed PluginDefinition, found $count:"
+            echo "$plugin_dirs"
+            exit 1
+          fi
+          
+          plugin_dir=$(echo "$plugin_dirs" | head -n1 | tr -d '\r')
+          
+          # Validate the directory structure
+          if [[ ! -f "$plugin_dir/plugindefinition.yaml" ]]; then
+            echo "No plugindefinition.yaml found in $plugin_dir"
+            exit 1
+          fi
+          
+          if [[ ! -d "$plugin_dir/charts" ]]; then
+            echo "No charts directory found in $plugin_dir"
+            exit 1
+          fi
+          
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "plugin_dir=$plugin_dir" >> "$GITHUB_OUTPUT"
+          echo "Detected changed PluginDefinition: $plugin_dir"
+
+      - name: Extract PluginDefinition metadata
+        if: steps.detect-changes.outputs.changed == 'true'
+        id: metadata
+        working-directory: greenhouse-extensions
+        run: |
+          set -euo pipefail
+          plugin_dir=${{ steps.detect-changes.outputs.plugin_dir }}
+          
+          # Extract metadata from plugindefinition.yaml
+          plugin_name=$(yq e '.metadata.name' "$plugin_dir/plugindefinition.yaml")
+          plugin_version=$(yq e '.spec.version' "$plugin_dir/plugindefinition.yaml")
+          
+          # Extract helm chart reference
+          helm_chart_name=$(yq e '.spec.helmChart.name' "$plugin_dir/plugindefinition.yaml")
+          helm_chart_repo=$(yq e '.spec.helmChart.repository' "$plugin_dir/plugindefinition.yaml")
+          helm_chart_version=$(yq e '.spec.helmChart.version' "$plugin_dir/plugindefinition.yaml")
+          
+          # Set outputs
+          {
+            echo "plugin_name=$plugin_name"
+            echo "plugin_version=$plugin_version"
+            echo "helm_chart_name=$helm_chart_name"
+            echo "helm_chart_repo=$helm_chart_repo"
+            echo "helm_chart_version=$helm_chart_version"
+          } >> "$GITHUB_OUTPUT"
+          
+          echo "PluginDefinition: $plugin_name (version: $plugin_version)"
+          echo "Helm Chart: $helm_chart_name from $helm_chart_repo (version: $helm_chart_version)"
+
+      - name: Copy PluginDefinition to greenhouse repo
+        if: steps.detect-changes.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          
+          PLUGIN_DIR="${{ steps.detect-changes.outputs.plugin_dir }}"
+          
+          echo "📋 Copying PluginDefinition and chart from greenhouse-extensions to greenhouse..."
+          
+          # Copy PluginDefinition
+          mkdir -p greenhouse/e2e/plugin/testdata/external
+          cp "greenhouse-extensions/${PLUGIN_DIR}/plugindefinition.yaml" "greenhouse/e2e/plugin/testdata/external/"
+          
+          # Copy the entire chart directory
+          mkdir -p "greenhouse/e2e/plugin/testdata/external/charts"
+          cp -r "greenhouse-extensions/${PLUGIN_DIR}/charts" "greenhouse/e2e/plugin/testdata/external/"
+          
+          echo "✅ Files copied successfully"
+
+      - name: Run E2E tests
+        if: steps.detect-changes.outputs.changed == 'true'
+        id: e2e
+        continue-on-error: true
+        uses: cloudoperators/common/workflows/e2e@main
+        env:
+          RUNTIME_ENV: "CI"
+          GH_APP_ID: ${{ secrets.CLOUDOPERATOR_APP_ID }}
+          GH_APP_PRIVATE_KEY: ${{ secrets.CLOUDOPERATOR_APP_PRIVATE_KEY }}
+          GH_APP_INSTALLATION_ID: ${{ secrets.CLOUDOPERATOR_APP_INSTALLATION_ID }}
+        with:
+          admin-k8s-version: "v1.33.7"
+          remote-k8s-version: "v1.32.11"
+          scenario: plugin
+          admin-config: ${{ github.workspace }}/greenhouse/e2e/greenhouse-admin-cluster.yaml
+          remote-config: ${{ github.workspace }}/greenhouse/dev-env/greenhouse-remote-cluster.yaml
+
+      - name: Display E2E logs
+        if: steps.detect-changes.outputs.changed == 'true'
+        continue-on-error: true
+        working-directory: greenhouse
+        env:
+          SCENARIO: plugin
+          E2E_RESULT_DIR: ${{ github.workspace }}/greenhouse/bin
+        run: |
+          make show-e2e-logs
+
+      - name: Check E2E result
+        if: steps.detect-changes.outputs.changed == 'true' && steps.e2e.outcome == 'failure'
+        run: |
+          echo "❌ E2E tests failed"
+          exit 1
