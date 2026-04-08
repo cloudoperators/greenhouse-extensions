@@ -78,11 +78,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
-| auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
-| auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
-| auditLogs.openSearchLogs.failover_password_b | string | `nil` | Second Password (as a failover) for OpenSearch endpoint |
-| auditLogs.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
-| auditLogs.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
+| auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint (primary) |
+| auditLogs.openSearchLogs.failover_password_b | string | `nil` | Password for OpenSearch endpoint (failover/secondary) |
+| auditLogs.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint (primary) |
+| auditLogs.openSearchLogs.failover_username_b | string | `nil` | Username for OpenSearch endpoint (failover/secondary) |
 | auditLogs.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |

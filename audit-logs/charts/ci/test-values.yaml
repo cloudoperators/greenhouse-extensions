@@ -9,6 +9,10 @@ auditLogs:
     failover_password_b: passwordb
     endpoint: test-endpoint
     index: test
+  logsCollector:
+    enabled: true
+    auditd:
+      enabled: false
   elastic:
     enabled: false
   cluster: test
