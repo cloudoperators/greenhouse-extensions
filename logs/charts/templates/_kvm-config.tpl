@@ -125,10 +125,12 @@ transform/ch_logs:
 {{- define "kvm.pipeline" }}
 logs/kvm_containerd:
   receivers: [filelog/containerd]
-  processors: [k8sattributes,attributes/cluster,transform/ingress,transform/kvm_openvswitch,transform/kvm_nova_agent]
-  exporters: [forward]
+  processors: [transform/ingress,transform/kvm_openvswitch,transform/kvm_nova_agent]
+  exporters: [routing]
 logs/kvm_filelog:
   receivers: [filelog/qemu_logs,filelog/openvswitch_logs,filelog/kvm_monitoring,filelog/ch_logs]
-  processors: [k8sattributes,attributes/cluster,transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs,transform/ch_logs]
-  exporters: [forward]
+  processors: [transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs,transform/ch_logs]
+  exporters: [routing]
 {{- end }}
+
+

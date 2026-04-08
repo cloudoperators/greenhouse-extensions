@@ -41,21 +41,21 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if or .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
       port: 8888
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+{{- if .Values.openTelemetry.logsCollector.externalConfig.enabled }}
     - name: syslogtcp
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      port: {{ .Values.openTelemetry.logsCollector.externalConfig.tcp_port }}
       protocol: TCP
-      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+      hostPort: {{ .Values.openTelemetry.logsCollector.externalConfig.tcp_port }}
     - name: syslogudp
-      port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      port: {{ .Values.openTelemetry.logsCollector.externalConfig.udp_port }}
       protocol: UDP
-      hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+      hostPort: {{ .Values.openTelemetry.logsCollector.externalConfig.udp_port }}
 {{- end }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
@@ -78,17 +78,20 @@ spec:
             type: add
             field: attributes["log.type"]
             value: "journald"
-
       k8s_events:
         auth_type: serviceAccount
-
       filelog/containerd:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
+        exclude: 
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_*, /var/log/pods/kvm-monitoring_*/monitoring/*.log ]
-{{- else }}
-        exclude: [ /var/log/pods/otel_logs-*, /var/log/pods/logs_* ]
+          - /var/log/pods/kvm-monitoring_*/monitoring/*.log 
+{{- end }}
+          - /var/log/pods/logs_logs-*
+          - /var/log/pods/logs_*
+          - /var/log/pods/logs_fluent*/*/*.log
+          - /var/log/pods/dns-recursor_unbound*/*/*.log
+          - /var/log/pods/kube-system_wormhole*/*/*.log
 {{- end }}
         operators:
           - id: container-parser
@@ -101,12 +104,10 @@ spec:
             type: add
             field: attributes["log.type"]
             value: "containerd"
-
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.receiver" . | nindent 6 -}}
 {{- end }}
-
-{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+{{- if .Values.openTelemetry.logsCollector.externalConfig.enabled }}
       syslog/tcp:
         operators:
         - field: attributes.log.type
@@ -115,7 +116,7 @@ spec:
           value: syslogtcp
         protocol: rfc5424
         tcp:
-          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.externalConfig.tcp_port }}
       syslog/udp:
         location: UTC
         operators:
@@ -125,15 +126,13 @@ spec:
           value: syslogudp
         protocol: rfc3164
         udp:
-          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.externalConfig.udp_port }}
 {{- end }}
-
     processors:
       batch:
         send_batch_max_size: 500
         timeout: 5s
         send_batch_size : 10
-
       attributes/cluster:
         actions:
           - action: insert
@@ -145,7 +144,6 @@ spec:
           - action: insert
             key: k8s.node.name
             value: ${KUBE_NODE_NAME}
-
       attributes/k8sevents:
         actions:
           - action: insert
@@ -163,7 +161,6 @@ spec:
           - action: insert
             key: log.type
             value: "k8sevents"
-
       transform/consolidate_label:
       # consolidates the k8s labels coming from resource and attributes into a single label
         error_mode: ignore
@@ -174,16 +171,16 @@ spec:
               - set(resource.attributes["k8s.node.name"], attributes["k8s.node.name"])
               - delete_key(attributes, "k8s.namespace.name") 
               - delete_key(attributes, "k8s.node.name") 
-
       attributes/failover_username_a:
         actions:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
-    {{- include "failover.attributes" . | nindent 6 -}}
-{{- end }}
-
+      attributes/failover_username_b:
+        actions:
+          - action: insert
+            key: failover_username_opensearch
+            value: ${failover_username_b}
       transform/journal:
         error_mode: ignore
         log_statements:
@@ -220,7 +217,6 @@ spec:
               - set(log.attributes["cursor"], log.cache["__CURSOR"])
               - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
               - delete_key(attributes, "log.cache")
-
       transform/ingress:
         error_mode: ignore
         log_statements:
@@ -231,14 +227,15 @@ spec:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request.method} %{NOTSPACE:request.path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request.length:int} %{BASE10NUM:request.time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request.id}", true),"upsert")
               - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
               - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
+{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+    {{- include "openstack.transform" . | nindent 6 -}}
+{{- end }}
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.transform" . | nindent 6 -}}
 {{- end }}
-
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.transform" . | nindent 6 -}}
 {{- end }}
-
       k8sattributes:
         auth_type: "serviceAccount"
         passthrough: false
@@ -320,7 +317,6 @@ spec:
         - action: insert
           key: k8s.node.name
           value: ${KUBE_NODE_NAME}
-
     exporters:
       debug:
         verbosity: basic
@@ -335,8 +331,65 @@ spec:
           enabled: true
           max_elapsed_time: 0s
         timeout: 30s
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
-    {{- include "failover.exporter" . | nindent 6 -}}
+      opensearch/failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: ${index}-datastream
+        retry_on_failure:
+          enabled: true
+          max_elapsed_time: 0s
+        timeout: 30s
+      opensearch/cronus_failover_a:
+        http:
+          auth:
+            authenticator: basicauth/failover_a
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: cronus-datastream
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
+      opensearch/cronus_failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: cronus-datastream
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
+{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+      opensearch/swift_failover_a:
+        http:
+          auth:
+            authenticator: basicauth/failover_a
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: ${index}-swift-datastream
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
+      opensearch/swift_failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+        logs_index: ${index}-swift-datastream
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
 {{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
@@ -351,7 +404,6 @@ spec:
         producer:
           compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
 {{- end }}
-
     extensions:
       file_storage/journald:
         directory: .
@@ -360,34 +412,64 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
-    {{- include "failover.extension" . | nindent 6 -}}
-{{- end }}
+      basicauth/failover_b:
+        client_auth:
+          username: ${failover_username_b}
+          password: ${failover_password_b}
 {{- end }}
     connectors:
-      forward: {}
+      routing:
+        default_pipelines: [logs/route_default]
+        error_mode: ignore
+        table:
+        - pipelines: [logs/route_cronus]
+          context: resource
+          condition: attributes["k8s.namespace.name"] == "cronus"
+        - pipelines: [logs/route_swift]
+          context: resource
+          condition: attributes["k8s.namespace.name"] == "swift"
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       failover:
         priority_levels:
           - [logs/failover_a]
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
           - [logs/failover_b]
-{{- end }}
         retry_interval: 2m
         sending_queue:
           enabled: true
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
+{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+      failover/opensearch_swift:
+        priority_levels:
+          - [logs/failover_a_swift]
+          - [logs/failover_b_swift]
+        retry_interval: 1h
+        sending_queue:
+          block_on_overflow: true
+          enabled: true
+          num_consumers: 10
+          queue_size: 10000
+          sizer: requests
+      failover/opensearch_cronus:
+        priority_levels:
+          - [logs/failover_a_cronus]
+          - [logs/failover_b_cronus]
+        retry_interval: 20m
+        sending_queue:
+          block_on_overflow: true
+          enabled: true
+          num_consumers: 2
+          queue_size: 1000
+          sizer: requests
+{{- end }}
 {{- end }}
     service:
       extensions:
         - file_storage/journald
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
         - basicauth/failover_a
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
         - basicauth/failover_b
-{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
@@ -410,26 +492,42 @@ spec:
           region: ${region}
 {{- end }}
       pipelines:
-        logs/forward:
-          receivers: [forward]
-          processors: [batch]
+        logs/route_default:
+          receivers: [routing]
+          processors: [batch,k8sattributes,attributes/cluster]
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover]
+        logs/route_cronus:
+          receivers: [routing]
+          processors: [batch]
+          exporters: [failover/opensearch_cronus]
+        logs/failover_a_cronus:
+          receivers: [failover/opensearch_cronus]
+          processors: [attributes/failover_username_a]
+          exporters: [opensearch/cronus_failover_a]
+        logs/failover_b_cronus:
+          receivers: [failover/opensearch_cronus]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/cronus_failover_b]
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-{{- if .Values.openTelemetry.logsCollector.failover.enabled }}
-    {{- include "failover.pipeline" . | nindent 8 -}}
+        logs/failover_b:
+            receivers: [failover]
+            processors: [attributes/failover_username_b]
+            exporters: [opensearch/failover_b]
 {{- end }}
-{{- end }}
-{{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
+{{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled) }}
         logs/containerd:
           receivers: [filelog/containerd]
-          processors: [k8sattributes,attributes/cluster,transform/ingress]
-          exporters: [forward]
+          processors: [transform/ingress]
+          exporters: [routing]
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+    {{- include "openstack.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
@@ -437,22 +535,20 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.syslogConfig.enabled }}
+{{- if .Values.openTelemetry.logsCollector.externalConfig.enabled }}
         logs/syslog_tcp:
           receivers: [syslog/tcp]
-          processors: [batch]
-          exporters: [forward]
+          exporters: [routing]
         logs/syslog_udp:
           receivers: [syslog/udp]
-          processors: [batch]
-          exporters: [forward]
+          exporters: [routing]
 {{- end }}
         logs/k8sevents:
           receivers: [k8s_events]
           processors: [attributes/k8sevents,transform/consolidate_label]
-          exporters: [forward]
+          exporters: [routing]
         logs/journald:
           receivers: [journald]
-          processors: [attributes/cluster,transform/journal]
-          exporters: [forward]
-{{- end }}
+          processors: [transform/journal]
+          exporters: [routing]
+

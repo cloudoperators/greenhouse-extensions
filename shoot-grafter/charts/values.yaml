@@ -2,7 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 replicaCount: 1
+
 image:
   registry: ghcr.io/cloudoperators
   repository: shoot-grafter
   pullPolicy: IfNotPresent
+
+monitoring:
+  labels:
+    plugin: kube-monitoring
