@@ -6,16 +6,16 @@ kind: PluginDefinition
 metadata:
   name: heureka-scanner-k8s-assets
 spec:
-  version: 0.1.1
+  version: 0.1.2
   displayName: Heureka Scanner for K8s Assets
-  description: Heureka Scanner for K8s Assets
+  description: The scanner discovers and reports Kubernetes assets (pods, containers, images) to Heureka
   helmChart:
     name: k8s-assets-scanner
     repository: oci://ghcr.io/cloudoperators/heureka/charts
-    version: 0.1.0
+    version: 0.1.1
   options:
     - name: scanner.api_token
-      description: The API token for the Heureka Scanner
+      description: The API token for authenticating with the Heureka API
       required: true
       type: string
     - name: scanner.heureka_url
@@ -24,5 +24,11 @@ spec:
       type: string
     - name: scanner.schedule
       description: The schedule for the Heureka Scanner. Use a cron expression (e.g. "0 * * * *")
-      required: true
+      required: false
       type: string
+      default: "0 0 * * *"
+    - name: scanner.scanner_timeout
+      description: Timeout for scanner operations
+      required: false
+      type: string
+      default: "2h"
