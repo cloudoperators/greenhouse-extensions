@@ -16,4 +16,4 @@ dependencies:
   - name: kube-prometheus-stack
     alias: alerts
     repository: https://prometheus-community.github.io/helm-charts
-    version: 82.14.1
+    version: 83.4.0
