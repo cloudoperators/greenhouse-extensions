@@ -389,30 +389,6 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-      opensearch/cronus_failover_a:
-        http:
-          auth:
-            authenticator: basicauth/failover_a
-          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: cronus-datastream
-        retry_on_failure:
-          enabled: true
-          initial_interval: 1s
-          max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
-      opensearch/cronus_failover_b:
-        http:
-          auth:
-            authenticator: basicauth/failover_b
-          endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: cronus-datastream
-        retry_on_failure:
-          enabled: true
-          initial_interval: 1s
-          max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
       kafka:
