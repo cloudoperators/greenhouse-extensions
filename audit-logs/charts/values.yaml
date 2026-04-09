@@ -24,6 +24,9 @@ auditLogs:
     auditd:
       # -- Activates the ingestion of auditd logs.
       enabled: true
+    kubeApiAudit:
+      # -- Activates export for kube-apiserver audit logs
+      enabled: false
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:

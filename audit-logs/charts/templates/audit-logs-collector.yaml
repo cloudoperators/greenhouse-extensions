@@ -115,6 +115,15 @@ spec:
   {{- include "auditd.receiver" . | nindent 6 -}}
 {{ end }}
 
+{{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
+      filelog/kube_audit:
+        include: [ /var/log/kubernetes/audit/audit.log ]
+        start_at: end
+        operators:
+          - id: kube-audit-json
+            type: json_parser
+{{- end }}
+
     processors:
       batch:
         send_batch_max_size: 500
@@ -382,6 +391,14 @@ spec:
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
   {{- include "auditd.pipelines" . | nindent 8 -}}
 {{ end }}
+
+{{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
+        logs/kube_audit:
+          receivers: [filelog/kube_audit]
+          processors: [k8sattributes, attributes/cluster, batch]
+          exporters: [forward]
+{{- end }}
+
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
