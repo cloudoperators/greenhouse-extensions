@@ -42,7 +42,7 @@ services:
 connectors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/failoverconnector v0.147.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.147.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/forwardconnector v0.147.0
+  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.147.0
 
 extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.147.0
