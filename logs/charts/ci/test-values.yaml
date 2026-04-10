@@ -44,6 +44,8 @@ openTelemetry:
   region: test
   logsCollector:
     enabled: true
+    kafka:
+      enabled: false
     cephConfig:
       enabled: true
     kvmConfig:
