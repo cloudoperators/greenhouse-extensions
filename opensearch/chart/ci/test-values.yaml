@@ -80,23 +80,13 @@ cluster:
             secretName: opensearch-http-cert
 
     nodePools:
-      - component: main
+      - component: nodes
         diskSize: "2Gi"
-        replicas: 1
+        replicas: 2
         roles:
           - "cluster_manager"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
-      - component: data
-        diskSize: "2Gi"
-        replicas: 1
-        roles:
           - "data"
+          - "ingest"
         resources:
           requests:
             memory: "512Mi"
@@ -104,21 +94,9 @@ cluster:
           limits:
             memory: "4Gi"
             cpu: 2
-      - component: client
-        diskSize: "2Gi"
-        replicas: 1
-        roles:
-          - "client"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "200m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
 
 siem:
-  enabled: true
+  enabled: false
   certManager:
     httpDnsNames:
       - opensearch-siem-client.local
@@ -191,23 +169,13 @@ siem:
             secretName: opensearch-siem-http-cert
 
     nodePools:
-      - component: main
+      - component: nodes
         diskSize: "5Gi"
-        replicas: 1
+        replicas: 2
         roles:
           - "cluster_manager"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
-      - component: data
-        diskSize: "5Gi"
-        replicas: 1
-        roles:
           - "data"
+          - "ingest"
         resources:
           requests:
             memory: "1Gi"
@@ -215,15 +183,3 @@ siem:
           limits:
             memory: "4Gi"
             cpu: 2
-      - component: client
-        diskSize: "5Gi"
-        replicas: 1
-        roles:
-          - "client"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
