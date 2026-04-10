@@ -365,7 +365,6 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
       opensearch/swift_failover_a:
         http:
           auth:
@@ -390,7 +389,6 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
       kafka:
@@ -439,7 +437,6 @@ spec:
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
-{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
       failover/opensearch_swift:
         priority_levels:
           - [logs/failover_a_swift]
@@ -462,7 +459,6 @@ spec:
           num_consumers: 2
           queue_size: 1000
           sizer: requests
-{{- end }}
 {{- end }}
     service:
       extensions:
@@ -499,18 +495,6 @@ spec:
           exporters: [kafka]
 {{- else }}
           exporters: [failover]
-        logs/route_cronus:
-          receivers: [routing]
-          processors: [batch]
-          exporters: [failover/opensearch_cronus]
-        logs/failover_a_cronus:
-          receivers: [failover/opensearch_cronus]
-          processors: [attributes/failover_username_a]
-          exporters: [opensearch/cronus_failover_a]
-        logs/failover_b_cronus:
-          receivers: [failover/opensearch_cronus]
-          processors: [attributes/failover_username_b]
-          exporters: [opensearch/cronus_failover_b]
         logs/failover_a:
           receivers: [failover]
           processors: [attributes/failover_username_a]
@@ -552,3 +536,40 @@ spec:
           processors: [transform/journal]
           exporters: [routing]
 
+        logs/route_cronus:
+          receivers: [routing]
+          processors: [batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
+          exporters: [failover/opensearch_cronus]
+
+        logs/failover_a_cronus:
+          receivers: [failover/opensearch_cronus]
+          processors: [attributes/failover_username_a]
+          exporters: [opensearch/cronus_failover_a]
+          
+        logs/failover_b_cronus:
+          receivers: [failover/opensearch_cronus]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/cronus_failover_b]
+
+        logs/route_swift:
+          receivers: [routing]
+          processors: [batch]
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
+          exporters: [failover/opensearch_swift]
+
+        logs/failover_a_swift:
+          receivers: [failover/opensearch_swift]
+          processors: [attributes/failover_username_a]
+          exporters: [opensearch/swift_failover_a]
+
+        logs/failover_b_swift:
+          receivers: [failover/opensearch_swift]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/swift_failover_b]
+{{- end }}
