@@ -127,7 +127,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.version | string | `"3.5.0"` | dashboards version |
 | cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
-| cluster.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
+| cluster.cluster.general.drainDataNodes | bool | `false` | Controls whether to drain data notes on rolling restart operations |
 | cluster.cluster.general.httpPort | int | `9200` | Opensearch service http port |
 | cluster.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | cluster.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
@@ -312,7 +312,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | siem.cluster.dashboards.version | string | `"3.5.0"` | dashboards version |
 | siem.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
 | siem.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
-| siem.cluster.general.drainDataNodes | bool | `true` | Controls whether to drain data notes on rolling restart operations |
+| siem.cluster.general.drainDataNodes | bool | `false` | Controls whether to drain data notes on rolling restart operations |
 | siem.cluster.general.httpPort | int | `9200` | Opensearch service http port |
 | siem.cluster.general.image | string | `"docker.io/opensearchproject/opensearch"` | Opensearch image |
 | siem.cluster.general.imagePullPolicy | string | `"IfNotPresent"` | Default image pull policy |
