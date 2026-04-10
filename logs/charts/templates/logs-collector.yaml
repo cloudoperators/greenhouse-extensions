@@ -553,11 +553,11 @@ spec:
           receivers: [failover/opensearch_cronus]
           processors: [attributes/failover_username_b]
           exporters: [opensearch/cronus_failover_b]
+{{- end }}
 
         logs/route_swift:
           receivers: [routing]
           processors: [batch]
-{{- end }}
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
