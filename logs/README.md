@@ -115,6 +115,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
 | openTelemetry.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
 | openTelemetry.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
+| openTelemetry.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch bulk requests |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
 | openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","LogsExportingFailed","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |

@@ -68,6 +68,8 @@ openTelemetry:
     failover_password_b:
     # -- Name for OpenSearch index
     index:
+    # -- Timeout for OpenSearch bulk requests
+    timeout: 30s
   # -- Cluster label for Logging
   cluster:
   # -- Region label for Logging

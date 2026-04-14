@@ -326,69 +326,75 @@ spec:
           auth:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: ${index}-datastream
         retry_on_failure:
           enabled: true
           max_elapsed_time: 0s
-        timeout: 30s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
       opensearch/failover_b:
         http:
           auth:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: ${index}-datastream
         retry_on_failure:
           enabled: true
           max_elapsed_time: 0s
-        timeout: 30s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
       opensearch/cronus_failover_a:
         http:
           auth:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: cronus-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
       opensearch/cronus_failover_b:
         http:
           auth:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: cronus-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
       opensearch/swift_failover_a:
         http:
           auth:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: ${index}-swift-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
       opensearch/swift_failover_b:
         http:
           auth:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
+          timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
         logs_index: ${index}-swift-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: {{ .Values.openTelemetry.openSearchLogs.timeout }}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
       kafka:
