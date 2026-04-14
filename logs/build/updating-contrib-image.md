@@ -82,9 +82,32 @@ git merge upstream/main              # or rebase onto the target release tag
 # resolve conflicts, test, push
 ```
 
-After pushing changes to the fork, create a new **tag** (e.g., `v0.148.1`) so the Go module version is resolvable.
+After pushing changes to the fork, you must **create per-module git tags** on `main` so the Go module proxy can resolve them.
 
-### 2. Update the Builder Config
+### 2. Tag the Fork Modules
+
+Each custom module in the fork needs its own git tag in the format `<module-path>/v<version>`. The Go toolchain uses these tags to resolve module versions — without them, `go mod download` will fail.
+
+**Rules:**
+
+- Always tag from `main` after merging.
+- Never delete tags after pushing — it corrupts the Go module proxy cache. If you need to fix something, increment the patch version instead.
+- Module paths in `go.mod` and all Go import statements must use `github.com/cloudoperators/...`, not the upstream `github.com/open-telemetry/...` path.
+
+**Example: tagging after an upstream sync to v0.149.0**
+
+```bash
+cd opentelemetry-collector-contrib   # the fork
+git checkout main
+
+git tag receiver/auditdreceiver/v0.149.0
+git tag extension/encoding/opensearchlogencodingextension/v0.149.0
+
+git push origin receiver/auditdreceiver/v0.149.0
+git push origin extension/encoding/opensearchlogencodingextension/v0.149.0
+```
+
+### 3. Update the Builder Config
 
 Edit `logs/build/otel-collector-builder-config.yaml`:
 
@@ -136,6 +159,6 @@ The `audit-logs/` plugin uses the same image. Update `audit-logs/charts/values.y
 
 ## Troubleshooting
 
-- **Go module resolution errors**: Make sure the fork has a proper git tag matching the version in the builder config. Go modules require tags in `vX.Y.Z` format.
-- **Build failures**: Check that all module versions are compatible. Mixing versions across the `v0.147.0` / `v1.52.0` boundary requires matching the collector core version matrix.
+- **Go module resolution errors**: Make sure the fork has per-module git tags (e.g., `receiver/auditdreceiver/v0.149.0`) pushed to the remote. The root `v0.149.0` tag is not enough — Go requires tags matching the module path prefix. Never delete and re-push tags; increment the patch version instead.
+- **Module path mismatch**: If the build fails with `module declares its path as: github.com/open-telemetry/... but was required as: github.com/cloudoperators/...`, the `go.mod` and Go import paths in the fork module haven't been updated to the `cloudoperators` path.
 - **Image not found**: Verify the CI pipeline ran successfully and the image exists at `ghcr.io/cloudoperators/opentelemetry-collector-contrib:<sha>`.
