@@ -243,6 +243,18 @@
       ],
       "ignorePaths": [
         "**/cert-manager/charts/**"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        },
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        }
       ]
     },
     {
@@ -262,6 +274,18 @@
       ],
       "ignorePaths": [
         "**/cert-manager/charts/**"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        },
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        }
       ]
     },
     {
@@ -281,6 +305,18 @@
       ],
       "ignorePaths": [
         "**/cert-manager/charts/**"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        },
+        {
+          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        }
       ]
     },
     {
@@ -336,6 +372,24 @@
       "semanticCommits": "enabled",
       "semanticCommitType": "chore",
       "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Automatically bump spec.version in plugindefinition.yaml when helmChart.version is updated by custom regex managers. The bumpType is determined by the update type (patch/minor/major) of the helmChart.version.",
+      "matchFileNames": [
+        "ingress-nginx/plugindefinition.yaml",
+        "external-dns/plugindefinition.yaml",
+        "reloader/plugindefinition.yaml"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        }
+      ]
     }
   ],
   "separateMinorPatch": true
