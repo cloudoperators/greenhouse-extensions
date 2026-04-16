@@ -15,6 +15,10 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+  {{- if .Values.auditLogs.nodeSelector }}
+  nodeSelector:
+    {{- toYaml .Values.auditLogs.nodeSelector | nindent 4 }}
+  {{- end }}
   hostPID: true
   securityContext:
     privileged: true

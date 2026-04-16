@@ -23,6 +23,10 @@ spec:
           description: Cluster label for logging
           required: false
           type: string
+        - name: auditLogs.nodeSelector
+          description: Node selector for the collector pods
+          required: false
+          type: map
         - name: auditLogs.openSearchLogs.endpoint
           description: Endpoint URL for OpenSearch
           required: false
