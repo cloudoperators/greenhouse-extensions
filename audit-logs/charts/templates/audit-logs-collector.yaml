@@ -127,12 +127,12 @@ spec:
           - id: kube-audit-json
             type: json_parser
             parse_to: body
+            timestamp:
+              parse_from: body.stageTimestamp
+              layout: "2006-01-02T15:04:05.999999Z"
           - type: add
             field: attributes["log.type"]
             value: kube-audit
-          - type: timestamp
-            parse_from: body.stageTimestamp
-            layout: "2006-01-02T15:04:05.999999Z"
 {{- end }}
 
     processors:
