@@ -329,6 +329,10 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
+        retry_on_failure:
+          enabled: true
+          max_elapsed_time: 0s
+        timeout: {{ .Values.auditLogs.openSearchLogs.timeout }}
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
@@ -347,7 +351,11 @@ spec:
       forward: {}
       failover:
         retry_interval: 2m
-        retry_gap: 30s
+        sending_queue:
+          enabled: true
+          queue_size: 100000
+          num_consumers: 2
+          block_on_overflow: true
         max_retries: 0
         priority_levels:
           - [logs/failover_a]

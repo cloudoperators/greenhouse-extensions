@@ -32,6 +32,8 @@ auditLogs:
     endpoint:
     # -- Name for OpenSearch index
     index:
+    # -- Timeout for OpenSearch requests
+    timeout: 30s
     # -- Username for OpenSearch endpoint
     failover_username_a:
     # -- Password for OpenSearch endpoint
