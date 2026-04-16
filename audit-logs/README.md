@@ -16,10 +16,10 @@ Components included in this Plugin:
 
 - [Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [Receivers](https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/README.md)
-  - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
-  - [k8sevents Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
-  - [journald Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
-  - [prometheus/internal](https://opentelemetry.io/docs/collector/internal-telemetry/)
+    - [Filelog Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/filelogreceiver)
+    - [k8sevents Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver)
+    - [journald Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/journaldreceiver)
+    - [prometheus/internal](https://opentelemetry.io/docs/collector/internal-telemetry/)
 - [Connector](https://opentelemetry.io/docs/collector/building/connector/)
 - [OpenSearch Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/opensearchexporter)
 
