@@ -93,3 +93,13 @@ spec:
           description: Enable k8s kube-apiserver audit logs ingestion
           required: false
           type: bool
+        - name: auditLogs.logsCollector.containerd.enabled
+          default: false
+          description: Enable container logs (stdout/stderr) ingestion
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.journald.enabled
+          default: false
+          description: Enable systemd journal logs ingestion
+          required: false
+          type: bool

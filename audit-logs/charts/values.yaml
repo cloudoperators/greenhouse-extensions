@@ -27,6 +27,12 @@ auditLogs:
     kubeApiAudit:
       # -- Activates export for kube-apiserver audit logs
       enabled: false
+    containerd:
+      # -- Activates ingestion of container stdout/stderr logs from /var/log/pods
+      enabled: false
+    journald:
+        # -- Activates ingestion of systemd journal logs
+      enabled: false
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
