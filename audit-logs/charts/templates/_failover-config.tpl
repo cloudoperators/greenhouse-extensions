@@ -13,6 +13,10 @@ opensearch/failover_b:
       authenticator: basicauth/failover_b
     endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
   logs_index: ${index}-datastream
+  retry_on_failure:
+    enabled: true
+    max_elapsed_time: 0s
+  timeout: {{ .Values.auditLogs.openSearchLogs.timeout }}
 {{- end }}
 
 {{- define "failover.extension" }}

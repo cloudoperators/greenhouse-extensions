@@ -84,6 +84,7 @@ spec:
 {{ end }}
   config:
     receivers:
+{{- if .Values.auditLogs.logsCollector.journald.enabled }}
       journald:
         directory: /var/log/journal
         operators:
@@ -91,10 +92,12 @@ spec:
             type: add
             field: attributes["log.type"]
             value: "journald"
+{{- end }}
 
       k8s_events:
         auth_type: serviceAccount
 
+{{- if .Values.auditLogs.logsCollector.containerd.enabled }}
       filelog/containerd:
         include_file_path: true
         include: [ /var/log/pods/*.log ]
@@ -110,6 +113,7 @@ spec:
             type: add
             field: attributes["log.type"]
             value: "containerd"
+{{- end }}
 
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
   {{- include "auditd.receiver" . | nindent 6 -}}
@@ -122,6 +126,13 @@ spec:
         operators:
           - id: kube-audit-json
             type: json_parser
+            parse_to: body
+          - type: add
+            field: attributes["log.type"]
+            value: kube-audit
+          - type: timestamp
+            parse_from: body.stageTimestamp
+            layout: "2006-01-02T15:04:05.999999Z"
 {{- end }}
 
     processors:
@@ -186,6 +197,8 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.attributes" . | nindent 6 -}}
 {{- end }}
+
+{{- if .Values.auditLogs.logsCollector.journald.enabled }}
       transform/journal:
         error_mode: ignore
         log_statements:
@@ -222,7 +235,9 @@ spec:
               - set(log.attributes["cursor"], log.cache["__CURSOR"])
               - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
               - delete_key(attributes, "log.cache")
+{{- end }}
 
+{{- if .Values.auditLogs.logsCollector.containerd.enabled }}
       transform/ingress:
         error_mode: ignore
         log_statements:
@@ -233,6 +248,7 @@ spec:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{IP:client.address} %{NOTSPACE:client.ident} %{NOTSPACE:client.auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:request_method} %{NOTSPACE:request_path} %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content_length:int} %{QUOTEDSTRING} \"%{GREEDYDATA:user_agent}\" %{NUMBER:request_length:int} %{BASE10NUM:request_time:float}( \\[%{NOTSPACE:service}\\])? ?(\\[\\])? %{IP:server.address}\\:%{NUMBER:server.port} %{NUMBER:upstream_response_length:int} %{BASE10NUM:upstream_response_time:float} %{NOTSPACE:upstream_status} %{NOTSPACE:request_id}", true),"upsert")
               - set(log.attributes["network.protocol.name"], ConvertCase(attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
               - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
+{{- end }}
 
       k8sattributes:
         auth_type: "serviceAccount"
@@ -322,6 +338,10 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
+        retry_on_failure:
+          enabled: true
+          max_elapsed_time: 0s
+        timeout: {{ .Values.auditLogs.openSearchLogs.timeout }}
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
@@ -340,7 +360,11 @@ spec:
       forward: {}
       failover:
         retry_interval: 2m
-        retry_gap: 30s
+        sending_queue:
+          enabled: true
+          queue_size: 100000
+          num_consumers: 2
+          block_on_overflow: true
         max_retries: 0
         priority_levels:
           - [logs/failover_a]
@@ -399,12 +423,17 @@ spec:
           exporters: [forward]
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [filelog/containerd]
           processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
           exporters: [forward]
+{{- end }}
+
+{{- if .Values.auditLogs.logsCollector.journald.enabled }}
         logs/journald:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
           exporters: [forward]
+{{- end }}
 {{- end }}
