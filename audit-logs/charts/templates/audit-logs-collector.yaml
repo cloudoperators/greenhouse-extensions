@@ -15,6 +15,10 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+  {{- if .Values.auditLogs.nodeSelector }}
+  nodeSelector:
+    {{- toYaml .Values.auditLogs.nodeSelector | nindent 4 }}
+  {{- end }}
   hostPID: true
   securityContext:
     privileged: true
@@ -127,12 +131,12 @@ spec:
           - id: kube-audit-json
             type: json_parser
             parse_to: body
+            timestamp:
+              parse_from: body.stageTimestamp
+              layout: "2006-01-02T15:04:05.999999Z"
           - type: add
             field: attributes["log.type"]
             value: kube-audit
-          - type: timestamp
-            parse_from: body.stageTimestamp
-            layout: "2006-01-02T15:04:05.999999Z"
 {{- end }}
 
     processors:
