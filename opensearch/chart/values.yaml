@@ -473,44 +473,22 @@ cluster:
       version: "1.36"
 
     # -- Opensearch nodes configuration
-    # @default -- <pre>nodePools:<br>  - component: main<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "2Gi"<br>        cpu: 1</pre>
+    # @default -- <pre>nodePools:<br>  - component: nodes<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>      - "data"<br>      - "ingest"<br>    resources:<br>      requests:<br>        memory: "2Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "4Gi"<br>        cpu: 2</pre>
     nodePools:
-      - component: main
+      - component: nodes
         diskSize: "30Gi"
         replicas: 3
         roles:
           - "cluster_manager"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
-      - component: data
-        diskSize: "30Gi"
-        replicas: 3
-        roles:
           - "data"
+          - "ingest"
         resources:
           requests:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "500m"
           limits:
             memory: "4Gi"
             cpu: 2
-      - component: client
-        diskSize: "30Gi"
-        replicas: 1
-        roles:
-          - "client"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
 
     # Configuration for the client service used to expose client nodes externally.
     client:
@@ -1195,44 +1173,22 @@ siem:
       version: "1.36"
 
     # -- Opensearch nodes configuration
-    # @default -- <pre>nodePools:<br>  - component: main<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "2Gi"<br>        cpu: 1</pre>
+    # @default -- <pre>nodePools:<br>  - component: nodes<br>    diskSize: "30Gi"<br>    replicas: 3<br>    roles:<br>      - "cluster_manager"<br>      - "data"<br>      - "ingest"<br>    resources:<br>      requests:<br>        memory: "2Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "4Gi"<br>        cpu: 2</pre>
     nodePools:
-      - component: main
+      - component: nodes
         diskSize: "30Gi"
         replicas: 3
         roles:
           - "cluster_manager"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
-      - component: data
-        diskSize: "30Gi"
-        replicas: 3
-        roles:
           - "data"
+          - "ingest"
         resources:
           requests:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "500m"
           limits:
             memory: "4Gi"
             cpu: 2
-      - component: client
-        diskSize: "30Gi"
-        replicas: 1
-        roles:
-          - "client"
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: 1
 
     # Configuration for the client service used to expose client nodes externally.
     client:
