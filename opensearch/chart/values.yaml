@@ -240,7 +240,7 @@ cluster:
         #   restartPods: false
 
       # -- Controls whether to drain data notes on rolling restart operations
-      drainDataNodes: true
+      drainDataNodes: false
 
       # -- Opensearch service http port
       httpPort: 9200
@@ -962,7 +962,7 @@ siem:
         #   restartPods: false
 
       # -- Controls whether to drain data notes on rolling restart operations
-      drainDataNodes: true
+      drainDataNodes: false
 
       # -- Opensearch service http port
       httpPort: 9200
