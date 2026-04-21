@@ -133,8 +133,10 @@ spec:
             parse_to: attributes
             timestamp:
               layout_type: gotime
-              parse_from: body.stageTimestamp
+              parse_from: attributes.stageTimestamp
               layout: "2006-01-02T15:04:05.999999Z"
+          - type: remove
+            field: body
           - type: add
             field: attributes["log.type"]
             value: kube-audit
