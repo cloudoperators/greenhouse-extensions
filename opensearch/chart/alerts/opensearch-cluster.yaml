@@ -71,12 +71,12 @@ groups:
           description: "OpenSearch node {{`{{ $labels.instance }}`}} disk usage is above 90% ({{`{{ $value }}`}}%)"
 
       - alert: OpenSearchIndexSizeTooLarge
-        expr: max by (index) (opensearch_index_store_size_bytes{context="primaries"} / (1024^3) > 200)
+        expr: (max by (cluster, region, elastic_cluster, index) (opensearch_index_store_size_bytes{context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(cluster, region, elastic_cluster, index) (rate(opensearch_index_doc_number{context="primaries", index=~".ds.*"}[15m]) > 1)
         for: 30m
         labels:
           severity: info # warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
-          description: "The index {{`{{ $labels.index }}`}} has exceeded 200 GB in size. Please check the rollover status."
+          description: "The index {{`{{ $labels.index }}`}} has exceeded 200 GB in size and is still actively receiving data. Please check the rollover status."
           summary: "Index size of {{`{{ $labels.index }}`}} has exceeded the threshold."
