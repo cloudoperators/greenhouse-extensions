@@ -6,12 +6,46 @@ kind: PluginDefinition
 metadata:
   name: external-dns
 spec:
-  version: 1.2.1
+  version: 1.3.0
   displayName: External DNS manager
   description: The kubernetes-sigs/external-dns plugin.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/external-dns/README.md
   icon: https://raw.githubusercontent.com/kubernetes-sigs/external-dns/master/docs/img/external-dns.png
+  options:
+    - name: openstack.enabled
+      description: Enable creation of the oscloudsyaml secret for the OpenStack webhook provider
+      required: false
+      type: bool
+      default: false
+    - name: openstack.authURL
+      description: The OpenStack Keystone authentication URL
+      required: false
+      type: string
+    - name: openstack.username
+      description: The OpenStack username
+      required: false
+      type: string
+    - name: openstack.password
+      description: The OpenStack user password
+      required: false
+      type: secret
+    - name: openstack.projectName
+      description: The OpenStack project name
+      required: false
+      type: string
+    - name: openstack.projectDomainName
+      description: The OpenStack domain name of the project
+      required: false
+      type: string
+    - name: openstack.userDomainName
+      description: The OpenStack domain name of the user
+      required: false
+      type: string
+    - name: openstack.regionName
+      description: The OpenStack region name
+      required: false
+      type: string
   helmChart:
     name: external-dns
-    repository: https://kubernetes-sigs.github.io/external-dns
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 1.20.0

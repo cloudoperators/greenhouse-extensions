@@ -24,6 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - chartDir: external-dns/charts
+            chartName: external-dns
           - chartDir: alerts/charts
             chartName: alerts
           - chartDir: audit-logs/charts
