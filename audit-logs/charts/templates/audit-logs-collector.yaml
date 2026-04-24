@@ -60,7 +60,6 @@ spec:
       port: 8888
 {{- end }}
 
-  initContainers:
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
   {{- include "auditd.initContainer" . | nindent 2 -}}
 {{ end }}
