@@ -1686,6 +1686,100 @@ siem:
           - "siem-audit*"
         priority: 100
 
+# Query Exporter - Prometheus exporter for custom OpenSearch queries
+queryExporter:
+  # -- Enable the OpenSearch query exporter
+  enabled: false
+
+  image:
+    # -- Image registry for the query exporter
+    registry: ghcr.io
+    # -- Image repository for the query exporter
+    repository: sap-cloud-infrastructure/opensearch-query-exporter
+    # -- Image tag for the query exporter
+    tag: latest
+  # -- Image pull policy
+  imagePullPolicy: IfNotPresent
+
+  # -- Number of replicas
+  replicas: 1
+
+  # -- Port the exporter listens on
+  port: 9206
+
+  # -- Log level (debug, info, warn, error)
+  logLevel: info
+
+  # -- Query timeout
+  timeout: 30s
+
+  # -- Credentials key from cluster.usersCredentials to use for OpenSearch access.
+  # The referenced key must exist under cluster.usersCredentials and will be mounted
+  # from the corresponding <key>-credentials Secret.
+  credentialsRef: logs
+
+  # -- Additional credential keys for failover (optional).
+  # Listed keys are tried in order after credentialsRef.
+  additionalCredentialsRefs: []
+    # - logs2
+
+  # -- Resource requests and limits
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+  # -- Pod annotations
+  podAnnotations: {}
+
+  # -- Node selector
+  nodeSelector: {}
+
+  # -- Tolerations
+  tolerations: []
+
+  # -- Security context for the container
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    capabilities:
+      drop:
+        - ALL
+
+  # ServiceMonitor configuration for Prometheus scraping
+  serviceMonitor:
+    # -- Create a ServiceMonitor for the query exporter
+    enabled: true
+    # -- Scrape interval
+    interval: 30s
+    # -- Scrape timeout
+    scrapeTimeout: 25s
+    # -- Additional labels for the ServiceMonitor (e.g. for Prometheus selector matching)
+    labels: {}
+
+  # -- Query configuration. Each entry defines a periodic OpenSearch query
+  # whose results are exposed as Prometheus metrics.
+  # See https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter for full docs.
+  queries: []
+    # - name: error_count
+    #   team: sre
+    #   interval: 60s
+    #   indices: "logs-*"
+    #   on_error: preserve
+    #   on_missing: drop
+    #   query:
+    #     size: 0
+    #     query:
+    #       bool:
+    #         must:
+    #           - match: { level: "ERROR" }
+    #           - range: { "@timestamp": { gte: "now-5m" } }
+
 testFramework:
   # -- Activates the Helm chart testing framework.
   enabled: true
