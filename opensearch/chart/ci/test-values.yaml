@@ -227,3 +227,33 @@ siem:
           limits:
             memory: "2Gi"
             cpu: 1
+
+queryExporter:
+  enabled: true
+  logLevel: debug
+  credentialsRef: logs
+  additionalCredentialsRefs:
+    - logs2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  serviceMonitor:
+    enabled: false
+  queries:
+    - name: error_count
+      team: sre
+      interval: 60s
+      indices: "logs-*"
+      on_error: preserve
+      on_missing: drop
+      query:
+        size: 0
+        query:
+          bool:
+            must:
+              - match: { level: "ERROR" }
+              - range: { "@timestamp": { gte: "now-5m" } }
