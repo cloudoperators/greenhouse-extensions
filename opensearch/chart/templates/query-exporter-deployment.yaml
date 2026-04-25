@@ -1,0 +1,129 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.queryExporter.enabled }}
+{{- $name := include "opensearch.query-exporter-name" . }}
+{{- $clusterName := include "opensearch.logs-cluster-name" . }}
+{{- $credRef := .Values.queryExporter.credentialsRef | default "logs" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.queryExporter.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "opensearch.query-exporter-selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "opensearch.query-exporter-selector" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print .Template.BasePath "/query-exporter-config.yaml") . | sha256sum }}
+        {{- with .Values.queryExporter.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: query-exporter
+          image: {{ .Values.queryExporter.image.registry }}/{{ .Values.queryExporter.image.repository }}:{{ .Values.queryExporter.image.tag }}
+          imagePullPolicy: {{ .Values.queryExporter.imagePullPolicy | default "IfNotPresent" }}
+          args:
+            - "-config"
+            - "/config/config.yaml"
+            {{- if .Values.queryExporter.queries }}
+            - "-queries-dir"
+            - "/queries"
+            {{- end }}
+            - "-listen-address"
+            - ":{{ .Values.queryExporter.port | default 9206 }}"
+            - "-log-level"
+            - {{ .Values.queryExporter.logLevel | default "info" | quote }}
+          env:
+            - name: {{ upper $credRef }}_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $credRef }}-credentials
+                  key: username
+            - name: {{ upper $credRef }}_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $credRef }}-credentials
+                  key: password
+            {{- range $ref := (.Values.queryExporter.additionalCredentialsRefs | default list) }}
+            - name: {{ upper $ref }}_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $ref }}-credentials
+                  key: username
+            - name: {{ upper $ref }}_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $ref }}-credentials
+                  key: password
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.queryExporter.port | default 9206 }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          {{- with .Values.queryExporter.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.queryExporter.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            {{- if .Values.queryExporter.queries }}
+            - name: queries
+              mountPath: /queries
+              readOnly: true
+            {{- end }}
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+      {{- with .Values.queryExporter.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.queryExporter.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $name }}-config
+        {{- if .Values.queryExporter.queries }}
+        - name: queries
+          configMap:
+            name: {{ $name }}-queries
+        {{- end }}
+        - name: certs
+          secret:
+            secretName: {{ $clusterName }}-http-cert
+            items:
+              - key: ca.crt
+                path: ca.crt
+{{- end }}

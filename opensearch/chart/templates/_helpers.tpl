@@ -39,3 +39,26 @@ Get the SIEM cluster name
 {{- printf "%s-siem" .Release.Name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Query exporter full name
+*/}}
+{{- define "opensearch.query-exporter-name" -}}
+{{- printf "%s-query-exporter" .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Query exporter labels
+*/}}
+{{- define "opensearch.query-exporter-labels" -}}
+{{ include "opensearch.labels" . }}
+app.kubernetes.io/component: query-exporter
+{{- end }}
+
+{{/*
+Query exporter selector labels
+*/}}
+{{- define "opensearch.query-exporter-selector" -}}
+app.kubernetes.io/name: {{ include "opensearch.query-exporter-name" . }}
+app.kubernetes.io/component: query-exporter
+{{- end }}

@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.queryExporter.enabled }}
+{{- $credRef := .Values.queryExporter.credentialsRef | default "logs" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "opensearch.query-exporter-name" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    opensearch_url: https://{{ include "opensearch.logs-cluster-name" . }}:9200
+    ca_cert_path: /certs/ca.crt
+    credentials:
+      - username: "${{ upper $credRef }}_USERNAME"
+        password: "${{ upper $credRef }}_PASSWORD"
+    {{- range $ref := (.Values.queryExporter.additionalCredentialsRefs | default list) }}
+      - username: "${{ upper $ref }}_USERNAME"
+        password: "${{ upper $ref }}_PASSWORD"
+    {{- end }}
+    timeout: {{ .Values.queryExporter.timeout | default "30s" }}
+    queries: []
+{{- if .Values.queryExporter.queries }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "opensearch.query-exporter-name" . }}-queries
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+data:
+  queries.yaml: |
+    queries:
+      {{- toYaml .Values.queryExporter.queries | nindent 6 }}
+{{- end }}
+{{- end }}

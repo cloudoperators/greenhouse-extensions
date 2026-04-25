@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.queryExporter.enabled .Values.queryExporter.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "opensearch.query-exporter-name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+    {{- with .Values.queryExporter.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml .Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "opensearch.query-exporter-selector" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.queryExporter.serviceMonitor.interval | default "30s" }}
+      scrapeTimeout: {{ .Values.queryExporter.serviceMonitor.scrapeTimeout | default "25s" }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}
