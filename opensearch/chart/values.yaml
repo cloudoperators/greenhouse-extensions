@@ -1711,7 +1711,12 @@ queryExporter:
   logLevel: info
 
   # -- Query timeout
+  # -- Query timeout
   timeout: 30s
+
+  # -- Maximum allowed time range for queries (rejects queries looking back further).
+  # Prevents queries from hitting warm/cold storage tiers.
+  maxQueryRange: 168h
 
   # -- Credentials key from cluster.usersCredentials to use for OpenSearch access.
   # The referenced key must exist under cluster.usersCredentials and will be mounted
