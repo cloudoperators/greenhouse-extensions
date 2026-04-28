@@ -15,6 +15,7 @@ data:
   config.yaml: |
     opensearch_url: https://{{ include "opensearch.logs-cluster-name" . }}:9200
     ca_cert_path: /certs/ca.crt
+    insecure: true
     credentials:
       - username: "${{ upper $credRef }}_USERNAME"
         password: "${{ upper $credRef }}_PASSWORD"
