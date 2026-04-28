@@ -230,6 +230,10 @@ siem:
 
 queryExporter:
   enabled: true
+  image:
+    registry: docker.io
+    repository: joluc/opensearch-query-exporter
+    tag: "0.1.0"
   logLevel: debug
   credentialsRef: logs
   additionalCredentialsRefs:

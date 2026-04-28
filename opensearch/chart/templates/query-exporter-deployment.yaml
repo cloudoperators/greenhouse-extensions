@@ -3,7 +3,6 @@
 
 {{- if .Values.queryExporter.enabled }}
 {{- $name := include "opensearch.query-exporter-name" . }}
-{{- $clusterName := include "opensearch.logs-cluster-name" . }}
 {{- $credRef := .Values.queryExporter.credentialsRef | default "logs" }}
 apiVersion: apps/v1
 kind: Deployment
@@ -122,7 +121,7 @@ spec:
         {{- end }}
         - name: certs
           secret:
-            secretName: {{ $clusterName }}-http-cert
+            secretName: opensearch-http-cert
             items:
               - key: ca.crt
                 path: ca.crt
