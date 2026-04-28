@@ -234,6 +234,7 @@ queryExporter:
     registry: docker.io
     repository: joluc/opensearch-query-exporter
     tag: "0.1.0"
+  imagePullPolicy: Always
   logLevel: debug
   credentialsRef: logs
   additionalCredentialsRefs:
