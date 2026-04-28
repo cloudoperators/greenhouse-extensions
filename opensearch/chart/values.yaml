@@ -1711,7 +1711,6 @@ queryExporter:
   logLevel: info
 
   # -- Query timeout
-  # -- Query timeout
   timeout: 30s
 
   # -- Maximum allowed time range for queries (rejects queries looking back further).
