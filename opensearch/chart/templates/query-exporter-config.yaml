@@ -23,6 +23,7 @@ data:
         password: "${{ upper $ref }}_PASSWORD"
     {{- end }}
     timeout: {{ .Values.queryExporter.timeout | default "30s" }}
+    max_query_range: {{ .Values.queryExporter.maxQueryRange | default "168h" }}
     queries: []
 {{- if .Values.queryExporter.queries }}
 ---
