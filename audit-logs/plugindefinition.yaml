@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.0.16
+    version: 0.0.21
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.16
+        version: 0.0.21
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -23,6 +23,10 @@ spec:
           description: Cluster label for logging
           required: false
           type: string
+        - name: auditLogs.nodeSelector
+          description: Node selector for the collector pods
+          required: false
+          type: map
         - name: auditLogs.openSearchLogs.endpoint
           description: Endpoint URL for OpenSearch
           required: false
@@ -91,5 +95,15 @@ spec:
         - name: auditLogs.logsCollector.kubeApiAudit.enabled
           default: false
           description: Enable k8s kube-apiserver audit logs ingestion
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.containerd.enabled
+          default: false
+          description: Enable container logs (stdout/stderr) ingestion
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.journald.enabled
+          default: false
+          description: Enable systemd journal logs ingestion
           required: false
           type: bool

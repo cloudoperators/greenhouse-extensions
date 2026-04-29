@@ -92,7 +92,6 @@ spec:
           - /var/log/pods/logs_fluent*/*/*.log
           - /var/log/pods/dns-recursor_unbound*/*/*.log
           - /var/log/pods/kube-system_wormhole*/*/*.log
-{{- end }}
         operators:
           - id: container-parser
             type: container
@@ -512,9 +511,9 @@ spec:
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
         logs/failover_b:
-            receivers: [failover]
-            processors: [attributes/failover_username_b]
-            exporters: [opensearch/failover_b]
+          receivers: [failover]
+          processors: [attributes/failover_username_b]
+          exporters: [opensearch/failover_b]
 {{- end }}
 {{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled) }}
         logs/containerd:
@@ -584,4 +583,5 @@ spec:
           receivers: [failover/opensearch_swift]
           processors: [attributes/failover_username_b]
           exporters: [opensearch/swift_failover_b]
+{{- end }}
 {{- end }}

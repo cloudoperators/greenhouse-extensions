@@ -6,6 +6,8 @@ commonLabels:
 
 auditLogs:
 
+  nodeSelector: {}
+
   collectorImage:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
@@ -27,11 +29,19 @@ auditLogs:
     kubeApiAudit:
       # -- Activates export for kube-apiserver audit logs
       enabled: false
+    containerd:
+      # -- Activates ingestion of container stdout/stderr logs from /var/log/pods
+      enabled: false
+    journald:
+        # -- Activates ingestion of systemd journal logs
+      enabled: false
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
     # -- Name for OpenSearch index
     index:
+    # -- Timeout for OpenSearch requests
+    timeout: 30s
     # -- Username for OpenSearch endpoint
     failover_username_a:
     # -- Password for OpenSearch endpoint

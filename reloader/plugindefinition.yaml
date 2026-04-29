@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: reloader
 spec:
-  version: 1.0.1
+  version: 1.0.2
   displayName: Reloader
   description: Reloader is a Kubernetes controller that automatically triggers rollouts of workloads (like Deployments, StatefulSets, and more) whenever referenced Secrets or ConfigMaps are updated.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/reloader/README.md
@@ -15,7 +15,7 @@ spec:
     # renovate depName=ghcr.io/stakater/charts/reloader
     name: reloader
     repository: oci://ghcr.io/stakater/charts
-    version: 2.2.9
+    version: 2.2.11
   options:
     - name: reloader.watchGlobally
       description: Allow Reloader to watch in all namespaces (true) or just in a single namespace (false)

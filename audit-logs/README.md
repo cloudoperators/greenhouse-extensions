@@ -76,8 +76,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
 | auditLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
+| auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| auditLogs.logsCollector.journald.enabled | bool | `false` | Activates ingestion of systemd journal logs |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
+| auditLogs.nodeSelector | object | `{}` |  |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
@@ -85,6 +88,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
 | auditLogs.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
 | auditLogs.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
+| auditLogs.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch requests |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |
 | auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"create":true,"labels":{}}` | Default rules for monitoring the opentelemetry components. |

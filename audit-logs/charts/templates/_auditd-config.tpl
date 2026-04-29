@@ -1,4 +1,5 @@
 {{- define "auditd.initContainer" }}
+initContainers:
 - name: init
   image: alpine:latest
   securityContext:

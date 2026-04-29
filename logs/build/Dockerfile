@@ -1,4 +1,4 @@
-FROM golang@sha256:fb612b7831d53a89cbc0aaa7855b69ad7b0caf603715860cf538df854d047b84 AS build
+FROM golang@sha256:b54cbf583d390341599d7bcbc062425c081105cc5ef6d170ced98ef9d047c716 AS build
 
 ARG OTEL_VERSION=0.147.0
 
@@ -9,7 +9,7 @@ RUN chmod +x ./ocb
 COPY otel-collector-builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-FROM debian:stable-slim@sha256:85dfcffff3c1e193877f143d05eaba8ae7f3f95cb0a32e0bc04a448077e1ac69
+FROM debian:stable-slim@sha256:8f0c555de6a2f9c2bda1b170b67479d11f7f5e3b66bb4a7a1d8843361c9dd3ff
 
 RUN apt-get update && \
     apt-get install -y systemd wget && \
