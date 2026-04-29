@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 2
 
       - name: Install 'yq'
-        uses: yokawasa/action-setup-kube-tools@4710caf20bc62368b8edab32f7c9cc7dc3a2ac31 # v0.13.3
+        uses: yokawasa/action-setup-kube-tools@9d39563c24d4a419d1a8289c34d6da5a6171252c # v0.13.5
         with:
           yq: v4.25.1
           setup-tools: |
