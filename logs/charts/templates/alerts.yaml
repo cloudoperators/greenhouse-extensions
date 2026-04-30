@@ -23,6 +23,7 @@ spec:
         for: 5m
         labels:
           severity: warning
+          no_alert_on_absence: "true" # OTel will not expose the metric if null 
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -36,6 +37,7 @@ spec:
         for: 5m
         labels:
           severity: warning
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -75,6 +77,7 @@ spec:
         for: 1h
         labels:
           severity: info
+          no_alert_on_absence: "true" # OTel will not expose the metric if null 
           playbook: 'docs/support/playbook/logs/otel-logs-exporting-failed'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -91,7 +94,7 @@ spec:
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OpenTelemetryCollector Reconciliation
-          description: Reconciliation errors for opentelemetrycollector are increasing
+          description: Reconciliation errors for OTel are increasing
   {{- end }}
 
   {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (".Values.opentelemetry-operator.enabled") }}
@@ -104,6 +107,6 @@ spec:
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: WorkqueueDepth is increasing
-          description: Check manager logs for reasons why this might happen
+          description: Check OTel manager logs for reasons why this might happen
   {{- end }}
 {{- end }}
