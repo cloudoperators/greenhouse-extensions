@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: A Helm chart for installing the kubernetes-sigs/external-dns.
+name: external-dns
+icon: https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/external-dns.png
+keywords:
+  - external-dns
+  - dns
+version: 1.20.0
+appVersion: 0.20.0
+maintainers:
+  - name: abhijith-darshan
+dependencies:
+  - name: external-dns
+    repository: https://kubernetes-sigs.github.io/external-dns
+    version: 1.20.0
+    alias: externalDns

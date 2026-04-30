@@ -7,6 +7,7 @@ on:
         - main
     paths:
       - .github/workflows/helm-release.yaml
+      - external-dns/charts/**
       - absent-metrics-operator/charts/**
       - alerts/charts/**
       - audit-logs/charts/**
@@ -44,6 +45,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - chartDir: external-dns/charts
+            chartName: external-dns
           - chartDir: absent-metrics-operator/charts
             chartName: absent-metrics-operator
           - chartDir: alerts/charts
