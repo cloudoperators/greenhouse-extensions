@@ -34,6 +34,19 @@
     },
     {
       "customType": "regex",
+      "description": "Bump gatekeeper version in the plugindefinition",
+      "managerFilePatterns": [
+        "/^gatekeeper.plugindefinition.yaml$/"
+      ],
+      "matchStrings": [
+        "helmChart:\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*v?(?<currentValue>(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "open-policy-agent/gatekeeper",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
       "description": "Bump reloader version in the plugindefinition",
       "managerFilePatterns": [
         "/^reloader.plugindefinition.yaml$/"
@@ -378,6 +391,7 @@
       "matchFileNames": [
         "ingress-nginx/plugindefinition.yaml",
         "external-dns/plugindefinition.yaml",
+        "gatekeeper/plugindefinition.yaml",
         "reloader/plugindefinition.yaml"
       ],
       "matchManagers": [

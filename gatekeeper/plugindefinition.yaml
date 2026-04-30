@@ -1,0 +1,52 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: gatekeeper
+spec:
+  version: 1.0.0
+  displayName: OPA Gatekeeper
+  description: |
+    Policy controller for Kubernetes admission based on the Open Policy Agent
+    (OPA) constraint framework. Deploys upstream OPA Gatekeeper. Constraint
+    templates and constraints are not bundled; install them separately or
+    use the gatekeeper-config PluginDefinition (planned).
+  docsURL: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/gatekeeper/README.md
+  icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+  helmChart:
+    name: gatekeeper
+    repository: https://open-policy-agent.github.io/gatekeeper/charts
+    version: 3.22.2
+  options:
+    - name: replicas
+      displayName: Controller replicas
+      description: Number of gatekeeper-controller-manager replicas. Use 2 or more for high availability.
+      default: 3
+      required: false
+      type: int
+    - name: auditInterval
+      displayName: Audit interval (seconds)
+      description: How often the audit pod scans cluster resources for constraint violations.
+      default: 60
+      required: false
+      type: int
+    - name: validatingWebhookFailurePolicy
+      displayName: Webhook failure policy
+      description: Action when the validating webhook is unavailable. "Ignore" allows requests through; "Fail" blocks them.
+      default: Ignore
+      required: false
+      type: string
+    - name: constraintViolationsLimit
+      displayName: Constraint violations limit
+      description: Maximum number of violations reported per constraint during audit.
+      default: 20
+      required: false
+      type: int
+    - name: logDenies
+      displayName: Log denied requests
+      description: When true, denied admission requests are logged at info level.
+      default: false
+      required: false
+      type: bool
