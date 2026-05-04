@@ -410,6 +410,9 @@ spec:
     extensions:
       file_storage/journald:
         directory: .
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+      opensearch_log_encoding:
+{{- end }}
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       basicauth/failover_a:
         client_auth:
@@ -468,6 +471,9 @@ spec:
     service:
       extensions:
         - file_storage/journald
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+        - opensearch_log_encoding
+{{- end }}
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
         - basicauth/failover_a
         - basicauth/failover_b
