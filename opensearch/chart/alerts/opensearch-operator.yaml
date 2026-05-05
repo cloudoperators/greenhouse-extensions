@@ -1,17 +1,4 @@
-# Operator alerts are disabled until the operator ServiceMonitor bug is fixed.
-# Uncomment the rules below once the ServiceMonitor is working again.
 groups:
   - name: opensearch-operator
     interval: 30s
     rules: []
-#     - alert: OpenSearchOperatorDown
-#       expr: up{job=~".*opensearch-operator.*"} == 0
-#       for: 10m
-#       labels:
-#         severity: info # critical
-#         component: opensearch-operator
-#         playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
-#         {{- include "opensearch-alert-labels" . | nindent 10 }}
-#       annotations:
-#         summary: "OpenSearch operator is down"
-#         description: "OpenSearch operator in namespace {{`{{ $labels.namespace }}`}} has been down for more than 10 minutes"
