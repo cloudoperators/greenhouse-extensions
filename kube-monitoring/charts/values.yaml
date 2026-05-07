@@ -499,7 +499,7 @@ absentMetricsOperator:
   # @section -- absent-metrics-operator options
   enabled: false
   # @ignored
-  promRuleName: '{{ if index .metadata.labels "plugin" }}{{ index .metadata.labels "plugin" }}{{ else }}{{ index .metadata.labels "prometheus" }}{{ end }}'
+  promRuleName: '{{ if index .metadata.labels "plugin" }}{{ index .metadata.labels "plugin" }}{{ else if index .metadata.labels "thanos-ruler" }}{{ index .metadata.labels "thanos-ruler" }}{{ else }}{{ index .metadata.labels "prometheus" }}{{ end }}'
   # @ignored
   image:
     registry: ghcr.io
