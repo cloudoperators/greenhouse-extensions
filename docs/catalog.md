@@ -11,6 +11,7 @@ This following table provides an overview of the currently available Plugins in 
 | digicert-issuer|Extensions to the cert-manager for DigiCert support|1.2.0|
 | disco|Automated DNS management using the Designate Ingress CNAME operator (DISCO)|1.0.0|
 | doop|Holistic overview on Gatekeeper policies and violations|1.0.0|
+| doop-api|Central API aggregating Gatekeeper audit reports for the DOOP UI|0.1.0|
 | exposed-service|A test plugin for validating service exposure via Greenhouse|1.0.0|
 | external-dns|The kubernetes-sigs/external-dns plugin.|1.0.0|
 | gatekeeper|Policy controller for Kubernetes admission based on the OPA constraint framework|1.0.0|

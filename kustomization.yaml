@@ -6,6 +6,7 @@ resources:
   - audit-logs/plugindefinition.yaml
   - blackbox-exporter/plugindefinition.yaml
   - cert-manager/plugindefinition.yaml
+  - doop-api/plugindefinition.yaml
   - exposed-services/plugindefinition.yaml
   - external-dns/plugindefinition.yaml
   - gatekeeper/plugindefinition.yaml
