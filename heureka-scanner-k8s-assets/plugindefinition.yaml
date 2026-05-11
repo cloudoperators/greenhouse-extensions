@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: heureka-scanner-k8s-assets
 spec:
-  version: 0.1.2
+  version: 0.1.3
   displayName: Heureka Scanner for K8s Assets
   description: The scanner discovers and reports Kubernetes assets (pods, containers, images) to Heureka
   helmChart:
@@ -32,3 +32,21 @@ spec:
       required: false
       type: string
       default: "2h"
+    - name: scanner.k8s_cluster_name
+      required: false
+      description: Cluster name
+      type: string
+    - name: scanner.k8s_cluster_region
+      required: false
+      description: Cluster region
+      type: string
+    - name: scanner.service_label
+      description: Pod label indicating the service name
+      required: false
+      type: string
+      default: "ccloud/service"
+    - name: scanner.support_group_label
+      description: Pod label indicating the support group
+      required: false
+      type: string
+      default: "ccloud/support-group"
