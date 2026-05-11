@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+image:
+  repository: ghcr.io/cloudoperators/gatekeeper-addons
+  tag: ""
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+# object_identity labels propagated into violation metrics.
+objectIdentityLabels:
+  - support_group
+  - service
+  - status
+
+# Swift backend where doop-analyzer uploads audit reports.
+swift:
+  authURL: ""
+  username: ""
+  password: ""
+  userDomain: Default
+  projectName: ""
+  projectDomain: Default
+  region: ""
+  container: doop-analyzer
+
+service:
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  host: ""
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+
+resources:
+  limits:
+    cpu: "2"
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 1Gi
