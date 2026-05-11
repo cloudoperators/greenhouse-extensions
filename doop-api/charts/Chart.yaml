@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: doop-api
+description: Central API for the DOOP (Decentralized Observer of Policies) system. Reads Gatekeeper audit reports aggregated by per-cluster doop-analyzer pods from OpenStack Swift and serves them to the DOOP UI plugin.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+icon: https://raw.githubusercontent.com/open-policy-agent/opa/main/logo/logo.png
+keywords:
+  - gatekeeper
+  - opa
+  - policy
+  - doop
+maintainers:
+  - name: ivogoman
+  - name: uwe-mayer
