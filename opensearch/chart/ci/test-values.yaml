@@ -233,7 +233,7 @@ queryExporter:
   image:
     registry: docker.io
     repository: joluc/opensearch-query-exporter
-    tag: "0.1.0"
+    tag: latest
   imagePullPolicy: Always
   logLevel: debug
   credentialsRef: logs
@@ -250,7 +250,8 @@ queryExporter:
     enabled: false
   queries:
     - name: error_count
-      team: sre
+      support_group: observability
+      service: logs
       interval: 60s
       indices: "logs-*"
       on_error: preserve
@@ -262,3 +263,16 @@ queryExporter:
             must:
               - match: { level: "ERROR" }
               - range: { "@timestamp": { gte: "now-5m" } }
+    - name: ingestion_rate
+      support_group: observability
+      service: logs
+      interval: 30s
+      indices: "logs-*"
+      on_error: zero
+      on_missing: zero
+      query:
+        size: 0
+        query:
+          bool:
+            filter:
+              - range: { "@timestamp": { gte: "now-1m" } }
