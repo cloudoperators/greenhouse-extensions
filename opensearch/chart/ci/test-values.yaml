@@ -251,10 +251,9 @@ siem:
 queryExporter:
   enabled: true
   image:
-    registry: docker.io
-    repository: joluc/opensearch-query-exporter
+    registry: ghcr.io
+    repository: sap-cloud-infrastructure/opensearch-query-exporter
     tag: latest
-  imagePullPolicy: Always
   logLevel: debug
   credentialsRef: logs
   additionalCredentialsRefs:
