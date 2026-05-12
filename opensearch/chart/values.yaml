@@ -1083,7 +1083,8 @@ queryExporter:
   # See https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter for full docs.
   queries: []
     # - name: error_count
-    #   team: sre
+    #   support_group: observability
+    #   service: logs
     #   interval: 60s
     #   indices: "logs-*"
     #   on_error: preserve
