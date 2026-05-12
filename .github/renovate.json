@@ -213,6 +213,13 @@
       "pinDigests": true
     },
     {
+      "matchPackageNames": [
+        "/absent-metrics-operator/"
+      ],
+      "followTag": "edge",
+      "pinDigests": true
+    },
+    {
       "groupName": "github actions",
       "matchManagers": [
         "github-actions"
