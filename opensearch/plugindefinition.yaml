@@ -327,3 +327,7 @@ spec:
       description: "Base redirect URL for OIDC callback for SIEM dashboards"
       required: false
       type: string
+    - name: queryExporter.enabled
+      description: "Enable the OpenSearch query exporter for custom Prometheus metrics from OpenSearch queries"
+      required: false
+      type: bool
