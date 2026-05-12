@@ -161,8 +161,8 @@ spec:
         log_statements:
           - context: log
             statements:
-              - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
-              - set(attributes["requestObject"]["data"]["OS_PASSWORD"], "REDACTED") where attributes["requestObject"]["data"]["OS_PASSWORD"] != nil
+              - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/") where attributes["annotations"] != nil
+              - set(attributes["requestObject"]["data"]["OS_PASSWORD"], "REDACTED") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil and attributes["requestObject"]["data"]["OS_PASSWORD"] != nil
 {{- end }}
 
       attributes/cluster:
