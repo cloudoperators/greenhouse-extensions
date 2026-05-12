@@ -154,6 +154,19 @@ spec:
   {{- include "auditd.processors" . | nindent 6 -}}
 {{ end }}
 
+
+{{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
+      transform/kube_audit:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
+              - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
+              - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
+              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
+{{- end }}
+
       attributes/cluster:
         actions:
           - action: insert
@@ -425,7 +438,7 @@ spec:
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
         logs/kube_audit:
           receivers: [filelog/kube_audit]
-          processors: [k8sattributes, attributes/cluster, batch]
+          processors: [k8sattributes,transform/kube_audit,attributes/cluster, batch]
           exporters: [forward]
 {{- end }}
 
