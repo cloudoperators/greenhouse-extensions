@@ -164,6 +164,7 @@ spec:
               - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
+              - elete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
 {{- end }}
 
       attributes/cluster:
