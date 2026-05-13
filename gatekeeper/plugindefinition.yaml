@@ -57,3 +57,18 @@ spec:
         - "{http.send}"
       required: false
       type: list
+    - name: validatingWebhookCustomRules
+      displayName: Validating webhook custom rules
+      description: Custom rules limiting which API groups, versions, operations, and resources the validating webhook intercepts. Empty (default) keeps upstream's catch-all. Useful on Gardener shoots and other specialized cluster types where the broad scope interferes with node join or maintenance. See README.
+      required: false
+      type: list
+    - name: validatingWebhookObjectSelector
+      displayName: Validating webhook object selector
+      description: Label selector that exempts matching objects from webhook interception. Empty (default) means no exclusion.
+      required: false
+      type: map
+    - name: validatingWebhookExemptNamespacesLabels
+      displayName: Validating webhook exempt namespaces labels
+      description: Map of namespace label keys to values; matching namespaces are exempted from webhook interception.
+      required: false
+      type: map
