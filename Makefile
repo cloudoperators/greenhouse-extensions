@@ -14,10 +14,10 @@ endif
 
 ## tools versions
 KUSTOMIZE_VERSION ?= 5.8.1
-YQ_VERSION ?= v4.52.5
+YQ_VERSION ?= v4.53.2
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.79.0
-HELM_VERSION ?= 3.20.2
+PINT_VERSION ?= 0.82.3
+HELM_VERSION ?= 3.21.0
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
