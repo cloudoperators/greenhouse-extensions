@@ -237,6 +237,28 @@
       ]
     },
     {
+      "matchPackageNames": [
+        "/opentelemetry-operator/"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
+          "matchStrings": ["\\nversion:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        }
+      ]
+    },
+    {
       "groupName": "github actions",
       "matchManagers": [
         "github-actions"
