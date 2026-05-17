@@ -25,6 +25,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
 /doop/                    @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
+/doop-api/                @cloudoperators/greenhouse-backend
 /exposed-services/        @cloudoperators/greenhouse-backend
 /external-dns/            @cloudoperators/greenhouse-backend
 /ingress-nginx/           @cloudoperators/greenhouse-backend

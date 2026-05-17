@@ -30,6 +30,8 @@ jobs:
             chartName: audit-logs
           - chartDir: cert-manager/charts
             chartName: cert-manager
+          - chartDir: doop-api/charts
+            chartName: doop-api
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
