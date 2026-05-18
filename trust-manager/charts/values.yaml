@@ -1,0 +1,51 @@
+trust-manager:
+  app:
+    trust:
+      namespace: kube-system
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  defaultPackageImage:
+    # registry: override with your registry if needed
+    repository: jetstack/trust-pkg-debian-bookworm
+
+# Name of the Bundle resource to create
+bundle:
+  name: trust-bundle
+
+# Namespace selector for the trust bundle target
+# Example:
+#   matchExpressions:
+#     - key: kubernetes.io/metadata.name
+#       operator: In
+#       values:
+#         - my-namespace
+namespaces: {}
+
+# Additional bundle sources configuration
+additional_sources:
+  # Set to true to include additional bundle sources
+  enabled: false
+  # List of additional sources to include in the bundle
+  # Example:
+  #   sources:
+  #     - configMap:
+  #         key: ca.crt
+  #         name: my-custom-ca
+  sources: []
+
+# Cert-exporter configuration
+cert_exporter:
+  # Set to true to deploy cert-exporter
+  enabled: false
+  image:
+    registry: docker.io
+    repository: joeelliott/cert-exporter
+    tag: v2.13.0
+  # List of namespaces to deploy cert-exporter into
+  namespaces: []
+
