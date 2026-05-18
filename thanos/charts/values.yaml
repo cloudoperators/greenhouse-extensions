@@ -248,7 +248,7 @@ thanos:
 
   compactor:
     # -- Enable Thanos Compactor component
-    enabled: true
+    enabled: false
 
     # TODO: store secret needs to be present and can not be provisioned automatically
 
