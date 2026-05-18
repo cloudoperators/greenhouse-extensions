@@ -9,6 +9,10 @@ global:
   # -- Overrides the registry globally for all images
   imageRegistry: null
 
+# @ignored
+thanosV1:
+  enabled: false
+
 thanos:
   image:
     # -- Thanos image repository

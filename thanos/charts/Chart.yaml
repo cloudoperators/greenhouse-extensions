@@ -12,7 +12,9 @@ name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
 version: 0.9.0
-keywords:
-  - thanos
-  - storage
-  - metrics
+dependencies:
+  - name: thanos
+    repository: https://thanos-community.github.io/helm-charts/
+    version: 0.11.0
+    alias: thanosV1
+    condition: thanosV1.enabled
