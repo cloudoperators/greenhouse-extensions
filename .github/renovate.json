@@ -160,48 +160,6 @@
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
       "versioningTemplate": "semver"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump shoot-grafter chart version in Chart.yaml",
-      "managerFilePatterns": [
-        "/^shoot-grafter/charts/Chart\\.yaml$/"
-      ],
-      "matchStrings": [
-        "name:\\s*shoot-grafter\\nversion:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "semver"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump shoot-grafter spec.version in plugindefinition.yaml",
-      "managerFilePatterns": [
-        "/^shoot-grafter/plugindefinition\\.yaml$/"
-      ],
-      "matchStrings": [
-        "description:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "semver"
-    },
-    {
-      "customType": "regex",
-      "description": "Bump shoot-grafter helmChart.version in plugindefinition.yaml",
-      "managerFilePatterns": [
-        "/^shoot-grafter/plugindefinition\\.yaml$/"
-      ],
-      "matchStrings": [
-        "helmChart:\\n\\s+name:\\s*shoot-grafter\\n\\s+repository:[^\\n]*\\n\\s+version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -214,9 +172,9 @@
     },
     {
       "matchPackageNames": [
-        "/absent-metrics-operator/"
+        "/absent-metrics-operator/",
+        "/opentelemetry-operator/"
       ],
-      "followTag": "edge",
       "pinDigests": true,
       "bumpVersions": [
         {
@@ -233,6 +191,28 @@
           "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "patch"
+        }
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "/shoot-grafter/"
+      ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
+          "matchStrings": ["\\nversion:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["\\n  version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
       ]
     },
