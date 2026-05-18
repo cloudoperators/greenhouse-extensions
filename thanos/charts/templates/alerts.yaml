@@ -10,12 +10,31 @@ metadata:
   name: {{ include "release.name" $root }}-{{ $fileName }}-alerts
   labels:
     {{- include "thanos.labels" $root | nindent 4 }}
-    {{- if $root.Values.thanos.serviceMonitor.labels }} 
+    {{- if $root.Values.thanos.serviceMonitor.labels }}
     {{- toYaml $root.Values.thanos.serviceMonitor.labels | nindent 4 }}
     {{- end }}
     thanos-ruler: {{ $root.Values.thanos.ruler.matchLabel | default $root.Release.Name }}
 spec:
-{{ tpl (printf "%s" $bytes) $root | indent 2 }}
+  {{- $alertSpec := tpl (printf "%s" $bytes) $root | fromYaml }}
+  groups:
+  {{- range $alertSpec.groups }}
+  {{- $group := . }}
+  {{- $filteredRules := list }}
+  {{- range $group.rules }}
+  {{- if not (has .alert $root.Values.thanos.serviceMonitor.disabledAlerts) }}
+  {{- $rule := . }}
+  {{- if hasKey $root.Values.thanos.serviceMonitor.alertOverrides .alert }}
+  {{- $overrides := index $root.Values.thanos.serviceMonitor.alertOverrides .alert }}
+  {{- $mergedLabels := merge (deepCopy $overrides) $rule.labels }}
+  {{- $rule = merge (dict "labels" $mergedLabels) $rule }}
+  {{- end }}
+  {{- $filteredRules = append $filteredRules $rule }}
+  {{- end }}
+  {{- end }}
+  {{- if $filteredRules }}
+  - {{ merge (dict "rules" $filteredRules) (omit $group "rules") | toYaml | nindent 4 | trim }}
+  {{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}
 ---

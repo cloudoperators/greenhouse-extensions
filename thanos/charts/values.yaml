@@ -54,6 +54,19 @@ thanos:
     alertLabels: ""
       # support_group: "default"
 
+    # -- List of alert names to disable entirely.
+    disabledAlerts: []
+    # - ThanosCompactMultipleRunning
+    # - ThanosCompactHasNotRun
+
+    # -- Per-alert label overrides, keyed by alert name. Merged on top of the alert's existing labels, so specified keys take precedence.
+    alertOverrides: {}
+    # ThanosCompactHalted:
+    #   severity: critical
+    # ThanosQueryIsDown:
+    #   severity: critical
+    #   team: infra
+
     # -- Create configmaps containing Perses dashboards
     dashboards: true
 
