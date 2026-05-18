@@ -37,3 +37,4 @@ chart-repos:
   - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts
+  - thanos=https://thanos-community.github.io/helm-charts/
