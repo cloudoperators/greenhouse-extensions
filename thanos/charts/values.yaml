@@ -10,7 +10,7 @@ global:
   imageRegistry: null
 
 # @ignored
-thanosV1:
+thanosCommunity:
   enabled: false
 
 thanos:
