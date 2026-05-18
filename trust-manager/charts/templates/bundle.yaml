@@ -1,0 +1,24 @@
+{{- if and (.Capabilities.APIVersions.Has "trust.cert-manager.io/v1alpha1") (default true .Values.bundle.enabled) -}}
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: {{ .Values.bundle.name }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+spec:
+  sources:
+  - useDefaultCAs: true
+  - configMap:
+      key: ca.crt
+      name: kube-root-ca.crt
+{{- if and .Values.additional_sources.enabled .Values.additional_sources.sources }}
+  {{- .Values.additional_sources.sources | toYaml | nindent 2 }}
+{{- end }}
+  target:
+    configMap:
+      key: "trust-bundle.pem"
+    namespaceSelector:
+      {{- .Values.namespaces | toYaml | nindent 6 }}
+{{- end }}
+
