@@ -1,0 +1,16 @@
+ci:
+  enabled: true
+
+thanos:
+  serviceMonitor:
+    selfMonitor: true
+    labels:
+      plugin: default
+    dashboards: false
+    # Disable one alert
+    disabledAlerts:
+      - ThanosCompactMultipleRunning
+    # Override severity on one alert
+    alertOverrides:
+      ThanosCompactHalted:
+        severity: critical
