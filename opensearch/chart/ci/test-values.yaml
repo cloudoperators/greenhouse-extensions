@@ -227,3 +227,51 @@ siem:
           limits:
             memory: "2Gi"
             cpu: 1
+
+queryExporter:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: sap-cloud-infrastructure/opensearch-query-exporter
+    tag: latest
+  logLevel: debug
+  credentialsRef: logs
+  additionalCredentialsRefs:
+    - logs2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  serviceMonitor:
+    enabled: false
+  queries:
+    - name: error_count
+      support_group: observability
+      service: logs
+      interval: 60s
+      indices: "logs-*"
+      on_error: preserve
+      on_missing: drop
+      query:
+        size: 0
+        query:
+          bool:
+            must:
+              - match: { level: "ERROR" }
+              - range: { "@timestamp": { gte: "now-5m" } }
+    - name: ingestion_rate
+      support_group: observability
+      service: logs
+      interval: 30s
+      indices: "logs-*"
+      on_error: zero
+      on_missing: zero
+      query:
+        size: 0
+        query:
+          bool:
+            filter:
+              - range: { "@timestamp": { gte: "now-1m" } }
