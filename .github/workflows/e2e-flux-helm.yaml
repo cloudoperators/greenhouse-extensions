@@ -29,7 +29,7 @@ jobs:
           version: "v3.19.2"
 
       - name: Set up Flux CLI
-        uses: fluxcd/flux2/action@04acaec6161ac4fb1a82ffafa88901c03271d34f # v2.8.6
+        uses: fluxcd/flux2/action@54e4ba378e155ada619caafdc599e5c4d759ce5c # v2.8.7
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
@@ -278,12 +278,44 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Determine branch (PR vs push)
-          export branch="${{ github.head_ref || github.ref_name }}"
-          export repo=${{ github.repository }}
-          yq eval '.spec.url = "https://github.com/" + strenv(repo) |
-            .spec.ref.branch= strenv(branch)' \
-          ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # Detect fork PRs: head repo differs from base repo
+            if [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.event.pull_request.base.repo.full_name }}" ]]; then
+              # Fork PR: Flux source-controller cannot resolve commit objects for
+              # refs/pull/<n>/head from the base repo when the commit lives in a fork.
+              # Point Flux directly at the fork's repository URL and branch instead.
+              export repo="${{ github.event.pull_request.head.repo.full_name }}"
+              export branch="${{ github.event.pull_request.head.ref }}"
+              echo "📋 Fork PR detected: Using fork repo with branch ref"
+              echo "   Repository: $repo"
+              echo "   Branch: $branch"
+              yq eval '.spec.url = "https://github.com/" + strenv(repo) |
+                .spec.ref.branch = strenv(branch) |
+                .spec.ref.name = null' \
+              ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
+            else
+              # Same-repo PR: use the base repository with PR ref
+              export repo="${{ github.event.pull_request.base.repo.full_name }}"
+              export ref="refs/pull/${{ github.event.pull_request.number }}/head"
+              echo "📋 Same-repo PR detected: Using base repo with PR ref"
+              echo "   Repository: $repo"
+              echo "   Ref: $ref"
+              yq eval '.spec.url = "https://github.com/" + strenv(repo) |
+                .spec.ref.branch = null |
+                .spec.ref.name = strenv(ref)' \
+              ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
+            fi
+          else
+            # For push events and workflow_dispatch, use the current branch
+            export branch="${{ github.ref_name }}"
+            export repo="${{ github.repository }}"
+            echo "📋 Push/Manual run detected: Using current branch"
+            echo "   Repository: $repo"
+            echo "   Branch: $branch"
+            yq eval '.spec.url = "https://github.com/" + strenv(repo) |
+              .spec.ref.branch = strenv(branch)' \
+            ${{ env.E2E_PATH }}/gitrepository.yaml | kubectl apply -f -
+          fi
           kubectl -n flux-system get gitrepository workspace -o yaml
 
       - name: Ensure test-values.yaml exists

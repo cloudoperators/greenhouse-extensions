@@ -213,6 +213,30 @@
       "pinDigests": true
     },
     {
+      "matchPackageNames": [
+        "/absent-metrics-operator/"
+      ],
+      "followTag": "edge",
+      "pinDigests": true,
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
+          "matchStrings": ["\\nversion:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        },
+        {
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "patch"
+        }
+      ]
+    },
+    {
       "groupName": "github actions",
       "matchManagers": [
         "github-actions"
@@ -246,12 +270,12 @@
       ],
       "bumpVersions": [
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         },
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
@@ -277,12 +301,12 @@
       ],
       "bumpVersions": [
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         },
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
@@ -308,12 +332,12 @@
       ],
       "bumpVersions": [
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         },
         {
-          "filePatterns": ["{{replace '/charts$' '' packageFileDir}}/plugindefinition.yaml"],
+          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
@@ -392,5 +416,8 @@
       ]
     }
   ],
-  "separateMinorPatch": true
+  "separateMinorPatch": true,
+  "ignorePaths": [
+    "absent-metrics-operator/**"
+  ]
 }
