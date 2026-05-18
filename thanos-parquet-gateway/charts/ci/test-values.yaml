@@ -1,8 +1,0 @@
-ci:
-  enabled: false
-
-thanosParquetGateway:
-  serve:
-    enabled: true
-  convert:
-    enabled: true
