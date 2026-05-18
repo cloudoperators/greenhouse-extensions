@@ -72,3 +72,15 @@ spec:
       description: Map of namespace label keys to values; matching namespaces are exempted from webhook interception.
       required: false
       type: map
+    - name: validatingWebhookCheckIgnoreFailurePolicy
+      displayName: Check-ignore-label webhook failure policy
+      description: Failure policy for the `check-ignore-label.gatekeeper.sh` webhook, which guards the `admission.gatekeeper.sh/ignore` namespace label. Upstream defaults to `Fail`, which can block Gardener shoots when the webhook server is briefly unavailable during maintenance. Defaults to `Ignore` here.
+      default: Ignore
+      required: false
+      type: string
+    - name: validatingWebhookTimeoutSeconds
+      displayName: Validating webhook timeout (seconds)
+      description: Timeout applied to both validating webhooks. Upstream default of 3s is kept; tune up if the webhook server runs under load.
+      default: 3
+      required: false
+      type: int

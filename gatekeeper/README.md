@@ -24,6 +24,8 @@ By default the validating webhook intercepts all API groups (`*`). On specialize
 
 The plugin exposes `validatingWebhookCustomRules`, `validatingWebhookObjectSelector`, and `validatingWebhookExemptNamespacesLabels` to scope the webhook. Apply them per cluster type via a `PluginPreset`.
 
+The chart registers a second webhook, `check-ignore-label.gatekeeper.sh`, that guards the `admission.gatekeeper.sh/ignore` namespace label. Its failure policy is `validatingWebhookCheckIgnoreFailurePolicy` (default `Ignore` here, vs upstream's `Fail`) so Gardener maintenance is not blocked when the webhook server is briefly unavailable. Both webhooks share `validatingWebhookTimeoutSeconds` (default `3`).
+
 ### Example: Gardener shoot
 
 ```yaml
