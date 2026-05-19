@@ -14,6 +14,7 @@ This following table provides an overview of the currently available Plugins in 
 | exposed-service|A test plugin for validating service exposure via Greenhouse|1.0.0|
 | external-dns|The kubernetes-sigs/external-dns plugin.|1.0.0|
 | gatekeeper|Policy controller for Kubernetes admission based on the OPA constraint framework|1.0.0|
+| gatekeeper-doop|Per-cluster DOOP components for OPA Gatekeeper (analyzer, image-checker, helm-manifest-parser)|0.1.0|
 | heureka||1.0.0|
 | ingress-nginx|Ingress NGINX controller|1.1.0|
 | kube-monitoring|Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.|1.3.4|

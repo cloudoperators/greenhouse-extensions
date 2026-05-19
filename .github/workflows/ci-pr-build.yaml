@@ -38,6 +38,8 @@ jobs:
             chartName: exposed-services
           - chartDir: gatekeeper/charts
             chartName: gatekeeper
+          - chartDir: gatekeeper-doop/charts
+            chartName: gatekeeper-doop
           - chartDir: kafka/chart
             chartName: kafka
           - chartDir: kube-monitoring/charts
