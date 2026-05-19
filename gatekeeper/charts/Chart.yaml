@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: A Helm chart for installing OPA Gatekeeper.
+name: gatekeeper
+icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+keywords:
+  - gatekeeper
+  - opa
+  - policy
+  - admission-control
+version: 1.0.0
+appVersion: 3.22.2
+maintainers:
+  - name: ivogoman
+  - name: uwe-mayer
+dependencies:
+  - name: gatekeeper
+    repository: https://open-policy-agent.github.io/gatekeeper/charts
+    version: 3.22.2
