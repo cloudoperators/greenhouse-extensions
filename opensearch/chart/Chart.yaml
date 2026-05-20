@@ -19,6 +19,7 @@ dependencies:
     alias: operator
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/
     version: 2.8.0
+    condition: operator.enabled
   - name: opensearch-cluster
     alias: cluster
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/
