@@ -2,6 +2,10 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+{{- $adminKey := .Values.siem.adminUserKey | default "admin" }}
+{{- $dashKey := .Values.siem.dashboardUserKey | default "dashboards" }}
+{{- $admin := index .Values.siem.usersCredentials $adminKey }}
+{{- $dash := index .Values.siem.usersCredentials $dashKey }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -17,7 +21,7 @@ stringData:
     config:
       dynamic:
         kibana:
-          server_username: {{ .Values.siem.usersCredentials.siemdashboards.username | default "siemdashboards" }}
+          server_username: {{ $dash.username | default $dashKey }}
         http:
           {{- if .Values.siem.auth.oidc.enabled }}
           anonymous_auth_enabled: true
@@ -91,8 +95,8 @@ stringData:
     _meta:
       type: "internalusers"
       config_version: 2
-    {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" }}:
-      hash: {{ .Values.siem.usersCredentials.siemadmin.hash | quote }}
+    {{ $admin.username | default $adminKey }}:
+      hash: {{ $admin.hash | quote }}
       reserved: true
       backend_roles:
         - "admin"
@@ -111,7 +115,7 @@ stringData:
       backend_roles:
         - "admin"
       users:
-        - {{ .Values.siem.usersCredentials.siemadmin.username | default "siemadmin" | quote }}
+        - {{ $admin.username | default $adminKey | quote }}
 
   tenants.yml: |-
     _meta:

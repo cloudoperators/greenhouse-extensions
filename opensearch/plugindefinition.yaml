@@ -182,35 +182,35 @@ spec:
       description: "Specifies custom metadata labels for the dashboards service for the SIEM cluster."
       required: false
       type: map
-    - name: siem.usersCredentials.siemadmin.password
+    - name: siem.usersCredentials.admin.password
       description: "Admin password used for initial setup and management of the SIEM cluster"
       required: false
       type: secret
-    - name: siem.usersCredentials.siemadmin.hash
+    - name: siem.usersCredentials.admin.hash
       description: "Admin password hash (bcrypt format) for the SIEM cluster"
       required: false
       type: secret
-    - name: siem.usersCredentials.siemlogs.username
-      description: "Primary username for SIEM data ingestion in the SIEM cluster."
+    - name: siem.usersCredentials.audit.username
+      description: "Primary username for SIEM audit ingestion in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemlogs.password
-      description: "Primary user password for SIEM data ingestion in the SIEM cluster."
+    - name: siem.usersCredentials.audit.password
+      description: "Primary user password for SIEM audit ingestion in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemlogs2.username
-      description: "Secondary username for SIEM data ingestion to support failover authentication in the SIEM cluster."
+    - name: siem.usersCredentials.audit2.username
+      description: "Secondary username for SIEM audit ingestion to support failover authentication in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemlogs2.password
-      description: "Secondary user password for SIEM data ingestion to support failover authentication in the SIEM cluster."
+    - name: siem.usersCredentials.audit2.password
+      description: "Secondary user password for SIEM audit ingestion to support failover authentication in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemdashboards.username
+    - name: siem.usersCredentials.dashboards.username
       description: "Username for SIEM dashboards access in the SIEM cluster."
       required: false
       type: secret
-    - name: siem.usersCredentials.siemdashboards.password
+    - name: siem.usersCredentials.dashboards.password
       description: "Password for SIEM dashboards access in the SIEM cluster."
       required: false
       type: secret

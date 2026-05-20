@@ -890,6 +890,19 @@ siem:
   nameOverride: ""
   fullnameOverride: ""
 
+  # -- Prefix prepended to siem user-credential Secret names. Avoids collisions when
+  # siem.usersCredentials and cluster.usersCredentials share keys (e.g. both contain "admin").
+  # Default "siem-" produces e.g. "siem-admin-credentials".
+  usersSecretPrefix: "siem-"
+
+  # -- Key in siem.usersCredentials that identifies the admin user (written into internal_users.yml
+  # as reserved with backend_role: admin and mapped to all_access).
+  adminUserKey: "admin"
+
+  # -- Key in siem.usersCredentials that identifies the dashboards user (used as kibana
+  # server_username in security config).
+  dashboardUserKey: "dashboards"
+
   # OIDC Authentication Configuration for SIEM cluster
   # Enable native OpenID Connect authentication for SIEM OpenSearch and Dashboards
   auth:
@@ -1129,7 +1142,7 @@ siem:
       # -- Secret that contains fields username and password for dashboards to use to login to opensearch, must only be supplied
       # if a custom securityconfig is provided
       opensearchCredentialsSecret:
-        name: "siemdashboards-credentials"
+        name: "siem-dashboards-credentials"
 
       # -- List of dashboards plugins to install
       pluginsList: []
@@ -1260,7 +1273,7 @@ siem:
         # -- Secret that contains fields username and password to be used by the operator to access the opensearch cluster
         # for node draining. Must be set if custom securityconfig is provided.
         adminCredentialsSecret:
-          name: "siemadmin-credentials"
+          name: "siem-admin-credentials"
 
         # -- TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster.
         # Must be set if transport certificates are provided by user and not generated
@@ -1487,71 +1500,51 @@ siem:
             - "kibana_all_write"
 
   # -- List of OpenSearch user configurations for SIEM cluster.
-  # @default -- <pre>users:<br>  - name: "siemlogs"<br>    secretName: "siemlogs-credentials"<br>    secretKey: "password"<br>    backendRoles: []<br>  - name: "siemaudit"<br>    secretName: "siemaudit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
+  # @default -- <pre>users:<br>  - name: "audit"<br>    secretName: "siem-audit-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre>
   users:
-    - name: "siemlogs"
-      secretName: "siemlogs-credentials"
+    - name: "audit"
+      secretName: "siem-audit-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siemlogs2"
-      secretName: "siemlogs2-credentials"
+    - name: "audit2"
+      secretName: "siem-audit2-credentials"
       secretKey: "password"
       backendRoles: []
-    - name: "siemaudit"
-      secretName: "siemaudit-credentials"
-      secretKey: "password"
-      backendRoles: []
-    - name: "siemaudit2"
-      secretName: "siemaudit2-credentials"
-      secretKey: "password"
-      backendRoles: []
-    - name: "siemdashboards"
-      secretName: "siemdashboards-credentials"
+    - name: "dashboards"
+      secretName: "siem-dashboards-credentials"
       secretKey: "password"
       backendRoles: []
 
   # -- List of OpenSearch user credentials for SIEM cluster. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example.
-  # @default -- <pre>usersCredentials:<br>  siemadmin:<br>    username: "siemadmin"<br>    password: "admin"<br>    hash: ""<br>  siemlogs:<br>    username: "siemlogs"<br>    password: ""<br>  siemaudit:<br>    username: "siemaudit"<br>    password: ""</pre>
+  # @default -- <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""<br>  audit:<br>    username: "audit"<br>    password: ""</pre>
   usersCredentials:
-    siemadmin:
-      username: ""  # Specify the username for the admin user. If left empty, defaults to "siemadmin".
+    admin:
+      username: ""  # Specify the username for the admin user. If left empty, defaults to "admin".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
       hash: ""      # Optional bcrypt hash of the password.
-    siemlogs:
-      username: ""  # Specify the username for the logs user. If left empty, defaults to "siemlogs".
+    audit:
+      username: ""  # Specify the username for the audit user. If left empty, defaults to "audit".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemlogs2:
-      username: ""  # Specify the username for the failover logs user. If left empty, defaults to "siemlogs2".
+    audit2:
+      username: ""  # Specify the username for the failover audit user. If left empty, defaults to "audit2".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemaudit:
-      username: ""  # Specify the username for the audit user. If left empty, defaults to "siemaudit".
-      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemaudit2:
-      username: ""  # Specify the username for the failover audit user. If left empty, defaults to "siemaudit2".
-      password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
-    siemdashboards:
-      username: ""  # Specify the username for the dashboards user. If left empty, defaults to "siemdashboards".
+    dashboards:
+      username: ""  # Specify the username for the dashboards user. If left empty, defaults to "dashboards".
       password: ""  # Replace password with a secure value before deploying to production. A dummy password is set in ci/test-values.yaml for testing purposes.
       hash: ""      # Optional bcrypt hash of the password.
 
   # -- Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding for SIEM cluster. Each user in the binding will be granted each role
-  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-write"<br>    users:<br>      - "siemlogs"<br>      - "siemlogs2"<br>    roles:<br>      - "siem-write-role"<br>  - name: "siem-audit-write"<br>    users:<br>      - "siemaudit"<br>      - "siemaudit2"<br>    roles:<br>      - "siem-audit-write-role"</pre>
+  # @default -- <pre>usersRoleBinding:<br>  - name: "siem-audit-write"<br>    users:<br>      - "audit"<br>      - "audit2"<br>    roles:<br>      - "siem-audit-write-role"<br>  - name: "siem-dashboards"<br>    users:<br>      - "dashboards"<br>    roles:<br>      - "siem-dashboards-role"</pre>
   usersRoleBinding:
-    - name: "siem-write"
-      users:
-        - "siemlogs"
-        - "siemlogs2"
-      roles:
-        - "siem-write-role"
     - name: "siem-audit-write"
       users:
-        - "siemaudit"
-        - "siemaudit2"
+        - "audit"
+        - "audit2"
       roles:
         - "siem-audit-write-role"
     - name: "siem-dashboards"
       users:
-        - "siemdashboards"
+        - "dashboards"
       roles:
         - "siem-dashboards-role"
 

@@ -125,24 +125,18 @@ siem:
     dashboardsDnsNames:
       - siem.local
   usersCredentials:
-    siemadmin:
-      username: "siemadmin"
+    admin:
+      username: "admin"
       password: "admin"
       hash: "$2y$12$0OYo7uyzgytbPat9qpklL.4PsvvuU0.HX1ZkK7Lq1js/YHXf37VCK"  # bcrypt hash for "admin"
-    siemlogs:
-      username: "siemlogs"
-      password: "CHANGE_ME_SIEMUser2025!@#"
-    siemlogs2:
-      username: "siemlogs2"
-      password: "CHANGE_ME_SIEMFailoverUser2025$%"
-    siemaudit:
-      username: "siemaudit"
+    audit:
+      username: "audit"
       password: "CHANGE_ME_TestPass2025!@#"
-    siemaudit2:
-      username: "siemaudit2"
+    audit2:
+      username: "audit2"
       password: "CHANGE_ME_TestFailover2025$%"
-    siemdashboards:
-      username: "siemdashboards"
+    dashboards:
+      username: "dashboards"
       password: "CHANGE_ME_Strong_P@ssw0rd_2025!"
   cluster:
     # Disable monitoring for test environment
