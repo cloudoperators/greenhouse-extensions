@@ -39,3 +39,16 @@ provisioning-{{ printf "%s-perses" .Release.Name | trunc 63 | trimSuffix "-" }}-
 {{- toYaml .Values.greenhouse.alertLabels  -}}
 {{- end }}
 {{- end }}
+
+{{- define "perses.jobName" -}}
+{{- if .Values.perses.fullnameOverride -}}
+{{ .Values.perses.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+{{- $name := default "perses" .Values.perses.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+{{ printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
