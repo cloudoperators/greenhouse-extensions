@@ -24,8 +24,3 @@ dependencies:
     alias: cluster
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/
     version: 3.1.0
-  - name: opensearch-cluster
-    alias: siem
-    repository: https://opensearch-project.github.io/opensearch-k8s-operator/
-    version: 3.1.0
-    condition: siem.enabled
