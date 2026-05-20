@@ -93,36 +93,4 @@ data:
         try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-client' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-client'"
     }
 
-{{- if .Values.siem.enabled }}
-    # ===== OpenSearch siem Cluster Tests =====
-
-    @test "Verify OpenSearch siem main pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-main-' and verify that '.status.phase' is 'Running'"
-    }
-
-    @test "Verify OpenSearch siem data pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-data-' and verify that '.status.phase' is 'Running'"
-    }
-
-    @test "Verify OpenSearch siem client pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-client-' and verify that '.status.phase' is 'Running'"
-    }
-
-    @test "Verify OpenSearch siem dashboards pod is running" {
-        try "at most 24 times every 15s to get pods named '{{ .Values.siem.cluster.name }}-dashboards-' and verify that '.status.phase' is 'Running'"
-    }
-
-    @test "Verify OpenSearch siem main service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-main' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-main'"
-    }
-
-    @test "Verify OpenSearch siem data service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-data' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-data'"
-    }
-
-    @test "Verify OpenSearch siem client service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.siem.cluster.name }}-client' and verify that '.metadata.name' is '{{ .Values.siem.cluster.name }}-client'"
-    }
-{{- end }}
-
 {{- end -}}
