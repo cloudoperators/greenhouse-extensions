@@ -25,6 +25,7 @@ on:
       - service-proxy/charts/1.0.0/service-proxy/**
       - shoot-grafter/charts/**
       - thanos/charts/**
+      - trust-manager/charts/**
       - repo-guard/charts/**
       - oidc-discovery-access/**
 
@@ -78,6 +79,8 @@ jobs:
             chartName: shoot-grafter
           - chartDir: thanos/charts
             chartName: thanos
+          - chartDir: trust-manager/charts
+            chartName: trust-manager
           - chartDir: repo-guard/charts
             chartName: repo-guard
           - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access

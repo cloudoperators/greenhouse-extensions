@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: trust-manager
+spec:
+  version: v0.22.1
+  displayName: Trust Manager
+  description: Automated trust bundle management for Kubernetes
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/trust-manager/README.md
+  icon: https://raw.githubusercontent.com/cert-manager/trust-manager/main/logo/logo.png
+  helmChart:
+    name: trust-manager
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: v0.22.1
+  options:
+    - name: trust-manager.app.trust.namespace
+      description: Namespace where trust bundles are managed
+      default: "trust-manager"
+      required: false
+      type: string
+    - name: trust-manager.resources.limits.cpu
+      description: CPU limit for trust-manager
+      default: "200m"
+      required: false
+      type: string
+    - name: trust-manager.resources.limits.memory
+      description: Memory limit for trust-manager
+      default: "256Mi"
+      required: false
+      type: string
+    - name: trust-manager.resources.requests.cpu
+      description: CPU request for trust-manager
+      default: "100m"
+      required: false
+      type: string
+    - name: trust-manager.resources.requests.memory
+      description: Memory request for trust-manager
+      default: "128Mi"
+      required: false
+      type: string
+    - name: trust-manager.defaultPackageImage.registry
+      description: Registry for the default trust package image
+      default: "quay.io"
+      required: false
+      type: string
+    - name: trust-manager.defaultPackageImage.repository
+      description: Repository for the default trust package image
+      default: "jetstack/trust-pkg-debian-bookworm"
+      required: false
+      type: string
+    - name: bundle.enabled
+      description: Whether to create the Bundle resource
+      default: true
+      required: false
+      type: bool
+    - name: bundle.name
+      description: Name of the trust bundle resource
+      default: "trust-bundle"
+      required: false
+      type: string
+    - name: namespaces
+      description: "Namespace selector for the trust bundle target. WARNING: An empty selector matches ALL namespaces."
+      required: false
+      type: map
+    - name: additionalSources.enabled
+      description: Whether to include additional bundle sources
+      default: false
+      required: false
+      type: bool
+    - name: additionalSources.sources
+      description: List of additional sources to include in the bundle
+      required: false
+      type: list
+    - name: certExporter.enabled
+      description: Whether to deploy the cert-exporter
+      default: false
+      required: false
+      type: bool
+    - name: certExporter.namespaces
+      description: List of namespaces to deploy cert-exporter into
+      required: false
+      type: list
+    - name: certExporter.image.registry
+      description: Registry for the cert-exporter image
+      default: "docker.io"
+      required: false
+      type: string
+    - name: certExporter.image.repository
+      description: Repository for the cert-exporter image
+      default: "joeelliott/cert-exporter"
+      required: false
+      type: string
+    - name: certExporter.image.tag
+      description: Tag for the cert-exporter image
+      default: "v2.13.0"
+      required: false
+      type: string
