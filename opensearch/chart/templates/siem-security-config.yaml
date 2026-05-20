@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {{- $adminKey := .Values.siem.adminUserKey | default "admin" }}
-{{- $dashKey := .Values.siem.dashboardUserKey | default "dashboards" }}
+{{- $dashboardKey := .Values.siem.dashboardUserKey | default "dashboards" }}
 {{- $admin := index .Values.siem.usersCredentials $adminKey }}
-{{- $dash := index .Values.siem.usersCredentials $dashKey }}
+{{- $dashboard := index .Values.siem.usersCredentials $dashboardKey }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -21,7 +21,7 @@ stringData:
     config:
       dynamic:
         kibana:
-          server_username: {{ $dash.username | default $dashKey }}
+          server_username: {{ $dashboard.username | default $dashboardKey }}
         http:
           {{- if .Values.siem.auth.oidc.enabled }}
           anonymous_auth_enabled: true
