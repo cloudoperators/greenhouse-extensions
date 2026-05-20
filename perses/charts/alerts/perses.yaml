@@ -6,48 +6,12 @@ groups:
           description: "The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is down for more than 10 minutes"
           summary: "Perses service is down"
         expr: |
-          up{job=~".*perses.*"} == 0
+          up{job="{{ include "perses.jobName" . }}"} == 0
           or
-          absent(up{job=~".*perses.*"}) 
+          absent(up{job="{{ include "perses.jobName" . }}"})
         for: 10m
         labels:
           severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/perses/playbooks/PersesServiceDown.md
           {{- include "perses.alertLabels" . | nindent 10 }}
 
-      - alert: PersesHighHttpErrorRate
-        annotations:
-          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is failing {{`{{ $value | humanize }}`}}% of requests.
-          summary: High HTTP error rate on {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}}
-        expr: |
-          (
-            sum by (pod, namespace) (rate(perses_http_request_total{code=~"5..|4..", code!="404"}[5m]))
-          /
-            sum by (pod, namespace)(rate(perses_http_request_total[5m]))
-          ) * 100 > 5
-        for: 10m
-        labels:
-          severity: warning
-          {{- include "perses.alertLabels" . | nindent 10 }}
-
-      - alert: PersesPluginSchemaLoadFailures
-        annotations:
-          description: Perses failed to load plugin schemas {{`{{$value}}`}} times.
-          summary: Perses plugin schema loading has failures.
-        expr: |
-          sum by (pod, namespace) (increase(perses_plugin_schemas_load_attempts{status="error"}[15m])) > 0
-        for: 15m
-        labels:
-          severity: warning
-          {{- include "perses.alertLabels" . | nindent 10 }}
-
-      - alert: PersesHighFileDescriptorUsage
-        annotations:
-          description: The pod {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}} is using {{`{{ $value | humanize }}`}}% of available file descriptors.
-          summary: High FD usage on {{`{{ $labels.namespace }}`}}/{{`{{ $labels.pod }}`}}
-        expr: |
-          (process_open_fds / process_max_fds) * 100 > 70
-        for: 15m
-        labels:
-          severity: info
-          {{- include "perses.alertLabels" . | nindent 10 }}
