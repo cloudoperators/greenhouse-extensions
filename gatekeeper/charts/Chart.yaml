@@ -13,7 +13,8 @@ keywords:
 version: 1.0.0
 appVersion: 3.22.2
 maintainers:
-  - name: ivogoman
+  - name: mikolajkucinski
+  - name: abhijith-darshan
   - name: uwe-mayer
 dependencies:
   - name: gatekeeper
