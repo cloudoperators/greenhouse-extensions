@@ -20,6 +20,7 @@ data:
     DETIK_CLIENT_NAME="kubectl"
     DETIK_CLIENT_NAMESPACE="{{ .Release.Namespace }}"
 
+{{- if .Values.operator.enabled }}
     @test "Verify successful deployment and running status of the operator pod" {
         try "at most 5 times every 5s to get pods named '{{ .Release.Name }}-operator-controller-manager-[a-z0-9]+-[a-z0-9]+' and verify that '.status.phase' is 'Running'"
     }
@@ -27,6 +28,7 @@ data:
     @test "Verify successful deployment of the operator service" {
         verify "there is 1 service named '{{ .Release.Name }}-operator-controller-manager-metrics-service$'"
     }
+{{- end }}
 
     @test "Verify presence of OpenSearchCluster resource" {
       [ "$(kubectl get opensearchclusters.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
