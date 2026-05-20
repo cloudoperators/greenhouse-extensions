@@ -1,1 +1,3 @@
 {{/* Operator ServiceMonitor is disabled until the operator metrics bug is fixed. */}}
+{{- if .Values.operator.enabled }}
+{{- end }}
