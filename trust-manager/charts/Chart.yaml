@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: A Helm chart for installing jetstack/trust-manager for automated trust bundle management.
+name: trust-manager
+keywords:
+  - trust-manager
+  - cert-manager
+  - tls
+  - ca-bundle
+version: v0.22.1
+appVersion: v0.22.1
+maintainers:
+  - name: jagoleni
+  - name: fwiesel
+dependencies:
+  - name: trust-manager
+    repository: https://charts.jetstack.io
+    version: v0.22.1

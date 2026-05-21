@@ -1,0 +1,58 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+trust-manager:
+  app:
+    trust:
+      namespace: kube-system
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  defaultPackageImage:
+    registry: quay.io
+    repository: jetstack/trust-pkg-debian-bookworm
+
+# Bundle configuration
+bundle:
+  # Set to false to disable the Bundle resource creation
+  enabled: true
+  # Name of the Bundle resource to create
+  name: trust-bundle
+
+# Namespace selector for the trust bundle target
+# WARNING: An empty selector ({}) matches ALL namespaces, distributing the trust bundle cluster-wide.
+# To restrict distribution, configure a matchLabels or matchExpressions selector.
+# Example:
+#   matchExpressions:
+#     - key: kubernetes.io/metadata.name
+#       operator: In
+#       values:
+#         - my-namespace
+namespaces: {}
+
+# Additional bundle sources configuration
+additionalSources:
+  # Set to true to include additional bundle sources
+  enabled: false
+  # List of additional sources to include in the bundle
+  # Example:
+  #   sources:
+  #     - configMap:
+  #         key: ca.crt
+  #         name: my-custom-ca
+  sources: []
+
+# Cert-exporter configuration
+certExporter:
+  # Set to true to deploy cert-exporter
+  enabled: false
+  image:
+    registry: docker.io
+    repository: joeelliott/cert-exporter
+    tag: v2.13.0
+  # List of namespaces to deploy cert-exporter into
+  namespaces: []
