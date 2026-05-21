@@ -62,35 +62,23 @@ data:
       [ "$(kubectl get opensearchtenants.opensearch.opster.io -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
     }
 
-    # ===== OpenSearch logs Cluster Tests =====
+    # ===== OpenSearch Cluster Tests =====
 
-    @test "Verify OpenSearch logs main pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-main-' and verify that '.status.phase' is 'Running'"
+    {{- range $pool := .Values.cluster.cluster.nodePools }}
+    @test "Verify OpenSearch {{ $pool.component }} pod is running" {
+        try "at most 20 times every 15s to get pods named '{{ $.Values.cluster.cluster.name }}-{{ $pool.component }}-' and verify that '.status.phase' is 'Running'"
     }
-
-    @test "Verify OpenSearch logs data pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-data-' and verify that '.status.phase' is 'Running'"
-    }
-
-    @test "Verify OpenSearch logs client pod is running" {
-        try "at most 20 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-client-' and verify that '.status.phase' is 'Running'"
-    }
+    {{- end }}
 
     # The dashboards pod will not be scheduled if the ServiceMonitor CRD is missing. If the following test fails, please ensure the ServiceMonitor CRD is installed (e.g. via the kube-monitoring plugin).
-    @test "Verify OpenSearch logs dashboards pod is running" {
+    @test "Verify OpenSearch dashboards pod is running" {
         try "at most 24 times every 15s to get pods named '{{ .Values.cluster.cluster.name }}-dashboards-' and verify that '.status.phase' is 'Running'"
     }
 
-    @test "Verify OpenSearch logs main service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-main' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-main'"
+    {{- range $pool := .Values.cluster.cluster.nodePools }}
+    @test "Verify OpenSearch {{ $pool.component }} service exists" {
+        try "at most 5 times every 5s to get services named '{{ $.Values.cluster.cluster.name }}-{{ $pool.component }}' and verify that '.metadata.name' is '{{ $.Values.cluster.cluster.name }}-{{ $pool.component }}'"
     }
-
-    @test "Verify OpenSearch logs data service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-data' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-data'"
-    }
-
-    @test "Verify OpenSearch logs client service exists" {
-        try "at most 5 times every 5s to get services named '{{ .Values.cluster.cluster.name }}-client' and verify that '.metadata.name' is '{{ .Values.cluster.cluster.name }}-client'"
-    }
+    {{- end }}
 
 {{- end -}}
