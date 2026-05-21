@@ -74,9 +74,10 @@ certManager:
     - opensearch-dashboards.tld
 
 operator:
-  # -- Install the OpenSearch operator subchart and its cluster-wide
-  # resources (CRDs, ServiceMonitor, alerts). Set false on additional
-  # releases that reuse an operator deployed by another release.
+  # -- Install the OpenSearch operator subchart with its
+  # ServiceMonitor and PrometheusRule alerts. Set false on additional
+  # releases that reuse the operator from another release. Note: CRDs
+  # in chart/crds/ are managed by Helm independently of this flag.
   enabled: true
   namespace: ""
   nameOverride: ""
