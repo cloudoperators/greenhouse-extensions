@@ -99,11 +99,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.externalConfig | object | `{"enabled":false,"external_ip":null,"tcp_port":514,"tld":null,"udp_port":514}` | Activates the configuration for external logs (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"opensearch_log_encoding","protocol_version":"","topic":""}` | Kafka exporter configuration for buffering logs |
+| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","topic":""}` | Kafka exporter configuration for buffering logs |
 | openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for logs buffering |
-| openTelemetry.logsCollector.kafka.encoding | string | `"opensearch_log_encoding"` | Message encoding format (otlp_json, otlp_proto, raw) |
+| openTelemetry.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | openTelemetry.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
