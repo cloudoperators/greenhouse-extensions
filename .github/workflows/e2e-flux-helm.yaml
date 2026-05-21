@@ -106,12 +106,23 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Single changed chart: $chart_dir (name=$plugin_name)"
 
+      - name: Generate dynamic chart-dirs config
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          # Generate chart-dirs dynamically and append to config
+          cp ${{ env.CT_CONFIG }} /tmp/ct-config-dynamic.yaml
+          echo "chart-dirs:" >> /tmp/ct-config-dynamic.yaml
+          .github/scripts/discover-charts.sh paths | sed 's/^/  - /' >> /tmp/ct-config-dynamic.yaml
+          echo "Generated dynamic chart-testing config:"
+          cat /tmp/ct-config-dynamic.yaml
+
       - name: Run chart-testing (lint)
         if: steps.list-changed.outputs.changed == 'true'
         id: ct-lint
         run: |
           set -euo pipefail
-          ct lint --config ${{ env.CT_CONFIG }} --target-branch ${{ github.event.repository.default_branch }}
+          ct lint --config /tmp/ct-config-dynamic.yaml --target-branch ${{ github.event.repository.default_branch }}
 
       - name: Check plugindefinition version bump
         if: steps.list-changed.outputs.changed == 'true'

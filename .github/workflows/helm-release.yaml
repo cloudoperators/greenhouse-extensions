@@ -38,51 +38,28 @@ env:
   ACTIONS_RUNNER_DEBUG: false
 
 jobs:
+  discover-charts:
+    runs-on: [ ubuntu-latest ]
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Discover helm charts
+        id: set-matrix
+        run: |
+          CHARTS_JSON=$(.github/scripts/discover-charts.sh json)
+          echo "matrix=${CHARTS_JSON}" >> $GITHUB_OUTPUT
+          echo "Discovered charts:"
+          echo "${CHARTS_JSON}" | jq .
+
   helm-release:
+    needs: discover-charts
     runs-on: [ ubuntu-latest ]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - chartDir: absent-metrics-operator/charts
-            chartName: absent-metrics-operator
-          - chartDir: alerts/charts
-            chartName: alerts
-          - chartDir: audit-logs/charts
-            chartName: audit-logs
-          - chartDir: cert-manager/charts
-            chartName: cert-manager
-          - chartDir: exposed-services/charts/v1.0.0/exposed-service
-            chartName: exposed-services
-          - chartDir: exposed-services/charts/v2.0.0/exposed-service
-            chartName: exposed-services
-          - chartDir: kafka/chart
-            chartName: kafka
-          - chartDir: kube-monitoring/charts
-            chartName: kube-monitoring
-          - chartDir: kubeconfig-generator/chart
-            chartName: kubeconfig-generator
-          - chartDir: logshipper/chart
-            chartName: logshipper
-          - chartDir: opensearch/chart
-            chartName: opensearch
-          - chartDir: logs/charts
-            chartName: logs
-          - chartDir: perses/charts
-            chartName: perses
-          - chartDir: plutono/charts
-            chartName: plutono
-          - chartDir: service-proxy/charts/1.0.0/service-proxy
-            chartName: service-proxy
-          - chartDir: shoot-grafter/charts
-            chartName: shoot-grafter
-          - chartDir: thanos/charts
-            chartName: thanos
-          - chartDir: repo-guard/charts
-            chartName: repo-guard
-          - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
-            chartName: oidc-discovery-access
-
+        include: ${{ fromJson(needs.discover-charts.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

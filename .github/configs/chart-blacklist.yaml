@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Blacklist configuration for helm charts
+# Charts listed here will be excluded from CI/CD workflows
+# Format: list of chart directory paths relative to repository root
+
+# Blacklist configuration for helm charts
+# Charts listed here will be excluded from CI/CD workflows
+# Format: one chart directory path per line (no quotes needed)
+# Example:
+#   thanos/charts
+#   example-chart/charts
+
+# Add chart paths below (uncomment and modify as needed):
+# thanos/charts
