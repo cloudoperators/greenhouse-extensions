@@ -51,7 +51,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "58b73f4"
+    tag: "5fa5a1d"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -88,7 +88,7 @@ openTelemetry:
       topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
-      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_json)
+      # -- Message encoding format (otlp_json, otlp_proto, raw)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""
