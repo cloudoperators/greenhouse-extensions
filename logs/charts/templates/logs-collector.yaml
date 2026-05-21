@@ -401,8 +401,8 @@ spec:
 {{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
           - {{ . }}
 {{- end }}
+        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
         logs:
-          protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
           topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
           encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
         producer:
