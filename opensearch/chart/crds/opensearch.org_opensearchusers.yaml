@@ -4,22 +4,22 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: opensearchtenants.opensearch.opster.io
+  name: opensearchusers.opensearch.org
 spec:
-  group: opensearch.opster.io
+  group: opensearch.org
   names:
-    kind: OpensearchTenant
-    listKind: OpensearchTenantList
-    plural: opensearchtenants
+    kind: OpensearchUser
+    listKind: OpensearchUserList
+    plural: opensearchusers
     shortNames:
-    - opensearchtenant
-    singular: opensearchtenant
+    - opensearchuser
+    singular: opensearchuser
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: OpensearchTenant is the Schema for the opensearchtenants API
+        description: OpensearchUser is the Schema for the opensearchusers API
         properties:
           apiVersion:
             description: |-
@@ -39,10 +39,20 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpensearchTenantSpec defines the desired state of OpensearchTenant
+            description: OpensearchUserSpec defines the desired state of OpensearchUser
             properties:
-              description:
-                type: string
+              attributes:
+                additionalProperties:
+                  type: string
+                type: object
+              backendRoles:
+                items:
+                  type: string
+                type: array
+              opendistroSecurityRoles:
+                items:
+                  type: string
+                type: array
               opensearchCluster:
                 description: |-
                   LocalObjectReference contains enough information to let you locate the
@@ -59,14 +69,36 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
+              passwordFrom:
+                description: SecretKeySelector selects a key of a Secret.
+                properties:
+                  key:
+                    description: The key of the secret to select from.  Must be a
+                      valid secret key.
+                    type: string
+                  name:
+                    default: ""
+                    description: |-
+                      Name of the referent.
+                      This field is effectively required, but due to backwards compatibility is
+                      allowed to be empty. Instances of this type with an empty value here are
+                      almost certainly wrong.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    type: string
+                  optional:
+                    description: Specify whether the Secret or its key must be defined
+                    type: boolean
+                required:
+                - key
+                type: object
+                x-kubernetes-map-type: atomic
             required:
             - opensearchCluster
+            - passwordFrom
             type: object
           status:
-            description: OpensearchTenantStatus defines the observed state of OpensearchTenant
+            description: OpensearchUserStatus defines the observed state of OpensearchUser
             properties:
-              existingTenant:
-                type: boolean
               managedCluster:
                 description: |-
                   UID is a type that holds unique ID values, including UUIDs.  Because we

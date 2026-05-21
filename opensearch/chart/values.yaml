@@ -153,50 +153,20 @@ operator:
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
-    # Override the service account name. Defaults to opensearch-operator-controller-manager
-    name: "opensearch-operator-controller-manager"
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
 
-  kubeRbacProxy:
-    enable: true
-    securityContext:
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: true
-      capabilities:
-        drop:
-          - ALL
-    resources:
-      limits:
-        cpu: 50m
-        memory: 50Mi
-      requests:
-        cpu: 25m
-        memory: 25Mi
+  # kubeRbacProxy was removed in operator 3.x. The operator now uses
+  # controller-runtime's built-in WithAuthenticationAndAuthorization to protect
+  # the /metrics endpoint, so no separate sidecar is needed.
 
-    livenessProbe:
-      failureThreshold: 3
-      httpGet:
-        path: /healthz
-        port: 10443
-        scheme: HTTPS
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-      initialDelaySeconds: 10
-
-    readinessProbe:
-      failureThreshold: 3
-      httpGet:
-        path: /healthz
-        port: 10443
-        scheme: HTTPS
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-      initialDelaySeconds: 10
-
-    image:
-      repository: "quay.io/brancz/kube-rbac-proxy"
-      tag: "v0.20.2"
+  # Webhook configuration. The validating webhook requires TLS; cert-manager
+  # provisions the certificate by default.
+  webhook:
+    enabled: true
+    certManager:
+      enabled: true
 
   ## If this is set to true, RoleBindings will be used instead of ClusterRoleBindings, inorder to restrict ClusterRoles
   ## to the namespace where the operator and OpenSearch cluster are in. In that case, specify the namespace where they
@@ -324,9 +294,6 @@ cluster:
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
-      # -- bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration
-      additionalConfig: {}
-
       # -- bootstrap pod affinity rules
       affinity: {}
 
