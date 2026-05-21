@@ -9,7 +9,7 @@ maintainers:
 name: kube-monitoring
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 13.0.0
+version: 13.0.1
 keywords:
   - operator
   - prometheus
@@ -25,5 +25,5 @@ dependencies:
   - name: prometheus-blackbox-exporter
     alias: blackboxExporter
     repository: https://prometheus-community.github.io/helm-charts
-    version: 11.9.1
+    version: 11.9.2
     condition: blackboxExporter.enabled
