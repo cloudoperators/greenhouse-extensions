@@ -401,9 +401,10 @@ spec:
 {{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
           - {{ . }}
 {{- end }}
-        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
-        topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
-        encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
+        logs:
+          protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
+          topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
+          encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
 {{- end }}
@@ -411,7 +412,7 @@ spec:
       file_storage/journald:
         directory: .
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
-      opensearch_log_encoding:
+      opensearch_log_encoding: {}
 {{- end }}
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       basicauth/failover_a:
