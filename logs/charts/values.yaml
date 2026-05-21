@@ -88,7 +88,7 @@ openTelemetry:
       topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
-      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_json)
+      # -- Message encoding format (otlp_json, otlp_proto, raw)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""

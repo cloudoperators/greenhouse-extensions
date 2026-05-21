@@ -45,7 +45,7 @@ openTelemetry:
   logsCollector:
     enabled: true
     kafka:
-      enabled: false
+      enabled: true
     cephConfig:
       enabled: true
     kvmConfig:

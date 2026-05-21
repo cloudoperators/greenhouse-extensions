@@ -103,7 +103,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for logs buffering |
-| openTelemetry.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw, opensearch_json) |
+| openTelemetry.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | openTelemetry.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
