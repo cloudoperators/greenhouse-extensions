@@ -27,6 +27,13 @@ auth:
       # -- Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/)
       baseRedirectUrl: ""
 
+serviceProxy:
+  dashboards:
+    # -- Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy.
+    # When enabled, an extra `<release>-dashboards-ui` Service is rendered with
+    # the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches.
+    enabled: true
+
 certManager:
   # -- Enable cert-manager integration for issuing TLS certificates
   enable: true
