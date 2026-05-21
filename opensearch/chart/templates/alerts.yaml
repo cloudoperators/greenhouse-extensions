@@ -1,5 +1,5 @@
 {{- $root := . -}}
-{{- if or .Values.cluster.cluster.general.monitoring.enable (and .Values.siem.enabled .Values.siem.cluster.general.monitoring.enable) }}
+{{- if .Values.cluster.cluster.general.monitoring.enable }}
 {{- range $path, $bytes := .Files.Glob "alerts/opensearch-cluster.yaml" }}
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -16,7 +16,7 @@ spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.cluster.cluster.general.monitoring.enable (and .Values.siem.enabled .Values.siem.cluster.general.monitoring.enable) }}
+{{- if and .Values.operator.enabled .Values.cluster.cluster.general.monitoring.enable }}
 {{- range $path, $bytes := .Files.Glob "alerts/opensearch-operator.yaml" }}
 ---
 apiVersion: monitoring.coreos.com/v1
