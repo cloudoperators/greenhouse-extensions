@@ -1,9 +1,9 @@
 dependencies:
 - name: opensearch-operator
   repository: https://opensearch-project.github.io/opensearch-k8s-operator/
-  version: 2.8.0
+  version: 2.8.4
 - name: opensearch-cluster
   repository: https://opensearch-project.github.io/opensearch-k8s-operator/
   version: 3.1.0
-digest: sha256:aeb913accae1efefd12f3343ec26f3bdbfc4ad0f961f1e6a7a73b9e2568fd2c5
-generated: "2026-05-20T18:54:34.508089+02:00"
+digest: sha256:22684c3f1de0c87bce8fd4094be5267ed75598f0f84d57ebbf9b8e857b5dcc0b
+generated: "2026-05-22T19:30:35.488862637Z"
