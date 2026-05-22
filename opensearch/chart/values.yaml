@@ -30,8 +30,9 @@ auth:
 serviceProxy:
   dashboards:
     # -- Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy.
-    # When enabled, an extra `<release>-dashboards-ui` Service is rendered with
-    # the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches.
+    # When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered
+    # (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set)
+    # with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches.
     enabled: true
 
 certManager:
