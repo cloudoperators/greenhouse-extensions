@@ -3,13 +3,6 @@ blackbox-exporter:
     - --log.level=warn
     - --log.prober=warn
 
-  podSecurityContext:
-    sysctls:
-      # https://github.com/prometheus-community/helm-charts/issues/2360
-      # https://github.com/prometheus/blackbox_exporter/issues/147
-      - name: net.ipv4.ping_group_range
-        value: "0 2147483647"
-
   config:
     modules:
       # http_2xx:
