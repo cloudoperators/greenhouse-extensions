@@ -28,6 +28,8 @@ jobs:
             chartName: alerts
           - chartDir: audit-logs/charts
             chartName: audit-logs
+          - chartDir: blackbox-exporter/charts
+            chartName: blackbox-exporter/
           - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service

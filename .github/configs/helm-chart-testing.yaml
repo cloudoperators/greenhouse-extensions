@@ -11,6 +11,7 @@ namespace: default
 release-label: "app.kubernetes.io/instance"
 chart-dirs:
   - alerts
+  - blackbox-exporter
   - cert-manager
   - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
@@ -38,3 +39,4 @@ chart-repos:
   - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts
   - thanos=https://thanos-community.github.io/helm-charts/
+  - blackbox-exporter=https://prometheus-community.github.io/helm-charts

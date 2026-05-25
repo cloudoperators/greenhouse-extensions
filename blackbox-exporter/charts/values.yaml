@@ -1,0 +1,47 @@
+blackbox-exporter:
+  extraArgs:
+    - --log.level=warn
+    - --log.prober=warn
+
+  podSecurityContext:
+    sysctls:
+      # https://github.com/prometheus-community/helm-charts/issues/2360
+      # https://github.com/prometheus/blackbox_exporter/issues/147
+      - name: net.ipv4.ping_group_range
+        value: "0 2147483647"
+
+  config:
+    modules:
+      # http_2xx:
+      #   prober: http
+      #   timeout: 5s
+      #   http:
+      #     valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      #     follow_redirects: true
+      #     #preferred_ip_protocol: "ip4"
+      ping:
+        prober: icmp
+        timeout: 5s
+        icmp:
+          preferred_ip_protocol: "ip4"
+      ssh_banner:
+        prober: tcp
+        timeout: 10s
+        tcp:
+          query_response:
+          - expect: "^SSH-2.0-"
+          - send: "SSH-2.0-blackbox-ssh-check"
+
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 0.5
+      memory: 256Mi
+
+  serviceMonitor:
+    ## If true, a ServiceMonitor CRD is created for a prometheus operator
+    ## https://github.com/coreos/prometheus-operator for blackbox-exporter itself
+    ##
+    selfMonitor:
+      enabled: true

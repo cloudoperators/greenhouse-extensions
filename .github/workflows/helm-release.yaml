@@ -10,6 +10,7 @@ on:
       - absent-metrics-operator/charts/**
       - alerts/charts/**
       - audit-logs/charts/**
+      - blackbox-exporter/charts/**
       - cert-manager/charts/**
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
@@ -51,6 +52,8 @@ jobs:
             chartName: alerts
           - chartDir: audit-logs/charts
             chartName: audit-logs
+          - chartDir: blackbox-exporter/charts
+            chartName: blackbox-exporter
           - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
