@@ -10,7 +10,7 @@ spec:
   # icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: blackbox-exporter
-    repository: oci://keppel.global.cloud.sap/charts
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
     version: 0.3.0
   options:
     - default: 2
