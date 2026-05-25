@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
@@ -7,6 +9,8 @@ spec:
   version: 0.3.0
   displayName: Blackbox exporter
   description: The blackbox exporter allows blackbox probing of endpoints over HTTP, HTTPS, DNS, TCP, ICMP and gRPC.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/blackbox-exporter/README.md
+  icon: https://github.com/cncf/artwork/blob/33e94189bcd7359ba8ac7b3480c3c15e392a79a5/projects/prometheus/icon/color/prometheus-icon-color.png
   helmChart:
     name: blackbox-exporter
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
