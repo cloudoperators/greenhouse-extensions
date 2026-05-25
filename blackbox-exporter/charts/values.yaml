@@ -34,10 +34,10 @@ blackbox-exporter:
 
   resources:
     limits:
-      memory: 256Mi
+      memory: "256Mi"
     requests:
-      cpu: 0.5
-      memory: 256Mi
+      cpu: "500m"
+      memory: "256Mi"
 
   serviceMonitor:
     ## If true, a ServiceMonitor CRD is created for a prometheus operator
