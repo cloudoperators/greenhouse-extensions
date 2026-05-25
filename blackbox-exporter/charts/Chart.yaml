@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: v2
-appVersion: v0.1.0
+# Tracks the blackbox-exporter app version from dependency chart 11.9.1.
+appVersion: v0.28.0
 name: blackbox-exporter
 version: 0.1.0
 description: The blackbox exporter allows blackbox probing of endpoints over HTTP, HTTPS, DNS, TCP, ICMP and gRPC.
