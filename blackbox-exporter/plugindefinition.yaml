@@ -10,7 +10,7 @@ spec:
   displayName: Blackbox exporter
   description: The blackbox exporter allows blackbox probing of endpoints over HTTP, HTTPS, DNS, TCP, ICMP and gRPC.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/blackbox-exporter/README.md
-  icon: https://github.com/cncf/artwork/blob/33e94189bcd7359ba8ac7b3480c3c15e392a79a5/projects/prometheus/icon/color/prometheus-icon-color.png
+  icon: https://raw.githubusercontent.com/cncf/artwork/a718fa97fffec1b9fd14147682e9e3ac0c8817cb/projects/prometheus/icon/color/prometheus-icon-color.png
   helmChart:
     name: blackbox-exporter
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
