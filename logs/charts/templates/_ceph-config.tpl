@@ -127,7 +127,7 @@ transform/ceph_prysm_sidecar:
 
 {{- define "ceph.pipeline" }}
 logs/ceph:
-  receivers: [filelog/containerd]
+  receivers: [file_log/containerd]
   processors: [transform/ingress,transform/ceph_rgw,transform/ceph_osd,transform/ceph_prysm_sidecar]
   exporters: [routing]
 {{- end }}

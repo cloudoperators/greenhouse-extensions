@@ -80,7 +80,7 @@ spec:
             value: "journald"
       k8s_events:
         auth_type: serviceAccount
-      filelog/containerd:
+      file_log/containerd:
         include_file_path: true
         include: [ /var/log/pods/*/*/*.log ]
         exclude: 
@@ -235,7 +235,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.transform" . | nindent 6 -}}
 {{- end }}
-      k8sattributes:
+      k8s_attributes:
         auth_type: "serviceAccount"
         passthrough: false
         filter:
@@ -502,7 +502,7 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [batch,k8sattributes,attributes/cluster]
+          processors: [batch,k8s_attributes,attributes/cluster]
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -518,7 +518,7 @@ spec:
 {{- end }}
 {{- if not (or .Values.openTelemetry.logsCollector.kvmConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled) }}
         logs/containerd:
-          receivers: [filelog/containerd]
+          receivers: [file_log/containerd]
           processors: [transform/ingress]
           exporters: [routing]
 {{- end }}
