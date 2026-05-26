@@ -25,13 +25,6 @@ blackbox-exporter:
           - expect: "^SSH-2.0-"
           - send: "SSH-2.0-blackbox-ssh-check"
 
-  resources:
-    limits:
-      memory: "256Mi"
-    requests:
-      cpu: "500m"
-      memory: "256Mi"
-
   serviceMonitor:
     ## If true, a ServiceMonitor CRD is created for a prometheus operator
     ## https://github.com/coreos/prometheus-operator for blackbox-exporter itself

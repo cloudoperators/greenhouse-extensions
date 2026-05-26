@@ -11,7 +11,7 @@ type: application
 maintainers:
   - name: cloudoperators
 sources:
-  - https://github.wdf.sap.corp/netobs/greenhouse-extensions
+  - https://github.com/cloudoperators/greenhouse-extensions
 dependencies:
   - name: prometheus-blackbox-exporter
     alias: blackbox-exporter
