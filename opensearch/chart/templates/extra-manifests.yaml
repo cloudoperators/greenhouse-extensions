@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {{- range .Values.extraManifests }}
-  {{- if kindIs "map" . }}
+{{- if kindIs "map" . }}
 ---
 {{ toYaml . }}
-  {{- else if kindIs "string" . }}
+{{- else if kindIs "string" . }}
 ---
 {{ tpl . $ }}
-  {{- else }}
-    {{- fail (printf "extraManifests: unsupported entry type %s (expected string or map)" (kindOf .)) }}
-  {{- end }}
+{{- else }}
+{{- fail (printf "extraManifests: unsupported entry type %s (expected string or map)" (kindOf .)) }}
+{{- end }}
 {{- end }}
