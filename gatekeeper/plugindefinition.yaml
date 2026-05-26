@@ -1,0 +1,86 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: gatekeeper
+spec:
+  version: 1.0.0
+  displayName: OPA Gatekeeper
+  description: |
+    Policy controller for Kubernetes admission based on the Open Policy Agent
+    (OPA) constraint framework. Deploys upstream OPA Gatekeeper. Constraint
+    templates and constraints are not bundled; install them separately or
+    use the gatekeeper-config PluginDefinition (planned).
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/gatekeeper/README.md
+  icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+  helmChart:
+    name: gatekeeper
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 1.0.0
+  options:
+    - name: gatekeeper.replicas
+      displayName: Controller replicas
+      description: Number of gatekeeper-controller-manager replicas.
+      default: 3
+      required: false
+      type: int
+    - name: gatekeeper.auditInterval
+      displayName: Audit interval (seconds)
+      description: How often the audit pod scans for violations, in seconds.
+      default: 60
+      required: false
+      type: int
+    - name: gatekeeper.validatingWebhookFailurePolicy
+      displayName: Webhook failure policy
+      description: Failure policy for the main validation webhook: `Ignore` or `Fail`.
+      default: Ignore
+      required: false
+      type: string
+    - name: gatekeeper.constraintViolationsLimit
+      displayName: Constraint violations limit
+      description: Max violations reported per constraint during audit.
+      default: 20
+      required: false
+      type: int
+    - name: gatekeeper.logDenies
+      displayName: Log denied requests
+      description: Log denied admission requests.
+      default: false
+      required: false
+      type: bool
+    - name: gatekeeper.disabledBuiltins
+      displayName: Disabled Rego built-in functions
+      description: Rego built-ins blocked in policies, in brace-wrapped syntax. Upstream disables `{http.send}` by default.
+      default:
+        - "{http.send}"
+      required: false
+      type: list
+    - name: gatekeeper.validatingWebhookCustomRules
+      displayName: Validating webhook custom rules
+      description: Rules scoping which resources the webhook intercepts. Empty keeps the upstream catch-all. See README for a Gardener example.
+      required: false
+      type: list
+    - name: gatekeeper.validatingWebhookObjectSelector
+      displayName: Validating webhook object selector
+      description: Label selector exempting matching objects from the webhook.
+      required: false
+      type: map
+    - name: gatekeeper.validatingWebhookExemptNamespacesLabels
+      displayName: Validating webhook exempt namespaces labels
+      description: Namespace label selectors exempting matching namespaces from the webhook.
+      required: false
+      type: map
+    - name: gatekeeper.validatingWebhookCheckIgnoreFailurePolicy
+      displayName: Check-ignore-label webhook failure policy
+      description: Failure policy for the `check-ignore-label.gatekeeper.sh` webhook: `Ignore` or `Fail`.
+      default: Fail
+      required: false
+      type: string
+    - name: gatekeeper.validatingWebhookTimeoutSeconds
+      displayName: Validating webhook timeout (seconds)
+      description: Webhook timeout in seconds (applies to both webhooks).
+      default: 3
+      required: false
+      type: int
