@@ -4,6 +4,11 @@
 # -- common labels to apply to all resources.
 commonLabels: {}
 
+# -- Node affinity rules for Kafka broker/controller pods.
+# When set, placed at spec.template.pod.affinity.nodeAffinity in the KafkaNodePool.
+# Leave empty ({}) for no affinity constraint (default).
+nodeAffinity: {}
+
 # Strimzi Kafka Operator configuration
 operator:
   # -- Enable or disable the Strimzi Kafka Operator installation

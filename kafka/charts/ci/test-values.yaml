@@ -15,6 +15,7 @@ kafka:
     min.insync.replicas: 1
   storage:
     type: ephemeral
+    volumes: []
   resources:
     requests:
       memory: "1Gi"
