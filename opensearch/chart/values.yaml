@@ -874,7 +874,7 @@ cluster:
 
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.
-# Each entry is a raw YAML string (use | or quote). Useful for owner-info ConfigMaps etc.
+# Each entry can be a raw YAML string or a map object.
 extraManifests: []
 
 testFramework:
