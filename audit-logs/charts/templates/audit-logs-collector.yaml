@@ -101,7 +101,7 @@ spec:
         auth_type: serviceAccount
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
-      filelog/containerd:
+      file_log/containerd:
         include_file_path: true
         include: [ /var/log/pods/*.log ]
         exclude: [ /var/log/pods/audit-logs* ]
@@ -123,7 +123,7 @@ spec:
 {{ end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
-      filelog/kube_audit:
+      file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
         start_at: end
         operators:
@@ -269,7 +269,7 @@ spec:
               - set(log.attributes["config.parsed"], "ingress-nginx") where log.attributes["client.address"] != nil
 {{- end }}
 
-      k8sattributes:
+      k8s_attributes:
         auth_type: "serviceAccount"
         passthrough: false
         filter:
@@ -437,15 +437,15 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
         logs/kube_audit:
-          receivers: [filelog/kube_audit]
-          processors: [k8sattributes,transform/kube_audit,attributes/cluster, batch]
+          receivers: [file_log/kube_audit]
+          processors: [k8s_attributes,transform/kube_audit,attributes/cluster, batch]
           exporters: [forward]
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
-          receivers: [filelog/containerd]
-          processors: [k8sattributes,attributes/cluster,transform/ingress,batch]
+          receivers: [file_log/containerd]
+          processors: [k8s_attributes,attributes/cluster,transform/ingress,batch]
           exporters: [forward]
 {{- end }}
 
