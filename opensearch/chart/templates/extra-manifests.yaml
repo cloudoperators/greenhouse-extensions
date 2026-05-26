@@ -3,5 +3,9 @@
 
 {{- range .Values.extraManifests }}
 ---
-{{ toYaml . }}
+  {{- if kindIs "map" . }}
+    {{- toYaml . | nindent 0 }}
+  {{- else if kindIs "string" . }}
+    {{- tpl . $ | nindent 0 }}
+  {{- end }}
 {{- end }}
