@@ -190,6 +190,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. |
 | cluster.usersCredentials | object | <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
 | cluster.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry is a raw YAML string (use | or quote). Useful for owner-info ConfigMaps etc. |
 | operator.enabled | bool | `true` | Install the OpenSearch operator subchart with its ServiceMonitor and PrometheusRule alerts. Set false on additional releases that reuse the operator from another release. Note: CRDs in chart/crds/ are managed by Helm independently of this flag. |
 | operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
