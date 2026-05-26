@@ -48,6 +48,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | entityOperator.enabled | bool | `true` | Enable Entity Operator |
 | entityOperator.topicOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
 | entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry can be a raw YAML string or a map object. |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |
 | kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM heap settings for Kafka brokers. xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory for OS page cache, which Kafka relies on heavily for performance. See: https://docs.confluent.io/platform/current/kafka/deployment.html |
