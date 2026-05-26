@@ -27,6 +27,14 @@ auth:
       # -- Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/)
       baseRedirectUrl: ""
 
+serviceProxy:
+  dashboards:
+    # -- Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy.
+    # When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered
+    # (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set)
+    # with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches.
+    enabled: true
+
 certManager:
   # -- Enable cert-manager integration for issuing TLS certificates
   enable: true
@@ -193,7 +201,7 @@ operator:
       successThreshold: 1
       timeoutSeconds: 3
       initialDelaySeconds: 10
-
+    # @ignore
     image:
       repository: "quay.io/brancz/kube-rbac-proxy"
       tag: "v0.20.2"
