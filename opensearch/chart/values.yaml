@@ -872,6 +872,11 @@ cluster:
           - "logs*"
         priority: 100
 
+
+# -- Extra Kubernetes manifests to deploy alongside the chart.
+# Each entry can be a raw YAML string or a map object.
+extraManifests: []
+
 testFramework:
   # -- Activates the Helm chart testing framework.
   enabled: true
