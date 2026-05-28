@@ -1,5 +1,5 @@
 {{- define "kvm.receiver" }}
-filelog/qemu_logs:
+file_log/qemu_logs:
   include: [ /var/log/libvirt/qemu/*.log ]
   include_file_path: true
   start_at: beginning
@@ -10,7 +10,7 @@ filelog/qemu_logs:
       type: add
       field: attributes["log.type"]
       value: "files-qemu"
-filelog/openvswitch_logs:
+file_log/openvswitch_logs:
   include: [ /var/log/openvswitch/*.log ]
   include_file_path: true
   start_at: beginning
@@ -27,7 +27,7 @@ filelog/openvswitch_logs:
       type: add
       field: attributes["log.type"]
       value: "files-openvswitch"
-filelog/kvm_monitoring:
+file_log/kvm_monitoring:
   include: [ /var/log/pods/kvm-monitoring_*/monitoring/*.log ]
   include_file_path: true
   start_at: beginning
@@ -38,7 +38,7 @@ filelog/kvm_monitoring:
       type: add
       field: attributes["log.type"]
       value: "files-kvm-monitoring"
-filelog/ch_logs:
+file_log/ch_logs:
   include: [ /var/log/libvirt/ch/*.log ]
   include_file_path: true
   start_at: beginning
@@ -124,11 +124,11 @@ transform/ch_logs:
 {{- end }}
 {{- define "kvm.pipeline" }}
 logs/kvm_containerd:
-  receivers: [filelog/containerd]
+  receivers: [file_log/containerd]
   processors: [transform/ingress,transform/kvm_openvswitch,transform/kvm_nova_agent]
   exporters: [routing]
-logs/kvm_filelog:
-  receivers: [filelog/qemu_logs,filelog/openvswitch_logs,filelog/kvm_monitoring,filelog/ch_logs]
+logs/kvm_file_log:
+  receivers: [file_log/qemu_logs,file_log/openvswitch_logs,file_log/kvm_monitoring,file_log/ch_logs]
   processors: [transform/kvm_logs,transform/kvm_monitoring,transform/qemu_logs,transform/ch_logs]
   exporters: [routing]
 {{- end }}
