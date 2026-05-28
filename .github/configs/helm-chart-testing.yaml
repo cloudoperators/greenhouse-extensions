@@ -10,31 +10,35 @@ skip-clean-up: true
 namespace: default
 release-label: "app.kubernetes.io/instance"
 chart-dirs:
+  - absent-metrics-operator
   - alerts
+  - audit-logs
   - cert-manager
-  - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
+  - gatekeeper
+  - kafka
   - kube-monitoring
   - kubeconfig-generator
-  - kafka
-  - service-proxy/charts/1.0.0
-  - logshipper
-  - opensearch
   - logs
-  - audit-logs
-  - thanos
+  - logshipper
+  - oidc-discovery-access/charts/1.0.0
+  - opensearch
   - perses
-  - prometheus
-  - plutono
+  - service-proxy/charts/1.0.0
+  - shoot-grafter
+  - thanos
+  - trust-manager
 chart-repos:
-  - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
+  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - cert-manager=https://charts.jetstack.io
+  - gatekeeper=https://open-policy-agent.github.io/gatekeeper/charts
   - kafka=https://strimzi.io/charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
+  - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - logshipper=https://fluent.github.io/helm-charts
   - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
-  - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
-  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts
   - thanos=https://thanos-community.github.io/helm-charts/
+  - trust-manager=https://charts.jetstack.io
