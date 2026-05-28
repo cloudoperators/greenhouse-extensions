@@ -44,16 +44,3 @@ blackbox-exporter:
   # Store the configuration as a `Secret` instead of a `ConfigMap`, useful in case it contains sensitive data
   # @ignored
   secretConfig: true
-
-  # -- TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter.
-  # @default -- <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre>
-  # @section -- Blackbox exporter config
-  extraVolumes: []
-    # - name: blackbox-exporter-tls
-    #   secret:
-    #     defaultMode: 420
-  #     secretName: <secretName>
-  # @ignored
-  extraVolumeMounts:
-    - name: blackbox-exporter-tls
-      mountPath: /etc/blackbox/tls
