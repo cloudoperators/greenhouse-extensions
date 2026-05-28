@@ -1,0 +1,4 @@
+blackbox-exporter:
+  serviceMonitor:
+    selfMonitor:
+      enabled: false

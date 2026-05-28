@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+# Tracks the blackbox-exporter app version from dependency chart 11.10.0.
+appVersion: v0.28.0
+name: blackbox-exporter
+version: 0.1.0
+description: The blackbox exporter allows blackbox probing of endpoints over HTTP, HTTPS, DNS, TCP, ICMP and gRPC.
+type: application
+maintainers:
+  - name: cloudoperators
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+dependencies:
+  - name: prometheus-blackbox-exporter
+    alias: blackbox-exporter
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 11.10.0

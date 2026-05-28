@@ -19,6 +19,7 @@ header:
     - 'REUSE.toml'
     - 'LICENSES/*.txt'
     - 'audit-logs/**' # ignore the license for the audit-logs charts
+    - 'blackbox-exporter/**' # ignore the license for the blackbox-exporter charts
     - 'cert-manager/charts/**' # ignore the license for the cert-manager charts
     - 'alerts/**' # ignore the license for the alerts charts
     - 'plutono/**' # ignore the license for the plutono charts

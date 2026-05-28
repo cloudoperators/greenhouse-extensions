@@ -11,30 +11,32 @@ namespace: default
 release-label: "app.kubernetes.io/instance"
 chart-dirs:
   - alerts
+  - audit-logs
+  - blackbox-exporter
   - cert-manager
   - exposed-services/charts/v1.0.0
   - exposed-services/charts/v2.0.0
+  - kafka
   - kube-monitoring
   - kubeconfig-generator
-  - kafka
-  - service-proxy/charts/1.0.0
+  - logs
   - logshipper
   - opensearch
-  - logs
-  - audit-logs
-  - thanos
   - perses
-  - prometheus
   - plutono
+  - prometheus
+  - service-proxy/charts/1.0.0
+  - thanos
 chart-repos:
-  - cert-manager=https://charts.jetstack.io
   - alerts=https://prometheus-community.github.io/helm-charts
+  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+  - blackbox-exporter=https://prometheus-community.github.io/helm-charts
+  - cert-manager=https://charts.jetstack.io
   - kafka=https://strimzi.io/charts
   - kube-monitoring=https://prometheus-community.github.io/helm-charts
   - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
+  - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - logshipper=https://fluent.github.io/helm-charts
   - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
-  - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
-  - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
   - perses=https://perses.github.io/helm-charts
   - thanos=https://thanos-community.github.io/helm-charts/
