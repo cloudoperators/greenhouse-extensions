@@ -9,8 +9,8 @@ keywords:
   - cert-manager
   - tls
   - ca-bundle
-version: v0.22.1
-appVersion: v0.22.1
+version: 0.22.2
+appVersion: 0.22.2
 maintainers:
   - name: jagoleni
   - name: fwiesel
