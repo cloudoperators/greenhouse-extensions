@@ -93,7 +93,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+                    "query": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"$namespace\"})-count(rate(otelcol_exporter_sent_log_records[15m]) > 0)",
                     "seriesNameFormat": "Running"
                   }
                 }
@@ -567,7 +567,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum by (receiver)(${metric}(otelcol_receiver_accepted_log_records_total{job=\"$job\"}[$__rate_interval])) ",
+                    "query": "sum by (receiver)(${metric}(otelcol_receiver_accepted_log_records{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}"
                   }
                 }
@@ -610,7 +610,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum by (receiver)(${metric}(otelcol_receiver_refused_log_records_total{job=\"$job\"}[$__rate_interval])) ",
+                    "query": "sum by (receiver)(${metric}(otelcol_receiver_refused_log_records{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}"
                   }
                 }
@@ -654,7 +654,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum by (processor)(${metric}(otelcol_processor_batch_batch_size_trigger_send_total{job=\"$job\"}[$__rate_interval])) ",
+                    "query": "sum by (processor)(${metric}(otelcol_processor_batch_batch_size_trigger_send{job=\"$job\"}[$__rate_interval])) ",
                     "seriesNameFormat": "Batch sent due to a size trigger: {{processor}}"
                   }
                 }
@@ -667,7 +667,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum  by (processor)(${metric}(otelcol_processor_batch_timeout_trigger_send_total{job=\"$job\"}[$__rate_interval]))",
+                    "query": "sum  by (processor)(${metric}(otelcol_processor_batch_timeout_trigger_send{job=\"$job\"}[$__rate_interval]))",
                     "seriesNameFormat": "Batch sent due to a timeout trigger: {{processor}} "
                   }
                 }
@@ -710,7 +710,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(${metric}(otelcol_exporter_sent_log_records_total{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
+                    "query": "sum(${metric}(otelcol_exporter_sent_log_records{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
                     "seriesNameFormat": "Sent: {{exporter}} "
                   }
                 }
@@ -723,7 +723,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "",
-                    "query": "sum(${metric}(otelcol_exporter_send_failed_log_records_total{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
+                    "query": "sum(${metric}(otelcol_exporter_send_failed_log_records{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter)",
                     "seriesNameFormat": "Enqueue: {{exporter}} "
                   }
                 }
@@ -766,7 +766,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(rate(otelcol_exporter_sent_log_records_total{job=\"$job\"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job=\"$job\"}[1h])) by (k8s_cluster_name) > 1",
+                    "query": "sum(rate(otelcol_exporter_sent_log_records{job=\"$job\"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records{job=\"$job\"}[1h])) by (k8s_cluster_name) > 1",
                     "seriesNameFormat": ""
                   }
                 }
@@ -962,7 +962,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
+                    "query": "max(rate(otelcol_process_cpu_seconds{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Max CPU usage {{service_instance_id}}"
                   }
                 }
@@ -975,7 +975,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
+                    "query": "avg(rate(otelcol_process_cpu_seconds{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Avg CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1035,7 +1035,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "max(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
+                    "query": "max(rate(otelcol_process_cpu_seconds{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Max CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1048,7 +1048,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "avg(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
+                    "query": "avg(rate(otelcol_process_cpu_seconds{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Avg CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1061,7 +1061,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "min(rate(otelcol_process_cpu_seconds_total{job=\"$job\"}[$__rate_interval])*100) by (job)",
+                    "query": "min(rate(otelcol_process_cpu_seconds{job=\"$job\"}[$__rate_interval])*100) by (job)",
                     "seriesNameFormat": "Min CPU usage {{service_instance_id}}"
                   }
                 }
@@ -1101,7 +1101,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_deleted_ratio_total{job=\"$job\"}) by (job)",
+                    "query": "sum(otelcol_otelsvc_k8s_pod_deleted{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Deleted"
                   }
                 }
@@ -1114,7 +1114,7 @@
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
                     "minStep": "$minstep",
-                    "query": "sum(otelcol_otelsvc_k8s_pod_updated_ratio_total{job=\"$job\"}) by (job)",
+                    "query": "sum(otelcol_otelsvc_k8s_pod_updated{job=\"$job\"}) by (job)",
                     "seriesNameFormat": "Updated"
                   }
                 }

@@ -19,7 +19,7 @@ spec:
     rules:
   {{- if (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: FilelogRefusedLogs
-        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"filelog"}[1m])) > 0
+        expr: sum(rate(otelcol_receiver_refused_log_records{receiver=~"filelog"}[1m])) > 0
         for: 5m
         labels:
           severity: warning
@@ -33,7 +33,7 @@ spec:
 
   {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: ReceiverRefusedMetric
-        expr: sum(rate(otelcol_receiver_refused_metric_points_total{}[1m])) > 0
+        expr: sum(rate(otelcol_receiver_refused_metric_points{}[1m])) > 0
         for: 5m
         labels:
           severity: warning
@@ -47,10 +47,11 @@ spec:
 
   {{- if (has "LogsOTelLogsMissing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: LogsOTelLogsMissing
-        expr: sum by (region, k8s_node_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
+        expr: sum by (region, k8s_node_name) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
         for: 120m
         labels:
           severity: warning
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -60,10 +61,11 @@ spec:
 
  {{- if (has "LogsOTelLogsDecreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: LogsOTelLogsDecreasing
-        expr: sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
+        expr: sum(rate(otelcol_exporter_sent_log_records{job="logs/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
         for: 2h
         labels:
           severity: warning
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -73,7 +75,7 @@ spec:
 
  {{- if (has "LogsExportingFailed" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: LogsExportingFailed
-        expr: sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
+        expr: sum(increase(otelcol_exporter_sent_log_records{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records{job="logs/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
         for: 1h
         labels:
           severity: info

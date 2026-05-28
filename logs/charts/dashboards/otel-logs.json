@@ -167,7 +167,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+          "expr": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records[15m]) > 0)",
           "interval": "",
           "legendFormat": "Running",
           "queryType": "randomWalk",
