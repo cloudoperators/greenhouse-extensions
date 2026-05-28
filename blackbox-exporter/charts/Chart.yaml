@@ -5,7 +5,7 @@ apiVersion: v2
 # Tracks the blackbox-exporter app version from dependency chart 11.10.0.
 appVersion: v0.28.0
 name: blackbox-exporter
-version: 0.1.0
+version: 0.1.1
 description: The blackbox exporter allows blackbox probing of endpoints over HTTP, HTTPS, DNS, TCP, ICMP and gRPC.
 type: application
 maintainers:
