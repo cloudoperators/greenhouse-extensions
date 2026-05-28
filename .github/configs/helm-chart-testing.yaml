@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # See https://github.com/helm/chart-testing#configuration
+#
+# This file is generated from .github/configs/plugins.yaml.
+# Do not edit by hand. Run:
+#   .github/scripts/render-ct-config.sh > .github/configs/helm-chart-testing.yaml
 remote: origin
 target-branch: main
 validate-maintainers: true

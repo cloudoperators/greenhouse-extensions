@@ -31,6 +31,27 @@ The following rule governs code contributions:
 * Contributions must be licensed under the [Apache 2.0 License](./LICENSE)
 * Due to legal reasons, contributors will be asked to accept a Developer Certificate of Origin (DCO) when they create the first pull request to this project. This happens in an automated fashion during the submission process. SAP uses [the standard DCO text of the Linux Foundation](https://developercertificate.org/).
 
+## Adding a new plugin chart
+
+Every Helm chart in this repository is registered in
+[`.github/configs/plugins.yaml`](.github/configs/plugins.yaml). This file is
+the single source of truth used by:
+
+* `.github/configs/helm-chart-testing.yaml` (rendered from `plugins.yaml`)
+* The `helm-release` matrices in `.github/workflows/helm-release.yaml` and
+  `.github/workflows/ci-pr-build.yaml`
+
+When you add a new plugin chart:
+
+1. Add an entry under `plugins:` in `.github/configs/plugins.yaml`. See the
+   schema documented at the top of that file.
+2. Regenerate the chart-testing config:
+   ```sh
+   .github/scripts/render-ct-config.sh > .github/configs/helm-chart-testing.yaml
+   ```
+3. Open the PR. The `Plugins Consistency` workflow will fail if a chart is
+   missing from `plugins.yaml` or if `helm-chart-testing.yaml` is out of sync.
+
 ## Issues and Planning
 
 * We use GitHub issues to track bugs and enhancement requests.

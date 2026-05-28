@@ -1,0 +1,121 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Single source of truth for Greenhouse plugin charts.
+#
+# Every Helm chart in this repository must be registered here. The following
+# files are derived from this config and kept in sync via the
+# `Plugins Consistency` workflow:
+#
+#   - .github/configs/helm-chart-testing.yaml (rendered by render-ct-config.sh)
+#   - The `helm-release` matrix in .github/workflows/helm-release.yaml
+#   - The `helm-release` matrix in .github/workflows/ci-pr-build.yaml
+#
+# Schema (per plugin):
+#   chartName  : Name used as the OCI registry path segment in GHCR
+#                (oci://ghcr.io/<repo>/charts/<chartName>) and as the matrix
+#                identifier. Usually matches Chart.yaml `name:`.
+#   chartDir   : Directory containing the chart's Chart.yaml (relative to repo).
+#   ctChartDir : Parent directory used by chart-testing's `chart-dirs` (so that
+#                Chart.yaml lives directly under <ctChartDir>/<something>).
+#                For most plugins this is the directory above chartDir.
+#   chartRepos : Optional list of `name=url` entries for any external Helm
+#                repos this chart depends on. These are aggregated and deduped
+#                into chart-testing's `chart-repos`.
+plugins:
+  - chartName: absent-metrics-operator
+    chartDir: absent-metrics-operator/charts
+    ctChartDir: absent-metrics-operator
+
+  - chartName: alerts
+    chartDir: alerts/charts
+    ctChartDir: alerts
+    chartRepos:
+      - alerts=https://prometheus-community.github.io/helm-charts
+
+  - chartName: audit-logs
+    chartDir: audit-logs/charts
+    ctChartDir: audit-logs
+    chartRepos:
+      - audit-logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+
+  - chartName: cert-manager
+    chartDir: cert-manager/charts
+    ctChartDir: cert-manager
+    chartRepos:
+      - cert-manager=https://charts.jetstack.io
+
+  - chartName: exposed-services
+    chartDir: exposed-services/charts/v2.0.0/exposed-service
+    ctChartDir: exposed-services/charts/v2.0.0
+
+  - chartName: gatekeeper
+    chartDir: gatekeeper/charts
+    ctChartDir: gatekeeper
+    chartRepos:
+      - gatekeeper=https://open-policy-agent.github.io/gatekeeper/charts
+
+  - chartName: kafka
+    chartDir: kafka/charts
+    ctChartDir: kafka
+    chartRepos:
+      - kafka=https://strimzi.io/charts
+
+  - chartName: kube-monitoring
+    chartDir: kube-monitoring/charts
+    ctChartDir: kube-monitoring
+    chartRepos:
+      - kube-monitoring=https://prometheus-community.github.io/helm-charts
+      - kubernetes-operations=https://cloudoperators.github.io/kubernetes-operations
+
+  - chartName: kubeconfig-generator
+    chartDir: kubeconfig-generator/chart
+    ctChartDir: kubeconfig-generator
+
+  - chartName: logs
+    chartDir: logs/charts
+    ctChartDir: logs
+    chartRepos:
+      - logs=https://open-telemetry.github.io/opentelemetry-helm-charts
+
+  - chartName: logshipper
+    chartDir: logshipper/chart
+    ctChartDir: logshipper
+    chartRepos:
+      - logshipper=https://fluent.github.io/helm-charts
+
+  - chartName: oidc-discovery-access
+    chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
+    ctChartDir: oidc-discovery-access/charts/1.0.0
+
+  - chartName: opensearch
+    chartDir: opensearch/chart
+    ctChartDir: opensearch
+    chartRepos:
+      - opensearch=https://opensearch-project.github.io/opensearch-k8s-operator
+
+  - chartName: perses
+    chartDir: perses/charts
+    ctChartDir: perses
+    chartRepos:
+      - perses=https://perses.github.io/helm-charts
+
+  - chartName: service-proxy
+    chartDir: service-proxy/charts/1.0.0/service-proxy
+    ctChartDir: service-proxy/charts/1.0.0
+
+  - chartName: shoot-grafter
+    chartDir: shoot-grafter/charts
+    ctChartDir: shoot-grafter
+
+  - chartName: thanos
+    chartDir: thanos/charts
+    ctChartDir: thanos
+    chartRepos:
+      - thanos=https://thanos-community.github.io/helm-charts/
+
+  - chartName: trust-manager
+    chartDir: trust-manager/charts
+    ctChartDir: trust-manager
+    chartRepos:
+      - trust-manager=https://charts.jetstack.io

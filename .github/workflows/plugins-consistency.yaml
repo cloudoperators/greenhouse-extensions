@@ -1,0 +1,51 @@
+name: Plugins Consistency
+
+on:
+  pull_request:
+    paths:
+      - .github/configs/plugins.yaml
+      - .github/configs/helm-chart-testing.yaml
+      - .github/scripts/render-ct-config.sh
+      - .github/scripts/check-plugins-coverage.sh
+      - .github/actions/plugins-matrix/**
+      - .github/workflows/plugins-consistency.yaml
+      - '**/Chart.yaml'
+  push:
+    branches:
+      - main
+    paths:
+      - .github/configs/plugins.yaml
+      - .github/configs/helm-chart-testing.yaml
+      - .github/scripts/render-ct-config.sh
+      - .github/scripts/check-plugins-coverage.sh
+      - .github/actions/plugins-matrix/**
+      - .github/workflows/plugins-consistency.yaml
+      - '**/Chart.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  consistency:
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Verify every Chart.yaml is registered in plugins.yaml
+        run: .github/scripts/check-plugins-coverage.sh
+
+      - name: Render expected helm-chart-testing.yaml
+        run: |
+          .github/scripts/render-ct-config.sh > /tmp/expected-ct.yaml
+
+      - name: Diff against checked-in helm-chart-testing.yaml
+        run: |
+          set -euo pipefail
+          if ! diff -u .github/configs/helm-chart-testing.yaml /tmp/expected-ct.yaml; then
+            echo
+            echo "ERROR: .github/configs/helm-chart-testing.yaml is out of sync with plugins.yaml."
+            echo "Regenerate it with:"
+            echo "  .github/scripts/render-ct-config.sh > .github/configs/helm-chart-testing.yaml"
+            exit 1
+          fi
+          echo "OK: helm-chart-testing.yaml matches plugins.yaml"

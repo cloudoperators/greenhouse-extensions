@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: 'Plugins Matrix'
+description: >
+  Build a GitHub Actions matrix `include` array from
+  .github/configs/plugins.yaml so workflows can iterate over every
+  registered plugin chart.
+
+outputs:
+  matrix:
+    description: >
+      JSON object of the form
+      `{"include": [{"chartDir": "...", "chartName": "..."}, ...]}`
+      ready for `strategy.matrix: ${{ fromJSON(...) }}`.
+    value: ${{ steps.build.outputs.matrix }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build matrix
+      id: build
+      shell: bash
+      run: |
+        set -euo pipefail
+        plugins_yaml="${GITHUB_WORKSPACE}/.github/configs/plugins.yaml"
+        if [[ ! -f "$plugins_yaml" ]]; then
+          echo "Plugins file not found: $plugins_yaml" >&2
+          exit 1
+        fi
+        matrix=$(yq -o=json -I=0 \
+          '{"include": [.plugins[] | {"chartDir": .chartDir, "chartName": .chartName}]}' \
+          "$plugins_yaml")
+        echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+        echo "Resolved matrix:"
+        echo "$matrix" | yq -P '.'
