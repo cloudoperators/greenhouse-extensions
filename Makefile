@@ -110,11 +110,13 @@ $(HELM): $(LOCALBIN)
 .PHONY: license-eye-install
 license-eye-install: $(LICENSE-EYE)
 $(LICENSE-EYE): $(LOCALBIN)
-	@if test -x $(LOCALBIN)/license-eye && ! $(LOCALBIN)/license-eye --version | grep -q $(LICENSE_EYE_VERSION); then \
-		echo "$(LOCALBIN)/license-eye version is not expected $(LICENSE_EYE_VERSION). Removing it before installing."; \
-		rm -rf $(LOCALBIN)/license-eye; \
-	fi;
-	if ! test -x $(LOCALBIN)/license-eye; then \
+	@if ! test -x $(LOCALBIN)/license-eye; then \
+		if ! command -v go >/dev/null 2>&1; then \
+			echo "Error: 'license-eye-install' requires 'go' to be installed and available in PATH."; \
+			echo "Please install Go or update this target to download a prebuilt license-eye binary."; \
+			exit 1; \
+		fi; \
+		echo "Installing license-eye $(LICENSE_EYE_VERSION)..."; \
 		GOBIN=$(LOCALBIN) go install $(LICENSE_EYE_REPO); \
 	fi;
 
