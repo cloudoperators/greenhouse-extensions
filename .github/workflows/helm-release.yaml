@@ -15,7 +15,7 @@ on:
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
       - gatekeeper/charts/**
-      - kafka/chart/**
+      - kafka/charts/**
       - kube-monitoring/charts/**
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
@@ -63,7 +63,7 @@ jobs:
             chartName: exposed-services
           - chartDir: gatekeeper/charts
             chartName: gatekeeper
-          - chartDir: kafka/chart
+          - chartDir: kafka/charts
             chartName: kafka
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring
