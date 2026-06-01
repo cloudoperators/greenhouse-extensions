@@ -221,6 +221,32 @@ topics:
     # -- Max message size (1 MB)
     maxMessageBytes: 1048576
 
+# cert-manager Certificate for the Kafka external listener.
+# `issuer` and `externalCert.dnsNames` are environment-specific.
+certManager:
+  enabled: false
+
+  # -- issuerRef (group, kind, name). Required when enabled.
+  issuer: {}
+
+  externalCert:
+    name: kafka-external-cert
+    secretName: kafka-external-cert
+    # -- SANs covering bootstrap and per-broker hosts. Required when enabled.
+    dnsNames: []
+
+  defaults:
+    duration: 4800h
+    privateKey:
+      algorithm: RSA
+      encoding: PKCS8
+      size: 2048
+    usages:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.
 extraManifests: []
