@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: kafka
-version: 0.1.5
+version: 0.1.7
 description: A Helm chart for Apache Kafka using the Strimzi Kafka Operator
 type: application
 maintainers:
@@ -13,7 +13,7 @@ maintainers:
 home: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka
 sources:
   - https://github.com/strimzi/strimzi-kafka-operator
-appVersion: 3.9.0
+appVersion: 4.1.0
 dependencies:
   - name: strimzi-kafka-operator
     alias: operator

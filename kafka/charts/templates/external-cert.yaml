@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.certManager.enabled }}
+{{- if not .Values.certManager.issuer }}
+{{- fail "certManager.enabled is true but certManager.issuer is empty. Provide an issuerRef (group/kind/name) for the external Kafka certificate." }}
+{{- end }}
+{{- if not .Values.certManager.externalCert.dnsNames }}
+{{- fail "certManager.externalCert.dnsNames is empty. Set the cluster-specific DNS names for the Kafka external listener." }}
+{{- end }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certManager.externalCert.name }}
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.certManager.externalCert.secretName }}
+  duration: {{ .Values.certManager.defaults.duration }}
+  dnsNames:
+{{ toYaml .Values.certManager.externalCert.dnsNames | indent 4 }}
+  issuerRef:
+{{ toYaml .Values.certManager.issuer | indent 4 }}
+  privateKey:
+{{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
+  usages:
+{{ toYaml .Values.certManager.defaults.usages | indent 4 }}
+{{- end }}
