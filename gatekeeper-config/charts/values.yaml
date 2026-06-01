@@ -1,0 +1,78 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+policies:
+  # requires gatekeeper-doop: helmManifestParserURL must be set
+  deprecatedApiVersion:
+    enabled: false
+    enforcementAction: dryrun
+    helmManifestParserURL: ""
+
+  forbiddenClusterwideObjects:
+    enabled: false
+    enforcementAction: dryrun
+    allowedWebhooks: []
+
+  highCpuRequests:
+    enabled: true
+    enforcementAction: dryrun
+
+  ingressAnnotationsMigration:
+    enabled: false
+    enforcementAction: dryrun
+
+  ingressAnnotations:
+    enabled: true
+    enforcementAction: dryrun
+
+  pciForbiddenImages:
+    enabled: false
+    enforcementAction: dryrun
+    patterns: []
+
+  podSecurityV2:
+    enabled: false
+    enforcementAction: dryrun
+    allowlist: []
+
+  prometheusScrapeAnnotations:
+    enabled: false
+    enforcementAction: dryrun
+
+  unmanagedPods:
+    enabled: true
+    enforcementAction: dryrun
+    allowedNamePatterns: []
+
+  imagesFromApprovedRegistries:
+    enabled: false
+    enforcementAction: dryrun
+    allowedRegistries: []
+
+  podRequiredLabels:
+    enabled: false
+    enforcementAction: dryrun
+    requiredLabels: []
+
+  # requires gatekeeper-doop: helmManifestParserURL must be set
+  oliLabelsRequired:
+    enabled: false
+    enforcementAction: dryrun
+    helmManifestParserURL: ""
+    knownExceptions: []
+    excludedNamespaces: []
+
+  # requires gatekeeper-doop: imageCheckerURL must be set
+  outdatedImageBases:
+    enabled: false
+    enforcementAction: dryrun
+    imageCheckerURL: ""
+    createdAtHeader: ""
+    maxAgeDays: 365
+
+  # requires gatekeeper-doop: imageCheckerURL must be set
+  vulnerableImages:
+    enabled: false
+    enforcementAction: dryrun
+    imageCheckerURL: ""
+    vulnStatusHeader: ""

@@ -1,0 +1,278 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: gatekeeper-config
+spec:
+  version: 1.0.0
+  displayName: Gatekeeper Config
+  description: |
+    Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
+    admission control. Provides a library of universal admission policies that
+    can be enabled and tuned per cluster.
+  icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/gatekeeper-config/README.md
+  helmChart:
+    name: gatekeeper-config
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 1.0.0
+  options:
+    - name: policies.deprecatedApiVersion.enabled
+      displayName: Deprecated API version policy enabled
+      description: Enable the deprecated-api-version policy. Requires gatekeeper-doop (helm-manifest-parser).
+      default: false
+      required: false
+      type: bool
+    - name: policies.deprecatedApiVersion.enforcementAction
+      displayName: Deprecated API version enforcement action
+      description: Gatekeeper enforcementAction for deprecated-api-version (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.deprecatedApiVersion.helmManifestParserURL
+      displayName: Helm manifest parser URL (deprecated-api-version)
+      description: URL of the helm-manifest-parser service. Required when deprecated-api-version is enabled.
+      required: false
+      type: string
+
+    - name: policies.forbiddenClusterwideObjects.enabled
+      displayName: Forbidden clusterwide objects policy enabled
+      description: Enable the forbidden-clusterwide-objects policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.forbiddenClusterwideObjects.enforcementAction
+      displayName: Forbidden clusterwide objects enforcement action
+      description: Gatekeeper enforcementAction for forbidden-clusterwide-objects (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.forbiddenClusterwideObjects.allowedWebhooks
+      displayName: Allowed admission webhooks
+      description: List of admission webhook names allowed to exist in the cluster. Required when forbidden-clusterwide-objects is enabled.
+      required: false
+      type: list
+
+    - name: policies.highCpuRequests.enabled
+      displayName: High CPU requests policy enabled
+      description: Enable the high-cpu-requests policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.highCpuRequests.enforcementAction
+      displayName: High CPU requests enforcement action
+      description: Gatekeeper enforcementAction for high-cpu-requests (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.ingressAnnotationsMigration.enabled
+      displayName: Ingress annotations migration policy enabled
+      description: Enable the ingress-annotations-migration policy. Opt in only while running an ingress-nginx prefix migration.
+      default: false
+      required: false
+      type: bool
+    - name: policies.ingressAnnotationsMigration.enforcementAction
+      displayName: Ingress annotations migration enforcement action
+      description: Gatekeeper enforcementAction for ingress-annotations-migration (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.ingressAnnotations.enabled
+      displayName: Ingress annotations policy enabled
+      description: Enable the ingress-annotations policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.ingressAnnotations.enforcementAction
+      displayName: Ingress annotations enforcement action
+      description: Gatekeeper enforcementAction for ingress-annotations (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.pciForbiddenImages.enabled
+      displayName: PCI forbidden images policy enabled
+      description: Enable the pci-forbidden-images policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.pciForbiddenImages.enforcementAction
+      displayName: PCI forbidden images enforcement action
+      description: Gatekeeper enforcementAction for pci-forbidden-images (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.pciForbiddenImages.patterns
+      displayName: Forbidden image patterns
+      description: List of regex patterns matched against container image references. Required when pci-forbidden-images is enabled.
+      required: false
+      type: list
+
+    - name: policies.podSecurityV2.enabled
+      displayName: Pod security V2 policy enabled
+      description: Enable the pod-security-v2 policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.podSecurityV2.enforcementAction
+      displayName: Pod security V2 enforcement action
+      description: Gatekeeper enforcementAction for pod-security-v2 (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.podSecurityV2.allowlist
+      displayName: Pod security V2 allowlist
+      description: List of allowlist entries; each entry permits specific privileged features for a workload matched by namespace and image repository. Required when pod-security-v2 is enabled.
+      required: false
+      type: list
+
+    - name: policies.prometheusScrapeAnnotations.enabled
+      displayName: Prometheus scrape annotations policy enabled
+      description: Enable the prometheus-scrape-annotations policy. Requires a Gatekeeper Config resource syncing monitoring.coreos.com/v1 Prometheus into the OPA cache.
+      default: false
+      required: false
+      type: bool
+    - name: policies.prometheusScrapeAnnotations.enforcementAction
+      displayName: Prometheus scrape annotations enforcement action
+      description: Gatekeeper enforcementAction for prometheus-scrape-annotations (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.unmanagedPods.enabled
+      displayName: Unmanaged pods policy enabled
+      description: Enable the unmanaged-pods policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.unmanagedPods.enforcementAction
+      displayName: Unmanaged pods enforcement action
+      description: Gatekeeper enforcementAction for unmanaged-pods (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.unmanagedPods.allowedNamePatterns
+      displayName: Allowed unmanaged-pod name patterns
+      description: List of {namespace, namePattern} entries that exempt matching Pods from the unmanaged-pods policy.
+      required: false
+      type: list
+
+    - name: policies.imagesFromApprovedRegistries.enabled
+      displayName: Images from approved registries policy enabled
+      description: Enable the images-from-approved-registries policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.imagesFromApprovedRegistries.enforcementAction
+      displayName: Images from approved registries enforcement action
+      description: Gatekeeper enforcementAction for images-from-approved-registries (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.imagesFromApprovedRegistries.allowedRegistries
+      displayName: Allowed registry prefixes
+      description: List of allowed container image registry prefixes. Required when images-from-approved-registries is enabled.
+      required: false
+      type: list
+
+    - name: policies.podRequiredLabels.enabled
+      displayName: Pod required labels policy enabled
+      description: Enable the pod-required-labels policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.podRequiredLabels.enforcementAction
+      displayName: Pod required labels enforcement action
+      description: Gatekeeper enforcementAction for pod-required-labels (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.podRequiredLabels.requiredLabels
+      displayName: Required pod label keys
+      description: List of label keys that every pod template must have. Required when pod-required-labels is enabled.
+      required: false
+      type: list
+
+    - name: policies.oliLabelsRequired.enabled
+      displayName: OLI labels required policy enabled
+      description: Enable the oli-labels-required policy. Requires gatekeeper-doop (helm-manifest-parser).
+      default: false
+      required: false
+      type: bool
+    - name: policies.oliLabelsRequired.enforcementAction
+      displayName: OLI labels required enforcement action
+      description: Gatekeeper enforcementAction for oli-labels-required (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.oliLabelsRequired.helmManifestParserURL
+      displayName: Helm manifest parser URL (oli-labels-required)
+      description: URL of the helm-manifest-parser service. Required when oli-labels-required is enabled.
+      required: false
+      type: string
+    - name: policies.oliLabelsRequired.knownExceptions
+      displayName: OLI labels known exceptions
+      description: Helm releases temporarily exempt from the policy, in "namespace/release-name" format.
+      required: false
+      type: list
+    - name: policies.oliLabelsRequired.excludedNamespaces
+      displayName: OLI labels excluded namespaces
+      description: Namespaces excluded from the oli-labels-required policy (e.g. greenhouse-system, flux-system, cert-manager when running with enforcementAction=deny).
+      required: false
+      type: list
+
+    - name: policies.outdatedImageBases.enabled
+      displayName: Outdated image bases policy enabled
+      description: Enable the outdated-image-bases policy. Requires gatekeeper-doop.
+      default: false
+      required: false
+      type: bool
+    - name: policies.outdatedImageBases.enforcementAction
+      displayName: Outdated image bases enforcement action
+      description: Gatekeeper enforcementAction for outdated-image-bases (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.imageCheckerURL
+      displayName: Image checker URL (outdated-image-bases)
+      description: URL of the doop-image-checker service. Required when outdated-image-bases is enabled.
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.createdAtHeader
+      displayName: Image creation timestamp header
+      description: Name of the HTTP response header from doop-image-checker that carries the minimum layer creation timestamp (Unix seconds).
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.maxAgeDays
+      displayName: Outdated image bases max age (days)
+      description: Containers whose base image is older than this many days are flagged.
+      default: 365
+      required: false
+      type: int
+
+    - name: policies.vulnerableImages.enabled
+      displayName: Vulnerable images policy enabled
+      description: Enable the vulnerable-images policy. Requires gatekeeper-doop.
+      default: false
+      required: false
+      type: bool
+    - name: policies.vulnerableImages.enforcementAction
+      displayName: Vulnerable images enforcement action
+      description: Gatekeeper enforcementAction for vulnerable-images (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.vulnerableImages.imageCheckerURL
+      displayName: Image checker URL (vulnerable-images)
+      description: URL of the doop-image-checker service. Required when vulnerable-images is enabled.
+      required: false
+      type: string
+    - name: policies.vulnerableImages.vulnStatusHeader
+      displayName: Vulnerability status header
+      description: Name of the HTTP response header from doop-image-checker that carries the vulnerability status. Required when vulnerable-images is enabled.
+      required: false
+      type: string

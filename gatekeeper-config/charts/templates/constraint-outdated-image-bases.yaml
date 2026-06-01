@@ -1,0 +1,25 @@
+{{- if .Values.policies.outdatedImageBases.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkOutdatedImageBases
+metadata:
+  name: outdated-image-bases
+  labels:
+    severity: 'info'
+spec:
+  enforcementAction: {{ .Values.policies.outdatedImageBases.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "DaemonSet", "StatefulSet", "ReplicaSet"]
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    scope: Namespaced
+  parameters:
+    doopImageCheckerURL: {{ required "policies.outdatedImageBases.imageCheckerURL is required when policies.outdatedImageBases.enabled=true" .Values.policies.outdatedImageBases.imageCheckerURL | quote }}
+    createdAtHeader: {{ required "policies.outdatedImageBases.createdAtHeader is required when policies.outdatedImageBases.enabled=true" .Values.policies.outdatedImageBases.createdAtHeader | quote }}
+    maxAgeDays: {{ .Values.policies.outdatedImageBases.maxAgeDays }}
+{{- end }}

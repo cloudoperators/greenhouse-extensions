@@ -1,0 +1,20 @@
+{{- if .Values.policies.unmanagedPods.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkUnmanagedPods
+metadata:
+  name: unmanaged-pods
+  labels:
+    severity: 'warning'
+spec:
+  enforcementAction: {{ .Values.policies.unmanagedPods.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    scope: Namespaced
+  parameters:
+    allowedNamePatterns:
+      {{- toYaml .Values.policies.unmanagedPods.allowedNamePatterns | nindent 6 }}
+{{- end }}

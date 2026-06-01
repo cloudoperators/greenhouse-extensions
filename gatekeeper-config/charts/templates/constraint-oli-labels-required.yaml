@@ -1,0 +1,25 @@
+{{- if .Values.policies.oliLabelsRequired.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkOliLabelsRequired
+metadata:
+  name: oli-labels-required
+  labels:
+    severity: 'error'
+spec:
+  enforcementAction: {{ .Values.policies.oliLabelsRequired.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Secret"]
+    scope: Namespaced
+    labelSelector:
+      matchLabels:
+        owner: helm
+    excludedNamespaces:
+      {{- toYaml .Values.policies.oliLabelsRequired.excludedNamespaces | nindent 6 }}
+  parameters:
+    helmManifestParserURL: {{ required "policies.oliLabelsRequired.helmManifestParserURL is required when policies.oliLabelsRequired.enabled=true" .Values.policies.oliLabelsRequired.helmManifestParserURL | quote }}
+    knownExceptions: {{ .Values.policies.oliLabelsRequired.knownExceptions | toJson }}
+{{- end }}
