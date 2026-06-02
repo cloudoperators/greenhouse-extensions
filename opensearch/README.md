@@ -85,10 +85,9 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | certManager.issuer.digicert | object | `{}` | API group for the DigicertIssuer custom resource |
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
-| cluster.apiGroup | string | `"opensearch.org"` | API group for OpenSearch CRDs. Use "opensearch.org" (recommended) or "opensearch.opster.io" (legacy) |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
 | cluster.cluster.bootstrap.affinity | object | `{}` | bootstrap pod affinity rules |
-| cluster.cluster.bootstrap.jvm | string | `""` | bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommend value for data nodes. If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M |
+| cluster.cluster.bootstrap.jvm | string | `""` | bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommended value for data nodes. If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M |
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
@@ -167,7 +166,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.nodePools | list | <pre>nodePools:<br>  - component: node<br>    diskSize: "30Gi"<br>    replicas: 2<br>    roles:<br>      - "cluster_manager"<br>      - "data"<br>      - "ingest"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "4Gi"<br>        cpu: 2</pre> | Opensearch nodes configuration |
 | cluster.cluster.security.config.adminCredentialsSecret | object | `{"name":"admin-credentials"}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
 | cluster.cluster.security.config.adminSecret | object | `{"name":"opensearch-admin-cert"}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
-| cluster.cluster.security.config.securityConfigSecret | object | `{"name":"opensearch-security-config"}` | Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
+| cluster.cluster.security.config.securityConfigSecret | object | `{"name":"opensearch-security-config"}` | Secret that contains the different yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
 | cluster.cluster.security.tls.http.adminDn | list | `["CN=admin"]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
 | cluster.cluster.security.tls.http.caSecret | object | `{"name":"opensearch-http-cert"}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.http.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false - secrets with existing certificates must be supplied |
