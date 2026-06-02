@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: disco
 spec:
-  version: 1.2.5
+  version: 1.2.6
   displayName: Designate Ingress CNAME Operator (DISCO)
   description: Automated DNS management using the Designate Ingress CNAME operator (DISCO)
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/disco/README.md
