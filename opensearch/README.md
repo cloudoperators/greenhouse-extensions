@@ -86,7 +86,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
-| cluster.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
 | cluster.cluster.bootstrap.affinity | object | `{}` | bootstrap pod affinity rules |
 | cluster.cluster.bootstrap.jvm | string | `""` | bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommend value for data nodes. If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M |
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
@@ -194,30 +193,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.enabled | bool | `true` | Install the OpenSearch operator subchart with its ServiceMonitor and PrometheusRule alerts. Set false on additional releases that reuse the operator from another release. Note: CRDs in chart/crds/ are managed by Helm independently of this flag. |
 | operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
-| operator.kubeRbacProxy.enable | bool | `true` |  |
-| operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.path | string | `"/healthz"` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.port | int | `10443` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.scheme | string | `"HTTPS"` |  |
-| operator.kubeRbacProxy.livenessProbe.initialDelaySeconds | int | `10` |  |
-| operator.kubeRbacProxy.livenessProbe.periodSeconds | int | `15` |  |
-| operator.kubeRbacProxy.livenessProbe.successThreshold | int | `1` |  |
-| operator.kubeRbacProxy.livenessProbe.timeoutSeconds | int | `3` |  |
-| operator.kubeRbacProxy.readinessProbe.failureThreshold | int | `3` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.path | string | `"/healthz"` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.port | int | `10443` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.scheme | string | `"HTTPS"` |  |
-| operator.kubeRbacProxy.readinessProbe.initialDelaySeconds | int | `10` |  |
-| operator.kubeRbacProxy.readinessProbe.periodSeconds | int | `15` |  |
-| operator.kubeRbacProxy.readinessProbe.successThreshold | int | `1` |  |
-| operator.kubeRbacProxy.readinessProbe.timeoutSeconds | int | `3` |  |
-| operator.kubeRbacProxy.resources.limits.cpu | string | `"50m"` |  |
-| operator.kubeRbacProxy.resources.limits.memory | string | `"50Mi"` |  |
-| operator.kubeRbacProxy.resources.requests.cpu | string | `"25m"` |  |
-| operator.kubeRbacProxy.resources.requests.memory | string | `"25Mi"` |  |
-| operator.kubeRbacProxy.securityContext.allowPrivilegeEscalation | bool | `false` |  |
-| operator.kubeRbacProxy.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
-| operator.kubeRbacProxy.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | operator.manager.dnsBase | string | `"cluster.local"` |  |
 | operator.manager.extraEnv | list | `[]` |  |
 | operator.manager.image.pullPolicy | string | `"Always"` |  |
@@ -258,6 +233,8 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| operator.webhook.enabled | bool | `true` |  |
+| operator.webhook.failurePolicy | string | `"Ignore"` |  |
 | serviceProxy.dashboards.enabled | bool | `true` | Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy. When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set) with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
