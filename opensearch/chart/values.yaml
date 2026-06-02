@@ -180,6 +180,8 @@ operator:
 additionalRuleLabels: {}
 
 cluster:
+  # -- API group for OpenSearch CRDs. Use "opensearch.org" (recommended) or "opensearch.opster.io" (legacy)
+  apiGroup: opensearch.org
   nameOverride: ""
   fullnameOverride: ""
 
@@ -403,8 +405,6 @@ cluster:
         loadBalancerSourceRanges: []
         # -- dashboards service type
         type: ClusterIP
-        # -- dashboards service metadata labels
-        labels: {}
 
       tls:
         # -- Secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
