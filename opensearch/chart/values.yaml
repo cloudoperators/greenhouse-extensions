@@ -204,7 +204,7 @@ operator:
     # @ignore
     image:
       repository: "quay.io/brancz/kube-rbac-proxy"
-      tag: "v0.20.2"
+      tag: "v0.22.0@sha256:53d5a3911ac076d000c92362d4939a3147ba21f231edf82926c82d16dbdd8850"
 
   ## If this is set to true, RoleBindings will be used instead of ClusterRoleBindings, inorder to restrict ClusterRoles
   ## to the namespace where the operator and OpenSearch cluster are in. In that case, specify the namespace where they
