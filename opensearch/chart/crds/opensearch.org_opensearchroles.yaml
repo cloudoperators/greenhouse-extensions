@@ -4,22 +4,22 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: opensearchtenants.opensearch.opster.io
+  name: opensearchroles.opensearch.org
 spec:
-  group: opensearch.opster.io
+  group: opensearch.org
   names:
-    kind: OpensearchTenant
-    listKind: OpensearchTenantList
-    plural: opensearchtenants
+    kind: OpensearchRole
+    listKind: OpensearchRoleList
+    plural: opensearchroles
     shortNames:
-    - opensearchtenant
-    singular: opensearchtenant
+    - opensearchrole
+    singular: opensearchrole
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: OpensearchTenant is the Schema for the opensearchtenants API
+        description: OpensearchRole is the Schema for the opensearchroles API
         properties:
           apiVersion:
             description: |-
@@ -39,10 +39,35 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpensearchTenantSpec defines the desired state of OpensearchTenant
+            description: OpensearchRoleSpec defines the desired state of OpensearchRole
             properties:
-              description:
-                type: string
+              clusterPermissions:
+                items:
+                  type: string
+                type: array
+              indexPermissions:
+                items:
+                  properties:
+                    allowedActions:
+                      items:
+                        type: string
+                      type: array
+                    dls:
+                      type: string
+                    fls:
+                      items:
+                        type: string
+                      type: array
+                    indexPatterns:
+                      items:
+                        type: string
+                      type: array
+                    maskedFields:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
               opensearchCluster:
                 description: |-
                   LocalObjectReference contains enough information to let you locate the
@@ -59,13 +84,26 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
+              tenantPermissions:
+                items:
+                  properties:
+                    allowedActions:
+                      items:
+                        type: string
+                      type: array
+                    tenantPatterns:
+                      items:
+                        type: string
+                      type: array
+                  type: object
+                type: array
             required:
             - opensearchCluster
             type: object
           status:
-            description: OpensearchTenantStatus defines the observed state of OpensearchTenant
+            description: OpensearchRoleStatus defines the observed state of OpensearchRole
             properties:
-              existingTenant:
+              existingRole:
                 type: boolean
               managedCluster:
                 description: |-
