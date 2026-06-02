@@ -4,22 +4,23 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: opensearchtenants.opensearch.opster.io
+  name: opensearchuserrolebindings.opensearch.org
 spec:
-  group: opensearch.opster.io
+  group: opensearch.org
   names:
-    kind: OpensearchTenant
-    listKind: OpensearchTenantList
-    plural: opensearchtenants
+    kind: OpensearchUserRoleBinding
+    listKind: OpensearchUserRoleBindingList
+    plural: opensearchuserrolebindings
     shortNames:
-    - opensearchtenant
-    singular: opensearchtenant
+    - opensearchuserrolebinding
+    singular: opensearchuserrolebinding
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: OpensearchTenant is the Schema for the opensearchtenants API
+        description: OpensearchUserRoleBinding is the Schema for the opensearchuserrolebindings
+          API
         properties:
           apiVersion:
             description: |-
@@ -39,10 +40,13 @@ spec:
           metadata:
             type: object
           spec:
-            description: OpensearchTenantSpec defines the desired state of OpensearchTenant
+            description: OpensearchUserRoleBindingSpec defines the desired state of
+              OpensearchUserRoleBinding
             properties:
-              description:
-                type: string
+              backendRoles:
+                items:
+                  type: string
+                type: array
               opensearchCluster:
                 description: |-
                   LocalObjectReference contains enough information to let you locate the
@@ -59,20 +63,40 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
+              roles:
+                items:
+                  type: string
+                type: array
+              users:
+                items:
+                  type: string
+                type: array
             required:
             - opensearchCluster
+            - roles
             type: object
           status:
-            description: OpensearchTenantStatus defines the observed state of OpensearchTenant
+            description: OpensearchUserRoleBindingStatus defines the observed state
+              of OpensearchUserRoleBinding
             properties:
-              existingTenant:
-                type: boolean
               managedCluster:
                 description: |-
                   UID is a type that holds unique ID values, including UUIDs.  Because we
                   don't ONLY use UUIDs, this is an alias to string.  Being a type captures
                   intent and helps make sure that UIDs and names do not get conflated.
                 type: string
+              provisionedBackendRoles:
+                items:
+                  type: string
+                type: array
+              provisionedRoles:
+                items:
+                  type: string
+                type: array
+              provisionedUsers:
+                items:
+                  type: string
+                type: array
               reason:
                 type: string
               state:
