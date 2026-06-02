@@ -97,8 +97,15 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.tag | string | `"acad8a2"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
-| openTelemetry.logsCollector.externalConfig | object | `{"enabled":false,"external_ip":null,"tcp_port":514,"tld":null,"udp_port":514}` | Activates the configuration for external logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false,"external_ip":null,"serviceAnnotations":{}}` | Activates the external alertmanager webhook and deployment event receivers. |
+| openTelemetry.logsCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
+| openTelemetry.logsCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
+| openTelemetry.logsCollector.externalConfig.external_ip | string | `nil` | External IP exposed on the NodePort service |
+| openTelemetry.logsCollector.externalConfig.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
+| openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","topic":""}` | Kafka exporter configuration for buffering logs |
 | openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
@@ -108,6 +115,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
+| openTelemetry.logsCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
+| openTelemetry.logsCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.logsCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
+| openTelemetry.logsCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
+| openTelemetry.logsCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
@@ -115,14 +128,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
 | openTelemetry.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
 | openTelemetry.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
-| openTelemetry.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch bulk requests |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
-| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","LogsExportingFailed","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","LogsExportingFailed","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsExportingFailed"],"labels":{}}` | Default rules for monitoring the opentelemetry components. |
 | openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
 | openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| openTelemetry.prometheus.rules.enabled | list | `["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","LogsExportingFailed","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth"]` | PrometheusRules to enable. |
+| openTelemetry.prometheus.rules.enabled | list | `["FilelogRefusedLogs","LogsOTelLogsMissing","LogsOTelLogsDecreasing","LogsExportingFailed","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsExportingFailed"]` | PrometheusRules to enable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |
 | openTelemetry.region | string | `nil` | Region label for Logging |
