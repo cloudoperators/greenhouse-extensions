@@ -65,7 +65,7 @@ attributes/auditd_logs:
 {{- define "auditd.pipelines" }}
 logs/auditd_logs:
   receivers: [auditd/auditd_logs]
-  processors: [attributes/auditd_logs,k8sattributes,attributes/cluster]
+  processors: [attributes/auditd_logs,k8s_attributes,attributes/cluster]
   exporters: [forward]
 {{- end }}
 

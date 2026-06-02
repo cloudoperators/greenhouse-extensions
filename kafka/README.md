@@ -42,12 +42,26 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.defaults.duration | string | `"4800h"` |  |
+| certManager.defaults.privateKey.algorithm | string | `"RSA"` |  |
+| certManager.defaults.privateKey.encoding | string | `"PKCS8"` |  |
+| certManager.defaults.privateKey.size | int | `2048` |  |
+| certManager.defaults.usages[0] | string | `"digital signature"` |  |
+| certManager.defaults.usages[1] | string | `"key encipherment"` |  |
+| certManager.defaults.usages[2] | string | `"server auth"` |  |
+| certManager.defaults.usages[3] | string | `"client auth"` |  |
+| certManager.enabled | bool | `false` |  |
+| certManager.externalCert.dnsNames | list | `[]` | SANs covering bootstrap and per-broker hosts. Required when enabled. |
+| certManager.externalCert.name | string | `"kafka-external-cert"` |  |
+| certManager.externalCert.secretName | string | `"kafka-external-cert"` |  |
+| certManager.issuer | object | `{}` | issuerRef (group, kind, name). Required when enabled. |
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | cruiseControl.enabled | bool | `false` | Enable Cruise Control |
 | cruiseControl.resources | object | requests: 512Mi memory, 500m CPU; limits: 1Gi memory, 1 CPU | Cruise Control resource configuration |
 | entityOperator.enabled | bool | `true` | Enable Entity Operator |
 | entityOperator.topicOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
 | entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry can be a raw YAML string or a map object. |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |
 | kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM heap settings for Kafka brokers. xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory for OS page cache, which Kafka relies on heavily for performance. See: https://docs.confluent.io/platform/current/kafka/deployment.html |
@@ -66,6 +80,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | monitoring.enabled | bool | `true` | Enable Prometheus monitoring |
 | monitoring.podMonitor | object | `{"labels":{}}` | Pod Monitor configuration |
 | monitoring.podMonitor.labels | object | `{}` | Labels to add to the PodMonitor so Prometheus can discover it. |
+| nodeAffinity | object | `{}` | Node affinity rules for Kafka broker/controller pods. When set, placed at spec.template.pod.affinity.nodeAffinity in the KafkaNodePool. Leave empty ({}) for no affinity constraint (default). |
 | operator.enabled | bool | `true` | Enable or disable the Strimzi Kafka Operator installation |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image | object | ghcr.io/cloudoperators/greenhouse-extensions-integration-test:main | Test framework image configuration |

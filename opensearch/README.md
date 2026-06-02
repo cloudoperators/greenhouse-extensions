@@ -190,12 +190,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. |
 | cluster.usersCredentials | object | <pre>usersCredentials:<br>  admin:<br>    username: "admin"<br>    password: "admin"<br>    hash: ""</pre> | List of OpenSearch user credentials. These credentials are used for authenticating users with OpenSearch. See values.yaml file for a full example. |
 | cluster.usersRoleBinding | list | <pre>usersRoleBinding:<br>  - name: "logs-write"<br>    users:<br>      - "logs"<br>      - "logs2"<br>    roles:<br>      - "logs-write-role"</pre> | Allows to link any number of users, backend roles and roles with a OpensearchUserRoleBinding. Each user in the binding will be granted each role |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry can be a raw YAML string or a map object. |
 | operator.enabled | bool | `true` | Install the OpenSearch operator subchart with its ServiceMonitor and PrometheusRule alerts. Set false on additional releases that reuse the operator from another release. Note: CRDs in chart/crds/ are managed by Helm independently of this flag. |
 | operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
 | operator.kubeRbacProxy.enable | bool | `true` |  |
-| operator.kubeRbacProxy.image.repository | string | `"quay.io/brancz/kube-rbac-proxy"` |  |
-| operator.kubeRbacProxy.image.tag | string | `"v0.20.2"` |  |
 | operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.path | string | `"/healthz"` |  |
 | operator.kubeRbacProxy.livenessProbe.httpGet.port | int | `10443` |  |
@@ -259,6 +258,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| serviceProxy.dashboards.enabled | bool | `true` | Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy. When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set) with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
 | testFramework.image.repository | string | `"cloudoperators/greenhouse-extensions-integration-test"` | Defines the image repository for the test framework. |

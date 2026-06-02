@@ -10,10 +10,12 @@ on:
       - absent-metrics-operator/charts/**
       - alerts/charts/**
       - audit-logs/charts/**
+      - blackbox-exporter/charts/**
       - cert-manager/charts/**
       - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
-      - kafka/chart/**
+      - gatekeeper/charts/**
+      - kafka/charts/**
       - kube-monitoring/charts/**
       - kubeconfig-generator/chart/**
       - logshipper/chart/**
@@ -51,13 +53,17 @@ jobs:
             chartName: alerts
           - chartDir: audit-logs/charts
             chartName: audit-logs
+          - chartDir: blackbox-exporter/charts
+            chartName: blackbox-exporter
           - chartDir: cert-manager/charts
             chartName: cert-manager
           - chartDir: exposed-services/charts/v1.0.0/exposed-service
             chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
             chartName: exposed-services
-          - chartDir: kafka/chart
+          - chartDir: gatekeeper/charts
+            chartName: gatekeeper
+          - chartDir: kafka/charts
             chartName: kafka
           - chartDir: kube-monitoring/charts
             chartName: kube-monitoring

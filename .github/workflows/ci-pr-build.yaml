@@ -24,16 +24,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - chartDir: absent-metrics-operator/charts
+            chartName: absent-metrics-operator
           - chartDir: alerts/charts
             chartName: alerts
           - chartDir: audit-logs/charts
             chartName: audit-logs
+          - chartDir: blackbox-exporter/charts
+            chartName: blackbox-exporter
           - chartDir: cert-manager/charts
             chartName: cert-manager
-          - chartDir: exposed-services/charts/v1.0.0/exposed-service
-            chartName: exposed-services
           - chartDir: exposed-services/charts/v2.0.0/exposed-service
             chartName: exposed-services
+          - chartDir: gatekeeper/charts
+            chartName: gatekeeper
           - chartDir: kafka/chart
             chartName: kafka
           - chartDir: kube-monitoring/charts
@@ -48,14 +52,12 @@ jobs:
             chartName: logs
           - chartDir: perses/charts
             chartName: perses
-          - chartDir: plutono/charts
-            chartName: plutono
           - chartDir: service-proxy/charts/1.0.0/service-proxy
             chartName: service-proxy
           - chartDir: thanos/charts
             chartName: thanos
-          - chartDir: repo-guard/charts
-            chartName: repo-guard
+          - chartDir: trust-manager/charts
+            chartName: trust-manager
           - chartDir: shoot-grafter/charts
             chartName: shoot-grafter
           - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access

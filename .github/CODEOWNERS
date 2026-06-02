@@ -21,12 +21,14 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /absent-metrics-operator/ @cloudoperators/greenhouse-observability
 /alerts/                  @cloudoperators/greenhouse-observability
 /audit-logs/              @cloudoperators/greenhouse-observability
+/blackbox-exporter/       @cloudoperators/greenhouse-observability
 /cert-manager/            @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
 /doop/                    @andypf @artiereus @edda @hodanoori @tilmanhaupt @uwe-mayer
 /exposed-services/        @cloudoperators/greenhouse-backend
 /external-dns/            @cloudoperators/greenhouse-backend
+/gatekeeper/              @cloudoperators/greenhouse-backend
 /ingress-nginx/           @cloudoperators/greenhouse-backend
 /kafka/                   @cloudoperators/greenhouse-observability
 /kube-monitoring/         @cloudoperators/greenhouse-observability
