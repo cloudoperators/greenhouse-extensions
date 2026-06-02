@@ -5,6 +5,7 @@ policies:
   highCpuRequests:
     enabled: true
     enforcementAction: dryrun
+    maxCpu: 6
 
   unmanagedPods:
     enabled: true

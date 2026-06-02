@@ -31,6 +31,12 @@ spec:
       default: dryrun
       required: false
       type: string
+    - name: policies.highCpuRequests.maxCpu
+      displayName: High CPU requests max CPU
+      description: Maximum total CPU (cores) a workload may request across all containers and initContainers before being flagged.
+      default: 6
+      required: false
+      type: int
 
     - name: policies.unmanagedPods.enabled
       displayName: Unmanaged pods policy enabled

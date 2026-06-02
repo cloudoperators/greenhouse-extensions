@@ -44,14 +44,14 @@ spec:
               }
 
               canonify_cpu(orig) := new if {
-                  not is_number(orig)
+                  is_string(orig)
                   not endswith(orig, "m")
                   regex.match(`^[0-9]*\.?[0-9]+$`, orig)
                   new := to_number(orig)
               }
 
               canonify_cpu(orig) := new if {
-                  not is_number(orig)
+                  is_string(orig)
                   endswith(orig, "m")
                   regex.match(`^[0-9]*\.?[0-9]+m$`, orig)
                   new := to_number(replace(orig, "m", "")) / 1000

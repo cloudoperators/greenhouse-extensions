@@ -19,5 +19,5 @@ spec:
         kinds: ["Job", "CronJob"]
     scope: Namespaced
   parameters:
-    maxCpu: 6
+    maxCpu: {{ .Values.policies.highCpuRequests.maxCpu }}
 {{- end }}
