@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: gatekeeper-config
+spec:
+  version: 0.1.0
+  displayName: Gatekeeper Config
+  description: |
+    Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
+    admission control. Provides a library of universal admission policies that
+    can be enabled and tuned per cluster.
+  icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/gatekeeper-config/README.md
+  helmChart:
+    name: gatekeeper-config
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.1.0
+  options:
+    - name: policies.highCpuRequests.enabled
+      displayName: High CPU requests policy enabled
+      description: Enable the high-cpu-requests policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.highCpuRequests.enforcementAction
+      displayName: High CPU requests enforcement action
+      description: Gatekeeper enforcementAction for high-cpu-requests (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.unmanagedPods.enabled
+      displayName: Unmanaged pods policy enabled
+      description: Enable the unmanaged-pods policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.unmanagedPods.enforcementAction
+      displayName: Unmanaged pods enforcement action
+      description: Gatekeeper enforcementAction for unmanaged-pods (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.unmanagedPods.allowedNamePatterns
+      displayName: Allowed unmanaged-pod name patterns
+      description: List of {namespace, namePattern} entries that exempt matching Pods from the unmanaged-pods policy.
+      required: false
+      type: list
