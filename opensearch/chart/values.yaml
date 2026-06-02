@@ -504,6 +504,11 @@ cluster:
       # Configure tls usage for transport and http interface
       tls:
         http:
+          # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
+          # only used when existing certificates are provided
+          adminDn:
+            - "CN=admin"
+
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
           caSecret:
@@ -519,11 +524,6 @@ cluster:
             name: "opensearch-http-cert"
 
         transport:
-          # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
-          # only used when existing certificates are provided
-          adminDn:
-            - "CN=admin"
-
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
           caSecret:
