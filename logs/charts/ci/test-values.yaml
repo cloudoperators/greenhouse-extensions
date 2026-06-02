@@ -42,6 +42,12 @@ openTelemetry:
   region: test
   logsCollector:
     enabled: true
+    journaldConfig:
+      enabled: true
+    k8seventsConfig:
+      enabled: true
+    containerdConfig:
+      enabled: true
     kafka:
       enabled: true
     cephConfig:
@@ -52,10 +58,15 @@ openTelemetry:
       enabled: true
     externalConfig:
       enabled: false
-      tld: test
       external_ip: 0.0.0.0
+      alertmanager_port: 1515
+      deployments_port: 1516
+    syslogConfig:
+      enabled: false
       tcp_port: 514
       udp_port: 514
+    tracesConfig:
+      enabled: false
   metricsCollector:
     enabled: false
   prometheus:
