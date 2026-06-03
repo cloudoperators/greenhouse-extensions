@@ -17,7 +17,7 @@ sources:
 dependencies:
   - name: opentelemetry-operator
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-    version: 0.106.0
+    version: 0.114.1
     condition: opentelemetry-operator.enabled
   - name: crds
     version: 0.0.4
