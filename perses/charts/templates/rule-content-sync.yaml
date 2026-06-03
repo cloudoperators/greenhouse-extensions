@@ -1,0 +1,29 @@
+{{- if and .Values.perses.serviceMonitor.selfMonitor .Values.greenhouse.prometheusRule.contentSync.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "release.name" . }}-content-sync-alerts
+  labels:
+    plugindefinition: perses
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- with .Values.greenhouse.prometheusRule.contentSync.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    - name: perses-content-sync
+      rules:
+        - alert: PersesContentSyncJobFailed
+          annotations:
+            summary: "Perses content sync job failed"
+            description: "The Perses content sync Job in namespace {{`{{ $labels.namespace }}`}} has failed. The Perses provisioning PVC has not been updated; new dashboards and datasources will not appear until the sync succeeds."
+          expr: |
+            max by (namespace) (
+              kube_job_status_failed{job_name=~"{{ include "release.name" . }}-content-sync-.*"}
+            ) > 0
+          for: 5m
+          labels:
+            severity: warning
+            playbook: https://github.com/cloudoperators/greenhouse-extensions/blob/main/perses/playbooks/PersesContentSyncJobFailed.md
+            {{- include "perses.alertLabels" . | nindent 12 }}
+{{- end }}

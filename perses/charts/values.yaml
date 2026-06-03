@@ -66,7 +66,7 @@ perses:
     selfMonitor: false
 
     # -- Labels to add to the ServiceMonitor so that Prometheus can discover it.
-    # These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR.
+    # These labels should match the 'serviceMonitorSelector.matchLabels' defined in your Prometheus CR.
     labels: {}
 
     selector:
@@ -416,3 +416,24 @@ greenhouse:
   # -- Labels to add to the PrometheusRules alerts.
   # @default -- <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre>
   alertLabels: {}
+
+  # -- PrometheusRule resources for self-monitoring alerts.
+  # Gated by `perses.serviceMonitor.selfMonitor` and per-rule `enabled`.
+  # Per-rule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`.
+  # @default -- See per-rule defaults below
+  prometheusRule:
+    # -- PersesServiceDown / PersesServiceAbsent (Perses service availability).
+    # @default -- <pre>perses:<br>  enabled: true<br>  labels: {}</pre>
+    perses:
+      # -- Render the PrometheusRule.
+      enabled: true
+      # -- Labels for `metadata.labels` (e.g. `prometheus: kubernetes`).
+      labels: {}
+
+    # -- PersesContentSyncJobFailed (content-sync CronJob failures).
+    # @default -- <pre>contentSync:<br>  enabled: true<br>  labels: {}</pre>
+    contentSync:
+      # -- Render the PrometheusRule.
+      enabled: true
+      # -- Labels for `metadata.labels` (e.g. `prometheus: infra-collector`).
+      labels: {}

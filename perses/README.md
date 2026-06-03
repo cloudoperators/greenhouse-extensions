@@ -68,6 +68,13 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
 | greenhouse.alertLabels | object | <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre> | Labels to add to the PrometheusRules alerts. |
 | greenhouse.defaultDashboards.enabled | bool | `true` | By setting this to true, You will get Perses Self-monitoring dashboards |
+| greenhouse.prometheusRule | object | See per-rule defaults below | PrometheusRule resources for self-monitoring alerts. Gated by `perses.serviceMonitor.selfMonitor` and per-rule `enabled`. Per-rule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`. |
+| greenhouse.prometheusRule.contentSync | object | <pre>contentSync:<br>  enabled: true<br>  labels: {}</pre> | PersesContentSyncJobFailed (content-sync CronJob failures). |
+| greenhouse.prometheusRule.contentSync.enabled | bool | `true` | Render the PrometheusRule. |
+| greenhouse.prometheusRule.contentSync.labels | object | `{}` | Labels for `metadata.labels` (e.g. `prometheus: infra-collector`). |
+| greenhouse.prometheusRule.perses | object | <pre>perses:<br>  enabled: true<br>  labels: {}</pre> | PersesServiceDown / PersesServiceAbsent (Perses service availability). |
+| greenhouse.prometheusRule.perses.enabled | bool | `true` | Render the PrometheusRule. |
+| greenhouse.prometheusRule.perses.labels | object | `{}` | Labels for `metadata.labels` (e.g. `prometheus: kubernetes`). |
 | perses.additionalLabels | object | `{}` |  |
 | perses.annotations | object | `{}` | Statefulset Annotations |
 | perses.config.annotations | object | `{}` | Annotations for config |
@@ -127,7 +134,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | perses.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | perses.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | perses.serviceMonitor.interval | string | `"30s"` | Interval for the serviceMonitor |
-| perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' and `ruleSelector.matchLabels` defined in your Prometheus CR. |
+| perses.serviceMonitor.labels | object | `{}` | Labels to add to the ServiceMonitor so that Prometheus can discover it. These labels should match the 'serviceMonitorSelector.matchLabels' defined in your Prometheus CR. |
 | perses.serviceMonitor.selector.matchLabels | object | `{}` | Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service. |
 | perses.serviceMonitor.selfMonitor | bool | `false` | Create a serviceMonitor for Perses |
 | perses.sidecar | object | <pre>sidecar:<br>  enabled: true<br>  label: "perses.dev/resource"<br>  labelValue: "true"<br>  allNamespaces: true<br>  extraEnvVars: []<br>  enableSecretAccess: false</pre> | Sidecar configuration that watches for ConfigMaps with the specified label/labelValue and loads them into Perses provisioning |
