@@ -5,6 +5,11 @@ on:
     paths:
       - gatekeeper-config/**
       - .github/workflows/gatekeeper-config-tests.yaml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   gator-verify:
@@ -26,4 +31,15 @@ jobs:
           gator version
 
       - name: Run gator tests
-        run: gatekeeper-config/tests/run.sh
+        run: gatekeeper-config/tests/run.sh | tee /tmp/gator.log
+
+      - name: Summarize results
+        if: always()
+        run: |
+          PASSED=$(grep -c -- "--- PASS:" /tmp/gator.log) || PASSED=0
+          FAILED=$(grep -c -- "--- FAIL:" /tmp/gator.log) || FAILED=0
+          {
+            echo "## gator results"
+            echo ""
+            echo "${PASSED} passed, ${FAILED} failed"
+          } >> "$GITHUB_STEP_SUMMARY"
