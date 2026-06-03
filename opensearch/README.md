@@ -86,9 +86,8 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | certManager.issuer.selfSigned | object | `{"name":"opensearch-issuer"}` | Name of the self-signed issuer used to sign the internal CA certificate |
 | cluster.actionGroups | list | `[]` | List of OpensearchActionGroup. Check values.yaml file for examples. |
 | cluster.cluster.annotations | object | `{}` | OpenSearchCluster annotations |
-| cluster.cluster.bootstrap.additionalConfig | object | `{}` | bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration |
 | cluster.cluster.bootstrap.affinity | object | `{}` | bootstrap pod affinity rules |
-| cluster.cluster.bootstrap.jvm | string | `""` | bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommend value for data nodes. If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M |
+| cluster.cluster.bootstrap.jvm | string | `""` | bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommended value for data nodes. If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M |
 | cluster.cluster.bootstrap.nodeSelector | object | `{}` | bootstrap pod node selectors |
 | cluster.cluster.bootstrap.resources | object | `{}` | bootstrap pod cpu and memory resources |
 | cluster.cluster.bootstrap.tolerations | list | `[]` | bootstrap pod tolerations |
@@ -167,11 +166,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.nodePools | list | <pre>nodePools:<br>  - component: node<br>    diskSize: "30Gi"<br>    replicas: 2<br>    roles:<br>      - "cluster_manager"<br>      - "data"<br>      - "ingest"<br>    resources:<br>      requests:<br>        memory: "1Gi"<br>        cpu: "500m"<br>      limits:<br>        memory: "4Gi"<br>        cpu: 2</pre> | Opensearch nodes configuration |
 | cluster.cluster.security.config.adminCredentialsSecret | object | `{"name":"admin-credentials"}` | Secret that contains fields username and password to be used by the operator to access the opensearch cluster for node draining. Must be set if custom securityconfig is provided. |
 | cluster.cluster.security.config.adminSecret | object | `{"name":"opensearch-admin-cert"}` | TLS Secret that contains a client certificate (tls.key, tls.crt, ca.crt) with admin rights in the opensearch cluster. Must be set if transport certificates are provided by user and not generated |
-| cluster.cluster.security.config.securityConfigSecret | object | `{"name":"opensearch-security-config"}` | Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
+| cluster.cluster.security.config.securityConfigSecret | object | `{"name":"opensearch-security-config"}` | Secret that contains the different yml files of the opensearch-security config (config.yml, internal_users.yml, etc) |
+| cluster.cluster.security.tls.http.adminDn | list | `["CN=admin"]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
 | cluster.cluster.security.tls.http.caSecret | object | `{"name":"opensearch-http-cert"}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.http.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false - secrets with existing certificates must be supplied |
 | cluster.cluster.security.tls.http.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
-| cluster.cluster.security.tls.transport.adminDn | list | `["CN=admin"]` | DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh, only used when existing certificates are provided |
 | cluster.cluster.security.tls.transport.caSecret | object | `{"name":"opensearch-ca-cert"}` | Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields |
 | cluster.cluster.security.tls.transport.generate | bool | `false` | If set to true the operator will generate a CA and certificates for the cluster to use, if false secrets with existing certificates must be supplied |
 | cluster.cluster.security.tls.transport.nodesDn | list | `["CN=opensearch-transport"]` | Allowed Certificate DNs for nodes, only used when existing certificates are provided |
@@ -194,30 +193,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.enabled | bool | `true` | Install the OpenSearch operator subchart with its ServiceMonitor and PrometheusRule alerts. Set false on additional releases that reuse the operator from another release. Note: CRDs in chart/crds/ are managed by Helm independently of this flag. |
 | operator.fullnameOverride | string | `""` |  |
 | operator.installCRDs | bool | `false` |  |
-| operator.kubeRbacProxy.enable | bool | `true` |  |
-| operator.kubeRbacProxy.livenessProbe.failureThreshold | int | `3` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.path | string | `"/healthz"` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.port | int | `10443` |  |
-| operator.kubeRbacProxy.livenessProbe.httpGet.scheme | string | `"HTTPS"` |  |
-| operator.kubeRbacProxy.livenessProbe.initialDelaySeconds | int | `10` |  |
-| operator.kubeRbacProxy.livenessProbe.periodSeconds | int | `15` |  |
-| operator.kubeRbacProxy.livenessProbe.successThreshold | int | `1` |  |
-| operator.kubeRbacProxy.livenessProbe.timeoutSeconds | int | `3` |  |
-| operator.kubeRbacProxy.readinessProbe.failureThreshold | int | `3` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.path | string | `"/healthz"` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.port | int | `10443` |  |
-| operator.kubeRbacProxy.readinessProbe.httpGet.scheme | string | `"HTTPS"` |  |
-| operator.kubeRbacProxy.readinessProbe.initialDelaySeconds | int | `10` |  |
-| operator.kubeRbacProxy.readinessProbe.periodSeconds | int | `15` |  |
-| operator.kubeRbacProxy.readinessProbe.successThreshold | int | `1` |  |
-| operator.kubeRbacProxy.readinessProbe.timeoutSeconds | int | `3` |  |
-| operator.kubeRbacProxy.resources.limits.cpu | string | `"50m"` |  |
-| operator.kubeRbacProxy.resources.limits.memory | string | `"50Mi"` |  |
-| operator.kubeRbacProxy.resources.requests.cpu | string | `"25m"` |  |
-| operator.kubeRbacProxy.resources.requests.memory | string | `"25Mi"` |  |
-| operator.kubeRbacProxy.securityContext.allowPrivilegeEscalation | bool | `false` |  |
-| operator.kubeRbacProxy.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
-| operator.kubeRbacProxy.securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | operator.manager.dnsBase | string | `"cluster.local"` |  |
 | operator.manager.extraEnv | list | `[]` |  |
 | operator.manager.image.pullPolicy | string | `"Always"` |  |
@@ -258,6 +233,8 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.serviceAccount.name | string | `"opensearch-operator-controller-manager"` |  |
 | operator.tolerations | list | `[]` |  |
 | operator.useRoleBindings | bool | `false` |  |
+| operator.webhook.enabled | bool | `true` |  |
+| operator.webhook.failurePolicy | string | `"Ignore"` |  |
 | serviceProxy.dashboards.enabled | bool | `true` | Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy. When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set) with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |

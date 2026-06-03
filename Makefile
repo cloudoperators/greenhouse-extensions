@@ -16,8 +16,9 @@ endif
 KUSTOMIZE_VERSION ?= 5.8.1
 YQ_VERSION ?= v4.53.2
 HELM_DOCS_VERSION ?= 1.14.2
-PINT_VERSION ?= 0.83.0
+PINT_VERSION ?= 0.84.0
 HELM_VERSION ?= 3.21.0
+LICENSE_EYE_VERSION ?= 0.8.0
 
 ## Location to install dependencies to
 LOCALBIN ?= $(shell pwd)/bin
@@ -28,12 +29,14 @@ YQ ?= $(LOCALBIN)/yq
 PINT ?= $(LOCALBIN)/pint
 HELM ?= $(LOCALBIN)/helm
 HELM-DOCS ?= $(LOCALBIN)/helm-docs
+LICENSE-EYE ?= $(LOCALBIN)/license-eye
 
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 YQ_INSTALL_SCRIPT ?= https://github.com/mikefarah/yq/releases/latest/download/yq_$(OS)_$(ARCH)
 HELM_DOCS_REPO ?= https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$(OS)_$(UNAME_M).tar.gz
 PINT_REPO ?= https://github.com/cloudflare/pint/releases/download/v$(PINT_VERSION)/pint-$(PINT_VERSION)-$(OS)-$(ARCH).tar.gz
 HELM_URL ?= https://get.helm.sh/helm-v$(HELM_VERSION)-$(OS)-$(ARCH).tar.gz
+LICENSE_EYE_REPO ?= github.com/apache/skywalking-eyes/cmd/license-eye@v$(LICENSE_EYE_VERSION)
 
 ## Download `kustomize` locally if necessary
 .PHONY: kustomize
@@ -103,6 +106,20 @@ $(HELM): $(LOCALBIN)
 		&& rm -rf $(LOCALBIN)/$(OS)-$(ARCH); \
 	fi;
 
+## Download `license-eye` locally if necessary
+.PHONY: license-eye-install
+license-eye-install: $(LICENSE-EYE)
+$(LICENSE-EYE): $(LOCALBIN)
+	@if ! test -x $(LOCALBIN)/license-eye; then \
+		if ! command -v go >/dev/null 2>&1; then \
+			echo "Error: 'license-eye-install' requires 'go' to be installed and available in PATH."; \
+			echo "Please install Go or update this target to download a prebuilt license-eye binary."; \
+			exit 1; \
+		fi; \
+		echo "Installing license-eye $(LICENSE_EYE_VERSION)..."; \
+		GOBIN=$(LOCALBIN) go install $(LICENSE_EYE_REPO); \
+	fi;
+
 
 .PHONY: generate-documentation
 generate-documentation:
@@ -141,3 +158,13 @@ pint: pint-install helm-install yq
 		ls -d */ | sed 's#/##' | sed 's/LICENSES//' || echo "No plugin directories found"; \
 		exit 1; \
 	fi;
+
+.PHONY: license-check
+license-check: license-eye-install ## Check license headers
+	@echo "Checking license headers..."
+	@$(LICENSE-EYE) -c .github/licenserc.yaml header check
+
+.PHONY: license-fix
+license-fix: license-eye-install ## Fix/generate license headers based on .licenserc.yaml
+	@echo "Fixing license headers..."
+	@$(LICENSE-EYE) -c .github/licenserc.yaml header fix

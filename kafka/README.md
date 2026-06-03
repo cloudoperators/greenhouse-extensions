@@ -42,6 +42,19 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.defaults.duration | string | `"4800h"` |  |
+| certManager.defaults.privateKey.algorithm | string | `"RSA"` |  |
+| certManager.defaults.privateKey.encoding | string | `"PKCS8"` |  |
+| certManager.defaults.privateKey.size | int | `2048` |  |
+| certManager.defaults.usages[0] | string | `"digital signature"` |  |
+| certManager.defaults.usages[1] | string | `"key encipherment"` |  |
+| certManager.defaults.usages[2] | string | `"server auth"` |  |
+| certManager.defaults.usages[3] | string | `"client auth"` |  |
+| certManager.enabled | bool | `false` |  |
+| certManager.externalCert.dnsNames | list | `[]` | SANs covering bootstrap and per-broker hosts. Required when enabled. |
+| certManager.externalCert.name | string | `"kafka-external-cert"` |  |
+| certManager.externalCert.secretName | string | `"kafka-external-cert"` |  |
+| certManager.issuer | object | `{}` | issuerRef (group, kind, name). Required when enabled. |
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | cruiseControl.enabled | bool | `false` | Enable Cruise Control |
 | cruiseControl.resources | object | requests: 512Mi memory, 500m CPU; limits: 1Gi memory, 1 CPU | Cruise Control resource configuration |

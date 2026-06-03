@@ -21,6 +21,7 @@ Dockerfile.integration-test @cloudoperators/greenhouse-core @cloudoperators/gree
 /absent-metrics-operator/ @cloudoperators/greenhouse-observability
 /alerts/                  @cloudoperators/greenhouse-observability
 /audit-logs/              @cloudoperators/greenhouse-observability
+/blackbox-exporter/       @cloudoperators/greenhouse-observability
 /cert-manager/            @cloudoperators/greenhouse-backend
 /digicert-issuer/         @cloudoperators/greenhouse-backend
 /disco/                   @cloudoperators/greenhouse-backend
