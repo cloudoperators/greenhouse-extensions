@@ -68,7 +68,7 @@ A guide on how to create custom dashboards on the UI can be found [here](#create
 | global.commonLabels | object | `{}` | Labels to add to all resources. This can be used to add a `support_group` or `service` label to all resources and alerting rules. |
 | greenhouse.alertLabels | object | <pre>alertLabels:<br>  support_group: "default"<br>  meta: ""</pre> | Labels to add to the PrometheusRules alerts. |
 | greenhouse.defaultDashboards.enabled | bool | `true` | By setting this to true, You will get Perses Self-monitoring dashboards |
-| greenhouse.prometheusRule | object | See per-rule defaults below | PrometheusRule resources for self-monitoring alerts. Gated by `perses.serviceMonitor.selfMonitor` and per-rule `enabled`. Per-rule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`. |
+| greenhouse.prometheusRule | object | See per-PrometheusRule defaults below | PrometheusRule resources for self-monitoring alerts. Gated by `perses.serviceMonitor.selfMonitor` and per-PrometheusRule `enabled`. Per-PrometheusRule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`. |
 | greenhouse.prometheusRule.contentSync | object | <pre>contentSync:<br>  enabled: true<br>  labels: {}</pre> | PersesContentSyncJobFailed (content-sync CronJob failures). |
 | greenhouse.prometheusRule.contentSync.enabled | bool | `true` | Render the PrometheusRule. |
 | greenhouse.prometheusRule.contentSync.labels | object | `{}` | Labels for `metadata.labels` (e.g. `prometheus: infra-collector`). |

@@ -418,9 +418,9 @@ greenhouse:
   alertLabels: {}
 
   # -- PrometheusRule resources for self-monitoring alerts.
-  # Gated by `perses.serviceMonitor.selfMonitor` and per-rule `enabled`.
-  # Per-rule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`.
-  # @default -- See per-rule defaults below
+  # Gated by `perses.serviceMonitor.selfMonitor` and per-PrometheusRule `enabled`.
+  # Per-PrometheusRule `labels` go on `metadata.labels` to match Prometheus `ruleSelector`.
+  # @default -- See per-PrometheusRule defaults below
   prometheusRule:
     # -- PersesServiceDown / PersesServiceAbsent (Perses service availability).
     # @default -- <pre>perses:<br>  enabled: true<br>  labels: {}</pre>
