@@ -4,8 +4,7 @@ kind: PrometheusRule
 metadata:
   name: {{ include "release.name" . }}-perses-alerts
   labels:
-    plugindefinition: perses
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "perses.labels" . | nindent 4 }}
     {{- with .Values.greenhouse.prometheusRule.perses.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
