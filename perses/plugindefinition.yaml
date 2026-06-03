@@ -30,3 +30,21 @@ spec:
       name: perses.serviceMonitor.selector.matchLabels
       required: false
       type: map
+    - default: true
+      description: Render the PrometheusRule resource for Perses service alerts (PersesServiceDown, PersesServiceAbsent). Requires perses.serviceMonitor.selfMonitor to be true.
+      name: greenhouse.prometheusRule.perses.enabled
+      required: false
+      type: bool
+    - description: Labels added to the Perses-service-alerts PrometheusRule resource. Should match the target Prometheus CR's ruleSelector.matchLabels (e.g. prometheus=kubernetes).
+      name: greenhouse.prometheusRule.perses.labels
+      required: false
+      type: map
+    - default: true
+      description: Render the PrometheusRule resource for content-sync alerts (PersesContentSyncJobFailed). Requires perses.serviceMonitor.selfMonitor to be true.
+      name: greenhouse.prometheusRule.contentSync.enabled
+      required: false
+      type: bool
+    - description: Labels added to the content-sync-alerts PrometheusRule resource. Should match the target Prometheus CR's ruleSelector.matchLabels (e.g. prometheus=infra-collector).
+      name: greenhouse.prometheusRule.contentSync.labels
+      required: false
+      type: map
