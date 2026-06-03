@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kafka
 spec:
-  version: 0.1.7
+  version: 0.1.8
   displayName: Kafka
   description: Creates and manages an Apache Kafka environment using the Strimzi Kafka Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kafka/logo.png'
