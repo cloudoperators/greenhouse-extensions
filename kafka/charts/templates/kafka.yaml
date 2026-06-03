@@ -34,6 +34,9 @@ spec:
   {{- end }}
   {{- if .Values.kafkaExporter.enabled }}
   kafkaExporter:
+    {{- with .Values.kafkaExporter.image }}
+    image: {{ . | quote }}
+    {{- end }}
     topicRegex: {{ .Values.kafkaExporter.topicRegex | quote }}
     groupRegex: {{ .Values.kafkaExporter.groupRegex | quote }}
     resources:
