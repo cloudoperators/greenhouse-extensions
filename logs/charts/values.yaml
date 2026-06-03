@@ -36,9 +36,6 @@ opentelemetry-operator:
       enabled: true
     # -- Additional labels on the ServiceMonitor
       extraLabels: {}
-  # -- the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API.
-  kubeRBACProxy:
-    enabled: false
 
 customCRDs:
   # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds.
