@@ -13,7 +13,7 @@ maintainers:
 home: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka
 sources:
   - https://github.com/strimzi/strimzi-kafka-operator
-appVersion: 4.1.0
+appVersion: 4.2.0
 dependencies:
   - name: strimzi-kafka-operator
     alias: operator
