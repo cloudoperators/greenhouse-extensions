@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: individual-pod
+  namespace: default
+  labels:
+    marker: "individual pod"
+spec:
+  containers:
+  - name: alpine
+    image: alpine:3
+  initContainers:
+  - name: init-busybox
+    image: busybox:1

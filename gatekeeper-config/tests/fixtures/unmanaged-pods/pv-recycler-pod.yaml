@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: recycler-for-pv-001
+  namespace: default
+spec:
+  containers:
+  - name: pv-recycler
+    image: registry.k8s.io/debian-base:v2.0.0
+    command: [/bin/sh]
+    args: [-c, "test -e /scrub && find /scrub -mindepth 1 -delete"]

@@ -1,0 +1,12 @@
+policies:
+  highCpuRequests:
+    enabled: true
+    maxCpu: 6
+  unmanagedPods:
+    enabled: true
+    allowedNamePatterns:
+      - namespace: default
+        namePattern: "recycler-for-.*"
+
+tests:
+  enabled: true

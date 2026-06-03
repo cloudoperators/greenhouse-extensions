@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: evil-recycler-for-foo
+  namespace: default
+spec:
+  containers:
+  - name: evil
+    image: alpine:3.18
+    command: [sleep, inf]

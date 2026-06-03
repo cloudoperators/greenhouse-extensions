@@ -1,0 +1,29 @@
+name: gatekeeper-config tests
+
+on:
+  pull_request:
+    paths:
+      - gatekeeper-config/**
+      - .github/workflows/gatekeeper-config-tests.yaml
+
+jobs:
+  gator-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        with:
+          version: "v3.19.2"
+
+      - name: Install gator
+        env:
+          GATOR_VERSION: v3.22.2
+        run: |
+          curl -sL "https://github.com/open-policy-agent/gatekeeper/releases/download/${GATOR_VERSION}/gator-${GATOR_VERSION}-linux-amd64.tar.gz" \
+            | sudo tar xz -C /usr/local/bin gator
+          gator version
+
+      - name: Run gator tests
+        run: gatekeeper-config/tests/run.sh

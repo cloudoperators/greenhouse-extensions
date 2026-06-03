@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cronjob-spawned
+  namespace: default
+  ownerReferences:
+  - apiVersion: batch/v1
+    kind: CronJob
+    name: parent-cronjob
+    uid: 00000000-0000-0000-0000-000000000003
+    controller: true
+spec:
+  template:
+    metadata:
+      labels:
+        marker: "job in cronjob (suppressed)"
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:3

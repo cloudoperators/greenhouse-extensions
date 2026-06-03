@@ -11,3 +11,6 @@ policies:
     enabled: true
     enforcementAction: dryrun
     allowedNamePatterns: []
+
+tests:
+  enabled: false

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dummy
+  namespace: default
+  labels:
+    greenhouse.sap/owned-by: my-team
+spec:
+  containers:
+  - name: dummy-1
+    image: alpine:3
+    args: ["sleep", "86400"]
+  - name: dummy-2
+    image: alpine:3
+    args: ["sleep", "86400"]

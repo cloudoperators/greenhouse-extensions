@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: deployment-spawned
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: parent-deployment
+    uid: 00000000-0000-0000-0000-000000000007
+    controller: true
+spec:
+  template:
+    metadata:
+      labels:
+        marker: "replicaset in deployment (suppressed)"
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:3

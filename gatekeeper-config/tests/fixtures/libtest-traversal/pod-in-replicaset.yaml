@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rs-pod-xyz
+  namespace: default
+  labels:
+    marker: "pod in replicaset (suppressed)"
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: parent-rs
+    uid: 00000000-0000-0000-0000-000000000004
+    controller: true
+spec:
+  containers:
+  - name: alpine
+    image: alpine:3

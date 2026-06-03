@@ -20,3 +20,21 @@ All policies default to `enforcementAction: dryrun`. No policy will block admiss
 ## Adding more policies
 
 The chart is structured so that additional ConstraintTemplate/Constraint pairs can be added incrementally as standalone Helm templates that include the shared Rego libraries from `_helpers.tpl`. Each policy is gated on `policies.<name>.enabled` and exposes its parameters as PluginDefinition options.
+
+## Running tests
+
+Policy logic is unit-tested with [gator](https://open-policy-agent.github.io/gatekeeper/website/docs/gator) so that ConstraintTemplate Rego can be tested without a Kubernetes cluster.
+
+To run the suite locally:
+
+```sh
+# install gator and pin to the same version as the gatekeeper operator chart
+GATOR_VERSION=v3.22.2
+curl -sL "https://github.com/open-policy-agent/gatekeeper/releases/download/${GATOR_VERSION}/gator-${GATOR_VERSION}-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/x86_64/amd64/').tar.gz" \
+  | sudo tar xz -C /usr/local/bin gator
+
+# render the chart with test values and run gator
+./tests/run.sh
+```
+
+Adding a policy means adding a fixture directory under `tests/fixtures/<policy>/` and a section in `tests/suite.yaml`.

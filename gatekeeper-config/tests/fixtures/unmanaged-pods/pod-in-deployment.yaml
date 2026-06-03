@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: managed-pod-abc123
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: managed-rs
+    uid: 00000000-0000-0000-0000-000000000000
+    controller: true
+spec:
+  containers:
+  - name: alpine
+    image: alpine:3.18
+    command: [sleep, inf]
