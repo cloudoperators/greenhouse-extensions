@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.12.13
+  version: 0.12.14
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.1.13
+    version: 0.1.14
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -108,6 +108,7 @@ spec:
     - default: true
       description: Activate to use the CertManager for generating self-signed certificates
       name: opentelemetry-operator.admissionWebhooks.certManager.enabled
+      required: false
       type: bool
     - description: Additional labels for PrometheusRule alerts
       name: openTelemetry.prometheus.rules.additionalRuleLabels

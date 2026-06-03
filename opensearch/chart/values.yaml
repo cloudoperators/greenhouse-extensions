@@ -164,47 +164,11 @@ operator:
     # Override the service account name. Defaults to opensearch-operator-controller-manager
     name: "opensearch-operator-controller-manager"
 
-  kubeRbacProxy:
-    enable: true
-    securityContext:
-      allowPrivilegeEscalation: false
-      readOnlyRootFilesystem: true
-      capabilities:
-        drop:
-          - ALL
-    resources:
-      limits:
-        cpu: 50m
-        memory: 50Mi
-      requests:
-        cpu: 25m
-        memory: 25Mi
-
-    livenessProbe:
-      failureThreshold: 3
-      httpGet:
-        path: /healthz
-        port: 10443
-        scheme: HTTPS
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-      initialDelaySeconds: 10
-
-    readinessProbe:
-      failureThreshold: 3
-      httpGet:
-        path: /healthz
-        port: 10443
-        scheme: HTTPS
-      periodSeconds: 15
-      successThreshold: 1
-      timeoutSeconds: 3
-      initialDelaySeconds: 10
-    # @ignore
-    image:
-      repository: "quay.io/brancz/kube-rbac-proxy"
-      tag: "v0.20.2"
+  # Webhook configuration. failurePolicy is set to Ignore so initial install
+  # succeeds even when the operator pod is not yet ready to handle admission.
+  webhook:
+    enabled: true
+    failurePolicy: Ignore
 
   ## If this is set to true, RoleBindings will be used instead of ClusterRoleBindings, inorder to restrict ClusterRoles
   ## to the namespace where the operator and OpenSearch cluster are in. In that case, specify the namespace where they
@@ -332,13 +296,10 @@ cluster:
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
-      # -- bootstrap additional configuration, key-value pairs that will be added to the opensearch.yml configuration
-      additionalConfig: {}
-
       # -- bootstrap pod affinity rules
       affinity: {}
 
-      # -- bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommend value for data nodes.
+      # -- bootstrap pod jvm options. If jvm is not provided then the java heap size will be set to half of resources.requests.memory which is the recommended value for data nodes.
       # If jvm is not provided and resources.requests.memory does not exist then value will be -Xmx512M -Xms512M
       jvm: ""
 
@@ -536,13 +497,18 @@ cluster:
         adminSecret:
           name: "opensearch-admin-cert"
 
-        # -- Secret that contains the differnt yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
+        # -- Secret that contains the different yml files of the opensearch-security config (config.yml, internal_users.yml, etc)
         securityConfigSecret:
           name: "opensearch-security-config"
 
       # Configure tls usage for transport and http interface
       tls:
         http:
+          # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
+          # only used when existing certificates are provided
+          adminDn:
+            - "CN=admin"
+
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
           caSecret:
@@ -558,11 +524,6 @@ cluster:
             name: "opensearch-http-cert"
 
         transport:
-          # -- DNs of certificates that should have admin access, mainly used for securityconfig updates via securityadmin.sh,
-          # only used when existing certificates are provided
-          adminDn:
-            - "CN=admin"
-
           # -- Optional, secret that contains the ca certificate as ca.crt. If this and generate=true is set the existing
           # CA cert from that secret is used to generate the node certs. In this case must contain ca.crt and ca.key fields
           caSecret:
