@@ -1,5 +1,7 @@
+{{/*
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
+*/}}
 
 {{- if .Values.certExporter.enabled }}
 {{- range $i, $namespace := .Values.certExporter.namespaces }}
@@ -26,6 +28,7 @@ spec:
       labels:
         app.kubernetes.io/instance: trust-manager
         app.kubernetes.io/name: cert-exporter
+        app.kubernetes.io/component: cert-exporter-{{ $namespace }}
         cert-exporter.io/type: deployment
       annotations:
         prometheus.io/scrape: "true"

@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: trust-manager
 spec:
-  version: 0.22.2
+  version: 0.22.3
   displayName: Trust Manager
   description: Automated trust bundle management for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/trust-manager/README.md
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: trust-manager
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.22.2
+    version: 0.22.3
   options:
     - name: trust-manager.app.trust.namespace
       description: Namespace where trust bundles are managed
