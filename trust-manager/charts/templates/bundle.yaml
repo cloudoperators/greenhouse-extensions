@@ -1,7 +1,9 @@
+{{/*
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
+*/}}
 
-{{- if and (.Capabilities.APIVersions.Has "trust.cert-manager.io/v1alpha1") .Values.bundle.enabled -}}
+{{- if .Values.bundle.enabled -}}
 apiVersion: trust.cert-manager.io/v1alpha1
 kind: Bundle
 metadata:
