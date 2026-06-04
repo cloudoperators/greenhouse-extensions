@@ -35,6 +35,27 @@ serviceProxy:
     # with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches.
     enabled: true
 
+s3:
+  # -- Enable the S3 keystore Secret. When enabled, renders a Secret with
+  # `s3.client.<name>.access_key` / `s3.client.<name>.secret_key` entries for
+  # the repository-s3 plugin (warm nodes, snapshots). Wire the rendered Secret
+  # via `cluster.cluster.general.keystore` and configure endpoints under
+  # `cluster.cluster.general.additionalConfig`.
+  enabled: false
+
+  # -- Name of the rendered Secret.
+  secretName: "opensearch-s3-keystore"
+
+  # -- Map of S3 client names to credentials.
+  # @default -- <pre>clients: {}</pre>
+  clients: {}
+  #  default:
+  #    accessKey: ""
+  #    secretKey: ""
+  #  ceph:
+  #    accessKey: ""
+  #    secretKey: ""
+
 certManager:
   # -- Enable cert-manager integration for issuing TLS certificates
   enable: true
