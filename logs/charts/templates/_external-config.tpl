@@ -8,7 +8,6 @@ webhookevent/external-alerts:
 
 tcplog/external-deployments:
   listen_address: "0.0.0.0:{{.Values.openTelemetry.logsCollector.externalConfig.deployments_port}}"
-  operators:
 {{- end }}
 
 {{- define "external.transform" }}
