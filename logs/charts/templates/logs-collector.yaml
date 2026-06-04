@@ -375,16 +375,16 @@ spec:
     connectors:
       routing:
         default_pipelines:
-        - logs/route_default
+          - logs/route_default
         error_mode: ignore
         table:
-        - pipelines:
-          - logs/route_cronus
-          statement: route() where resource.attributes["k8s.namespace.name"] == "cronus"
+          - pipelines:
+              - logs/route_cronus
+            statement: route() where resource.attributes["k8s.namespace.name"] == "cronus"
 {{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
-        - pipelines:
-          - logs/route_swift
-          statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
+          - pipelines:
+              - logs/route_swift
+            statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
 {{- end }}
 {{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
       failover/opensearch:
