@@ -21,8 +21,6 @@ values:
           enabled: false
       serviceMonitor:
         enabled: false
-    kubeRBACProxy:
-      enabled: false
 
   customCRDs:
     enabled: true
