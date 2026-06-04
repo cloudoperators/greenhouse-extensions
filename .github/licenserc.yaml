@@ -30,7 +30,7 @@ header:
     - 'opensearch/**' # ignore the license for the opensearch charts
     - 'kafka/**' # ignore the license for the kafka charts
     - 'logs/**' # ignore the license for the opentelemetry charts
-    - '**/test-dependecies.yaml' # ignore the license for the test-dependencies.yaml files
+    - '**/test-dependencies.yaml' # ignore the license for the test-dependencies.yaml files
     - '**/*.md'
     - 'LICENSE'
     - 'VERSION'
