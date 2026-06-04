@@ -9,7 +9,7 @@ keywords:
   - cert-manager
   - tls
   - ca-bundle
-version: 0.22.2
+version: 0.22.3
 appVersion: 0.22.2
 maintainers:
   - name: jagoleni
