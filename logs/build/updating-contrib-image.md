@@ -55,7 +55,7 @@ The custom collector image is built in the **greenhouse-extensions** repository 
 The Dockerfile uses a two-stage build:
 
 1. **Build stage** (golang) -- downloads `ocb` for the configured `OTEL_VERSION`, then compiles the collector binary from `otel-collector-builder-config.yaml`.
-2. **Runtime stage** (debian:stable-slim) -- copies the compiled binary and sets it as the entrypoint.
+2. **Runtime stage** (ubuntu) -- copies the compiled binary and sets it as the entrypoint.
 
 The builder config (`otel-collector-builder-config.yaml`) pulls most components from upstream `open-telemetry/opentelemetry-collector-contrib` and two from our fork `cloudoperators/opentelemetry-collector-contrib`:
 
@@ -123,7 +123,7 @@ If the `ocb` builder version needs to change, update the `OTEL_VERSION` ARG in `
 ARG OTEL_VERSION=0.148.0
 ```
 
-Also update the base image digests if there are newer versions of `golang` or `debian:stable-slim`.
+Also update the base image digests if there are newer versions of `golang` or `ubuntu`.
 
 ### 4. Build and Push the Image
 

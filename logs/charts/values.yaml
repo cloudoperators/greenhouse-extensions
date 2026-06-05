@@ -36,9 +36,6 @@ opentelemetry-operator:
       enabled: true
     # -- Additional labels on the ServiceMonitor
       extraLabels: {}
-  # -- the kubeRBACProxy can be enabled to allow the operator perform RBAC authorization against the Kubernetes API.
-  kubeRBACProxy:
-    enabled: false
 
 customCRDs:
   # -- The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds.
@@ -51,7 +48,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "acad8a2"
+    tag: "a8981ba"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
