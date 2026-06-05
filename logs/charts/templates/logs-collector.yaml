@@ -273,7 +273,7 @@ spec:
               key: cloud.sap/scheduling-disabled
               from: pod
             - tag_name: app.label.component
-              key: app.kubernetes.io/component
+              key: component
               from: pod
             - tag_name: app.label.name
               key: app.kubernetes.io/name
