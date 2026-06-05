@@ -118,6 +118,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
 | openTelemetry.logsCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.logsCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.logsCollector.syslogTLSConfig | object | `{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
+| openTelemetry.logsCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate (e.g. logs-collector-syslog.eu-de-1.cloud.sap) |
+| openTelemetry.logsCollector.syslogTLSConfig.issuerName | string | `nil` | cert-manager ClusterIssuer name for DigiCert |
+| openTelemetry.logsCollector.syslogTLSConfig.tcp_port | int | `6514` | TCP port for TLS syslog (rfc5424) |
 | openTelemetry.logsCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.logsCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.logsCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
