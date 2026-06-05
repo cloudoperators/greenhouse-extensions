@@ -235,6 +235,9 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.useRoleBindings | bool | `false` |  |
 | operator.webhook.enabled | bool | `true` |  |
 | operator.webhook.failurePolicy | string | `"Ignore"` |  |
+| s3.clients | object | <pre>clients: {}</pre> | Map of S3 client names to credentials. |
+| s3.enabled | bool | `false` | Enable the S3 keystore Secret. When enabled, renders a Secret with `s3.client.<name>.access_key` / `s3.client.<name>.secret_key` entries for the repository-s3 plugin (warm nodes, snapshots). Wire the rendered Secret via `cluster.cluster.general.keystore` and configure endpoints under `cluster.cluster.general.additionalConfig`. |
+| s3.secretName | string | `"opensearch-s3-keystore"` | Name of the rendered Secret. |
 | serviceProxy.dashboards.enabled | bool | `true` | Expose the OpenSearch Dashboards UI through the Greenhouse service-proxy. When enabled, an extra `<cluster.cluster.name>-dashboards-ui` Service is rendered (falling back to `<release>-dashboards-ui` when `cluster.cluster.name` is not set) with the `greenhouse.sap/expose: "true"` annotation that the service-proxy watches. |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image.registry | string | `"ghcr.io"` | Defines the image registry for the test framework. |
