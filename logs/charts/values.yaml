@@ -175,10 +175,6 @@ openTelemetry:
         - OTelLogsIncreasing
         - OTelLogsDecreasing
         - OTelLogsExportingFailed
-        # Legacy aliases kept for migration — disable once all dashboards/silences are updated:
-        # - LogsOTelLogsMissing
-        # - LogsOTelLogsDecreasing
-        # - LogsExportingFailed
 
       # -- Labels for PrometheusRules.
       labels: {}

@@ -7,9 +7,6 @@ file_log/containerd:
   include_file_path: true
   include: [ /var/log/pods/*/*/*.log ]
   exclude:
-{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-    - /var/log/pods/kvm-monitoring_*/monitoring/*.log
-{{- end }}
     - /var/log/pods/logs_logs-*/*/*.log
     - /var/log/pods/logs_*
     - /var/log/pods/logs_fluent*/*/*.log

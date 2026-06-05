@@ -106,13 +106,16 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.externalConfig.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
 | openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","topic":""}` | Kafka exporter configuration for buffering logs |
+| openTelemetry.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","storage_topic":"","syslog_topic":"","topic":"","traces_topic":""}` | Kafka exporter configuration for buffering logs |
 | openTelemetry.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for logs buffering |
 | openTelemetry.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | openTelemetry.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
-| openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for logs (e.g., "logs") |
+| openTelemetry.logsCollector.kafka.storage_topic | string | `""` | Kafka topic name for storage logs — swift, ceph, kvm (e.g., "logs-storage") |
+| openTelemetry.logsCollector.kafka.syslog_topic | string | `""` | Kafka topic name for syslog ingestion (e.g., "logs-syslog") |
+| openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
+| openTelemetry.logsCollector.kafka.traces_topic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
