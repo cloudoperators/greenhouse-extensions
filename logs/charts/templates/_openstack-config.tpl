@@ -6,7 +6,15 @@ SPDX-License-Identifier: Apache-2.0
 file_log/containerd:
   include_file_path: true
   include: [ /var/log/pods/*/*/*.log ]
-  exclude: [ /var/log/pods/logs_logs-*/*/*.log, /var/log/pods/logs_fluent*/*/*.log, /var/log/pods/dns-recursor_unbound*/*/*.log, /var/log/pods/kube-system_wormhole*/*/*.log ]
+  exclude:
+{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
+    - /var/log/pods/kvm-monitoring_*/monitoring/*.log
+{{- end }}
+    - /var/log/pods/logs_logs-*/*/*.log
+    - /var/log/pods/logs_*
+    - /var/log/pods/logs_fluent*/*/*.log
+    - /var/log/pods/dns-recursor_unbound*/*/*.log
+    - /var/log/pods/kube-system_wormhole*/*/*.log
   operators:
     - id: container-parser
       type: container
@@ -223,6 +231,7 @@ logs/containerd:
   receivers: [file_log/containerd]
   processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash, transform/swift_proxy, attributes/swift_proxy]
   exporters: [routing]
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 
 logs/route_swift:
   receivers: [routing]
@@ -238,4 +247,11 @@ logs/failover_b_swift:
   receivers: [failover/opensearch_swift]
   processors: [attributes/failover_username_b]
   exporters: [opensearch/swift_failover_b]
+{{- else }}
+
+logs/route_swift:
+  receivers: [routing]
+  processors: [batch]
+  exporters: [kafka]
+{{- end }}
 {{- end }}

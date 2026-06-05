@@ -1,4 +1,4 @@
-{{- if or .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
 apiVersion: v1
 kind: Service
 
@@ -39,6 +39,12 @@ spec:
       protocol: UDP
       port: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
       targetPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+    - name: syslogtcptls
+      protocol: TCP
+      port: {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.tcp_port }}
+      targetPort: {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.tcp_port }}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
     - name: otlp-grpc

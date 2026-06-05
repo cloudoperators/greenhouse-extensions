@@ -19,7 +19,6 @@ spec:
   - operator: Exists
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-  deploymentAnnotations:
     secret.reloader.stakater.com/reload: "otel-basic-auth"
   affinity:
     nodeAffinity:
@@ -274,7 +273,7 @@ spec:
               key: cloud.sap/scheduling-disabled
               from: pod
             - tag_name: app.label.component
-              key: component
+              key: app.kubernetes.io/component
               from: pod
             - tag_name: app.label.name
               key: app.kubernetes.io/name
@@ -416,7 +415,7 @@ spec:
           - pipelines:
               - logs/route_cronus
             statement: route() where resource.attributes["k8s.namespace.name"] == "cronus"
-{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.kafka.enabled) }}
           - pipelines:
               - logs/route_swift
             statement: route() where resource.attributes["k8s.namespace.name"] == "swift"

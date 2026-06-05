@@ -12,9 +12,9 @@ metadata:
 spec:
   secretName: logs-syslog-tls
   dnsNames:
-    - {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.dnsName }}
+    - {{ required "openTelemetry.logsCollector.syslogTLSConfig.dnsName is required when syslogTLSConfig.enabled=true" .Values.openTelemetry.logsCollector.syslogTLSConfig.dnsName }}
   issuerRef:
-    name: {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.issuerName }}
+    name: {{ required "openTelemetry.logsCollector.syslogTLSConfig.issuerName is required when syslogTLSConfig.enabled=true" .Values.openTelemetry.logsCollector.syslogTLSConfig.issuerName }}
     kind: ClusterIssuer
     group: cert-manager.io
 {{- end }}
