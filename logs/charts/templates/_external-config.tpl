@@ -31,6 +31,7 @@ transform/external-deployments:
 {{- end }}
 
 {{- define "external.exporter" }}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 {{- range (list "alerts" "deployments") }}
 opensearch/failover_a_external_{{ toString . }}:
   http:
@@ -58,8 +59,10 @@ opensearch/failover_b_external_{{ toString . }}:
   timeout: 10s
 {{- end }}
 {{- end }}
+{{- end }}
 
 {{- define "external.connectors" }}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 {{- range (list "alerts" "deployments") }}
 failover/opensearch_external_{{ toString . }}:
   priority_levels:
@@ -74,8 +77,10 @@ failover/opensearch_external_{{ toString . }}:
     sizer: requests
 {{ end }}
 {{- end }}
+{{- end }}
 
 {{- define "external.pipeline" }}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 {{- range (list "alerts" "deployments") }}
 logs/failover_a_external_{{ toString . }}:
   receivers: [failover/opensearch_external_{{ toString . }}]
@@ -88,13 +93,22 @@ logs/failover_b_external_{{ toString . }}:
   exporters: [opensearch/failover_b_external_{{ toString . }}]
 
 {{- end }}
+{{- end }}
 logs/external-alerts:
   receivers: [webhookevent/external-alerts]
   processors: [transform/external-alerts, batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+  exporters: [kafka]
+{{- else }}
   exporters: [failover/opensearch_external_alerts]
+{{- end }}
 
 logs/external-deployments:
   receivers: [tcplog/external-deployments]
   processors: [transform/external-deployments, batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+  exporters: [kafka]
+{{- else }}
   exporters: [failover/opensearch_external_deployments]
+{{- end }}
 {{- end }}

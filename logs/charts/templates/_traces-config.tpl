@@ -12,6 +12,7 @@ otlp/traces:
 {{- end }}
 
 {{- define "traces.exporter" }}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 opensearch/failover_a_traces:
   http:
     auth:
@@ -37,8 +38,10 @@ opensearch/failover_b_traces:
     max_elapsed_time: 30s
   timeout: 10s
 {{- end }}
+{{- end }}
 
 {{- define "traces.connectors" }}
+{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
 failover/opensearch_traces:
   priority_levels:
     - [traces/failover_a]
@@ -51,11 +54,15 @@ failover/opensearch_traces:
     queue_size: 10000
     sizer: requests
 {{- end }}
+{{- end }}
 
 {{- define "traces.pipeline" }}
 traces/ingest:
   receivers: [otlp/traces]
   processors: [memory_limiter, resource, batch]
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+  exporters: [kafka/traces]
+{{- else }}
   exporters: [failover/opensearch_traces]
 traces/failover_a:
   receivers: [failover/opensearch_traces]
@@ -65,4 +72,5 @@ traces/failover_b:
   receivers: [failover/opensearch_traces]
   processors: [attributes/failover_username_b]
   exporters: [opensearch/failover_b_traces]
+{{- end }}
 {{- end }}

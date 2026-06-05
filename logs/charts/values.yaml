@@ -79,8 +79,14 @@ openTelemetry:
       enabled: false
       # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
       brokers: []
-      # -- Kafka topic name for logs (e.g., "logs")
+      # -- Kafka topic name for general logs (e.g., "logs")
       topic: ""
+      # -- Kafka topic name for storage logs — swift, ceph, kvm (e.g., "logs-storage")
+      storage_topic: ""
+      # -- Kafka topic name for syslog ingestion (e.g., "logs-syslog")
+      syslog_topic: ""
+      # -- Kafka topic name for traces (e.g., "traces")
+      traces_topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
       # -- Message encoding format (otlp_json, otlp_proto, raw)

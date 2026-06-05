@@ -252,6 +252,6 @@ logs/failover_b_swift:
 logs/route_swift:
   receivers: [routing]
   processors: [batch]
-  exporters: [kafka]
+  exporters: [kafka/storage]
 {{- end }}
 {{- end }}
