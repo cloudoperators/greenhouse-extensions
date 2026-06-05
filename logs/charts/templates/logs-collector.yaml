@@ -62,7 +62,7 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
-{{- if or .Values.openTelemetry.prometheus.podMonitor.enabled .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
+{{- if or .Values.openTelemetry.prometheus.podMonitor.enabled .Values.openTelemetry.logsCollector.externalConfig.enabled .Values.openTelemetry.logsCollector.syslogConfig.enabled .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
   ports:
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
@@ -78,6 +78,12 @@ spec:
       protocol: UDP
       hostPort: {{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
 {{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+    - name: syslogtcptls
+      port: {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.tcp_port }}
+      protocol: TCP
+      hostPort: {{ .Values.openTelemetry.logsCollector.syslogTLSConfig.tcp_port }}
+{{- end }}
 {{- if .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
     - name: otlp-grpc
       port: {{ .Values.openTelemetry.logsCollector.tracesConfig.otlp_grpc_port }}
@@ -92,10 +98,20 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+  - mountPath: /etc/ssl/syslog-tls
+    name: syslog-tls
+    readOnly: true
+{{- end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+  - name: syslog-tls
+    secret:
+      secretName: logs-syslog-tls
+{{- end }}
   config:
     receivers:
 {{- if .Values.openTelemetry.logsCollector.journaldConfig.enabled }}
@@ -128,6 +144,7 @@ spec:
         protocol: rfc5424
         tcp:
           listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.tcp_port }}
+          add_attributes: true
       syslog/udp:
         location: UTC
         operators:
@@ -138,6 +155,24 @@ spec:
         protocol: rfc3164
         udp:
           listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogConfig.udp_port }}
+          add_attributes: true
+          async: {}
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+      syslog/tcp-tls:
+        operators:
+        - field: attributes.log.type
+          id: syslogtcptls
+          type: add
+          value: syslogtcptls
+        protocol: rfc5424
+        tcp:
+          listen_address: 0.0.0.0:{{ .Values.openTelemetry.logsCollector.syslogTLSConfig.tcp_port }}
+          add_attributes: true
+          tls:
+            cert_file: /etc/ssl/syslog-tls/tls.crt
+            key_file: /etc/ssl/syslog-tls/tls.key
+            ca_file: /etc/ssl/syslog-tls/ca.crt
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
     {{- include "traces.receiver" . | nindent 6 -}}
@@ -519,6 +554,11 @@ spec:
           exporters: [routing]
         logs/syslog_udp:
           receivers: [syslog/udp]
+          exporters: [routing]
+{{- end }}
+{{- if .Values.openTelemetry.logsCollector.syslogTLSConfig.enabled }}
+        logs/syslog_tcp_tls:
+          receivers: [syslog/tcp-tls]
           exporters: [routing]
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.tracesConfig.enabled }}
