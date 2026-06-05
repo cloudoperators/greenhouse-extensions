@@ -112,6 +112,15 @@ openTelemetry:
       tcp_port: 514
       # -- UDP port for syslog (rfc3164)
       udp_port: 514
+    # -- Activates syslog TCP with TLS ingestion (rfc5424).
+    syslogTLSConfig:
+      enabled: false
+      # -- TCP port for TLS syslog (rfc5424)
+      tcp_port: 6514
+      # -- cert-manager ClusterIssuer name for DigiCert
+      issuerName:
+      # -- DNS name for the TLS certificate (e.g. logs-collector-syslog.eu-de-1.cloud.sap)
+      dnsName:
     # -- Activates the external alertmanager webhook and deployment event receivers.
     externalConfig:
       enabled: false
