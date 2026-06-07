@@ -155,3 +155,106 @@ tests:
     assertions:
     - violations: 1
       message: '^\{"owned_by":"none"\} >> pod is not owned by a managing construct$'
+
+- name: forbidden-clusterwide-objects
+  template: rendered/gatekeeper-config/templates/constrainttemplate-forbidden-clusterwide-objects.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-forbidden-clusterwide-objects.yaml
+  cases:
+  - name: mwc-allowed
+    object: fixtures/forbidden-clusterwide-objects/mwc-allowed.yaml
+    assertions:
+    - violations: 0
+  - name: mwc-disallowed
+    object: fixtures/forbidden-clusterwide-objects/mwc-disallowed.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> webhook "rogue\.example\.com" does not match the configured allowlist$'
+  - name: vwc-allowed
+    object: fixtures/forbidden-clusterwide-objects/vwc-allowed.yaml
+    assertions:
+    - violations: 0
+
+- name: images-from-approved-registries
+  template: rendered/gatekeeper-config/templates/constrainttemplate-images-from-approved-registries.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-images-from-approved-registries.yaml
+  cases:
+  - name: pod-approved
+    object: fixtures/images-from-approved-registries/pod-approved.yaml
+    assertions:
+    - violations: 0
+  - name: pod-unapproved
+    object: fixtures/images-from-approved-registries/pod-unapproved.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> container "app" uses an image from an unapproved registry: docker\.io/library/nginx:1\.27$'
+  - name: pod-mixed-containers
+    object: fixtures/images-from-approved-registries/pod-mixed-containers.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> container "bad" uses an image from an unapproved registry: docker\.io/library/nginx:1\.27$'
+
+- name: pci-forbidden-images
+  template: rendered/gatekeeper-config/templates/constrainttemplate-pci-forbidden-images.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-pci-forbidden-images.yaml
+  cases:
+  - name: pod-busybox-flagged
+    object: fixtures/pci-forbidden-images/pod-busybox-flagged.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> container "shell" uses forbidden image: busybox:1\.36$'
+  - name: pod-init-busybox-flagged
+    object: fixtures/pci-forbidden-images/pod-init-busybox-flagged.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> container "init" uses forbidden image: registry\.k8s\.io/busybox:1\.36$'
+  - name: pod-allowed
+    object: fixtures/pci-forbidden-images/pod-allowed.yaml
+    assertions:
+    - violations: 0
+
+- name: pod-required-labels
+  template: rendered/gatekeeper-config/templates/constrainttemplate-pod-required-labels.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-pod-required-labels.yaml
+  cases:
+  - name: pod-with-label
+    object: fixtures/pod-required-labels/pod-with-label.yaml
+    assertions:
+    - violations: 0
+  - name: pod-missing-label
+    object: fixtures/pod-required-labels/pod-missing-label.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is missing required label: greenhouse\.sap/owned-by$'
+  - name: deployment-template-missing-required-label
+    object: fixtures/pod-required-labels/deployment-template-missing.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"my-team"\} >> pod is missing required label: greenhouse\.sap/owned-by$'
+
+- name: pod-security-v2
+  template: rendered/gatekeeper-config/templates/constrainttemplate-pod-security-v2.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-pod-security-v2.yaml
+  cases:
+  - name: pod-host-network-violation
+    object: fixtures/pod-security-v2/pod-host-network-violation.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.hostNetwork = true$'
+  - name: pod-host-network-allowlisted
+    object: fixtures/pod-security-v2/pod-host-network-allowlisted.yaml
+    assertions:
+    - violations: 0
+  - name: pod-privileged-violation
+    object: fixtures/pod-security-v2/pod-privileged-violation.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.containers\["app"\]\.securityContext\.privileged = true \(image = "alpine"\)$'
+  - name: pod-readonly-machine-id-pass
+    object: fixtures/pod-security-v2/pod-readonly-machine-id-pass.yaml
+    assertions:
+    - violations: 0
+  - name: pod-capability-violation
+    object: fixtures/pod-security-v2/pod-capability-violation.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.containers\["app"\]\.securityContext\.capabilities\.add = \["NET_ADMIN"\] \(image = "alpine"\)$'

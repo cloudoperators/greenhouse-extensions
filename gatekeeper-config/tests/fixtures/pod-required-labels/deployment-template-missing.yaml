@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-labeled-template-not
+  namespace: default
+  labels:
+    greenhouse.sap/owned-by: my-team
+spec:
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: app
+        image: alpine:3
