@@ -1,0 +1,20 @@
+{{- if .Values.policies.forbiddenClusterwideObjects.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkForbiddenClusterwideObjects
+metadata:
+  name: forbidden-clusterwide-objects
+  labels:
+    severity: 'debug'
+spec:
+  enforcementAction: {{ .Values.policies.forbiddenClusterwideObjects.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["admissionregistration.k8s.io"]
+        kinds: ["MutatingWebhookConfiguration", "ValidatingWebhookConfiguration"]
+    scope: Cluster
+  parameters:
+    allowedWebhooks:
+      {{- toYaml .Values.policies.forbiddenClusterwideObjects.allowedWebhooks | nindent 6 }}
+{{- end }}

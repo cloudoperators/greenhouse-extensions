@@ -1,0 +1,24 @@
+{{- if .Values.policies.podSecurityV2.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkPodSecurityV2
+metadata:
+  name: pod-security-v2
+  labels:
+    severity: 'debug'
+spec:
+  enforcementAction: {{ .Values.policies.podSecurityV2.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "DaemonSet", "StatefulSet", "ReplicaSet"]
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    scope: Namespaced
+  parameters:
+    allowlist:
+      {{- toYaml .Values.policies.podSecurityV2.allowlist | nindent 6 }}
+{{- end }}

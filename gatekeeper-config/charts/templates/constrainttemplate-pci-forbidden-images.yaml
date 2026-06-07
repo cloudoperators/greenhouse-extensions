@@ -1,0 +1,51 @@
+{{- if .Values.policies.pciForbiddenImages.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkpciforbiddenimages
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkPCIForbiddenImages
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            patterns:
+              type: array
+              items:
+                description: regex pattern matched against the container image reference
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package pciforbiddenimages
+
+              import data.lib.add_support_labels
+              import data.lib.traversal
+
+              iro := input.review.object
+              containers := traversal.find_container_specs(iro)
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  container := containers[_]
+
+                  pattern := input.parameters.patterns[_]
+                  regex.match(pattern, container.image)
+
+                  msg := sprintf("container %q uses forbidden image: %s", [container.name, container.image])
+              }
+{{- end }}

@@ -1,0 +1,24 @@
+{{- if .Values.policies.pciForbiddenImages.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkPCIForbiddenImages
+metadata:
+  name: pci-forbidden-images
+  labels:
+    severity: 'error'
+spec:
+  enforcementAction: {{ .Values.policies.pciForbiddenImages.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "DaemonSet", "StatefulSet", "ReplicaSet"]
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    scope: Namespaced
+  parameters:
+    patterns:
+      {{- toYaml .Values.policies.pciForbiddenImages.patterns | nindent 6 }}
+{{- end }}
