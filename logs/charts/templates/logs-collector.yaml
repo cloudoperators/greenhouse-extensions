@@ -33,10 +33,6 @@ spec:
             operator: NotIn
             values:
             - alarm
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 5
   terminationGracePeriodSeconds: 10
   env:
     - name: NAMESPACE
