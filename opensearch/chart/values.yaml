@@ -854,6 +854,73 @@ cluster:
           - "logs*"
         priority: 100
 
+  # -- Snapshot lifecycle: registers S3 snapshot repositories and installs ISM/SM
+  # policies that move data from the local hot tier to S3 (snapshot), keep it
+  # queryable as a remote searchable index for a retention window, and finally
+  # delete the underlying snapshots from S3.
+  #
+  # Implemented via a one-shot Job that PUTs raw OpenSearch HTTP API requests,
+  # because the `OpensearchISMPolicy` CRD does not yet expose the
+  # `convert_index_to_remote` action that searchable snapshots require.
+  #
+  # The repository registration assumes the `repository-s3` plugin is installed
+  # (see `cluster.general.pluginsList`) and that S3 client credentials are
+  # provisioned via the OpenSearch keystore (see top-level `s3.*`).
+  # @default -- disabled; see comments below for the per-stream schema.
+  snapshotLifecycle:
+    # -- Master switch. When false, no resources are created.
+    enabled: false
+    # -- Bump to force re-application of policies on chart upgrade. The install
+    # script uses this to compare against the schema_version stored in OpenSearch
+    # and skips policies that are already at or beyond this version.
+    schemaVersion: 1
+    # -- OpenSearch URL the install Job calls. The default points at the
+    # in-cluster service for the cluster created by this chart release.
+    clusterHost: "https://opensearch.{{ .Release.Namespace }}.svc.cluster.local:9200"
+    # -- Secret containing admin credentials. Defaults assume the secret created
+    # by `cluster.usersCredentials.admin` (named `admin-credentials`).
+    adminSecret:
+      name: admin-credentials
+      usernameKey: username
+      passwordKey: password
+    # -- Image used by the install Job. Needs `bash`, `curl`, and `jq` (these are
+    # installed at runtime if missing, supporting Alpine and Debian/Ubuntu bases).
+    image:
+      repository: docker.io/library/alpine
+      tag: "3.19"
+      pullPolicy: IfNotPresent
+    # -- Optional resource requests/limits for the install Job pod.
+    resources: {}
+    # -- Optional node selector for the install Job pod.
+    nodeSelector: {}
+    # -- Optional tolerations for the install Job pod.
+    tolerations: []
+    # -- Optional Job backoff limit. Defaults to 6.
+    backoffLimit: 6
+    # -- Override the ConfigMap and Job names. Defaults to
+    # `opensearch-snapshot-lifecycle`.
+    configMapName: ""
+    jobName: ""
+    # -- List of streams to manage. Each entry produces three policies
+    # (ds-{name}-ism, remote-{name}-ism, snapshot-{name}-delete-policy) plus an
+    # S3 repository registration.
+    streams: []
+    # - name: hermes
+    #   repository:
+    #     name: hermes-snapshots
+    #     type: s3
+    #     bucket: hermes-snapshots
+    #     basePath: hermes
+    #     client: ceph
+    #   indexPatterns:
+    #     hot: ".ds-hermes-*"
+    #     remote: "remote_.ds-hermes-*"
+    #   minSize: "50gb"
+    #   retention:
+    #     local: "7d"
+    #     remote: "31d"
+    #     snapshot: "93d"
+
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.

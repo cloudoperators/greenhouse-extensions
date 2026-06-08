@@ -1,0 +1,103 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.cluster.snapshotLifecycle.enabled }}
+{{- $cfg := .Values.cluster.snapshotLifecycle }}
+{{- $configFiles := dict }}
+{{- range $stream := $cfg.streams }}
+  {{- $_ := set $configFiles (printf "ds-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/ds-ism-policy.json.tpl") $stream) }}
+  {{- $_ := set $configFiles (printf "remote-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/remote-ism-policy.json.tpl") $stream) }}
+  {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $stream) }}
+  {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") $stream) }}
+{{- end }}
+{{- $_ := set $configFiles "install.sh" ($.Files.Get "files/snapshot-lifecycle/install.sh") }}
+{{- $streamNames := list }}
+{{- range $stream := $cfg.streams }}
+  {{- $streamNames = append $streamNames $stream.name }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $cfg.configMapName | default "opensearch-snapshot-lifecycle" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+data:
+{{- range $name, $content := $configFiles }}
+  {{ $name }}: |
+{{ $content | indent 4 }}
+{{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $cfg.jobName | default "opensearch-snapshot-lifecycle" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ $cfg.backoffLimit | default 6 }}
+  template:
+    metadata:
+      annotations:
+        # Forces pod recreation when the ConfigMap content changes.
+        checksum/config: {{ toJson $configFiles | sha256sum }}
+      labels:
+        {{- include "opensearch.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      {{- with $cfg.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $cfg.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: install
+          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              # Ensure required tools are available; use whichever package
+              # manager the base image ships with (alpine: apk, debian: apt).
+              if command -v apk >/dev/null 2>&1; then
+                apk add --no-cache bash curl jq >/dev/null
+              elif command -v apt-get >/dev/null 2>&1; then
+                apt-get update >/dev/null && apt-get install -y --no-install-recommends bash curl jq >/dev/null
+              fi
+              bash /scripts/install.sh
+          env:
+            - name: CLUSTER_HOST
+              value: {{ $cfg.clusterHost | quote }}
+            - name: STREAMS
+              value: {{ $streamNames | join " " | quote }}
+            - name: FILE_SCHEMA_VERSION
+              value: {{ $cfg.schemaVersion | default 1 | quote }}
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cfg.adminSecret.name }}
+                  key: {{ $cfg.adminSecret.usernameKey | default "username" }}
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cfg.adminSecret.name }}
+                  key: {{ $cfg.adminSecret.passwordKey | default "password" }}
+          {{- with $cfg.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ $cfg.configMapName | default "opensearch-snapshot-lifecycle" }}
+            defaultMode: 0755
+{{- end }}
