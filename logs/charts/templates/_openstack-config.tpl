@@ -3,29 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 {{- define "openstack.receiver" }}
-file_log/containerd:
-  include_file_path: true
-  include: [ /var/log/pods/*/*/*.log ]
-  exclude:
-{{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
-    - /var/log/pods/kvm-monitoring_*/monitoring/*.log
-{{- end }}
-    - /var/log/pods/logs_logs-*/*/*.log
-    - /var/log/pods/logs_*
-    - /var/log/pods/logs_fluent*/*/*.log
-    - /var/log/pods/dns-recursor_unbound*/*/*.log
-    - /var/log/pods/kube-system_wormhole*/*/*.log
-  operators:
-    - id: container-parser
-      type: container
-    - id: parser-containerd
-      type: add
-      field: resource["container.runtime"]
-      value: "containerd"
-    - id: container-label
-      type: add
-      field: attributes["log.type"]
-      value: "containerd"
+{{- include "containerd.receiver" . }}
 {{- end }}
 
 {{- define "openstack.transform" }}
@@ -197,24 +175,24 @@ attributes/swift_proxy:
 {{- end }}
 
 {{- define "openstack.exporter" }}
-opensearch/swift_failover_a:
+opensearch/storage_failover_a:
   http:
     auth:
       authenticator: basicauth/failover_a
     endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: ${index}-swift-datastream
+  logs_index: ${index}-storage-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
   timeout: 10s
-opensearch/swift_failover_b:
+opensearch/storage_failover_b:
   http:
     auth:
       authenticator: basicauth/failover_b
     endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: ${index}-swift-datastream
+  logs_index: ${index}-storage-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -226,27 +204,6 @@ opensearch/swift_failover_b:
 {{- define "openstack.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash, transform/swift_proxy, attributes/swift_proxy]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash, transform/swift_proxy, attributes/swift_proxy]
   exporters: [routing]
-{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
-logs/route_swift:
-  receivers: [routing]
-  processors: [batch]
-  exporters: [kafka/storage]
-{{- else }}
-logs/route_swift:
-  receivers: [routing]
-  processors: [batch]
-  exporters: [failover/opensearch_swift]
-
-logs/failover_a_swift:
-  receivers: [failover/opensearch_swift]
-  processors: [attributes/failover_username_a]
-  exporters: [opensearch/swift_failover_a]
-
-logs/failover_b_swift:
-  receivers: [failover/opensearch_swift]
-  processors: [attributes/failover_username_b]
-  exporters: [opensearch/swift_failover_b]
-{{- end }}
 {{- end }}

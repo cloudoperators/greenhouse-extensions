@@ -62,7 +62,7 @@ spec:
           summary: OTel is not shipping logs
   {{- end }}
 
-  {{- if (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) }}
+  {{- if and (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
       - alert: ReconcileErrors
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
@@ -75,7 +75,7 @@ spec:
           description: Reconciliation errors for OTel are increasing
   {{- end }}
 
-  {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (".Values.opentelemetry-operator.enabled") }}
+  {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
       - alert: WorkqueueDepth
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
@@ -90,7 +90,7 @@ spec:
 
   {{- if (has "OTelLogsIncreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsIncreasing
-        expr: sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) / sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name) > 4
+        expr: sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) / sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name) > 4
         for: 6h
         labels:
           context: logshipping
@@ -107,7 +107,7 @@ spec:
 
   {{- if (has "OTelLogsDecreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsDecreasing
-        expr: sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
+        expr: sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
         for: 2h
         labels:
           context: logshipping
@@ -124,7 +124,7 @@ spec:
 
   {{- if (has "OTelLogsExportingFailed" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsExportingFailed
-        expr: sum(increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
+        expr: sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
         for: 1h
         labels:
           context: logshipping

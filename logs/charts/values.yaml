@@ -81,7 +81,7 @@ openTelemetry:
       brokers: []
       # -- Kafka topic name for general logs (e.g., "logs")
       topic: ""
-      # -- Kafka topic name for storage logs — swift, ceph, kvm (e.g., "logs-storage")
+      # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
       storage_topic: ""
       # -- Kafka topic name for syslog ingestion (e.g., "logs-syslog")
       syslog_topic: ""
