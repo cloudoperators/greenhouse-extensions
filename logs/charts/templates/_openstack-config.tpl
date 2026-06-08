@@ -29,7 +29,6 @@ file_log/containerd:
 {{- end }}
 
 {{- define "openstack.transform" }}
-
 transform/ingress:
   error_mode: ignore
   log_statements:
@@ -191,12 +190,10 @@ transform/swift_proxy:
         - set(log.attributes["bytes_recvd"], 0) where log.attributes["bytes_recvd"] == "-"
         - set(log.attributes["bytes_sent"], 0) where log.attributes["bytes_sent"] == "-"
 
-
 attributes/swift_proxy:
   actions:
     - key: auth_token
       action: delete
-
 {{- end }}
 
 {{- define "openstack.exporter" }}
