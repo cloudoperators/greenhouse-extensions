@@ -316,7 +316,19 @@ spec:
     exporters:
       debug:
         verbosity: basic
-{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
+{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+      kafka:
+        brokers:
+{{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
+        logs:
+          topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
+          encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
+        producer:
+          compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
+{{- else }}
       opensearch/failover_a:
         http:
           auth:
@@ -365,22 +377,9 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-{{- if and .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.kafka.enabled) }}
+{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
-{{- end }}
-{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
-      kafka:
-        brokers:
-{{- range .Values.openTelemetry.logsCollector.kafka.brokers }}
-          - {{ . }}
-{{- end }}
-        protocol_version: {{ .Values.openTelemetry.logsCollector.kafka.protocol_version }}
-        logs:
-          topic: {{ .Values.openTelemetry.logsCollector.kafka.topic }}
-          encoding: {{ .Values.openTelemetry.logsCollector.kafka.encoding }}
-        producer:
-          compression: {{ .Values.openTelemetry.logsCollector.kafka.compression }}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.externalConfig.enabled }}
     {{- include "external.exporter" . | nindent 6 -}}
@@ -415,8 +414,8 @@ spec:
           - pipelines:
               - logs/route_swift
             statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
-{{- end }}
-{{- if not .Values.openTelemetry.logsCollector.kafka.enabled }}
+{{- end }}{{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
+{{- else }}
       failover/opensearch:
         priority_levels:
           - [logs/failover_a]
