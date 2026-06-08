@@ -112,7 +112,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for logs buffering |
 | openTelemetry.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | openTelemetry.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
-| openTelemetry.logsCollector.kafka.storage_topic | string | `""` | Kafka topic name for storage logs — swift, ceph, kvm (e.g., "logs-storage") |
+| openTelemetry.logsCollector.kafka.storage_topic | string | `""` | Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage") |
 | openTelemetry.logsCollector.kafka.syslog_topic | string | `""` | Kafka topic name for syslog ingestion (e.g., "logs-syslog") |
 | openTelemetry.logsCollector.kafka.topic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
 | openTelemetry.logsCollector.kafka.traces_topic | string | `""` | Kafka topic name for traces (e.g., "traces") |
