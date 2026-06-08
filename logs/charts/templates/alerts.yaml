@@ -98,7 +98,7 @@ spec:
           severity: info
           no_alert_on_absence: "true"
           support_group: observability
-          playbook: 'docs/support/playbook/logs/otel-logs-increasing'
+          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times more logs in the last 6h. Please check.'
@@ -115,7 +115,7 @@ spec:
           severity: warning
           no_alert_on_absence: "true"
           support_group: observability
-          playbook: 'docs/support/playbook/logs/otel-logs-decreasing'
+          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times fewer logs in the last 2h. Please check.'
@@ -132,7 +132,7 @@ spec:
           severity: info
           no_alert_on_absence: "true"
           support_group: observability
-          playbook: 'docs/support/playbook/logs/otel-logs-exporting-failed'
+          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
