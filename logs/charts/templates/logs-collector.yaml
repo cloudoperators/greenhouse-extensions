@@ -124,8 +124,6 @@ spec:
   {{- include "openstack.receiver" . | nindent 6 -}}
 {{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
   {{- include "containerd.receiver" . | nindent 6 -}}
-{{- else if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
-  {{- include "openstack.receiver" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.receiver" . | nindent 6 -}}
@@ -209,8 +207,6 @@ spec:
     {{- include "openstack.transform" . | nindent 6 -}}
 {{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "containerd.transform" . | nindent 6 -}}
-{{- else if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
-    {{- include "openstack.transform" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.transform" . | nindent 6 -}}
@@ -369,7 +365,7 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-{{- if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.kafka.enabled) }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
 {{- end }}
@@ -535,8 +531,6 @@ spec:
     {{- include "openstack.pipeline" . | nindent 8 -}}
 {{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "containerd.pipeline" . | nindent 8 -}}
-{{- else if .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
-    {{- include "openstack.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
