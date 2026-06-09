@@ -10,11 +10,15 @@ Required env:
   ADMIN_PASSWORD  admin password
   STREAMS         space-separated stream names
 
-For each stream {name} expects four files in /scripts/:
+For each stream {name} expects three files in /scripts/:
   ds-{name}-ism.json
-  remote-{name}-ism.json
   snapshot-{name}-delete-policy.json
   snapshot-repo-{name}.json
+
+The `remote-{name}-ism` policy is rendered as an OpenSearchISMPolicy CRD by
+the chart (the CRD covers replicaCount + delete actions). Only the
+`ds-{name}-ism` policy needs HTTP install: it uses convert_index_to_remote,
+which the shipped CRD does not yet support.
 """
 import json
 import os
@@ -151,7 +155,6 @@ def install_stream(stream: str) -> None:
     # the placeholder we use in the rendered template.
     ds_policy = load(f"ds-{stream}-ism.json", {"_SNAPSHOT_NAME_": "{ctx.index}"})
     put_policy(f"/_plugins/_ism/policies/ds-{stream}-ism", ds_policy)
-    put_policy(f"/_plugins/_ism/policies/remote-{stream}-ism", load(f"remote-{stream}-ism.json"))
     put_sm_policy(
         f"/_plugins/_sm/policies/snapshot-{stream}-delete-policy",
         load(f"snapshot-{stream}-delete-policy.json"),

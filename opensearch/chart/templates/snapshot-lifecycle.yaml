@@ -56,10 +56,11 @@ volumes:
 {{- if .Values.cluster.snapshotLifecycle.enabled }}
 {{- $cfg := .Values.cluster.snapshotLifecycle }}
 {{- $cmName := $cfg.configMapName | default "opensearch-snapshot-lifecycle" }}
+{{- $clusterName := default .Release.Name .Values.cluster.cluster.name | trunc 63 | trimSuffix "-" }}
+{{- $apiGroup := .Values.cluster.apiGroup | default "opensearch.org" }}
 {{- $configFiles := dict }}
 {{- range $stream := $cfg.streams }}
   {{- $_ := set $configFiles (printf "ds-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/ds-ism-policy.json.tpl") $stream) }}
-  {{- $_ := set $configFiles (printf "remote-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/remote-ism-policy.json.tpl") $stream) }}
   {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $stream) }}
   {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") $stream) }}
 {{- end }}
@@ -126,5 +127,50 @@ spec:
         spec:
           {{- $attachArgs := merge (dict "script" "attach-remote.py" "containerName" "attach") $podArgs }}
           {{- include "opensearch.snapshotLifecycle.podSpec" $attachArgs | nindent 10 }}
+{{- end }}
+{{- range $stream := $cfg.streams }}
+---
+# Retention policy for the converted remote searchable indexes.
+# Rendered as a CRD because the actions (replicaCount + delete) are covered
+# by the operator. The ds-{name}-ism policy stays on HTTP because it uses
+# convert_index_to_remote, which the shipped CRD does not yet expose.
+apiVersion: {{ $apiGroup }}/v1
+kind: OpenSearchISMPolicy
+metadata:
+  name: remote-{{ $stream.name }}-ism
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" $ | nindent 4 }}
+spec:
+  policyId: remote-{{ $stream.name }}-ism
+  defaultState: initial
+  description: "Retention policy for {{ $stream.name }} remote searchable indexes."
+  opensearchCluster:
+    name: {{ $clusterName }}
+  ismTemplate:
+    indexPatterns:
+      - {{ $stream.indexPatterns.remote | quote }}
+    priority: 2
+  states:
+    - name: initial
+      actions:
+        - retry:
+            count: 3
+            backoff: exponential
+            delay: 1m
+          replicaCount:
+            numberOfReplicas: 0
+      transitions:
+        - stateName: delete
+          conditions:
+            minIndexAge: {{ $stream.retention.remote | quote }}
+    - name: delete
+      actions:
+        - retry:
+            count: 3
+            backoff: exponential
+            delay: 1m
+          delete: {}
+      transitions: []
 {{- end }}
 {{- end }}
