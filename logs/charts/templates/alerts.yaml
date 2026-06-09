@@ -51,10 +51,8 @@ spec:
         for: 120m
         labels:
           context: logshipping
-          service: logs
           severity: warning
           no_alert_on_absence: "true"
-          support_group: observability
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -94,10 +92,8 @@ spec:
         for: 6h
         labels:
           context: logshipping
-          service: logs
           severity: info
           no_alert_on_absence: "true"
-          support_group: observability
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -111,10 +107,8 @@ spec:
         for: 2h
         labels:
           context: logshipping
-          service: logs
           severity: warning
           no_alert_on_absence: "true"
-          support_group: observability
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
@@ -128,10 +122,8 @@ spec:
         for: 1h
         labels:
           context: logshipping
-          service: logs
           severity: info
           no_alert_on_absence: "true"
-          support_group: observability
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
