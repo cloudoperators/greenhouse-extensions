@@ -870,24 +870,21 @@ cluster:
   snapshotLifecycle:
     # -- Master switch. When false, no resources are created.
     enabled: false
-    # -- Bump to force re-application of policies on chart upgrade. The install
-    # script uses this to compare against the schema_version stored in OpenSearch
-    # and skips policies that are already at or beyond this version.
-    schemaVersion: 1
     # -- OpenSearch URL the install Job calls. The default points at the
-    # in-cluster service for the cluster created by this chart release.
-    clusterHost: "https://opensearch.{{ .Release.Namespace }}.svc.cluster.local:9200"
+    # in-cluster service named after `cluster.cluster.name` (or the release name
+    # if unset). Override if your service is named differently.
+    clusterHost: "https://{{ .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
     # -- Secret containing admin credentials. Defaults assume the secret created
     # by `cluster.usersCredentials.admin` (named `admin-credentials`).
     adminSecret:
       name: admin-credentials
       usernameKey: username
       passwordKey: password
-    # -- Image used by the install Job. Needs `bash`, `curl`, and `jq` (these are
-    # installed at runtime if missing, supporting Alpine and Debian/Ubuntu bases).
+    # -- Image used by the install Job. Must have Python 3 and pip; the Job
+    # `pip install`s `requests` at runtime.
     image:
-      repository: docker.io/library/alpine
-      tag: "3.19"
+      repository: docker.io/library/python
+      tag: "3.12-slim"
       pullPolicy: IfNotPresent
     # -- Optional resource requests/limits for the install Job pod.
     resources: {}
