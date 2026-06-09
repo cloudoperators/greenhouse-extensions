@@ -20,7 +20,8 @@ transform/journal:
   log_statements:
     - context: log
       statements:
-        - merge_maps(log.cache, log.body, "upsert")        - set(log.attributes["message"], log.cache["MESSAGE"])
+        - merge_maps(log.cache, log.body, "upsert")        
+        - set(log.attributes["message"], log.cache["MESSAGE"])
         - set(log.attributes["code_file"], log.cache["CODE_FILE"])
         - set(log.attributes["code_func"], log.cache["CODE_FUNC"])
         - set(log.attributes["code_line"], log.cache["CODE_LINE"])
