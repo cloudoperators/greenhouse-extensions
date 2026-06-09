@@ -7,3 +7,14 @@ perses:
       matchLabels:
         app.kubernetes.io/name: perses
         app.kubernetes.io/instance: perses
+
+greenhouse:
+  prometheusRule:
+    perses:
+      enabled: true
+      labels:
+        prometheus: kubernetes
+    contentSync:
+      enabled: true
+      labels:
+        prometheus: infra-collector

@@ -3,7 +3,7 @@ kind: PluginDefinition
 metadata:
   name: perses
 spec:
-  version: 0.13.4
+  version: 0.14.0
   displayName: Perses
   description: "Perses is a dashboard tooling to visualize metrics and traces produced by observability tools such as Prometheus/Thanos/Jaeger"
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/perses/README.md
@@ -11,7 +11,7 @@ spec:
   helmChart:
     name: perses
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.20.4
+    version: 0.21.0
   options:
     - description: "The image version of the Perses app. If not provided, the latest version will be used"
       name: perses.image.version
@@ -28,5 +28,23 @@ spec:
       type: map
     - description: Selector used by the ServiceMonitor to find which Perses service to scrape metrics from. These matchLabels should match the labels on your Perses service.
       name: perses.serviceMonitor.selector.matchLabels
+      required: false
+      type: map
+    - default: true
+      description: Render the PrometheusRule resource for Perses service alerts (PersesServiceDown, PersesServiceAbsent). Requires perses.serviceMonitor.selfMonitor to be true.
+      name: greenhouse.prometheusRule.perses.enabled
+      required: false
+      type: bool
+    - description: Labels added to the Perses-service-alerts PrometheusRule resource. Should match the target Prometheus CR's ruleSelector.matchLabels (e.g. prometheus=kubernetes).
+      name: greenhouse.prometheusRule.perses.labels
+      required: false
+      type: map
+    - default: true
+      description: Render the PrometheusRule resource for content-sync alerts (PersesContentSyncJobFailed). Requires perses.serviceMonitor.selfMonitor to be true.
+      name: greenhouse.prometheusRule.contentSync.enabled
+      required: false
+      type: bool
+    - description: Labels added to the content-sync-alerts PrometheusRule resource. Should match the target Prometheus CR's ruleSelector.matchLabels (e.g. prometheus=infra-collector).
+      name: greenhouse.prometheusRule.contentSync.labels
       required: false
       type: map
