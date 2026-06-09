@@ -862,7 +862,8 @@ cluster:
   snapshotLifecycle:
     # -- Enable the snapshot lifecycle install Job.
     enabled: false
-    # -- OpenSearch URL the Job calls.
+    # -- OpenSearch URL the Job calls. The default points at the in-cluster
+    # service named after `cluster.cluster.name` (or the release name if unset).
     clusterHost: "https://{{ .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
     # -- Admin credentials secret. Defaults match `cluster.usersCredentials.admin`.
     adminSecret:
@@ -874,11 +875,15 @@ cluster:
       repository: docker.io/library/python
       tag: "3.12-slim"
       pullPolicy: IfNotPresent
+    # -- Optional resource requests/limits for the install Job pod.
     resources: {}
+    # -- Optional node selector for the install Job pod.
     nodeSelector: {}
+    # -- Optional tolerations for the install Job pod.
     tolerations: []
+    # -- Job backoff limit.
     backoffLimit: 6
-    # -- Override default ConfigMap/Job names.
+    # -- Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`).
     configMapName: ""
     jobName: ""
     # -- List of streams to manage. Each entry produces ds-{name}-ism,
