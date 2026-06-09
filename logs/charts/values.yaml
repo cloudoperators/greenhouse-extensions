@@ -66,8 +66,6 @@ openTelemetry:
     failover_password_b:
     # -- Name for OpenSearch index
     index:
-    # -- Timeout for OpenSearch bulk requests
-    timeout: 30s
   # -- Cluster label for Logging
   cluster:
   # -- Region label for Logging
@@ -81,14 +79,29 @@ openTelemetry:
       enabled: false
       # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
       brokers: []
-      # -- Kafka topic name for logs (e.g., "logs")
+      # -- Kafka topic name for general logs (e.g., "logs")
       topic: ""
+      # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
+      storage_topic: ""
+      # -- Kafka topic name for syslog ingestion (e.g., "logs-syslog")
+      syslog_topic: ""
+      # -- Kafka topic name for traces (e.g., "traces")
+      traces_topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
       # -- Message encoding format (otlp_json, otlp_proto, raw)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""
+    # -- Activates the journald receiver (requires logsCollector to be enabled).
+    journaldConfig:
+      enabled: true
+    # -- Activates the k8s events receiver (requires logsCollector to be enabled).
+    k8seventsConfig:
+      enabled: true
+    # -- Activates the containerd file log receiver (requires logsCollector to be enabled).
+    containerdConfig:
+      enabled: true
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
       enabled: false
@@ -98,13 +111,40 @@ openTelemetry:
     # -- Activates the configuration for OpenStack logs (requires logsCollector to be enabled).
     openstackConfig:
       enabled: false
-    # -- Activates the configuration for external logs (requires logsCollector to be enabled).
+    # -- Activates syslog TCP/UDP ingestion (rfc5424/rfc3164).
+    syslogConfig:
+      enabled: false
+      # -- TCP port for syslog (rfc5424)
+      tcp_port: 514
+      # -- UDP port for syslog (rfc3164)
+      udp_port: 514
+    # -- Activates syslog TCP with TLS ingestion (rfc5424).
+    syslogTLSConfig:
+      enabled: false
+      # -- TCP port for TLS syslog (rfc5424)
+      tcp_port: 6514
+      # -- cert-manager ClusterIssuer name for DigiCert
+      issuerName:
+      # -- DNS name for the TLS certificate (e.g. logs-collector-syslog.eu-de-1.cloud.sap)
+      dnsName:
+    # -- Activates the external alertmanager webhook and deployment event receivers.
     externalConfig:
       enabled: false
-      tld:
+      # -- External IP exposed on the NodePort service
       external_ip:
-      tcp_port: 514
-      udp_port: 514
+      # -- Port for alertmanager webhook events
+      alertmanager_port: 1515
+      # -- Port for deployment TCP log events
+      deployments_port: 1516
+      # -- Additional annotations on the external Service
+      serviceAnnotations: {}
+    # -- Activates OTLP traces ingestion (gRPC and HTTP).
+    tracesConfig:
+      enabled: false
+      # -- gRPC port for OTLP traces
+      otlp_grpc_port: 4317
+      # -- HTTP port for OTLP traces
+      otlp_http_port: 4318
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
@@ -128,12 +168,13 @@ openTelemetry:
       # -- PrometheusRules to enable.
       enabled:
         - FilelogRefusedLogs
-        - LogsOTelLogsMissing
-        - LogsOTelLogsDecreasing
-        - LogsExportingFailed
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
+        - OTelLogsMissing
+        - OTelLogsIncreasing
+        - OTelLogsDecreasing
+        - OTelLogsExportingFailed
 
       # -- Labels for PrometheusRules.
       labels: {}

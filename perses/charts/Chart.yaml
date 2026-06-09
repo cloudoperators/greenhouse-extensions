@@ -17,4 +17,4 @@ keywords:
 dependencies:
   - name: perses
     repository: https://perses.github.io/helm-charts
-    version: 0.21.0
+    version: 0.21.2
