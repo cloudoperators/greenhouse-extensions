@@ -886,6 +886,15 @@ cluster:
     # -- Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`).
     configMapName: ""
     jobName: ""
+    # -- CronJob that attaches the `remote-{name}-ism` policy to converted
+    # remote searchable indexes. ISM templates do not always auto-attach when
+    # `convert_index_to_remote` creates the new index, so this job covers the
+    # gap and is a no-op when policies are already attached.
+    attachRemote:
+      enabled: true
+      name: ""
+      schedule: "30 0,12 * * *"
+      backoffLimit: 3
     # -- List of streams to manage. Each entry produces ds-{name}-ism,
     # remote-{name}-ism, snapshot-{name}-delete-policy, and an S3 repository.
     streams: []
