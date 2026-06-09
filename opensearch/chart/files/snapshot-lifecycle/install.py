@@ -36,32 +36,44 @@ session.verify = False
 requests.packages.urllib3.disable_warnings()
 
 
-def log(msg: str) -> None:
-    print(f"[snapshot-lifecycle] {msg}", flush=True)
+def log(level: str, msg: str, **fields) -> None:
+    """Emit a logfmt line: ts=... level=... msg="..." key=value ..."""
+    parts = [
+        f"ts={time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}",
+        f"level={level}",
+        f'msg="{msg}"',
+    ]
+    for k, v in fields.items():
+        s = str(v)
+        if any(c in s for c in ' "\\='):
+            s = '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
+        parts.append(f"{k}={s}")
+    print(" ".join(parts), flush=True)
 
 
 def wait_for_cluster(timeout_s: int = 240) -> None:
     """Block until the cluster reports green or yellow."""
-    log(f"waiting for cluster_manager at {CLUSTER}")
+    log("info", "waiting for cluster", host=CLUSTER, timeout_s=timeout_s)
     deadline = time.time() + timeout_s
     while time.time() < deadline:
         try:
             r = session.get(f"{CLUSTER}/_cluster/health", timeout=5)
             status = r.json().get("status")
             if status in ("green", "yellow"):
-                log(f"cluster ready (status={status})")
+                log("info", "cluster ready", status=status)
                 return
         except Exception:
             pass
         time.sleep(2)
-    sys.exit("cluster did not become ready in time")
+    log("error", "cluster not ready in time", timeout_s=timeout_s)
+    sys.exit(1)
 
 
 def put(path: str, body: dict) -> None:
-    log(f"PUT {path}")
+    log("info", "PUT", path=path)
     r = session.put(f"{CLUSTER}{path}", json=body, timeout=30)
     if not r.ok:
-        log(f"  -> {r.status_code}: {r.text}")
+        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
 
@@ -74,7 +86,7 @@ def load(filename: str, substitutions: dict | None = None) -> dict:
 
 
 def install_stream(stream: str) -> None:
-    log(f"--- {stream} ---")
+    log("info", "installing stream", stream=stream)
 
     # Snapshot repository name comes from the JSON body but the API needs it in
     # the URL; strip it before sending.
@@ -96,7 +108,7 @@ def main() -> None:
     wait_for_cluster()
     for stream in STREAMS:
         install_stream(stream)
-    log("done")
+    log("info", "done", streams=" ".join(STREAMS))
 
 
 if __name__ == "__main__":
