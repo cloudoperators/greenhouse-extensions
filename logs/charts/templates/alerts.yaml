@@ -77,7 +77,7 @@ spec:
 
   {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
       - alert: WorkqueueDepth
-        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        expr: rate(workqueue_depth{controller="opentelemetrycollector"}[5m]) > 0
         for: 5m
         labels:
           severity: warning
