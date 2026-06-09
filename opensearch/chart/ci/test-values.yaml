@@ -40,9 +40,10 @@ cluster:
         repository:
           name: hermes-snapshots
           type: s3
-          bucket: hermes-snapshots
-          basePath: hermes
-          client: default
+          settings:
+            bucket: hermes-snapshots
+            base_path: hermes
+            client: default
         indexPatterns:
           hot: ".ds-hermes-*"
           remote: "remote_.ds-hermes-*"
@@ -61,6 +62,8 @@ cluster:
       pluginsList:
         - repository-s3
     # Single-node deployment for resource-constrained kind clusters.
+    # Bumped memory above the 1Gi default so the JVM heap (auto-set to half the
+    # request) has enough headroom to avoid OOM during cluster bootstrap.
     nodePools:
       - component: node
         diskSize: "10Gi"
@@ -71,11 +74,11 @@ cluster:
           - "ingest"
         resources:
           requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
+            memory: "3Gi"
             cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
     # Override dashboards configuration for local testing with basic auth
     dashboards:
       additionalConfig:

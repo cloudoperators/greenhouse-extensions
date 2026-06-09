@@ -901,10 +901,13 @@ cluster:
     # - name: my-stream
     #   repository:
     #     name: my-stream-snapshots
+    #     # Any OpenSearch repository type: s3, fs, hdfs, azure, gcs.
     #     type: s3
-    #     bucket: my-stream-snapshots
-    #     basePath: my-stream
-    #     client: default
+    #     # Settings are passed verbatim to PUT /_snapshot/{name}.
+    #     settings:
+    #       bucket: my-stream-snapshots
+    #       base_path: my-stream
+    #       client: default
     #   indexPatterns:
     #     hot: ".ds-my-stream-*"
     #     remote: "remote_.ds-my-stream-*"

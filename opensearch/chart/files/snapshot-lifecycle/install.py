@@ -77,6 +77,60 @@ def put(path: str, body: dict) -> None:
         r.raise_for_status()
 
 
+def put_policy(path: str, body: dict) -> None:
+    """PUT an ISM policy with optimistic concurrency.
+
+    First install is a plain PUT. Updates need the current document's seq_no
+    and primary_term passed back in the URL or OpenSearch returns 409.
+    """
+    r = session.get(f"{CLUSTER}{path}", timeout=30)
+    if r.status_code == 404:
+        return put(path, body)
+    if not r.ok:
+        log("error", "GET failed", path=path, status=r.status_code, body=r.text)
+        r.raise_for_status()
+
+    existing = r.json()
+    seq_no = existing.get("_seq_no")
+    primary_term = existing.get("_primary_term")
+    qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
+    log("info", "PUT", path=path, seq_no=seq_no, primary_term=primary_term)
+    r = session.put(f"{CLUSTER}{path}{qs}", json=body, timeout=30)
+    if not r.ok:
+        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
+        r.raise_for_status()
+
+
+def put_sm_policy(path: str, body: dict) -> None:
+    """Upsert a Snapshot Management policy.
+
+    SM policies require POST to create and PUT (with seq_no/primary_term) to
+    update. The endpoint rejects PUT-as-create and PUT-without-concurrency-
+    tokens-when-the-doc-exists, so we explicitly check existence first.
+    """
+    r = session.get(f"{CLUSTER}{path}", timeout=30)
+    if r.status_code == 404:
+        log("info", "POST", path=path)
+        r = session.post(f"{CLUSTER}{path}", json=body, timeout=30)
+        if not r.ok:
+            log("error", "POST failed", path=path, status=r.status_code, body=r.text)
+            r.raise_for_status()
+        return
+    if not r.ok:
+        log("error", "GET failed", path=path, status=r.status_code, body=r.text)
+        r.raise_for_status()
+
+    existing = r.json()
+    seq_no = existing.get("_seq_no")
+    primary_term = existing.get("_primary_term")
+    qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
+    log("info", "PUT", path=path, seq_no=seq_no, primary_term=primary_term)
+    r = session.put(f"{CLUSTER}{path}{qs}", json=body, timeout=30)
+    if not r.ok:
+        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
+        r.raise_for_status()
+
+
 def load(filename: str, substitutions: dict | None = None) -> dict:
     """Load a JSON file, applying string substitutions before parsing."""
     raw = (SCRIPTS / filename).read_text()
@@ -96,9 +150,9 @@ def install_stream(stream: str) -> None:
     # {ctx.index} is evaluated by OpenSearch at policy execution; pre-substitute
     # the placeholder we use in the rendered template.
     ds_policy = load(f"ds-{stream}-ism.json", {"_SNAPSHOT_NAME_": "{ctx.index}"})
-    put(f"/_plugins/_ism/policies/ds-{stream}-ism", ds_policy)
-    put(f"/_plugins/_ism/policies/remote-{stream}-ism", load(f"remote-{stream}-ism.json"))
-    put(
+    put_policy(f"/_plugins/_ism/policies/ds-{stream}-ism", ds_policy)
+    put_policy(f"/_plugins/_ism/policies/remote-{stream}-ism", load(f"remote-{stream}-ism.json"))
+    put_sm_policy(
         f"/_plugins/_sm/policies/snapshot-{stream}-delete-policy",
         load(f"snapshot-{stream}-delete-policy.json"),
     )
