@@ -41,7 +41,6 @@ spec:
   template:
     metadata:
       annotations:
-        # Forces pod recreation when the ConfigMap content changes.
         checksum/config: {{ toJson $configFiles | sha256sum }}
       labels:
         {{- include "opensearch.labels" . | nindent 8 }}

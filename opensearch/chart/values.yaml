@@ -854,64 +854,46 @@ cluster:
           - "logs*"
         priority: 100
 
-  # -- Snapshot lifecycle: registers S3 snapshot repositories and installs ISM/SM
-  # policies that move data from the local hot tier to S3 (snapshot), keep it
-  # queryable as a remote searchable index for a retention window, and finally
-  # delete the underlying snapshots from S3.
-  #
-  # Implemented via a one-shot Job that PUTs raw OpenSearch HTTP API requests,
-  # because the `OpensearchISMPolicy` CRD does not yet expose the
-  # `convert_index_to_remote` action that searchable snapshots require.
-  #
-  # The repository registration assumes the `repository-s3` plugin is installed
-  # (see `cluster.general.pluginsList`) and that S3 client credentials are
-  # provisioned via the OpenSearch keystore (see top-level `s3.*`).
-  # @default -- disabled; see comments below for the per-stream schema.
+  # -- Snapshot lifecycle. Registers S3 snapshot repositories and installs
+  # ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API
+  # because OpensearchISMPolicy CRD does not expose convert_index_to_remote.
+  # Requires the repository-s3 plugin and S3 keystore credentials (top-level s3.*).
+  # @default -- disabled
   snapshotLifecycle:
-    # -- Master switch. When false, no resources are created.
+    # -- Enable the snapshot lifecycle install Job.
     enabled: false
-    # -- OpenSearch URL the install Job calls. The default points at the
-    # in-cluster service named after `cluster.cluster.name` (or the release name
-    # if unset). Override if your service is named differently.
+    # -- OpenSearch URL the Job calls.
     clusterHost: "https://{{ .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
-    # -- Secret containing admin credentials. Defaults assume the secret created
-    # by `cluster.usersCredentials.admin` (named `admin-credentials`).
+    # -- Admin credentials secret. Defaults match `cluster.usersCredentials.admin`.
     adminSecret:
       name: admin-credentials
       usernameKey: username
       passwordKey: password
-    # -- Image used by the install Job. Must have Python 3 and pip; the Job
-    # `pip install`s `requests` at runtime.
+    # -- Install Job image. Needs Python 3 with pip; `requests` is installed at runtime.
     image:
       repository: docker.io/library/python
       tag: "3.12-slim"
       pullPolicy: IfNotPresent
-    # -- Optional resource requests/limits for the install Job pod.
     resources: {}
-    # -- Optional node selector for the install Job pod.
     nodeSelector: {}
-    # -- Optional tolerations for the install Job pod.
     tolerations: []
-    # -- Optional Job backoff limit. Defaults to 6.
     backoffLimit: 6
-    # -- Override the ConfigMap and Job names. Defaults to
-    # `opensearch-snapshot-lifecycle`.
+    # -- Override default ConfigMap/Job names.
     configMapName: ""
     jobName: ""
-    # -- List of streams to manage. Each entry produces three policies
-    # (ds-{name}-ism, remote-{name}-ism, snapshot-{name}-delete-policy) plus an
-    # S3 repository registration.
+    # -- List of streams to manage. Each entry produces ds-{name}-ism,
+    # remote-{name}-ism, snapshot-{name}-delete-policy, and an S3 repository.
     streams: []
-    # - name: hermes
+    # - name: my-stream
     #   repository:
-    #     name: hermes-snapshots
+    #     name: my-stream-snapshots
     #     type: s3
-    #     bucket: hermes-snapshots
-    #     basePath: hermes
-    #     client: ceph
+    #     bucket: my-stream-snapshots
+    #     basePath: my-stream
+    #     client: default
     #   indexPatterns:
-    #     hot: ".ds-hermes-*"
-    #     remote: "remote_.ds-hermes-*"
+    #     hot: ".ds-my-stream-*"
+    #     remote: "remote_.ds-my-stream-*"
     #   minSize: "50gb"
     #   retention:
     #     local: "7d"

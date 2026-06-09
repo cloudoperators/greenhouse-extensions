@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Install OpenSearch snapshot lifecycle: register S3 repositories, install
-ISM/SM policies. Idempotent — re-running is safe; PUT replaces wholesale.
+"""Install OpenSearch snapshot lifecycle.
+
+Registers S3 snapshot repositories and installs ISM/SM policies for each stream
+named in the STREAMS env var. Idempotent: PUT replaces wholesale.
 
 Required env:
-  CLUSTER_HOST    e.g. https://opensearch.{namespace}.svc.cluster.local:9200
-  ADMIN_USER      OpenSearch admin username
-  ADMIN_PASSWORD  OpenSearch admin password
-  STREAMS         space-separated stream names (e.g. "audit hermes")
+  CLUSTER_HOST    OpenSearch base URL
+  ADMIN_USER      admin username
+  ADMIN_PASSWORD  admin password
+  STREAMS         space-separated stream names
 
 For each stream {name} expects four files in /scripts/:
   ds-{name}-ism.json
@@ -56,7 +58,6 @@ def wait_for_cluster(timeout_s: int = 240) -> None:
 
 
 def put(path: str, body: dict) -> None:
-    """PUT a JSON body. ISM/SM policy PUTs are idempotent — replace wholesale."""
     log(f"PUT {path}")
     r = session.put(f"{CLUSTER}{path}", json=body, timeout=30)
     if not r.ok:
@@ -75,12 +76,13 @@ def load(filename: str, substitutions: dict | None = None) -> dict:
 def install_stream(stream: str) -> None:
     log(f"--- {stream} ---")
 
-    # Register the S3 snapshot repository (strip 'name' from body — it lives in the URL).
+    # Snapshot repository name comes from the JSON body but the API needs it in
+    # the URL; strip it before sending.
     repo = load(f"snapshot-repo-{stream}.json")
     put(f"/_snapshot/{repo.pop('name')}", repo)
 
-    # Substitute the snapshot name placeholder in the ds-* policy.
-    # OpenSearch evaluates {ctx.index} at policy execution time.
+    # {ctx.index} is evaluated by OpenSearch at policy execution; pre-substitute
+    # the placeholder we use in the rendered template.
     ds_policy = load(f"ds-{stream}-ism.json", {"_SNAPSHOT_NAME_": "{ctx.index}"})
     put(f"/_plugins/_ism/policies/ds-{stream}-ism", ds_policy)
     put(f"/_plugins/_ism/policies/remote-{stream}-ism", load(f"remote-{stream}-ism.json"))
