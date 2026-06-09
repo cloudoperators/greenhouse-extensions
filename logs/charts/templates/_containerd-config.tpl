@@ -36,7 +36,8 @@ transform/protocol:
       conditions:
         - resource.attributes["network.protocol.name"] != nil
       statements:
-        - set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["network.protocol.name"], "lower"))
+        - set(log.attributes["network.protocol.name"], ConvertCase(resource.attributes["network.protocol.name"], "lower"))
+        - delete_key(resource.attributes, "network.protocol.name")
 
 transform/ingress:
   error_mode: ignore
