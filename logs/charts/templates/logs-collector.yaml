@@ -530,7 +530,7 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [batch, k8s_attributes, attributes/cluster]
+          processors: [batch]
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -546,7 +546,7 @@ spec:
 {{- end }}
         logs/route_cronus:
           receivers: [routing]
-          processors: [batch, k8s_attributes, attributes/cluster]
+          processors: [batch]
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -580,7 +580,7 @@ spec:
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
         logs/route_storage:
           receivers: [routing]
-          processors: [batch, k8s_attributes, attributes/cluster]
+          processors: [batch]
 {{- if .Values.openTelemetry.logsCollector.kafka.enabled }}
           exporters: [kafka/storage]
 {{- else }}
