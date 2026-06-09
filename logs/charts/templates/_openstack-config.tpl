@@ -7,6 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 {{- end }}
 
 {{- define "openstack.transform" }}
+transform/protocol:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - resource.attributes["network.protocol.name"] != nil
+      statements:
+        - set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["network.protocol.name"], "lower"))
+
 transform/ingress:
   error_mode: ignore
   log_statements:
