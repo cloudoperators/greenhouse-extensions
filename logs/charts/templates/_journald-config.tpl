@@ -56,6 +56,6 @@ transform/journal:
 {{- define "journald.pipeline" }}
 logs/journald:
   receivers: [journald]
-  processors: [k8s_attributes, attributes/cluster, transform/journal]
+  processors: [attributes/cluster, transform/journal]
   exporters: [routing]
 {{- end }}
