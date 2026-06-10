@@ -47,8 +47,9 @@ Check `Conditions`, `Events`, and the pod counts (`Failed`, `Succeeded`).
 kubectl logs job/<job_name> -c content-sync -n <namespace> --tail=500
 ```
 
-The CronJob retains up to 3 failed Jobs (`failedJobsHistoryLimit: 3`), so
-logs are typically available while this alert is firing. If the pod has been
+The CronJob retains only the most recent failed Job (Kubernetes default
+`failedJobsHistoryLimit: 1`), so logs from the latest failure are typically
+available while this alert is firing. If the pod has been
 garbage-collected, fall back to the cluster's log aggregator (e.g. OpenSearch) and query by `namespace` and `job_name`.
 
 ### 4. Inspect the CronJob
