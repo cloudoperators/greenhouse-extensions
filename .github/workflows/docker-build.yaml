@@ -31,6 +31,10 @@ jobs:
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
             Platform: linux/amd64
+          - Context: opensearch/build
+            Dockerfiles: opensearch/build/Dockerfile
+            Imagename: opensearch-fortlogs
+            Platform: linux/amd64
 
     permissions:
       contents: read
@@ -141,6 +145,9 @@ jobs:
           - Context: logs/build
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
+          - Context: opensearch/build
+            Dockerfiles: opensearch/build/Dockerfile
+            Imagename: opensearch-fortlogs
 
     name: Vulnerability Scan
     needs: build
