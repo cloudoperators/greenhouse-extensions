@@ -39,5 +39,12 @@ policies:
         mayReadHostPathVolumes: []
         mayWriteHostPathVolumes: []
 
+  ingressAnnotations:
+    enabled: true
+  ingressAnnotationsMigration:
+    enabled: true
+  prometheusScrapeAnnotations:
+    enabled: true
+
 tests:
   enabled: true
