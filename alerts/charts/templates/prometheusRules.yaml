@@ -1,4 +1,4 @@
-{{- if and .Values.alerts.defaultRules.create .Values.alerts.defaultRules.create.rules.alertmanager }}
+{{- if and .Values.alerts.defaultRules.create .Values.alerts.defaultRules.rules.alertmanager }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -18,14 +18,14 @@ spec:
       for: 5m
       labels:
         severity: critical
-        playbook: 'https://documentation.global.cloud.sap/docs/support/playbook/prometheus/failed_config_reload'
+        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/failed_config_reload'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} failed to load it`s configuration. Alertmanager cannot start with a malformed configuration.'
+        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} failed to load its configuration. Alertmanager cannot start with a malformed configuration.'
         summary: Alertmanager configuration reload has failed
 
     - alert: AlertmanagerNotificationsFailing
@@ -33,10 +33,10 @@ spec:
       for: 10m
       labels:
         severity: info
-        playbook: 'https://documentation.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_failed_notifications'
+        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_failed_notifications'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
@@ -48,10 +48,10 @@ spec:
       for: 10m
       labels:
         severity: warning
-        playbook: 'https://documentation.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-pruned'
+        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-pruned'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
@@ -63,14 +63,14 @@ spec:
       for: 15m
       labels:
         severity: info
-        playbook: 'https://documentation.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-queued'
+        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-queued'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} is queing cluster messages. This can cause dropping messages because too many are queued.'
+        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} is queuing cluster messages. This can cause dropping messages because too many are queued.'
         summary: Alertmanager in HA cluster fails to synchronize
 
     - alert: AlertmanagerInvalidAlerts
@@ -80,7 +80,7 @@ spec:
         severity: info
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
@@ -94,7 +94,7 @@ spec:
         severity: info
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
@@ -108,7 +108,7 @@ spec:
         severity: info
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 6 }}
+            {{- toYaml . | nindent 8 }}
           {{- end }}
         {{- end }}
       annotations:
