@@ -42,7 +42,7 @@ Upstream PRs with critical fixes are open but unmerged. This image ships those f
 | ~~opensearch-project/security-analytics~~ | [~~#1722~~](https://github.com/opensearch-project/security-analytics/pull/1722)  | ~~Fix mutable script params for detector trigger actions~~ |
 
 ## Published image
-Images are build and push to ghcr.io. Pushed images are automatically mirrored to Keppel Container Image Registry.
+Images are built and push to ghcr.io (manual trigger of [Build Docker images and push to registry workflow](https://github.com/cloudoperators/greenhouse-extensions/actions/workflows/docker-build.yaml)). Pushed images are automatically mirrored to Keppel Container Image Registry.
 
 ## Building locally
 
