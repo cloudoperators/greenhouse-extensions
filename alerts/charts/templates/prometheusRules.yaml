@@ -1,4 +1,4 @@
-{{- if .Values.alerts.defaultRules.create .Values.alerts.defaultRules.create.rules.alertmanager }}
+{{- if and .Values.alerts.defaultRules.create .Values.alerts.defaultRules.create.rules.alertmanager }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
