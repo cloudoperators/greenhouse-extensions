@@ -18,7 +18,7 @@ spec:
             description: "The Perses content sync Job in namespace {{`{{ $labels.namespace }}`}} has failed. The Perses provisioning PVC has not been updated; new dashboards and datasources will not appear until the sync succeeds."
           expr: |
             max by (namespace) (
-              kube_job_status_failed{job_name=~"{{ include "release.name" . }}-content-sync-.*"}
+              kube_job_failed{job_name=~"{{ include "release.name" . }}-content-sync-.*",condition="true"}
             ) > 0
           for: 5m
           labels:
