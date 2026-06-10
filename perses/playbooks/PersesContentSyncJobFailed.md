@@ -47,8 +47,9 @@ Check `Conditions`, `Events`, and the pod counts (`Failed`, `Succeeded`).
 kubectl logs job/<job_name> -c content-sync -n <namespace> --tail=500
 ```
 
-The CronJob retains up to 3 failed Jobs (`failedJobsHistoryLimit: 3`), so
-logs are typically available while this alert is firing. If the pod has been
+The CronJob retains only the most recent failed Job (Kubernetes default
+`failedJobsHistoryLimit: 1`), so logs from the latest failure are typically
+available while this alert is firing. If the pod has been
 garbage-collected, fall back to the cluster's log aggregator (e.g. OpenSearch) and query by `namespace` and `job_name`.
 
 ### 4. Inspect the CronJob
@@ -112,3 +113,23 @@ kubectl create job --from=cronjob/<release>-content-sync \
   <release>-content-sync-rerun-$(date +%s) -n <namespace>
 ```
 
+
+## Clear the firing alert
+
+Once the underlying issue is fixed (and ideally a manual re-run has
+succeeded), the lingering failed Job must be deleted to resolve
+`PersesContentSyncJobFailed` alert.
+
+
+1. List content-sync Jobs (failed ones typically show `0/1` under
+   `COMPLETIONS`):
+
+   ```bash
+   kubectl get jobs -n <namespace> -l plugindefinition=perses | grep content-sync
+   ```
+
+2. Delete the failed Job (this also removes its pod):
+
+   ```bash
+   kubectl delete job <failed_job_name> -n <namespace>
+   ```

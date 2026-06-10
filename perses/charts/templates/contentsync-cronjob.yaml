@@ -8,7 +8,6 @@ metadata:
     {{- include "perses.labels" . | nindent 4 }}
 spec:
   concurrencyPolicy: Replace
-  failedJobsHistoryLimit: 3
   successfulJobsHistoryLimit: 3
   schedule: {{ .Values.contentSync.schedule | quote }}
   suspend: false
@@ -17,6 +16,7 @@ spec:
       labels:
         {{- include "perses.labels" . | nindent 8 }}
     spec:
+      backoffLimit: 1
       template:
         metadata:
           labels:
@@ -100,7 +100,7 @@ spec:
               volumeMounts:
                 - name: perses-content-volume
                   mountPath: {{ .Values.contentSync.provisioningMountPath }}
-          restartPolicy: OnFailure
+          restartPolicy: Never
           schedulerName: default-scheduler
           terminationGracePeriodSeconds: 30
           volumes:
