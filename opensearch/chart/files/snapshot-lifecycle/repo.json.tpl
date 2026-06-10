@@ -1,5 +1,5 @@
 {
-  "name": "{{ .repository.name }}",
-  "type": "{{ .repository.type | default "s3" }}",
-  "settings": {{ toJson .repository.settings }}
+  "name": "{{ .repo.name }}",
+  "type": "{{ .repo.type | default "s3" }}",
+  "settings": {{ toJson .repo.settings }}
 }

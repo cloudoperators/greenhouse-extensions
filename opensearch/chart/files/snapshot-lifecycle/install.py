@@ -8,12 +8,15 @@ Required env:
   CLUSTER_HOST    OpenSearch base URL
   ADMIN_USER      admin username
   ADMIN_PASSWORD  admin password
+  REPOSITORIES    space-separated repository names
   STREAMS         space-separated stream names
 
-For each stream {name} expects three files in /scripts/:
+For each repository {name} expects in /scripts/:
+  snapshot-repo-{name}.json
+
+For each stream {name} expects in /scripts/:
   ds-{name}-ism.json
   snapshot-{name}-delete-policy.json
-  snapshot-repo-{name}.json
 
 The `remote-{name}-ism` policy is rendered as an OpenSearchISMPolicy CRD by
 the chart (the CRD covers replicaCount + delete actions). Only the
@@ -32,6 +35,7 @@ from requests.auth import HTTPBasicAuth
 CLUSTER = os.environ["CLUSTER_HOST"].rstrip("/")
 AUTH = HTTPBasicAuth(os.environ["ADMIN_USER"], os.environ["ADMIN_PASSWORD"])
 STREAMS = os.environ["STREAMS"].split()
+REPOSITORIES = os.environ["REPOSITORIES"].split()
 SCRIPTS = Path("/scripts")
 
 session = requests.Session()
@@ -74,10 +78,10 @@ def wait_for_cluster(timeout_s: int = 240) -> None:
 
 
 def put(path: str, body: dict) -> None:
-    log("info", "PUT", path=path)
+    log("info", "creating resource", method="PUT", path=path)
     r = session.put(f"{CLUSTER}{path}", json=body, timeout=30)
     if not r.ok:
-        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
+        log("error", "request failed", method="PUT", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
 
@@ -91,17 +95,17 @@ def put_policy(path: str, body: dict) -> None:
     if r.status_code == 404:
         return put(path, body)
     if not r.ok:
-        log("error", "GET failed", path=path, status=r.status_code, body=r.text)
+        log("error", "request failed", method="GET", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
     existing = r.json()
     seq_no = existing.get("_seq_no")
     primary_term = existing.get("_primary_term")
     qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
-    log("info", "PUT", path=path, seq_no=seq_no, primary_term=primary_term)
+    log("info", "updating resource", method="PUT", path=path, seq_no=seq_no, primary_term=primary_term)
     r = session.put(f"{CLUSTER}{path}{qs}", json=body, timeout=30)
     if not r.ok:
-        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
+        log("error", "request failed", method="PUT", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
 
@@ -114,24 +118,24 @@ def put_sm_policy(path: str, body: dict) -> None:
     """
     r = session.get(f"{CLUSTER}{path}", timeout=30)
     if r.status_code == 404:
-        log("info", "POST", path=path)
+        log("info", "creating resource", method="POST", path=path)
         r = session.post(f"{CLUSTER}{path}", json=body, timeout=30)
         if not r.ok:
-            log("error", "POST failed", path=path, status=r.status_code, body=r.text)
+            log("error", "request failed", method="POST", path=path, status=r.status_code, body=r.text)
             r.raise_for_status()
         return
     if not r.ok:
-        log("error", "GET failed", path=path, status=r.status_code, body=r.text)
+        log("error", "request failed", method="GET", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
     existing = r.json()
     seq_no = existing.get("_seq_no")
     primary_term = existing.get("_primary_term")
     qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
-    log("info", "PUT", path=path, seq_no=seq_no, primary_term=primary_term)
+    log("info", "updating resource", method="PUT", path=path, seq_no=seq_no, primary_term=primary_term)
     r = session.put(f"{CLUSTER}{path}{qs}", json=body, timeout=30)
     if not r.ok:
-        log("error", "PUT failed", path=path, status=r.status_code, body=r.text)
+        log("error", "request failed", method="PUT", path=path, status=r.status_code, body=r.text)
         r.raise_for_status()
 
 
@@ -143,13 +147,14 @@ def load(filename: str, substitutions: dict | None = None) -> dict:
     return json.loads(raw)
 
 
+def install_repository(name: str) -> None:
+    """Register a snapshot repository (or update its settings if it exists)."""
+    repo = load(f"snapshot-repo-{name}.json")
+    put(f"/_snapshot/{repo.pop('name')}", repo)
+
+
 def install_stream(stream: str) -> None:
     log("info", "installing stream", stream=stream)
-
-    # Snapshot repository name comes from the JSON body but the API needs it in
-    # the URL; strip it before sending.
-    repo = load(f"snapshot-repo-{stream}.json")
-    put(f"/_snapshot/{repo.pop('name')}", repo)
 
     # {ctx.index} is evaluated by OpenSearch at policy execution; pre-substitute
     # the placeholder we use in the rendered template.
@@ -163,9 +168,11 @@ def install_stream(stream: str) -> None:
 
 def main() -> None:
     wait_for_cluster()
+    for repo in REPOSITORIES:
+        install_repository(repo)
     for stream in STREAMS:
         install_stream(stream)
-    log("info", "done", streams=" ".join(STREAMS))
+    log("info", "done", streams=" ".join(STREAMS), repositories=" ".join(REPOSITORIES))
 
 
 if __name__ == "__main__":

@@ -895,19 +895,24 @@ cluster:
       name: ""
       schedule: "30 0,12 * * *"
       backoffLimit: 3
+    # -- Snapshot repositories. Each entry is registered once via
+    # PUT /_snapshot/{name}. Streams reference these by name and may share a
+    # repository.
+    repositories: []
+    # - name: my-snapshots
+    #   # Any OpenSearch repository type: s3, fs, hdfs, azure, gcs.
+    #   type: s3
+    #   # Settings are passed verbatim to PUT /_snapshot/{name}.
+    #   settings:
+    #     bucket: my-snapshots
+    #     client: default
+
     # -- List of streams to manage. Each entry produces ds-{name}-ism,
-    # remote-{name}-ism, snapshot-{name}-delete-policy, and an S3 repository.
+    # remote-{name}-ism, and snapshot-{name}-delete-policy.
     streams: []
     # - name: my-stream
-    #   repository:
-    #     name: my-stream-snapshots
-    #     # Any OpenSearch repository type: s3, fs, hdfs, azure, gcs.
-    #     type: s3
-    #     # Settings are passed verbatim to PUT /_snapshot/{name}.
-    #     settings:
-    #       bucket: my-stream-snapshots
-    #       base_path: my-stream
-    #       client: default
+    #   # References repositories[].name above.
+    #   repository: my-snapshots
     #   indexPatterns:
     #     hot: ".ds-my-stream-*"
     #     remote: "remote_.ds-my-stream-*"

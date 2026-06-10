@@ -35,15 +35,16 @@ cluster:
       password: "CHANGE_ME_FailoverUser2025$%"
   snapshotLifecycle:
     enabled: true
+    repositories:
+      - name: hermes-snapshots
+        type: s3
+        settings:
+          bucket: hermes-snapshots
+          base_path: hermes
+          client: default
     streams:
       - name: hermes
-        repository:
-          name: hermes-snapshots
-          type: s3
-          settings:
-            bucket: hermes-snapshots
-            base_path: hermes
-            client: default
+        repository: hermes-snapshots
         indexPatterns:
           hot: ".ds-hermes-*"
           remote: "remote_.ds-hermes-*"

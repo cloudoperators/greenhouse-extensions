@@ -1,24 +1,24 @@
 {
   "sm_policy": {
-    "name": "snapshot-{{ .name }}-delete-policy",
-    "description": "SM policy to delete old {{ .name }} snapshots from S3 after retention.",
-    "schema_version": "{{ .schemaVersion | default 1 }}",
+    "name": "snapshot-{{ .stream.name }}-delete-policy",
+    "description": "SM policy to delete old {{ .stream.name }} snapshots from S3 after retention.",
+    "schema_version": "{{ .stream.schemaVersion | default 1 }}",
     "deletion": {
       "schedule": {
         "cron": {
-          "expression": "{{ .smCronExpression | default "0 0 * * *" }}",
-          "timezone": "{{ .smCronTimezone | default "UTC" }}"
+          "expression": "{{ .stream.smCronExpression | default "0 0 * * *" }}",
+          "timezone": "{{ .stream.smCronTimezone | default "UTC" }}"
         }
       },
       "condition": {
-        "max_age": "{{ .retention.snapshot }}",
+        "max_age": "{{ .stream.retention.snapshot }}",
         "min_count": 1
       },
       "time_limit": "1h",
-      "snapshot_pattern": "{{ .indexPatterns.hot }}"
+      "snapshot_pattern": "{{ .stream.indexPatterns.hot }}"
     },
     "snapshot_config": {
-      "repository": "{{ .repository.name }}"
+      "repository": "{{ .repo.name }}"
     },
     "enabled": true
   }

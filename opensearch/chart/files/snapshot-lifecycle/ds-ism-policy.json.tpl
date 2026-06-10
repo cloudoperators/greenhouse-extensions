@@ -1,8 +1,8 @@
 {
   "policy": {
-    "policy_id": "ds-{{ .name }}-ism",
-    "description": "Datastream ISM policy for {{ .name }}: rollover, snapshot to S3, convert to remote searchable index.",
-    "schema_version": "{{ .schemaVersion | default 1 }}",
+    "policy_id": "ds-{{ .stream.name }}-ism",
+    "description": "Datastream ISM policy for {{ .stream.name }}: rollover, snapshot to S3, convert to remote searchable index.",
+    "schema_version": "{{ .stream.schemaVersion | default 1 }}",
     "default_state": "initial",
     "states": [
       {
@@ -12,13 +12,13 @@
           {
             "state_name": "rollover",
             "conditions": {
-              "min_index_age": "{{ .retention.local }}"
+              "min_index_age": "{{ .stream.retention.local }}"
             }
           },
           {
             "state_name": "rollover",
             "conditions": {
-              "min_size": "{{ .minSize }}"
+              "min_size": "{{ .stream.minSize }}"
             }
           }
         ]
@@ -43,7 +43,7 @@
           {
             "state_name": "snapshot",
             "conditions": {
-              "min_index_age": "{{ .retention.local }}"
+              "min_index_age": "{{ .stream.retention.local }}"
             }
           }
         ]
@@ -58,7 +58,7 @@
               "delay": "1m"
             },
             "snapshot": {
-              "repository": "{{ .repository.name }}",
+              "repository": "{{ .repo.name }}",
               "snapshot": "{_SNAPSHOT_NAME_}"
             }
           }
@@ -82,17 +82,17 @@
               "delay": "1m"
             },
             "convert_index_to_remote": {
-              "repository": "{{ .repository.name }}",
+              "repository": "{{ .repo.name }}",
               "snapshot": "{_SNAPSHOT_NAME_}",
               "rename_pattern": "remote_$1"
-              {{- if .deleteOriginalIndex }},
+              {{- if .stream.deleteOriginalIndex }},
               "delete_original_index": true
               {{- end }}
             }
           }
         ],
         "transitions": [
-          {{- if not .deleteOriginalIndex }}
+          {{- if not .stream.deleteOriginalIndex }}
           {
             "state_name": "delete",
             "conditions": {
@@ -102,7 +102,7 @@
           {{- end }}
         ]
       }
-      {{- if not .deleteOriginalIndex }},
+      {{- if not .stream.deleteOriginalIndex }},
       {
         "name": "delete",
         "actions": [
@@ -122,7 +122,7 @@
     "ism_template": [
       {
         "index_patterns": [
-          "{{ .indexPatterns.hot }}"
+          "{{ .stream.indexPatterns.hot }}"
         ],
         "priority": 2
       }

@@ -29,6 +29,8 @@ containers:
         value: {{ tpl $cfg.clusterHost .root | quote }}
       - name: STREAMS
         value: {{ .streamNames | join " " | quote }}
+      - name: REPOSITORIES
+        value: {{ .repoNames | join " " | quote }}
       - name: ADMIN_USER
         valueFrom:
           secretKeyRef:
@@ -60,9 +62,19 @@ volumes:
 {{- $apiGroup := .Values.cluster.apiGroup | default "opensearch.org" }}
 {{- $configFiles := dict }}
 {{- range $stream := $cfg.streams }}
-  {{- $_ := set $configFiles (printf "ds-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/ds-ism-policy.json.tpl") $stream) }}
-  {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $stream) }}
-  {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") $stream) }}
+  {{- $repo := dict }}
+  {{- range $r := $cfg.repositories }}
+    {{- if eq $r.name $stream.repository }}{{- $repo = $r }}{{- end }}
+  {{- end }}
+  {{- if not $repo }}
+    {{- fail (printf "stream %q references unknown repository %q" $stream.name $stream.repository) }}
+  {{- end }}
+  {{- $ctx := dict "stream" $stream "repo" $repo }}
+  {{- $_ := set $configFiles (printf "ds-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/ds-ism-policy.json.tpl") $ctx) }}
+  {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $ctx) }}
+{{- end }}
+{{- range $repo := $cfg.repositories }}
+  {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $repo.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") (dict "repo" $repo)) }}
 {{- end }}
 {{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
 {{- $_ := set $configFiles "attach-remote.py" ($.Files.Get "files/snapshot-lifecycle/attach-remote.py") }}
@@ -70,7 +82,11 @@ volumes:
 {{- range $stream := $cfg.streams }}
   {{- $streamNames = append $streamNames $stream.name }}
 {{- end }}
-{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "root" $ }}
+{{- $repoNames := list }}
+{{- range $repo := $cfg.repositories }}
+  {{- $repoNames = append $repoNames $repo.name }}
+{{- end }}
+{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "root" $ }}
 ---
 apiVersion: v1
 kind: ConfigMap
