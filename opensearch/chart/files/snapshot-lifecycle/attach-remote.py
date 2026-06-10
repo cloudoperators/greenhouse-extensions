@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Attach remote-{stream}-ism policy to converted remote searchable indexes.
 
-ISM ism_template auto-applies on index creation. The convert_index_to_remote
-action creates `remote_.ds-{stream}-*` indexes, but template matching is not
-reliably applied at that moment. This script lists those indexes and attaches
-the remote-{stream}-ism policy to any that have no policy yet.
+ISM `ism_template` matching does not fire for indexes created by restore-like
+actions, including `convert_index_to_remote` (tracked upstream in
+opensearch-project/index-management#1389). The action creates
+`remote_.ds-{stream}-*` indexes without an attached policy, so this script
+lists them and attaches the matching `remote-{stream}-ism` policy.
 
 Required env:
   CLUSTER_HOST    OpenSearch base URL

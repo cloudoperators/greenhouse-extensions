@@ -899,9 +899,10 @@ cluster:
     configMapName: ""
     jobName: ""
     # -- CronJob that attaches the `remote-{name}-ism` policy to converted
-    # remote searchable indexes. ISM templates do not always auto-attach when
-    # `convert_index_to_remote` creates the new index, so this job covers the
-    # gap and is a no-op when policies are already attached.
+    # remote searchable indexes. ISM templates do not auto-attach to indexes
+    # created by `convert_index_to_remote`
+    # (opensearch-project/index-management#1389), so this job covers the gap
+    # and is a no-op when policies are already attached.
     attachRemote:
       enabled: true
       name: ""
