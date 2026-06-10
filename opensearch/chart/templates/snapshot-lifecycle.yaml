@@ -31,13 +31,13 @@ containers:
       - name: ADMIN_USER
         valueFrom:
           secretKeyRef:
-            name: {{ $cfg.adminSecret.name }}
-            key: {{ $cfg.adminSecret.usernameKey | default "username" }}
+            name: {{ $cfg.credentialsSecret.name }}
+            key: {{ $cfg.credentialsSecret.usernameKey | default "username" }}
       - name: ADMIN_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: {{ $cfg.adminSecret.name }}
-            key: {{ $cfg.adminSecret.passwordKey | default "password" }}
+            name: {{ $cfg.credentialsSecret.name }}
+            key: {{ $cfg.credentialsSecret.passwordKey | default "password" }}
       {{- if $cfg.tlsSkipVerify }}
       - name: TLS_SKIP_VERIFY
         value: "true"
