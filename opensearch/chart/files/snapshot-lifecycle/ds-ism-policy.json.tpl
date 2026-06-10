@@ -85,18 +85,24 @@
               "repository": "{{ .repository.name }}",
               "snapshot": "{_SNAPSHOT_NAME_}",
               "rename_pattern": "remote_$1"
+              {{- if .deleteOriginalIndex }},
+              "delete_original_index": true
+              {{- end }}
             }
           }
         ],
         "transitions": [
+          {{- if not .deleteOriginalIndex }}
           {
             "state_name": "delete",
             "conditions": {
               "min_doc_count": 5
             }
           }
+          {{- end }}
         ]
-      },
+      }
+      {{- if not .deleteOriginalIndex }},
       {
         "name": "delete",
         "actions": [
@@ -111,6 +117,7 @@
         ],
         "transitions": []
       }
+      {{- end }}
     ],
     "ism_template": [
       {

@@ -916,6 +916,11 @@ cluster:
     #     local: "7d"
     #     remote: "31d"
     #     snapshot: "93d"
+    #   # Use the convert_index_to_remote `delete_original_index` option to
+    #   # remove the local index in the same step as the conversion. Requires
+    #   # OpenSearch >= 3.7. When false (default), the policy uses a separate
+    #   # `delete` state, which works on all 3.x versions.
+    #   deleteOriginalIndex: false
 
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.
