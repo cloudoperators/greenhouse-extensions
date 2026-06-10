@@ -39,7 +39,7 @@ transform/journal:
         - set(log.attributes["gid"], log.cache["_GID"])
         - set(resource.attributes["host.name"], log.cache["_HOSTNAME"])
         - set(log.attributes["machine_id"], log.cache["_MACHINE_ID"])
-        - set(resource.attributes["process.pid"], log.cache["_PID"])
+        - set(log.attributes["process.pid"], log.cache["_PID"])
         - set(log.attributes["runtime_scope"], log.cache["_RUNTIME_SCOPE"])
         - set(log.attributes["selinux_context"], log.cache["_SELINUX_CONTEXT"])
         - set(log.attributes["source_realtime_timestamp"], log.cache["_SOURCE_REALTIME_TIMESTAMP"])
