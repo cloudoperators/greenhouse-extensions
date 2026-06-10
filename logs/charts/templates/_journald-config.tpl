@@ -29,7 +29,7 @@ transform/journal:
         - set(log.attributes["message_id"], log.cache["MESSAGE_ID"])
         - set(log.attributes["priority"], log.cache["PRIORITY"])
         - set(log.attributes["syslog_facility"], log.cache["SYSLOG_FACILITY"])
-        - set(resource.attributes["syslog.identifier"], log.cache["SYSLOG_IDENTIFIER"])
+        - set(log.attributes["syslog_identifier"], log.cache["SYSLOG_IDENTIFIER"])
         - set(log.attributes["tid"], log.cache["TID"])
         - set(resource.attributes["syslog.unit"], log.cache["UNIT"])
         - set(log.attributes["boot_id"], log.cache["_BOOT_ID"])
