@@ -18,17 +18,7 @@ containers:
   - name: {{ .containerName }}
     image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
     imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
-    {{- if $cfg.command }}
-    command:
-      {{- toYaml $cfg.command | nindent 6 }}
-    {{- else }}
-    command: ["/bin/sh", "-c"]
-    args:
-      - |
-        set -e
-        python3 -c "import requests" 2>/dev/null || pip install --quiet --no-cache-dir requests
-        python3 /scripts/{{ $script }}
-    {{- end }}
+    command: ["python3", "/scripts/{{ $script }}"]
     env:
       - name: CLUSTER_HOST
         value: {{ tpl $cfg.clusterHost .root | quote }}
@@ -123,19 +113,20 @@ data:
 {{ $content | indent 4 }}
 {{- end }}
 ---
+{{- $configHash := toJson $configFiles | sha256sum | trunc 8 }}
+{{- $baseJobName := $cfg.jobName | default "opensearch-snapshot-lifecycle" }}
+{{- $jobName := printf "%s-%s" $baseJobName $configHash | trunc 63 | trimSuffix "-" }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $cfg.jobName | default "opensearch-snapshot-lifecycle" }}
+  name: {{ $jobName }}
   namespace: {{ .Release.Namespace }}
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "5"
-    "helm.sh/hook-delete-policy": before-hook-creation
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
+    snapshot-lifecycle.opensearch.greenhouse.sap/install: "true"
 spec:
   backoffLimit: {{ $cfg.backoffLimit | default 6 }}
+  ttlSecondsAfterFinished: {{ $cfg.ttlSecondsAfterFinished | default 86400 }}
   template:
     metadata:
       labels:

@@ -12,28 +12,34 @@ Required env:
   ADMIN_PASSWORD  admin password
   STREAMS         space-separated stream names
 """
+import base64
+import json
 import os
+import ssl
 import sys
 import time
-from urllib.parse import quote
-
-import requests
-from requests.auth import HTTPBasicAuth
+from urllib import error, parse, request
 
 CLUSTER = os.environ["CLUSTER_HOST"].rstrip("/")
-AUTH = HTTPBasicAuth(os.environ["ADMIN_USER"], os.environ["ADMIN_PASSWORD"])
+ADMIN_USER = os.environ["ADMIN_USER"]
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 STREAMS = os.environ["STREAMS"].split()
 
 SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
 CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
 
-session = requests.Session()
-session.auth = AUTH
 if SKIP_VERIFY:
-    session.verify = False
-    requests.packages.urllib3.disable_warnings()
+    SSL_CTX = ssl.create_default_context()
+    SSL_CTX.check_hostname = False
+    SSL_CTX.verify_mode = ssl.CERT_NONE
 elif CA_BUNDLE:
-    session.verify = CA_BUNDLE
+    SSL_CTX = ssl.create_default_context(cafile=CA_BUNDLE)
+else:
+    SSL_CTX = ssl.create_default_context()
+
+_AUTH_HEADER = "Basic " + base64.b64encode(
+    f"{ADMIN_USER}:{ADMIN_PASSWORD}".encode()
+).decode()
 
 
 def log(level: str, msg: str, **fields) -> None:
@@ -50,12 +56,36 @@ def log(level: str, msg: str, **fields) -> None:
     print(" ".join(parts), flush=True)
 
 
-def get(path: str) -> requests.Response:
-    return session.get(f"{CLUSTER}{path}", timeout=30)
+class Response:
+    __slots__ = ("status", "body")
+
+    def __init__(self, status: int, body: bytes):
+        self.status = status
+        self.body = body
+
+    @property
+    def ok(self) -> bool:
+        return 200 <= self.status < 300
+
+    @property
+    def text(self) -> str:
+        return self.body.decode("utf-8", errors="replace")
+
+    def json(self) -> dict:
+        return json.loads(self.body) if self.body else {}
 
 
-def post(path: str, body: dict) -> requests.Response:
-    return session.post(f"{CLUSTER}{path}", json=body, timeout=30)
+def http(method: str, path: str, body: dict | None = None, timeout: int = 30) -> Response:
+    data = json.dumps(body).encode() if body is not None else None
+    req = request.Request(f"{CLUSTER}{path}", data=data, method=method)
+    req.add_header("Authorization", _AUTH_HEADER)
+    if data is not None:
+        req.add_header("Content-Type", "application/json")
+    try:
+        with request.urlopen(req, timeout=timeout, context=SSL_CTX) as resp:
+            return Response(resp.status, resp.read())
+    except error.HTTPError as e:
+        return Response(e.code, e.read())
 
 
 def attach_stream(stream: str) -> int:
@@ -65,21 +95,21 @@ def attach_stream(stream: str) -> int:
     policy_id = f"remote-{stream}-ism"
     pattern = f"remote_.ds-{stream}-*"
 
-    r = get(f"/_plugins/_ism/policies/{policy_id}")
-    if r.status_code == 404:
+    r = http("GET", f"/_plugins/_ism/policies/{policy_id}")
+    if r.status == 404:
         log("warn", "policy missing, skipping", stream=stream, policy=policy_id)
         return 0
     if not r.ok:
-        log("error", "policy lookup failed", stream=stream, status=r.status_code, body=r.text)
-        r.raise_for_status()
+        log("error", "policy lookup failed", stream=stream, status=r.status, body=r.text)
+        sys.exit(1)
 
-    r = get(f"/{quote(pattern, safe='')}?expand_wildcards=all&allow_no_indices=true&ignore_unavailable=true")
-    if r.status_code == 404:
+    r = http("GET", f"/{parse.quote(pattern, safe='')}?expand_wildcards=all&allow_no_indices=true&ignore_unavailable=true")
+    if r.status == 404:
         log("info", "no remote indexes", stream=stream)
         return 0
     if not r.ok:
-        log("error", "list indexes failed", stream=stream, status=r.status_code, body=r.text)
-        r.raise_for_status()
+        log("error", "list indexes failed", stream=stream, status=r.status, body=r.text)
+        sys.exit(1)
     indexes = list(r.json().keys())
     if not indexes:
         log("info", "no remote indexes", stream=stream)
@@ -87,21 +117,21 @@ def attach_stream(stream: str) -> int:
 
     attached = skipped = failed = 0
     for idx in indexes:
-        explain = get(f"/_plugins/_ism/explain/{quote(idx, safe='')}")
+        explain = http("GET", f"/_plugins/_ism/explain/{parse.quote(idx, safe='')}")
         if not explain.ok:
-            log("error", "explain failed", index=idx, status=explain.status_code, body=explain.text)
+            log("error", "explain failed", index=idx, status=explain.status, body=explain.text)
             failed += 1
             continue
         info = explain.json().get(idx) or {}
         if info.get("policy_id"):
             skipped += 1
             continue
-        r = post(f"/_plugins/_ism/add/{quote(idx, safe='')}", {"policy_id": policy_id})
+        r = http("POST", f"/_plugins/_ism/add/{parse.quote(idx, safe='')}", {"policy_id": policy_id})
         if r.ok:
             log("info", "attached", index=idx, policy=policy_id)
             attached += 1
         else:
-            log("error", "attach failed", index=idx, status=r.status_code, body=r.text)
+            log("error", "attach failed", index=idx, status=r.status, body=r.text)
             failed += 1
 
     log("info", "stream done", stream=stream, attached=attached, skipped=skipped, failed=failed, total=len(indexes))

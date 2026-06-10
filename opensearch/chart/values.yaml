@@ -864,8 +864,10 @@ cluster:
     # -- Enable the snapshot lifecycle install Job.
     enabled: false
     # -- OpenSearch URL the Job calls. The default points at the in-cluster
-    # service named after `cluster.cluster.name` (or the release name if unset).
-    clusterHost: "https://{{ .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
+    # service. The operator names that Service after `general.serviceName`
+    # when set, otherwise after `cluster.cluster.name`, otherwise after the
+    # release name.
+    clusterHost: "https://{{ (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
     # -- Admin credentials secret. Defaults match `cluster.usersCredentials.admin`.
     adminSecret:
       name: admin-credentials
@@ -879,18 +881,12 @@ cluster:
     caSecret:
       name: opensearch-http-cert
       key: ca.crt
-    # -- Install Job image. Must include Python 3 and a writeable site-packages
-    # (the entrypoint installs `requests` if it isn't already available).
-    # Override `command` to run a fully self-contained image in air-gapped
-    # environments.
+    # -- Install Job image. Must include Python 3.11+ (the scripts use the
+    # standard library only — no `requests` dependency).
     image:
       repository: docker.io/library/python
       tag: "3.12-slim"
       pullPolicy: IfNotPresent
-    # -- Optional command override. When set, replaces the default entrypoint
-    # which expects `pip` and network access. Use this to point at an image
-    # that already ships `requests`, e.g. `["python3", "/scripts/install.py"]`.
-    command: []
     # -- Optional resource requests/limits for the install Job pod.
     resources: {}
     # -- Optional node selector for the install Job pod.

@@ -1,5 +1,5 @@
 {{- if .Values.certManager.enable }}
-{{- $clusterName := default .Release.Name .Values.cluster.cluster.name | trunc 63 | trimSuffix "-" }}
+{{- $clusterName := default (default .Release.Name .Values.cluster.cluster.name) (.Values.cluster.cluster.general).serviceName | trunc 63 | trimSuffix "-" }}
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 apiVersion: cert-manager.io/v1
