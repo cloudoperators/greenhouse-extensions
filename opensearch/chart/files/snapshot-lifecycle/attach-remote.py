@@ -3,9 +3,9 @@
 
 ISM `ism_template` matching does not fire for indexes created by restore-like
 actions, including `convert_index_to_remote` (tracked upstream in
-opensearch-project/index-management#1389). The action creates
-`remote_.ds-{stream}-*` indexes without an attached policy, so this script
-lists them and attaches the matching `remote-{stream}-ism` policy.
+opensearch-project/index-management#1389). The action restores indexes as
+`remote_{stream}_*` (the chart's default `rename_pattern`), so this script
+lists those and attaches the matching `remote-{stream}-ism` policy.
 
 Required env:
   CLUSTER_HOST    OpenSearch base URL
@@ -27,7 +27,7 @@ def attach_stream(stream: str) -> int:
     number of per-index failures so the caller can exit nonzero and let the
     CronJob retry."""
     policy_id = f"remote-{stream}-ism"
-    pattern = f"remote_.ds-{stream}-*"
+    pattern = f"remote_{stream}_*"
 
     r = http("GET", f"/_plugins/_ism/policies/{policy_id}")
     if r.status == 404:

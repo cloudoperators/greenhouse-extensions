@@ -84,7 +84,7 @@
             "convert_index_to_remote": {
               "repository": "{{ .repo.name }}",
               "snapshot": "{_SNAPSHOT_NAME_}",
-              "rename_pattern": "remote_$1"
+              "rename_pattern": "{{ .stream.renamePattern | default (printf "remote_%s_$1" .stream.name) }}"
               {{- if .stream.deleteOriginalIndex }},
               "delete_original_index": true
               {{- end }}

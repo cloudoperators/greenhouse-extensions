@@ -930,7 +930,13 @@ cluster:
     #   repository: my-snapshots
     #   indexPatterns:
     #     hot: ".ds-my-stream-*"
-    #     remote: "remote_.ds-my-stream-*"
+    #     # The retention policy targets remote indexes by glob. The default
+    #     # rename_pattern restores them as `remote_{name}_<original>`, so the
+    #     # matching pattern is `remote_{name}_*`.
+    #     remote: "remote_my-stream_*"
+    #   # Optional override for the convert_index_to_remote rename_pattern.
+    #   # Default is `remote_{name}_$1`.
+    #   # renamePattern: "remote_my-stream_$1"
     #   minSize: "50gb"
     #   retention:
     #     local: "7d"
