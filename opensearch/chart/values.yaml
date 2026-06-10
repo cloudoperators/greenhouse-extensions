@@ -265,13 +265,13 @@ cluster:
       # Monitoring configuration. Check [documentation](https://github.com/Opster/opensearch-k8s-operator/blob/main/docs/userguide/main.md#adding-opensearch-monitoring-to-your-cluster) how to configure it.
       monitoring:
         # -- Enable cluster monitoring
-        enable: true
+        enable: false
 
         # -- Secret with 'username' and 'password' keys for monitoring user. You could also use OpenSearchUser CRD instead of setting it.
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.7.0.0/prometheus-exporter-3.7.0.0.zip"
+        pluginUrl: ""
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
