@@ -113,9 +113,9 @@ data:
 {{ $content | indent 4 }}
 {{- end }}
 ---
-{{- $configHash := toJson $configFiles | sha256sum | trunc 8 }}
-{{- $baseJobName := $cfg.jobName | default "opensearch-snapshot-lifecycle" }}
-{{- $jobName := printf "%s-%s" $baseJobName $configHash | trunc 63 | trimSuffix "-" }}
+{{- $configHash := printf "%s%s" (toJson $configFiles) (toJson $cfg) | sha256sum | trunc 8 }}
+{{- $baseJobName := ($cfg.jobName | default "opensearch-snapshot-lifecycle") | trunc 54 | trimSuffix "-" }}
+{{- $jobName := printf "%s-%s" $baseJobName $configHash }}
 apiVersion: batch/v1
 kind: Job
 metadata:

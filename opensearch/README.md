@@ -193,7 +193,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.snapshotLifecycle.clusterHost | string | `"https://{{ (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"` | OpenSearch URL the Job calls. The default points at the in-cluster service. The operator names that Service after `general.serviceName` when set, otherwise after `cluster.cluster.name`, otherwise after the release name. |
 | cluster.snapshotLifecycle.configMapName | string | `""` | Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`). |
 | cluster.snapshotLifecycle.enabled | bool | `false` | Enable the snapshot lifecycle install Job. |
-| cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Must include Python 3.11+ (the scripts use the standard library only — no `requests` dependency). |
+| cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Must include Python 3.11+ (the scripts use the standard library only, no `requests` dependency). |
 | cluster.snapshotLifecycle.nodeSelector | object | `{}` | Optional node selector for the install Job pod. |
 | cluster.snapshotLifecycle.repositories | list | `[]` | Snapshot repositories. Each entry is registered once via PUT /_snapshot/{name}. Streams reference these by name and may share a repository. |
 | cluster.snapshotLifecycle.resources | object | `{}` | Optional resource requests/limits for the install Job pod. |

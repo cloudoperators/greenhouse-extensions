@@ -882,7 +882,7 @@ cluster:
       name: opensearch-http-cert
       key: ca.crt
     # -- Install Job image. Must include Python 3.11+ (the scripts use the
-    # standard library only — no `requests` dependency).
+    # standard library only, no `requests` dependency).
     image:
       repository: docker.io/library/python
       tag: "3.12-slim"
