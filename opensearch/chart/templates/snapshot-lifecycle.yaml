@@ -164,7 +164,9 @@ spec:
 # Retention policy for the converted remote searchable indexes.
 # Rendered as a CRD because the actions (replicaCount + delete) are covered
 # by the operator. The ds-{name}-ism policy stays on HTTP because it uses
-# convert_index_to_remote, which the shipped CRD does not yet expose.
+# convert_index_to_remote, which the shipped CRD does not yet expose
+# (opensearch-k8s-operator#1402). End-to-end native operator support for
+# searchable snapshots is tracked in opensearch-k8s-operator#1184.
 apiVersion: {{ $apiGroup }}/v1
 kind: OpenSearchISMPolicy
 metadata:

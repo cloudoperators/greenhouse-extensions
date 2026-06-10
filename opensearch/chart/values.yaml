@@ -857,7 +857,9 @@ cluster:
   # -- Snapshot lifecycle. Registers snapshot repositories and installs
   # ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API
   # because OpensearchISMPolicy CRD does not yet expose convert_index_to_remote
-  # (tracked in opensearch-k8s-operator#1402). Repositories can be any type
+  # (tracked in opensearch-k8s-operator#1402). End-to-end native operator
+  # support for searchable snapshots is tracked in
+  # opensearch-k8s-operator#1184. Repositories can be any type
   # supported by OpenSearch: s3, fs, hdfs, azure, gcs.
   # @default -- disabled
   snapshotLifecycle:

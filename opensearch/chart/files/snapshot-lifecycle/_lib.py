@@ -1,7 +1,7 @@
 """Shared HTTP / TLS / logging helpers for snapshot-lifecycle scripts.
 
 Mounted alongside install.py and attach-remote.py from the chart's ConfigMap.
-Stdlib only, no external dependencies.
+Uses the Python standard library to avoid external packages.
 
 Required env (read on import):
   CLUSTER_HOST    OpenSearch base URL
