@@ -45,7 +45,7 @@ transform/journal:
         - set(log.attributes["source_realtime_timestamp"], log.cache["_SOURCE_REALTIME_TIMESTAMP"])
         - set(log.attributes["systemd_cgroup"], log.cache["_SYSTEMD_CGROUP"])
         - set(log.attributes["systemd_slice"], log.cache["_SYSTEMD_SLICE"])
-        - set(resource.attributes["syslog.unit"], log.cache["_SYSTEMD_UNIT"])
+        - set(log.attributes["systemd.unit"], log.cache["_SYSTEMD_UNIT"])
         - set(log.attributes["transport"], log.cache["_TRANSPORT"])
         - set(log.attributes["user.id"], log.cache["_UID"])
         - set(log.attributes["cursor"], log.cache["__CURSOR"])
