@@ -271,7 +271,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.6.0.0/prometheus-exporter-3.6.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.7.0.0/prometheus-exporter-3.7.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -313,7 +313,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.6.0
+      version: 3.7.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -448,7 +448,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.6.0
+      version: 3.7.0
 
     # initHelper configuration
     initHelper:
