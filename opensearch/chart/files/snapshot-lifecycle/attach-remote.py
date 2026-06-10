@@ -3,15 +3,16 @@
 
 ISM `ism_template` matching does not fire for indexes created by restore-like
 actions, including `convert_index_to_remote` (tracked upstream in
-opensearch-project/index-management#1389). The action restores indexes as
-`remote_{stream}_*` (the chart's default `rename_pattern`), so this script
-lists those and attaches the matching `remote-{stream}-ism` policy.
+opensearch-project/index-management#1389). The chart configures a glob per
+stream (`indexPatterns.remote`) that this script reads from
+`REMOTE_PATTERNS`, then attaches the matching `remote-{stream}-ism` policy.
 
 Required env:
-  CLUSTER_HOST    OpenSearch base URL
-  ADMIN_USER      admin username
-  ADMIN_PASSWORD  admin password
-  STREAMS         space-separated stream names
+  CLUSTER_HOST     OpenSearch base URL
+  ADMIN_USER       admin username
+  ADMIN_PASSWORD   admin password
+  STREAMS          space-separated stream names
+  REMOTE_PATTERNS  space-separated `<stream>=<glob>` entries, one per stream
 """
 import os
 import sys
@@ -20,6 +21,9 @@ from urllib import parse
 from _lib import CLUSTER, http, log
 
 STREAMS = os.environ["STREAMS"].split()
+REMOTE_PATTERNS = dict(
+    entry.split("=", 1) for entry in os.environ["REMOTE_PATTERNS"].split() if "=" in entry
+)
 
 
 def attach_stream(stream: str) -> int:
@@ -27,7 +31,10 @@ def attach_stream(stream: str) -> int:
     number of per-index failures so the caller can exit nonzero and let the
     CronJob retry."""
     policy_id = f"remote-{stream}-ism"
-    pattern = f"remote_{stream}_*"
+    pattern = REMOTE_PATTERNS.get(stream)
+    if not pattern:
+        log("error", "no remote pattern configured", stream=stream)
+        return 1
 
     r = http("GET", f"/_plugins/_ism/policies/{policy_id}")
     if r.status == 404:

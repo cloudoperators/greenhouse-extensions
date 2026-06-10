@@ -26,6 +26,8 @@ containers:
         value: {{ .streamNames | join " " | quote }}
       - name: REPOSITORIES
         value: {{ .repoNames | join " " | quote }}
+      - name: REMOTE_PATTERNS
+        value: {{ .remotePatterns | join " " | quote }}
       - name: ADMIN_USER
         valueFrom:
           secretKeyRef:
@@ -91,14 +93,16 @@ volumes:
 {{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
 {{- $_ := set $configFiles "attach-remote.py" ($.Files.Get "files/snapshot-lifecycle/attach-remote.py") }}
 {{- $streamNames := list }}
+{{- $remotePatterns := list }}
 {{- range $stream := $cfg.streams }}
   {{- $streamNames = append $streamNames $stream.name }}
+  {{- $remotePatterns = append $remotePatterns (printf "%s=%s" $stream.name $stream.indexPatterns.remote) }}
 {{- end }}
 {{- $repoNames := list }}
 {{- range $repo := $cfg.repositories }}
   {{- $repoNames = append $repoNames $repo.name }}
 {{- end }}
-{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "root" $ }}
+{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "remotePatterns" $remotePatterns "root" $ }}
 ---
 apiVersion: v1
 kind: ConfigMap
