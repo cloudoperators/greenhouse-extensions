@@ -1,8 +1,8 @@
 {
   "sm_policy": {
     "name": "snapshot-{{ .stream.name }}-delete-policy",
-    "description": "SM policy to delete old {{ .stream.name }} snapshots from S3 after retention.",
-    "schema_version": "{{ .stream.schemaVersion | default 1 }}",
+    "description": "SM policy to delete old {{ .stream.name }} snapshots after retention.",
+    "schema_version": {{ .stream.schemaVersion | default 1 }},
     "deletion": {
       "schedule": {
         "cron": {

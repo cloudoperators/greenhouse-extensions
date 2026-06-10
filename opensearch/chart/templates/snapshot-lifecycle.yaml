@@ -18,12 +18,17 @@ containers:
   - name: {{ .containerName }}
     image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
     imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
+    {{- if $cfg.command }}
+    command:
+      {{- toYaml $cfg.command | nindent 6 }}
+    {{- else }}
     command: ["/bin/sh", "-c"]
     args:
       - |
         set -e
-        pip install --quiet --no-cache-dir requests
+        python3 -c "import requests" 2>/dev/null || pip install --quiet --no-cache-dir requests
         python3 /scripts/{{ $script }}
+    {{- end }}
     env:
       - name: CLUSTER_HOST
         value: {{ tpl $cfg.clusterHost .root | quote }}
@@ -41,6 +46,13 @@ containers:
           secretKeyRef:
             name: {{ $cfg.adminSecret.name }}
             key: {{ $cfg.adminSecret.passwordKey | default "password" }}
+      {{- if $cfg.tlsSkipVerify }}
+      - name: TLS_SKIP_VERIFY
+        value: "true"
+      {{- else if $cfg.caSecret.name }}
+      - name: CA_BUNDLE
+        value: /certs/{{ $cfg.caSecret.key | default "ca.crt" }}
+      {{- end }}
     {{- with $cfg.resources }}
     resources:
       {{- toYaml . | nindent 6 }}
@@ -48,11 +60,21 @@ containers:
     volumeMounts:
       - name: scripts
         mountPath: /scripts
+      {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+      - name: ca
+        mountPath: /certs
+        readOnly: true
+      {{- end }}
 volumes:
   - name: scripts
     configMap:
       name: {{ $cmName }}
       defaultMode: 0755
+  {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+  - name: ca
+    secret:
+      secretName: {{ $cfg.caSecret.name }}
+  {{- end }}
 {{- end }}
 
 {{- if .Values.cluster.snapshotLifecycle.enabled }}
@@ -106,14 +128,16 @@ kind: Job
 metadata:
   name: {{ $cfg.jobName | default "opensearch-snapshot-lifecycle" }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
 spec:
   backoffLimit: {{ $cfg.backoffLimit | default 6 }}
   template:
     metadata:
-      annotations:
-        checksum/config: {{ toJson $configFiles | sha256sum }}
       labels:
         {{- include "opensearch.labels" . | nindent 8 }}
     spec:

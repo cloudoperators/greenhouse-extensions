@@ -1,8 +1,8 @@
 {
   "policy": {
     "policy_id": "ds-{{ .stream.name }}-ism",
-    "description": "Datastream ISM policy for {{ .stream.name }}: rollover, snapshot to S3, convert to remote searchable index.",
-    "schema_version": "{{ .stream.schemaVersion | default 1 }}",
+    "description": "Datastream ISM policy for {{ .stream.name }}: rollover, snapshot, convert to remote searchable index.",
+    "schema_version": {{ .stream.schemaVersion | default 1 }},
     "default_state": "initial",
     "states": [
       {

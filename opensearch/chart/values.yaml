@@ -854,10 +854,11 @@ cluster:
           - "logs*"
         priority: 100
 
-  # -- Snapshot lifecycle. Registers S3 snapshot repositories and installs
+  # -- Snapshot lifecycle. Registers snapshot repositories and installs
   # ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API
-  # because OpensearchISMPolicy CRD does not expose convert_index_to_remote.
-  # Requires the repository-s3 plugin and S3 keystore credentials (top-level s3.*).
+  # because OpensearchISMPolicy CRD does not yet expose convert_index_to_remote
+  # (tracked in opensearch-k8s-operator#1402). Repositories can be any type
+  # supported by OpenSearch: s3, fs, hdfs, azure, gcs.
   # @default -- disabled
   snapshotLifecycle:
     # -- Enable the snapshot lifecycle install Job.
@@ -870,11 +871,26 @@ cluster:
       name: admin-credentials
       usernameKey: username
       passwordKey: password
-    # -- Install Job image. Needs Python 3 with pip; `requests` is installed at runtime.
+    # -- TLS verification. Default verifies against `caSecret`. Set
+    # `tlsSkipVerify: true` to disable verification entirely (not recommended).
+    tlsSkipVerify: false
+    # -- Secret containing the CA bundle to verify the cluster's HTTP cert.
+    # Defaults to the chart's HTTP TLS secret which contains `ca.crt`.
+    caSecret:
+      name: opensearch-http-cert
+      key: ca.crt
+    # -- Install Job image. Must include Python 3 and a writeable site-packages
+    # (the entrypoint installs `requests` if it isn't already available).
+    # Override `command` to run a fully self-contained image in air-gapped
+    # environments.
     image:
       repository: docker.io/library/python
       tag: "3.12-slim"
       pullPolicy: IfNotPresent
+    # -- Optional command override. When set, replaces the default entrypoint
+    # which expects `pip` and network access. Use this to point at an image
+    # that already ships `requests`, e.g. `["python3", "/scripts/install.py"]`.
+    command: []
     # -- Optional resource requests/limits for the install Job pod.
     resources: {}
     # -- Optional node selector for the install Job pod.

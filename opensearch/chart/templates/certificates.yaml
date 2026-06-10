@@ -1,4 +1,5 @@
 {{- if .Values.certManager.enable }}
+{{- $clusterName := default .Release.Name .Values.cluster.cluster.name | trunc 63 | trimSuffix "-" }}
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 apiVersion: cert-manager.io/v1
@@ -34,11 +35,11 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-transport-cert
   dnsNames:
-    - opensearch
-    - opensearch-discovery
-    - {{ printf "opensearch.%s" .Release.Namespace }}
-    - {{ printf "opensearch.%s.svc" .Release.Namespace }}
-    - {{ printf "opensearch.%s.svc.cluster.local" .Release.Namespace }}
+    - {{ $clusterName }}
+    - {{ printf "%s-discovery" $clusterName }}
+    - {{ printf "%s.%s" $clusterName .Release.Namespace }}
+    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace }}
+    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 ---
@@ -75,10 +76,10 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-http-cert
   dnsNames:
-    - opensearch
-    - {{ printf "opensearch.%s" .Release.Namespace }}
-    - {{ printf "opensearch.%s.svc" .Release.Namespace }}
-    - {{ printf "opensearch.%s.svc.cluster.local" .Release.Namespace }}
+    - {{ $clusterName }}
+    - {{ printf "%s.%s" $clusterName .Release.Namespace }}
+    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace }}
+    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 

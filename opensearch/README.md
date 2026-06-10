@@ -185,18 +185,21 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.serviceAccount.annotations | object | `{}` | Service Account annotations |
 | cluster.serviceAccount.create | bool | `false` | Create Service Account |
 | cluster.serviceAccount.name | string | `""` | Service Account name. Set `general.serviceAccount` to use this Service Account for the Opensearch cluster |
-| cluster.snapshotLifecycle | object | disabled | Snapshot lifecycle. Registers S3 snapshot repositories and installs ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API because OpensearchISMPolicy CRD does not expose convert_index_to_remote. Requires the repository-s3 plugin and S3 keystore credentials (top-level s3.*). |
+| cluster.snapshotLifecycle | object | disabled | Snapshot lifecycle. Registers snapshot repositories and installs ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API because OpensearchISMPolicy CRD does not yet expose convert_index_to_remote (tracked in opensearch-k8s-operator#1402). Repositories can be any type supported by OpenSearch: s3, fs, hdfs, azure, gcs. |
 | cluster.snapshotLifecycle.adminSecret | object | `{"name":"admin-credentials","passwordKey":"password","usernameKey":"username"}` | Admin credentials secret. Defaults match `cluster.usersCredentials.admin`. |
 | cluster.snapshotLifecycle.attachRemote | object | `{"backoffLimit":3,"enabled":true,"name":"","schedule":"30 0,12 * * *"}` | CronJob that attaches the `remote-{name}-ism` policy to converted remote searchable indexes. ISM templates do not always auto-attach when `convert_index_to_remote` creates the new index, so this job covers the gap and is a no-op when policies are already attached. |
 | cluster.snapshotLifecycle.backoffLimit | int | `6` | Job backoff limit. |
+| cluster.snapshotLifecycle.caSecret | object | `{"key":"ca.crt","name":"opensearch-http-cert"}` | Secret containing the CA bundle to verify the cluster's HTTP cert. Defaults to the chart's HTTP TLS secret which contains `ca.crt`. |
 | cluster.snapshotLifecycle.clusterHost | string | `"https://{{ .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"` | OpenSearch URL the Job calls. The default points at the in-cluster service named after `cluster.cluster.name` (or the release name if unset). |
+| cluster.snapshotLifecycle.command | list | `[]` | Optional command override. When set, replaces the default entrypoint which expects `pip` and network access. Use this to point at an image that already ships `requests`, e.g. `["python3", "/scripts/install.py"]`. |
 | cluster.snapshotLifecycle.configMapName | string | `""` | Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`). |
 | cluster.snapshotLifecycle.enabled | bool | `false` | Enable the snapshot lifecycle install Job. |
-| cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Needs Python 3 with pip; `requests` is installed at runtime. |
+| cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Must include Python 3 and a writeable site-packages (the entrypoint installs `requests` if it isn't already available). Override `command` to run a fully self-contained image in air-gapped environments. |
 | cluster.snapshotLifecycle.nodeSelector | object | `{}` | Optional node selector for the install Job pod. |
 | cluster.snapshotLifecycle.repositories | list | `[]` | Snapshot repositories. Each entry is registered once via PUT /_snapshot/{name}. Streams reference these by name and may share a repository. |
 | cluster.snapshotLifecycle.resources | object | `{}` | Optional resource requests/limits for the install Job pod. |
 | cluster.snapshotLifecycle.streams | list | `[]` | List of streams to manage. Each entry produces ds-{name}-ism, remote-{name}-ism, and snapshot-{name}-delete-policy. |
+| cluster.snapshotLifecycle.tlsSkipVerify | bool | `false` | TLS verification. Default verifies against `caSecret`. Set `tlsSkipVerify: true` to disable verification entirely (not recommended). |
 | cluster.snapshotLifecycle.tolerations | list | `[]` | Optional tolerations for the install Job pod. |
 | cluster.tenants | list | `[]` | List of additional tenants. Check values.yaml file for examples. |
 | cluster.users | list | <pre>users:<br>  - name: "logs"<br>    secretName: "logs-credentials"<br>    secretKey: "password"<br>    backendRoles: []</pre> | List of OpenSearch user configurations. |

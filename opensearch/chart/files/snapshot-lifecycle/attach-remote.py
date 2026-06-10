@@ -24,10 +24,16 @@ CLUSTER = os.environ["CLUSTER_HOST"].rstrip("/")
 AUTH = HTTPBasicAuth(os.environ["ADMIN_USER"], os.environ["ADMIN_PASSWORD"])
 STREAMS = os.environ["STREAMS"].split()
 
+SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
+CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
+
 session = requests.Session()
 session.auth = AUTH
-session.verify = False
-requests.packages.urllib3.disable_warnings()
+if SKIP_VERIFY:
+    session.verify = False
+    requests.packages.urllib3.disable_warnings()
+elif CA_BUNDLE:
+    session.verify = CA_BUNDLE
 
 
 def log(level: str, msg: str, **fields) -> None:
@@ -52,32 +58,39 @@ def post(path: str, body: dict) -> requests.Response:
     return session.post(f"{CLUSTER}{path}", json=body, timeout=30)
 
 
-def attach_stream(stream: str) -> None:
+def attach_stream(stream: str) -> int:
+    """Attach the remote-{stream}-ism policy to remote indexes. Returns the
+    number of per-index failures so the caller can exit nonzero and let the
+    CronJob retry."""
     policy_id = f"remote-{stream}-ism"
     pattern = f"remote_.ds-{stream}-*"
 
     r = get(f"/_plugins/_ism/policies/{policy_id}")
     if r.status_code == 404:
         log("warn", "policy missing, skipping", stream=stream, policy=policy_id)
-        return
+        return 0
     if not r.ok:
-        log("error", "policy lookup failed", stream=stream, status=r.status_code)
-        return
+        log("error", "policy lookup failed", stream=stream, status=r.status_code, body=r.text)
+        r.raise_for_status()
 
-    r = get(f"/{quote(pattern, safe='')}?expand_wildcards=all")
+    r = get(f"/{quote(pattern, safe='')}?expand_wildcards=all&allow_no_indices=true&ignore_unavailable=true")
+    if r.status_code == 404:
+        log("info", "no remote indexes", stream=stream)
+        return 0
     if not r.ok:
-        log("error", "list indexes failed", stream=stream, status=r.status_code)
-        return
+        log("error", "list indexes failed", stream=stream, status=r.status_code, body=r.text)
+        r.raise_for_status()
     indexes = list(r.json().keys())
     if not indexes:
         log("info", "no remote indexes", stream=stream)
-        return
+        return 0
 
-    attached = skipped = 0
+    attached = skipped = failed = 0
     for idx in indexes:
         explain = get(f"/_plugins/_ism/explain/{quote(idx, safe='')}")
         if not explain.ok:
-            log("warn", "explain failed", index=idx, status=explain.status_code)
+            log("error", "explain failed", index=idx, status=explain.status_code, body=explain.text)
+            failed += 1
             continue
         info = explain.json().get(idx) or {}
         if info.get("policy_id"):
@@ -89,15 +102,20 @@ def attach_stream(stream: str) -> None:
             attached += 1
         else:
             log("error", "attach failed", index=idx, status=r.status_code, body=r.text)
+            failed += 1
 
-    log("info", "stream done", stream=stream, attached=attached, skipped=skipped, total=len(indexes))
+    log("info", "stream done", stream=stream, attached=attached, skipped=skipped, failed=failed, total=len(indexes))
+    return failed
 
 
 def main() -> None:
     log("info", "starting", host=CLUSTER, streams=" ".join(STREAMS))
+    failures = 0
     for stream in STREAMS:
-        attach_stream(stream)
-    log("info", "done")
+        failures += attach_stream(stream)
+    log("info", "done", failures=failures)
+    if failures:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

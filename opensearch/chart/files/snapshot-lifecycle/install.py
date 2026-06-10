@@ -38,10 +38,19 @@ STREAMS = os.environ["STREAMS"].split()
 REPOSITORIES = os.environ["REPOSITORIES"].split()
 SCRIPTS = Path("/scripts")
 
+# TLS_SKIP_VERIFY=true disables certificate verification (default: verify).
+# CA_BUNDLE points at a mounted CA bundle file when verifying against a
+# private CA. The chart mounts the cluster's HTTP TLS secret by default.
+SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
+CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
+
 session = requests.Session()
 session.auth = AUTH
-session.verify = False
-requests.packages.urllib3.disable_warnings()
+if SKIP_VERIFY:
+    session.verify = False
+    requests.packages.urllib3.disable_warnings()
+elif CA_BUNDLE:
+    session.verify = CA_BUNDLE
 
 
 def log(level: str, msg: str, **fields) -> None:

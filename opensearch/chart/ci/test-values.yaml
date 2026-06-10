@@ -68,17 +68,17 @@ cluster:
     nodePools:
       - component: node
         diskSize: "10Gi"
-        replicas: 1
+        replicas: 2
         roles:
           - "cluster_manager"
           - "data"
           - "ingest"
         resources:
           requests:
-            memory: "3Gi"
-            cpu: "1"
+            memory: "2Gi"
+            cpu: "500m"
           limits:
-            memory: "4Gi"
+            memory: "3Gi"
             cpu: "2"
     # Override dashboards configuration for local testing with basic auth
     dashboards:
