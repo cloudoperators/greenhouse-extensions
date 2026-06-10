@@ -36,32 +36,6 @@ cluster:
   snapshotLifecycle:
     enabled: false
   cluster:
-    # Disable monitoring for local test environment
-    general:
-      monitoring:
-        enable: false
-      # repository-s3 is required for the snapshot-lifecycle install Job to
-      # register S3 snapshot repositories.
-      pluginsList:
-        - repository-s3
-    # Single-node deployment for resource-constrained kind clusters.
-    # Bumped memory above the 1Gi default so the JVM heap (auto-set to half the
-    # request) has enough headroom to avoid OOM during cluster bootstrap.
-    nodePools:
-      - component: node
-        diskSize: "10Gi"
-        replicas: 2
-        roles:
-          - "cluster_manager"
-          - "data"
-          - "ingest"
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "500m"
-          limits:
-            memory: "3Gi"
-            cpu: "2"
     # Override dashboards configuration for local testing with basic auth
     dashboards:
       additionalConfig:
