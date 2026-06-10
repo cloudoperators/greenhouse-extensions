@@ -35,11 +35,11 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-transport-cert
   dnsNames:
-    - {{ $clusterName }}
-    - {{ printf "%s-discovery" $clusterName }}
-    - {{ printf "%s.%s" $clusterName .Release.Namespace }}
-    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace }}
-    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace }}
+    - {{ $clusterName | quote }}
+    - {{ printf "%s-discovery" $clusterName | quote }}
+    - {{ printf "%s.%s" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace | quote }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 ---
@@ -76,10 +76,10 @@ spec:
 {{ toYaml .Values.certManager.defaults.privateKey | indent 4 }}
   secretName: opensearch-http-cert
   dnsNames:
-    - {{ $clusterName }}
-    - {{ printf "%s.%s" $clusterName .Release.Namespace }}
-    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace }}
-    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace }}
+    - {{ $clusterName | quote }}
+    - {{ printf "%s.%s" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s.%s.svc" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s.%s.svc.cluster.local" $clusterName .Release.Namespace | quote }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 
