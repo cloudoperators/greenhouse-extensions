@@ -13,8 +13,6 @@ metadata:
   {{- if .Values.openTelemetry.customLabels }}
   {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
   {{- end }}
-  annotations:
-    prometheus.io/scrape: "false"
 spec:
   mode: daemonset
   tolerations:
@@ -22,6 +20,7 @@ spec:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/reload: "otel-basic-auth"
+    prometheus.io/scrape: "false"
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
