@@ -4,9 +4,9 @@ Mounted alongside install.py and attach-remote.py from the chart's ConfigMap.
 Uses the Python standard library to avoid external packages.
 
 Required env (read on import):
-  CLUSTER_HOST    OpenSearch base URL
-  ADMIN_USER      admin username
-  ADMIN_PASSWORD  admin password
+  CLUSTER_HOST  OpenSearch base URL
+  USERNAME      basic auth username
+  PASSWORD      basic auth password
 
 Optional env:
   TLS_SKIP_VERIFY  "true" disables certificate verification
@@ -20,8 +20,8 @@ import time
 from urllib import error, request
 
 CLUSTER = os.environ["CLUSTER_HOST"].rstrip("/")
-_ADMIN_USER = os.environ["ADMIN_USER"]
-_ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+_USERNAME = os.environ["USERNAME"]
+_PASSWORD = os.environ["PASSWORD"]
 
 _SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
 _CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
@@ -36,7 +36,7 @@ else:
     SSL_CTX = ssl.create_default_context()
 
 _AUTH_HEADER = "Basic " + base64.b64encode(
-    f"{_ADMIN_USER}:{_ADMIN_PASSWORD}".encode()
+    f"{_USERNAME}:{_PASSWORD}".encode()
 ).decode()
 
 

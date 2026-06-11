@@ -32,12 +32,12 @@ containers:
         value: {{ .repoNames | join " " | quote }}
       - name: REMOTE_PATTERNS
         value: {{ .remotePatterns | join " " | quote }}
-      - name: ADMIN_USER
+      - name: USERNAME
         valueFrom:
           secretKeyRef:
             name: {{ $cfg.credentialsSecret.name }}
             key: {{ $cfg.credentialsSecret.usernameKey | default "username" }}
-      - name: ADMIN_PASSWORD
+      - name: PASSWORD
         valueFrom:
           secretKeyRef:
             name: {{ $cfg.credentialsSecret.name }}

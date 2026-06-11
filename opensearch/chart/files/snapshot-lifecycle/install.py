@@ -5,11 +5,11 @@ Registers snapshot repositories and installs ISM/SM policies for each stream
 named in the STREAMS env var. Idempotent: PUT replaces wholesale.
 
 Required env:
-  CLUSTER_HOST    OpenSearch base URL
-  ADMIN_USER      admin username
-  ADMIN_PASSWORD  admin password
-  REPOSITORIES    space-separated repository names
-  STREAMS         space-separated stream names
+  CLUSTER_HOST  OpenSearch base URL
+  USERNAME      basic auth username
+  PASSWORD      basic auth password
+  REPOSITORIES  space-separated repository names
+  STREAMS       space-separated stream names
 
 For each repository {name} expects in /scripts/:
   snapshot-repo-{name}.json

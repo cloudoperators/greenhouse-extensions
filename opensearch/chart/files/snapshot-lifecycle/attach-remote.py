@@ -8,10 +8,10 @@ stream (`indexPatterns.remote`) that this script reads from
 `REMOTE_PATTERNS`, then attaches the matching `remote-{stream}-ism` policy.
 
 Required env:
-  CLUSTER_HOST     OpenSearch base URL
-  ADMIN_USER       admin username
-  ADMIN_PASSWORD   admin password
-  STREAMS          space-separated stream names
+  CLUSTER_HOST  OpenSearch base URL
+  USERNAME      basic auth username
+  PASSWORD      basic auth password
+  STREAMS       space-separated stream names
   REMOTE_PATTERNS  space-separated `<stream>=<glob>` entries, one per stream
 """
 import os
