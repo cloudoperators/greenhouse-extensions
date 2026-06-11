@@ -86,3 +86,7 @@ def http(method: str, path: str, body: dict | None = None, timeout: int = 30) ->
             return Response(resp.status, resp.read())
     except error.HTTPError as e:
         return Response(e.code, e.read())
+    except (error.URLError, TimeoutError, ConnectionError, ssl.SSLError) as e:
+        # DNS, connection refused, TLS handshake errors. Surface as a
+        # synthetic Response so callers handle it like any other failure.
+        return Response(0, str(e).encode())

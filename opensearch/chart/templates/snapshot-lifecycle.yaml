@@ -96,6 +96,7 @@ volumes:
 {{- end }}
 {{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
 {{- $_ := set $configFiles "attach-remote.py" ($.Files.Get "files/snapshot-lifecycle/attach-remote.py") }}
+{{- $_ := set $configFiles "_lib.py" ($.Files.Get "files/snapshot-lifecycle/_lib.py") }}
 {{- $streamNames := list }}
 {{- $remotePatterns := list }}
 {{- range $stream := $cfg.streams }}

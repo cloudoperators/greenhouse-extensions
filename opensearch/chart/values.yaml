@@ -902,9 +902,16 @@ cluster:
       runAsUser: 1000
     # -- Job backoff limit.
     backoffLimit: 6
-    # -- Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`).
-    configMapName: ""
+    # -- Seconds to keep finished install Job pods before they are garbage
+    # collected. The Job name embeds a hash of all snapshotLifecycle inputs,
+    # so each upgrade creates a new Job; old completed ones expire here.
+    ttlSecondsAfterFinished: 86400
+    # -- Override the install Job's base name (default `opensearch-snapshot-lifecycle`).
+    # The rendered name is `<jobName>-<configHash>` so each upgrade produces
+    # a fresh Job (Job pod templates are immutable).
     jobName: ""
+    # -- Override the ConfigMap name (default `opensearch-snapshot-lifecycle`).
+    configMapName: ""
     # -- CronJob that attaches the `remote-{name}-ism` policy to converted
     # remote searchable indexes. ISM templates do not auto-attach to indexes
     # created by `convert_index_to_remote`
