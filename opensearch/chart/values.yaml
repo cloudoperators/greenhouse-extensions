@@ -227,8 +227,9 @@ cluster:
 
     # OpenSearchCluster general configuration
     general:
-      # -- Extra items to add to the opensearch.yml
-      additionalConfig: {}
+      # -- Extra items to add to the opensearch.yml.
+      additionalConfig:
+        plugins.security.ssl_cert_reload_enabled: "true"
 
       # -- Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema)
       additionalVolumes: []

@@ -124,7 +124,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.cluster.dashboards.tls.secret | object | `{"name":"opensearch-http-cert"}` | Optional, name of a TLS secret that contains ca.crt, tls.key and tls.crt data. If ca.crt is in a different secret provide it via the caSecret field |
 | cluster.cluster.dashboards.tolerations | list | `[]` | dashboards pod tolerations |
 | cluster.cluster.dashboards.version | string | `"3.7.0"` | dashboards version |
-| cluster.cluster.general.additionalConfig | object | `{}` | Extra items to add to the opensearch.yml |
+| cluster.cluster.general.additionalConfig | object | `{"plugins.security.ssl_cert_reload_enabled":"true"}` | Extra items to add to the opensearch.yml. |
 | cluster.cluster.general.additionalVolumes | list | `[]` | Additional volumes to mount to all pods in the cluster. Supported volume types configMap, emptyDir, secret (with default Kubernetes configuration schema) |
 | cluster.cluster.general.drainDataNodes | bool | `false` | Controls whether to drain data notes on rolling restart operations |
 | cluster.cluster.general.httpPort | int | `9200` | Opensearch service http port |
