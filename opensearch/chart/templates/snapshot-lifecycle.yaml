@@ -6,6 +6,10 @@
 {{- $script := .script -}}
 {{- $cmName := .configMapName -}}
 restartPolicy: OnFailure
+{{- with $cfg.podSecurityContext }}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
 {{- with $cfg.nodeSelector }}
 nodeSelector:
   {{- toYaml . | nindent 2 }}

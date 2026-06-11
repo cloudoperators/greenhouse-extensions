@@ -896,6 +896,10 @@ cluster:
     nodeSelector: {}
     # -- Optional tolerations for the install Job pod.
     tolerations: []
+    # -- Pod-level securityContext for the install Job and CronJob pods.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
     # -- Job backoff limit.
     backoffLimit: 6
     # -- Override default ConfigMap/Job names (`opensearch-snapshot-lifecycle`).

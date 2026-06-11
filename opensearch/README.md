@@ -195,6 +195,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.snapshotLifecycle.enabled | bool | `false` | Enable the snapshot lifecycle install Job. |
 | cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Must include Python 3.11+ (the scripts use the standard library only, no `requests` dependency). |
 | cluster.snapshotLifecycle.nodeSelector | object | `{}` | Optional node selector for the install Job pod. |
+| cluster.snapshotLifecycle.podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":1000}` | Pod-level securityContext for the install Job and CronJob pods. |
 | cluster.snapshotLifecycle.repositories | list | `[]` | Snapshot repositories. Each entry is registered once via PUT /_snapshot/{name}. Streams reference these by name and may share a repository. |
 | cluster.snapshotLifecycle.resources | object | `{}` | Optional resource requests/limits for the install Job pod. |
 | cluster.snapshotLifecycle.streams | list | `[]` | List of streams to manage. Each entry produces ds-{name}-ism, remote-{name}-ism, and snapshot-{name}-delete-policy. |
