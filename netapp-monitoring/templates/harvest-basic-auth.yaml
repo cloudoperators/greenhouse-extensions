@@ -1,0 +1,16 @@
+{{- if .Values.netappsd.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  finalizers:
+    {{- range $.Values.finalizers }}
+    - {{ . | quote }}
+    {{- end }}
+  name: {{ required ".Values.netappsd.credentials_secret is required" .Values.netappsd.credentials_secret }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  {{ required ".Values.netappsd.credentials_secret is required" .Values.netappsd.credentials_secret }}.yml: {{ include "netapp-monitoring.credentials-entry" . | b64enc }}
+{{- end }}

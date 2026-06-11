@@ -1,0 +1,58 @@
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: netapp-monitoring
+spec:
+  version: 1.0.2
+  displayName: NetApp Monitoring
+  description: Helm chart for NetApp storage monitoring using harvest.io
+  helmChart:
+    name: netapp-monitoring
+    repository: oci://ghcr.io/sapcc/helm-charts/netapp-monitoring
+    version: 1.0.2
+  options:
+    - name: harvest.image
+      description: Harvest container image
+      required: true
+      type: string
+    - name: harvest.tag
+      description: Harvest container image tag
+      required: true
+      type: string
+    - name: netappsd.enabled
+      description: Enable NetApp service discovery
+      required: true
+      default: true
+      type: bool
+    - name: netappsd.image.repository
+      description: NetApp SD container image repository
+      required: true
+      type: string
+    - name: netappsd.image.tag
+      description: NetApp SD container image tag
+      required: true
+      type: string
+    - name: netappsd.region
+      description: Region for NetApp service discovery
+      required: true
+      type: string
+    - name: netappsd.netapp_exporter_user
+      description: NetApp exporter username
+      required: true
+      type: secret
+    - name: netappsd.netapp_exporter_password
+      description: NetApp exporter password
+      required: true
+      type: secret
+    - name: netappsd.netbox_api_token
+      description: Netbox API token
+      required: true
+      type: secret
+    - name: netappsd.netbox_host
+      description: Netbox host URL
+      required: true
+      type: secret
+    - name: apps
+      description: "Map of apps to enable (e.g. cinder, manila, apod, cinder-manila)"
+      required: false
+      type: map
