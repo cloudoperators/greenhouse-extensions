@@ -80,6 +80,16 @@ volumes:
 {{- $apiGroup := .Values.cluster.apiGroup | default "opensearch.org" }}
 {{- $configFiles := dict }}
 {{- range $stream := $cfg.streams }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].name is required" $stream.name) $stream.name }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].repository is required" $stream.name) $stream.repository }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].minSize is required" $stream.name) $stream.minSize }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns is required" $stream.name) $stream.indexPatterns }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.hot is required" $stream.name) $stream.indexPatterns.hot }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.remote is required" $stream.name) $stream.indexPatterns.remote }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention is required" $stream.name) $stream.retention }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.local is required" $stream.name) $stream.retention.local }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.remote is required" $stream.name) $stream.retention.remote }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.snapshot is required" $stream.name) $stream.retention.snapshot }}
   {{- $repo := dict }}
   {{- range $r := $cfg.repositories }}
     {{- if eq $r.name $stream.repository }}{{- $repo = $r }}{{- end }}
@@ -92,6 +102,8 @@ volumes:
   {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $ctx) }}
 {{- end }}
 {{- range $repo := $cfg.repositories }}
+  {{- $_ := required (printf "snapshotLifecycle.repositories[%s].name is required" $repo.name) $repo.name }}
+  {{- $_ := required (printf "snapshotLifecycle.repositories[%s].settings is required" $repo.name) $repo.settings }}
   {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $repo.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") (dict "repo" $repo)) }}
 {{- end }}
 {{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
