@@ -34,7 +34,6 @@ openTelemetry:
     failover_password_a: test
     failover_username_b: test
     failover_password_b: test
-    index: test
   cluster: test
   region: test
   logsCollector:

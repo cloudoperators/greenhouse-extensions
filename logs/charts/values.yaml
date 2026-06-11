@@ -64,8 +64,6 @@ openTelemetry:
     failover_username_b:
     # -- Second Password (as a failover) for OpenSearch endpoint
     failover_password_b:
-    # -- Name for OpenSearch index
-    index:
   # -- Cluster label for Logging
   cluster:
   # -- Region label for Logging
