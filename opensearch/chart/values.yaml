@@ -854,6 +854,107 @@ cluster:
           - "logs*"
         priority: 100
 
+  # -- Snapshot lifecycle. Registers snapshot repositories and installs
+  # ISM/SM policies via a one-shot Job. Implemented over the raw HTTP API
+  # because OpensearchISMPolicy CRD does not yet expose convert_index_to_remote
+  # (tracked in opensearch-k8s-operator#1402). End-to-end native operator
+  # support for searchable snapshots is tracked in
+  # opensearch-k8s-operator#1184. Repositories can be any type
+  # supported by OpenSearch: s3, fs, hdfs, azure, gcs.
+  # @default -- disabled
+  snapshotLifecycle:
+    # -- Enable the snapshot lifecycle install Job.
+    enabled: false
+    # -- OpenSearch URL the Job calls. The default points at the in-cluster
+    # service. The operator names that Service after `general.serviceName`
+    # when set, otherwise after `cluster.cluster.name`, otherwise after the
+    # release name.
+    clusterHost: "https://{{ (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
+    # -- Credentials secret. Provide a dedicated user with snapshot+ISM
+    # permissions; using the cluster admin is discouraged.
+    credentialsSecret:
+      name: snapshot-lifecycle-credentials
+      usernameKey: username
+      passwordKey: password
+    # -- TLS verification. Default verifies against `caSecret`. Set
+    # `tlsSkipVerify: true` to disable verification entirely (not recommended).
+    tlsSkipVerify: false
+    # -- Secret containing the CA bundle to verify the cluster's HTTP cert.
+    # Defaults to the chart's HTTP TLS secret which contains `ca.crt`.
+    caSecret:
+      name: opensearch-http-cert
+      key: ca.crt
+    # -- Install Job image. Must include Python 3.11+ (the scripts use the
+    # standard library only, no `requests` dependency).
+    image:
+      repository: docker.io/library/python
+      tag: "3.12-slim"
+      pullPolicy: IfNotPresent
+    # -- Optional resource requests/limits for the install Job pod.
+    resources: {}
+    # -- Optional node selector for the install Job pod.
+    nodeSelector: {}
+    # -- Optional tolerations for the install Job pod.
+    tolerations: []
+    # -- Pod-level securityContext for the install Job and CronJob pods.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    # -- Job backoff limit.
+    backoffLimit: 6
+    # -- Seconds to keep finished install Job pods before they are garbage
+    # collected. The Job name embeds a hash of all snapshotLifecycle inputs,
+    # so each upgrade creates a new Job; old completed ones expire here.
+    ttlSecondsAfterFinished: 86400
+    # -- Override the install Job's base name (default `opensearch-snapshot-lifecycle`).
+    # The rendered name is `<jobName>-<configHash>` so each upgrade produces
+    # a fresh Job (Job pod templates are immutable).
+    jobName: ""
+    # -- Override the ConfigMap name (default `opensearch-snapshot-lifecycle`).
+    configMapName: ""
+    # -- CronJob that attaches the `remote-{name}-ism` policy to converted
+    # remote searchable indexes. ISM templates do not auto-attach to indexes
+    # created by `convert_index_to_remote`
+    # (opensearch-project/index-management#1389), so this job covers the gap
+    # and is a no-op when policies are already attached.
+    attachRemote:
+      enabled: true
+      name: ""
+      schedule: "30 0,12 * * *"
+      backoffLimit: 3
+    # -- Snapshot repositories. Each entry is registered once via
+    # PUT /_snapshot/{name}. Streams reference these by name and may share a
+    # repository.
+    repositories: []
+    # - name: my-snapshots
+    #   # Any OpenSearch repository type: s3, fs, hdfs, azure, gcs.
+    #   type: s3
+    #   # Settings are passed verbatim to PUT /_snapshot/{name}.
+    #   settings:
+    #     bucket: my-snapshots
+    #     client: default
+
+    # -- List of streams to manage. Each entry produces ds-{name}-ism,
+    # remote-{name}-ism, and snapshot-{name}-delete-policy.
+    streams: []
+    # - name: my-stream
+    #   # References repositories[].name above.
+    #   repository: my-snapshots
+    #   indexPatterns:
+    #     hot: ".ds-my-stream-*"
+    #     # The retention policy targets remote indexes by glob. The default
+    #     # rename_pattern restores them as `remote_{name}_<original>`, so the
+    #     # matching pattern is `remote_{name}_*`.
+    #     remote: "remote_my-stream_*"
+    #   # Optional override for the convert_index_to_remote rename_pattern.
+    #   # Default is `remote_{name}_$1`.
+    #   # renamePattern: "remote_my-stream_$1"
+    #   minSize: "50gb"
+    #   retention:
+    #     local: "7d"
+    #     remote: "31d"
+    #     snapshot: "93d"
+
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.

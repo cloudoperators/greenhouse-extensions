@@ -1,0 +1,230 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- define "opensearch.snapshotLifecycle.podSpec" -}}
+{{- $cfg := .cfg -}}
+{{- $script := .script -}}
+{{- $cmName := .configMapName -}}
+restartPolicy: OnFailure
+{{- with $cfg.podSecurityContext }}
+securityContext:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $cfg.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $cfg.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+containers:
+  - name: {{ .containerName }}
+    image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+    imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
+    command: ["python3", "/scripts/{{ $script }}"]
+    env:
+      - name: CLUSTER_HOST
+        value: {{ tpl $cfg.clusterHost .root | quote }}
+      - name: STREAMS
+        value: {{ .streamNames | join " " | quote }}
+      - name: REPOSITORIES
+        value: {{ .repoNames | join " " | quote }}
+      - name: REMOTE_PATTERNS
+        value: {{ .remotePatterns | join " " | quote }}
+      - name: USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: {{ $cfg.credentialsSecret.name }}
+            key: {{ $cfg.credentialsSecret.usernameKey | default "username" }}
+      - name: PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: {{ $cfg.credentialsSecret.name }}
+            key: {{ $cfg.credentialsSecret.passwordKey | default "password" }}
+      {{- if $cfg.tlsSkipVerify }}
+      - name: TLS_SKIP_VERIFY
+        value: "true"
+      {{- else if $cfg.caSecret.name }}
+      - name: CA_BUNDLE
+        value: /certs/{{ $cfg.caSecret.key | default "ca.crt" }}
+      {{- end }}
+    {{- with $cfg.resources }}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    volumeMounts:
+      - name: scripts
+        mountPath: /scripts
+      {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+      - name: ca
+        mountPath: /certs
+        readOnly: true
+      {{- end }}
+volumes:
+  - name: scripts
+    configMap:
+      name: {{ $cmName }}
+      defaultMode: 0755
+  {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+  - name: ca
+    secret:
+      secretName: {{ $cfg.caSecret.name }}
+  {{- end }}
+{{- end }}
+
+{{- if .Values.cluster.snapshotLifecycle.enabled }}
+{{- $cfg := .Values.cluster.snapshotLifecycle }}
+{{- $cmName := $cfg.configMapName | default "opensearch-snapshot-lifecycle" }}
+{{- $clusterName := default .Release.Name .Values.cluster.cluster.name | trunc 63 | trimSuffix "-" }}
+{{- $apiGroup := .Values.cluster.apiGroup | default "opensearch.org" }}
+{{- $configFiles := dict }}
+{{- range $stream := $cfg.streams }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].name is required" $stream.name) $stream.name }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].repository is required" $stream.name) $stream.repository }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].minSize is required" $stream.name) $stream.minSize }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns is required" $stream.name) $stream.indexPatterns }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.hot is required" $stream.name) $stream.indexPatterns.hot }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.remote is required" $stream.name) $stream.indexPatterns.remote }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention is required" $stream.name) $stream.retention }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.local is required" $stream.name) $stream.retention.local }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.remote is required" $stream.name) $stream.retention.remote }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s].retention.snapshot is required" $stream.name) $stream.retention.snapshot }}
+  {{- $repo := dict }}
+  {{- range $r := $cfg.repositories }}
+    {{- if eq $r.name $stream.repository }}{{- $repo = $r }}{{- end }}
+  {{- end }}
+  {{- if not $repo }}
+    {{- fail (printf "stream %q references unknown repository %q" $stream.name $stream.repository) }}
+  {{- end }}
+  {{- $ctx := dict "stream" $stream "repo" $repo }}
+  {{- $_ := set $configFiles (printf "ds-%s-ism.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/ds-ism-policy.json.tpl") $ctx) }}
+  {{- $_ := set $configFiles (printf "snapshot-%s-delete-policy.json" $stream.name) (tpl ($.Files.Get "files/snapshot-lifecycle/sm-policy.json.tpl") $ctx) }}
+{{- end }}
+{{- range $repo := $cfg.repositories }}
+  {{- $_ := required (printf "snapshotLifecycle.repositories[%s].name is required" $repo.name) $repo.name }}
+  {{- $_ := required (printf "snapshotLifecycle.repositories[%s].settings is required" $repo.name) $repo.settings }}
+  {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $repo.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") (dict "repo" $repo)) }}
+{{- end }}
+{{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
+{{- $_ := set $configFiles "attach-remote.py" ($.Files.Get "files/snapshot-lifecycle/attach-remote.py") }}
+{{- $_ := set $configFiles "_lib.py" ($.Files.Get "files/snapshot-lifecycle/_lib.py") }}
+{{- $streamNames := list }}
+{{- $remotePatterns := list }}
+{{- range $stream := $cfg.streams }}
+  {{- $streamNames = append $streamNames $stream.name }}
+  {{- $remotePatterns = append $remotePatterns (printf "%s=%s" $stream.name $stream.indexPatterns.remote) }}
+{{- end }}
+{{- $repoNames := list }}
+{{- range $repo := $cfg.repositories }}
+  {{- $repoNames = append $repoNames $repo.name }}
+{{- end }}
+{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "remotePatterns" $remotePatterns "root" $ }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $cmName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+data:
+{{- range $name, $content := $configFiles }}
+  {{ $name }}: |
+{{ $content | indent 4 }}
+{{- end }}
+---
+{{- $configHash := printf "%s%s%s%s" (toJson $configFiles) (toJson $cfg) .Chart.Version .Chart.AppVersion | sha256sum | trunc 8 }}
+{{- $baseJobName := ($cfg.jobName | default "opensearch-snapshot-lifecycle") | trunc 54 | trimSuffix "-" }}
+{{- $jobName := printf "%s-%s" $baseJobName $configHash }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+    snapshot-lifecycle.opensearch.greenhouse.sap/install: "true"
+spec:
+  backoffLimit: {{ $cfg.backoffLimit | default 6 }}
+  ttlSecondsAfterFinished: {{ $cfg.ttlSecondsAfterFinished | default 86400 }}
+  template:
+    metadata:
+      labels:
+        {{- include "opensearch.labels" . | nindent 8 }}
+    spec:
+      {{- $installArgs := merge (dict "script" "install.py" "containerName" "install") $podArgs }}
+      {{- include "opensearch.snapshotLifecycle.podSpec" $installArgs | nindent 6 }}
+{{- if $cfg.attachRemote.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $cfg.attachRemote.name | default "opensearch-snapshot-lifecycle-attach-remote" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+spec:
+  schedule: {{ $cfg.attachRemote.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: {{ $cfg.attachRemote.backoffLimit | default 3 }}
+      template:
+        metadata:
+          labels:
+            {{- include "opensearch.labels" . | nindent 12 }}
+        spec:
+          {{- $attachArgs := merge (dict "script" "attach-remote.py" "containerName" "attach") $podArgs }}
+          {{- include "opensearch.snapshotLifecycle.podSpec" $attachArgs | nindent 10 }}
+{{- end }}
+{{- range $stream := $cfg.streams }}
+---
+# Retention policy for the converted remote searchable indexes.
+# Rendered as a CRD because the actions (replicaCount + delete) are covered
+# by the operator. The ds-{name}-ism policy stays on HTTP because it uses
+# convert_index_to_remote, which the shipped CRD does not yet expose
+# (opensearch-k8s-operator#1402). End-to-end native operator support for
+# searchable snapshots is tracked in opensearch-k8s-operator#1184.
+apiVersion: {{ $apiGroup }}/v1
+kind: OpenSearchISMPolicy
+metadata:
+  name: remote-{{ $stream.name }}-ism
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" $ | nindent 4 }}
+spec:
+  policyId: remote-{{ $stream.name }}-ism
+  defaultState: initial
+  description: "Retention policy for {{ $stream.name }} remote searchable indexes."
+  opensearchCluster:
+    name: {{ $clusterName }}
+  ismTemplate:
+    indexPatterns:
+      - {{ $stream.indexPatterns.remote | quote }}
+    priority: 2
+  states:
+    - name: initial
+      actions:
+        - retry:
+            count: 3
+            backoff: exponential
+            delay: 1m
+          replicaCount:
+            numberOfReplicas: 0
+      transitions:
+        - stateName: delete
+          conditions:
+            minIndexAge: {{ $stream.retention.remote | quote }}
+    - name: delete
+      actions:
+        - retry:
+            count: 3
+            backoff: exponential
+            delay: 1m
+          delete: {}
+      transitions: []
+{{- end }}
+{{- end }}
