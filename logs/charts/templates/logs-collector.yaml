@@ -52,8 +52,6 @@ spec:
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
-    - name: index
-      value: "{{ .Values.openTelemetry.openSearchLogs.index }}"
   envFrom:
     - secretRef:
          name: otel-basic-auth
@@ -367,7 +365,7 @@ spec:
           auth:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: ${index}-datastream
+        logs_index: logs-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -379,7 +377,7 @@ spec:
           auth:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-        logs_index: ${index}-datastream
+        logs_index: logs-datastream
         retry_on_failure:
           enabled: true
           initial_interval: 1s

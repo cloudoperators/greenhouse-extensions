@@ -190,7 +190,7 @@ opensearch/storage_failover_a:
     auth:
       authenticator: basicauth/failover_a
     endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: ${index}-storage-datastream
+  logs_index: storage-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -202,7 +202,7 @@ opensearch/storage_failover_b:
     auth:
       authenticator: basicauth/failover_b
     endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: ${index}-storage-datastream
+  logs_index: storage-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
