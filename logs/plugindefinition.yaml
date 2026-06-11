@@ -75,10 +75,6 @@ spec:
       name: openTelemetry.openSearchLogs.endpoint
       required: false
       type: string
-    - description: Name for OpenSearch index
-      name: openTelemetry.openSearchLogs.index
-      required: false
-      type: string
     - description: Region label for logging
       name: openTelemetry.region
       required: false
