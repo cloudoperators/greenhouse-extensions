@@ -45,7 +45,7 @@ auditLogs:
       topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
-      # -- Message encoding format (otlp_json, otlp_proto, raw)
+      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""

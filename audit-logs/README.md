@@ -83,7 +83,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | auditLogs.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | auditLogs.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch. |
-| auditLogs.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
+| auditLogs.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding) |
 | auditLogs.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | auditLogs.logsCollector.kafka.tls | object | `{"enabled":false,"insecure_skip_verify":false}` | TLS settings for the Kafka exporter. Enable when the broker terminates TLS. |
 | auditLogs.logsCollector.kafka.tls.enabled | bool | `false` | Enable TLS on the connection to Kafka. |
