@@ -49,11 +49,13 @@ spec:
       value: "{{ .Values.auditLogs.cluster }}"
     - name: region
       value: "{{ .Values.auditLogs.region }}"
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
     - name: index
       value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
          name: audit-logs-basic-auth
+{{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -351,6 +353,24 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+      kafka:
+        brokers:
+{{- range .Values.auditLogs.logsCollector.kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ .Values.auditLogs.logsCollector.kafka.protocol_version }}
+{{- if .Values.auditLogs.logsCollector.kafka.tls.enabled }}
+        tls:
+          insecure: false
+          insecure_skip_verify: {{ .Values.auditLogs.logsCollector.kafka.tls.insecure_skip_verify }}
+{{- end }}
+        logs:
+          topic: {{ .Values.auditLogs.logsCollector.kafka.topic }}
+          encoding: {{ .Values.auditLogs.logsCollector.kafka.encoding }}
+        producer:
+          compression: {{ .Values.auditLogs.logsCollector.kafka.compression }}
+{{- else }}
       opensearch/failover_a:
         http:
           auth:
@@ -364,10 +384,14 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.exporter" . | nindent 6 -}}
 {{- end }}
+{{- end }}
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.exporters" . | nindent 6 -}}
 {{- end }}
     extensions:
+{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+      opensearch_log_encoding: {}
+{{- else }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -375,8 +399,10 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
   {{- include "failover.extension" . | nindent 6 -}}
 {{- end }}
+{{- end }}
     connectors:
       forward: {}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       failover:
         retry_interval: 2m
         sending_queue:
@@ -390,11 +416,16 @@ spec:
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
           - [logs/failover_b]
 {{- end }}
+{{- end }}
     service:
       extensions:
+{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+        - opensearch_log_encoding
+{{- else }}
         - basicauth/failover_a
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
         - basicauth/failover_b
+{{- end }}
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
@@ -420,6 +451,9 @@ spec:
         logs/forward:
           receivers: [forward]
           processors: [batch]
+{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+          exporters: [kafka]
+{{- else }}
           exporters: [failover]
         logs/failover_a:
           receivers: [failover]
@@ -427,6 +461,7 @@ spec:
           exporters: [opensearch/failover_a]
 {{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
     {{- include "failover.pipeline" . | nindent 8 -}}
+{{- end }}
 {{- end }}
 {{- if .Values.auditLogs.elastic.enabled }}
    {{- include "es.pipeline" . | nindent 8 -}}
