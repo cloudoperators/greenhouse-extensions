@@ -1,3 +1,5 @@
+# extra PrometheusRules on top of upstream charts
+# https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/templates/prometheus/rules-1.14/alertmanager.rules.yaml
 {{- if and .Values.alerts.defaultRules.create .Values.alerts.defaultRules.rules.alertmanager }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -13,42 +15,11 @@ spec:
   groups:
   - name: alertmanager.alerts
     rules:
-    - alert: AlertmanagerFailedConfigReload
-      expr: alertmanager_config_last_reload_successful{alertmanager="{{ include "kube-prometheus-stack.name" . }}"} == 0
-      for: 5m
-      labels:
-        severity: critical
-        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/failed_config_reload'
-        {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
-          {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 8 }}
-          {{- end }}
-        {{- end }}
-      annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} failed to load its configuration. Alertmanager cannot start with a malformed configuration.'
-        summary: Alertmanager configuration reload has failed
-
-    - alert: AlertmanagerNotificationsFailing
-      expr: rate(alertmanager_notifications_failed_total{alertmanager="{{ include "kube-prometheus-stack.name" . }}"}[5m]) > 0
-      for: 10m
-      labels:
-        severity: info
-        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_failed_notifications'
-        {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
-          {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
-            {{- toYaml . | nindent 8 }}
-          {{- end }}
-        {{- end }}
-      annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} is failing to send notifications for integration {{`{{ $labels.integration }}`}}.'
-        summary: Alertmanager failing to send notifications
-
     - alert: AlertmanagerClusterMessagesPruned
       expr: rate(alertmanager_cluster_messages_pruned_total{alertmanager="{{ include "kube-prometheus-stack.name" . }}"}[5m]) > 0
       for: 10m
       labels:
         severity: warning
-        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-pruned'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
             {{- toYaml . | nindent 8 }}
@@ -63,7 +34,6 @@ spec:
       for: 15m
       labels:
         severity: info
-        playbook: 'https://operations.global.cloud.sap/docs/support/playbook/prometheus/alertmanager_alerts/cluster-messages-queued'
         {{- if or .Values.alerts.defaultRules.additionalRuleLabels }}
           {{- with .Values.alerts.defaultRules.additionalRuleLabels }}
             {{- toYaml . | nindent 8 }}
