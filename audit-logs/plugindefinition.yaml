@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.0.24
+    version: 0.0.25
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.24
+        version: 0.0.25
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -37,11 +37,11 @@ spec:
           type: string
         - name: auditLogs.openSearchLogs.failover_username_a
           description: Username for OpenSearch endpoint
-          required: true
+          required: false
           type: secret
         - name: auditLogs.openSearchLogs.failover_password_a
           description: Password for OpenSearch endpoint
-          required: true
+          required: false
           type: secret
         - name: auditLogs.openSearchLogs.failover.enabled
           default: false
@@ -105,5 +105,40 @@ spec:
         - name: auditLogs.logsCollector.journald.enabled
           default: false
           description: Enable systemd journal logs ingestion
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.kafka.enabled
+          default: false
+          description: Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.kafka.brokers
+          description: Kafka broker addresses
+          required: false
+          type: list
+        - name: auditLogs.logsCollector.kafka.topic
+          description: Kafka topic name for audit logs
+          required: false
+          type: string
+        - name: auditLogs.logsCollector.kafka.protocol_version
+          description: Kafka protocol version (e.g. "3.9.0")
+          required: false
+          type: string
+        - name: auditLogs.logsCollector.kafka.encoding
+          description: Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding)
+          required: false
+          type: string
+        - name: auditLogs.logsCollector.kafka.compression
+          description: Compression type (none, gzip, snappy, lz4, zstd)
+          required: false
+          type: string
+        - name: auditLogs.logsCollector.kafka.tls.enabled
+          default: false
+          description: Enable TLS on the connection to Kafka
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.kafka.tls.insecure_skip_verify
+          default: false
+          description: Skip server certificate verification (leave false for production)
           required: false
           type: bool
