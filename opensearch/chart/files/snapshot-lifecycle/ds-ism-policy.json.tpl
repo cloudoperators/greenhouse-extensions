@@ -85,6 +85,9 @@
               "repository": "{{ .repo.name }}",
               "snapshot": "{_SNAPSHOT_NAME_}",
               "rename_pattern": "{{ .stream.renamePattern | default (printf "remote_%s_$1" .stream.name) }}",
+              "include_aliases": false,
+              "ignore_index_settings": "index.hidden",
+              "number_of_replicas": 0,
               "delete_original_index": true
             }
           }
