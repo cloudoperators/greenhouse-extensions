@@ -19,7 +19,7 @@ For each stream {name} expects in /scripts/:
   snapshot-{name}-delete-policy.json
 
 The `remote-{name}-ism` policy is rendered as an OpenSearchISMPolicy CRD by
-the chart (the CRD covers replicaCount + delete actions). Only the
+the chart (the CRD covers delete actions). Only the
 `ds-{name}-ism` policy needs HTTP install: it uses convert_index_to_remote,
 which the shipped CRD does not yet support
 (opensearch-k8s-operator#1402).

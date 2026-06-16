@@ -35,6 +35,26 @@ auditLogs:
     journald:
         # -- Activates ingestion of systemd journal logs
       enabled: false
+    # -- Kafka exporter configuration for buffering audit logs
+    kafka:
+      # -- Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.
+      enabled: false
+      # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
+      brokers: []
+      # -- Kafka topic name for audit logs
+      topic: ""
+      # -- Kafka protocol version (e.g., "3.9.0")
+      protocol_version: ""
+      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding)
+      encoding: ""
+      # -- Compression type (none, gzip, snappy, lz4, zstd)
+      compression: ""
+      # -- TLS settings for the Kafka exporter. Enable when the broker terminates TLS.
+      tls:
+        # -- Enable TLS on the connection to Kafka.
+        enabled: false
+        # -- Skip server certificate verification. Leave false for production.
+        insecure_skip_verify: false
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
