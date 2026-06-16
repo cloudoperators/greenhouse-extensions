@@ -47,6 +47,7 @@ alerts:
       k8sContainerMemoryCache: false
       k8sContainerMemoryRss: false
       k8sContainerMemorySwap: false
+      k8sContainerMemoryWorkingSetBytes: false
       k8sContainerResource: false
       k8sPodOwner: false
       kubeApiserverAvailability: false
