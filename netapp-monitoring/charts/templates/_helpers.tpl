@@ -1,4 +1,8 @@
 {{/*
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+*/}}
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "netapp-monitoring.name" -}}
@@ -78,6 +82,8 @@ Defaults:
 {{ include "netapp-monitoring.defaultCredentialsYaml" (dict "SecretPath" "vault+kvv2:///secrets/shared/harvest/harvest-ad/hec-user") }}
 {{- else if eq .Values.netappsd.credentials_secret "internal-basic-auth" -}}
 {{ include "netapp-monitoring.defaultCredentialsYaml" (dict "SecretPath" "vault+kvv2:///secrets/shared/harvest/harvest-ad/internal-user") }}
+{{- else -}}
+{{- fail (printf "unsupported .Values.netappsd.credentials_secret: %q — must be one of local-basic-auth, sci-basic-auth, hec-basic-auth, internal-basic-auth" .Values.netappsd.credentials_secret) }}
 {{- end }}
 {{- end }}
 

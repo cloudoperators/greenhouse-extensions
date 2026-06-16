@@ -20,3 +20,4 @@ resources:
   - teams2slack/plugindefinition.yaml
   - thanos/plugindefinition.yaml
   - trust-manager/plugindefinition.yaml
+  - netapp-monitoring/plugindefinition.yaml

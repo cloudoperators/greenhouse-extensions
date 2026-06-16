@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 apiVersion: greenhouse.sap/v1alpha1
 kind: PluginDefinition
 metadata:
@@ -11,11 +14,11 @@ spec:
     repository: oci://ghcr.io/sapcc/helm-charts/netapp-monitoring
     version: 1.0.2
   options:
-    - name: harvest.image
-      description: Harvest container image
+    - name: harvest.image.repository
+      description: Harvest container image repository
       required: true
       type: string
-    - name: harvest.tag
+    - name: harvest.image.tag
       description: Harvest container image tag
       required: true
       type: string
@@ -34,6 +37,19 @@ spec:
       type: string
     - name: netappsd.region
       description: Region for NetApp service discovery
+      required: true
+      type: string
+    - name: netappsd.lob
+      description: Line of business label applied to pollers
+      required: true
+      default: CCloud
+      type: string
+    - name: netappsd.credentials_file
+      description: Path where credentials file is mounted in the container
+      required: true
+      type: string
+    - name: netappsd.credentials_secret
+      description: Name of the credentials secret (e.g. local-basic-auth, sci-basic-auth)
       required: true
       type: string
     - name: netappsd.netapp_exporter_user

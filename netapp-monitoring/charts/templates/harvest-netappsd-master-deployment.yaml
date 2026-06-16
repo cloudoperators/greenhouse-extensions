@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 {{- if .Values.netappsd.enabled }}
 {{- range $appName, $appValues := .Values.apps }}
 {{- if $appValues.enabled }}
@@ -27,7 +30,7 @@ spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:
         - name: netappsd
-          image: "{{ .Values.netappsd.image.repository }}:{{ .Values.netappsd.image.tag }}"
+          image: "{{ required ".Values.netappsd.image.repository is required" .Values.netappsd.image.repository }}:{{ required ".Values.netappsd.image.tag is required" .Values.netappsd.image.tag }}"
           imagePullPolicy: {{ .Values.netappsd.image.pullPolicy | default "IfNotPresent" }}
           command: ["/netappsd", "master"]
           args:

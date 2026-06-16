@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
 {{- if .Values.netappsd.enabled }}
 {{- range $appName, $appValues := .Values.apps }}
 {{- if $appValues.enabled }}
@@ -32,7 +35,7 @@ spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:
         - name: poller
-          image: "{{ .Values.harvest.image.repository }}:{{ .Values.harvest.image.tag }}"
+          image: "{{ required ".Values.harvest.image.repository is required" .Values.harvest.image.repository }}:{{ required ".Values.harvest.image.tag is required" .Values.harvest.image.tag }}"
           imagePullPolicy: {{ .Values.harvest.image.pullPolicy | default "IfNotPresent" }}
           command: ["/busybox/sh"]
           args:
@@ -71,7 +74,7 @@ spec:
           securityContext:
             {{- toYaml .Values.harvest.securityContext | nindent 12 }}
         - name: worker
-          image: "{{ .Values.netappsd.image.repository }}:{{ .Values.netappsd.image.tag }}"
+          image: "{{ required ".Values.netappsd.image.repository is required" .Values.netappsd.image.repository }}:{{ required ".Values.netappsd.image.tag is required" .Values.netappsd.image.tag }}"
           imagePullPolicy: {{ .Values.netappsd.image.pullPolicy | default "IfNotPresent" }}
           command: ["/netappsd", "worker"]
           args:
