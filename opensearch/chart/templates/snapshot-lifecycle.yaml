@@ -107,7 +107,6 @@ volumes:
   {{- $_ := set $configFiles (printf "snapshot-repo-%s.json" $repo.name) (tpl ($.Files.Get "files/snapshot-lifecycle/repo.json.tpl") (dict "repo" $repo)) }}
 {{- end }}
 {{- $_ := set $configFiles "install.py" ($.Files.Get "files/snapshot-lifecycle/install.py") }}
-{{- $_ := set $configFiles "attach-remote.py" ($.Files.Get "files/snapshot-lifecycle/attach-remote.py") }}
 {{- $_ := set $configFiles "_lib.py" ($.Files.Get "files/snapshot-lifecycle/_lib.py") }}
 {{- $streamNames := list }}
 {{- $remotePatterns := list }}
@@ -155,31 +154,6 @@ spec:
     spec:
       {{- $installArgs := merge (dict "script" "install.py" "containerName" "install") $podArgs }}
       {{- include "opensearch.snapshotLifecycle.podSpec" $installArgs | nindent 6 }}
-{{- if $cfg.attachRemote.enabled }}
----
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: {{ $cfg.attachRemote.name | default "opensearch-snapshot-lifecycle-attach-remote" }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "opensearch.labels" . | nindent 4 }}
-spec:
-  schedule: {{ $cfg.attachRemote.schedule | quote }}
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 3
-  jobTemplate:
-    spec:
-      backoffLimit: {{ $cfg.attachRemote.backoffLimit | default 3 }}
-      template:
-        metadata:
-          labels:
-            {{- include "opensearch.labels" . | nindent 12 }}
-        spec:
-          {{- $attachArgs := merge (dict "script" "attach-remote.py" "containerName" "attach") $podArgs }}
-          {{- include "opensearch.snapshotLifecycle.podSpec" $attachArgs | nindent 10 }}
-{{- end }}
 {{- range $stream := $cfg.streams }}
 ---
 # Retention policy for the converted remote searchable indexes.
@@ -207,13 +181,7 @@ spec:
     priority: 2
   states:
     - name: initial
-      actions:
-        - retry:
-            count: 3
-            backoff: exponential
-            delay: 1m
-          replicaCount:
-            numberOfReplicas: 0
+      actions: []
       transitions:
         - stateName: delete
           conditions:
