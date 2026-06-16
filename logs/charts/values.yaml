@@ -119,6 +119,8 @@ openTelemetry:
   externalCollector:
     # -- Enables the standalone external OTel Collector StatefulSet and its PodMonitor.
     enabled: false
+    # -- Number of replicas for the external collector StatefulSet
+    replicas: 2
     # -- IP address to request from the cloud LoadBalancer (optional, omit for auto-assigned)
     loadBalancerIP:
     # -- Additional annotations on the external Service

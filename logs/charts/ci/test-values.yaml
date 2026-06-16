@@ -57,6 +57,7 @@ openTelemetry:
       enabled: true
   externalCollector:
     enabled: true
+    replicas: 2
     loadBalancerIP: 10.0.0.1
     externalConfig:
       enabled: false

@@ -46,6 +46,16 @@ spec:
       required: false
       type: bool
     - default: false
+      description: Enables the standalone external OTel Collector StatefulSet for syslog, traces, and external event ingestion
+      name: openTelemetry.externalCollector.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Enables Kafka exporter (replaces OpenSearch failover with Kafka buffering)
+      name: openTelemetry.kafka.enabled
+      required: false
+      type: bool
+    - default: false
       description: Activates the configuration for receiving external alertmanager webhooks and deployment events (standalone collector)
       name: openTelemetry.externalCollector.externalConfig.enabled
       required: false
@@ -72,11 +82,11 @@ spec:
       type: bool
     - description: Username for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_username_a
-      required: true
+      required: false
       type: secret
     - description: Password for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_password_a
-      required: true
+      required: false
       type: secret
     - description: Second Username (as a failover) for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_username_b
