@@ -50,6 +50,22 @@ Configure the required options:
 
 ## Configuration
 
+### netappsd Controller Behavior and RBAC
+
+The `netappsd` master component acts as a controller for discovered filers.
+
+- It monitors filer inventory from Netbox and reconciles the desired worker state.
+- It scales worker Deployments up and down based on filers discovered for each configured app label.
+- It patches Pod metadata to update the `filer` label, which is used to associate running workers with the discovered filer identity.
+
+For this reason, the chart grants the `netappsd` service account these permissions in its namespace:
+
+- `get`, `list`, `update`, `patch` on Pods
+- `get`, `list`, `update`, `patch` on Deployments
+- `get`, `list` on Endpoints
+
+Without `patch` and `update`, the master cannot reconcile runtime labels or scaling decisions correctly.
+
 ### Harvest
 
 The Harvest component is configured with the following default collectors:

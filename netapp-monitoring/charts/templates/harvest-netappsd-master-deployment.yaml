@@ -23,6 +23,7 @@ spec:
         kubectl.kubernetes.io/default-container: netappsd
         prometheus.io/scrape: "true"
         prometheus.io/targets: storage
+        checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
       labels:
         app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
         name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master

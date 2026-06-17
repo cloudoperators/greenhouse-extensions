@@ -87,3 +87,19 @@ Defaults:
 {{- end }}
 {{- end }}
 
+{{/*
+Checksum helpers used as pod-template annotations to force rolling updates
+when config or secret templates change.
+*/}}
+{{- define "netapp-monitoring.checksum.configmap" -}}
+{{ include (print $.Template.BasePath "/harvest-netappsd-configmap.yaml") . | sha256sum }}
+{{- end }}
+
+{{- define "netapp-monitoring.checksum.sdSecret" -}}
+{{ include (print $.Template.BasePath "/harvest-netappsd-secret.yaml") . | sha256sum }}
+{{- end }}
+
+{{- define "netapp-monitoring.checksum.basicAuthSecret" -}}
+{{ include (print $.Template.BasePath "/harvest-basic-auth.yaml") . | sha256sum }}
+{{- end }}
+
