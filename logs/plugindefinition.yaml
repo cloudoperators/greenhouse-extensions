@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.13.9
+  version: 0.14.0
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.2.9
+    version: 0.3.0
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -46,8 +46,33 @@ spec:
       required: false
       type: bool
     - default: false
-      description: Activates the configuration for receiving Syslog from external sources (requires logsCollector enabled)
-      name: openTelemetry.logsCollector.externalConfig.enabled
+      description: Enables the standalone external OTel Collector StatefulSet for syslog, traces, and external event ingestion
+      name: openTelemetry.externalCollector.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Enables Kafka exporter (replaces OpenSearch failover with Kafka buffering)
+      name: openTelemetry.kafka.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates the configuration for receiving external alertmanager webhooks and deployment events (standalone collector)
+      name: openTelemetry.externalCollector.externalConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates syslog TCP/UDP ingestion on the standalone external collector
+      name: openTelemetry.externalCollector.syslogConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates syslog TCP with TLS ingestion on the standalone external collector
+      name: openTelemetry.externalCollector.syslogTLSConfig.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Activates OTLP traces ingestion (gRPC and HTTP) on the standalone external collector
+      name: openTelemetry.externalCollector.tracesConfig.enabled
       required: false
       type: bool
     - default: true
@@ -57,11 +82,11 @@ spec:
       type: bool
     - description: Username for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_username_a
-      required: true
+      required: false
       type: secret
     - description: Password for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_password_a
-      required: true
+      required: false
       type: secret
     - description: Second Username (as a failover) for OpenSearch endpoint
       name: openTelemetry.openSearchLogs.failover_username_b
