@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if .Values.openTelemetry.externalCollector.enabled }}
+{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled) }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
