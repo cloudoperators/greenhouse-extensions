@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+policies:
+  highCpuRequests:
+    enabled: true
+    maxCpu: 6
+  unmanagedPods:
+    enabled: true
+    allowedNamePatterns:
+      - namespace: default
+        namePattern: "recycler-for-.*"
+
+tests:
+  enabled: true

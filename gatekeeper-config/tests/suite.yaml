@@ -1,0 +1,157 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+kind: Suite
+apiVersion: test.gatekeeper.sh/v1alpha1
+metadata:
+  name: gatekeeper-config-tests
+tests:
+
+# --- library tests ---
+
+- name: libtest-add-support-labels
+  template: rendered/gatekeeper-config/templates/constrainttemplate-libtest-add-support-labels.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-libtest-add-support-labels.yaml
+  cases:
+  - name: pod-with-owned-by-label
+    object: fixtures/libtest-add-support-labels/pod-filled.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"my-team"\} >> test for from_k8s_object\(\)$'
+  - name: pod-without-owned-by-label
+    object: fixtures/libtest-add-support-labels/pod-missing.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> test for from_k8s_object\(\)$'
+
+- name: libtest-traversal
+  template: rendered/gatekeeper-config/templates/constrainttemplate-libtest-traversal.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-libtest-traversal.yaml
+  cases:
+  - name: cronjob
+    object: fixtures/libtest-traversal/cronjob.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in cronjob" and containers "alpine", "init-busybox"$'
+  - name: daemonset
+    object: fixtures/libtest-traversal/daemonset.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in daemonset" and containers "alpine", "init-busybox"$'
+  - name: deployment
+    object: fixtures/libtest-traversal/deployment.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in deployment" and containers "alpine", "init-busybox"$'
+  - name: job
+    object: fixtures/libtest-traversal/job.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in job" and containers "alpine"$'
+  - name: replicaset
+    object: fixtures/libtest-traversal/replicaset.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in replicaset" and containers "alpine"$'
+  - name: statefulset
+    object: fixtures/libtest-traversal/statefulset.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in statefulset" and containers "alpine"$'
+  - name: standalone-pod
+    object: fixtures/libtest-traversal/pod.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "individual pod" and containers "alpine", "init-busybox"$'
+  - name: pod-minimal
+    object: fixtures/libtest-traversal/pod-minimal.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "minimal pod" and containers "alpine"$'
+  - name: pod-in-daemonset-suppressed
+    object: fixtures/libtest-traversal/pod-in-daemonset.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+  - name: pod-in-job-suppressed
+    object: fixtures/libtest-traversal/pod-in-job.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+  - name: pod-in-replicaset-suppressed
+    object: fixtures/libtest-traversal/pod-in-replicaset.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+  - name: pod-in-statefulset-suppressed
+    object: fixtures/libtest-traversal/pod-in-statefulset.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+  - name: pod-with-unknown-owner-not-suppressed
+    object: fixtures/libtest-traversal/pod-in-unknown-owner.yaml
+    assertions:
+    - violations: 1
+      message: '^found a relevant pod with marker "pod in unknown owner" and containers "alpine"$'
+  - name: job-in-cronjob-suppressed
+    object: fixtures/libtest-traversal/job-in-cronjob.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+  - name: replicaset-in-deployment-suppressed
+    object: fixtures/libtest-traversal/replicaset-in-deployment.yaml
+    assertions:
+    - violations: 1
+      message: '^no relevant pod found$'
+
+# --- policy tests ---
+
+- name: high-cpu-requests
+  template: rendered/gatekeeper-config/templates/constrainttemplate-high-cpu-requests.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-high-cpu-requests.yaml
+  cases:
+  - name: pod-over-threshold
+    object: fixtures/high-cpu-requests/pod-failure.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"my-team"\} >> requests 6\.064 CPU in total across containers and initContainers$'
+  - name: pod-just-under-threshold
+    object: fixtures/high-cpu-requests/pod-close-violation.yaml
+    assertions:
+    - violations: 0
+  - name: pod-only-one-request
+    object: fixtures/high-cpu-requests/pod-only-one-limit.yaml
+    assertions:
+    - violations: 0
+  - name: pod-no-requests
+    object: fixtures/high-cpu-requests/pod-no-limits.yaml
+    assertions:
+    - violations: 0
+  - name: pod-malformed-cpu-value
+    object: fixtures/high-cpu-requests/pod-malformed-cpu.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"my-team"\} >> container "dummy" has a malformed CPU request: "500xyz"$'
+
+- name: unmanaged-pods
+  template: rendered/gatekeeper-config/templates/constrainttemplate-unmanaged-pods.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-unmanaged-pods.yaml
+  cases:
+  - name: bare-pod-flagged
+    object: fixtures/unmanaged-pods/pod-without-owner.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is not owned by a managing construct$'
+  - name: pod-with-owner-skipped
+    object: fixtures/unmanaged-pods/pod-in-deployment.yaml
+    assertions:
+    - violations: 0
+  - name: recycler-pod-exempt-via-pattern
+    object: fixtures/unmanaged-pods/pv-recycler-pod.yaml
+    assertions:
+    - violations: 0
+  - name: anchoring-blocks-prefix-bypass
+    object: fixtures/unmanaged-pods/pod-with-prefix-bypass.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> pod is not owned by a managing construct$'

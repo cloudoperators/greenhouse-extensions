@@ -9,6 +9,7 @@ resources:
   - exposed-services/plugindefinition.yaml
   - external-dns/plugindefinition.yaml
   - gatekeeper/plugindefinition.yaml
+  - gatekeeper-config/plugindefinition.yaml
   - repo-guard/plugindefinition.yaml
   - ingress-nginx/plugindefinition.yaml
   - kafka/plugindefinition.yaml

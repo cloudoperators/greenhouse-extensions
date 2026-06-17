@@ -113,15 +113,6 @@ release: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{/* Generate basic labels */}}
-{{- define "kubeMonitoring.dashboardSelectorLabels" }}
-{{- if $.Values.kubeMonitoring.dashboards.plutonoSelectors }}
-{{- range $i, $target := $.Values.kubeMonitoring.dashboards.plutonoSelectors }}
-{{ $target.name | required (printf "$.Values.kubeMonitoring.dashboards.plutonoSelectors.[%v].name missing" $i) }}: {{ tpl ($target.value | required (printf "$.Values.Monitoring.dashboards.plutonoSelectors.[%v].value missing" $i)) $ }}
-{{- end }}
-{{- end }}
-{{- end }}
-
 {{- define "kubeMonitoring.persesDashboardSelectorLabels" }}
 {{- if $.Values.kubeMonitoring.dashboards.persesSelectors }}
 {{- range $i, $target := $.Values.kubeMonitoring.dashboards.persesSelectors }}

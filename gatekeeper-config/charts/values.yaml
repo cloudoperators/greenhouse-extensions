@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+policies:
+  highCpuRequests:
+    enabled: true
+    enforcementAction: dryrun
+    maxCpu: 6
+
+  unmanagedPods:
+    enabled: true
+    enforcementAction: dryrun
+    allowedNamePatterns: []
+
+tests:
+  enabled: false

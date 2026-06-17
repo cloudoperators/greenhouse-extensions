@@ -1,0 +1,43 @@
+{{- if .Values.tests.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gklibtesttraversal
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkLibtestTraversal
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package libtesttraversal
+
+              import data.lib.traversal
+
+              iro := input.review.object
+              pod := traversal.find_pod(iro)
+              container_specs := traversal.find_container_specs(iro)
+              container_names := concat(", ", sort([sprintf("%q", [c.name]) | c := container_specs[_]]))
+
+              violation contains {"msg": msg} if {
+                  not pod.isFound
+                  count(container_specs) == 0
+                  msg := "no relevant pod found"
+              }
+
+              violation contains {"msg": msg} if {
+                  pod.isFound
+                  marker := object.get(pod, ["metadata", "labels", "marker"], "")
+                  msg := sprintf("found a relevant pod with marker %q and containers %s", [marker, container_names])
+              }
+{{- end }}
