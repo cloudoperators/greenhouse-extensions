@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: Helm chart deploying OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes admission control.
+name: gatekeeper-config
+version: 0.1.0
+appVersion: 0.1.0
+icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+keywords:
+  - gatekeeper
+  - opa
+  - policy
+  - admission-control
+sources:
+  - https://github.com/cloudoperators/greenhouse-extensions
+maintainers:
+  - name: mikolajkucinski
+  - name: abhijith-darshan
+  - name: uwe-mayer

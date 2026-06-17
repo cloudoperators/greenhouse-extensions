@@ -1,0 +1,15 @@
+{{- if .Values.tests.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkLibtestAddSupportLabels
+metadata:
+  name: libtest-add-support-labels
+spec:
+  enforcementAction: dryrun
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    scope: Namespaced
+{{- end }}
