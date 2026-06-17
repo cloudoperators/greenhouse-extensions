@@ -3,4 +3,4 @@
 
 dependencies:
   - kube-monitoring
- # - kafka
+  - kafka
