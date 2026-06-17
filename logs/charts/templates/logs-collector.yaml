@@ -38,6 +38,19 @@ spec:
             - alarm
   terminationGracePeriodSeconds: 10
   env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    - name: KUBE_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
     - name: cluster
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
@@ -227,7 +240,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.kafka.logsCollector.topic }}
+          topic: {{ .Values.openTelemetry.logsCollector.kafkaTopic }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
@@ -238,7 +251,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.kafka.logsCollector.storage_topic }}
+          topic: {{ .Values.openTelemetry.logsCollector.kafkaStorageTopic }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}

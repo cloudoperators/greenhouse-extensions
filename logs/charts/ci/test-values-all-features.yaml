@@ -38,8 +38,12 @@ openTelemetry:
   region: test
   kafka:
     enabled: true
+    brokers:
+      - kafka-bootstrap.kafka.svc.cluster.local:9092
   logsCollector:
     enabled: true
+    kafkaTopic: "logs"
+    kafkaStorageTopic: "storage"
     journaldConfig:
       enabled: true
     k8seventsConfig:
@@ -56,6 +60,8 @@ openTelemetry:
     enabled: true
     replicas: 2
     loadBalancerIP: 10.0.0.1
+    kafkaTopic: "logs"
+    kafkaTracesTopic: "traces"
     externalConfig:
       enabled: true
       alertmanager_port: 1515

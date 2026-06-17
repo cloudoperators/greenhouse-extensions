@@ -80,23 +80,13 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
-    # -- Topic configuration for the logs DaemonSet collector
-    logsCollector:
-      # -- Kafka topic name for general logs (e.g., "logs")
-      topic: ""
-      # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
-      storage_topic: ""
-    # -- Topic configuration for the external StatefulSet collector
-    externalCollector:
-      # -- Kafka topic name for external logs (alerts/deployments)
-      topic: ""
-      # -- Kafka topic name for syslog ingestion
-      syslog_topic: ""
-      # -- Kafka topic name for traces
-      traces_topic: ""
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Kafka topic name for general logs (e.g., "logs")
+    kafkaTopic: ""
+    # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
+    kafkaStorageTopic: ""
     # -- Activates the journald receiver (requires logsCollector to be enabled).
     journaldConfig:
       enabled: true
@@ -125,6 +115,10 @@ openTelemetry:
     loadBalancerIP:
     # -- Additional annotations on the external Service
     serviceAnnotations: {}
+    # -- Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external")
+    kafkaTopic: ""
+    # -- Kafka topic name for traces (e.g., "traces")
+    kafkaTracesTopic: ""
     # -- Activates syslog TCP/UDP ingestion (rfc5424/rfc3164).
     syslogConfig:
       enabled: false

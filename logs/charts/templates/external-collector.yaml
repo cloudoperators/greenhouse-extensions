@@ -142,23 +142,10 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.kafka.externalCollector.topic }}
+          topic: {{ .Values.openTelemetry.externalCollector.kafkaTopic }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
-      kafka/syslog:
-        brokers:
-{{- range .Values.openTelemetry.kafka.brokers }}
-          - {{ . }}
-{{- end }}
-        protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
-        logs:
-          topic: {{ .Values.openTelemetry.kafka.externalCollector.syslog_topic }}
-          encoding: {{ .Values.openTelemetry.kafka.encoding }}
-        producer:
-          compression: {{ .Values.openTelemetry.kafka.compression }}
-{{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
         brokers:
@@ -167,7 +154,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         traces:
-          topic: {{ .Values.openTelemetry.kafka.externalCollector.traces_topic }}
+          topic: {{ .Values.openTelemetry.externalCollector.kafkaTracesTopic }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}

@@ -106,7 +106,7 @@ logs/syslog_tcp:
   receivers: [syslog/tcp]
   processors: [attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka/syslog]
+  exporters: [kafka]
 {{- else }}
   exporters: [failover/opensearch_syslog]
 {{- end }}
@@ -115,7 +115,7 @@ logs/syslog_udp:
   receivers: [syslog/udp]
   processors: [attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka/syslog]
+  exporters: [kafka]
 {{- else }}
   exporters: [failover/opensearch_syslog]
 {{- end }}
@@ -126,7 +126,7 @@ logs/syslog_tcp_tls:
   receivers: [syslog/tcp-tls]
   processors: [attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka/syslog]
+  exporters: [kafka]
 {{- else }}
   exporters: [failover/opensearch_syslog]
 {{- end }}

@@ -96,11 +96,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.externalCollector | object | `{"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"loadBalancerIP":null,"replicas":2,"serviceAnnotations":{},"syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector | object | `{"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"kafkaTopic":"","kafkaTracesTopic":"","loadBalancerIP":null,"replicas":2,"serviceAnnotations":{},"syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.enabled | bool | `false` | Enables the standalone external OTel Collector StatefulSet and its PodMonitor. |
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
 | openTelemetry.externalCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
 | openTelemetry.externalCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
+| openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
+| openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.externalCollector.loadBalancerIP | string | `nil` | IP address to request from the cloud LoadBalancer (optional, omit for auto-assigned) |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
@@ -114,24 +116,19 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
-| openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","externalCollector":{"syslog_topic":"","topic":"","traces_topic":""},"logsCollector":{"storage_topic":"","topic":""},"protocol_version":""}` | Kafka exporter configuration shared by all collectors |
+| openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":""}` | Kafka exporter configuration shared by all collectors |
 | openTelemetry.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.kafka.enabled | bool | `false` | Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering) |
 | openTelemetry.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
-| openTelemetry.kafka.externalCollector | object | `{"syslog_topic":"","topic":"","traces_topic":""}` | Topic configuration for the external StatefulSet collector |
-| openTelemetry.kafka.externalCollector.syslog_topic | string | `""` | Kafka topic name for syslog ingestion |
-| openTelemetry.kafka.externalCollector.topic | string | `""` | Kafka topic name for external logs (alerts/deployments) |
-| openTelemetry.kafka.externalCollector.traces_topic | string | `""` | Kafka topic name for traces |
-| openTelemetry.kafka.logsCollector | object | `{"storage_topic":"","topic":""}` | Topic configuration for the logs DaemonSet collector |
-| openTelemetry.kafka.logsCollector.storage_topic | string | `""` | Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage") |
-| openTelemetry.kafka.logsCollector.topic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.kafkaStorageTopic | string | `""` | Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage") |
+| openTelemetry.logsCollector.kafkaTopic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
 | openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
