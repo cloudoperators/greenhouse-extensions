@@ -50,7 +50,7 @@ opensearch/failover_a_syslog:
   http:
     auth:
       authenticator: basicauth/failover_a
-    endpoint: {{ $.Values.openTelemetry.openSearchLogs.endpoint }}
+    endpoint: {{ required "openTelemetry.openSearchLogs.endpoint is required when openTelemetry.kafka.enabled=false" $.Values.openTelemetry.openSearchLogs.endpoint }}
   logs_index: logs-datastream
   retry_on_failure:
     enabled: true
