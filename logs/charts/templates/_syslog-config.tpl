@@ -51,7 +51,7 @@ opensearch/failover_a_syslog:
     auth:
       authenticator: basicauth/failover_a
     endpoint: {{ $.Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: syslog-datastream
+  logs_index: logs-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -63,7 +63,7 @@ opensearch/failover_b_syslog:
     auth:
       authenticator: basicauth/failover_b
     endpoint: {{ $.Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: syslog-datastream
+  logs_index: logs-datastream
   retry_on_failure:
     enabled: true
     initial_interval: 1s
