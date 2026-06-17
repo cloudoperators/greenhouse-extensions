@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: dummy
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        marker: "pod in replicaset"
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:3
