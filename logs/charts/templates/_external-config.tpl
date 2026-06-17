@@ -96,7 +96,7 @@ logs/failover_b_external_{{ toString . }}:
 {{- end }}
 logs/external-alerts:
   receivers: [webhookevent/external-alerts]
-  processors: [transform/external-alerts, batch]
+  processors: [transform/external-alerts, attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka]
 {{- else }}
@@ -105,7 +105,7 @@ logs/external-alerts:
 
 logs/external-deployments:
   receivers: [tcplog/external-deployments]
-  processors: [transform/external-deployments, batch]
+  processors: [transform/external-deployments, attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka]
 {{- else }}

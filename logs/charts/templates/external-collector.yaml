@@ -34,7 +34,7 @@ spec:
 {{- end }}
   ports:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
-    - name: alertmanager
+    - name: alertmanagerwebhook
       port: {{ .Values.openTelemetry.externalCollector.externalConfig.alertmanager_port }}
       protocol: TCP
     - name: deploymentstcp
