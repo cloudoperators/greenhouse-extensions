@@ -43,10 +43,14 @@ Configure the required options:
 | `netappsd.image.repository` | NetApp SD container image repository | Yes |
 | `netappsd.image.tag` | NetApp SD container image tag | Yes |
 | `netappsd.region` | Region for service discovery | Yes |
+| `netappsd.lob` | Line of business label applied to discovered filer metrics | Yes |
+| `netappsd.credentials_file` | Mount path for the Harvest credentials file inside the poller container | Yes |
+| `netappsd.credentials_secret` | Name of the generated credentials secret (for example `local-basic-auth`) | Yes |
 | `netappsd.netapp_exporter_user` | NetApp exporter username | Yes |
 | `netappsd.netapp_exporter_password` | NetApp exporter password | Yes |
 | `netappsd.netbox_api_token` | Netbox API token | Yes |
-| `netappsd.netbox_host` | Netbox host URL | No |
+| `netappsd.netbox_host` | Netbox host URL | Yes |
+| `apps` | Map of app labels to enable discovery (for example cinder/manila/apod/cinder-manila) | No |
 
 ## Configuration
 
@@ -107,15 +111,15 @@ spec:
   clusterName: my-cluster
   optionValues:
     - name: harvest.image.repository
-      value: ghcr.io/netapp/harvest
+      value: keppel.eu-de-1.cloud.sap/ccloud/harvest
     - name: harvest.image.tag
-      value: "25.11.0"
+      value: "25.11.0-20251126205434"
     - name: netappsd.enabled
       value: true
     - name: netappsd.image.repository
       value: keppel.eu-de-1.cloud.sap/ccloud/netappsd
     - name: netappsd.image.tag
-      value: latest
+      value: dme-strg-20260617091551
     - name: netappsd.region
       value: eu-de-1
     - name: netappsd.netapp_exporter_user
