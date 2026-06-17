@@ -1,0 +1,58 @@
+{{- if .Values.policies.unmanagedPods.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkunmanagedpods
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkUnmanagedPods
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            allowedNamePatterns:
+              type: array
+              items:
+                description: per-namespace name pattern that exempts a Pod from this policy
+                type: object
+                properties:
+                  namespace:
+                    type: string
+                  namePattern:
+                    type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+            rego: |
+              package unmanagedpods
+
+              import data.lib.add_support_labels
+
+              iro := input.review.object
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  iro.kind == "Pod"
+                  object.get(iro.metadata, ["ownerReferences"], []) == []
+                  not is_allowed_by_exception
+                  msg := "pod is not owned by a managing construct"
+              }
+
+              default is_allowed_by_exception := false
+
+              is_allowed_by_exception if {
+                  entry := input.parameters.allowedNamePatterns[_]
+                  iro.metadata.namespace == entry.namespace
+                  regex.match(sprintf("^(?:%s)$", [entry.namePattern]), iro.metadata.name)
+              }
+{{- end }}

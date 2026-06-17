@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dummy
+  namespace: default
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            marker: "pod in cronjob"
+        spec:
+          containers:
+          - name: alpine
+            image: alpine:3
+          initContainers:
+          - name: init-busybox
+            image: busybox:1
