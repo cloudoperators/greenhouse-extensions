@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-busybox-pod
+  namespace: default
+spec:
+  initContainers:
+  - name: init
+    image: registry.k8s.io/busybox:1.36
+  containers:
+  - name: app
+    image: alpine:3

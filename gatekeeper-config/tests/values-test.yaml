@@ -11,5 +11,33 @@ policies:
       - namespace: default
         namePattern: "recycler-for-.*"
 
+  forbiddenClusterwideObjects:
+    enabled: true
+    allowedWebhooks:
+      - "allowed.example.com"
+  imagesFromApprovedRegistries:
+    enabled: true
+    allowedRegistries:
+      - "registry.k8s.io/"
+      - "ghcr.io/"
+  pciForbiddenImages:
+    enabled: true
+    patterns:
+      - "(^|/)busybox(:|@|$)"
+  podRequiredLabels:
+    enabled: true
+    requiredLabels:
+      - "greenhouse.sap/owned-by"
+  podSecurityV2:
+    enabled: true
+    allowlist:
+      - matchNamespace: kube-system
+        matchRepository: k8s/system-pod
+        mayUseHostNetwork: true
+        mayBePrivileged: true
+        mayUseCapabilities: ["NET_ADMIN"]
+        mayReadHostPathVolumes: []
+        mayWriteHostPathVolumes: []
+
 tests:
   enabled: true
