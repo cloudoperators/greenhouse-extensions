@@ -16,7 +16,7 @@ spec:
   - name: alertmanager.alerts
     rules:
     - alert: AlertmanagerClusterMessagesPruned
-      expr: rate(alertmanager_cluster_messages_pruned_total{alertmanager="{{ include "kube-prometheus-stack.name" . }}"}[5m]) > 0
+      expr: rate(alertmanager_cluster_messages_pruned_total{container="alertmanager", namespace="{{ $.Release.Namespace }}"}[5m]) > 0
       for: 10m
       labels:
         severity: warning
@@ -30,7 +30,7 @@ spec:
         summary: Alertmanager in HA cluster fails to synchronize
 
     - alert: AlertmanagerClusterMessagesQueued
-      expr: alertmanager_cluster_messages_queued{alertmanager="{{ include "kube-prometheus-stack.name" . }}"} != 0
+      expr: alertmanager_cluster_messages_queued{container="alertmanager", namespace="{{ $.Release.Namespace }}"} != 0
       for: 15m
       labels:
         severity: info
@@ -44,7 +44,7 @@ spec:
         summary: Alertmanager in HA cluster fails to synchronize
 
     - alert: AlertmanagerInvalidAlerts
-      expr: rate(alertmanager_alerts_invalid_total{alertmanager="{{ include "kube-prometheus-stack.name" . }}"}[5m]) > 0
+      expr: rate(alertmanager_alerts_invalid_total{container="alertmanager", namespace="{{ $.Release.Namespace }}"}[5m]) > 0
       for: 5m
       labels:
         severity: info
@@ -58,7 +58,7 @@ spec:
         summary: Alertmanager receives invalid alerts.
 
     - alert: AlertmanagerClusterHealthDegraded
-      expr: alertmanager_cluster_health_score{alertmanager="{{ include "kube-prometheus-stack.name" . }}"} != 0
+      expr: alertmanager_cluster_health_score{container="alertmanager", namespace="{{ $.Release.Namespace }}"} != 0
       for: 15m
       labels:
         severity: info
@@ -72,7 +72,7 @@ spec:
         summary: Alertmanager cluster health degraded.
 
     - alert: AlertmanagerPeerReconnectFailed
-      expr: rate(alertmanager_cluster_reconnections_failed_total{alertmanager="{{ include "kube-prometheus-stack.name" . }}"}[5m]) != 0
+      expr: rate(alertmanager_cluster_reconnections_failed_total{container="alertmanager", namespace="{{ $.Release.Namespace }}"}[5m]) != 0
       for: 15m
       labels:
         severity: info
