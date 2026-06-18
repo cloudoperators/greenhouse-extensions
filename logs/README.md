@@ -119,6 +119,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
+| openTelemetry.ingestCollector | object | `{"collectors":{},"enabled":false,"image":{"repository":"","tag":""},"prometheus":{"podMonitor":{"enabled":true}},"replicas":1,"resources":{}}` | Kafka -> OpenSearch ingest collectors. |
+| openTelemetry.ingestCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
+| openTelemetry.ingestCollector.enabled | bool | `false` | Enable the ingest collectors block. |
+| openTelemetry.ingestCollector.image.repository | string | `""` | Image repository override; falls back to openTelemetry.collectorImage.repository. |
+| openTelemetry.ingestCollector.image.tag | string | `""` | Image tag override; falls back to openTelemetry.collectorImage.tag. |
+| openTelemetry.ingestCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
+| openTelemetry.ingestCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
+| openTelemetry.ingestCollector.resources | object | `{}` | Pod resources for ingest collectors. |
 | openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":""}` | Kafka exporter configuration shared by all collectors |
 | openTelemetry.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
