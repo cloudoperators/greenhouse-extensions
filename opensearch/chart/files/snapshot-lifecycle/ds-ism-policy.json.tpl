@@ -100,7 +100,7 @@
         "index_patterns": [
           "{{ .stream.indexPatterns.hot }}"
         ],
-        "priority": 2
+        "priority": 200
       }
     ]
   }
