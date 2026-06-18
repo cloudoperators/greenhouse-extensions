@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mixed
+  namespace: default
+spec:
+  containers:
+  - name: ok
+    image: ghcr.io/cloudoperators/sample:v1
+  - name: bad
+    image: docker.io/library/nginx:1.27

@@ -1,0 +1,150 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: gatekeeper-config
+spec:
+  version: 0.2.0
+  displayName: Gatekeeper Config
+  description: |
+    Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
+    admission control. Provides a library of universal admission policies that
+    can be enabled and tuned per cluster.
+  icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/gatekeeper-config/README.md
+  helmChart:
+    name: gatekeeper-config
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.2.0
+  options:
+    - name: policies.highCpuRequests.enabled
+      displayName: High CPU requests policy enabled
+      description: Enable the high-cpu-requests policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.highCpuRequests.enforcementAction
+      displayName: High CPU requests enforcement action
+      description: Gatekeeper enforcementAction for high-cpu-requests (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.highCpuRequests.maxCpu
+      displayName: High CPU requests max CPU
+      description: Maximum total CPU (cores) a workload may request across all containers and initContainers before being flagged.
+      default: 6
+      required: false
+      type: int
+
+    - name: policies.unmanagedPods.enabled
+      displayName: Unmanaged pods policy enabled
+      description: Enable the unmanaged-pods policy.
+      default: true
+      required: false
+      type: bool
+    - name: policies.unmanagedPods.enforcementAction
+      displayName: Unmanaged pods enforcement action
+      description: Gatekeeper enforcementAction for unmanaged-pods (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.unmanagedPods.allowedNamePatterns
+      displayName: Allowed unmanaged-pod name patterns
+      description: List of {namespace, namePattern} entries that exempt matching Pods from the unmanaged-pods policy.
+      required: false
+      type: list
+
+    - name: policies.forbiddenClusterwideObjects.enabled
+      displayName: Forbidden clusterwide objects policy enabled
+      description: Enable the forbidden-clusterwide-objects policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.forbiddenClusterwideObjects.enforcementAction
+      displayName: Forbidden clusterwide objects enforcement action
+      description: Gatekeeper enforcementAction for forbidden-clusterwide-objects (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.forbiddenClusterwideObjects.allowedWebhooks
+      displayName: Allowed admission webhook names
+      description: Names of MutatingWebhookConfiguration and ValidatingWebhookConfiguration entries that may exist in the cluster.
+      required: false
+      type: list
+
+    - name: policies.imagesFromApprovedRegistries.enabled
+      displayName: Images from approved registries policy enabled
+      description: Enable the images-from-approved-registries policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.imagesFromApprovedRegistries.enforcementAction
+      displayName: Images from approved registries enforcement action
+      description: Gatekeeper enforcementAction for images-from-approved-registries (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.imagesFromApprovedRegistries.allowedRegistries
+      displayName: Allowed registry prefixes
+      description: List of registry prefixes that container images may be pulled from.
+      required: false
+      type: list
+
+    - name: policies.pciForbiddenImages.enabled
+      displayName: PCI forbidden images policy enabled
+      description: Enable the pci-forbidden-images policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.pciForbiddenImages.enforcementAction
+      displayName: PCI forbidden images enforcement action
+      description: Gatekeeper enforcementAction for pci-forbidden-images (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.pciForbiddenImages.patterns
+      displayName: Forbidden image regex patterns
+      description: Regex patterns matched against container image references. Matching images are flagged.
+      required: false
+      type: list
+
+    - name: policies.podRequiredLabels.enabled
+      displayName: Pod required labels policy enabled
+      description: Enable the pod-required-labels policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.podRequiredLabels.enforcementAction
+      displayName: Pod required labels enforcement action
+      description: Gatekeeper enforcementAction for pod-required-labels (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.podRequiredLabels.requiredLabels
+      displayName: Required pod template labels
+      description: Label keys that must be present on every pod template (spec.template.metadata.labels).
+      required: false
+      type: list
+
+    - name: policies.podSecurityV2.enabled
+      displayName: Pod security v2 policy enabled
+      description: Enable the pod-security-v2 policy.
+      default: false
+      required: false
+      type: bool
+    - name: policies.podSecurityV2.enforcementAction
+      displayName: Pod security v2 enforcement action
+      description: Gatekeeper enforcementAction for pod-security-v2 (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.podSecurityV2.allowlist
+      displayName: Pod security v2 allowlist entries
+      description: |
+        List of allowlist entries granting matching pods access to privileged features
+        (hostNetwork, hostPID, privileged, capabilities, hostPath volumes). Each entry
+        is keyed by {matchNamespace, matchRepository}.
+      required: false
+      type: list

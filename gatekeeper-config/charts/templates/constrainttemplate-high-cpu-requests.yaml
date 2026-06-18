@@ -1,0 +1,98 @@
+{{- if .Values.policies.highCpuRequests.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkhighcpurequests
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkHighCPURequests
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            maxCpu:
+              type: integer
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package highcpurequests
+
+              import data.lib.add_support_labels
+              import data.lib.traversal
+
+              # canonify_cpu converts a Kubernetes CPU quantity to a number of cores.
+              # Bare numbers and millicore strings ("500m") are supported. Anything
+              # else returns null so the caller can report it as malformed instead of
+              # silently dropping the container from the sum.
+              canonify_cpu(orig) := new if {
+                  is_number(orig)
+                  new := orig
+              }
+
+              canonify_cpu(orig) := new if {
+                  is_string(orig)
+                  not endswith(orig, "m")
+                  regex.match(`^[0-9]*\.?[0-9]+$`, orig)
+                  new := to_number(orig)
+              }
+
+              canonify_cpu(orig) := new if {
+                  is_string(orig)
+                  endswith(orig, "m")
+                  regex.match(`^[0-9]*\.?[0-9]+m$`, orig)
+                  new := to_number(replace(orig, "m", "")) / 1000
+              }
+
+              default canonify_cpu(orig) := null
+
+              iro := input.review.object
+              pod := traversal.find_pod(iro)
+
+              # Flag any container whose CPU request cannot be parsed. This is a
+              # separate violation so that operators see the offending value rather
+              # than the sum silently understating real demand.
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+                  container := array.concat(
+                      object.get(pod.spec, "containers", []),
+                      object.get(pod.spec, "initContainers", []),
+                  )[_]
+                  raw := object.get(container, ["resources", "requests", "cpu"], null)
+                  raw != null
+                  canonify_cpu(raw) == null
+                  msg := sprintf("container %q has a malformed CPU request: %q", [container.name, raw])
+              }
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+
+                  values := [v |
+                      c := array.concat(
+                          object.get(pod.spec, "containers", []),
+                          object.get(pod.spec, "initContainers", []),
+                      )[_]
+                      raw := object.get(c, ["resources", "requests", "cpu"], null)
+                      raw != null
+                      v := canonify_cpu(raw)
+                      v != null
+                  ]
+                  total_cpu := sum(values)
+                  total_cpu > input.parameters.maxCpu
+
+                  msg := sprintf("requests %v CPU in total across containers and initContainers", [total_cpu])
+              }
+{{- end }}

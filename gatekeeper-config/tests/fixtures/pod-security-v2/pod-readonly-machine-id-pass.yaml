@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: machine-id-reader
+  namespace: default
+spec:
+  containers:
+  - name: app
+    image: alpine:3
+    volumeMounts:
+    - name: machine-id
+      mountPath: /host/etc/machine-id
+      readOnly: true
+  volumes:
+  - name: machine-id
+    hostPath:
+      path: /etc/machine-id

@@ -1,0 +1,44 @@
+{{- if .Values.policies.forbiddenClusterwideObjects.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkforbiddenclusterwideobjects
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkForbiddenClusterwideObjects
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            allowedWebhooks:
+              type: array
+              items:
+                description: name of an admission webhook that is allowed to exist
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+            rego: |
+              package forbiddenclusterwideobjects
+
+              import data.lib.add_support_labels
+
+              iro := input.review.object
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  webhook := iro.webhooks[_]
+                  not webhook.name in {n | n := input.parameters.allowedWebhooks[_]}
+                  msg := sprintf("webhook %q does not match the configured allowlist", [webhook.name])
+              }
+{{- end }}

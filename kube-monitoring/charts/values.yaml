@@ -101,12 +101,6 @@ kubeMonitoring:
   dashboards:
     create: true
 
-    # Label selectors for the Plutono dashboards to be picked up by Plutono.
-    # @ignored
-    plutonoSelectors:
-      - name: plutono-dashboard
-        value: '"true"'
-
     # Label selectors for the Perses dashboards to be picked up by Perses.
     # @ignored
     persesSelectors:
@@ -333,13 +327,6 @@ kubeMonitoring:
       # -- Specifies the ingress-controller
       # @section -- Prometheus options
       ingressClassname: nginx
-
-    # Deploys a Plutono datasource config Secret for this Prometheus
-    # @ignored
-    plutonoDatasource:
-      create: true
-
-      isDefault: false
 
     # Deploys a Perses datasource ConfigMap for this Prometheus
     # @ignored
