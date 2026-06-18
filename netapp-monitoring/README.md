@@ -70,6 +70,8 @@ For this reason, the chart grants the `netappsd` service account these permissio
 
 Without `patch` and `update`, the master cannot reconcile runtime labels or scaling decisions correctly.
 
+The Deployment selectors and pod labels also stay app-specific on purpose. In [harvest-netappsd-master-deployment.yaml](charts/templates/harvest-netappsd-master-deployment.yaml) and [harvest-netappsd-worker-deployment.yaml](charts/templates/harvest-netappsd-worker-deployment.yaml), the shared helper labels used elsewhere in the chart are the same for every app (`cinder`, `manila`, `apod`, `cinder-manila`), so using them as the Deployment selector would make all master and worker Deployments select across each other's pods and break isolation. The `name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master` label remains inline because it uniquely identifies pods per app and keeps each Deployment scoped to its own workload.
+
 ### Harvest
 
 The Harvest component is configured with the following default collectors:
