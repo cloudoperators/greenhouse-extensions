@@ -1,0 +1,57 @@
+{{- if .Values.policies.podRequiredLabels.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkpodrequiredlabels
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkPodRequiredLabels
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            requiredLabels:
+              type: array
+              items:
+                description: required label key
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package podrequiredlabels
+
+              import data.lib.add_support_labels
+              import data.lib.traversal
+
+              iro := input.review.object
+              pod := traversal.find_pod(iro)
+
+              # The labels that matter for ownership/routing are on the pod
+              # template metadata, not the workload metadata, so the lookup
+              # uses `pod` rather than `iro`.
+              #
+              # `object.get(..., null) == null` is the right idiom for "label
+              # missing": `not object.get(...)` is a no-op because null is a
+              # defined value (so `not null` is false, not true), which would
+              # make this rule silently never fire.
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+                  labelKey := input.parameters.requiredLabels[_]
+                  object.get(pod, ["metadata", "labels", labelKey], null) == null
+                  msg := sprintf("pod is missing required label: %s", [labelKey])
+              }
+{{- end }}

@@ -1,0 +1,24 @@
+{{- if .Values.policies.podRequiredLabels.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkPodRequiredLabels
+metadata:
+  name: pod-required-labels
+  labels:
+    severity: 'warning'
+spec:
+  enforcementAction: {{ .Values.policies.podRequiredLabels.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "DaemonSet", "StatefulSet", "ReplicaSet"]
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    scope: Namespaced
+  parameters:
+    requiredLabels:
+      {{- toYaml .Values.policies.podRequiredLabels.requiredLabels | nindent 6 }}
+{{- end }}
