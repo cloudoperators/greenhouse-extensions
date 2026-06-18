@@ -244,6 +244,10 @@ tests:
     object: fixtures/pod-security-v2/pod-host-network-allowlisted.yaml
     assertions:
     - violations: 0
+  - name: pod-host-network-allowlisted-registry-port
+    object: fixtures/pod-security-v2/pod-host-network-allowlisted-registry-port.yaml
+    assertions:
+    - violations: 0
   - name: pod-privileged-violation
     object: fixtures/pod-security-v2/pod-privileged-violation.yaml
     assertions:

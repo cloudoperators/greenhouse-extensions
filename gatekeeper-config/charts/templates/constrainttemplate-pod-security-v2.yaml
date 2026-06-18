@@ -143,7 +143,7 @@ spec:
                   readOnly := object.get(volumeMount, ["readOnly"], false)
 
                   not isContainerAllowedToAccessHostPath(container, hostPath, readOnly)
-                  msg := sprintf("container %q in this pod is not allowed to mount hostPath volumes with path %q (readonly = %s) (image = %q)", [container.name, hostPath, readOnly, extract_repository(container.image)])
+                  msg := sprintf("container %q in this pod is not allowed to mount hostPath volumes with path %q (readonly = %v) (image = %q)", [container.name, hostPath, readOnly, extract_repository(container.image)])
               }
 
               ########################################################################
@@ -236,56 +236,58 @@ spec:
               }
 
               extract_repository(image) := result if {
-                  slash_index := indexof(image, "/")
-                  dot_index := indexof(image, ".")
-                  colon_index := indexof(image, ":")
+                  no_digest := strip_digest(image)
+                  no_registry := strip_registry(no_digest)
+                  result := strip_tag(no_registry)
+              }
+
+              strip_digest(image) := result if {
                   at_index := indexof(image, "@")
-
-                  start := start_position(slash_index, dot_index)
-                  end := end_position(colon_index, at_index, count(image))
-
-                  result := substring(image, start, end - start)
-              }
-
-              start_position(slash_index, dot_index) = result if {
-                  dot_index == -1
-                  result := 0
-              }
-
-              start_position(slash_index, dot_index) = result if {
-                  dot_index != -1
-                  dot_index > slash_index
-                  result := 0
-              }
-
-              start_position(slash_index, dot_index) = result if {
-                  dot_index != -1
-                  dot_index < slash_index
-                  result := slash_index + 1
-              }
-
-              end_position(colon_index, at_index, length) = result if {
-                  colon_index != -1
-                  at_index != -1
-                  result := min([colon_index, at_index])
-              }
-
-              end_position(colon_index, at_index, length) = result if {
-                  colon_index != -1
                   at_index == -1
-                  result := colon_index
+                  result := image
               }
 
-              end_position(colon_index, at_index, length) = result if {
-                  colon_index == -1
+              strip_digest(image) := result if {
+                  at_index := indexof(image, "@")
                   at_index != -1
-                  result := at_index
+                  result := substring(image, 0, at_index)
               }
 
-              end_position(colon_index, at_index, length) = result if {
+              strip_registry(image) := result if {
+                  has_registry_prefix(image)
+                  parts := split(image, "/")
+                  result := concat("/", array.slice(parts, 1, count(parts)))
+              }
+
+              strip_registry(image) := result if {
+                  not has_registry_prefix(image)
+                  result := image
+              }
+
+              has_registry_prefix(image) if {
+                  slash_index := indexof(image, "/")
+                  slash_index > 0
+                  prefix := substring(image, 0, slash_index)
+                  contains(prefix, ".")
+              }
+
+              has_registry_prefix(image) if {
+                  slash_index := indexof(image, "/")
+                  slash_index > 0
+                  prefix := substring(image, 0, slash_index)
+                  contains(prefix, ":")
+              }
+
+              strip_tag(s) := result if {
+                  colon_index := indexof(s, ":")
                   colon_index == -1
-                  at_index == -1
-                  result := length
+                  result := s
+              }
+
+              strip_tag(s) := result if {
+                  colon_index := indexof(s, ":")
+                  colon_index != -1
+                  result := substring(s, 0, colon_index)
               }
 
               isMatchingContainer(entry, container) if {
