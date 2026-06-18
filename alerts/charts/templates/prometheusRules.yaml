@@ -26,7 +26,7 @@ spec:
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} is pruning the message queue and cluster messages are dropped.'
+        description: 'Alertmanager {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod{{`}}`}} is pruning the message queue and cluster messages are dropped.'
         summary: Alertmanager in HA cluster fails to synchronize
 
     - alert: AlertmanagerClusterMessagesQueued
@@ -40,7 +40,7 @@ spec:
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} is queuing cluster messages. This can cause dropping messages because too many are queued.'
+        description: 'Alertmanager {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod{{`}}`}} is queuing cluster messages. This can cause dropping messages because too many are queued.'
         summary: Alertmanager in HA cluster fails to synchronize
 
     - alert: AlertmanagerInvalidAlerts
@@ -54,7 +54,7 @@ spec:
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} receives invalid alerts and discards them. Check the Alertmanagers log for details.'
+        description: 'Alertmanager {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod{{`}}`}} receives invalid alerts and discards them. Check the Alertmanagers log for details.'
         summary: Alertmanager receives invalid alerts.
 
     - alert: AlertmanagerClusterHealthDegraded
@@ -68,7 +68,7 @@ spec:
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} cluster has problems. Check AM logs.'
+        description: 'Alertmanager {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod{{`}}`}} cluster has problems. Check AM logs.'
         summary: Alertmanager cluster health degraded.
 
     - alert: AlertmanagerPeerReconnectFailed
@@ -82,6 +82,6 @@ spec:
           {{- end }}
         {{- end }}
       annotations:
-        description: 'Alertmanager {{`{{ $labels.alertmanager }}`}} failed to reconnect to its peer. Check AM logs.'
+        description: 'Alertmanager {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod{{`}}`}} failed to reconnect to its peer. Check AM logs.'
         summary: Alertmanager failed to reconnect to peer.
 {{- end }}
