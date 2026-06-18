@@ -1,0 +1,239 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.cluster.savedObjects.enabled }}
+{{- $cfg := .Values.cluster.savedObjects }}
+{{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
+{{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
+{{- $scheme := ternary "https" "http" (((.Values.cluster.cluster.dashboards).tls).enable | default false) }}
+{{- $dashboardsHost := $cfg.dashboardsHost | default (printf "%s://%s-dashboards:5601" $scheme $serviceName) }}
+{{- if not $cfg.credentialsSecret.name }}
+  {{- fail "cluster.savedObjects.credentialsSecret.name is required when savedObjects.enabled is true" }}
+{{- end }}
+{{- range $i, $p := $cfg.indexPatterns }}
+  {{- $_ := required (printf "savedObjects.indexPatterns[%d].id is required" $i) $p.id }}
+  {{- $_ := required (printf "savedObjects.indexPatterns[%d].title is required" $i) $p.title }}
+{{- end }}
+{{- $importMounts := dict }}
+{{- range $i, $im := $cfg.imports }}
+  {{- $_ := required (printf "savedObjects.imports[%d].configMap is required" $i) $im.configMap }}
+  {{- $_ := required (printf "savedObjects.imports[%d].key is required" $i) $im.key }}
+  {{- $_ := set $importMounts $im.configMap true }}
+{{- end }}
+{{- $insecure := ternary "-k" "" $cfg.tlsSkipVerify }}
+{{- $cacert := "" }}
+{{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+{{- $cacert = printf "--cacert /certs/%s" ($cfg.caSecret.key | default "ca.crt") }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $cmName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+data:
+  install.sh: |
+    #!/bin/sh
+    set -eu
+    DASHBOARDS="${DASHBOARDS_HOST%/}"
+    AUTH="-u ${USERNAME}:${PASSWORD}"
+    CURL="curl -fsS {{ $insecure }} {{ $cacert }} ${AUTH} -H osd-xsrf:true"
+
+    echo "waiting up to ${WAIT_TIMEOUT_SECONDS}s for dashboards at ${DASHBOARDS}"
+    deadline=$(( $(date +%s) + WAIT_TIMEOUT_SECONDS ))
+    until ${CURL} "${DASHBOARDS}/api/status" >/dev/null; do
+      if [ $(date +%s) -ge $deadline ]; then
+        echo "dashboards not ready after ${WAIT_TIMEOUT_SECONDS}s, giving up" >&2
+        exit 1
+      fi
+      sleep 3
+    done
+    echo "dashboards ready"
+
+    {{- range $cfg.indexPatterns }}
+    echo "upserting index-pattern {{ .id }}"
+    ${CURL} -H 'Content-Type: application/json' \
+      -X POST "${DASHBOARDS}/api/saved_objects/index-pattern/{{ .id }}?overwrite=true" \
+      -d '{"attributes":{"title":{{ .title | quote }}{{ if .timeFieldName }},"timeFieldName":{{ .timeFieldName | quote }}{{ end }}}}' \
+      >/dev/null
+    {{- end }}
+
+    {{- range $cfg.imports }}
+    echo "importing /imports/{{ .configMap }}/{{ .key }}"
+    ${CURL} -X POST "${DASHBOARDS}/api/saved_objects/_import?overwrite=true" \
+      --form file=@/imports/{{ .configMap }}/{{ .key }} >/dev/null
+    {{- end }}
+
+    echo "done"
+{{- $jobName := $cfg.jobName | default "opensearch-saved-objects" }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $jobName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ $cfg.backoffLimit | default 6 }}
+  ttlSecondsAfterFinished: {{ $cfg.ttlSecondsAfterFinished | default 86400 }}
+  template:
+    spec:
+      restartPolicy: OnFailure
+      {{- with $cfg.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $cfg.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $cfg.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: install
+          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
+          command: ["sh", "/scripts/install.sh"]
+          env:
+            - name: DASHBOARDS_HOST
+              value: {{ $dashboardsHost | quote }}
+            - name: WAIT_TIMEOUT_SECONDS
+              value: {{ $cfg.waitTimeoutSeconds | default 300 | quote }}
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cfg.credentialsSecret.name }}
+                  key: {{ $cfg.credentialsSecret.usernameKey | default "username" }}
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cfg.credentialsSecret.name }}
+                  key: {{ $cfg.credentialsSecret.passwordKey | default "password" }}
+          {{- with $cfg.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+            - name: ca
+              mountPath: /certs
+              readOnly: true
+            {{- end }}
+            {{- range $cm, $_ := $importMounts }}
+            - name: import-{{ $cm }}
+              mountPath: /imports/{{ $cm }}
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ $cmName }}
+            defaultMode: 0755
+        {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+        - name: ca
+          secret:
+            secretName: {{ $cfg.caSecret.name }}
+        {{- end }}
+        {{- range $cm, $_ := $importMounts }}
+        - name: import-{{ $cm }}
+          configMap:
+            name: {{ $cm }}
+        {{- end }}
+{{- if $cfg.cronJob.enabled }}
+---
+{{- $cronName := $cfg.cronJob.name | default "opensearch-saved-objects" }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $cronName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+spec:
+  schedule: {{ $cfg.cronJob.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: {{ $cfg.cronJob.backoffLimit | default 3 }}
+      template:
+        spec:
+          restartPolicy: OnFailure
+          {{- with $cfg.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $cfg.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $cfg.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: install
+              image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+              imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
+              command: ["sh", "/scripts/install.sh"]
+              env:
+                - name: DASHBOARDS_HOST
+                  value: {{ $dashboardsHost | quote }}
+                - name: WAIT_TIMEOUT_SECONDS
+                  value: {{ $cfg.waitTimeoutSeconds | default 300 | quote }}
+                - name: USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $cfg.credentialsSecret.name }}
+                      key: {{ $cfg.credentialsSecret.usernameKey | default "username" }}
+                - name: PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $cfg.credentialsSecret.name }}
+                      key: {{ $cfg.credentialsSecret.passwordKey | default "password" }}
+              {{- with $cfg.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+                - name: ca
+                  mountPath: /certs
+                  readOnly: true
+                {{- end }}
+                {{- range $cm, $_ := $importMounts }}
+                - name: import-{{ $cm }}
+                  mountPath: /imports/{{ $cm }}
+                  readOnly: true
+                {{- end }}
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ $cmName }}
+                defaultMode: 0755
+            {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
+            - name: ca
+              secret:
+                secretName: {{ $cfg.caSecret.name }}
+            {{- end }}
+            {{- range $cm, $_ := $importMounts }}
+            - name: import-{{ $cm }}
+              configMap:
+                name: {{ $cm }}
+            {{- end }}
+{{- end }}
+{{- end }}

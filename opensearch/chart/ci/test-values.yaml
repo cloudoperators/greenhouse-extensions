@@ -35,6 +35,8 @@ cluster:
       password: "CHANGE_ME_FailoverUser2025$%"
   snapshotLifecycle:
     enabled: false
+  savedObjects:
+    enabled: false
   cluster:
     # Override dashboards configuration for local testing with basic auth
     dashboards:
