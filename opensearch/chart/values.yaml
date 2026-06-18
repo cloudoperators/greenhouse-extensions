@@ -866,11 +866,11 @@ cluster:
   snapshotLifecycle:
     # -- Enable the snapshot lifecycle install Job.
     enabled: false
-    # -- OpenSearch URL the Job calls. The default points at the in-cluster
-    # service. The operator names that Service after `general.serviceName`
-    # when set, otherwise after `cluster.cluster.name`, otherwise after the
-    # release name.
-    clusterHost: "https://{{ (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:9200"
+    # -- OpenSearch URL the Job calls. Leave empty to default to the
+    # in-cluster Service rendered by the operator (named after
+    # `general.serviceName`, otherwise `cluster.cluster.name`, otherwise
+    # the release name; HTTPS port 9200).
+    clusterHost: ""
     # -- Credentials secret. Provide a dedicated user with snapshot+ISM
     # permissions; using the cluster admin is discouraged.
     credentialsSecret:

@@ -25,7 +25,7 @@ containers:
     command: ["python3", "/scripts/{{ $script }}"]
     env:
       - name: CLUSTER_HOST
-        value: {{ tpl $cfg.clusterHost .root | quote }}
+        value: {{ .clusterHost | quote }}
       - name: STREAMS
         value: {{ .streamNames | join " " | quote }}
       - name: REPOSITORIES
@@ -77,6 +77,8 @@ volumes:
 {{- $cfg := .Values.cluster.snapshotLifecycle }}
 {{- $cmName := $cfg.configMapName | default "opensearch-snapshot-lifecycle" }}
 {{- $clusterName := default .Release.Name .Values.cluster.cluster.name | trunc 63 | trimSuffix "-" }}
+{{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
+{{- $clusterHost := $cfg.clusterHost | default (printf "https://%s.%s.svc.cluster.local:9200" $serviceName .Release.Namespace) }}
 {{- $apiGroup := .Values.cluster.apiGroup | default "opensearch.org" }}
 {{- $configFiles := dict }}
 {{- range $stream := $cfg.streams }}
@@ -118,7 +120,7 @@ volumes:
 {{- range $repo := $cfg.repositories }}
   {{- $repoNames = append $repoNames $repo.name }}
 {{- end }}
-{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "remotePatterns" $remotePatterns "root" $ }}
+{{- $podArgs := dict "cfg" $cfg "configMapName" $cmName "streamNames" $streamNames "repoNames" $repoNames "remotePatterns" $remotePatterns "clusterHost" $clusterHost "root" $ }}
 ---
 apiVersion: v1
 kind: ConfigMap
