@@ -8,7 +8,7 @@ Upstream PRs with critical fixes are open but unmerged. This image ships those f
 
 ## Base image
 
-`opensearchproject/opensearch:3.6.0` (linux/amd64)
+`opensearchproject/opensearch:3.7.0` (linux/amd64)
 
 ## What this image does
 
