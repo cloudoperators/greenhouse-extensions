@@ -62,6 +62,8 @@ jobs:
             chartName: shoot-grafter
           - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
             chartName: oidc-discovery-access
+          - chartDir: netapp-monitoring/charts
+            chartName: netapp-monitoring
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
