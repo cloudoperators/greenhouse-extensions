@@ -3,15 +3,15 @@ SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.ingestCollector.enabled .Values.openTelemetry.ingestCollector.prometheus.podMonitor.enabled -}}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.ingesterCollector.enabled .Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled -}}
 {{- $root := . -}}
-{{- range $name, $cfg := .Values.openTelemetry.ingestCollector.collectors -}}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
 {{- if and $cfg.enabled (gt (len (default (dict) $cfg.streams)) 0) }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: opentelemetry-collector-ingest-{{ $name }}
+  name: opentelemetry-collector-{{ $name }}-ingester
   labels:
     {{- include "plugin.labels" $root | nindent 4 }}
     {{- if $root.Values.openTelemetry.customLabels }}
@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ $root.Release.Namespace }}.ingest-{{ $name }}
+      app.kubernetes.io/instance: {{ $root.Release.Namespace }}.{{ $name }}-ingester
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}

@@ -3,15 +3,15 @@ SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if .Values.openTelemetry.ingestCollector.enabled -}}
+{{- if .Values.openTelemetry.ingesterCollector.enabled -}}
 {{- $root := . -}}
-{{- range $name, $cfg := .Values.openTelemetry.ingestCollector.collectors -}}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
 {{- if and $cfg.enabled (gt (len (default (dict) $cfg.streams)) 0) }}
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: ingest-{{ $name }}
+  name: {{ $name }}-ingester
   labels:
   {{- include "plugin.labels" $root | nindent 4 }}
   {{- if $root.Values.openTelemetry.customLabels }}
@@ -19,12 +19,12 @@ metadata:
   {{- end }}
 spec:
   mode: deployment
-  replicas: {{ $root.Values.openTelemetry.ingestCollector.replicas }}
+  replicas: {{ $root.Values.openTelemetry.ingesterCollector.replicas }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "ingest-{{ $name }}-auth"
+    secret.reloader.stakater.com/reload: "{{ $name }}-ingester-auth"
   terminationGracePeriodSeconds: 30
-  {{- with $root.Values.openTelemetry.ingestCollector.resources }}
+  {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -35,13 +35,13 @@ spec:
       value: "{{ $root.Values.openTelemetry.region }}"
   envFrom:
     - secretRef:
-        name: ingest-{{ $name }}-auth
-{{- if $root.Values.openTelemetry.ingestCollector.prometheus.podMonitor.enabled }}
+        name: {{ $name }}-ingester-auth
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 8888
 {{- end }}
-  image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingestCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingestCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
+  image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
@@ -149,7 +149,7 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $root.Values.openTelemetry.ingestCollector.prometheus.podMonitor.enabled }}
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
           level: detailed
