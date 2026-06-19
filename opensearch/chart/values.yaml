@@ -963,16 +963,15 @@ cluster:
   savedObjects:
     # -- Enable the saved-objects bootstrap Job.
     enabled: false
-    # -- Dashboards URL. Defaults to the in-cluster Service.
+    # -- Dashboards URL. Defaults to the in-cluster HTTPS Service.
     dashboardsHost: ""
     # -- Credentials Secret for a user that can write `.kibana*`.
     credentialsSecret:
       name: dashboards-credentials
       usernameKey: username
       passwordKey: password
-    # -- Skip TLS verification (only relevant for HTTPS `dashboardsHost`).
-    tlsSkipVerify: false
-    # -- CA bundle Secret for HTTPS `dashboardsHost`.
+    # -- CA bundle Secret for the Dashboards cert. Defaults to
+    # `opensearch-http-cert` (rendered by this chart).
     caSecret:
       name: ""
       key: ca.crt

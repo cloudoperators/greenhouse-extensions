@@ -5,8 +5,9 @@
 {{- $cfg := .Values.cluster.savedObjects }}
 {{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
 {{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
-{{- $scheme := ternary "https" "http" (((.Values.cluster.cluster.dashboards).tls).enable | default false) }}
-{{- $dashboardsHost := $cfg.dashboardsHost | default (printf "%s://%s-dashboards:5601" $scheme $serviceName) }}
+{{- $dashboardsHost := $cfg.dashboardsHost | default (printf "https://%s-dashboards:5601" $serviceName) }}
+{{- $caSecretName := $cfg.caSecret.name | default "opensearch-http-cert" }}
+{{- $caSecretKey := $cfg.caSecret.key | default "ca.crt" }}
 {{- if not $cfg.credentialsSecret.name }}
   {{- fail "cluster.savedObjects.credentialsSecret.name is required when savedObjects.enabled is true" }}
 {{- end }}
@@ -19,11 +20,6 @@
   {{- $_ := required (printf "savedObjects.imports[%d].configMap is required" $i) $im.configMap }}
   {{- $_ := required (printf "savedObjects.imports[%d].key is required" $i) $im.key }}
   {{- $_ := set $importMounts $im.configMap true }}
-{{- end }}
-{{- $insecure := ternary "-k" "" $cfg.tlsSkipVerify }}
-{{- $cacert := "" }}
-{{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
-{{- $cacert = printf "--cacert /certs/%s" ($cfg.caSecret.key | default "ca.crt") }}
 {{- end }}
 ---
 apiVersion: v1
@@ -39,7 +35,7 @@ data:
     set -eu
     DASHBOARDS="${DASHBOARDS_HOST%/}"
     AUTH="-u ${USERNAME}:${PASSWORD}"
-    CURL="curl -fsS {{ $insecure }} {{ $cacert }} ${AUTH} -H osd-xsrf:true"
+    CURL="curl -fsS --cacert /certs/{{ $caSecretKey }} ${AUTH} -H osd-xsrf:true"
 
     echo "waiting up to ${WAIT_TIMEOUT_SECONDS}s for dashboards at ${DASHBOARDS}"
     deadline=$(( $(date +%s) + WAIT_TIMEOUT_SECONDS ))
@@ -125,11 +121,9 @@ spec:
           volumeMounts:
             - name: scripts
               mountPath: /scripts
-            {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
             - name: ca
               mountPath: /certs
               readOnly: true
-            {{- end }}
             {{- range $cm, $_ := $importMounts }}
             - name: import-{{ $cm }}
               mountPath: /imports/{{ $cm }}
@@ -140,11 +134,9 @@ spec:
           configMap:
             name: {{ $cmName }}
             defaultMode: 0755
-        {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
         - name: ca
           secret:
-            secretName: {{ $cfg.caSecret.name }}
-        {{- end }}
+            secretName: {{ $caSecretName }}
         {{- range $cm, $_ := $importMounts }}
         - name: import-{{ $cm }}
           configMap:
@@ -210,11 +202,9 @@ spec:
               volumeMounts:
                 - name: scripts
                   mountPath: /scripts
-                {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
                 - name: ca
                   mountPath: /certs
                   readOnly: true
-                {{- end }}
                 {{- range $cm, $_ := $importMounts }}
                 - name: import-{{ $cm }}
                   mountPath: /imports/{{ $cm }}
@@ -225,11 +215,9 @@ spec:
               configMap:
                 name: {{ $cmName }}
                 defaultMode: 0755
-            {{- if and (not $cfg.tlsSkipVerify) $cfg.caSecret.name }}
             - name: ca
               secret:
-                secretName: {{ $cfg.caSecret.name }}
-            {{- end }}
+                secretName: {{ $caSecretName }}
             {{- range $cm, $_ := $importMounts }}
             - name: import-{{ $cm }}
               configMap:
