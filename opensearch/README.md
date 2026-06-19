@@ -184,10 +184,9 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.roles | list | See values.yaml | List of OpensearchRole. Includes read and write roles for logs* indices. |
 | cluster.savedObjects | object | disabled | Bootstrap OpenSearch Dashboards saved objects (index patterns, dashboards, visualizations). Runs as a post-install/upgrade Helm hook Job that POSTs to the Dashboards API. |
 | cluster.savedObjects.backoffLimit | int | `6` | Job backoff limit. |
-| cluster.savedObjects.caSecret | object | `{"key":"ca.crt","name":""}` | CA bundle Secret for the Dashboards cert. Defaults to `opensearch-http-cert` (rendered by this chart). |
 | cluster.savedObjects.configMapName | string | `""` | Override ConfigMap name (default `opensearch-saved-objects`). |
 | cluster.savedObjects.credentialsSecret | object | `{"name":"dashboards-credentials","passwordKey":"password","usernameKey":"username"}` | Credentials Secret for a user that can write `.kibana*`. |
-| cluster.savedObjects.dashboardsHost | string | `""` | Dashboards URL. Defaults to the in-cluster HTTPS Service. |
+| cluster.savedObjects.dashboardsHost | string | `""` | Dashboards URL. Defaults to the in-cluster HTTP Service. |
 | cluster.savedObjects.enabled | bool | `false` | Enable the saved-objects bootstrap Job. |
 | cluster.savedObjects.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/curlimages/curl","tag":"8.10.1"}` | Job image. Needs `curl` and a POSIX `sh`. |
 | cluster.savedObjects.imports | list | `[]` | NDJSON saved-object bundles to import. Each entry references a key in an existing ConfigMap (created out of band). |

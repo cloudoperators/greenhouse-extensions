@@ -5,9 +5,7 @@
 {{- $cfg := .Values.cluster.savedObjects }}
 {{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
 {{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
-{{- $dashboardsHost := $cfg.dashboardsHost | default (printf "https://%s-dashboards:5601" $serviceName) }}
-{{- $caSecretName := $cfg.caSecret.name | default "opensearch-http-cert" }}
-{{- $caSecretKey := $cfg.caSecret.key | default "ca.crt" }}
+{{- $dashboardsHost := $cfg.dashboardsHost | default (printf "http://%s-dashboards:5601" $serviceName) }}
 {{- if not $cfg.credentialsSecret.name }}
   {{- fail "cluster.savedObjects.credentialsSecret.name is required when savedObjects.enabled is true" }}
 {{- end }}
@@ -43,7 +41,7 @@ data:
     set -eu
     DASHBOARDS="${DASHBOARDS_HOST%/}"
     AUTH="-u ${USERNAME}:${PASSWORD}"
-    CURL="curl -fsS --cacert /certs/{{ $caSecretKey }} ${AUTH} -H osd-xsrf:true"
+    CURL="curl -fsS ${AUTH} -H osd-xsrf:true"
 
     echo "waiting up to ${WAIT_TIMEOUT_SECONDS}s for dashboards at ${DASHBOARDS}"
     deadline=$(( $(date +%s) + WAIT_TIMEOUT_SECONDS ))
@@ -129,9 +127,6 @@ spec:
           volumeMounts:
             - name: scripts
               mountPath: /scripts
-            - name: ca
-              mountPath: /certs
-              readOnly: true
             {{- range $importVolumes }}
             - name: {{ .vol }}
               mountPath: /imports/{{ .cm }}
@@ -142,9 +137,6 @@ spec:
           configMap:
             name: {{ $cmName }}
             defaultMode: 0755
-        - name: ca
-          secret:
-            secretName: {{ $caSecretName }}
         {{- range $importVolumes }}
         - name: {{ .vol }}
           configMap:
