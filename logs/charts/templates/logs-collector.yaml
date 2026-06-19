@@ -326,7 +326,11 @@ spec:
     connectors:
       routing:
         default_pipelines:
+{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+          - logs/route_storage
+{{- else }}
           - logs/route_default
+{{- end }}
         error_mode: ignore
         table:
           - pipelines:
@@ -337,12 +341,7 @@ spec:
               - logs/route_storage
             statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
-          - pipelines:
-              - logs/route_storage
-            statement: route() where resource.attributes["k8s.namespace.name"] == "ceph"
-{{- end }}{{- if .Values.openTelemetry.kafka.enabled }}
-{{- else }}
+{{- if not .Values.openTelemetry.kafka.enabled }}
       failover/opensearch:
         priority_levels:
           - [logs/failover_a]
