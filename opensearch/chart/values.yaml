@@ -956,6 +956,61 @@ cluster:
     #     remote: "31d"
     #     snapshot: "93d"
 
+  # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
+  # dashboards, visualizations). Runs as a post-install/upgrade Helm
+  # hook Job that POSTs to the Dashboards API.
+  # @default -- disabled
+  savedObjects:
+    # -- Enable the saved-objects bootstrap Job.
+    enabled: false
+    # -- Dashboards URL. Defaults to the in-cluster HTTPS Service.
+    dashboardsHost: ""
+    # -- Credentials Secret for a user that can write `.kibana*`.
+    credentialsSecret:
+      name: dashboards-credentials
+      usernameKey: username
+      passwordKey: password
+    # -- CA bundle Secret for the Dashboards cert. Defaults to
+    # `opensearch-http-cert` (rendered by this chart).
+    caSecret:
+      name: ""
+      key: ca.crt
+    # -- Job image. Needs `curl` and a POSIX `sh`.
+    image:
+      repository: docker.io/curlimages/curl
+      tag: "8.10.1"
+      pullPolicy: IfNotPresent
+    # -- Job pod resources.
+    resources: {}
+    # -- Job pod nodeSelector.
+    nodeSelector: {}
+    # -- Job pod tolerations.
+    tolerations: []
+    # -- Pod-level securityContext.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+    # -- Job backoff limit.
+    backoffLimit: 6
+    # -- Seconds to wait for Dashboards readiness before failing.
+    waitTimeoutSeconds: 300
+    # -- Seconds to keep finished Job pods before garbage collection.
+    ttlSecondsAfterFinished: 86400
+    # -- Override Job name (default `opensearch-saved-objects`).
+    jobName: ""
+    # -- Override ConfigMap name (default `opensearch-saved-objects`).
+    configMapName: ""
+    # -- Index patterns to upsert by id.
+    indexPatterns: []
+    # - id: logs
+    #   title: "logs"
+    #   timeFieldName: "@timestamp"
+    # -- NDJSON saved-object bundles to import. Each entry references a
+    # key in an existing ConfigMap (created out of band).
+    imports: []
+    # - configMap: my-dashboards
+    #   key: kvm-overview.ndjson
+
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.

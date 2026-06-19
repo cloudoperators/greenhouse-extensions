@@ -84,6 +84,10 @@ spec:
     - {{ printf "%s-coordinator.%s" $clusterName .Release.Namespace | quote }}
     - {{ printf "%s-coordinator.%s.svc" $clusterName .Release.Namespace | quote }}
     - {{ printf "%s-coordinator.%s.svc.cluster.local" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s-dashboards" $clusterName | quote }}
+    - {{ printf "%s-dashboards.%s" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s-dashboards.%s.svc" $clusterName .Release.Namespace | quote }}
+    - {{ printf "%s-dashboards.%s.svc.cluster.local" $clusterName .Release.Namespace | quote }}
   usages:
 {{ toYaml .Values.certManager.defaults.usages | indent 4 }}
 
