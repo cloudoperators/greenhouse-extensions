@@ -44,6 +44,26 @@ cluster:
         opensearch.requestHeadersAllowlist: '["securitytenant","Authorization"]'
         opensearch_security.auth.type: "basicauth"
 
+    # Single nodePool with 3 replicas for local testing. Avoids the
+    # cluster-bootstrap deadlock that single-node installs hit when the
+    # security plugin can't place the .opendistro_security replica.
+    nodePools:
+      - component: nodes
+        diskSize: 5Gi
+        jvm: -Xmx512m -Xms512m
+        replicas: 3
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1Gi
+          limits:
+            cpu: "1"
+            memory: 2Gi
+        roles:
+          - cluster_manager
+          - data
+          - ingest
+
     ingress:
       opensearch:
         enabled: true

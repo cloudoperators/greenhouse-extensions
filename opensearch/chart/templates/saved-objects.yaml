@@ -21,6 +21,14 @@
   {{- $_ := required (printf "savedObjects.imports[%d].key is required" $i) $im.key }}
   {{- $_ := set $importMounts $im.configMap true }}
 {{- end }}
+{{- /* Build a sorted list of {cm, vol} so the rendered manifest is stable
+     and volume names always satisfy RFC1123 (max 63 chars) regardless of
+     how long the source ConfigMap names are. */ -}}
+{{- $importVolumes := list }}
+{{- range $cm := $importMounts | keys | sortAlpha }}
+  {{- $vol := printf "import-%s" (sha256sum $cm | trunc 8) }}
+  {{- $importVolumes = append $importVolumes (dict "cm" $cm "vol" $vol) }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -63,7 +71,7 @@ data:
     {{- end }}
 
     echo "done"
-{{- $jobName := $cfg.jobName | default "opensearch-saved-objects" }}
+{{- $jobName := $cfg.jobName | default "opensearch-saved-objects" | trunc 63 | trimSuffix "-" }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -124,9 +132,9 @@ spec:
             - name: ca
               mountPath: /certs
               readOnly: true
-            {{- range $cm, $_ := $importMounts }}
-            - name: import-{{ $cm }}
-              mountPath: /imports/{{ $cm }}
+            {{- range $importVolumes }}
+            - name: {{ .vol }}
+              mountPath: /imports/{{ .cm }}
               readOnly: true
             {{- end }}
       volumes:
@@ -137,14 +145,14 @@ spec:
         - name: ca
           secret:
             secretName: {{ $caSecretName }}
-        {{- range $cm, $_ := $importMounts }}
-        - name: import-{{ $cm }}
+        {{- range $importVolumes }}
+        - name: {{ .vol }}
           configMap:
-            name: {{ $cm }}
+            name: {{ .cm }}
         {{- end }}
 {{- if $cfg.cronJob.enabled }}
 ---
-{{- $cronName := $cfg.cronJob.name | default "opensearch-saved-objects" }}
+{{- $cronName := $cfg.cronJob.name | default "opensearch-saved-objects" | trunc 52 | trimSuffix "-" }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -205,9 +213,9 @@ spec:
                 - name: ca
                   mountPath: /certs
                   readOnly: true
-                {{- range $cm, $_ := $importMounts }}
-                - name: import-{{ $cm }}
-                  mountPath: /imports/{{ $cm }}
+                {{- range $importVolumes }}
+                - name: {{ .vol }}
+                  mountPath: /imports/{{ .cm }}
                   readOnly: true
                 {{- end }}
           volumes:
@@ -218,10 +226,10 @@ spec:
             - name: ca
               secret:
                 secretName: {{ $caSecretName }}
-            {{- range $cm, $_ := $importMounts }}
-            - name: import-{{ $cm }}
+            {{- range $importVolumes }}
+            - name: {{ .vol }}
               configMap:
-                name: {{ $cm }}
+                name: {{ .cm }}
             {{- end }}
 {{- end }}
 {{- end }}
