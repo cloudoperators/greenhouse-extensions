@@ -1010,12 +1010,6 @@ cluster:
     imports: []
     # - configMap: my-dashboards
     #   key: kvm-overview.ndjson
-    # -- Optional CronJob that re-runs the install script on a schedule.
-    cronJob:
-      enabled: false
-      name: ""
-      schedule: "30 0,6,12,18 * * *"
-      backoffLimit: 3
 
 
 # -- Extra Kubernetes manifests to deploy alongside the chart.

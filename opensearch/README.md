@@ -187,7 +187,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.savedObjects.caSecret | object | `{"key":"ca.crt","name":""}` | CA bundle Secret for the Dashboards cert. Defaults to `opensearch-http-cert` (rendered by this chart). |
 | cluster.savedObjects.configMapName | string | `""` | Override ConfigMap name (default `opensearch-saved-objects`). |
 | cluster.savedObjects.credentialsSecret | object | `{"name":"dashboards-credentials","passwordKey":"password","usernameKey":"username"}` | Credentials Secret for a user that can write `.kibana*`. |
-| cluster.savedObjects.cronJob | object | `{"backoffLimit":3,"enabled":false,"name":"","schedule":"30 0,6,12,18 * * *"}` | Optional CronJob that re-runs the install script on a schedule. |
 | cluster.savedObjects.dashboardsHost | string | `""` | Dashboards URL. Defaults to the in-cluster HTTPS Service. |
 | cluster.savedObjects.enabled | bool | `false` | Enable the saved-objects bootstrap Job. |
 | cluster.savedObjects.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/curlimages/curl","tag":"8.10.1"}` | Job image. Needs `curl` and a POSIX `sh`. |
