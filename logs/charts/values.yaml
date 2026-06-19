@@ -175,11 +175,11 @@ openTelemetry:
     # Entry shape:
     #   <name>:
     #     enabled: bool
-    #     kafka: { brokers, protocol_version, encoding, compression }   # optional, falls back to openTelemetry.kafka.*
+    #     kafka: { brokers, protocol_version, encoding }   # optional, falls back to openTelemetry.kafka.*
     #     opensearch:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
-    #       username_a / password_a / username_b / password_b
+    #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
     #     streams:
     #       <data-stream-name>: { topic, initialOffset }
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.

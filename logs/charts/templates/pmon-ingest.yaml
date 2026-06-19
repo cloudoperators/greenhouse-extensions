@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 {{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.ingestCollector.enabled .Values.openTelemetry.ingestCollector.prometheus.podMonitor.enabled -}}
 {{- $root := . -}}
 {{- range $name, $cfg := .Values.openTelemetry.ingestCollector.collectors -}}
-{{- if and $cfg.enabled (gt (len $cfg.streams) 0) }}
+{{- if and $cfg.enabled (gt (len (default (dict) $cfg.streams)) 0) }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor

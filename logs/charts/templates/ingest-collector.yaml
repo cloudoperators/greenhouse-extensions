@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 {{- if .Values.openTelemetry.ingestCollector.enabled -}}
 {{- $root := . -}}
 {{- range $name, $cfg := .Values.openTelemetry.ingestCollector.collectors -}}
-{{- if and $cfg.enabled (gt (len $cfg.streams) 0) }}
+{{- if and $cfg.enabled (gt (len (default (dict) $cfg.streams)) 0) }}
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
