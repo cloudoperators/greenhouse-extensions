@@ -31,6 +31,7 @@ on:
       - trust-manager/charts/**
       - repo-guard/charts/**
       - oidc-discovery-access/**
+      - netapp-monitoring/charts/**
 
 
 permissions:
@@ -94,6 +95,8 @@ jobs:
             chartName: repo-guard
           - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
             chartName: oidc-discovery-access
+          - chartDir: netapp-monitoring/charts
+            chartName: netapp-monitoring
 
 
     steps:

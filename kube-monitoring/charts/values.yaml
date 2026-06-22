@@ -6,6 +6,19 @@ global:
 
 # kube-prometheus-stack configuration scoped to kube-monitoring
 kubeMonitoring:
+  # Update severities for open source community rules
+  # @ignored
+  customRules:
+    PrometheusDuplicateTimestamps:
+      severity: info
+    PrometheusBadConfig:
+      severity: warning
+    PrometheusRuleFailures:
+      severity: warning
+    PrometheusTargetSyncFailure:
+      severity: warning
+    PrometheusErrorSendingAlertsToAnyAlertmanager:
+      severity: warning
   # Create open source community rules for monitoring the cluster
   # @ignored
   defaultRules:

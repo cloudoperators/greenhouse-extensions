@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.netappsd.enabled }}
+{{- range $appName, $appValues := .Values.apps }}
+{{- if $appValues.enabled }}
+{{- with $ }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+spec:
+  selector:
+    name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+  ports:
+    - name: metrics
+      port: {{ .Values.netappsd.ports.master }}
+      targetPort: {{ .Values.netappsd.ports.master }}
+      protocol: TCP
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
