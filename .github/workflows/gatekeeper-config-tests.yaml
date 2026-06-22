@@ -31,7 +31,9 @@ jobs:
           gator version
 
       - name: Run gator tests
-        run: gatekeeper-config/tests/run.sh | tee /tmp/gator.log
+        run: |
+          set -o pipefail
+          gatekeeper-config/tests/run.sh | tee /tmp/gator.log
 
       - name: Summarize results
         if: always()
