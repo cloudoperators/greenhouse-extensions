@@ -96,14 +96,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.externalCollector | object | `{"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"kafkaTopic":"","kafkaTracesTopic":"","loadBalancerIP":null,"replicas":2,"serviceAnnotations":{},"syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector | object | `{"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"externalIP":null,"kafkaTopic":"","kafkaTracesTopic":"","replicas":2,"serviceAnnotations":{},"syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.enabled | bool | `false` | Enables the standalone external OTel Collector StatefulSet and its PodMonitor. |
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
 | openTelemetry.externalCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
 | openTelemetry.externalCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
+| openTelemetry.externalCollector.externalIP | string | `nil` | External IP exposed on the service |
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
-| openTelemetry.externalCollector.loadBalancerIP | string | `nil` | IP address to request from the cloud LoadBalancer (optional, omit for auto-assigned) |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
 | openTelemetry.externalCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
