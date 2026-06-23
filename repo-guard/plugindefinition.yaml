@@ -2,18 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
-kind: PluginDefinition
+kind: ClusterPluginDefinition
 metadata:
   name: repo-guard
 spec:
-  version: "4.9.0"
+  version: "5.0.0"
   displayName: Repo Guard
   description: Repo Guard automates GitHub organization management using Kubernetes Custom Resources (CRDs)
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/repo-guard/refs/heads/main/README.md
   helmChart:
     name: repo-guard
     repository: oci://ghcr.io/cloudoperators/charts
-    version: 4.9.0
+    version: 5.0.0
   options:
     - name: manager
       description: Manager configuration
