@@ -50,7 +50,7 @@ failover/opensearch_traces:
   sending_queue:
     block_on_overflow: true
     enabled: true
-    num_consumers: 10
+    num_consumers: 2
     queue_size: 10000
     sizer: requests
 {{- end }}
