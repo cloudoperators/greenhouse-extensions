@@ -1,0 +1,170 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+prometheusRules:
+  create: true
+  namespace: storage-product
+  # Labels applied to every PrometheusRule's metadata. `plugin` must match the
+  # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
+  labels:
+    plugin: storage-metrics-product
+  # Enable/disable an entire rule group. Keys are the camelCase form of the group
+  # `name` (e.g. group "brocade_error_alerts" -> brocadeErrorAlerts). Every group
+  # is listed here and enabled by default; set a key to false to drop that group.
+  ruleGroups:
+    # brocade-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
+    brocadeErrorPreprocessing: false
+    brocadeErrorAlerts: false
+    # harvest-poller-alerts.yaml
+    harvestNetappScrape: true
+    # netapp_aggr_alerts.yaml
+    netappAggrAlerts: true
+    # netapp_cluster_alerts.yaml
+    netappClusterAlerts: true
+    # netapp_disk_alerts.yaml
+    netappDiskAlerts: true
+    # netapp_ems_alerts.yaml
+    netappEmsAlerts: true
+    # netapp_lun_alerts.yaml
+    netappLunAlerts: true
+    # netapp_network_alerts.yaml
+    netappNetworkAlerts: true
+    # netapp_nvdimm_alerts.yaml
+    netappNvdimmAlerts: true
+    # netapp_test_alerts.yaml
+    monitorRaidtecDblDegradedFinal: true
+    monitorRaidtecDblDegradedAlerts: true
+    callhomeWaflInconsistentFinal: true
+    callhomeWaflInconsistentAlerts: true
+    monitorFanFailedFinal: true
+    monitorFanFailedAlerts: true
+    vifmgrCluscheckLifdownFinal: true
+    vifmgrCluscheckLifdownAlerts: true
+    monitorChassisPowerSupplyDegradedFinal: true
+    monitorChassisPowerSupplyDegradedAlerts: true
+    nvmemBatteryCapacityLowFinal: true
+    nvmemBatteryCapacityLowAlerts: true
+    nvramBatteryCapacityLowWarnFinal: true
+    nvramBatteryCapacityLowWarnAlerts: true
+    snapmirrorMigrateSrcErrFinal: true
+    snapmirrorMigrateSrcErrAlerts: true
+    snapmirrorMigrateDstErrFinal: true
+    snapmirrorMigrateDstErrAlerts: true
+    replicationDstResyncFailedFinal: true
+    replicationDstResyncFailedAlerts: true
+    upgrademgrUpdatePausedErrFinal: true
+    upgrademgrUpdatePausedErrAlerts: true
+    sesStatusCurrentErrorFinal: true
+    sesStatusCurrentErrorAlerts: true
+    sesStatusCurrentWarningFinal: true
+    sesStatusCurrentWarningAlerts: true
+    cfFsmTakeoverOfPartnerDisabledFinal: true
+    cfFsmTakeoverOfPartnerDisabledAlerts: true
+    cfFsmTakeoverByPartnerDisabledFinal: true
+    cfFsmTakeoverByPartnerDisabledAlerts: true
+    vifmgrPortdownFinal: true
+    vifmgrPortdownAlerts: true
+    waflSnapCreateSkipReasonFinal: true
+    waflSnapCreateSkipReasonAlerts: true
+    vifmgrLifsOvercapacityFinal: true
+    vifmgrLifsOvercapacityAlerts: true
+    raidConfigSpareDiskMissingFinal: true
+    raidConfigSpareDiskMissingAlerts: true
+    callhomeShlfFaultFinal: true
+    callhomeShlfFaultAlerts: true
+    clamPartnerHaltingFinal: true
+    clamPartnerHaltingAlerts: true
+    mgmtSnapmirResyncFailFinal: true
+    mgmtSnapmirResyncFailAlerts: true
+    monitorVolumeFullFinal: true
+    monitorVolumeFullAlerts: true
+    monitorVolumeNearlyFullFinal: true
+    monitorVolumeNearlyFullAlerts: true
+    vifmgrCluscheckHwerrorsFinal: true
+    vifmgrCluscheckHwerrorsAlerts: true
+    monitorNvramLowBatteriesFinal: true
+    monitorNvramLowBatteriesAlerts: true
+    monitorNvmembatteryWarninglowFinal: true
+    monitorNvmembatteryWarninglowAlerts: true
+    kmRunExternalSetupFinal: true
+    kmRunExternalSetupAlerts: true
+    kmKeyserverNotavailableFinal: true
+    kmKeyserverNotavailableAlerts: true
+    kmKeyretrieveFailedFinal: true
+    kmKeyretrieveFailedAlerts: true
+    callhomeRebootTakeoverFinal: true
+    callhomeRebootTakeoverAlerts: true
+    clamNodeOoqFinal: true
+    clamNodeOoqAlerts: true
+    callhomePartnerDownFinal: true
+    callhomePartnerDownAlerts: true
+    callhomeSfoTakeoverFinal: true
+    callhomeSfoTakeoverAlerts: true
+    sfoPartialGivebackFinal: true
+    sfoPartialGivebackAlerts: true
+    cfRsrcTakeoverOpFailFinal: true
+    cfRsrcTakeoverOpFailAlerts: true
+    spmHttpdProcessExitFinal: true
+    spmHttpdProcessExitAlerts: true
+    vserverStopFailedFinal: true
+    vserverStopFailedAlerts: true
+    raidVolStateChangedFinal: true
+    raidVolStateChangedAlerts: true
+    haGivebackAggrOnlineFailedFinal: true
+    haGivebackAggrOnlineFailedAlerts: true
+    cfFmNotkoverClusterDisableFinal: true
+    cfFmNotkoverClusterDisableAlerts: true
+    waflVolSettingInNvfailedStateFinal: true
+    waflVolSettingInNvfailedStateAlerts: true
+    vifmgrLifdownNoportsFinal: true
+    vifmgrLifdownNoportsAlerts: true
+    sesMultipathReqErrorFinal: true
+    sesMultipathReqErrorAlerts: true
+    tokenVolMaxCountReachedFinal: true
+    tokenVolMaxCountReachedAlerts: true
+    monitorGlobalStatusCriticalFinal: true
+    monitorGlobalStatusCriticalAlerts: true
+    # netapp_volume_alerts.yaml
+    netappVolumeAlerts: true
+    # powerscale-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
+    powerscaleErrorPreprocessing: false
+    powerscaleErrorAlerts: false
+    # purestorage-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
+    purestorageErrorAlerts: false
+    # pvc-usage-alerts.yaml (forge project, not in sci scope -> disabled by default)
+    pvcUsageAlerts: false
+  # Disable individual alerts by their exact alert name. Alerts not listed default
+  # to enabled. Set a key to true to drop that single alert.
+  disabled: {}
+    # BrocadeError_New: true
+    # AggrOffline: true
+  commonLabels:
+    team: dme-storage
+    support_group: storage
+
+podMonitor:
+  namespace: storage-product
+  scrapeInterval: 15s
+  # Labels applied to the PodMonitor metadata. `plugin` must match the Prometheus
+  # podMonitorSelector so the resource is picked up; add any extra labels here.
+  labels:
+    plugin: storage-metrics-product
+  # Namespace(s) where your target deployment pods run.
+  targetNamespaces:
+    - storage-product
+  # Pod labels that uniquely select your deployment pods (and exclude netapp-harvest).
+  selectorMatchLabels:
+    ccloud/service: netapp-monitoring
+  # Name of the container port exposed by your pod. The poller container exposes
+  # port 13000 named "metrics"; the worker container's port is named "liveness",
+  # so selecting "metrics" scrapes ONLY the poller container.
+  port: metrics
+  path: /metrics
+  scheme: http
+  # Optional: pod label key whose value becomes the Prometheus job label.
+  # ccloud/service has the value "netapp-monitoring", so job=netapp-monitoring.
+  jobLabel: ccloud/service
+  # Optional relabelings applied at target relabel phase.
+  relabelings: []
+  # Optional additional metric relabelings appended after netapp_cluster mapping.
+  additionalMetricRelabelings: []

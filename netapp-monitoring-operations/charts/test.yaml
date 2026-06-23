@@ -1,0 +1,3965 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+---
+# Source: netapp-monitoring-operations/templates/pod-monitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: test-harvest-pod-monitor
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  jobLabel: "ccloud/service"
+  namespaceSelector:
+    matchNames:
+      - storage-product
+  selector:
+    matchLabels:
+      ccloud/service: netapp-monitoring
+  podMetricsEndpoints:
+    - interval: 15s
+      path: "/metrics"
+      scheme: "http"
+      port: "metrics"
+      metricRelabelings:
+        - sourceLabels: [cluster]
+          targetLabel: netapp_cluster
+          action: replace
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-brocade-error-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups: []
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-harvest-poller-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: harvest-netapp-scrape
+      rules:
+        - alert: HarvestNotScrapingNetApp
+          expr: |
+            (
+              group by (poller, cluster, addr, Service, datacenter, lob) (poller_status)
+              unless on (poller)
+              label_replace(count_over_time(node_labels[10m]) > 0, "poller", "$1", "netapp_cluster", "(.*)")
+            )
+            unless on (poller)
+            label_replace(count_over_time(cisco_switch_labels[10m]) > 0, "poller", "$1", "switch", "(.*)")
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: harvest-poller
+          annotations:
+            summary: "Harvest not scraping Poller {{ $labels.poller }}"
+            description: |
+              Harvest Poller {{ $labels.poller }} has not scraped this NetApp device since 15 minutes.
+  
+              **Details:**
+              • Service: {{ $labels.Service }}
+              • Address: {{ $labels.addr }}
+              • Gardener-Cluster: {{ $labels.cluster }}
+              • Datacenter: {{ $labels.datacenter }}
+              • Lob: {{ $labels.lob }}
+              • Poller: {{ $labels.poller }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-aggr-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_aggr_alerts
+      rules:
+        - alert: AggrNearlyFull
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 70
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate nearly full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 70%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrFull
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 80
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 80%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrNearlyFullbrazilstorec2
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 90
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate nearly full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 90%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrFullbrazilstorec2
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 95
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 95%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrNearlyFullHEC
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 95
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate nearly full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 95%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrFullHEC
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 90
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 90%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrNearlyFullHEC03FC005
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 85
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 85%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrFullHEC03FC005
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 90
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 90%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrNearlyFullInternal
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 85
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 85%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: AggrFullInternal
+          expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 90
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate full (instance {{ $labels.instance }})
+            description: |
+              Aggregate used space > 90%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: HeadroomAggrCurrentUtilization
+          expr: (avg_over_time(headroom_aggr_current_utilization{netapp_cluster!~".*root.*"}[2h])) > 90
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_aggr
+          annotations:
+            summary: Aggregate headroom current utilization (instance {{ $labels.instance }})
+            description: |
+              Aggregate headroom current utilization > 90%
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-cluster-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_cluster_alerts
+      rules:
+        - alert: ClusterSwitchPortCRCerrors
+          expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_cluster_switch
+          annotations:
+            summary: Cluster switch port CRC errors (instance {{ $labels.instance }})
+            description: |
+              Cluster switch port CRC errors
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: ClusterSwitchReboot
+          expr: (ems_events{message="cluster.switch.reboot"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_cluster_switch
+          annotations:
+            summary: Cluster switch reboot (instance {{ $labels.instance }})
+            description: |
+              Cluster switch reboot
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: SecdRpcServerRequestDropped
+          expr: (ems_events{message="secd.rpc.server.request.dropped"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_cluster_switch
+          annotations:
+            summary: RPC dropped due to lack of memory (instance {{ $labels.instance }})
+            description: |
+              This message occurs when an RPC is dropped by SecD due to memory exhaustion.
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: OntapUpgradePauseEvent
+          expr: (ems_events{message="upgrademgr.update.pausedErr"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_cluster_switch
+          annotations:
+            summary: ONTAP upgrade paused due to error (instance {{ $labels.instance }})
+            description: |
+              The automated cluster update has been paused due to an error.
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-disk-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_disk_alerts
+      rules:
+        - alert: DiskDriveFailed
+          expr: (ems_events{message="monitor.raid.brokenDisk"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_disk
+          annotations:
+            summary: Disk drive failed (instance {{ $labels.instance }})
+            description: |
+              Disk drive failed
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: DiskExceedsAvgIOLatencyThreshold
+          expr: (ems_events{message="shm.threshold.highIOLatency"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_disk
+          annotations:
+            summary: Disk exceeds the average IO latency threshold (instance {{ $labels.instance }})
+            description: |
+              Disk exceeds the average IO latency threshold
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: UnassignedDisk
+          expr: (ems_events{message="unowned.disk.reminder"})
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_disk
+          annotations:
+            summary: Unassigned disk detected (instance {{ $labels.instance }})
+            description: |
+              Unassigned disks present in system
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-ems-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_ems_alerts
+      rules:
+        - alert: LUNVolNoSpace
+          expr: last_over_time(ems_events{message="LUN.vol.no.space"}[1m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LUN volume has no space'
+            description: 'LUN {{ $labels.lun_path }} in volume {{ $labels.volume }} is out of space |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }} |
+              Volume DS ID: {{ $labels.volume_ds_id }}'
+        - alert: NbladeNfsV4PoolExhaust
+          expr: last_over_time(ems_events{message="Nblade.nfsV4PoolExhaust"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'NFSv4 Pool Exhaustion'
+            description: 'Pool {{ $labels.poolname }} of type {{ $labels.object_type }} is exhausted. |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: DiskInventoryMismatch
+          expr: last_over_time(ems_events{message="cf.disk.inventory.mismatch"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Disk inventory mismatch detected'
+            description: 'Disk inventory mismatch for disk {{ $labels.disk }} on host {{ $labels.host }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }} |
+              Object UID: {{ $labels.object_uid }}'
+        - alert: TakeoverFailed
+          expr: last_over_time(ems_events{message="cf.fm.takeoverFailed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Takeover operation failed'
+            description: 'Takeover operation failed due to reason {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }} |
+              Partner Node UID: {{ $labels.partner_node_uuid }} |
+              Token: {{ $labels.token }}'
+        - alert: VersionMismatch
+          expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Version mismatch between subsystems'
+            description: 'Subsystem {{ $labels.subsystem }} version mismatch. Local version: {{ $labels.version }}, partner version: {{ $labels.partner_version }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TakeoverNoHeartbeat
+          expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'No heartbeat detected for takeover'
+            description: 'No heartbeat detected for takeover process |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TakeoverByPartnerDisabled
+          expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Takeover by partner is disabled'
+            description: 'Takeover by partner is disabled. Reason: {{ $labels.reason }} |
+              Local: {{ $labels.local }} |
+              Partner: {{ $labels.partner }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TakeoverHung
+          expr: last_over_time(ems_events{message="cf.fsm.takeoverHung"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Takeover process hung'
+            description: 'Takeover process is hung in module {{ $labels.moduleName }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: NotifyCfgFailed
+          expr: last_over_time(ems_events{message="cf.hwassist.notifyCfgFailed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Hardware assist notify config failed'
+            description: 'Hardware assist notify config failed for {{ $labels.hwtype }} due to error {{ $labels.errorstr }} (Code: {{ $labels.error }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TakeoverDisabled
+          expr: last_over_time(ems_events{message="cf.takeover.disabled"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Takeover disabled'
+            description: 'Takeover is disabled. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: NodeOutOfQuorum
+          expr: last_over_time(ems_events{message="clam.node.ooq"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Node out of quorum'
+            description: 'Node {{ $labels.hostname }} is out of quorum. Reason: {{ $labels.reason }} |
+              Node ID: {{ $labels.nodeid }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: NoNeighbors
+          expr: last_over_time(ems_events{message="clus.net.noNeighbors"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'No neighbors detected'
+            description: 'No neighbors detected in cluster network |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: DrivePhyDisableError
+          expr: last_over_time(ems_events{message="ds.sas.drivephy.disableErr"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'SAS drive PHY disable error'
+            description: 'SAS drive PHY disable error detected. Drive: {{ $labels.disk_data }}, Reason: {{ $labels.reason }} |
+              Shelf ID: {{ $labels.shelfID }} |
+              Bay: {{ $labels.bay }} |
+              Channels: {{ $labels.channels }} |
+              Element: {{ $labels.element }} |
+              PHY: {{ $labels.phy }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: LicenseExpiring
+          expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'License is expiring'
+            description: 'License {{ $labels.package }} is expiring. Expiration date: {{ $labels.expiration }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: NFSListenersFailure
+          expr: last_over_time(ems_events{message="mgmt.nfslisteners.failure"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'NFS listeners failure'
+            description: 'NFS listener failure detected. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapMirrorCatchupFail
+          expr: last_over_time(ems_events{message="mgmt.snapmir.ls.catchup.fail"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'SnapMirror catchup failure'
+            description: 'SnapMirror catchup failure for source {{ $labels.srcpath }} to destination {{ $labels.dstpath }}. Error: {{ $labels.error }} (Job ID: {{ $labels.jobID }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: CertExpired
+          expr: last_over_time(ems_events{message="mgmtgwd.certificate.expired"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Certificate expired'
+            description: 'Certificate {{ $labels.common_name }} (Serial: {{ $labels.serial_number }}) issued by {{ $labels.certificate_authority }} of type {{ $labels.type }} for vServer {{ $labels.vserver }} has expired |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: CertExpiring
+          expr: last_over_time(ems_events{message="mgmtgwd.certificate.expiring"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Certificate expiring'
+            description: 'Certificate {{ $labels.common_name }} (Serial: {{ $labels.serial_number }}) issued by {{ $labels.certificate_authority }} of type {{ $labels.type }} for vServer {{ $labels.vserver }} is expiring in {{ $labels.days }} days |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SignCertExpired
+          expr: last_over_time(ems_events{message="mgmtgwd.sign.cert.expired"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Signing certificate expired'
+            description: 'Signing certificate {{ $labels.common_name }} (Serial: {{ $labels.serial_number }}, CA Serial: {{ $labels.ca_serial_number }}) issued by {{ $labels.certificate_authority }} for vServer {{ $labels.vserver }} has expired |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: LACPSpeedDowngraded
+          expr: last_over_time(ems_events{message="net.ifgrp.lacp.link.inactive"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LACP link inactive'
+            description: 'LACP link {{ $labels.link_aggregate_name }} inactive on port {{ $labels.port }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: BadEepromDetected
+          expr: last_over_time(ems_events{message="netif.badEeprom"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Bad EEPROM detected'
+            description: 'Bad EEPROM detected on interface {{ $labels.interface_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: LinkErrorsDetected
+          expr: last_over_time(ems_events{message="netif.linkErrors"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Link errors detected'
+            description: 'Link errors detected on interface {{ $labels.if_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SpeedDowngraded
+          expr: last_over_time(ems_events{message="netif.speedDowngraded"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Speed downgraded'
+            description: 'Speed downgraded on interface {{ $labels.if_name }}. New speed: {{ $labels.speed }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: DuplicateIPAddress
+          expr: last_over_time(ems_events{message="netinet.ethr.duplct.ipAdrr"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Duplicate IP address detected'
+            description: 'Duplicate IP address {{ $labels.ip_address }} detected with MAC address {{ $labels.ethernet_address }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ExcessiveCECErrors
+          expr: last_over_time(ems_events{message="nvram.excessive.cecc.errs"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Excessive CECC errors'
+            description: 'Excessive CECC errors detected |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: LACPSyncError
+          expr: last_over_time(ems_events{message="pvif.lacp.outofsync"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LACP out of sync'
+            description: 'LACP out of sync detected on VIF {{ $labels.vif_name }} and link {{ $labels.link_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: RecoveryFailed
+          expr: last_over_time(ems_events{message="rdb.recovery.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'RDB recovery failed'
+            description: 'RDB recovery failed for unit {{ $labels.unit }}. Error message: {{ $labels.error_message }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ModuleError
+          expr: last_over_time(ems_events{message="ses.status.ModuleError"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Module error detected'
+            description: 'Module error detected in {{ $labels.module_type }} (Module #: {{ $labels.module_number }}, Channel: {{ $labels.product_channel }}, Location: {{ $labels.location_text }}, Type: {{ $labels.type_text }}) |
+              Error: {{ $labels.error_message }} ({{ $labels.error_text }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ChangeLogFull
+          expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Change log full'
+            description: 'Change log full for volume {{ $labels.volume }} (Vol: {{ $labels.vol }}, VolIdent: {{ $labels.volident }}, Volume Identifier: {{ $labels.volume_identifier }}) on host {{ $labels.host }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: DuplicateIPDetected
+          expr: last_over_time(ems_events{message="tcpip.duplicate.ip"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Duplicate IP address detected'
+            description: 'Duplicate IP address {{ $labels.ip_address }} detected with MAC address {{ $labels.mac_address }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: AggrOffline
+          expr: last_over_time(ems_events{message="callhome.aggr.offline"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Aggregate inconsistent and taken offline'
+            description: 'Aggregate inconsistent and taken offline |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: GivebackAggrOnlineFailed
+          expr: last_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Aggregate online failed after giveback'
+            description: 'Bringing online of aggregate {{ $labels.aggrName }} or its volumes failed after giveback with error {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: UninitializedParityVol
+          expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Raid error uninitialized parity volume'
+            description: 'WARNING {{ $labels.vol_type }} {{ $labels.owner }} {{ $labels.vol }} was created with no parity; do not fail its data disks!! |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: raidtecDegraded
+          expr: last_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Raid group degraded'
+            description: '{{ $labels.type }} in RAID group {{ $labels.rgname }} are broken |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: AggrRestricted
+          expr: last_over_time(ems_events{message="callhome.aggr.restricted"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Aggregate reconstruction error'
+            description: 'Call home for MEDIUM ERROR DURING RECONSTRUCTION |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: waflInconsistent
+          expr: last_over_time(ems_events{message="callhome.wafl.inconsistent"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'WAFL INCONSISTENT'
+            description: 'Call home for WAFL INCONSISTENT |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: FcpAdapterFailed
+          expr: last_over_time(ems_events{message="callhome.fcp.adapter.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'FCP Adapter Failed'
+            description: 'Call home for {{ $labels.subject }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VifmgrStartupFailoverError
+          expr: last_over_time(ems_events{message="callhome.vifmgr.startup.failover.err"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Vifmgr startup failover error'
+            description: 'VIFMgr encountered errors during startup |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: lifdown
+          expr: last_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LIF is administratively down'
+            description: 'Cluster LIF {{ $labels.lif_name }} is administratively down |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ArraylunPathFO
+          expr: last_over_time(ems_events{message="mlm.array.lun.PathFO"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Lun Primary Path Failed, Failover initiated'
+            description: 'Path via adapter {{ $labels.adapterName }} and device {{ $labels.deviceName }} to array {{ $labels.arrayName }} is currently offline. |
+              Path failover is delayed for {{ $labels.delay }} seconds. |
+              If the path comes back online during this delay, I/O will resume on this path. Otherwise, I/O will fail over to an alternate path. |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: lunOnePath
+          expr: last_over_time(ems_events{message="mlm.array.lun.OnePath"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Redundancy loss on LUN Path'
+            description: 'Array LUN {{ $labels.diskName }} is connected using only one path. |
+              To avoid potential data loss if the remaining path fails, all array LUNs should have at least two paths. |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ArrayPortOneController
+          expr: last_over_time(ems_events{message="callhome.mlm.array.portOneController"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LUN Path failover to single controller'
+            description: 'Call home for ALL PATHS FOR THE ARRAY LUN ARE CONNECTED TO THE SAME CONTROLLER |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: takeoverClusterDisable
+          expr: last_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover State Takeover Impossible'
+            description: 'Failover monitor: takeover disabled. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ChassisPowerSupplyDegraded
+          expr: last_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover State Takeover Impossible'
+            description: 'Chassis power supply {{ $labels.ps_number }} is degraded. Reason: {{ $labels.reasonText }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: takeoverByPartnerDisabled
+          expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover Not Configured'
+            description: 'Failover monitor: takeover of {{ $labels.local }} by {{ $labels.partner }} is disabled. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: takeoverOfPartnerDisabled
+          expr: last_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover Not Configured'
+            description: 'Failover monitor: takeover of partner {{ $labels.partner }} (Node: {{ $labels.partner_node }}) is disabled. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: FansFailed
+          expr: last_over_time(ems_events{message="callhome.fans.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'One or More Failed Fans'
+            description: 'Call home for MULTIPLE FAN FAILURE |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: StoragePartnerDown
+          expr: last_over_time(ems_events{message="callhome.partner.down"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover Node Status Down'
+            description: 'Call home for PARTNER DOWN, TAKEOVER IMPOSSIBLE |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SFOtakeover
+          expr: last_over_time(ems_events{message="callhome.sfo.takeover"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover State Takeover'
+            description: 'Call home for {{ $labels.subject }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: HAinterconnectDown
+          expr: last_over_time(ems_events{message="callhome.hainterconnect.down"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover Interconnect One Or More Links Down'
+            description: 'Call home for {{ $labels.subject }} due to {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: PartialGiveback
+          expr: last_over_time(ems_events{message="sfo.PartialGiveback"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover State Partial Giveback'
+            description: 'Partial giveback detected (SFO) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TakeOverOpFail
+          expr: last_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage Failover Takeover Not Possible'
+            description: 'Failover monitor: takeover during {{ $labels.op }} failed; takeover continuing |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VserverRootVolumeFull
+          expr: last_over_time(ems_events{message="vserver.rootVolume.full"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Node Root Volume Space Full'
+            description: 'Root volume is full for vServer {{ $labels.vserver_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: PortDown
+          expr: last_over_time(ems_events{message="vifmgr.portdown"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Storage port down'
+            description: 'A link down event was received on node {{ $labels.nodename }}, port {{ $labels.portname }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SPHeartbeatStopped
+          expr: last_over_time(ems_events{message="callhome.sp.hbt.stopped"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Service Processor Offline'
+            description: 'Call home for SP HBT STOPPED |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SPNotConfigured
+          expr: last_over_time(ems_events{message="sp.notConfigured"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Service Processor Not Configured'
+            description: 'The system Service Processor (SP) is not configured (Object type: {{ $labels.object_type }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: FanFailed
+          expr: last_over_time(ems_events{message="monitor.fan.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Disk Shelf Fans Failed'
+            description: 'Disk shelf fans failed. Report: {{ $labels.report }} (Object UUID: {{ $labels.object_uuid }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ShelfFault
+          expr: last_over_time(ems_events{message="callhome.shlf.fault"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Disk Shelf Power Supplies Failed'
+            description: 'Call home for SHELF COOLING UNIT FAILED |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ShelfCurrentWarning
+          expr: last_over_time(ems_events{message="ses.status.currentWarning"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Abnormal Current Range Warning'
+            description: '{{ $labels.prodChannel }} current warning for {{ $labels.typeText }} {{ $labels.psNumber }} |
+              Error: {{ $labels.errorMsg }} {{ $labels.errorText }} |
+              Location: {{ $labels.locationText }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ShelfCurrentError
+          expr: last_over_time(ems_events{message="ses.status.currentError"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Abnormal Current Range Error'
+            description: '{{ $labels.prodChannel }} current error for {{ $labels.typeText }} {{ $labels.psNumber }} |
+              Error: {{ $labels.errorMsg }} {{ $labels.errorText }} |
+              Location: {{ $labels.locationText }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: ShelfPathFailure
+          expr: last_over_time(ems_events{message="ses.multipath.ReqError"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Disk Shelf Path Failure'
+            description: 'SAS disk shelf detected without a multipath configuration |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapCreateSkip
+          expr: last_over_time(ems_events{message="wafl.snap.create.skip.reason"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Snapshot creation skipped for BB clusters'
+            description: 'Snapshot creation skipped |
+              Volume: {{ $labels.vol }} |
+              Snapshot: {{ $labels.snap_name }} |
+              Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: TelnetEnabled
+          expr: last_over_time(ems_events{message="telnet.enabled"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'telnet enabled'
+            description: 'Insecure protocol service Telnet has been enabled in the cluster |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: HTTPSTransportDisabled
+          expr: last_over_time(ems_events{message="spm.httpd.process.exit"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'AutoSupport HTTPS transport disabled'
+            description: 'The web server httpd with ID {{ $labels.id }} exited due to {{ $labels.cause }}. It will attempt to restart. |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapmirrorMigrateDstErr
+          expr: last_over_time(ems_events{message="snapmirror.migrate.dstErr"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Mirror Replication Initialize Failed'
+            description: 'SnapMirror migration from {{ $labels.srcfiler }}:{{ $labels.srcpath }} to {{ $labels.dstfiler }}:{{ $labels.dstpath }} failed. Error: {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapmirrorMigrateSrcErr
+          expr: last_over_time(ems_events{message="snapmirror.migrate.srcErr"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Mirror Replication Initialize Failed'
+            description: 'SnapMirror migration from {{ $labels.srcfiler }}:{{ $labels.srcpath }} to {{ $labels.dstfiler }}:{{ $labels.dstpath }} failed. Error: {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: snapvaultOpNotComplete
+          expr: last_over_time(ems_events{message="snapvault.dst.opNotComplete"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Asynchronous Vault Update Failed'
+            description: 'Asynchronous Vault Update Failed |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }} |
+              Destination Path: {{ $labels.dst_path }}'
+        - alert: ReplicationdstResyncFailed
+          expr: last_over_time(ems_events{message="replication.dst.resync.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Asynchronous Mirror and Vault Resync Failed'
+            description: '{{ $labels.rtype }} resync of {{ $labels.dstpath }} to {{ $labels.srcfiler }}:{{ $labels.srcpath }} failed. Error: {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: mgmtSnapmirInitFail
+          expr: last_over_time(ems_events{message="mgmt.snapmir.init.fail"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Asynchronous Mirror and Vault Initialize Failed'
+            description: 'Initialize from source volume {{ $labels.srcpath }} to destination volume {{ $labels.dstpaths }} failed. Error: {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapmirrorStatusUpdateStatusErr
+          expr: last_over_time(ems_events{message="snapmirror.status.updateStatusErr"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Mirror Replication Update Failed'
+            description: 'ONTAP failed to update the system registry with upgraded SnapMirror status keys |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: MgmtSnapmirResyncFail
+          expr: last_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Mirror Replication Resync Failed'
+            description: 'Resync from source volume {{ $labels.srcpath }} to destination volume {{ $labels.dstpath }} failed. Error: {{ $labels.error }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: SnapvaultTgtFailure
+          expr: last_over_time(ems_events{message="snapvault.tgt.failure"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Asynchronous Vault Initialize Failed'
+            description: 'Failed to create snapshot target {{ $labels.snapname }} on volume {{ $labels.volume }}. Reason: {{ $labels.reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: RaidConfigSpareDiskMissing
+          expr: last_over_time(ems_events{message="raid.config.spare.disk.missing"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Cluster Lacks Spare Disks'
+            description: 'Spare disk missing on shelf {{ $labels.shelf }}, bay {{ $labels.bay }} (Disk: {{ $labels.disk_info }}, Serial: {{ $labels.serialno }}, Model: {{ $labels.model }}). Reason: {{ $labels.failure_reason }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: diskErrUnsupported
+          expr: last_over_time(ems_events{message="disk.init.err.unsupported"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Some Unsupported Disks'
+            description: 'Disk {{ $labels.diskName }} is not recognized as a supported disk and cannot be used on this node |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: netifexcessLinkInterrupts
+          expr: last_over_time(ems_events{message="netif.excessLinkInterrupts"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Excessive link interrupts occurred on network interface'
+            description: 'Excessive link status change interrupts occurred on network interface {{ $labels.interface_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: NetifSFPNotSupported
+          expr: last_over_time(ems_events{message="netif.sfpNotSupported"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Excessive link interrupts occurred on network interface'
+            description: 'The SFP or QSFP module {{ $labels.sfp_vendor }} {{ $labels.sfp_pn }} installed in {{ $labels.if_name }} is not supported with this network interface |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: UncorEccError
+          expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Unrecoverable ECC error on network interface'
+            description: 'Unrecoverable ECC error on network interface {{ $labels.if_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: vifmgrCluslinkdown
+          expr: last_over_time(ems_events{message="vifmgr.clus.linkdown"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Port Down'
+            description: 'The cluster port {{ $labels.port_name }} on node {{ $labels.node_name }} has gone down unexpectedly |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: vifmgrlifdownnoports
+          expr: last_over_time(ems_events{message="vifmgr.lifdown.noports"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Port Down with no failover targets'
+            description: 'LIF {{ $labels.vif_name }} on virtual server {{ $labels.virtual_server_id }} with IP address {{ $labels.vif_ip }} cannot be hosted on node {{ $labels.to_node }} port {{ $labels.to_port }} or any of its failover targets and is being marked as down |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VifmgrlifsClusterlimit
+          expr: last_over_time(ems_events{message="vifmgr.lifs.clusterlimit"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Data Lif limit exceeded'
+            description: 'The total number of data LIFs in this cluster {{ $labels.number_of_lifs }} exceeds the supported limit of {{ $labels.lif_limit }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: vifmgr.lifs.overcapacity
+          expr: last_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Data Lif limit exceeded'
+            description: 'Node with failover targets over-provisioned {{ $labels.over_amount }} LIFs could be marked "down" during node outage |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VifmgrPortMonitorFailed
+          expr: last_over_time(ems_events{message="vifmgr.port.monitor.failed"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Port is in degraded state'
+            description: 'The {{ $labels.health_check_type }} health check for port {{ $labels.port_name }} on node {{ $labels.node_name }} has failed. The port is operating in a degraded state |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VifmgrPortMtumismatch
+          expr: last_over_time(ems_events{message="vifmgr.port.mtumismatch"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'vifmgr port mtu mismatch'
+            description: 'The MTU of port {{ $labels.port_name }} ({{ $labels.port_mtu }}) does not match the MTU of broadcast domain {{ $labels.broadcast_domain }} ({{ $labels.broadcast_domain_mtu }}) |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: VifmgrPortDeglifHosted
+          expr: last_over_time(ems_events{message="vifmgr.portDeg.lifHosted"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'LIF hosted on a degraded port'
+            description: 'LIF {{ $labels.vif_name }} on virtual server {{ $labels.virtual_server_id }} is hosted on a degraded port {{ $labels.port_name }} on node {{ $labels.node_name }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: WaflDirSizeMaxWarning
+          expr: last_over_time(ems_events{message="wafl.dir.size.max.warning"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Max DIR limit reached'
+            description: 'Directory size for file ID {{ $labels.file_id }} in volume {{ $labels.volume }} is approaching the maximum directory size limit. |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: diskioMediumError
+          expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Medium error on disk'
+            description: 'Medium error on disk {{ $labels.disk_name }} {{ $labels.disk_info }} {{ $labels.disk_information }} |
+              Operation: {{ $labels.operation }} |
+              Sector: {{ $labels.sector }} (Code: {{ $labels.sector_code }}) |
+              Sense Key: {{ $labels.sense_key }} |
+              Sense Code: {{ $labels.sense_code }} |
+              Sense Info: {{ $labels.sense_info }} |
+              Qualifier: {{ $labels.qualifier }} |
+              FRU Failed: {{ $labels.fru_failed }} |
+              Command Time: {{ $labels.command_time }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+        - alert: MonitorGlobalStatusCritical
+          expr: last_over_time(ems_events{message="monitor.globalStatus.critical"}[5m]) == 1
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_ems
+          annotations:
+            summary: 'Cluster Health Critical'
+            description: 'Global Status Critical alert triggered: {{ $labels.problem_description }} |
+              Cluster: {{ $labels.cluster }} |
+              NetApp Cluster: {{ $labels.netapp_cluster }} |
+              Node: {{ $labels.node }} |
+              Datacenter: {{ $labels.datacenter }} |
+              LOB: {{ $labels.lob }} |
+              Service: {{ $labels.Service }}'
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-lun-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_lun_alerts
+      rules:
+        - alert: LUNOffline
+          expr: (ems_events{message="LUN.offline"})
+          for: 5m
+          labels:
+            severity: info
+            support_group: storage
+            team: dme-storage
+            component: netapp_lun
+          annotations:
+            summary: This message occurs when a LUN is brought offline manually (instance {{ $labels.instance }})
+            description: |
+              NetApp CRC Errors
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: LUNNVfail
+          expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_lun
+          annotations:
+            summary: LUNs brought offline due to nvlog inconsistency (instance {{ $labels.instance }})
+            description: |
+              LUNs in volume have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-network-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_network_alerts
+      rules:
+        - alert: NetAppCRCErrors
+          expr: (ems_events{message="netif.linkErrors"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: NetApp CRC Errors (instance {{ $labels.instance }})
+            description: |
+              NetApp CRC Errors
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: ICInterconnectLinkDown
+          expr: (ems_events{message="ic.HAInterconnectLinkDown"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: HA interconnect link down (instance {{ $labels.instance }})
+            description: |
+              IC Link is down
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: LIFStatusDown
+          expr: (ems_events{message="vifmgr.lifdown.noports"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: LIF down - no eligible ports (instance {{ $labels.instance }})
+            description: |
+              LIF is down
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: NWInterfaceFatalErrorDriver
+          expr: (ems_events{message="netif.fatal.err"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: NIC driver fatal error (instance {{ $labels.instance }})
+            description: |
+              LIF driver errors
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: NWInterfaceFatalErrorHardware
+          expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: NIC hardware error rate high (instance {{ $labels.instance }})
+            description: |
+              Port is reporting high hardware errors (CRC, alignment, drops)
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: OverprovisioningOfDataLIF
+          expr: (ems_events{message="vifmgr.lifs.overcapacity"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_network
+          annotations:
+            summary: LIF over-provisioned (instance {{ $labels.instance }})
+            description: |
+              Over-provisioned failover targets: {{ $labels.overamount }} LIFs may go "down" on node failure
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-nvdimm-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_nvdimm_alerts
+      rules:
+        - alert: NVdimmECCErrors
+          expr: (ems_events{message="callhome.nvdimm.cecc"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_nvdimm
+          annotations:
+            summary: This event occurs when excessive correctable ECC memory errors are reported by the NVDIMM (instance {{ $labels.instance }})
+            description: |
+              NVDIMM ECC Errors
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: NVMemBatteryLow
+          expr: (ems_events{message="monitor.nvmembattery.warninglow"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_nvdimm
+          annotations:
+            summary: This message occurs when the NVMEM battery charge is low (instance {{ $labels.instance }})
+            description: |
+              NVMEM Battery Low
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: NVRAMBatteryLow
+          expr: (ems_events{message="monitor.nvramLowBattery.notice"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_nvdimm
+          annotations:
+            summary: This message occurs when the NVRAM battery is dangerously low (instance {{ $labels.instance }})
+            description: |
+              NVRAM Battery Low
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-test-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: monitor_raidtec_dblDegraded_final
+      interval: 1m
+      rules:
+        - record: monitor_raidtec_dblDegraded_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+              max_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[2m])
+            )
+        - record: monitor_raid_reconstruct_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+              max_over_time(ems_events{message="monitor.raid.reconstruct"}[2m])
+            )
+        - record: monitor_raidtec_dblDegraded_persistent
+          expr: |
+            (
+              monitor_raidtec_dblDegraded_trigger
+              or
+              monitor_raidtec_dblDegraded_persistent
+            )
+            unless
+            monitor_raid_reconstruct_trigger
+    - name: monitor_raidtec_dblDegraded_alerts
+      rules:
+        - alert: MonitorRaidtecDblDegraded
+          expr: monitor_raidtec_dblDegraded_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 RAID Double Degraded on {{ $labels.node }}'
+            description: > 
+              'RAID Group {{ $labels.rgname }} on node {{ $labels.node }} 
+              (Cluster: {{ $labels.netapp_cluster }}) is double degraded. 
+              This indicates a critical failure risk. The alert resolves when the event 
+              "monitor.raid.reconstruct" is detected.'
+    - name: callhome_wafl_inconsistent_final
+      interval: 1m
+      rules:
+        - record: callhome_wafl_inconsistent_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.wafl.inconsistent"}[2m])
+            )
+        - record: callhome_wafl_iron_done_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.wafl.iron.done"}[2m])
+            )
+        - record: callhome_wafl_inconsistent_persistent
+          expr: |
+            (
+              callhome_wafl_inconsistent_trigger
+              or
+              callhome_wafl_inconsistent_persistent
+            )
+            unless
+            callhome_wafl_iron_done_trigger
+    - name: callhome_wafl_inconsistent_alerts
+      rules:
+        - alert: CallhomeWaflInconsistent
+          expr: callhome_wafl_inconsistent_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 WAFL Inconsistent on {{ $labels.name }}'
+            description: >
+              'An inconsistency in WAFL (Write Anywhere File Layout) was detected on node 
+              {{ $labels.name }} (Cluster: {{ $labels.netapp_cluster }}). 
+              This requires immediate attention. The alert resolves when the event 
+              "callhome.wafl.iron.done" is detected.'
+    - name: monitor_fan_failed_final
+      interval: 1m
+      rules:
+        - record: monitor_fan_failed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.fan.failed"}[2m])
+            )
+        - record: monitor_fan_ok_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.fan.ok"}[2m])
+            )
+        - record: monitor_fan_failed_persistent
+          expr: |
+            (
+              monitor_fan_failed_trigger
+              or
+              monitor_fan_failed_persistent
+            )
+            unless
+            monitor_fan_ok_trigger
+    - name: monitor_fan_failed_alerts
+      rules:
+        - alert: MonitorFanFailed
+          expr: monitor_fan_failed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Fan failed on {{ $labels.name }}'
+            description: >
+              'A fan has failed on node {{ $labels.name }} (Cluster: 
+              {{ $labels.netapp_cluster }}). This could lead to overheating. 
+              The alert resolves when the event "monitor.fan.ok" is detected.'
+    - name: vifmgr_cluscheck_lifdown_final
+      interval: 1m
+      rules:
+        - record: vifmgr_cluscheck_lifdown_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+              max_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[2m])
+            )
+        - record: vifmgr_cluscheck_lifup_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+              max_over_time(ems_events{message="vifmgr.cluscheck.lifup"}[2m])
+            )
+        - record: vifmgr_cluscheck_lifdown_persistent
+          expr: |
+            (
+              vifmgr_cluscheck_lifdown_trigger
+              or
+              vifmgr_cluscheck_lifdown_persistent
+            )
+            unless
+            vifmgr_cluscheck_lifup_trigger
+    - name: vifmgr_cluscheck_lifdown_alerts
+      rules:
+        - alert: VifmgrCluscheckLifdown
+          expr: vifmgr_cluscheck_lifdown_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 LIF {{ $labels.lif_name }} is down'
+            description: >
+              'The logical interface (LIF) {{ $labels.lif_name }} on node 
+              {{ $labels.name }} (Cluster: {{ $labels.netapp_cluster }}) is 
+              down. The alert resolves when the event "vifmgr.cluscheck.lifup" is detected.'
+    - name: monitor_chassisPowerSupply_degraded_final
+      interval: 1m
+      rules:
+        - record: monitor_chassisPowerSupply_degraded_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[2m])
+            )
+        - record: monitor_chassisPowerSupply_ok_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.chassisPowerSupply.ok"}[2m])
+            )
+        - record: monitor_chassisPowerSupply_degraded_persistent
+          expr: |
+            (
+              monitor_chassisPowerSupply_degraded_trigger
+              or
+              monitor_chassisPowerSupply_degraded_persistent
+            )
+            unless
+            monitor_chassisPowerSupply_ok_trigger
+    - name: monitor_chassisPowerSupply_degraded_alerts
+      rules:
+        - alert: MonitorChassisPowerSupplyDegraded
+          expr: monitor_chassisPowerSupply_degraded_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Chassis Power Supply Degraded on {{ $labels.name }}'
+            description: >
+              'A chassis power supply is degraded on node {{ $labels.name }} 
+              (Cluster: {{ $labels.netapp_cluster }}). The alert resolves when the 
+              event "monitor.chassisPowerSupply.ok" is detected.'
+    - name: nvmem_battery_capacity_low_final
+      interval: 1m
+      rules:
+        - record: nvmem_battery_capacity_low_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvmem.battery.capacity.low"}[2m])
+            )
+        - record: nvmem_battery_capacity_normal_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+            )
+        - record: nvmem_battery_capacity_low_persistent
+          expr: |
+            (
+              nvmem_battery_capacity_low_trigger
+              or
+              nvmem_battery_capacity_low_persistent
+            )
+            unless
+            nvmem_battery_capacity_normal_trigger
+    - name: nvmem_battery_capacity_low_alerts
+      rules:
+        - alert: NvmemBatteryCapacityLow
+          expr: nvmem_battery_capacity_low_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 NVMEM Battery Capacity Low on {{ $labels.name }}'
+            description: >
+              'The NVMEM battery capacity is low on node {{ $labels.name }} 
+              (Cluster: {{ $labels.netapp_cluster }}). The alert resolves when the 
+              event "nvmem.battery.capacity.normal" is detected.'
+    - name: nvram_battery_capacity_low_warn_final
+      interval: 1m
+      rules:
+        - record: nvram_battery_capacity_low_warn_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvram.battery.capacity.low.warn"}[2m])
+            )
+        - record: nvram_battery_capacity_normal_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+            )
+        - record: nvram_battery_capacity_low_warn_persistent
+          expr: |
+            (
+              nvram_battery_capacity_low_warn_trigger
+              or
+              nvram_battery_capacity_low_warn_persistent
+            )
+            unless
+            nvram_battery_capacity_normal_trigger
+    - name: nvram_battery_capacity_low_warn_alerts
+      rules:
+        - alert: NvramBatteryCapacityLowWarn
+          expr: nvram_battery_capacity_low_warn_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 NVRAM Battery Capacity Low on {{ $labels.name }}'
+            description: >
+              'The NVRAM battery capacity is low on node {{ $labels.name }} 
+              (Cluster: {{ $labels.netapp_cluster }}). The alert resolves when the 
+              event "nvram.battery.capacity.normal" is detected.'
+    - name: snapmirror_migrate_srcErr_final
+      interval: 1m
+      rules:
+        - record: snapmirror_migrate_srcErr_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+              max_over_time(ems_events{message="snapmirror.migrate.srcErr"}[2m])
+            )
+        - record: snapmirror_migrate_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+              max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+            )
+        - record: snapmirror_migrate_srcErr_persistent
+          expr: |
+            (
+              snapmirror_migrate_srcErr_trigger
+              or
+              snapmirror_migrate_srcErr_persistent
+            )
+            unless
+            snapmirror_migrate_complete_trigger
+    - name: snapmirror_migrate_srcErr_alerts
+      rules:
+        - alert: SnapmirrorMigrateSrcErr
+          expr: snapmirror_migrate_srcErr_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 SnapMirror migration source error'
+            description: >
+              'SnapMirror migration from {{ $labels.srcfiler }}:{{ $labels.srcpath }} 
+              to {{ $labels.dstfiler }}:{{ $labels.dstpath }} failed with a 
+              source error. The alert resolves when the event "snapmirror.migrate.complete" 
+              is detected.'
+    - name: snapmirror_migrate_dstErr_final
+      interval: 1m
+      rules:
+        - record: snapmirror_migrate_dstErr_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+              max_over_time(ems_events{message="snapmirror.migrate.dstErr"}[2m])
+            )
+        - record: snapmirror_migrate_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+              max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+            )
+        - record: snapmirror_migrate_dstErr_persistent
+          expr: |
+            (
+              snapmirror_migrate_dstErr_trigger
+              or
+              snapmirror_migrate_dstErr_persistent
+            )
+            unless
+            snapmirror_migrate_complete_trigger
+    - name: snapmirror_migrate_dstErr_alerts
+      rules:
+        - alert: SnapmirrorMigrateDstErr
+          expr: snapmirror_migrate_dstErr_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 SnapMirror migration destination error'
+            description: >
+              'SnapMirror migration from {{ $labels.srcfiler }}:{{ $labels.srcpath }} 
+              to {{ $labels.dstfiler }}:{{ $labels.dstpath }} failed with a 
+              destination error. The alert resolves when the event 
+              "snapmirror.migrate.complete" is detected.'
+    - name: replication_dst_resync_failed_final
+      interval: 1m
+      rules:
+        - record: replication_dst_resync_failed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath) (
+              max_over_time(ems_events{message="replication.dst.resync.failed"}[2m])
+            )
+        - record: replication_dst_resync_success_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath) (
+              max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+            )
+        - record: replication_dst_resync_failed_persistent
+          expr: |
+            (
+              replication_dst_resync_failed_trigger
+              or
+              replication_dst_resync_failed_persistent
+            )
+            unless
+            replication_dst_resync_success_trigger
+    - name: replication_dst_resync_failed_alerts
+      rules:
+        - alert: ReplicationDstResyncFailed
+          expr: replication_dst_resync_failed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Replication resync failed'
+            description: >
+              'Replication resync from {{ $labels.srcfiler }}:{{ $labels.srcpath }} 
+              to destination {{ $labels.dstpath }} has failed. The alert resolves 
+              when the event "replication.dst.resync.success" is detected.'
+    - name: upgrademgr_update_pausedErr_final
+      interval: 1m
+      rules:
+        - record: upgrademgr_update_pausedErr_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="upgrademgr.update.pausedErr"}[2m])
+            )
+        - record: upgrademgr_update_resumed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="upgrademgr.update.resumed"}[2m])
+            )
+        - record: upgrademgr_update_pausedErr_persistent
+          expr: |
+            (
+              upgrademgr_update_pausedErr_trigger
+              or
+              upgrademgr_update_pausedErr_persistent
+            )
+            unless
+            upgrademgr_update_resumed_trigger
+    - name: upgrademgr_update_pausedErr_alerts
+      rules:
+        - alert: UpgrademgrUpdatePausedErr
+          expr: upgrademgr_update_pausedErr_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Upgrade paused due to error on {{ $labels.name }}'
+            description: >
+              'The automated upgrade on node {{ $labels.name }} (Cluster: 
+              {{ $labels.netapp_cluster }}) has been paused due to an error. The 
+              alert resolves when the event "upgrademgr.update.resumed" is detected.'
+    - name: ses_status_currentError_final
+      interval: 1m
+      rules:
+        - record: ses_status_currentError_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+              max_over_time(ems_events{message="ses.status.currentError"}[2m])
+            )
+        - record: ses_status_currentInfo_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+              max_over_time(ems_events{message="ses.status.currentInfo"}[2m])
+            )
+        - record: ses_status_currentError_persistent
+          expr: |
+            (
+              ses_status_currentError_trigger
+              or
+              ses_status_currentError_persistent
+            )
+            unless
+            ses_status_currentInfo_trigger
+    - name: ses_status_currentError_alerts
+      rules:
+        - alert: SesStatusCurrentError
+          expr: ses_status_currentError_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 SES Element Error on {{ $labels.node }}'
+            description: >
+              'A SES (SCSI Enclosure Services) element on channel {{ $labels.prodChannel }} 
+              on node {{ $labels.node }} is reporting an error. The alert resolves 
+              when the event "ses.status.currentInfo" is detected.'
+    - name: ses_status_currentWarning_final
+      interval: 1m
+      rules:
+        - record: ses_status_currentWarning_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+              max_over_time(ems_events{message="ses.status.currentWarning"}[2m])
+            )
+        - record: ses_status_currentInfo_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+              max_over_time(ems_events{message="ses.status.currentInfo"}[2m])
+            )
+        - record: ses_status_currentWarning_persistent
+          expr: |
+            (
+              ses_status_currentWarning_trigger
+              or
+              ses_status_currentWarning_persistent
+            )
+            unless
+            ses_status_currentInfo_trigger
+    - name: ses_status_currentWarning_alerts
+      rules:
+        - alert: SesStatusCurrentWarning
+          expr: ses_status_currentWarning_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 SES Element Warning on {{ $labels.node }}'
+            description: >
+              'A SES (SCSI Enclosure Services) element on channel {{ $labels.prodChannel }} 
+              on node {{ $labels.node }} is reporting a warning. The alert resolves 
+              when the event "ses.status.currentInfo" is detected.'
+    - name: cf_fsm_takeoverOfPartnerDisabled_final
+      interval: 1m
+      rules:
+        - record: cf_fsm_takeoverOfPartnerDisabled_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+              max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[2m])
+            )
+        - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+              max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+            )
+        - record: cf_fsm_takeoverOfPartnerDisabled_persistent
+          expr: |
+            (
+              cf_fsm_takeoverOfPartnerDisabled_trigger
+              or
+              cf_fsm_takeoverOfPartnerDisabled_persistent
+            )
+            unless
+            cf_fsm_takeoverOfPartnerEnabled_trigger
+    - name: cf_fsm_takeoverOfPartnerDisabled_alerts
+      rules:
+        - alert: CfFsmTakeoverOfPartnerDisabled
+          expr: cf_fsm_takeoverOfPartnerDisabled_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Takeover of partner {{ $labels.partner }} disabled'
+            description: >
+              'On node {{ $labels.name }}, takeover of its partner {{ $labels.partner }} 
+              has been disabled. This compromises high availability. The alert resolves when 
+              the event "cf.fsm.takeoverOfPartnerEnabled" is detected.'
+    - name: cf_fsm_takeoverByPartnerDisabled_final
+      interval: 1m
+      rules:
+        - record: cf_fsm_takeoverByPartnerDisabled_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+              max_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[2m])
+            )
+        - record: cf_fsm_takeoverByPartnerEnabled_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+              max_over_time(ems_events{message="cf.fsm.takeoverByPartnerEnabled"}[2m])
+            )
+        - record: cf_fsm_takeoverByPartnerDisabled_persistent
+          expr: |
+            (
+              cf_fsm_takeoverByPartnerDisabled_trigger
+              or
+              cf_fsm_takeoverByPartnerDisabled_persistent
+            )
+            unless
+            cf_fsm_takeoverByPartnerEnabled_trigger
+    - name: cf_fsm_takeoverByPartnerDisabled_alerts
+      rules:
+        - alert: CfFsmTakeoverByPartnerDisabled
+          expr: cf_fsm_takeoverByPartnerDisabled_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Takeover by partner {{ $labels.partner }} disabled'
+            description: >
+              'Takeover of node {{ $labels.name }} by its partner {{ $labels.partner }} 
+              has been disabled. This compromises high availability. The alert resolves when 
+              the event "cf.fsm.takeoverByPartnerEnabled" is detected.'
+    - name: vifmgr_portdown_final
+      interval: 1m
+      rules:
+        - record: vifmgr_portdown_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+              max_over_time(ems_events{message="vifmgr.portdown"}[2m])
+            )
+        - record: vifmgr_portup_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+              max_over_time(ems_events{message="vifmgr.portup"}[2m])
+            )
+        - record: vifmgr_portdown_persistent
+          expr: |
+            (
+              vifmgr_portdown_trigger
+              or
+              vifmgr_portdown_persistent
+            )
+            unless
+            vifmgr_portup_trigger
+    - name: vifmgr_portdown_alerts
+      rules:
+        - alert: VifmgrPortdown
+          expr: vifmgr_portdown_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Port {{ $labels.portname }} on node {{ $labels.nodename }} is down'
+            description: >
+              'Network port {{ $labels.portname }} on node {{ $labels.nodename }} 
+              (Cluster: {{ $labels.netapp_cluster }}) is down. The alert resolves 
+              when the event "vifmgr.portup" is detected.'
+    - name: wafl_snap_create_skip_reason_final
+      interval: 1m
+      rules:
+        - record: wafl_snap_create_skip_reason_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name) (
+              max_over_time(ems_events{message="wafl.snap.create.skip.reason"}[2m])
+            )
+        - record: wafl_snap_create_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name) (
+              max_over_time(ems_events{message="wafl.snap.create"}[2m])
+            )
+        - record: wafl_snap_create_skip_reason_persistent
+          expr: |
+            (
+              wafl_snap_create_skip_reason_trigger
+              or
+              wafl_snap_create_skip_reason_persistent
+            )
+            unless
+            wafl_snap_create_trigger
+    - name: wafl_snap_create_skip_reason_alerts
+      rules:
+        - alert: WaflSnapCreateSkipReason
+          expr: wafl_snap_create_skip_reason_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Snapshot creation skipped for volume {{ $labels.vol }}'
+            description: >
+              'Snapshot creation for volume {{ $labels.vol }} (ID: {{ $labels.volident }}) 
+              on node {{ $labels.name }} was skipped. The alert resolves when the 
+              event "wafl.snap.create" is detected for this volume.'
+    - name: vifmgr_lifs_overcapacity_final
+      interval: 1m
+      rules:
+        - record: vifmgr_lifs_overcapacity_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[2m])
+            )
+        - record: vifmgr_lifdeleted_byadmin_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="vifmgr.lifdeleted.byadmin"}[2m])
+            )
+        - record: vifmgr_lifs_overcapacity_persistent
+          expr: |
+            (
+              vifmgr_lifs_overcapacity_trigger
+              or
+              vifmgr_lifs_overcapacity_persistent
+            )
+            unless
+            vifmgr_lifdeleted_byadmin_trigger
+    - name: vifmgr_lifs_overcapacity_alerts
+      rules:
+        - alert: VifmgrLifsOvercapacity
+          expr: vifmgr_lifs_overcapacity_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 LIFs are overcapacity on {{ $labels.name }}'
+            description: >
+              'The number of logical interfaces (LIFs) on node {{ $labels.name }} 
+              has exceeded the recommended limit. The alert resolves when the event 
+              "vifmgr.lifdeleted.byadmin" is detected.'
+    - name: raid_config_spare_disk_missing_final
+      interval: 1m
+      rules:
+        - record: raid_config_spare_disk_missing_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+              max_over_time(ems_events{message="raid.config.spare.disk.missing"}[2m])
+            )
+        - record: raid_disk_inserted_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+              max_over_time(ems_events{message="raid.disk.inserted"}[2m])
+            )
+        - record: raid_config_spare_disk_missing_persistent
+          expr: |
+            (
+              raid_config_spare_disk_missing_trigger
+              or
+              raid_config_spare_disk_missing_persistent
+            )
+            unless
+            raid_disk_inserted_trigger
+    - name: raid_config_spare_disk_missing_alerts
+      rules:
+        - alert: RaidConfigSpareDiskMissing
+          expr: raid_config_spare_disk_missing_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Spare disk missing'
+            description: >
+              'A required spare disk is missing at shelf {{ $labels.shelf }}, bay 
+              {{ $labels.bay }} on node {{ $labels.name }}. This reduces 
+              data protection. The alert resolves when the event "raid.disk.inserted" 
+              is detected.'
+    - name: callhome_shlf_fault_final
+      interval: 1m
+      rules:
+        - record: callhome_shlf_fault_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.shlf.fault"}[2m])
+            )
+        - record: monitor_shelf_fault_ok_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.shelf.fault.ok"}[2m])
+            )
+        - record: callhome_shlf_fault_persistent
+          expr: |
+            (
+              callhome_shlf_fault_trigger
+              or
+              callhome_shlf_fault_persistent
+            )
+            unless
+            monitor_shelf_fault_ok_trigger
+    - name: callhome_shlf_fault_alerts
+      rules:
+        - alert: CallhomeShlfFault
+          expr: callhome_shlf_fault_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Shelf fault detected on {{ $labels.name }}'
+            description: >
+              'A shelf fault has been detected on node {{ $labels.name }}. This 
+              could impact disk accessibility. The alert resolves when the event 
+              "monitor.shelf.fault.ok" is detected.'
+    - name: clam_partner_halting_final
+      interval: 1m
+      rules:
+        - record: clam_partner_halting_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="clam.partner.halting"}[2m])
+            )
+        - record: clam_update_partner_state_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="clam.update.partner.state"}[2m])
+            )
+        - record: clam_partner_halting_persistent
+          expr: |
+            (
+              clam_partner_halting_trigger
+              or
+              clam_partner_halting_persistent
+            )
+            unless
+            clam_update_partner_state_trigger
+    - name: clam_partner_halting_alerts
+      rules:
+        - alert: ClamPartnerHalting
+          expr: clam_partner_halting_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Partner node is halting on {{ $labels.name }}'
+            description: >
+              'The partner node of {{ $labels.name }} is halting. This will likely 
+              lead to a takeover. The alert resolves when the event 
+              "clam.update.partner.state" is detected.'
+  
+    # replication.dst.resync.success war doppelt in harvest
+    # funktioniert nicht - tbc
+    - name: mgmt_snapmir_resync_fail_final
+      interval: 1m
+      rules:
+        - record: mgmt_snapmir_resync_fail_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+              max_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[2m])
+            )
+        - record: replication_dst_resync_success_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+              max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+            )
+        - record: mgmt_snapmir_resync_fail_persistent
+          expr: |
+            (
+              mgmt_snapmir_resync_fail_trigger
+              or
+              mgmt_snapmir_resync_fail_persistent
+            )
+            unless
+            replication_dst_resync_success_trigger
+    - name: mgmt_snapmir_resync_fail_alerts
+      rules:
+        - alert: MgmtSnapmirResyncFail
+          expr: mgmt_snapmir_resync_fail_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 SnapMirror resync failed'
+            description: >
+              'SnapMirror resync from source {{ $labels.srcpath }} to destination 
+              {{ $labels.dstpath }} has failed. The alert resolves when the event 
+              "replication.dst.resync.success" is detected.'
+    - name: monitor_volume_full_final
+      interval: 1m
+      rules:
+        - record: monitor_volume_full_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+              max_over_time(ems_events{message="monitor.volume.full"}[2m])
+            )
+        - record: wafl_vol_autoSize_done_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+              max_over_time(ems_events{message="wafl.vol.autoSize.done"}[2m])
+            )
+        - record: monitor_volume_full_persistent
+          expr: |
+            (
+              monitor_volume_full_trigger
+              or
+              monitor_volume_full_persistent
+            )
+            unless
+            wafl_vol_autoSize_done_trigger
+    - name: monitor_volume_full_alerts
+      rules:
+        - alert: MonitorVolumeFull
+          expr: monitor_volume_full_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Volume {{ $labels.vol }} is full'
+            description: >
+              'Volume {{ $labels.vol }} on Cluster {{ $labels.netapp_cluster }} 
+              is full. This can cause write failures. The alert resolves when the event 
+              "wafl.vol.autoSize.done" is detected.'
+    - name: monitor_volume_nearlyFull_final
+      interval: 1m
+      rules:
+        - record: monitor_volume_nearlyFull_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+              max_over_time(ems_events{message="monitor.volume.nearlyFull"}[2m])
+            )
+        - record: wafl_vol_autoSize_done_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+              max_over_time(ems_events{message="wafl.vol.autoSize.done"}[2m])
+            )
+        - record: monitor_volume_nearlyFull_persistent
+          expr: |
+            (
+              monitor_volume_nearlyFull_trigger
+              or
+              monitor_volume_nearlyFull_persistent
+            )
+            unless
+            wafl_vol_autoSize_done_trigger
+    - name: monitor_volume_nearlyFull_alerts
+      rules:
+        - alert: MonitorVolumeNearlyFull
+          expr: monitor_volume_nearlyFull_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Volume {{ $labels.vol }} is nearly full'
+            description: >
+              'Volume {{ $labels.vol }} on Cluster {{ $labels.netapp_cluster }} 
+              is nearly full. The alert resolves when the event "wafl.vol.autoSize.done" is 
+              detected.'
+    - name: vifmgr_cluscheck_hwerrors_final
+      interval: 1m
+      rules:
+        - record: vifmgr_cluscheck_hwerrors_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, portName, nodeName) (
+              max_over_time(ems_events{message="vifmgr.cluscheck.hwerrors"}[2m])
+            )
+        - record: vifmgr_port_monitor_passed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, portName, nodeName) (
+              max_over_time(ems_events{message="vifmgr.port.monitor.passed"}[2m])
+            )
+        - record: vifmgr_cluscheck_hwerrors_persistent
+          expr: |
+            (
+              vifmgr_cluscheck_hwerrors_trigger
+              or
+              vifmgr_cluscheck_hwerrors_persistent
+            )
+            unless
+            vifmgr_port_monitor_passed_trigger
+    - name: vifmgr_cluscheck_hwerrors_alerts
+      rules:
+        - alert: VifmgrCluscheckHwerrors
+          expr: vifmgr_cluscheck_hwerrors_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Hardware errors on port {{ $labels.portName }}'
+            description: >
+              'Hardware errors detected on port {{ $labels.portName }} on node 
+              {{ $labels.nodeName }}. The alert resolves when the event 
+              "vifmgr.port.monitor.passed" is detected.'
+    - name: monitor_nvramLowBatteries_final
+      interval: 1m
+      rules:
+        - record: monitor_nvramLowBatteries_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.nvramLowBatteries"}[2m])
+            )
+        - record: nvram_battery_capacity_normal_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+            )
+        - record: monitor_nvramLowBatteries_persistent
+          expr: |
+            (
+              monitor_nvramLowBatteries_trigger
+              or
+              monitor_nvramLowBatteries_persistent
+            )
+            unless
+            nvram_battery_capacity_normal_trigger
+    - name: monitor_nvramLowBatteries_alerts
+      rules:
+        - alert: MonitorNvramLowBatteries
+          expr: monitor_nvramLowBatteries_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 NVRAM batteries are low on {{ $labels.name }}'
+            description: >
+              'The NVRAM batteries are low on node {{ $labels.name }}. The alert 
+              resolves when the event "nvram.battery.capacity.normal" is detected.'
+    - name: monitor_nvmembattery_warninglow_final
+      interval: 1m
+      rules:
+        - record: monitor_nvmembattery_warninglow_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.nvmembattery.warninglow"}[2m])
+            )
+        - record: nvmem_battery_capacity_normal_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+            )
+        - record: monitor_nvmembattery_warninglow_persistent
+          expr: |
+            (
+              monitor_nvmembattery_warninglow_trigger
+              or
+              monitor_nvmembattery_warninglow_persistent
+            )
+            unless
+            nvmem_battery_capacity_normal_trigger
+    - name: monitor_nvmembattery_warninglow_alerts
+      rules:
+        - alert: MonitorNvmembatteryWarninglow
+          expr: monitor_nvmembattery_warninglow_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 NVMEM battery warning on {{ $labels.name }}'
+            description: > 
+              'The NVMEM battery is reporting a low capacity warning on node {{ $labels.name }}. 
+              The alert resolves when the event "nvmem.battery.capacity.normal" is detected.'
+    - name: km_run_external_setup_final
+      interval: 1m
+      rules:
+        - record: km_run_external_setup_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.run.external.setup"}[2m])
+            )
+        - record: km_keyserver_available_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.keyserver.available"}[2m])
+            )
+        - record: km_run_external_setup_persistent
+          expr: |
+            (
+              km_run_external_setup_trigger
+              or
+              km_run_external_setup_persistent
+            )
+            unless
+            km_keyserver_available_trigger
+    - name: km_run_external_setup_alerts
+      rules:
+        - alert: KmRunExternalSetup
+          expr: km_run_external_setup_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 External Key Manager setup required on {{ $labels.name }}'
+            description: >
+              'External Key Manager (KMIP) setup is required on node {{ $labels.name }}. 
+              The alert resolves when the event "km.keyserver.available" is detected.'
+    - name: km_keyserver_notavailable_final
+      interval: 1m
+      rules:
+        - record: km_keyserver_notavailable_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.keyserver.notavailable"}[2m])
+            )
+        - record: km_keyserver_available_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.keyserver.available"}[2m])
+            )
+        - record: km_keyserver_notavailable_persistent
+          expr: |
+            (
+              km_keyserver_notavailable_trigger
+              or
+              km_keyserver_notavailable_persistent
+            )
+            unless
+            km_keyserver_available_trigger
+    - name: km_keyserver_notavailable_alerts
+      rules:
+        - alert: KmKeyserverNotavailable
+          expr: km_keyserver_notavailable_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Key server not available on {{ $labels.name }}'
+            description: >
+              'The external key server (KMIP) is not available to node {{ $labels.name }}. 
+              This can impact access to encrypted data. The alert resolves when the event 
+              "km.keyserver.available" is detected.'
+    - name: km_keyretrieve_failed_final
+      interval: 1m
+      rules:
+        - record: km_keyretrieve_failed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.keyretrieve.failed"}[2m])
+            )
+        - record: km_keyserver_available_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="km.keyserver.available"}[2m])
+            )
+        - record: km_keyretrieve_failed_persistent
+          expr: |
+            (
+              km_keyretrieve_failed_trigger
+              or
+              km_keyretrieve_failed_persistent
+            )
+            unless
+            km_keyserver_available_trigger
+    - name: km_keyretrieve_failed_alerts
+      rules:
+        - alert: KmKeyretrieveFailed
+          expr: km_keyretrieve_failed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Key retrieval failed on {{ $labels.name }}'
+            description: >
+              'Failed to retrieve encryption keys from the external key server on node 
+              {{ $labels.name }}. The alert resolves when the event 
+              "km.keyserver.available" is detected.'
+    - name: callhome_reboot_takeover_final
+      interval: 1m
+      rules:
+        - record: callhome_reboot_takeover_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.reboot.takeover"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: callhome_reboot_takeover_persistent
+          expr: |
+            (
+              callhome_reboot_takeover_trigger
+              or
+              callhome_reboot_takeover_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: callhome_reboot_takeover_alerts
+      rules:
+        - alert: CallhomeRebootTakeover
+          expr: callhome_reboot_takeover_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Node {{ $labels.name }} taken over due to reboot'
+            description: >
+              'Node {{ $labels.name }} has been taken over by its partner due to a 
+              reboot. The alert resolves when the event "sfo.giveback.complete" is detected.'
+    - name: clam_node_ooq_final
+      interval: 1m
+      rules:
+        - record: clam_node_ooq_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="clam.node.ooq"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: clam_node_ooq_persistent
+          expr: |
+            (
+              clam_node_ooq_trigger
+              or
+              clam_node_ooq_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: clam_node_ooq_alerts
+      rules:
+        - alert: ClamNodeOoq
+          expr: clam_node_ooq_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Node {{ $labels.name }} is out of quorum'
+            description: >
+              'Node {{ $labels.name }} is out of quorum (OOQ), indicating a Cluster 
+              state issue. The alert resolves when the event "sfo.giveback.complete" is detected.'
+    - name: callhome_partner_down_final
+      interval: 1m
+      rules:
+        - record: callhome_partner_down_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.partner.down"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: callhome_partner_down_persistent
+          expr: |
+            (
+              callhome_partner_down_trigger
+              or
+              callhome_partner_down_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: callhome_partner_down_alerts
+      rules:
+        - alert: CallhomePartnerDown
+          expr: callhome_partner_down_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Partner node of {{ $labels.name }} is down'
+            description: >
+              'The partner node of {{ $labels.name }} is down, triggering a takeover. 
+              The alert resolves when the event "sfo.giveback.complete" is detected.'
+    - name: callhome_sfo_takeover_final
+      interval: 1m
+      rules:
+        - record: callhome_sfo_takeover_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="callhome.sfo.takeover"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: callhome_sfo_takeover_persistent
+          expr: |
+            (
+              callhome_sfo_takeover_trigger
+              or
+              callhome_sfo_takeover_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: callhome_sfo_takeover_alerts
+      rules:
+        - alert: CallhomeSfoTakeover
+          expr: callhome_sfo_takeover_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 SFO takeover occurred on {{ $labels.name }}'
+            description: >
+              'A Storage Failover (SFO) takeover has occurred on node {{ $labels.name }}. 
+              The alert resolves when the event "sfo.giveback.complete" is detected.'
+    - name: sfo_PartialGiveback_final
+      interval: 1m
+      rules:
+        - record: sfo_PartialGiveback_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.PartialGiveback"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: sfo_PartialGiveback_persistent
+          expr: |
+            (
+              sfo_PartialGiveback_trigger
+              or
+              sfo_PartialGiveback_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: sfo_PartialGiveback_alerts
+      rules:
+        - alert: SfoPartialGiveback
+          expr: sfo_PartialGiveback_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Partial giveback occurred on {{ $labels.name }}'
+            description: >
+              'A partial giveback has occurred on node {{ $labels.name }}. Not all 
+              resources may have been returned. The alert resolves when the event 
+              "sfo.giveback.complete" is detected.'
+    - name: cf_rsrc_takeoverOpFail_final
+      interval: 1m
+      rules:
+        - record: cf_rsrc_takeoverOpFail_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: cf_rsrc_takeoverOpFail_persistent
+          expr: |
+            (
+              cf_rsrc_takeoverOpFail_trigger
+              or
+              cf_rsrc_takeoverOpFail_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: cf_rsrc_takeoverOpFail_alerts
+      rules:
+        - alert: CfRsrcTakeoverOpFail
+          expr: cf_rsrc_takeoverOpFail_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Resource takeover operation failed on {{ $labels.name }}'
+            description: >
+              'A resource takeover operation has failed on node {{ $labels.name }}. 
+              The alert resolves when the event "sfo.giveback.complete" is detected.'
+    - name: spm_httpd_process_exit_final
+      interval: 1m
+      rules:
+        - record: spm_httpd_process_exit_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="spm.httpd.process.exit"}[2m])
+            )
+        - record: sfo_giveback_complete_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+            )
+        - record: spm_httpd_process_exit_persistent
+          expr: |
+            (
+              spm_httpd_process_exit_trigger
+              or
+              spm_httpd_process_exit_persistent
+            )
+            unless
+            sfo_giveback_complete_trigger
+    - name: spm_httpd_process_exit_alerts
+      rules:
+        - alert: SpmHttpdProcessExit
+          expr: spm_httpd_process_exit_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Service Processor httpd process exited on {{ $labels.name }}'
+            description: >
+              'The Service Processor httpd process has exited unexpectedly on node {{ $labels.name }}. 
+              The alert resolves when the event "sfo.giveback.complete" is detected 
+              (as a proxy for node stability).'
+    - name: vserver_stop_failed_final
+      interval: 1m
+      rules:
+        - record: vserver_stop_failed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+              max_over_time(ems_events{message="vserver.stop.failed"}[2m])
+            )
+        - record: vserver_stop_succeeded_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+              max_over_time(ems_events{message="vserver.stop.succeeded"}[2m])
+            )
+        - record: vserver_stop_failed_persistent
+          expr: |
+            (
+              vserver_stop_failed_trigger
+              or
+              vserver_stop_failed_persistent
+            )
+            unless
+            vserver_stop_succeeded_trigger
+    - name: vserver_stop_failed_alerts
+      rules:
+        - alert: VServerStopFailed
+          expr: vserver_stop_failed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Failed to stop SVM {{ $labels.svm }}'
+            description: >
+              'An attempt to stop SVM {{ $labels.svm }} (UUID: {{ $labels.svm_uuid }}) 
+              on Cluster {{ $labels.netapp_cluster }} has failed. The alert resolves 
+              when the stop operation eventually succeeds ("vserver.stop.succeeded").'
+    - name: raid_vol_state_changed_final
+      interval: 1m
+      rules:
+        - record: raid_vol_state_changed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+              max_over_time(ems_events{message="raid.vol.state.changed"}[2m])
+            )
+        - record: raid_vol_state_online_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+              max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+            )
+        - record: raid_vol_state_changed_persistent
+          expr: |
+            (
+              raid_vol_state_changed_trigger
+              or
+              raid_vol_state_changed_persistent
+            )
+            unless
+            raid_vol_state_online_trigger
+    - name: raid_vol_state_changed_alerts
+      rules:
+        - alert: RaidVolStateChanged
+          expr: raid_vol_state_changed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Aggregate {{ $labels.aggregate }} state has changed on {{ $labels.name }}'
+            description: >
+              'The state of aggregate {{ $labels.aggregate }} on node {{ $labels.name }} 
+              has changed to a non-optimal state. This can impact data availability. The 
+              alert resolves when the aggregate is back online ("raid.vol.state.online").'
+    - name: ha_giveback_aggrOnlineFailed_final
+      interval: 1m
+      rules:
+        - record: ha_giveback_aggrOnlineFailed_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+              max_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[2m])
+            )
+        - record: raid_vol_state_online_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+              max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+            )
+        - record: ha_giveback_aggrOnlineFailed_persistent
+          expr: |
+            (
+              ha_giveback_aggrOnlineFailed_trigger
+              or
+              ha_giveback_aggrOnlineFailed_persistent
+            )
+            unless
+            raid_vol_state_online_trigger
+    - name: ha_giveback_aggrOnlineFailed_alerts
+      rules:
+        - alert: HaGivebackAggrOnlineFailed
+          expr: ha_giveback_aggrOnlineFailed_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Failed to bring aggregate {{ $labels.aggregate }} online during giveback'
+            description: >
+              'During a giveback operation on node {{ $labels.name }}, aggregate 
+              {{ $labels.aggregate }} failed to come online. Manual intervention may 
+              be required. The alert resolves when the aggregate is back online 
+              ("raid.vol.state.online").'
+    - name: cf_fm_notkoverClusterDisable_final
+      interval: 1m
+      rules:
+        - record: cf_fm_notkoverClusterDisable_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[2m])
+            )
+        - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+            )
+        - record: cf_fm_notkoverClusterDisable_persistent
+          expr: |
+            (
+              cf_fm_notkoverClusterDisable_trigger
+              or
+              cf_fm_notkoverClusterDisable_persistent
+            )
+            unless
+            cf_fsm_takeoverOfPartnerEnabled_trigger
+    - name: cf_fm_notkoverClusterDisable_alerts
+      rules:
+        - alert: CfFmNotkoverClusterDisable
+          expr: cf_fm_notkoverClusterDisable_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Cluster Failover disabled on {{ $labels.name }}'
+            description: >
+              'Cluster failover takeover has been disabled on node {{ $labels.name }}. 
+              High availability is compromised. The alert resolves when takeover is 
+              re-enabled ("cf.fsm.takeoverOfPartnerEnabled").'
+    - name: wafl_vol_setting_in_nvfailed_state_final
+      interval: 1m
+      rules:
+        - record: wafl_vol_setting_in_nvfailed_state_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+              max_over_time(ems_events{message="wafl.vol.setting.in.nvfailed.state"}[2m])
+            )
+        - record: wafl_vvol_online_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+              max_over_time(ems_events{message="wafl.vvol.online"}[2m])
+            )
+        - record: wafl_vol_setting_in_nvfailed_state_persistent
+          expr: |
+            (
+              wafl_vol_setting_in_nvfailed_state_trigger
+              or
+              wafl_vol_setting_in_nvfailed_state_persistent
+            )
+            unless
+            wafl_vvol_online_trigger
+    - name: wafl_vol_setting_in_nvfailed_state_alerts
+      rules:
+        - alert: WaflVolSettingInNvfailedState
+          expr: wafl_vol_setting_in_nvfailed_state_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Volume {{ $labels.vol }} is in nvfailed state'
+            description: >
+              'Volume {{ $labels.vol }} on node {{ $labels.name }} is in an 
+              nvfailed state. This is a critical condition indicating potential data loss. 
+              The alert resolves when the volume is back online ("wafl.vvol.online").'
+    - name: vifmgr_lifdown_noports_final
+      interval: 1m
+      rules:
+        - record: vifmgr_lifdown_noports_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, vifname) (
+              max_over_time(ems_events{message="vifmgr.lifdown.noports"}[2m])
+            )
+        - record: vifmgr_lifbeinghosted_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, vifname) (
+              max_over_time(ems_events{message="vifmgr.lifbeinghosted"}[2m])
+            )
+        - record: vifmgr_lifdown_noports_persistent
+          expr: |
+            (
+              vifmgr_lifdown_noports_trigger
+              or
+              vifmgr_lifdown_noports_persistent
+            )
+            unless
+            vifmgr_lifbeinghosted_trigger
+    - name: vifmgr_lifdown_noports_alerts
+      rules:
+        - alert: VifmgrLifdownNoports
+          expr: vifmgr_lifdown_noports_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 LIF {{ $labels.vifname }} is down (no available ports)'
+            description: >
+              'The logical interface (LIF) {{ $labels.vifname }} on node 
+              {{ $labels.name }} is down because no suitable failover ports are 
+              available. The alert resolves when the LIF is hosted again 
+              ("vifmgr.lifbeinghosted").'
+    - name: ses_multipath_ReqError_final
+      interval: 1m
+      rules:
+        - record: ses_multipath_ReqError_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="ses.multipath.ReqError"}[2m])
+            )
+        - record: shelf_config_tompha_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="shelf.config.tompha"}[2m])
+            )
+        - record: ses_multipath_ReqError_persistent
+          expr: |
+            (
+              ses_multipath_ReqError_trigger
+              or
+              ses_multipath_ReqError_persistent
+            )
+            unless
+            shelf_config_tompha_trigger
+    - name: ses_multipath_ReqError_alerts
+      rules:
+        - alert: SesMultipathReqError
+          expr: ses_multipath_ReqError_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 SES multipath request error on {{ $labels.name }}'
+            description: >
+              'A SES (SCSI Enclosure Services) multipath request error occurred on node 
+              {{ $labels.name }}. This indicates a problem with shelf connectivity. 
+              The alert resolves when the shelf configuration is healthy 
+              ("shelf.config.tompha").'
+    - name: token_vol_max_count_reached_final
+      interval: 1m
+      rules:
+        - record: token_vol_max_count_reached_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+              max_over_time(ems_events{message="token.vol.max.count.reached"}[2m])
+            )
+        - record: token_vol_cache_cleared_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+              max_over_time(ems_events{message="token.vol.cache.cleared"}[2m])
+            )
+        - record: token_vol_max_count_reached_persistent
+          expr: |
+            (
+              token_vol_max_count_reached_trigger
+              or
+              token_vol_max_count_reached_persistent
+            )
+            unless
+            token_vol_cache_cleared_trigger
+    - name: token_vol_max_count_reached_alerts
+      rules:
+        - alert: TokenVolMaxCountReached
+          expr: token_vol_max_count_reached_persistent == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: '🟡 Max token count reached for volume {{ $labels.volume_name }}'
+            description: >
+              'The maximum token count has been reached for volume {{ $labels.volume_name }} 
+              on node {{ $labels.name }}. This can impact performance or specific 
+              operations. The alert resolves when the token cache is cleared 
+              ("token.vol.cache.cleared").'
+    - name: monitor_globalStatus_critical_final
+      interval: 1m
+      rules:
+        - record: monitor_globalStatus_critical_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.globalStatus.critical"}[2m])
+            )
+        - record: monitor_globalStatus_ok_trigger
+          expr: |
+            max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+              max_over_time(ems_events{message="monitor.globalStatus.ok"}[2m])
+            )
+        - record: monitor_globalStatus_critical_persistent
+          expr: |
+            (
+              monitor_globalStatus_critical_trigger
+              or
+              monitor_globalStatus_critical_persistent
+            )
+            unless
+            monitor_globalStatus_ok_trigger
+    - name: monitor_globalStatus_critical_alerts
+      rules:
+        - alert: MonitorGlobalStatusCritical
+          expr: monitor_globalStatus_critical_persistent == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: '🔴 Global system status is CRITICAL on {{ $labels.name }}'
+            description: >
+              'The overall health status of node {{ $labels.name }} is reported as 
+              CRITICAL. This indicates a severe, system-wide issue that requires immediate 
+              attention. The alert resolves when the status returns to OK 
+              ("monitor.globalStatus.ok").'
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-netapp-volume-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups:
+    - name: netapp_volume_alerts
+      rules:
+        - alert: VolumeInodeNearlyFull
+          expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 90
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: Inode nearly full (instance {{ $labels.instance }})
+            description: |
+              Inode used > 90%
+              VALUE = {{ $value }}
+              Volume: {{ $labels.volume }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: VolumeInodeFull
+          expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 95
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: Inode full (instance {{ $labels.instance }})
+            description: |
+              Inode used > 95%
+              VALUE = {{ $value }}
+              Volume: {{ $labels.volume }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: SnapmirrorLagTime
+          expr: (last_over_time(snapmirror_lag_time[1h])) > 172800
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: Snapmirror Lag time (instance {{ $labels.instance }})
+            description: |
+              Snapmirror Lag time > 48h
+              VALUE = {{ $value }}
+              Source volume: {{ $labels.source_volume }}, Source vserver: {{ $labels.source_vserver }},
+              Destination volume: {{ $labels.destination_volume }}, Destination vserver: {{ $labels.destination_vserver }},
+              Relationship ID: {{ $labels.relationship_id }}
+              Cluster: {{ $labels.netapp_cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: WAFLVolInvalidateFH
+          expr: (ems_events{message="wafl.vol.invalidate.fh"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: NVRAM failure invalidated filehandles (instance {{ $labels.instance }})
+            description: |
+              Invalidating all filehandles due to previous NVRAM failure.
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: WAFLVolInNVFailedState
+          expr: (ems_events{message="wafl.vol.setting.in.nvfailed.state"})
+          for: 5m
+          labels:
+            severity: critical
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: Volume marked as in-nvfailed-state (instance {{ $labels.instance }})
+            description: |
+              Volume {{ $labels.volume }} is marked as in-nvfailed-state
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+        - alert: WAFLDirSizeMaxWarning
+          expr: (ems_events{message="wafl.dir.size.max.warning"})
+          for: 5m
+          labels:
+            severity: warning
+            support_group: storage
+            team: dme-storage
+            component: netapp_volume
+          annotations:
+            summary: Directory approaching maxdirsize (instance {{ $labels.instance }})
+            description: |
+              Directory size for file ID {{ $labels.fileid }} in volume {{ $labels.volume }} is nearing maxdirsize limit.
+              VALUE = {{ $value }}
+              Cluster: {{ $labels.cluster }}, Node: {{ $labels.node }}, Datacenter: {{ $labels.datacenter }}
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-powerscale-error-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups: []
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-purestorage-error-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups: []
+---
+# Source: netapp-monitoring-operations/templates/storage-prometheusrules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-pvc-usage-alerts
+  namespace: swift
+  labels:
+    plugin: storage-metrics-product
+    helm.sh/chart: netapp-monitoring-operations-0.0.1
+    app.kubernetes.io/name: netapp-monitoring-operations
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/alert: "true"
+spec:
+  
+  groups: []

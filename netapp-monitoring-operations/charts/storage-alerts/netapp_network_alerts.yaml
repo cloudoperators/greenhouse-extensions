@@ -1,0 +1,114 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappNetworkAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.netappNetworkAlerts | toString) "false" }}
+  - name: netapp_network_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "NetAppCRCErrors" | default false) }}
+      - alert: NetAppCRCErrors
+        expr: (ems_events{message="netif.linkErrors"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: NetApp CRC Errors (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            NetApp CRC Errors
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "ICInterconnectLinkDown" | default false) }}
+      - alert: ICInterconnectLinkDown
+        expr: (ems_events{message="ic.HAInterconnectLinkDown"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: HA interconnect link down (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            IC Link is down
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "LIFStatusDown" | default false) }}
+      - alert: LIFStatusDown
+        expr: (ems_events{message="vifmgr.lifdown.noports"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: LIF down - no eligible ports (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            LIF is down
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "NWInterfaceFatalErrorDriver" | default false) }}
+      - alert: NWInterfaceFatalErrorDriver
+        expr: (ems_events{message="netif.fatal.err"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: NIC driver fatal error (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            LIF driver errors
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "NWInterfaceFatalErrorHardware" | default false) }}
+      - alert: NWInterfaceFatalErrorHardware
+        expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: NIC hardware error rate high (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Port is reporting high hardware errors (CRC, alignment, drops)
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "OverprovisioningOfDataLIF" | default false) }}
+      - alert: OverprovisioningOfDataLIF
+        expr: (ems_events{message="vifmgr.lifs.overcapacity"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_network
+        annotations:
+          summary: LIF over-provisioned (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Over-provisioned failover targets: {{ "{{" }} $labels.overamount {{ "}}" }} LIFs may go "down" on node failure
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := or (ne (.Values.prometheusRules.ruleGroups.brocadeErrorPreprocessing | toString) "false") (ne (.Values.prometheusRules.ruleGroups.brocadeErrorAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.brocadeErrorPreprocessing | toString) "false" }}
+  - name: brocade_error_preprocessing
+    rules:
+      - record: brocade_error_log_total:filtered
+        expr: |
+          brocade_error_log_total
+          unless (
+            brocade_error_log_total{
+              messagetext=~"^(Switch, Condition=SWITCH\\(SEC_LV/min>2\\).*|Switch wide status has changed from CRITICAL to HEALTHY.*|Power Supply [123], Condition=ALL_PS\\(PS_STATE==ON\\).*)"
+            }
+            or
+            brocade_error_log_total{
+              messageid=~"^(EM-1241|FAIL-9999)$"
+            }
+            or
+            brocade_error_log_total{
+              messagetext=~".*RuleName=defALL_HOST_PORTSRX.*",
+              source=~"derotbr0004.*"
+            }
+            or
+            brocade_error_log_total{
+              messagetext=~".*RuleName=defALL_LOCAL_PIDSIT_FLOW.*",
+              source=~"usnsqfab.*"
+            }
+            or
+            brocade_error_log_total{
+              messageid=~"^(KSWD-1002|WEBD-1005|TRCE-1001)$",
+              source=~"derotbr0004.*"
+            }
+          )
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.brocadeErrorAlerts | toString) "false" }}
+  - name: brocade_error_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "BrocadeError_New" | default false) }}
+      - alert: BrocadeError_New
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            brocade_error_log_total:filtered
+          )
+          unless
+          sum by (messageid, messagetext, cluster, source)(
+            brocade_error_log_total:filtered offset 24h
+          )
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: brocade
+        annotations:
+          summary: "New Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "BrocadeError_LessFrequent" | default false) }}
+      - alert: BrocadeError_LessFrequent
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            increase(brocade_error_log_total:filtered[24h])
+          ) > 0
+          and
+          sum by (messageid, messagetext, cluster, source)(
+            increase(brocade_error_log_total:filtered[24h])
+          ) <= 50
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: brocade
+        annotations:
+          summary: "Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "BrocadeError_MoreFrequent" | default false) }}
+      - alert: BrocadeError_MoreFrequent
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            increase(brocade_error_log_total:filtered[24h])
+          ) > 50
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: brocade
+        annotations:
+          summary: "Brocade error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+
+{{- end }}
+{{- end }}
+{{- end }}

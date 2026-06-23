@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if .Values.prometheusRules.create }}
+{{- $root := . }}
+{{- range $path, $bytes := .Files.Glob "storage-alerts/*.yaml" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name ($path | base | replace ".yaml" "" | replace "_" "-" | lower) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{- with $.Values.prometheusRules.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{ include "netapp-monitoring-operations.labels" $root | indent 4 }}
+  annotations:
+{{- if $.Values.prometheusRules.annotations }}
+{{ toYaml . | indent 4 }}
+{{- else }}
+    prometheus.io/alert: "true"
+{{- end }}
+spec:
+{{ tpl (printf "%s" $bytes) $root | indent 2 }}
+---
+{{- end }}
+{{- end }}

@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappLunAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.netappLunAlerts | toString) "false" }}
+  - name: netapp_lun_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "LUNOffline" | default false) }}
+      - alert: LUNOffline
+        expr: (ems_events{message="LUN.offline"})
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_lun
+        annotations:
+          summary: This message occurs when a LUN is brought offline manually (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            NetApp CRC Errors
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "LUNNVfail" | default false) }}
+      - alert: LUNNVfail
+        expr: (ems_events{message="LUN.nvfail.vol.proc.complete"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_lun
+        annotations:
+          summary: LUNs brought offline due to nvlog inconsistency (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            LUNs in volume have been brought offline because an inconsistency was detected in the nvlog during boot or takeover
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- end }}
+{{- end }}

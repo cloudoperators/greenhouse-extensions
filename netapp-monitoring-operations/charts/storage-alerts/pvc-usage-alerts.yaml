@@ -1,0 +1,126 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.pvcUsageAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.pvcUsageAlerts | toString) "false" }}
+  - name: pvc-usage-alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "PrometheusPVCUsageWarning" | default false) }}
+      - alert: PrometheusPVCUsageWarning
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*prometheus-kube-monitoring.*", cluster=~".*dme-forge.*"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~".*prometheus-kube-monitoring.*", cluster=~".*dme-forge.*"}
+          ) * 100 > 75
+        for: 1m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 75% full for Prometheus"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "PrometheusPVCUsageCritical" | default false) }}
+      - alert: PrometheusPVCUsageCritical
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*prometheus-kube-monitoring.*", cluster=~".*dme-forge.*"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~".*prometheus-kube-monitoring.*", cluster=~".*dme-forge.*"}
+          ) * 100 > 85
+        for: 1m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 85% full for Prometheus"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "ThanosCompactorPVCUsageWarning" | default false) }}
+      - alert: ThanosCompactorPVCUsageWarning
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"thanos-compactor", cluster=~".*dme-forge.*"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"thanos-compactor", cluster=~".*dme-forge.*"}
+          ) * 100 > 75
+        for: 1m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 75% full for Thanos Compactor"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "ThanosCompactorPVCUsageCritical" | default false) }}
+      - alert: ThanosCompactorPVCUsageCritical
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"thanos-compactor", cluster=~".*dme-forge.*"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"thanos-compactor", cluster=~".*dme-forge.*"}
+          ) * 100 > 85
+        for: 1m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 85% full for Thanos Compactor"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "GrafanaPVCUsageWarning" | default false) }}
+      - alert: GrafanaPVCUsageWarning
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"storage-grafana-0"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"storage-grafana-0"}
+          ) * 100 > 75
+        for: 1m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 75% full for Grafana"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "GrafanaPVCUsageCritical" | default false) }}
+      - alert: GrafanaPVCUsageCritical
+        expr: |
+          (
+            kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"storage-grafana-0"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"storage-grafana-0"}
+          ) * 100 > 85
+        for: 1m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: pvc_usage
+        annotations:
+          summary: "PVC is more than 85% full for Grafana"
+          description: 'PVC {{ "{{" }} $labels.persistentvolumeclaim {{ "}}" }} in namespace {{ "{{" }} $labels.namespace {{ "}}" }} is {{ "{{" }} $value | printf "%.2f" {{ "}}" }}% full.'
+
+{{- end }}
+{{- end }}
+{{- end }}

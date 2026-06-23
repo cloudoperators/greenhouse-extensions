@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false" }}
+  - name: netapp_disk_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "DiskDriveFailed" | default false) }}
+      - alert: DiskDriveFailed
+        expr: (ems_events{message="monitor.raid.brokenDisk"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: Disk drive failed (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Disk drive failed
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "DiskExceedsAvgIOLatencyThreshold" | default false) }}
+      - alert: DiskExceedsAvgIOLatencyThreshold
+        expr: (ems_events{message="shm.threshold.highIOLatency"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: Disk exceeds the average IO latency threshold (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Disk exceeds the average IO latency threshold
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- if not (index .Values.prometheusRules.disabled "UnassignedDisk" | default false) }}
+      - alert: UnassignedDisk
+        expr: (ems_events{message="unowned.disk.reminder"})
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_disk
+        annotations:
+          summary: Unassigned disk detected (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Unassigned disks present in system
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+{{- end }}
+{{- end }}
+{{- end }}

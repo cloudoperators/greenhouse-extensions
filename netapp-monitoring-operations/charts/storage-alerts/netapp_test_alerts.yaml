@@ -1,0 +1,2019 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- $anyEnabled := or (ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorFanFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorFanFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamNodeOoqFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamNodeOoqAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vserverStopFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vserverStopFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalAlerts | toString) "false") }}
+{{- if not $anyEnabled }}
+groups: []
+{{- else }}
+groups:
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedFinal | toString) "false" }}
+  - name: monitor_raidtec_dblDegraded_final
+    interval: 1m
+    rules:
+      - record: monitor_raidtec_dblDegraded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+            max_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[2m])
+          )
+      - record: monitor_raid_reconstruct_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, rgname) (
+            max_over_time(ems_events{message="monitor.raid.reconstruct"}[2m])
+          )
+      - record: monitor_raidtec_dblDegraded_persistent
+        expr: |
+          (
+            monitor_raidtec_dblDegraded_trigger
+            or
+            monitor_raidtec_dblDegraded_persistent
+          )
+          unless
+          monitor_raid_reconstruct_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedAlerts | toString) "false" }}
+  - name: monitor_raidtec_dblDegraded_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorRaidtecDblDegraded" | default false) }}
+      - alert: MonitorRaidtecDblDegraded
+        expr: monitor_raidtec_dblDegraded_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 RAID Double Degraded on {{ "{{ $labels.node }}" }}'
+          description: > 
+            'RAID Group {{ "{{ $labels.rgname }}" }} on node {{ "{{ $labels.node }}" }} 
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is double degraded. 
+            This indicates a critical failure risk. The alert resolves when the event 
+            "monitor.raid.reconstruct" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentFinal | toString) "false" }}
+  - name: callhome_wafl_inconsistent_final
+    interval: 1m
+    rules:
+      - record: callhome_wafl_inconsistent_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.wafl.inconsistent"}[2m])
+          )
+      - record: callhome_wafl_iron_done_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.wafl.iron.done"}[2m])
+          )
+      - record: callhome_wafl_inconsistent_persistent
+        expr: |
+          (
+            callhome_wafl_inconsistent_trigger
+            or
+            callhome_wafl_inconsistent_persistent
+          )
+          unless
+          callhome_wafl_iron_done_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentAlerts | toString) "false" }}
+  - name: callhome_wafl_inconsistent_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CallhomeWaflInconsistent" | default false) }}
+      - alert: CallhomeWaflInconsistent
+        expr: callhome_wafl_inconsistent_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 WAFL Inconsistent on {{ "{{ $labels.name }}" }}'
+          description: >
+            'An inconsistency in WAFL (Write Anywhere File Layout) was detected on node 
+            {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). 
+            This requires immediate attention. The alert resolves when the event 
+            "callhome.wafl.iron.done" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorFanFailedFinal | toString) "false" }}
+  - name: monitor_fan_failed_final
+    interval: 1m
+    rules:
+      - record: monitor_fan_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.fan.failed"}[2m])
+          )
+      - record: monitor_fan_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.fan.ok"}[2m])
+          )
+      - record: monitor_fan_failed_persistent
+        expr: |
+          (
+            monitor_fan_failed_trigger
+            or
+            monitor_fan_failed_persistent
+          )
+          unless
+          monitor_fan_ok_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorFanFailedAlerts | toString) "false" }}
+  - name: monitor_fan_failed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorFanFailed" | default false) }}
+      - alert: MonitorFanFailed
+        expr: monitor_fan_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Fan failed on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A fan has failed on node {{ "{{ $labels.name }}" }} (Cluster: 
+            {{ "{{ $labels.netapp_cluster }}" }}). This could lead to overheating. 
+            The alert resolves when the event "monitor.fan.ok" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownFinal | toString) "false" }}
+  - name: vifmgr_cluscheck_lifdown_final
+    interval: 1m
+    rules:
+      - record: vifmgr_cluscheck_lifdown_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+            max_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[2m])
+          )
+      - record: vifmgr_cluscheck_lifup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, lif_name, name) (
+            max_over_time(ems_events{message="vifmgr.cluscheck.lifup"}[2m])
+          )
+      - record: vifmgr_cluscheck_lifdown_persistent
+        expr: |
+          (
+            vifmgr_cluscheck_lifdown_trigger
+            or
+            vifmgr_cluscheck_lifdown_persistent
+          )
+          unless
+          vifmgr_cluscheck_lifup_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownAlerts | toString) "false" }}
+  - name: vifmgr_cluscheck_lifdown_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VifmgrCluscheckLifdown" | default false) }}
+      - alert: VifmgrCluscheckLifdown
+        expr: vifmgr_cluscheck_lifdown_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 LIF {{ "{{ $labels.lif_name }}" }} is down'
+          description: >
+            'The logical interface (LIF) {{ "{{ $labels.lif_name }}" }} on node 
+            {{ "{{ $labels.name }}" }} (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is 
+            down. The alert resolves when the event "vifmgr.cluscheck.lifup" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedFinal | toString) "false" }}
+  - name: monitor_chassisPowerSupply_degraded_final
+    interval: 1m
+    rules:
+      - record: monitor_chassisPowerSupply_degraded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[2m])
+          )
+      - record: monitor_chassisPowerSupply_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.chassisPowerSupply.ok"}[2m])
+          )
+      - record: monitor_chassisPowerSupply_degraded_persistent
+        expr: |
+          (
+            monitor_chassisPowerSupply_degraded_trigger
+            or
+            monitor_chassisPowerSupply_degraded_persistent
+          )
+          unless
+          monitor_chassisPowerSupply_ok_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedAlerts | toString) "false" }}
+  - name: monitor_chassisPowerSupply_degraded_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorChassisPowerSupplyDegraded" | default false) }}
+      - alert: MonitorChassisPowerSupplyDegraded
+        expr: monitor_chassisPowerSupply_degraded_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A chassis power supply is degraded on node {{ "{{ $labels.name }}" }} 
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the 
+            event "monitor.chassisPowerSupply.ok" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowFinal | toString) "false" }}
+  - name: nvmem_battery_capacity_low_final
+    interval: 1m
+    rules:
+      - record: nvmem_battery_capacity_low_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.low"}[2m])
+          )
+      - record: nvmem_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+          )
+      - record: nvmem_battery_capacity_low_persistent
+        expr: |
+          (
+            nvmem_battery_capacity_low_trigger
+            or
+            nvmem_battery_capacity_low_persistent
+          )
+          unless
+          nvmem_battery_capacity_normal_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowAlerts | toString) "false" }}
+  - name: nvmem_battery_capacity_low_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "NvmemBatteryCapacityLow" | default false) }}
+      - alert: NvmemBatteryCapacityLow
+        expr: nvmem_battery_capacity_low_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The NVMEM battery capacity is low on node {{ "{{ $labels.name }}" }} 
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the 
+            event "nvmem.battery.capacity.normal" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnFinal | toString) "false" }}
+  - name: nvram_battery_capacity_low_warn_final
+    interval: 1m
+    rules:
+      - record: nvram_battery_capacity_low_warn_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.low.warn"}[2m])
+          )
+      - record: nvram_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+          )
+      - record: nvram_battery_capacity_low_warn_persistent
+        expr: |
+          (
+            nvram_battery_capacity_low_warn_trigger
+            or
+            nvram_battery_capacity_low_warn_persistent
+          )
+          unless
+          nvram_battery_capacity_normal_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnAlerts | toString) "false" }}
+  - name: nvram_battery_capacity_low_warn_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "NvramBatteryCapacityLowWarn" | default false) }}
+      - alert: NvramBatteryCapacityLowWarn
+        expr: nvram_battery_capacity_low_warn_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 NVRAM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The NVRAM battery capacity is low on node {{ "{{ $labels.name }}" }} 
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}). The alert resolves when the 
+            event "nvram.battery.capacity.normal" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrFinal | toString) "false" }}
+  - name: snapmirror_migrate_srcErr_final
+    interval: 1m
+    rules:
+      - record: snapmirror_migrate_srcErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.srcErr"}[2m])
+          )
+      - record: snapmirror_migrate_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+          )
+      - record: snapmirror_migrate_srcErr_persistent
+        expr: |
+          (
+            snapmirror_migrate_srcErr_trigger
+            or
+            snapmirror_migrate_srcErr_persistent
+          )
+          unless
+          snapmirror_migrate_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrAlerts | toString) "false" }}
+  - name: snapmirror_migrate_srcErr_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateSrcErr" | default false) }}
+      - alert: SnapmirrorMigrateSrcErr
+        expr: snapmirror_migrate_srcErr_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 SnapMirror migration source error'
+          description: >
+            'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} 
+            to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a 
+            source error. The alert resolves when the event "snapmirror.migrate.complete" 
+            is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrFinal | toString) "false" }}
+  - name: snapmirror_migrate_dstErr_final
+    interval: 1m
+    rules:
+      - record: snapmirror_migrate_dstErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.dstErr"}[2m])
+          )
+      - record: snapmirror_migrate_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstfiler, dstpath) (
+            max_over_time(ems_events{message="snapmirror.migrate.complete"}[2m])
+          )
+      - record: snapmirror_migrate_dstErr_persistent
+        expr: |
+          (
+            snapmirror_migrate_dstErr_trigger
+            or
+            snapmirror_migrate_dstErr_persistent
+          )
+          unless
+          snapmirror_migrate_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrAlerts | toString) "false" }}
+  - name: snapmirror_migrate_dstErr_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateDstErr" | default false) }}
+      - alert: SnapmirrorMigrateDstErr
+        expr: snapmirror_migrate_dstErr_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 SnapMirror migration destination error'
+          description: >
+            'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} 
+            to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed with a 
+            destination error. The alert resolves when the event 
+            "snapmirror.migrate.complete" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedFinal | toString) "false" }}
+  - name: replication_dst_resync_failed_final
+    interval: 1m
+    rules:
+      - record: replication_dst_resync_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath) (
+            max_over_time(ems_events{message="replication.dst.resync.failed"}[2m])
+          )
+      - record: replication_dst_resync_success_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcfiler, srcpath, dstpath) (
+            max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+          )
+      - record: replication_dst_resync_failed_persistent
+        expr: |
+          (
+            replication_dst_resync_failed_trigger
+            or
+            replication_dst_resync_failed_persistent
+          )
+          unless
+          replication_dst_resync_success_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedAlerts | toString) "false" }}
+  - name: replication_dst_resync_failed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "ReplicationDstResyncFailed" | default false) }}
+      - alert: ReplicationDstResyncFailed
+        expr: replication_dst_resync_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Replication resync failed'
+          description: >
+            'Replication resync from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} 
+            to destination {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves 
+            when the event "replication.dst.resync.success" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrFinal | toString) "false" }}
+  - name: upgrademgr_update_pausedErr_final
+    interval: 1m
+    rules:
+      - record: upgrademgr_update_pausedErr_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.pausedErr"}[2m])
+          )
+      - record: upgrademgr_update_resumed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="upgrademgr.update.resumed"}[2m])
+          )
+      - record: upgrademgr_update_pausedErr_persistent
+        expr: |
+          (
+            upgrademgr_update_pausedErr_trigger
+            or
+            upgrademgr_update_pausedErr_persistent
+          )
+          unless
+          upgrademgr_update_resumed_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrAlerts | toString) "false" }}
+  - name: upgrademgr_update_pausedErr_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "UpgrademgrUpdatePausedErr" | default false) }}
+      - alert: UpgrademgrUpdatePausedErr
+        expr: upgrademgr_update_pausedErr_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Upgrade paused due to error on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The automated upgrade on node {{ "{{ $labels.name }}" }} (Cluster: 
+            {{ "{{ $labels.netapp_cluster }}" }}) has been paused due to an error. The 
+            alert resolves when the event "upgrademgr.update.resumed" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorFinal | toString) "false" }}
+  - name: ses_status_currentError_final
+    interval: 1m
+    rules:
+      - record: ses_status_currentError_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+            max_over_time(ems_events{message="ses.status.currentError"}[2m])
+          )
+      - record: ses_status_currentInfo_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+            max_over_time(ems_events{message="ses.status.currentInfo"}[2m])
+          )
+      - record: ses_status_currentError_persistent
+        expr: |
+          (
+            ses_status_currentError_trigger
+            or
+            ses_status_currentError_persistent
+          )
+          unless
+          ses_status_currentInfo_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorAlerts | toString) "false" }}
+  - name: ses_status_currentError_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SesStatusCurrentError" | default false) }}
+      - alert: SesStatusCurrentError
+        expr: ses_status_currentError_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 SES Element Error on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) element on channel {{ "{{ $labels.prodChannel }}" }} 
+            on node {{ "{{ $labels.node }}" }} is reporting an error. The alert resolves 
+            when the event "ses.status.currentInfo" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningFinal | toString) "false" }}
+  - name: ses_status_currentWarning_final
+    interval: 1m
+    rules:
+      - record: ses_status_currentWarning_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+            max_over_time(ems_events{message="ses.status.currentWarning"}[2m])
+          )
+      - record: ses_status_currentInfo_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, prodChannel) (
+            max_over_time(ems_events{message="ses.status.currentInfo"}[2m])
+          )
+      - record: ses_status_currentWarning_persistent
+        expr: |
+          (
+            ses_status_currentWarning_trigger
+            or
+            ses_status_currentWarning_persistent
+          )
+          unless
+          ses_status_currentInfo_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningAlerts | toString) "false" }}
+  - name: ses_status_currentWarning_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SesStatusCurrentWarning" | default false) }}
+      - alert: SesStatusCurrentWarning
+        expr: ses_status_currentWarning_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 SES Element Warning on {{ "{{ $labels.node }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) element on channel {{ "{{ $labels.prodChannel }}" }} 
+            on node {{ "{{ $labels.node }}" }} is reporting a warning. The alert resolves 
+            when the event "ses.status.currentInfo" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledFinal | toString) "false" }}
+  - name: cf_fsm_takeoverOfPartnerDisabled_final
+    interval: 1m
+    rules:
+      - record: cf_fsm_takeoverOfPartnerDisabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerDisabled_persistent
+        expr: |
+          (
+            cf_fsm_takeoverOfPartnerDisabled_trigger
+            or
+            cf_fsm_takeoverOfPartnerDisabled_persistent
+          )
+          unless
+          cf_fsm_takeoverOfPartnerEnabled_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledAlerts | toString) "false" }}
+  - name: cf_fsm_takeoverOfPartnerDisabled_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CfFsmTakeoverOfPartnerDisabled" | default false) }}
+      - alert: CfFsmTakeoverOfPartnerDisabled
+        expr: cf_fsm_takeoverOfPartnerDisabled_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Takeover of partner {{ "{{ $labels.partner }}" }} disabled'
+          description: >
+            'On node {{ "{{ $labels.name }}" }}, takeover of its partner {{ "{{ $labels.partner }}" }} 
+            has been disabled. This compromises high availability. The alert resolves when 
+            the event "cf.fsm.takeoverOfPartnerEnabled" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledFinal | toString) "false" }}
+  - name: cf_fsm_takeoverByPartnerDisabled_final
+    interval: 1m
+    rules:
+      - record: cf_fsm_takeoverByPartnerDisabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+            max_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[2m])
+          )
+      - record: cf_fsm_takeoverByPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, partner, name) (
+            max_over_time(ems_events{message="cf.fsm.takeoverByPartnerEnabled"}[2m])
+          )
+      - record: cf_fsm_takeoverByPartnerDisabled_persistent
+        expr: |
+          (
+            cf_fsm_takeoverByPartnerDisabled_trigger
+            or
+            cf_fsm_takeoverByPartnerDisabled_persistent
+          )
+          unless
+          cf_fsm_takeoverByPartnerEnabled_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledAlerts | toString) "false" }}
+  - name: cf_fsm_takeoverByPartnerDisabled_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CfFsmTakeoverByPartnerDisabled" | default false) }}
+      - alert: CfFsmTakeoverByPartnerDisabled
+        expr: cf_fsm_takeoverByPartnerDisabled_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Takeover by partner {{ "{{ $labels.partner }}" }} disabled'
+          description: >
+            'Takeover of node {{ "{{ $labels.name }}" }} by its partner {{ "{{ $labels.partner }}" }} 
+            has been disabled. This compromises high availability. The alert resolves when 
+            the event "cf.fsm.takeoverByPartnerEnabled" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownFinal | toString) "false" }}
+  - name: vifmgr_portdown_final
+    interval: 1m
+    rules:
+      - record: vifmgr_portdown_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+            max_over_time(ems_events{message="vifmgr.portdown"}[2m])
+          )
+      - record: vifmgr_portup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, nodename, portname) (
+            max_over_time(ems_events{message="vifmgr.portup"}[2m])
+          )
+      - record: vifmgr_portdown_persistent
+        expr: |
+          (
+            vifmgr_portdown_trigger
+            or
+            vifmgr_portdown_persistent
+          )
+          unless
+          vifmgr_portup_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownAlerts | toString) "false" }}
+  - name: vifmgr_portdown_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VifmgrPortdown" | default false) }}
+      - alert: VifmgrPortdown
+        expr: vifmgr_portdown_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Port {{ "{{ $labels.portname }}" }} on node {{ "{{ $labels.nodename }}" }} is down'
+          description: >
+            'Network port {{ "{{ $labels.portname }}" }} on node {{ "{{ $labels.nodename }}" }} 
+            (Cluster: {{ "{{ $labels.netapp_cluster }}" }}) is down. The alert resolves 
+            when the event "vifmgr.portup" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonFinal | toString) "false" }}
+  - name: wafl_snap_create_skip_reason_final
+    interval: 1m
+    rules:
+      - record: wafl_snap_create_skip_reason_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name) (
+            max_over_time(ems_events{message="wafl.snap.create.skip.reason"}[2m])
+          )
+      - record: wafl_snap_create_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol, volident, name) (
+            max_over_time(ems_events{message="wafl.snap.create"}[2m])
+          )
+      - record: wafl_snap_create_skip_reason_persistent
+        expr: |
+          (
+            wafl_snap_create_skip_reason_trigger
+            or
+            wafl_snap_create_skip_reason_persistent
+          )
+          unless
+          wafl_snap_create_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonAlerts | toString) "false" }}
+  - name: wafl_snap_create_skip_reason_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "WaflSnapCreateSkipReason" | default false) }}
+      - alert: WaflSnapCreateSkipReason
+        expr: wafl_snap_create_skip_reason_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Snapshot creation skipped for volume {{ "{{ $labels.vol }}" }}'
+          description: >
+            'Snapshot creation for volume {{ "{{ $labels.vol }}" }} (ID: {{ "{{ $labels.volident }}" }}) 
+            on node {{ "{{ $labels.name }}" }} was skipped. The alert resolves when the 
+            event "wafl.snap.create" is detected for this volume.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityFinal | toString) "false" }}
+  - name: vifmgr_lifs_overcapacity_final
+    interval: 1m
+    rules:
+      - record: vifmgr_lifs_overcapacity_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[2m])
+          )
+      - record: vifmgr_lifdeleted_byadmin_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="vifmgr.lifdeleted.byadmin"}[2m])
+          )
+      - record: vifmgr_lifs_overcapacity_persistent
+        expr: |
+          (
+            vifmgr_lifs_overcapacity_trigger
+            or
+            vifmgr_lifs_overcapacity_persistent
+          )
+          unless
+          vifmgr_lifdeleted_byadmin_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityAlerts | toString) "false" }}
+  - name: vifmgr_lifs_overcapacity_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VifmgrLifsOvercapacity" | default false) }}
+      - alert: VifmgrLifsOvercapacity
+        expr: vifmgr_lifs_overcapacity_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 LIFs are overcapacity on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The number of logical interfaces (LIFs) on node {{ "{{ $labels.name }}" }} 
+            has exceeded the recommended limit. The alert resolves when the event 
+            "vifmgr.lifdeleted.byadmin" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingFinal | toString) "false" }}
+  - name: raid_config_spare_disk_missing_final
+    interval: 1m
+    rules:
+      - record: raid_config_spare_disk_missing_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.config.spare.disk.missing"}[2m])
+          )
+      - record: raid_disk_inserted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, shelf, bay, name) (
+            max_over_time(ems_events{message="raid.disk.inserted"}[2m])
+          )
+      - record: raid_config_spare_disk_missing_persistent
+        expr: |
+          (
+            raid_config_spare_disk_missing_trigger
+            or
+            raid_config_spare_disk_missing_persistent
+          )
+          unless
+          raid_disk_inserted_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingAlerts | toString) "false" }}
+  - name: raid_config_spare_disk_missing_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "RaidConfigSpareDiskMissing" | default false) }}
+      - alert: RaidConfigSpareDiskMissing
+        expr: raid_config_spare_disk_missing_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Spare disk missing'
+          description: >
+            'A required spare disk is missing at shelf {{ "{{ $labels.shelf }}" }}, bay 
+            {{ "{{ $labels.bay }}" }} on node {{ "{{ $labels.name }}" }}. This reduces 
+            data protection. The alert resolves when the event "raid.disk.inserted" 
+            is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultFinal | toString) "false" }}
+  - name: callhome_shlf_fault_final
+    interval: 1m
+    rules:
+      - record: callhome_shlf_fault_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.shlf.fault"}[2m])
+          )
+      - record: monitor_shelf_fault_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.shelf.fault.ok"}[2m])
+          )
+      - record: callhome_shlf_fault_persistent
+        expr: |
+          (
+            callhome_shlf_fault_trigger
+            or
+            callhome_shlf_fault_persistent
+          )
+          unless
+          monitor_shelf_fault_ok_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultAlerts | toString) "false" }}
+  - name: callhome_shlf_fault_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CallhomeShlfFault" | default false) }}
+      - alert: CallhomeShlfFault
+        expr: callhome_shlf_fault_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Shelf fault detected on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A shelf fault has been detected on node {{ "{{ $labels.name }}" }}. This 
+            could impact disk accessibility. The alert resolves when the event 
+            "monitor.shelf.fault.ok" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingFinal | toString) "false" }}
+  - name: clam_partner_halting_final
+    interval: 1m
+    rules:
+      - record: clam_partner_halting_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="clam.partner.halting"}[2m])
+          )
+      - record: clam_update_partner_state_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="clam.update.partner.state"}[2m])
+          )
+      - record: clam_partner_halting_persistent
+        expr: |
+          (
+            clam_partner_halting_trigger
+            or
+            clam_partner_halting_persistent
+          )
+          unless
+          clam_update_partner_state_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingAlerts | toString) "false" }}
+  - name: clam_partner_halting_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "ClamPartnerHalting" | default false) }}
+      - alert: ClamPartnerHalting
+        expr: clam_partner_halting_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Partner node is halting on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The partner node of {{ "{{ $labels.name }}" }} is halting. This will likely 
+            lead to a takeover. The alert resolves when the event 
+            "clam.update.partner.state" is detected.'
+
+  # replication.dst.resync.success war doppelt in harvest
+  # funktioniert nicht - tbc
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailFinal | toString) "false" }}
+  - name: mgmt_snapmir_resync_fail_final
+    interval: 1m
+    rules:
+      - record: mgmt_snapmir_resync_fail_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+            max_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[2m])
+          )
+      - record: replication_dst_resync_success_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, srcpath, dstpath) (
+            max_over_time(ems_events{message="replication.dst.resync.success"}[2m])
+          )
+      - record: mgmt_snapmir_resync_fail_persistent
+        expr: |
+          (
+            mgmt_snapmir_resync_fail_trigger
+            or
+            mgmt_snapmir_resync_fail_persistent
+          )
+          unless
+          replication_dst_resync_success_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailAlerts | toString) "false" }}
+  - name: mgmt_snapmir_resync_fail_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MgmtSnapmirResyncFail" | default false) }}
+      - alert: MgmtSnapmirResyncFail
+        expr: mgmt_snapmir_resync_fail_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 SnapMirror resync failed'
+          description: >
+            'SnapMirror resync from source {{ "{{ $labels.srcpath }}" }} to destination 
+            {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves when the event 
+            "replication.dst.resync.success" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullFinal | toString) "false" }}
+  - name: monitor_volume_full_final
+    interval: 1m
+    rules:
+      - record: monitor_volume_full_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+            max_over_time(ems_events{message="monitor.volume.full"}[2m])
+          )
+      - record: wafl_vol_autoSize_done_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+            max_over_time(ems_events{message="wafl.vol.autoSize.done"}[2m])
+          )
+      - record: monitor_volume_full_persistent
+        expr: |
+          (
+            monitor_volume_full_trigger
+            or
+            monitor_volume_full_persistent
+          )
+          unless
+          wafl_vol_autoSize_done_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullAlerts | toString) "false" }}
+  - name: monitor_volume_full_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorVolumeFull" | default false) }}
+      - alert: MonitorVolumeFull
+        expr: monitor_volume_full_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is full'
+          description: >
+            'Volume {{ "{{ $labels.vol }}" }} on Cluster {{ "{{ $labels.netapp_cluster }}" }} 
+            is full. This can cause write failures. The alert resolves when the event 
+            "wafl.vol.autoSize.done" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullFinal | toString) "false" }}
+  - name: monitor_volume_nearlyFull_final
+    interval: 1m
+    rules:
+      - record: monitor_volume_nearlyFull_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+            max_over_time(ems_events{message="monitor.volume.nearlyFull"}[2m])
+          )
+      - record: wafl_vol_autoSize_done_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, vol) (
+            max_over_time(ems_events{message="wafl.vol.autoSize.done"}[2m])
+          )
+      - record: monitor_volume_nearlyFull_persistent
+        expr: |
+          (
+            monitor_volume_nearlyFull_trigger
+            or
+            monitor_volume_nearlyFull_persistent
+          )
+          unless
+          wafl_vol_autoSize_done_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullAlerts | toString) "false" }}
+  - name: monitor_volume_nearlyFull_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorVolumeNearlyFull" | default false) }}
+      - alert: MonitorVolumeNearlyFull
+        expr: monitor_volume_nearlyFull_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Volume {{ "{{ $labels.vol }}" }} is nearly full'
+          description: >
+            'Volume {{ "{{ $labels.vol }}" }} on Cluster {{ "{{ $labels.netapp_cluster }}" }} 
+            is nearly full. The alert resolves when the event "wafl.vol.autoSize.done" is 
+            detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsFinal | toString) "false" }}
+  - name: vifmgr_cluscheck_hwerrors_final
+    interval: 1m
+    rules:
+      - record: vifmgr_cluscheck_hwerrors_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, portName, nodeName) (
+            max_over_time(ems_events{message="vifmgr.cluscheck.hwerrors"}[2m])
+          )
+      - record: vifmgr_port_monitor_passed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, portName, nodeName) (
+            max_over_time(ems_events{message="vifmgr.port.monitor.passed"}[2m])
+          )
+      - record: vifmgr_cluscheck_hwerrors_persistent
+        expr: |
+          (
+            vifmgr_cluscheck_hwerrors_trigger
+            or
+            vifmgr_cluscheck_hwerrors_persistent
+          )
+          unless
+          vifmgr_port_monitor_passed_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsAlerts | toString) "false" }}
+  - name: vifmgr_cluscheck_hwerrors_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VifmgrCluscheckHwerrors" | default false) }}
+      - alert: VifmgrCluscheckHwerrors
+        expr: vifmgr_cluscheck_hwerrors_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Hardware errors on port {{ "{{ $labels.portName }}" }}'
+          description: >
+            'Hardware errors detected on port {{ "{{ $labels.portName }}" }} on node 
+            {{ "{{ $labels.nodeName }}" }}. The alert resolves when the event 
+            "vifmgr.port.monitor.passed" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesFinal | toString) "false" }}
+  - name: monitor_nvramLowBatteries_final
+    interval: 1m
+    rules:
+      - record: monitor_nvramLowBatteries_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.nvramLowBatteries"}[2m])
+          )
+      - record: nvram_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvram.battery.capacity.normal"}[2m])
+          )
+      - record: monitor_nvramLowBatteries_persistent
+        expr: |
+          (
+            monitor_nvramLowBatteries_trigger
+            or
+            monitor_nvramLowBatteries_persistent
+          )
+          unless
+          nvram_battery_capacity_normal_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesAlerts | toString) "false" }}
+  - name: monitor_nvramLowBatteries_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorNvramLowBatteries" | default false) }}
+      - alert: MonitorNvramLowBatteries
+        expr: monitor_nvramLowBatteries_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 NVRAM batteries are low on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The NVRAM batteries are low on node {{ "{{ $labels.name }}" }}. The alert 
+            resolves when the event "nvram.battery.capacity.normal" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowFinal | toString) "false" }}
+  - name: monitor_nvmembattery_warninglow_final
+    interval: 1m
+    rules:
+      - record: monitor_nvmembattery_warninglow_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.nvmembattery.warninglow"}[2m])
+          )
+      - record: nvmem_battery_capacity_normal_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="nvmem.battery.capacity.normal"}[2m])
+          )
+      - record: monitor_nvmembattery_warninglow_persistent
+        expr: |
+          (
+            monitor_nvmembattery_warninglow_trigger
+            or
+            monitor_nvmembattery_warninglow_persistent
+          )
+          unless
+          nvmem_battery_capacity_normal_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowAlerts | toString) "false" }}
+  - name: monitor_nvmembattery_warninglow_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorNvmembatteryWarninglow" | default false) }}
+      - alert: MonitorNvmembatteryWarninglow
+        expr: monitor_nvmembattery_warninglow_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 NVMEM battery warning on {{ "{{ $labels.name }}" }}'
+          description: > 
+            'The NVMEM battery is reporting a low capacity warning on node {{ "{{ $labels.name }}" }}. 
+            The alert resolves when the event "nvmem.battery.capacity.normal" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupFinal | toString) "false" }}
+  - name: km_run_external_setup_final
+    interval: 1m
+    rules:
+      - record: km_run_external_setup_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.run.external.setup"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_run_external_setup_persistent
+        expr: |
+          (
+            km_run_external_setup_trigger
+            or
+            km_run_external_setup_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupAlerts | toString) "false" }}
+  - name: km_run_external_setup_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "KmRunExternalSetup" | default false) }}
+      - alert: KmRunExternalSetup
+        expr: km_run_external_setup_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 External Key Manager setup required on {{ "{{ $labels.name }}" }}'
+          description: >
+            'External Key Manager (KMIP) setup is required on node {{ "{{ $labels.name }}" }}. 
+            The alert resolves when the event "km.keyserver.available" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableFinal | toString) "false" }}
+  - name: km_keyserver_notavailable_final
+    interval: 1m
+    rules:
+      - record: km_keyserver_notavailable_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.notavailable"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_keyserver_notavailable_persistent
+        expr: |
+          (
+            km_keyserver_notavailable_trigger
+            or
+            km_keyserver_notavailable_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableAlerts | toString) "false" }}
+  - name: km_keyserver_notavailable_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "KmKeyserverNotavailable" | default false) }}
+      - alert: KmKeyserverNotavailable
+        expr: km_keyserver_notavailable_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Key server not available on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The external key server (KMIP) is not available to node {{ "{{ $labels.name }}" }}. 
+            This can impact access to encrypted data. The alert resolves when the event 
+            "km.keyserver.available" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedFinal | toString) "false" }}
+  - name: km_keyretrieve_failed_final
+    interval: 1m
+    rules:
+      - record: km_keyretrieve_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyretrieve.failed"}[2m])
+          )
+      - record: km_keyserver_available_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="km.keyserver.available"}[2m])
+          )
+      - record: km_keyretrieve_failed_persistent
+        expr: |
+          (
+            km_keyretrieve_failed_trigger
+            or
+            km_keyretrieve_failed_persistent
+          )
+          unless
+          km_keyserver_available_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedAlerts | toString) "false" }}
+  - name: km_keyretrieve_failed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "KmKeyretrieveFailed" | default false) }}
+      - alert: KmKeyretrieveFailed
+        expr: km_keyretrieve_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Key retrieval failed on {{ "{{ $labels.name }}" }}'
+          description: >
+            'Failed to retrieve encryption keys from the external key server on node 
+            {{ "{{ $labels.name }}" }}. The alert resolves when the event 
+            "km.keyserver.available" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverFinal | toString) "false" }}
+  - name: callhome_reboot_takeover_final
+    interval: 1m
+    rules:
+      - record: callhome_reboot_takeover_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.reboot.takeover"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_reboot_takeover_persistent
+        expr: |
+          (
+            callhome_reboot_takeover_trigger
+            or
+            callhome_reboot_takeover_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverAlerts | toString) "false" }}
+  - name: callhome_reboot_takeover_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CallhomeRebootTakeover" | default false) }}
+      - alert: CallhomeRebootTakeover
+        expr: callhome_reboot_takeover_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Node {{ "{{ $labels.name }}" }} taken over due to reboot'
+          description: >
+            'Node {{ "{{ $labels.name }}" }} has been taken over by its partner due to a 
+            reboot. The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.clamNodeOoqFinal | toString) "false" }}
+  - name: clam_node_ooq_final
+    interval: 1m
+    rules:
+      - record: clam_node_ooq_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="clam.node.ooq"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: clam_node_ooq_persistent
+        expr: |
+          (
+            clam_node_ooq_trigger
+            or
+            clam_node_ooq_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.clamNodeOoqAlerts | toString) "false" }}
+  - name: clam_node_ooq_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "ClamNodeOoq" | default false) }}
+      - alert: ClamNodeOoq
+        expr: clam_node_ooq_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Node {{ "{{ $labels.name }}" }} is out of quorum'
+          description: >
+            'Node {{ "{{ $labels.name }}" }} is out of quorum (OOQ), indicating a Cluster 
+            state issue. The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownFinal | toString) "false" }}
+  - name: callhome_partner_down_final
+    interval: 1m
+    rules:
+      - record: callhome_partner_down_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.partner.down"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_partner_down_persistent
+        expr: |
+          (
+            callhome_partner_down_trigger
+            or
+            callhome_partner_down_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownAlerts | toString) "false" }}
+  - name: callhome_partner_down_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CallhomePartnerDown" | default false) }}
+      - alert: CallhomePartnerDown
+        expr: callhome_partner_down_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Partner node of {{ "{{ $labels.name }}" }} is down'
+          description: >
+            'The partner node of {{ "{{ $labels.name }}" }} is down, triggering a takeover. 
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverFinal | toString) "false" }}
+  - name: callhome_sfo_takeover_final
+    interval: 1m
+    rules:
+      - record: callhome_sfo_takeover_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="callhome.sfo.takeover"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: callhome_sfo_takeover_persistent
+        expr: |
+          (
+            callhome_sfo_takeover_trigger
+            or
+            callhome_sfo_takeover_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverAlerts | toString) "false" }}
+  - name: callhome_sfo_takeover_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CallhomeSfoTakeover" | default false) }}
+      - alert: CallhomeSfoTakeover
+        expr: callhome_sfo_takeover_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 SFO takeover occurred on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A Storage Failover (SFO) takeover has occurred on node {{ "{{ $labels.name }}" }}. 
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackFinal | toString) "false" }}
+  - name: sfo_PartialGiveback_final
+    interval: 1m
+    rules:
+      - record: sfo_PartialGiveback_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.PartialGiveback"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: sfo_PartialGiveback_persistent
+        expr: |
+          (
+            sfo_PartialGiveback_trigger
+            or
+            sfo_PartialGiveback_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackAlerts | toString) "false" }}
+  - name: sfo_PartialGiveback_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SfoPartialGiveback" | default false) }}
+      - alert: SfoPartialGiveback
+        expr: sfo_PartialGiveback_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Partial giveback occurred on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A partial giveback has occurred on node {{ "{{ $labels.name }}" }}. Not all 
+            resources may have been returned. The alert resolves when the event 
+            "sfo.giveback.complete" is detected.'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailFinal | toString) "false" }}
+  - name: cf_rsrc_takeoverOpFail_final
+    interval: 1m
+    rules:
+      - record: cf_rsrc_takeoverOpFail_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: cf_rsrc_takeoverOpFail_persistent
+        expr: |
+          (
+            cf_rsrc_takeoverOpFail_trigger
+            or
+            cf_rsrc_takeoverOpFail_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailAlerts | toString) "false" }}
+  - name: cf_rsrc_takeoverOpFail_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CfRsrcTakeoverOpFail" | default false) }}
+      - alert: CfRsrcTakeoverOpFail
+        expr: cf_rsrc_takeoverOpFail_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Resource takeover operation failed on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A resource takeover operation has failed on node {{ "{{ $labels.name }}" }}. 
+            The alert resolves when the event "sfo.giveback.complete" is detected.'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitFinal | toString) "false" }}
+  - name: spm_httpd_process_exit_final
+    interval: 1m
+    rules:
+      - record: spm_httpd_process_exit_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="spm.httpd.process.exit"}[2m])
+          )
+      - record: sfo_giveback_complete_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="sfo.giveback.complete"}[2m])
+          )
+      - record: spm_httpd_process_exit_persistent
+        expr: |
+          (
+            spm_httpd_process_exit_trigger
+            or
+            spm_httpd_process_exit_persistent
+          )
+          unless
+          sfo_giveback_complete_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitAlerts | toString) "false" }}
+  - name: spm_httpd_process_exit_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SpmHttpdProcessExit" | default false) }}
+      - alert: SpmHttpdProcessExit
+        expr: spm_httpd_process_exit_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Service Processor httpd process exited on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The Service Processor httpd process has exited unexpectedly on node {{ "{{ $labels.name }}" }}. 
+            The alert resolves when the event "sfo.giveback.complete" is detected 
+            (as a proxy for node stability).'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vserverStopFailedFinal | toString) "false" }}
+  - name: vserver_stop_failed_final
+    interval: 1m
+    rules:
+      - record: vserver_stop_failed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+            max_over_time(ems_events{message="vserver.stop.failed"}[2m])
+          )
+      - record: vserver_stop_succeeded_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, svm, svm_uuid) (
+            max_over_time(ems_events{message="vserver.stop.succeeded"}[2m])
+          )
+      - record: vserver_stop_failed_persistent
+        expr: |
+          (
+            vserver_stop_failed_trigger
+            or
+            vserver_stop_failed_persistent
+          )
+          unless
+          vserver_stop_succeeded_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vserverStopFailedAlerts | toString) "false" }}
+  - name: vserver_stop_failed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VServerStopFailed" | default false) }}
+      - alert: VServerStopFailed
+        expr: vserver_stop_failed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Failed to stop SVM {{ "{{ $labels.svm }}" }}'
+          description: >
+            'An attempt to stop SVM {{ "{{ $labels.svm }}" }} (UUID: {{ "{{ $labels.svm_uuid }}" }}) 
+            on Cluster {{ "{{ $labels.netapp_cluster }}" }} has failed. The alert resolves 
+            when the stop operation eventually succeeds ("vserver.stop.succeeded").'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedFinal | toString) "false" }}
+  - name: raid_vol_state_changed_final
+    interval: 1m
+    rules:
+      - record: raid_vol_state_changed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.changed"}[2m])
+          )
+      - record: raid_vol_state_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+          )
+      - record: raid_vol_state_changed_persistent
+        expr: |
+          (
+            raid_vol_state_changed_trigger
+            or
+            raid_vol_state_changed_persistent
+          )
+          unless
+          raid_vol_state_online_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedAlerts | toString) "false" }}
+  - name: raid_vol_state_changed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "RaidVolStateChanged" | default false) }}
+      - alert: RaidVolStateChanged
+        expr: raid_vol_state_changed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} state has changed on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The state of aggregate {{ "{{ $labels.aggregate }}" }} on node {{ "{{ $labels.name }}" }} 
+            has changed to a non-optimal state. This can impact data availability. The 
+            alert resolves when the aggregate is back online ("raid.vol.state.online").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedFinal | toString) "false" }}
+  - name: ha_giveback_aggrOnlineFailed_final
+    interval: 1m
+    rules:
+      - record: ha_giveback_aggrOnlineFailed_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[2m])
+          )
+      - record: raid_vol_state_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, aggregate) (
+            max_over_time(ems_events{message="raid.vol.state.online"}[2m])
+          )
+      - record: ha_giveback_aggrOnlineFailed_persistent
+        expr: |
+          (
+            ha_giveback_aggrOnlineFailed_trigger
+            or
+            ha_giveback_aggrOnlineFailed_persistent
+          )
+          unless
+          raid_vol_state_online_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedAlerts | toString) "false" }}
+  - name: ha_giveback_aggrOnlineFailed_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "HaGivebackAggrOnlineFailed" | default false) }}
+      - alert: HaGivebackAggrOnlineFailed
+        expr: ha_giveback_aggrOnlineFailed_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
+          description: >
+            'During a giveback operation on node {{ "{{ $labels.name }}" }}, aggregate 
+            {{ "{{ $labels.aggregate }}" }} failed to come online. Manual intervention may 
+            be required. The alert resolves when the aggregate is back online 
+            ("raid.vol.state.online").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableFinal | toString) "false" }}
+  - name: cf_fm_notkoverClusterDisable_final
+    interval: 1m
+    rules:
+      - record: cf_fm_notkoverClusterDisable_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[2m])
+          )
+      - record: cf_fsm_takeoverOfPartnerEnabled_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="cf.fsm.takeoverOfPartnerEnabled"}[2m])
+          )
+      - record: cf_fm_notkoverClusterDisable_persistent
+        expr: |
+          (
+            cf_fm_notkoverClusterDisable_trigger
+            or
+            cf_fm_notkoverClusterDisable_persistent
+          )
+          unless
+          cf_fsm_takeoverOfPartnerEnabled_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableAlerts | toString) "false" }}
+  - name: cf_fm_notkoverClusterDisable_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "CfFmNotkoverClusterDisable" | default false) }}
+      - alert: CfFmNotkoverClusterDisable
+        expr: cf_fm_notkoverClusterDisable_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Cluster Failover disabled on {{ "{{ $labels.name }}" }}'
+          description: >
+            'Cluster failover takeover has been disabled on node {{ "{{ $labels.name }}" }}. 
+            High availability is compromised. The alert resolves when takeover is 
+            re-enabled ("cf.fsm.takeoverOfPartnerEnabled").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateFinal | toString) "false" }}
+  - name: wafl_vol_setting_in_nvfailed_state_final
+    interval: 1m
+    rules:
+      - record: wafl_vol_setting_in_nvfailed_state_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+            max_over_time(ems_events{message="wafl.vol.setting.in.nvfailed.state"}[2m])
+          )
+      - record: wafl_vvol_online_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vol) (
+            max_over_time(ems_events{message="wafl.vvol.online"}[2m])
+          )
+      - record: wafl_vol_setting_in_nvfailed_state_persistent
+        expr: |
+          (
+            wafl_vol_setting_in_nvfailed_state_trigger
+            or
+            wafl_vol_setting_in_nvfailed_state_persistent
+          )
+          unless
+          wafl_vvol_online_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateAlerts | toString) "false" }}
+  - name: wafl_vol_setting_in_nvfailed_state_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "WaflVolSettingInNvfailedState" | default false) }}
+      - alert: WaflVolSettingInNvfailedState
+        expr: wafl_vol_setting_in_nvfailed_state_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is in nvfailed state'
+          description: >
+            'Volume {{ "{{ $labels.vol }}" }} on node {{ "{{ $labels.name }}" }} is in an 
+            nvfailed state. This is a critical condition indicating potential data loss. 
+            The alert resolves when the volume is back online ("wafl.vvol.online").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsFinal | toString) "false" }}
+  - name: vifmgr_lifdown_noports_final
+    interval: 1m
+    rules:
+      - record: vifmgr_lifdown_noports_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vifname) (
+            max_over_time(ems_events{message="vifmgr.lifdown.noports"}[2m])
+          )
+      - record: vifmgr_lifbeinghosted_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, vifname) (
+            max_over_time(ems_events{message="vifmgr.lifbeinghosted"}[2m])
+          )
+      - record: vifmgr_lifdown_noports_persistent
+        expr: |
+          (
+            vifmgr_lifdown_noports_trigger
+            or
+            vifmgr_lifdown_noports_persistent
+          )
+          unless
+          vifmgr_lifbeinghosted_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsAlerts | toString) "false" }}
+  - name: vifmgr_lifdown_noports_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "VifmgrLifdownNoports" | default false) }}
+      - alert: VifmgrLifdownNoports
+        expr: vifmgr_lifdown_noports_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 LIF {{ "{{ $labels.vifname }}" }} is down (no available ports)'
+          description: >
+            'The logical interface (LIF) {{ "{{ $labels.vifname }}" }} on node 
+            {{ "{{ $labels.name }}" }} is down because no suitable failover ports are 
+            available. The alert resolves when the LIF is hosted again 
+            ("vifmgr.lifbeinghosted").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorFinal | toString) "false" }}
+  - name: ses_multipath_ReqError_final
+    interval: 1m
+    rules:
+      - record: ses_multipath_ReqError_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="ses.multipath.ReqError"}[2m])
+          )
+      - record: shelf_config_tompha_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="shelf.config.tompha"}[2m])
+          )
+      - record: ses_multipath_ReqError_persistent
+        expr: |
+          (
+            ses_multipath_ReqError_trigger
+            or
+            ses_multipath_ReqError_persistent
+          )
+          unless
+          shelf_config_tompha_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorAlerts | toString) "false" }}
+  - name: ses_multipath_ReqError_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "SesMultipathReqError" | default false) }}
+      - alert: SesMultipathReqError
+        expr: ses_multipath_ReqError_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 SES multipath request error on {{ "{{ $labels.name }}" }}'
+          description: >
+            'A SES (SCSI Enclosure Services) multipath request error occurred on node 
+            {{ "{{ $labels.name }}" }}. This indicates a problem with shelf connectivity. 
+            The alert resolves when the shelf configuration is healthy 
+            ("shelf.config.tompha").'
+
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedFinal | toString) "false" }}
+  - name: token_vol_max_count_reached_final
+    interval: 1m
+    rules:
+      - record: token_vol_max_count_reached_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+            max_over_time(ems_events{message="token.vol.max.count.reached"}[2m])
+          )
+      - record: token_vol_cache_cleared_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name, volume_name) (
+            max_over_time(ems_events{message="token.vol.cache.cleared"}[2m])
+          )
+      - record: token_vol_max_count_reached_persistent
+        expr: |
+          (
+            token_vol_max_count_reached_trigger
+            or
+            token_vol_max_count_reached_persistent
+          )
+          unless
+          token_vol_cache_cleared_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedAlerts | toString) "false" }}
+  - name: token_vol_max_count_reached_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "TokenVolMaxCountReached" | default false) }}
+      - alert: TokenVolMaxCountReached
+        expr: token_vol_max_count_reached_persistent == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: '🟡 Max token count reached for volume {{ "{{ $labels.volume_name }}" }}'
+          description: >
+            'The maximum token count has been reached for volume {{ "{{ $labels.volume_name }}" }} 
+            on node {{ "{{ $labels.name }}" }}. This can impact performance or specific 
+            operations. The alert resolves when the token cache is cleared 
+            ("token.vol.cache.cleared").'
+
+{{- end }}
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalFinal | toString) "false" }}
+  - name: monitor_globalStatus_critical_final
+    interval: 1m
+    rules:
+      - record: monitor_globalStatus_critical_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.globalStatus.critical"}[2m])
+          )
+      - record: monitor_globalStatus_ok_trigger
+        expr: |
+          max by (netapp_cluster, node, datacenter, cluster_uuid, name) (
+            max_over_time(ems_events{message="monitor.globalStatus.ok"}[2m])
+          )
+      - record: monitor_globalStatus_critical_persistent
+        expr: |
+          (
+            monitor_globalStatus_critical_trigger
+            or
+            monitor_globalStatus_critical_persistent
+          )
+          unless
+          monitor_globalStatus_ok_trigger
+
+{{- end }}
+{{- if ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalAlerts | toString) "false" }}
+  - name: monitor_globalStatus_critical_alerts
+    rules:
+{{- if not (index .Values.prometheusRules.disabled "MonitorGlobalStatusCritical" | default false) }}
+      - alert: MonitorGlobalStatusCritical
+        expr: monitor_globalStatus_critical_persistent == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: '🔴 Global system status is CRITICAL on {{ "{{ $labels.name }}" }}'
+          description: >
+            'The overall health status of node {{ "{{ $labels.name }}" }} is reported as 
+            CRITICAL. This indicates a severe, system-wide issue that requires immediate 
+            attention. The alert resolves when the status returns to OK 
+            ("monitor.globalStatus.ok").'
+
+{{- end }}
+{{- end }}
+{{- end }}
