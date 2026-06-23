@@ -15,7 +15,7 @@ metadata:
 {{ include "netapp-monitoring-operations.labels" $root | indent 4 }}
   annotations:
 {{- if $.Values.prometheusRules.annotations }}
-{{ toYaml . | indent 4 }}
+{{ toYaml $.Values.prometheusRules.annotations | indent 4 }}
 {{- else }}
     prometheus.io/alert: "true"
 {{- end }}

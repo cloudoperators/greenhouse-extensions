@@ -12,7 +12,7 @@ metadata:
     {{- end }}
     {{- include "netapp-monitoring-operations.labels" . | nindent 4 }}
 spec:
-  jobLabel: {{ default "app" .Values.podMonitor.jobLabel | quote }}
+  jobLabel: {{ default "ccloud/service" .Values.podMonitor.jobLabel | quote }}
   namespaceSelector:
     matchNames:
       {{- range (required "podMonitor.targetNamespaces is required; list the namespace(s) where your target pods run." .Values.podMonitor.targetNamespaces) }}

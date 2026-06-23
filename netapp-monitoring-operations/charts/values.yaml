@@ -3,7 +3,6 @@
 
 prometheusRules:
   create: true
-  namespace: storage-product
   # Labels applied to every PrometheusRule's metadata. `plugin` must match the
   # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
   labels:
@@ -143,7 +142,6 @@ prometheusRules:
     support_group: storage
 
 podMonitor:
-  namespace: storage-product
   scrapeInterval: 15s
   # Labels applied to the PodMonitor metadata. `plugin` must match the Prometheus
   # podMonitorSelector so the resource is picked up; add any extra labels here.
