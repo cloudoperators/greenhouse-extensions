@@ -196,7 +196,7 @@ opensearch/storage_failover_a:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 opensearch/storage_failover_b:
   http:
     auth:
@@ -208,7 +208,7 @@ opensearch/storage_failover_b:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 {{- end }}
 
 {{- define "openstack.pipeline" }}
