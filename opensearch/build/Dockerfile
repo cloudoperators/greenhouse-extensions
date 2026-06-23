@@ -8,3 +8,4 @@ RUN /usr/share/opensearch/bin/opensearch-plugin remove opensearch-security-analy
  && /usr/share/opensearch/bin/opensearch-plugin remove opensearch-alerting \
  && /usr/share/opensearch/bin/opensearch-plugin install --batch https://github.com/SAP-cloud-infrastructure/opensearch-alerting/releases/download/3.7.0.0-sci-v1/opensearch-alerting-3.7.0.0-sci-v1-SNAPSHOT.zip \
  && /usr/share/opensearch/bin/opensearch-plugin install --batch https://github.com/SAP-cloud-infrastructure/opensearch-security-analytics/releases/download/3.7.0.0-sci-v1/opensearch-security-analytics-3.7.0.0-sci-v1-SNAPSHOT.zip
+ 
