@@ -24,7 +24,7 @@ opensearch/failover_a_traces:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 opensearch/failover_b_traces:
   http:
     auth:
@@ -36,7 +36,7 @@ opensearch/failover_b_traces:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 {{- end }}
 {{- end }}
 

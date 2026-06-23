@@ -267,7 +267,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/failover_b:
         http:
           auth:
@@ -279,7 +279,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/cronus_failover_a:
         http:
           auth:
@@ -291,7 +291,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/cronus_failover_b:
         http:
           auth:
@@ -303,7 +303,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
