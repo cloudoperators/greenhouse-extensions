@@ -1,0 +1,101 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+---
+harvest:
+  image:
+    repository:
+    tag:
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
+    limits:
+      cpu: "500m"
+      memory: "2Gi"
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+auth:
+  auth_style: basic_auth
+
+exporters:
+  prometheus:
+    exporter: Prometheus
+    port: 13000
+
+defaults:
+  collectors:
+    - Ems
+    - Rest
+    - RestPerf
+    - KeyPerf
+    - Unix
+    - Simple
+  use_insecure_tls: true
+  exporters:
+    - prometheus
+
+netappsd:
+  enabled: true
+  serviceAccountName: netappsd
+  lob: CCloud
+  image:
+    repository:
+    tag:
+    pullPolicy: IfNotPresent
+  region: ""
+  ports:
+    master: 8000
+    harvest: 13000
+    worker: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  netapp_exporter_user: ""
+  netapp_exporter_password: ""
+  netbox_api_token: ""
+  netbox_host: ""
+  credentials_file:
+  credentials_secret:
+
+# apps: Configures which filers are discovered by the service discovery.
+# Each key corresponds to a label assigned to devices in Netbox.
+# cinder: Targets filers labeled as cinder storage backends.
+# manila: Targets filers labeled as manila shared filesystem backends.
+# apod: Targets filers labeled as apod storage devices.
+# cinder-manila: Targets filers that have both the cinder and manila labels.
+apps:
+  cinder:
+    enabled: true
+  manila:
+    enabled: true
+  apod:
+    enabled: true
+  cinder-manila:
+    enabled: true
+
+finalizers:
+  - dme-storage/prevent-deletion
+
+owner-info:
+  support-group: storage
+  service: netapp-monitoring
+  maintainers:
+    - Ganesh Kugulakrishnan
+    - Chandrakanth Renduchintala
+  helm-chart-url: https://github.com/sapcc/helm-charts/tree/master/prometheus-exporters/netapp-monitoring

@@ -1,0 +1,151 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.netappsd.enabled }}
+{{- range $appName, $appValues := .Values.apps }}
+{{- if $appValues.enabled }}
+{{- with $ }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: poller
+        prometheus.io/scrape: "true"
+        prometheus.io/targets: storage
+        checksum/sd-config: {{ include "netapp-monitoring.checksum.configmap" . }}
+        checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
+        checksum/basic-auth: {{ include "netapp-monitoring.checksum.basicAuthSecret" . }}
+      labels:
+        app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
+        name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+    spec:
+      serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
+      containers:
+        - name: poller
+          image: "{{ required ".Values.harvest.image.repository is required" .Values.harvest.image.repository }}:{{ required ".Values.harvest.image.tag is required" .Values.harvest.image.tag }}"
+          imagePullPolicy: {{ .Values.harvest.image.pullPolicy | default "IfNotPresent" }}
+          command: ["/busybox/sh"]
+          args:
+            - /app/scripts/start-poller.sh
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.netappsd.ports.harvest }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.netappsd.ports.harvest }}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.netappsd.ports.harvest }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.harvest.resources | nindent 12 }}
+          volumeMounts:
+            - name: shared
+              mountPath: /app/shared
+            - name: harvest-sd-config
+              mountPath: /app/scripts/start-poller.sh
+              subPath: start-poller.sh
+            - name: basic-auth
+              mountPath: {{ required ".Values.netappsd.credentials_file is required" .Values.netappsd.credentials_file }}
+              subPath: {{ required ".Values.netappsd.credentials_secret is required" .Values.netappsd.credentials_secret }}.yml
+              readOnly: true
+          securityContext:
+            {{- toYaml .Values.harvest.securityContext | nindent 12 }}
+        - name: worker
+          image: "{{ required ".Values.netappsd.image.repository is required" .Values.netappsd.image.repository }}:{{ required ".Values.netappsd.image.tag is required" .Values.netappsd.image.tag }}"
+          imagePullPolicy: {{ .Values.netappsd.image.pullPolicy | default "IfNotPresent" }}
+          command: ["/netappsd", "worker"]
+          args:
+            - --master-url
+            - http://{{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master.{{ .Release.Namespace }}.svc:{{ .Values.netappsd.ports.master }}
+            - --listen-addr
+            - :{{ .Values.netappsd.ports.worker }}
+            - --template-file
+            - /app/harvest.yaml.tpl
+            - --output-file
+            - /app/shared/harvest.yaml
+          env:
+            - name: NETAPP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netappUsername
+            - name: NETAPP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netappPassword
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: liveness
+              containerPort: {{ .Values.netappsd.ports.worker }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.netappsd.ports.worker }}
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.netappsd.ports.worker }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.netappsd.resources | nindent 12 }}
+          volumeMounts:
+            - name: harvest-sd-config
+              mountPath: /app/harvest.yaml.tpl
+              subPath: harvest.yaml.tpl
+            - name: shared
+              mountPath: /app/shared
+      volumes:
+        - name: harvest-sd-config
+          configMap:
+            name: {{ include "netapp-monitoring.fullname" . }}-sd-config
+        - name: shared
+          emptyDir: {}
+        - name: basic-auth
+          secret:
+            secretName: {{ required ".Values.netappsd.credentials_secret is required" .Values.netappsd.credentials_secret }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

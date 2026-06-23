@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.netappsd.enabled }}
+{{- range $appName, $appValues := .Values.apps }}
+{{- if $appValues.enabled }}
+{{- with $ }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: netappsd
+        prometheus.io/scrape: "true"
+        prometheus.io/targets: storage
+        checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
+      labels:
+        app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
+        name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+    spec:
+      serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
+      containers:
+        - name: netappsd
+          image: "{{ required ".Values.netappsd.image.repository is required" .Values.netappsd.image.repository }}:{{ required ".Values.netappsd.image.tag is required" .Values.netappsd.image.tag }}"
+          imagePullPolicy: {{ .Values.netappsd.image.pullPolicy | default "IfNotPresent" }}
+          command: ["/netappsd", "master"]
+          args:
+            - --region
+            - {{ required ".Values.netappsd.region is required" .Values.netappsd.region }}
+            - --tag
+            - {{ $appName }}
+            - --listen-addr
+            - 0.0.0.0:{{ .Values.netappsd.ports.master }}
+            - --worker
+            - {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+          env:
+            - name: NETAPP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netappUsername
+            - name: NETAPP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netappPassword
+            - name: NETBOX_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netboxToken
+            - name: NETBOX_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netapp-monitoring.fullname" . }}-sd
+                  key: netboxHost
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.netappsd.ports.master }}
+          resources:
+            {{- toYaml .Values.netappsd.resources | nindent 12 }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
