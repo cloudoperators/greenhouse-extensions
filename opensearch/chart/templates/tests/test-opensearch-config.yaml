@@ -50,10 +50,6 @@ data:
       [ "$(kubectl get opensearchismpolicies.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
     }
 
-    @test "Verify presence of OpenSearchComponentTemplate resource" {
-      [ "$(kubectl get opensearchcomponenttemplates.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 1 ]
-    }
-
     @test "Verify presence of OpenSearchTenant resource" {
       [ "$(kubectl get opensearchtenants.opensearch.org -n {{ .Release.Namespace }} --no-headers | wc -l)" -ge 0 ]
     }

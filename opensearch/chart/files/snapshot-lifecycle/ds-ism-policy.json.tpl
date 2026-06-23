@@ -98,7 +98,7 @@
     "ism_template": [
       {
         "index_patterns": [
-          "{{ .stream.indexPatterns.hot }}"
+          "{{ .stream.name }}"
         ],
         "priority": 200
       }
