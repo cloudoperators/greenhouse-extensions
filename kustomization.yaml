@@ -22,3 +22,4 @@ resources:
   - thanos/plugindefinition.yaml
   - trust-manager/plugindefinition.yaml
   - netapp-monitoring/plugindefinition.yaml
+  - netapp-monitoring-operations/plugindefinition.yaml
