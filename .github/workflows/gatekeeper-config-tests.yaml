@@ -20,7 +20,7 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
         with:
-          version: "v3.19.2"
+          version: "v3.19.5"
 
       - name: Install gator
         env:
@@ -31,7 +31,9 @@ jobs:
           gator version
 
       - name: Run gator tests
-        run: gatekeeper-config/tests/run.sh | tee /tmp/gator.log
+        run: |
+          set -o pipefail
+          gatekeeper-config/tests/run.sh | tee /tmp/gator.log
 
       - name: Summarize results
         if: always()

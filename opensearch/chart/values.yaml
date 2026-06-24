@@ -789,18 +789,7 @@ cluster:
 
   # -- List of OpensearchComponentTemplate.
   # @default -- See values.yaml
-  componentTemplates:
-    - name: logs-attributes-dynamic
-      version: 1
-      allowAutoCreate: true
-      _meta:
-        description: "Enable full dynamic mapping for all attributes.* keys"
-      templateSpec:
-        mappings:
-          properties:
-            attributes:
-              type: object
-              dynamic: true
+  componentTemplates: []
 
   # -- List of OpensearchIndexTemplate. Includes template for logs* data stream.
   # @default -- See values.yaml
@@ -808,8 +797,6 @@ cluster:
     - name: logs-index-template
       indexPatterns:
         - "logs*"
-      composedOf:
-        - logs-attributes-dynamic
       templateSpec:
         settings:
           index:
