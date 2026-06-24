@@ -85,7 +85,7 @@ spec:
       name: openTelemetry.ingesterCollector.replicas
       required: false
       type: int
-    - description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `ingest-<key>`. See chart values.yaml for the entry schema.
+    - description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `<key>-ingester`. See chart values.yaml for the entry schema.
       name: openTelemetry.ingesterCollector.collectors
       required: false
       type: map

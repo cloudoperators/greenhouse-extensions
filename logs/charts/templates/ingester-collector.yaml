@@ -69,16 +69,24 @@ spec:
           encoding: {{ $kafka.encoding }}
         group_id: {{ printf "%s-ingester-%s" $name $stream | quote }}
         initial_offset: {{ $sCfg.initialOffset | default "latest" | quote }}
+        autocommit:
+          enable: true
+          interval: 1s
+        message_marking:
+          after: true
+          on_error: false
+          on_permanent_error: false
+        error_backoff:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 30s
+          max_elapsed_time: 3m
 {{- end }}
     processors:
       memory_limiter:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
-      batch:
-        send_batch_max_size: 5000
-        send_batch_size: 100
-        timeout: 30s
       attributes/cluster:
         actions:
           - action: insert
@@ -137,13 +145,7 @@ spec:
         priority_levels:
           - [logs/{{ $stream }}_failover_a]
           - [logs/{{ $stream }}_failover_b]
-        retry_interval: 20m
-        sending_queue:
-          enabled: true
-          block_on_overflow: true
-          num_consumers: 10
-          queue_size: 10000
-          sizer: requests
+        retry_interval: 1m
 {{- end }}
     service:
       extensions:
@@ -172,7 +174,7 @@ spec:
 {{- range $stream, $sCfg := $cfg.streams }}
         logs/{{ $stream }}:
           receivers: [kafka/{{ $stream }}]
-          processors: [memory_limiter, batch, attributes/cluster]
+          processors: [memory_limiter, attributes/cluster]
           exporters: [failover/opensearch_{{ $stream }}]
         logs/{{ $stream }}_failover_a:
           receivers: [failover/opensearch_{{ $stream }}]
