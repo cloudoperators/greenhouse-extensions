@@ -12,6 +12,14 @@ Requires the [OPA Gatekeeper](https://github.com/cloudoperators/greenhouse-exten
 |--------|-------------|
 | `highCpuRequests` | Flags workloads that request more than `maxCpu` cores in total across containers and initContainers. |
 | `unmanagedPods` | Flags Pods that have no `ownerReference` (i.e. not managed by a Deployment, DaemonSet, etc.). |
+| `forbiddenClusterwideObjects` | Restricts which `MutatingWebhookConfiguration` and `ValidatingWebhookConfiguration` objects may exist on the cluster via an allowlist of webhook names. |
+| `imagesFromApprovedRegistries` | Enforces that container images come from one of the configured `allowedRegistries` prefixes. |
+| `pciForbiddenImages` | Flags container images whose repository matches any of the configured forbidden regex `patterns`. |
+| `podRequiredLabels` | Enforces that Pods carry the configured `requiredLabels` keys. |
+| `podSecurityV2` | Forbids privileged Pod features (`hostNetwork`, `hostPID`, `privileged`, `allowPrivilegeEscalation`, added capabilities, `hostPath` mounts) unless the Pod matches an entry in `allowlist`. |
+| `ingressAnnotations` | Flags Ingresses using insecure nginx snippet annotations or the deprecated `ingress.kubernetes.io/` prefix. |
+| `ingressAnnotationsMigration` | During the nginx annotation prefix migration, flags Ingresses that set only one of the old/new prefix or set both with mismatched values. |
+| `prometheusScrapeAnnotations` | Flags Pods and Services that opt into scraping via `prometheus.io/scrape: "true"` but are not matched by any configured Prometheus CR. |
 
 ## Default behavior
 
