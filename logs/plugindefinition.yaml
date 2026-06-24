@@ -76,17 +76,72 @@ spec:
       required: false
       type: bool
     - default: false
-      description: Top-level toggle for the Kafka -> OpenSearch ingest collectors
+      description: Top-level toggle for the Kafka -> OpenSearch ingest collector
       name: openTelemetry.ingesterCollector.enabled
       required: false
       type: bool
     - default: 1
-      description: Replica count for each ingest collector Deployment
+      description: Replica count for the ingest collector Deployment
       name: openTelemetry.ingesterCollector.replicas
       required: false
       type: int
-    - description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `<key>-ingester`. See chart values.yaml for the entry schema.
-      name: openTelemetry.ingesterCollector.collectors
+    - description: Pod resources for the ingest collector
+      name: openTelemetry.ingesterCollector.resources
+      required: false
+      type: map
+    - default: true
+      description: Render a PodMonitor for the ingest collector
+      name: openTelemetry.ingesterCollector.prometheus.podMonitor.enabled
+      required: false
+      type: bool
+    - description: OpenSearch endpoint for the ingest collector
+      name: openTelemetry.ingesterCollector.opensearch.endpoint
+      required: false
+      type: string
+    - description: Secret holding the OpenSearch CA for the ingester
+      name: openTelemetry.ingesterCollector.opensearch.tls.caSecret
+      required: false
+      type: string
+    - default: ca.crt
+      description: Key in the CA secret for the OpenSearch CA file
+      name: openTelemetry.ingesterCollector.opensearch.tls.caSecretKey
+      required: false
+      type: string
+    - default: false
+      description: Skip OpenSearch TLS verification
+      name: openTelemetry.ingesterCollector.opensearch.tls.insecure
+      required: false
+      type: bool
+    - description: First failover OpenSearch username for the ingester
+      name: openTelemetry.ingesterCollector.opensearch.failover_username_a
+      required: false
+      type: secret
+    - description: First failover OpenSearch password for the ingester
+      name: openTelemetry.ingesterCollector.opensearch.failover_password_a
+      required: false
+      type: secret
+    - description: Second failover OpenSearch username for the ingester
+      name: openTelemetry.ingesterCollector.opensearch.failover_username_b
+      required: false
+      type: secret
+    - description: Second failover OpenSearch password for the ingester
+      name: openTelemetry.ingesterCollector.opensearch.failover_password_b
+      required: false
+      type: secret
+    - description: Kafka broker override for the ingester. Falls back to openTelemetry.kafka.brokers.
+      name: openTelemetry.ingesterCollector.kafka.brokers
+      required: false
+      type: list
+    - description: Kafka protocol version override for the ingester
+      name: openTelemetry.ingesterCollector.kafka.protocol_version
+      required: false
+      type: string
+    - description: Kafka encoding override for the ingester
+      name: openTelemetry.ingesterCollector.kafka.encoding
+      required: false
+      type: string
+    - description: Map of streams keyed by name. Each entry renders one Kafka receiver + failover pipeline.
+      name: openTelemetry.ingesterCollector.streams
       required: false
       type: map
     - default: true

@@ -42,14 +42,10 @@ data:
     }
     {{- end }}
 
-    {{- if .Values.openTelemetry.ingesterCollector.enabled }}
-    {{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors }}
-    {{- if and $cfg.enabled (gt (len (default (dict) $cfg.streams)) 0) }}
-    @test "Verify successful deployment and running status of the {{ $name }}-ingester collector" {
-        try "at most 5 times every 10s to get pods named '{{ $name }}-ingester-collector' and verify that '.status.phase' is 'running'"
+    {{- if and .Values.openTelemetry.ingesterCollector.enabled (gt (len (default (dict) .Values.openTelemetry.ingesterCollector.streams)) 0) }}
+    @test "Verify successful deployment and running status of the logs-ingester collector" {
+        try "at most 5 times every 10s to get pods named 'logs-ingester-collector' and verify that '.status.phase' is 'running'"
     }
-    {{- end }}
-    {{- end }}
     {{- end }}
 
     @test "Verify presence of custom resource definitions (CRDs) for {{ .Release.Name }}" {
