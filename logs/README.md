@@ -119,12 +119,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
-| openTelemetry.ingesterCollector | object | `{"enabled":false,"image":{"repository":"","tag":""},"kafka":{"brokers":[],"encoding":"","protocol_version":""},"opensearch":{"endpoint":null,"failover_password_a":null,"failover_password_b":null,"failover_username_a":null,"failover_username_b":null,"tls":{"caSecret":null,"caSecretKey":"ca.crt","insecure":false}},"prometheus":{"podMonitor":{"enabled":true}},"replicas":1,"resources":{},"streams":{}}` | Kafka -> OpenSearch ingest collector. |
+| openTelemetry.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collector. |
 | openTelemetry.ingesterCollector.enabled | bool | `false` | Enable the ingest collector. |
 | openTelemetry.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to openTelemetry.collectorImage.repository. |
 | openTelemetry.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to openTelemetry.collectorImage.tag. |
-| openTelemetry.ingesterCollector.kafka | object | `{"brokers":[],"encoding":"","protocol_version":""}` | Per-ingester Kafka override. Falls back to openTelemetry.kafka. |
-| openTelemetry.ingesterCollector.opensearch | object | `{"endpoint":null,"failover_password_a":null,"failover_password_b":null,"failover_username_a":null,"failover_username_b":null,"tls":{"caSecret":null,"caSecretKey":"ca.crt","insecure":false}}` | OpenSearch endpoint and failover credentials. |
+| openTelemetry.ingesterCollector.kafka | object | see values.yaml | Per-ingester Kafka override. Falls back to openTelemetry.kafka. |
+| openTelemetry.ingesterCollector.opensearch | object | see values.yaml | OpenSearch endpoint and failover credentials. |
 | openTelemetry.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor for the ingest collector. |
 | openTelemetry.ingesterCollector.replicas | int | `1` | Replica count for the ingest collector Deployment. |
 | openTelemetry.ingesterCollector.resources | object | `{}` | Pod resources for the ingest collector. |

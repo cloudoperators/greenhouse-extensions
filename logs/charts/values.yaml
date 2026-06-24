@@ -156,6 +156,7 @@ openTelemetry:
       # -- HTTP port for OTLP traces
       otlp_http_port: 4318
   # -- Kafka -> OpenSearch ingest collector.
+  # @default -- see values.yaml
   ingesterCollector:
     # -- Enable the ingest collector.
     enabled: false
@@ -173,11 +174,13 @@ openTelemetry:
         # -- Render a PodMonitor for the ingest collector.
         enabled: true
     # -- Per-ingester Kafka override. Falls back to openTelemetry.kafka.
+    # @default -- see values.yaml
     kafka:
       brokers: []
       protocol_version: ""
       encoding: ""
     # -- OpenSearch endpoint and failover credentials.
+    # @default -- see values.yaml
     opensearch:
       endpoint:
       tls:
