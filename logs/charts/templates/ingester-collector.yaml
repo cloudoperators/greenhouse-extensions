@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: {{ $name }}-ingester
+  name: logs-ingester-{{ $name }}
   labels:
   {{- include "plugin.labels" $root | nindent 4 }}
   {{- if $root.Values.openTelemetry.customLabels }}
@@ -22,7 +22,7 @@ spec:
   replicas: {{ $root.Values.openTelemetry.ingesterCollector.replicas }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "{{ $name }}-ingester-auth"
+    secret.reloader.stakater.com/reload: "logs-ingester-{{ $name }}-auth"
   terminationGracePeriodSeconds: 30
   {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
@@ -35,7 +35,7 @@ spec:
       value: "{{ $root.Values.openTelemetry.region }}"
   envFrom:
     - secretRef:
-        name: {{ $name }}-ingester-auth
+        name: logs-ingester-{{ $name }}-auth
 {{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -66,7 +66,7 @@ spec:
           topics:
             - {{ $cfg.topic | quote }}
           encoding: {{ $kafka.encoding }}
-        group_id: {{ printf "%s-ingester" $name | quote }}
+        group_id: {{ printf "logs-ingester-%s" $name | quote }}
         initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
         autocommit:
           enable: true

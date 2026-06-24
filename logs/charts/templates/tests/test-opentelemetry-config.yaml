@@ -45,8 +45,8 @@ data:
     {{- if .Values.openTelemetry.ingesterCollector.enabled }}
     {{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors }}
     {{- if and $cfg.enabled $cfg.topic }}
-    @test "Verify successful deployment and running status of the {{ $name }}-ingester collector" {
-        try "at most 5 times every 10s to get pods named '{{ $name }}-ingester-collector' and verify that '.status.phase' is 'running'"
+    @test "Verify successful deployment and running status of the logs-ingester-{{ $name }} collector" {
+        try "at most 5 times every 10s to get pods named 'logs-ingester-{{ $name }}-collector' and verify that '.status.phase' is 'running'"
     }
     {{- end }}
     {{- end }}

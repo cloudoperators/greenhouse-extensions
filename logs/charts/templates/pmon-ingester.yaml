@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: opentelemetry-collector-{{ $name }}-ingester
+  name: opentelemetry-collector-logs-ingester-{{ $name }}
   labels:
     {{- include "plugin.labels" $root | nindent 4 }}
     {{- if $root.Values.openTelemetry.customLabels }}
@@ -28,7 +28,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ $root.Release.Namespace }}.{{ $name }}-ingester
+      app.kubernetes.io/instance: {{ $root.Release.Namespace }}.logs-ingester-{{ $name }}
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
 {{- end }}
