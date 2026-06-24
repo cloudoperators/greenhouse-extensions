@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.harvestNetappScrape | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
+{{- if ne (.Values.prometheusRules.ruleGroups.harvestPollerAlerts | toString) "false" }}
 groups:
-{{- if ne (.Values.prometheusRules.ruleGroups.harvestNetappScrape | toString) "false" }}
   - name: harvest-netapp-scrape
     rules:
-{{- if not (index .Values.prometheusRules.disabled "HarvestNotScrapingNetApp" | default false) }}
       - alert: HarvestNotScrapingNetApp
         expr: |
           (
@@ -36,7 +31,6 @@ groups:
             • Datacenter: {{`{{ $labels.datacenter }}`}}
             • Lob: {{`{{ $labels.lob }}`}}
             • Poller: {{`{{ $labels.poller }}`}}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

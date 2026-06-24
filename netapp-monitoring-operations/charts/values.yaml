@@ -7,136 +7,23 @@ prometheusRules:
   # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
   labels:
     plugin: storage-metrics-product
-  # Enable/disable an entire rule group. Keys are the camelCase form of the group
-  # `name` (e.g. group "brocade_error_alerts" -> brocadeErrorAlerts). Every group
-  # is listed here and enabled by default; set a key to false to drop that group.
+  # Enable or disable an entire alert file. One toggle per file; the key is the
+  # camelCase form of the file name. Set a key to false to drop that file's rules.
   ruleGroups:
-    # brocade-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
-    brocadeErrorPreprocessing: false
-    brocadeErrorAlerts: false
-    # harvest-poller-alerts.yaml
-    harvestNetappScrape: true
-    # netapp_aggr_alerts.yaml
-    netappAggrAlerts: true
-    # netapp_cluster_alerts.yaml
-    netappClusterAlerts: true
-    # netapp_disk_alerts.yaml
-    netappDiskAlerts: true
-    # netapp_ems_alerts.yaml
-    netappEmsAlerts: true
-    # netapp_lun_alerts.yaml
-    netappLunAlerts: true
-    # netapp_network_alerts.yaml
-    netappNetworkAlerts: true
-    # netapp_nvdimm_alerts.yaml
-    netappNvdimmAlerts: true
-    # netapp_test_alerts.yaml
-    monitorRaidtecDblDegradedFinal: true
-    monitorRaidtecDblDegradedAlerts: true
-    callhomeWaflInconsistentFinal: true
-    callhomeWaflInconsistentAlerts: true
-    monitorFanFailedFinal: true
-    monitorFanFailedAlerts: true
-    vifmgrCluscheckLifdownFinal: true
-    vifmgrCluscheckLifdownAlerts: true
-    monitorChassisPowerSupplyDegradedFinal: true
-    monitorChassisPowerSupplyDegradedAlerts: true
-    nvmemBatteryCapacityLowFinal: true
-    nvmemBatteryCapacityLowAlerts: true
-    nvramBatteryCapacityLowWarnFinal: true
-    nvramBatteryCapacityLowWarnAlerts: true
-    snapmirrorMigrateSrcErrFinal: true
-    snapmirrorMigrateSrcErrAlerts: true
-    snapmirrorMigrateDstErrFinal: true
-    snapmirrorMigrateDstErrAlerts: true
-    replicationDstResyncFailedFinal: true
-    replicationDstResyncFailedAlerts: true
-    upgrademgrUpdatePausedErrFinal: true
-    upgrademgrUpdatePausedErrAlerts: true
-    sesStatusCurrentErrorFinal: true
-    sesStatusCurrentErrorAlerts: true
-    sesStatusCurrentWarningFinal: true
-    sesStatusCurrentWarningAlerts: true
-    cfFsmTakeoverOfPartnerDisabledFinal: true
-    cfFsmTakeoverOfPartnerDisabledAlerts: true
-    cfFsmTakeoverByPartnerDisabledFinal: true
-    cfFsmTakeoverByPartnerDisabledAlerts: true
-    vifmgrPortdownFinal: true
-    vifmgrPortdownAlerts: true
-    waflSnapCreateSkipReasonFinal: true
-    waflSnapCreateSkipReasonAlerts: true
-    vifmgrLifsOvercapacityFinal: true
-    vifmgrLifsOvercapacityAlerts: true
-    raidConfigSpareDiskMissingFinal: true
-    raidConfigSpareDiskMissingAlerts: true
-    callhomeShlfFaultFinal: true
-    callhomeShlfFaultAlerts: true
-    clamPartnerHaltingFinal: true
-    clamPartnerHaltingAlerts: true
-    mgmtSnapmirResyncFailFinal: true
-    mgmtSnapmirResyncFailAlerts: true
-    monitorVolumeFullFinal: true
-    monitorVolumeFullAlerts: true
-    monitorVolumeNearlyFullFinal: true
-    monitorVolumeNearlyFullAlerts: true
-    vifmgrCluscheckHwerrorsFinal: true
-    vifmgrCluscheckHwerrorsAlerts: true
-    monitorNvramLowBatteriesFinal: true
-    monitorNvramLowBatteriesAlerts: true
-    monitorNvmembatteryWarninglowFinal: true
-    monitorNvmembatteryWarninglowAlerts: true
-    kmRunExternalSetupFinal: true
-    kmRunExternalSetupAlerts: true
-    kmKeyserverNotavailableFinal: true
-    kmKeyserverNotavailableAlerts: true
-    kmKeyretrieveFailedFinal: true
-    kmKeyretrieveFailedAlerts: true
-    callhomeRebootTakeoverFinal: true
-    callhomeRebootTakeoverAlerts: true
-    clamNodeOoqFinal: true
-    clamNodeOoqAlerts: true
-    callhomePartnerDownFinal: true
-    callhomePartnerDownAlerts: true
-    callhomeSfoTakeoverFinal: true
-    callhomeSfoTakeoverAlerts: true
-    sfoPartialGivebackFinal: true
-    sfoPartialGivebackAlerts: true
-    cfRsrcTakeoverOpFailFinal: true
-    cfRsrcTakeoverOpFailAlerts: true
-    spmHttpdProcessExitFinal: true
-    spmHttpdProcessExitAlerts: true
-    vserverStopFailedFinal: true
-    vserverStopFailedAlerts: true
-    raidVolStateChangedFinal: true
-    raidVolStateChangedAlerts: true
-    haGivebackAggrOnlineFailedFinal: true
-    haGivebackAggrOnlineFailedAlerts: true
-    cfFmNotkoverClusterDisableFinal: true
-    cfFmNotkoverClusterDisableAlerts: true
-    waflVolSettingInNvfailedStateFinal: true
-    waflVolSettingInNvfailedStateAlerts: true
-    vifmgrLifdownNoportsFinal: true
-    vifmgrLifdownNoportsAlerts: true
-    sesMultipathReqErrorFinal: true
-    sesMultipathReqErrorAlerts: true
-    tokenVolMaxCountReachedFinal: true
-    tokenVolMaxCountReachedAlerts: true
-    monitorGlobalStatusCriticalFinal: true
-    monitorGlobalStatusCriticalAlerts: true
-    # netapp_volume_alerts.yaml
-    netappVolumeAlerts: true
-    # powerscale-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
-    powerscaleErrorPreprocessing: false
-    powerscaleErrorAlerts: false
-    # purestorage-error-alerts.yaml (forge project, not in sci scope -> disabled by default)
-    purestorageErrorAlerts: false
-    # pvc-usage-alerts.yaml (forge project, not in sci scope -> disabled by default)
-    pvcUsageAlerts: false
-  # Disable individual alerts by their exact alert name. Alerts not listed default
-  # to enabled. Set a key to true to drop that single alert.
-  disabled: {}
-    # BrocadeError_New: true
-    # AggrOffline: true
+    brocadeErrorAlerts: false      # brocade-error-alerts.yaml (forge, not in sci scope)
+    harvestPollerAlerts: true      # harvest-poller-alerts.yaml
+    netappAggrAlerts: true         # netapp_aggr_alerts.yaml
+    netappClusterAlerts: true      # netapp_cluster_alerts.yaml
+    netappDiskAlerts: true         # netapp_disk_alerts.yaml
+    netappEmsAlerts: true          # netapp_ems_alerts.yaml
+    netappLunAlerts: true          # netapp_lun_alerts.yaml
+    netappNetworkAlerts: true      # netapp_network_alerts.yaml
+    netappNvdimmAlerts: true       # netapp_nvdimm_alerts.yaml
+    netappTestAlerts: true         # netapp_test_alerts.yaml
+    netappVolumeAlerts: true       # netapp_volume_alerts.yaml
+    powerscaleErrorAlerts: false   # powerscale-error-alerts.yaml (forge, not in sci scope)
+    purestorageErrorAlerts: false  # purestorage-error-alerts.yaml (forge, not in sci scope)
+    pvcUsageAlerts: false          # pvc-usage-alerts.yaml (forge, not in sci scope)
   commonLabels:
     team: dme-storage
     support_group: storage

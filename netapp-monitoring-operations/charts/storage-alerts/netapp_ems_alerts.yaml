@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappEmsAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappEmsAlerts | toString) "false" }}
+groups:
   - name: netapp_ems_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "LUNVolNoSpace" | default false) }}
       - alert: LUNVolNoSpace
         expr: last_over_time(ems_events{message="LUN.vol.no.space"}[1m]) == 1
         for: 5m
@@ -27,8 +22,6 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }} |
             Volume DS ID: {{ "{{ $labels.volume_ds_id }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NbladeNfsV4PoolExhaust" | default false) }}
       - alert: NbladeNfsV4PoolExhaust
         expr: last_over_time(ems_events{message="Nblade.nfsV4PoolExhaust"}[5m]) == 1
         for: 5m
@@ -46,8 +39,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "DiskInventoryMismatch" | default false) }}
       - alert: DiskInventoryMismatch
         expr: last_over_time(ems_events{message="cf.disk.inventory.mismatch"}[5m]) == 1
         for: 5m
@@ -66,8 +57,6 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }} |
             Object UID: {{ "{{ $labels.object_uid }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeoverFailed" | default false) }}
       - alert: TakeoverFailed
         expr: last_over_time(ems_events{message="cf.fm.takeoverFailed"}[5m]) == 1
         for: 5m
@@ -87,8 +76,6 @@ groups:
             Service: {{ "{{ $labels.Service }}" }} |
             Partner Node UID: {{ "{{ $labels.partner_node_uuid }}" }} |
             Token: {{ "{{ $labels.token }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VersionMismatch" | default false) }}
       - alert: VersionMismatch
         expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
         for: 5m
@@ -106,8 +93,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeoverNoHeartbeat" | default false) }}
       - alert: TakeoverNoHeartbeat
         expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
         for: 5m
@@ -125,8 +110,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeoverByPartnerDisabled" | default false) }}
       - alert: TakeoverByPartnerDisabled
         expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
         for: 5m
@@ -146,8 +129,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeoverHung" | default false) }}
       - alert: TakeoverHung
         expr: last_over_time(ems_events{message="cf.fsm.takeoverHung"}[5m]) == 1
         for: 5m
@@ -165,8 +146,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NotifyCfgFailed" | default false) }}
       - alert: NotifyCfgFailed
         expr: last_over_time(ems_events{message="cf.hwassist.notifyCfgFailed"}[5m]) == 1
         for: 5m
@@ -184,8 +163,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeoverDisabled" | default false) }}
       - alert: TakeoverDisabled
         expr: last_over_time(ems_events{message="cf.takeover.disabled"}[5m]) == 1
         for: 5m
@@ -203,8 +180,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NodeOutOfQuorum" | default false) }}
       - alert: NodeOutOfQuorum
         expr: last_over_time(ems_events{message="clam.node.ooq"}[5m]) == 1
         for: 5m
@@ -223,8 +198,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NoNeighbors" | default false) }}
       - alert: NoNeighbors
         expr: last_over_time(ems_events{message="clus.net.noNeighbors"}[5m]) == 1
         for: 5m
@@ -242,8 +215,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "DrivePhyDisableError" | default false) }}
       - alert: DrivePhyDisableError
         expr: last_over_time(ems_events{message="ds.sas.drivephy.disableErr"}[5m]) == 1
         for: 5m
@@ -266,8 +237,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "LicenseExpiring" | default false) }}
       - alert: LicenseExpiring
         expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
         for: 5m
@@ -285,8 +254,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NFSListenersFailure" | default false) }}
       - alert: NFSListenersFailure
         expr: last_over_time(ems_events{message="mgmt.nfslisteners.failure"}[5m]) == 1
         for: 5m
@@ -304,8 +271,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapMirrorCatchupFail" | default false) }}
       - alert: SnapMirrorCatchupFail
         expr: last_over_time(ems_events{message="mgmt.snapmir.ls.catchup.fail"}[5m]) == 1
         for: 5m
@@ -323,8 +288,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "CertExpired" | default false) }}
       - alert: CertExpired
         expr: last_over_time(ems_events{message="mgmtgwd.certificate.expired"}[5m]) == 1
         for: 5m
@@ -342,8 +305,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "CertExpiring" | default false) }}
       - alert: CertExpiring
         expr: last_over_time(ems_events{message="mgmtgwd.certificate.expiring"}[5m]) == 1
         for: 5m
@@ -361,8 +322,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SignCertExpired" | default false) }}
       - alert: SignCertExpired
         expr: last_over_time(ems_events{message="mgmtgwd.sign.cert.expired"}[5m]) == 1
         for: 5m
@@ -380,8 +339,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "LACPSpeedDowngraded" | default false) }}
       - alert: LACPSpeedDowngraded
         expr: last_over_time(ems_events{message="net.ifgrp.lacp.link.inactive"}[5m]) == 1
         for: 5m
@@ -399,8 +356,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "BadEepromDetected" | default false) }}
       - alert: BadEepromDetected
         expr: last_over_time(ems_events{message="netif.badEeprom"}[5m]) == 1
         for: 5m
@@ -418,8 +373,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "LinkErrorsDetected" | default false) }}
       - alert: LinkErrorsDetected
         expr: last_over_time(ems_events{message="netif.linkErrors"}[5m]) == 1
         for: 5m
@@ -437,8 +390,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SpeedDowngraded" | default false) }}
       - alert: SpeedDowngraded
         expr: last_over_time(ems_events{message="netif.speedDowngraded"}[5m]) == 1
         for: 5m
@@ -456,8 +407,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "DuplicateIPAddress" | default false) }}
       - alert: DuplicateIPAddress
         expr: last_over_time(ems_events{message="netinet.ethr.duplct.ipAdrr"}[5m]) == 1
         for: 5m
@@ -475,8 +424,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ExcessiveCECErrors" | default false) }}
       - alert: ExcessiveCECErrors
         expr: last_over_time(ems_events{message="nvram.excessive.cecc.errs"}[5m]) == 1
         for: 5m
@@ -494,8 +441,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "LACPSyncError" | default false) }}
       - alert: LACPSyncError
         expr: last_over_time(ems_events{message="pvif.lacp.outofsync"}[5m]) == 1
         for: 5m
@@ -513,8 +458,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "RecoveryFailed" | default false) }}
       - alert: RecoveryFailed
         expr: last_over_time(ems_events{message="rdb.recovery.failed"}[5m]) == 1
         for: 5m
@@ -532,8 +475,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ModuleError" | default false) }}
       - alert: ModuleError
         expr: last_over_time(ems_events{message="ses.status.ModuleError"}[5m]) == 1
         for: 5m
@@ -552,8 +493,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ChangeLogFull" | default false) }}
       - alert: ChangeLogFull
         expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
         for: 5m
@@ -571,8 +510,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "DuplicateIPDetected" | default false) }}
       - alert: DuplicateIPDetected
         expr: last_over_time(ems_events{message="tcpip.duplicate.ip"}[5m]) == 1
         for: 5m
@@ -590,8 +527,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrOffline" | default false) }}
       - alert: AggrOffline
         expr: last_over_time(ems_events{message="callhome.aggr.offline"}[5m]) == 1
         for: 5m
@@ -609,8 +544,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "GivebackAggrOnlineFailed" | default false) }}
       - alert: GivebackAggrOnlineFailed
         expr: last_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[5m]) == 1
         for: 5m
@@ -628,8 +561,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "UninitializedParityVol" | default false) }}
       - alert: UninitializedParityVol
         expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
         for: 5m
@@ -647,8 +578,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "raidtecDegraded" | default false) }}
       - alert: raidtecDegraded
         expr: last_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[5m]) == 1
         for: 5m
@@ -666,8 +595,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrRestricted" | default false) }}
       - alert: AggrRestricted
         expr: last_over_time(ems_events{message="callhome.aggr.restricted"}[5m]) == 1
         for: 5m
@@ -685,8 +612,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "waflInconsistent" | default false) }}
       - alert: waflInconsistent
         expr: last_over_time(ems_events{message="callhome.wafl.inconsistent"}[5m]) == 1
         for: 5m
@@ -704,8 +629,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "FcpAdapterFailed" | default false) }}
       - alert: FcpAdapterFailed
         expr: last_over_time(ems_events{message="callhome.fcp.adapter.failed"}[5m]) == 1
         for: 5m
@@ -723,8 +646,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VifmgrStartupFailoverError" | default false) }}
       - alert: VifmgrStartupFailoverError
         expr: last_over_time(ems_events{message="callhome.vifmgr.startup.failover.err"}[5m]) == 1
         for: 5m
@@ -742,8 +663,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "lifdown" | default false) }}
       - alert: lifdown
         expr: last_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[5m]) == 1
         for: 5m
@@ -761,8 +680,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ArraylunPathFO" | default false) }}
       - alert: ArraylunPathFO
         expr: last_over_time(ems_events{message="mlm.array.lun.PathFO"}[5m]) == 1
         for: 5m
@@ -782,8 +699,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "lunOnePath" | default false) }}
       - alert: lunOnePath
         expr: last_over_time(ems_events{message="mlm.array.lun.OnePath"}[5m]) == 1
         for: 5m
@@ -802,8 +717,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ArrayPortOneController" | default false) }}
       - alert: ArrayPortOneController
         expr: last_over_time(ems_events{message="callhome.mlm.array.portOneController"}[5m]) == 1
         for: 5m
@@ -821,8 +734,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "takeoverClusterDisable" | default false) }}
       - alert: takeoverClusterDisable
         expr: last_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[5m]) == 1
         for: 5m
@@ -840,8 +751,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ChassisPowerSupplyDegraded" | default false) }}
       - alert: ChassisPowerSupplyDegraded
         expr: last_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[5m]) == 1
         for: 5m
@@ -859,8 +768,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "takeoverByPartnerDisabled" | default false) }}
       - alert: takeoverByPartnerDisabled
         expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
         for: 5m
@@ -878,8 +785,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "takeoverOfPartnerDisabled" | default false) }}
       - alert: takeoverOfPartnerDisabled
         expr: last_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[5m]) == 1
         for: 5m
@@ -897,8 +802,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "FansFailed" | default false) }}
       - alert: FansFailed
         expr: last_over_time(ems_events{message="callhome.fans.failed"}[5m]) == 1
         for: 5m
@@ -916,8 +819,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "StoragePartnerDown" | default false) }}
       - alert: StoragePartnerDown
         expr: last_over_time(ems_events{message="callhome.partner.down"}[5m]) == 1
         for: 5m
@@ -935,8 +836,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SFOtakeover" | default false) }}
       - alert: SFOtakeover
         expr: last_over_time(ems_events{message="callhome.sfo.takeover"}[5m]) == 1
         for: 5m
@@ -954,8 +853,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "HAinterconnectDown" | default false) }}
       - alert: HAinterconnectDown
         expr: last_over_time(ems_events{message="callhome.hainterconnect.down"}[5m]) == 1
         for: 5m
@@ -973,8 +870,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "PartialGiveback" | default false) }}
       - alert: PartialGiveback
         expr: last_over_time(ems_events{message="sfo.PartialGiveback"}[5m]) == 1
         for: 5m
@@ -992,8 +887,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TakeOverOpFail" | default false) }}
       - alert: TakeOverOpFail
         expr: last_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[5m]) == 1
         for: 5m
@@ -1011,8 +904,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VserverRootVolumeFull" | default false) }}
       - alert: VserverRootVolumeFull
         expr: last_over_time(ems_events{message="vserver.rootVolume.full"}[5m]) == 1
         for: 5m
@@ -1030,8 +921,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "PortDown" | default false) }}
       - alert: PortDown
         expr: last_over_time(ems_events{message="vifmgr.portdown"}[5m]) == 1
         for: 5m
@@ -1049,8 +938,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SPHeartbeatStopped" | default false) }}
       - alert: SPHeartbeatStopped
         expr: last_over_time(ems_events{message="callhome.sp.hbt.stopped"}[5m]) == 1
         for: 5m
@@ -1068,8 +955,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SPNotConfigured" | default false) }}
       - alert: SPNotConfigured
         expr: last_over_time(ems_events{message="sp.notConfigured"}[5m]) == 1
         for: 5m
@@ -1087,8 +972,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "FanFailed" | default false) }}
       - alert: FanFailed
         expr: last_over_time(ems_events{message="monitor.fan.failed"}[5m]) == 1
         for: 5m
@@ -1106,8 +989,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ShelfFault" | default false) }}
       - alert: ShelfFault
         expr: last_over_time(ems_events{message="callhome.shlf.fault"}[5m]) == 1
         for: 5m
@@ -1125,8 +1006,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ShelfCurrentWarning" | default false) }}
       - alert: ShelfCurrentWarning
         expr: last_over_time(ems_events{message="ses.status.currentWarning"}[5m]) == 1
         for: 5m
@@ -1146,8 +1025,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ShelfCurrentError" | default false) }}
       - alert: ShelfCurrentError
         expr: last_over_time(ems_events{message="ses.status.currentError"}[5m]) == 1
         for: 5m
@@ -1167,8 +1044,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ShelfPathFailure" | default false) }}
       - alert: ShelfPathFailure
         expr: last_over_time(ems_events{message="ses.multipath.ReqError"}[5m]) == 1
         for: 5m
@@ -1186,8 +1061,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapCreateSkip" | default false) }}
       - alert: SnapCreateSkip
         expr: last_over_time(ems_events{message="wafl.snap.create.skip.reason"}[5m]) == 1
         for: 5m
@@ -1208,8 +1081,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "TelnetEnabled" | default false) }}
       - alert: TelnetEnabled
         expr: last_over_time(ems_events{message="telnet.enabled"}[5m]) == 1
         for: 5m
@@ -1227,8 +1098,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "HTTPSTransportDisabled" | default false) }}
       - alert: HTTPSTransportDisabled
         expr: last_over_time(ems_events{message="spm.httpd.process.exit"}[5m]) == 1
         for: 5m
@@ -1246,8 +1115,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateDstErr" | default false) }}
       - alert: SnapmirrorMigrateDstErr
         expr: last_over_time(ems_events{message="snapmirror.migrate.dstErr"}[5m]) == 1
         for: 5m
@@ -1265,8 +1132,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateSrcErr" | default false) }}
       - alert: SnapmirrorMigrateSrcErr
         expr: last_over_time(ems_events{message="snapmirror.migrate.srcErr"}[5m]) == 1
         for: 5m
@@ -1284,8 +1149,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "snapvaultOpNotComplete" | default false) }}
       - alert: snapvaultOpNotComplete
         expr: last_over_time(ems_events{message="snapvault.dst.opNotComplete"}[5m]) == 1
         for: 5m
@@ -1304,8 +1167,6 @@ groups:
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }} |
             Destination Path: {{ "{{ $labels.dst_path }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ReplicationdstResyncFailed" | default false) }}
       - alert: ReplicationdstResyncFailed
         expr: last_over_time(ems_events{message="replication.dst.resync.failed"}[5m]) == 1
         for: 5m
@@ -1323,8 +1184,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "mgmtSnapmirInitFail" | default false) }}
       - alert: mgmtSnapmirInitFail
         expr: last_over_time(ems_events{message="mgmt.snapmir.init.fail"}[5m]) == 1
         for: 5m
@@ -1342,8 +1201,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorStatusUpdateStatusErr" | default false) }}
       - alert: SnapmirrorStatusUpdateStatusErr
         expr: last_over_time(ems_events{message="snapmirror.status.updateStatusErr"}[5m]) == 1
         for: 5m
@@ -1361,8 +1218,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "MgmtSnapmirResyncFail" | default false) }}
       - alert: MgmtSnapmirResyncFail
         expr: last_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[5m]) == 1
         for: 5m
@@ -1380,8 +1235,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapvaultTgtFailure" | default false) }}
       - alert: SnapvaultTgtFailure
         expr: last_over_time(ems_events{message="snapvault.tgt.failure"}[5m]) == 1
         for: 5m
@@ -1399,8 +1252,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "RaidConfigSpareDiskMissing" | default false) }}
       - alert: RaidConfigSpareDiskMissing
         expr: last_over_time(ems_events{message="raid.config.spare.disk.missing"}[5m]) == 1
         for: 5m
@@ -1418,8 +1269,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "diskErrUnsupported" | default false) }}
       - alert: diskErrUnsupported
         expr: last_over_time(ems_events{message="disk.init.err.unsupported"}[5m]) == 1
         for: 5m
@@ -1437,8 +1286,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "netifexcessLinkInterrupts" | default false) }}
       - alert: netifexcessLinkInterrupts
         expr: last_over_time(ems_events{message="netif.excessLinkInterrupts"}[5m]) == 1
         for: 5m
@@ -1456,8 +1303,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NetifSFPNotSupported" | default false) }}
       - alert: NetifSFPNotSupported
         expr: last_over_time(ems_events{message="netif.sfpNotSupported"}[5m]) == 1
         for: 5m
@@ -1475,8 +1320,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "UncorEccError" | default false) }}
       - alert: UncorEccError
         expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
         for: 5m
@@ -1494,8 +1337,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "vifmgrCluslinkdown" | default false) }}
       - alert: vifmgrCluslinkdown
         expr: last_over_time(ems_events{message="vifmgr.clus.linkdown"}[5m]) == 1
         for: 5m
@@ -1513,8 +1354,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "vifmgrlifdownnoports" | default false) }}
       - alert: vifmgrlifdownnoports
         expr: last_over_time(ems_events{message="vifmgr.lifdown.noports"}[5m]) == 1
         for: 5m
@@ -1532,8 +1371,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VifmgrlifsClusterlimit" | default false) }}
       - alert: VifmgrlifsClusterlimit
         expr: last_over_time(ems_events{message="vifmgr.lifs.clusterlimit"}[5m]) == 1
         for: 5m
@@ -1551,8 +1388,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "vifmgr.lifs.overcapacity" | default false) }}
       - alert: vifmgr.lifs.overcapacity
         expr: last_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[5m]) == 1
         for: 5m
@@ -1570,8 +1405,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VifmgrPortMonitorFailed" | default false) }}
       - alert: VifmgrPortMonitorFailed
         expr: last_over_time(ems_events{message="vifmgr.port.monitor.failed"}[5m]) == 1
         for: 5m
@@ -1589,8 +1422,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VifmgrPortMtumismatch" | default false) }}
       - alert: VifmgrPortMtumismatch
         expr: last_over_time(ems_events{message="vifmgr.port.mtumismatch"}[5m]) == 1
         for: 5m
@@ -1608,8 +1439,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VifmgrPortDeglifHosted" | default false) }}
       - alert: VifmgrPortDeglifHosted
         expr: last_over_time(ems_events{message="vifmgr.portDeg.lifHosted"}[5m]) == 1
         for: 5m
@@ -1627,8 +1456,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "WaflDirSizeMaxWarning" | default false) }}
       - alert: WaflDirSizeMaxWarning
         expr: last_over_time(ems_events{message="wafl.dir.size.max.warning"}[5m]) == 1
         for: 5m
@@ -1646,8 +1473,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "diskioMediumError" | default false) }}
       - alert: diskioMediumError
         expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
         for: 5m
@@ -1673,8 +1498,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "MonitorGlobalStatusCritical" | default false) }}
       - alert: MonitorGlobalStatusCritical
         expr: last_over_time(ems_events{message="monitor.globalStatus.critical"}[5m]) == 1
         for: 5m
@@ -1692,7 +1515,6 @@ groups:
             Datacenter: {{ "{{ $labels.datacenter }}" }} |
             LOB: {{ "{{ $labels.lob }}" }} |
             Service: {{ "{{ $labels.Service }}" }}'
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

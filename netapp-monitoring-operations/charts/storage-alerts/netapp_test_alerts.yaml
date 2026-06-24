@@ -1,11 +1,7 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := or (ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorFanFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorFanFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamNodeOoqFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.clamNodeOoqAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vserverStopFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vserverStopFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedAlerts | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalFinal | toString) "false") (ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
+{{- if ne (.Values.prometheusRules.ruleGroups.netappTestAlerts | toString) "false" }}
 groups:
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedFinal | toString) "false" }}
   - name: monitor_raidtec_dblDegraded_final
     interval: 1m
     rules:
@@ -29,16 +25,16 @@ groups:
           unless
           monitor_raid_reconstruct_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorRaidtecDblDegradedAlerts | toString) "false" }}
   - name: monitor_raidtec_dblDegraded_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorRaidtecDblDegraded" | default false) }}
       - alert: MonitorRaidtecDblDegraded
         expr: monitor_raidtec_dblDegraded_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 RAID Double Degraded on {{ "{{ $labels.node }}" }}'
           description: > 
@@ -48,9 +44,6 @@ groups:
             "monitor.raid.reconstruct" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentFinal | toString) "false" }}
   - name: callhome_wafl_inconsistent_final
     interval: 1m
     rules:
@@ -74,16 +67,16 @@ groups:
           unless
           callhome_wafl_iron_done_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeWaflInconsistentAlerts | toString) "false" }}
   - name: callhome_wafl_inconsistent_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CallhomeWaflInconsistent" | default false) }}
       - alert: CallhomeWaflInconsistent
         expr: callhome_wafl_inconsistent_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 WAFL Inconsistent on {{ "{{ $labels.name }}" }}'
           description: >
@@ -93,9 +86,6 @@ groups:
             "callhome.wafl.iron.done" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorFanFailedFinal | toString) "false" }}
   - name: monitor_fan_failed_final
     interval: 1m
     rules:
@@ -119,16 +109,16 @@ groups:
           unless
           monitor_fan_ok_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorFanFailedAlerts | toString) "false" }}
   - name: monitor_fan_failed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorFanFailed" | default false) }}
       - alert: MonitorFanFailed
         expr: monitor_fan_failed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Fan failed on {{ "{{ $labels.name }}" }}'
           description: >
@@ -137,9 +127,6 @@ groups:
             The alert resolves when the event "monitor.fan.ok" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownFinal | toString) "false" }}
   - name: vifmgr_cluscheck_lifdown_final
     interval: 1m
     rules:
@@ -163,16 +150,16 @@ groups:
           unless
           vifmgr_cluscheck_lifup_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckLifdownAlerts | toString) "false" }}
   - name: vifmgr_cluscheck_lifdown_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VifmgrCluscheckLifdown" | default false) }}
       - alert: VifmgrCluscheckLifdown
         expr: vifmgr_cluscheck_lifdown_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 LIF {{ "{{ $labels.lif_name }}" }} is down'
           description: >
@@ -181,9 +168,6 @@ groups:
             down. The alert resolves when the event "vifmgr.cluscheck.lifup" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedFinal | toString) "false" }}
   - name: monitor_chassisPowerSupply_degraded_final
     interval: 1m
     rules:
@@ -207,16 +191,16 @@ groups:
           unless
           monitor_chassisPowerSupply_ok_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorChassisPowerSupplyDegradedAlerts | toString) "false" }}
   - name: monitor_chassisPowerSupply_degraded_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorChassisPowerSupplyDegraded" | default false) }}
       - alert: MonitorChassisPowerSupplyDegraded
         expr: monitor_chassisPowerSupply_degraded_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Chassis Power Supply Degraded on {{ "{{ $labels.name }}" }}'
           description: >
@@ -225,9 +209,6 @@ groups:
             event "monitor.chassisPowerSupply.ok" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowFinal | toString) "false" }}
   - name: nvmem_battery_capacity_low_final
     interval: 1m
     rules:
@@ -251,16 +232,16 @@ groups:
           unless
           nvmem_battery_capacity_normal_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.nvmemBatteryCapacityLowAlerts | toString) "false" }}
   - name: nvmem_battery_capacity_low_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "NvmemBatteryCapacityLow" | default false) }}
       - alert: NvmemBatteryCapacityLow
         expr: nvmem_battery_capacity_low_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 NVMEM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
           description: >
@@ -269,9 +250,6 @@ groups:
             event "nvmem.battery.capacity.normal" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnFinal | toString) "false" }}
   - name: nvram_battery_capacity_low_warn_final
     interval: 1m
     rules:
@@ -295,16 +273,16 @@ groups:
           unless
           nvram_battery_capacity_normal_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.nvramBatteryCapacityLowWarnAlerts | toString) "false" }}
   - name: nvram_battery_capacity_low_warn_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "NvramBatteryCapacityLowWarn" | default false) }}
       - alert: NvramBatteryCapacityLowWarn
         expr: nvram_battery_capacity_low_warn_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 NVRAM Battery Capacity Low on {{ "{{ $labels.name }}" }}'
           description: >
@@ -313,9 +291,6 @@ groups:
             event "nvram.battery.capacity.normal" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrFinal | toString) "false" }}
   - name: snapmirror_migrate_srcErr_final
     interval: 1m
     rules:
@@ -339,16 +314,16 @@ groups:
           unless
           snapmirror_migrate_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateSrcErrAlerts | toString) "false" }}
   - name: snapmirror_migrate_srcErr_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateSrcErr" | default false) }}
       - alert: SnapmirrorMigrateSrcErr
         expr: snapmirror_migrate_srcErr_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 SnapMirror migration source error'
           description: >
@@ -358,9 +333,6 @@ groups:
             is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrFinal | toString) "false" }}
   - name: snapmirror_migrate_dstErr_final
     interval: 1m
     rules:
@@ -384,16 +356,16 @@ groups:
           unless
           snapmirror_migrate_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.snapmirrorMigrateDstErrAlerts | toString) "false" }}
   - name: snapmirror_migrate_dstErr_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorMigrateDstErr" | default false) }}
       - alert: SnapmirrorMigrateDstErr
         expr: snapmirror_migrate_dstErr_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 SnapMirror migration destination error'
           description: >
@@ -402,9 +374,6 @@ groups:
             destination error. The alert resolves when the event 
             "snapmirror.migrate.complete" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedFinal | toString) "false" }}
   - name: replication_dst_resync_failed_final
     interval: 1m
     rules:
@@ -428,16 +397,16 @@ groups:
           unless
           replication_dst_resync_success_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.replicationDstResyncFailedAlerts | toString) "false" }}
   - name: replication_dst_resync_failed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "ReplicationDstResyncFailed" | default false) }}
       - alert: ReplicationDstResyncFailed
         expr: replication_dst_resync_failed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Replication resync failed'
           description: >
@@ -445,9 +414,6 @@ groups:
             to destination {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves 
             when the event "replication.dst.resync.success" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrFinal | toString) "false" }}
   - name: upgrademgr_update_pausedErr_final
     interval: 1m
     rules:
@@ -471,16 +437,16 @@ groups:
           unless
           upgrademgr_update_resumed_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.upgrademgrUpdatePausedErrAlerts | toString) "false" }}
   - name: upgrademgr_update_pausedErr_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "UpgrademgrUpdatePausedErr" | default false) }}
       - alert: UpgrademgrUpdatePausedErr
         expr: upgrademgr_update_pausedErr_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Upgrade paused due to error on {{ "{{ $labels.name }}" }}'
           description: >
@@ -489,9 +455,6 @@ groups:
             alert resolves when the event "upgrademgr.update.resumed" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorFinal | toString) "false" }}
   - name: ses_status_currentError_final
     interval: 1m
     rules:
@@ -515,16 +478,16 @@ groups:
           unless
           ses_status_currentInfo_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentErrorAlerts | toString) "false" }}
   - name: ses_status_currentError_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SesStatusCurrentError" | default false) }}
       - alert: SesStatusCurrentError
         expr: ses_status_currentError_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 SES Element Error on {{ "{{ $labels.node }}" }}'
           description: >
@@ -532,9 +495,6 @@ groups:
             on node {{ "{{ $labels.node }}" }} is reporting an error. The alert resolves 
             when the event "ses.status.currentInfo" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningFinal | toString) "false" }}
   - name: ses_status_currentWarning_final
     interval: 1m
     rules:
@@ -558,16 +518,16 @@ groups:
           unless
           ses_status_currentInfo_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesStatusCurrentWarningAlerts | toString) "false" }}
   - name: ses_status_currentWarning_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SesStatusCurrentWarning" | default false) }}
       - alert: SesStatusCurrentWarning
         expr: ses_status_currentWarning_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 SES Element Warning on {{ "{{ $labels.node }}" }}'
           description: >
@@ -575,9 +535,6 @@ groups:
             on node {{ "{{ $labels.node }}" }} is reporting a warning. The alert resolves 
             when the event "ses.status.currentInfo" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledFinal | toString) "false" }}
   - name: cf_fsm_takeoverOfPartnerDisabled_final
     interval: 1m
     rules:
@@ -601,16 +558,16 @@ groups:
           unless
           cf_fsm_takeoverOfPartnerEnabled_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverOfPartnerDisabledAlerts | toString) "false" }}
   - name: cf_fsm_takeoverOfPartnerDisabled_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CfFsmTakeoverOfPartnerDisabled" | default false) }}
       - alert: CfFsmTakeoverOfPartnerDisabled
         expr: cf_fsm_takeoverOfPartnerDisabled_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Takeover of partner {{ "{{ $labels.partner }}" }} disabled'
           description: >
@@ -619,9 +576,6 @@ groups:
             the event "cf.fsm.takeoverOfPartnerEnabled" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledFinal | toString) "false" }}
   - name: cf_fsm_takeoverByPartnerDisabled_final
     interval: 1m
     rules:
@@ -645,16 +599,16 @@ groups:
           unless
           cf_fsm_takeoverByPartnerEnabled_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFsmTakeoverByPartnerDisabledAlerts | toString) "false" }}
   - name: cf_fsm_takeoverByPartnerDisabled_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CfFsmTakeoverByPartnerDisabled" | default false) }}
       - alert: CfFsmTakeoverByPartnerDisabled
         expr: cf_fsm_takeoverByPartnerDisabled_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Takeover by partner {{ "{{ $labels.partner }}" }} disabled'
           description: >
@@ -662,9 +616,6 @@ groups:
             has been disabled. This compromises high availability. The alert resolves when 
             the event "cf.fsm.takeoverByPartnerEnabled" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownFinal | toString) "false" }}
   - name: vifmgr_portdown_final
     interval: 1m
     rules:
@@ -688,16 +639,16 @@ groups:
           unless
           vifmgr_portup_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrPortdownAlerts | toString) "false" }}
   - name: vifmgr_portdown_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VifmgrPortdown" | default false) }}
       - alert: VifmgrPortdown
         expr: vifmgr_portdown_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Port {{ "{{ $labels.portname }}" }} on node {{ "{{ $labels.nodename }}" }} is down'
           description: >
@@ -706,9 +657,6 @@ groups:
             when the event "vifmgr.portup" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonFinal | toString) "false" }}
   - name: wafl_snap_create_skip_reason_final
     interval: 1m
     rules:
@@ -732,16 +680,16 @@ groups:
           unless
           wafl_snap_create_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.waflSnapCreateSkipReasonAlerts | toString) "false" }}
   - name: wafl_snap_create_skip_reason_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "WaflSnapCreateSkipReason" | default false) }}
       - alert: WaflSnapCreateSkipReason
         expr: wafl_snap_create_skip_reason_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Snapshot creation skipped for volume {{ "{{ $labels.vol }}" }}'
           description: >
@@ -750,9 +698,6 @@ groups:
             event "wafl.snap.create" is detected for this volume.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityFinal | toString) "false" }}
   - name: vifmgr_lifs_overcapacity_final
     interval: 1m
     rules:
@@ -776,16 +721,16 @@ groups:
           unless
           vifmgr_lifdeleted_byadmin_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifsOvercapacityAlerts | toString) "false" }}
   - name: vifmgr_lifs_overcapacity_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VifmgrLifsOvercapacity" | default false) }}
       - alert: VifmgrLifsOvercapacity
         expr: vifmgr_lifs_overcapacity_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 LIFs are overcapacity on {{ "{{ $labels.name }}" }}'
           description: >
@@ -793,9 +738,6 @@ groups:
             has exceeded the recommended limit. The alert resolves when the event 
             "vifmgr.lifdeleted.byadmin" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingFinal | toString) "false" }}
   - name: raid_config_spare_disk_missing_final
     interval: 1m
     rules:
@@ -819,16 +761,16 @@ groups:
           unless
           raid_disk_inserted_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.raidConfigSpareDiskMissingAlerts | toString) "false" }}
   - name: raid_config_spare_disk_missing_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "RaidConfigSpareDiskMissing" | default false) }}
       - alert: RaidConfigSpareDiskMissing
         expr: raid_config_spare_disk_missing_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Spare disk missing'
           description: >
@@ -837,9 +779,6 @@ groups:
             data protection. The alert resolves when the event "raid.disk.inserted" 
             is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultFinal | toString) "false" }}
   - name: callhome_shlf_fault_final
     interval: 1m
     rules:
@@ -863,16 +802,16 @@ groups:
           unless
           monitor_shelf_fault_ok_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeShlfFaultAlerts | toString) "false" }}
   - name: callhome_shlf_fault_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CallhomeShlfFault" | default false) }}
       - alert: CallhomeShlfFault
         expr: callhome_shlf_fault_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Shelf fault detected on {{ "{{ $labels.name }}" }}'
           description: >
@@ -880,9 +819,6 @@ groups:
             could impact disk accessibility. The alert resolves when the event 
             "monitor.shelf.fault.ok" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingFinal | toString) "false" }}
   - name: clam_partner_halting_final
     interval: 1m
     rules:
@@ -906,16 +842,16 @@ groups:
           unless
           clam_update_partner_state_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.clamPartnerHaltingAlerts | toString) "false" }}
   - name: clam_partner_halting_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "ClamPartnerHalting" | default false) }}
       - alert: ClamPartnerHalting
         expr: clam_partner_halting_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Partner node is halting on {{ "{{ $labels.name }}" }}'
           description: >
@@ -923,11 +859,6 @@ groups:
             lead to a takeover. The alert resolves when the event 
             "clam.update.partner.state" is detected.'
 
-  # replication.dst.resync.success war doppelt in harvest
-  # funktioniert nicht - tbc
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailFinal | toString) "false" }}
   - name: mgmt_snapmir_resync_fail_final
     interval: 1m
     rules:
@@ -951,16 +882,16 @@ groups:
           unless
           replication_dst_resync_success_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.mgmtSnapmirResyncFailAlerts | toString) "false" }}
   - name: mgmt_snapmir_resync_fail_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MgmtSnapmirResyncFail" | default false) }}
       - alert: MgmtSnapmirResyncFail
         expr: mgmt_snapmir_resync_fail_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 SnapMirror resync failed'
           description: >
@@ -968,9 +899,6 @@ groups:
             {{ "{{ $labels.dstpath }}" }} has failed. The alert resolves when the event 
             "replication.dst.resync.success" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullFinal | toString) "false" }}
   - name: monitor_volume_full_final
     interval: 1m
     rules:
@@ -994,16 +922,16 @@ groups:
           unless
           wafl_vol_autoSize_done_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeFullAlerts | toString) "false" }}
   - name: monitor_volume_full_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorVolumeFull" | default false) }}
       - alert: MonitorVolumeFull
         expr: monitor_volume_full_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is full'
           description: >
@@ -1011,9 +939,6 @@ groups:
             is full. This can cause write failures. The alert resolves when the event 
             "wafl.vol.autoSize.done" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullFinal | toString) "false" }}
   - name: monitor_volume_nearlyFull_final
     interval: 1m
     rules:
@@ -1037,16 +962,16 @@ groups:
           unless
           wafl_vol_autoSize_done_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorVolumeNearlyFullAlerts | toString) "false" }}
   - name: monitor_volume_nearlyFull_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorVolumeNearlyFull" | default false) }}
       - alert: MonitorVolumeNearlyFull
         expr: monitor_volume_nearlyFull_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Volume {{ "{{ $labels.vol }}" }} is nearly full'
           description: >
@@ -1055,9 +980,6 @@ groups:
             detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsFinal | toString) "false" }}
   - name: vifmgr_cluscheck_hwerrors_final
     interval: 1m
     rules:
@@ -1081,16 +1003,16 @@ groups:
           unless
           vifmgr_port_monitor_passed_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrCluscheckHwerrorsAlerts | toString) "false" }}
   - name: vifmgr_cluscheck_hwerrors_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VifmgrCluscheckHwerrors" | default false) }}
       - alert: VifmgrCluscheckHwerrors
         expr: vifmgr_cluscheck_hwerrors_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Hardware errors on port {{ "{{ $labels.portName }}" }}'
           description: >
@@ -1098,9 +1020,6 @@ groups:
             {{ "{{ $labels.nodeName }}" }}. The alert resolves when the event 
             "vifmgr.port.monitor.passed" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesFinal | toString) "false" }}
   - name: monitor_nvramLowBatteries_final
     interval: 1m
     rules:
@@ -1124,25 +1043,22 @@ groups:
           unless
           nvram_battery_capacity_normal_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvramLowBatteriesAlerts | toString) "false" }}
   - name: monitor_nvramLowBatteries_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorNvramLowBatteries" | default false) }}
       - alert: MonitorNvramLowBatteries
         expr: monitor_nvramLowBatteries_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 NVRAM batteries are low on {{ "{{ $labels.name }}" }}'
           description: >
             'The NVRAM batteries are low on node {{ "{{ $labels.name }}" }}. The alert 
             resolves when the event "nvram.battery.capacity.normal" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowFinal | toString) "false" }}
   - name: monitor_nvmembattery_warninglow_final
     interval: 1m
     rules:
@@ -1166,16 +1082,16 @@ groups:
           unless
           nvmem_battery_capacity_normal_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorNvmembatteryWarninglowAlerts | toString) "false" }}
   - name: monitor_nvmembattery_warninglow_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorNvmembatteryWarninglow" | default false) }}
       - alert: MonitorNvmembatteryWarninglow
         expr: monitor_nvmembattery_warninglow_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 NVMEM battery warning on {{ "{{ $labels.name }}" }}'
           description: > 
@@ -1183,9 +1099,6 @@ groups:
             The alert resolves when the event "nvmem.battery.capacity.normal" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupFinal | toString) "false" }}
   - name: km_run_external_setup_final
     interval: 1m
     rules:
@@ -1209,16 +1122,16 @@ groups:
           unless
           km_keyserver_available_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmRunExternalSetupAlerts | toString) "false" }}
   - name: km_run_external_setup_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "KmRunExternalSetup" | default false) }}
       - alert: KmRunExternalSetup
         expr: km_run_external_setup_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 External Key Manager setup required on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1226,9 +1139,6 @@ groups:
             The alert resolves when the event "km.keyserver.available" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableFinal | toString) "false" }}
   - name: km_keyserver_notavailable_final
     interval: 1m
     rules:
@@ -1252,16 +1162,16 @@ groups:
           unless
           km_keyserver_available_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyserverNotavailableAlerts | toString) "false" }}
   - name: km_keyserver_notavailable_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "KmKeyserverNotavailable" | default false) }}
       - alert: KmKeyserverNotavailable
         expr: km_keyserver_notavailable_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Key server not available on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1270,9 +1180,6 @@ groups:
             "km.keyserver.available" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedFinal | toString) "false" }}
   - name: km_keyretrieve_failed_final
     interval: 1m
     rules:
@@ -1296,16 +1203,16 @@ groups:
           unless
           km_keyserver_available_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.kmKeyretrieveFailedAlerts | toString) "false" }}
   - name: km_keyretrieve_failed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "KmKeyretrieveFailed" | default false) }}
       - alert: KmKeyretrieveFailed
         expr: km_keyretrieve_failed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Key retrieval failed on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1314,9 +1221,6 @@ groups:
             "km.keyserver.available" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverFinal | toString) "false" }}
   - name: callhome_reboot_takeover_final
     interval: 1m
     rules:
@@ -1340,16 +1244,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeRebootTakeoverAlerts | toString) "false" }}
   - name: callhome_reboot_takeover_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CallhomeRebootTakeover" | default false) }}
       - alert: CallhomeRebootTakeover
         expr: callhome_reboot_takeover_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Node {{ "{{ $labels.name }}" }} taken over due to reboot'
           description: >
@@ -1357,9 +1261,6 @@ groups:
             reboot. The alert resolves when the event "sfo.giveback.complete" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.clamNodeOoqFinal | toString) "false" }}
   - name: clam_node_ooq_final
     interval: 1m
     rules:
@@ -1383,16 +1284,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.clamNodeOoqAlerts | toString) "false" }}
   - name: clam_node_ooq_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "ClamNodeOoq" | default false) }}
       - alert: ClamNodeOoq
         expr: clam_node_ooq_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Node {{ "{{ $labels.name }}" }} is out of quorum'
           description: >
@@ -1400,9 +1301,6 @@ groups:
             state issue. The alert resolves when the event "sfo.giveback.complete" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownFinal | toString) "false" }}
   - name: callhome_partner_down_final
     interval: 1m
     rules:
@@ -1426,16 +1324,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomePartnerDownAlerts | toString) "false" }}
   - name: callhome_partner_down_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CallhomePartnerDown" | default false) }}
       - alert: CallhomePartnerDown
         expr: callhome_partner_down_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Partner node of {{ "{{ $labels.name }}" }} is down'
           description: >
@@ -1443,9 +1341,6 @@ groups:
             The alert resolves when the event "sfo.giveback.complete" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverFinal | toString) "false" }}
   - name: callhome_sfo_takeover_final
     interval: 1m
     rules:
@@ -1469,16 +1364,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.callhomeSfoTakeoverAlerts | toString) "false" }}
   - name: callhome_sfo_takeover_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CallhomeSfoTakeover" | default false) }}
       - alert: CallhomeSfoTakeover
         expr: callhome_sfo_takeover_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 SFO takeover occurred on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1486,9 +1381,6 @@ groups:
             The alert resolves when the event "sfo.giveback.complete" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackFinal | toString) "false" }}
   - name: sfo_PartialGiveback_final
     interval: 1m
     rules:
@@ -1512,16 +1404,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sfoPartialGivebackAlerts | toString) "false" }}
   - name: sfo_PartialGiveback_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SfoPartialGiveback" | default false) }}
       - alert: SfoPartialGiveback
         expr: sfo_PartialGiveback_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Partial giveback occurred on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1530,9 +1422,6 @@ groups:
             "sfo.giveback.complete" is detected.'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailFinal | toString) "false" }}
   - name: cf_rsrc_takeoverOpFail_final
     interval: 1m
     rules:
@@ -1556,25 +1445,22 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfRsrcTakeoverOpFailAlerts | toString) "false" }}
   - name: cf_rsrc_takeoverOpFail_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CfRsrcTakeoverOpFail" | default false) }}
       - alert: CfRsrcTakeoverOpFail
         expr: cf_rsrc_takeoverOpFail_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Resource takeover operation failed on {{ "{{ $labels.name }}" }}'
           description: >
             'A resource takeover operation has failed on node {{ "{{ $labels.name }}" }}. 
             The alert resolves when the event "sfo.giveback.complete" is detected.'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitFinal | toString) "false" }}
   - name: spm_httpd_process_exit_final
     interval: 1m
     rules:
@@ -1598,16 +1484,16 @@ groups:
           unless
           sfo_giveback_complete_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.spmHttpdProcessExitAlerts | toString) "false" }}
   - name: spm_httpd_process_exit_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SpmHttpdProcessExit" | default false) }}
       - alert: SpmHttpdProcessExit
         expr: spm_httpd_process_exit_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Service Processor httpd process exited on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1616,9 +1502,6 @@ groups:
             (as a proxy for node stability).'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vserverStopFailedFinal | toString) "false" }}
   - name: vserver_stop_failed_final
     interval: 1m
     rules:
@@ -1642,16 +1525,16 @@ groups:
           unless
           vserver_stop_succeeded_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vserverStopFailedAlerts | toString) "false" }}
   - name: vserver_stop_failed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VServerStopFailed" | default false) }}
       - alert: VServerStopFailed
         expr: vserver_stop_failed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Failed to stop SVM {{ "{{ $labels.svm }}" }}'
           description: >
@@ -1659,9 +1542,6 @@ groups:
             on Cluster {{ "{{ $labels.netapp_cluster }}" }} has failed. The alert resolves 
             when the stop operation eventually succeeds ("vserver.stop.succeeded").'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedFinal | toString) "false" }}
   - name: raid_vol_state_changed_final
     interval: 1m
     rules:
@@ -1685,16 +1565,16 @@ groups:
           unless
           raid_vol_state_online_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.raidVolStateChangedAlerts | toString) "false" }}
   - name: raid_vol_state_changed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "RaidVolStateChanged" | default false) }}
       - alert: RaidVolStateChanged
         expr: raid_vol_state_changed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Aggregate {{ "{{ $labels.aggregate }}" }} state has changed on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1703,9 +1583,6 @@ groups:
             alert resolves when the aggregate is back online ("raid.vol.state.online").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedFinal | toString) "false" }}
   - name: ha_giveback_aggrOnlineFailed_final
     interval: 1m
     rules:
@@ -1729,16 +1606,16 @@ groups:
           unless
           raid_vol_state_online_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.haGivebackAggrOnlineFailedAlerts | toString) "false" }}
   - name: ha_giveback_aggrOnlineFailed_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "HaGivebackAggrOnlineFailed" | default false) }}
       - alert: HaGivebackAggrOnlineFailed
         expr: ha_giveback_aggrOnlineFailed_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Failed to bring aggregate {{ "{{ $labels.aggregate }}" }} online during giveback'
           description: >
@@ -1748,9 +1625,6 @@ groups:
             ("raid.vol.state.online").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableFinal | toString) "false" }}
   - name: cf_fm_notkoverClusterDisable_final
     interval: 1m
     rules:
@@ -1774,16 +1648,16 @@ groups:
           unless
           cf_fsm_takeoverOfPartnerEnabled_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.cfFmNotkoverClusterDisableAlerts | toString) "false" }}
   - name: cf_fm_notkoverClusterDisable_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "CfFmNotkoverClusterDisable" | default false) }}
       - alert: CfFmNotkoverClusterDisable
         expr: cf_fm_notkoverClusterDisable_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Cluster Failover disabled on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1792,9 +1666,6 @@ groups:
             re-enabled ("cf.fsm.takeoverOfPartnerEnabled").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateFinal | toString) "false" }}
   - name: wafl_vol_setting_in_nvfailed_state_final
     interval: 1m
     rules:
@@ -1818,16 +1689,16 @@ groups:
           unless
           wafl_vvol_online_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.waflVolSettingInNvfailedStateAlerts | toString) "false" }}
   - name: wafl_vol_setting_in_nvfailed_state_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "WaflVolSettingInNvfailedState" | default false) }}
       - alert: WaflVolSettingInNvfailedState
         expr: wafl_vol_setting_in_nvfailed_state_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Volume {{ "{{ $labels.vol }}" }} is in nvfailed state'
           description: >
@@ -1836,9 +1707,6 @@ groups:
             The alert resolves when the volume is back online ("wafl.vvol.online").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsFinal | toString) "false" }}
   - name: vifmgr_lifdown_noports_final
     interval: 1m
     rules:
@@ -1862,16 +1730,16 @@ groups:
           unless
           vifmgr_lifbeinghosted_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.vifmgrLifdownNoportsAlerts | toString) "false" }}
   - name: vifmgr_lifdown_noports_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VifmgrLifdownNoports" | default false) }}
       - alert: VifmgrLifdownNoports
         expr: vifmgr_lifdown_noports_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 LIF {{ "{{ $labels.vifname }}" }} is down (no available ports)'
           description: >
@@ -1881,9 +1749,6 @@ groups:
             ("vifmgr.lifbeinghosted").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorFinal | toString) "false" }}
   - name: ses_multipath_ReqError_final
     interval: 1m
     rules:
@@ -1907,16 +1772,16 @@ groups:
           unless
           shelf_config_tompha_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.sesMultipathReqErrorAlerts | toString) "false" }}
   - name: ses_multipath_ReqError_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "SesMultipathReqError" | default false) }}
       - alert: SesMultipathReqError
         expr: ses_multipath_ReqError_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 SES multipath request error on {{ "{{ $labels.name }}" }}'
           description: >
@@ -1926,9 +1791,6 @@ groups:
             ("shelf.config.tompha").'
 
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedFinal | toString) "false" }}
   - name: token_vol_max_count_reached_final
     interval: 1m
     rules:
@@ -1952,16 +1814,16 @@ groups:
           unless
           token_vol_cache_cleared_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.tokenVolMaxCountReachedAlerts | toString) "false" }}
   - name: token_vol_max_count_reached_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "TokenVolMaxCountReached" | default false) }}
       - alert: TokenVolMaxCountReached
         expr: token_vol_max_count_reached_persistent == 1
         for: 2m
         labels:
           severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🟡 Max token count reached for volume {{ "{{ $labels.volume_name }}" }}'
           description: >
@@ -1970,9 +1832,6 @@ groups:
             operations. The alert resolves when the token cache is cleared 
             ("token.vol.cache.cleared").'
 
-{{- end }}
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalFinal | toString) "false" }}
   - name: monitor_globalStatus_critical_final
     interval: 1m
     rules:
@@ -1996,16 +1855,16 @@ groups:
           unless
           monitor_globalStatus_ok_trigger
 
-{{- end }}
-{{- if ne (.Values.prometheusRules.ruleGroups.monitorGlobalStatusCriticalAlerts | toString) "false" }}
   - name: monitor_globalStatus_critical_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "MonitorGlobalStatusCritical" | default false) }}
       - alert: MonitorGlobalStatusCritical
         expr: monitor_globalStatus_critical_persistent == 1
         for: 2m
         labels:
           severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_test
         annotations:
           summary: '🔴 Global system status is CRITICAL on {{ "{{ $labels.name }}" }}'
           description: >
@@ -2013,7 +1872,6 @@ groups:
             CRITICAL. This indicates a severe, system-wide issue that requires immediate 
             attention. The alert resolves when the status returns to OK 
             ("monitor.globalStatus.ok").'
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

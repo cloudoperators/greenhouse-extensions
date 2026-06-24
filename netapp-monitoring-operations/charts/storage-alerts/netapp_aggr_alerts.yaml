@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappAggrAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappAggrAlerts | toString) "false" }}
+groups:
   - name: netapp_aggr_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "AggrNearlyFull" | default false) }}
       - alert: AggrNearlyFull
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 70
         for: 5m
@@ -24,8 +19,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrFull" | default false) }}
       - alert: AggrFull
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 80
         for: 5m
@@ -41,8 +34,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrNearlyFullbrazilstorec2" | default false) }}
       - alert: AggrNearlyFullbrazilstorec2
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 90
         for: 5m
@@ -58,8 +49,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrFullbrazilstorec2" | default false) }}
       - alert: AggrFullbrazilstorec2
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 95
         for: 5m
@@ -75,8 +64,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrNearlyFullHEC" | default false) }}
       - alert: AggrNearlyFullHEC
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 95
         for: 5m
@@ -92,8 +79,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrFullHEC" | default false) }}
       - alert: AggrFullHEC
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 90
         for: 5m
@@ -109,8 +94,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrNearlyFullHEC03FC005" | default false) }}
       - alert: AggrNearlyFullHEC03FC005
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 85
         for: 5m
@@ -126,8 +109,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrFullHEC03FC005" | default false) }}
       - alert: AggrFullHEC03FC005
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 90
         for: 5m
@@ -143,8 +124,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrNearlyFullInternal" | default false) }}
       - alert: AggrNearlyFullInternal
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 85
         for: 5m
@@ -160,8 +139,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "AggrFullInternal" | default false) }}
       - alert: AggrFullInternal
         expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 90
         for: 5m
@@ -177,8 +154,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "HeadroomAggrCurrentUtilization" | default false) }}
       - alert: HeadroomAggrCurrentUtilization
         expr: (avg_over_time(headroom_aggr_current_utilization{netapp_cluster!~".*root.*"}[2h])) > 90
         for: 5m
@@ -193,7 +168,6 @@ groups:
             Aggregate headroom current utilization > 90%
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

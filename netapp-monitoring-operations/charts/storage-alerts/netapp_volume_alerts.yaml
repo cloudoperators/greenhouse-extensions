@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappVolumeAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappVolumeAlerts | toString) "false" }}
+groups:
   - name: netapp_volume_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "VolumeInodeNearlyFull" | default false) }}
       - alert: VolumeInodeNearlyFull
         expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 90
         for: 5m
@@ -25,8 +20,6 @@ groups:
             Volume: {{ "{{" }} $labels.volume {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "VolumeInodeFull" | default false) }}
       - alert: VolumeInodeFull
         expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 95
         for: 5m
@@ -43,8 +36,6 @@ groups:
             Volume: {{ "{{" }} $labels.volume {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SnapmirrorLagTime" | default false) }}
       - alert: SnapmirrorLagTime
         expr: (last_over_time(snapmirror_lag_time[1h])) > 172800
         for: 5m
@@ -63,8 +54,6 @@ groups:
             Relationship ID: {{ "{{" }} $labels.relationship_id {{ "}}" }}
             Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "WAFLVolInvalidateFH" | default false) }}
       - alert: WAFLVolInvalidateFH
         expr: (ems_events{message="wafl.vol.invalidate.fh"})
         for: 5m
@@ -80,8 +69,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "WAFLVolInNVFailedState" | default false) }}
       - alert: WAFLVolInNVFailedState
         expr: (ems_events{message="wafl.vol.setting.in.nvfailed.state"})
         for: 5m
@@ -97,8 +84,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "WAFLDirSizeMaxWarning" | default false) }}
       - alert: WAFLDirSizeMaxWarning
         expr: (ems_events{message="wafl.dir.size.max.warning"})
         for: 5m
@@ -113,7 +98,6 @@ groups:
             Directory size for file ID {{ "{{" }} $labels.fileid {{ "}}" }} in volume {{ "{{" }} $labels.volume {{ "}}" }} is nearing maxdirsize limit.
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

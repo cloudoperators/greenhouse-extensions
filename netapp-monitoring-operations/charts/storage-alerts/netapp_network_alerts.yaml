@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappNetworkAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappNetworkAlerts | toString) "false" }}
+groups:
   - name: netapp_network_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "NetAppCRCErrors" | default false) }}
       - alert: NetAppCRCErrors
         expr: (ems_events{message="netif.linkErrors"})
         for: 5m
@@ -24,8 +19,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ICInterconnectLinkDown" | default false) }}
       - alert: ICInterconnectLinkDown
         expr: (ems_events{message="ic.HAInterconnectLinkDown"})
         for: 5m
@@ -41,8 +34,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "LIFStatusDown" | default false) }}
       - alert: LIFStatusDown
         expr: (ems_events{message="vifmgr.lifdown.noports"})
         for: 5m
@@ -58,8 +49,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NWInterfaceFatalErrorDriver" | default false) }}
       - alert: NWInterfaceFatalErrorDriver
         expr: (ems_events{message="netif.fatal.err"})
         for: 5m
@@ -75,8 +64,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "NWInterfaceFatalErrorHardware" | default false) }}
       - alert: NWInterfaceFatalErrorHardware
         expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
         for: 5m
@@ -92,8 +79,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "OverprovisioningOfDataLIF" | default false) }}
       - alert: OverprovisioningOfDataLIF
         expr: (ems_events{message="vifmgr.lifs.overcapacity"})
         for: 5m
@@ -108,7 +93,6 @@ groups:
             Over-provisioned failover targets: {{ "{{" }} $labels.overamount {{ "}}" }} LIFs may go "down" on node failure
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

@@ -24,11 +24,7 @@ spec:
       required: false
       type: map
     - name: prometheusRules.ruleGroups
-      description: Map of rule-group keys to true/false to enable/disable whole groups (forge groups are disabled by default)
-      required: false
-      type: map
-    - name: prometheusRules.disabled
-      description: Map of exact alert names to true to drop individual alerts
+      description: Map of per-file keys to true/false to enable/disable a whole alert file (one toggle per file; forge files are disabled by default)
       required: false
       type: map
     - name: prometheusRules.commonLabels

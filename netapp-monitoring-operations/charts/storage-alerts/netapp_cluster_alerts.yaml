@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappClusterAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappClusterAlerts | toString) "false" }}
+groups:
   - name: netapp_cluster_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "ClusterSwitchPortCRCerrors" | default false) }}
       - alert: ClusterSwitchPortCRCerrors
         expr: (ems_events{message="vifmgr.cluscheck.hwerrors"})
         for: 5m
@@ -24,8 +19,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "ClusterSwitchReboot" | default false) }}
       - alert: ClusterSwitchReboot
         expr: (ems_events{message="cluster.switch.reboot"})
         for: 5m
@@ -41,8 +34,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "SecdRpcServerRequestDropped" | default false) }}
       - alert: SecdRpcServerRequestDropped
         expr: (ems_events{message="secd.rpc.server.request.dropped"})
         for: 5m
@@ -58,8 +49,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "OntapUpgradePauseEvent" | default false) }}
       - alert: OntapUpgradePauseEvent
         expr: (ems_events{message="upgrademgr.update.pausedErr"})
         for: 5m
@@ -74,7 +63,6 @@ groups:
             The automated cluster update has been paused due to an error.
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

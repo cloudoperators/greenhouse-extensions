@@ -1,14 +1,9 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $anyEnabled := (ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false") }}
-{{- if not $anyEnabled }}
-groups: []
-{{- else }}
-groups:
 {{- if ne (.Values.prometheusRules.ruleGroups.netappDiskAlerts | toString) "false" }}
+groups:
   - name: netapp_disk_alerts
     rules:
-{{- if not (index .Values.prometheusRules.disabled "DiskDriveFailed" | default false) }}
       - alert: DiskDriveFailed
         expr: (ems_events{message="monitor.raid.brokenDisk"})
         for: 5m
@@ -24,8 +19,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "DiskExceedsAvgIOLatencyThreshold" | default false) }}
       - alert: DiskExceedsAvgIOLatencyThreshold
         expr: (ems_events{message="shm.threshold.highIOLatency"})
         for: 5m
@@ -41,8 +34,6 @@ groups:
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
 
-{{- end }}
-{{- if not (index .Values.prometheusRules.disabled "UnassignedDisk" | default false) }}
       - alert: UnassignedDisk
         expr: (ems_events{message="unowned.disk.reminder"})
         for: 5m
@@ -57,7 +48,6 @@ groups:
             Unassigned disks present in system
             VALUE = {{ "{{" }} $value {{ "}}" }}
             Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
-
-{{- end }}
-{{- end }}
+{{- else }}
+groups: []
 {{- end }}

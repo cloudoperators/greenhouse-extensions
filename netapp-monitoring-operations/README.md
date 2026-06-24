@@ -65,8 +65,7 @@ Both resources are created in `.Release.Namespace`.
 | `prometheusRules.create` | Render the `PrometheusRule` resources | `true` |
 | `prometheusRules.labels` | Labels applied to every `PrometheusRule`. `plugin` must match the Prometheus `ruleSelector`. | `plugin: storage-metrics-product` |
 | `prometheusRules.annotations` | Annotations applied to every `PrometheusRule`. Falls back to `prometheus.io/alert: "true"` when unset. | `{}` |
-| `prometheusRules.ruleGroups` | Map of `<groupKey>: true\|false` to enable/disable whole rule groups. Must be a map; set to `{}` to enable all groups. | NetApp + Harvest groups `true`; Brocade/PowerScale/PureStorage/PVC (forge) `false` |
-| `prometheusRules.disabled` | Map of `<AlertName>: true` to drop individual alerts by exact name. Unlisted alerts stay enabled. | `{}` |
+| `prometheusRules.ruleGroups` | Map of `<fileKey>: true\|false` to enable/disable a whole alert file (one toggle per file). Must be a map; set to `{}` to enable all files. | NetApp + Harvest files `true`; Brocade/PowerScale/PureStorage/PVC (forge) `false` |
 | `prometheusRules.commonLabels.support_group` | `support_group` label applied to every alert. | `storage` |
 | `prometheusRules.commonLabels.team` | `team` label applied to every alert. | `dme-storage` |
 
@@ -95,7 +94,8 @@ Both resources are created in `.Release.Namespace`.
 
 ## Enabling / disabling alerts
 
-Disable an entire rule group by setting its key to `false`:
+Each alert file has a single on/off toggle (one key per file). Disable a whole
+file by setting its key to `false`:
 
 ```yaml
 prometheusRules:
@@ -104,20 +104,12 @@ prometheusRules:
     netappEmsAlerts: false
 ```
 
-Group keys are the camelCase form of the group `name`
-(e.g. group `brocade_error_alerts` → `brocadeErrorAlerts`).
+The key is the camelCase form of the file name
+(e.g. `brocade-error-alerts.yaml` → `brocadeErrorAlerts`,
+`netapp_ems_alerts.yaml` → `netappEmsAlerts`).
 
-Disable a single alert by its exact alert name:
-
-```yaml
-prometheusRules:
-  disabled:
-    AggrOffline: true
-    BrocadeError_New: true
-```
-
-If every group in a file is disabled, that file renders as `groups: []` and
-produces an empty (but valid) `PrometheusRule`.
+When a file is disabled it renders as `groups: []` and produces an empty (but
+valid) `PrometheusRule`.
 
 ## Chart Structure
 
