@@ -218,8 +218,11 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          region: ${region}
+          attributes:
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
