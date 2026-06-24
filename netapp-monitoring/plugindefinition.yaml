@@ -6,13 +6,13 @@ kind: PluginDefinition
 metadata:
   name: netapp-monitoring
 spec:
-  version: 1.0.0
+  version: 1.0.1
   displayName: NetApp Monitoring
   description: Helm chart for NetApp storage monitoring using harvest.io
   helmChart:
     name: netapp-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts/netapp-monitoring
-    version: 1.0.0
+    version: 1.0.1
   options:
     - name: harvest.image.repository
       description: Harvest container image repository
