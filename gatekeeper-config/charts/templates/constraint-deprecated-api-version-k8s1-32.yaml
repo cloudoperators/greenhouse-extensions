@@ -1,0 +1,25 @@
+{{- if .Values.policies.deprecatedApiVersion.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkDeprecatedApiVersion
+metadata:
+  name: deprecated-api-version-k8s1-32
+  labels:
+    severity: 'warning'
+spec:
+  enforcementAction: {{ .Values.policies.deprecatedApiVersion.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Secret"]
+    scope: Namespaced
+    labelSelector:
+      matchLabels:
+        owner: helm
+  parameters:
+    helmManifestParserURL: {{ required "policies.deprecatedApiVersion.helmManifestParserURL is required when policies.deprecatedApiVersion.enabled=true" .Values.policies.deprecatedApiVersion.helmManifestParserURL | quote }}
+    kubernetesVersion: '1.32'
+    apiVersions:
+      - flowcontrol.apiserver.k8s.io/v1beta3
+{{- end }}
