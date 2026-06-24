@@ -17,7 +17,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: harvest-poller
         annotations:
           summary: "Harvest not scraping Poller {{`{{ $labels.poller }}`}}"

@@ -10,7 +10,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: This event occurs when excessive correctable ECC memory errors are reported by the NVDIMM (instance {{ "{{" }} $labels.instance {{ "}}" }})
@@ -25,7 +25,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: This message occurs when the NVMEM battery charge is low (instance {{ "{{" }} $labels.instance {{ "}}" }})
@@ -40,7 +40,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_nvdimm
         annotations:
           summary: This message occurs when the NVRAM battery is dangerously low (instance {{ "{{" }} $labels.instance {{ "}}" }})

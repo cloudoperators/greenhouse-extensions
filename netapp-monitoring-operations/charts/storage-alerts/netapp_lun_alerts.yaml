@@ -10,7 +10,7 @@ groups:
         labels:
           severity: info
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
           summary: This message occurs when a LUN is brought offline manually (instance {{ "{{" }} $labels.instance {{ "}}" }})
@@ -25,7 +25,7 @@ groups:
         labels:
           severity: critical
           support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
-          team: {{ dig "team" "dme-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
           component: netapp_lun
         annotations:
           summary: LUNs brought offline due to nvlog inconsistency (instance {{ "{{" }} $labels.instance {{ "}}" }})

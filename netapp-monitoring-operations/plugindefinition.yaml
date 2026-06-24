@@ -28,7 +28,7 @@ spec:
       required: false
       type: map
     - name: prometheusRules.commonLabels
-      description: Labels applied to every alert (team, support_group); defaults to storage / dme-storage
+      description: Labels applied to every alert (team, support_group); defaults to storage / sci-storage
       required: false
       type: map
     - name: podMonitor.labels

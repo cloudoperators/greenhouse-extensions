@@ -67,7 +67,7 @@ Both resources are created in `.Release.Namespace`.
 | `prometheusRules.annotations` | Annotations applied to every `PrometheusRule`. Falls back to `prometheus.io/alert: "true"` when unset. | `{}` |
 | `prometheusRules.ruleGroups` | Map of `<fileKey>: true\|false` to enable/disable a whole alert file (one toggle per file). Must be a map; set to `{}` to enable all files. | NetApp + Harvest files `true`; Brocade/PowerScale/PureStorage/PVC (forge) `false` |
 | `prometheusRules.commonLabels.support_group` | `support_group` label applied to every alert. | `storage` |
-| `prometheusRules.commonLabels.team` | `team` label applied to every alert. | `dme-storage` |
+| `prometheusRules.commonLabels.team` | `team` label applied to every alert. | `sci-storage` |
 
 ### PodMonitor
 
@@ -90,7 +90,7 @@ Both resources are created in `.Release.Namespace`.
   **required** — rendering fails with a clear message if either is unset, so the
   chart never produces a `PodMonitor` that selects all pods/namespaces.
 - `prometheusRules.commonLabels.support_group` / `team` are **optional** and fall
-  back to `storage` / `dme-storage` when `commonLabels` is omitted.
+  back to `storage` / `sci-storage` when `commonLabels` is omitted.
 
 ## Enabling / disabling alerts
 
