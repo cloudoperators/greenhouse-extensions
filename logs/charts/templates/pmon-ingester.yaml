@@ -4,19 +4,20 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.openTelemetry.ingesterCollector.enabled .Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled -}}
-{{- $cfg := .Values.openTelemetry.ingesterCollector -}}
-{{- if gt (len (default (dict) $cfg.streams)) 0 }}
+{{- $root := . -}}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
+{{- if and $cfg.enabled $cfg.topic }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: opentelemetry-collector-logs-ingester
+  name: opentelemetry-collector-{{ $name }}-ingester
   labels:
-    {{- include "plugin.labels" . | nindent 4 }}
-    {{- if .Values.openTelemetry.customLabels }}
-    {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+    {{- include "plugin.labels" $root | nindent 4 }}
+    {{- if $root.Values.openTelemetry.customLabels }}
+    {{ toYaml $root.Values.openTelemetry.customLabels | nindent 4 }}
     {{- end }}
-    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" $root | nindent 4 }}
 spec:
   podMetricsEndpoints:
     - interval: 60s
@@ -27,8 +28,9 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
-      app.kubernetes.io/instance: {{ .Release.Namespace }}.logs-ingester
+      app.kubernetes.io/instance: {{ $root.Release.Namespace }}.{{ $name }}-ingester
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
+{{- end }}
 {{- end }}
 {{- end }}

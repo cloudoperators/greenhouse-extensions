@@ -4,43 +4,44 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- if .Values.openTelemetry.ingesterCollector.enabled -}}
-{{- $cfg := .Values.openTelemetry.ingesterCollector -}}
-{{- if gt (len (default (dict) $cfg.streams)) 0 }}
+{{- $root := . -}}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
+{{- if and $cfg.enabled $cfg.topic }}
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: logs-ingester
+  name: {{ $name }}-ingester
   labels:
-  {{- include "plugin.labels" . | nindent 4 }}
-  {{- if .Values.openTelemetry.customLabels }}
-  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+  {{- include "plugin.labels" $root | nindent 4 }}
+  {{- if $root.Values.openTelemetry.customLabels }}
+  {{ toYaml $root.Values.openTelemetry.customLabels | nindent 4 }}
   {{- end }}
 spec:
   mode: deployment
-  replicas: {{ $cfg.replicas }}
+  replicas: {{ $root.Values.openTelemetry.ingesterCollector.replicas }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "logs-ingester-auth"
+    secret.reloader.stakater.com/reload: "{{ $name }}-ingester-auth"
   terminationGracePeriodSeconds: 30
-  {{- with $cfg.resources }}
+  {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   env:
     - name: cluster
-      value: "{{ .Values.openTelemetry.cluster }}"
+      value: "{{ $root.Values.openTelemetry.cluster }}"
     - name: region
-      value: "{{ .Values.openTelemetry.region }}"
+      value: "{{ $root.Values.openTelemetry.region }}"
   envFrom:
     - secretRef:
-        name: logs-ingester-auth
-{{- if $cfg.prometheus.podMonitor.enabled }}
+        name: {{ $name }}-ingester-auth
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
       port: 8888
 {{- end }}
-  image: {{ $cfg.image.repository | default .Values.openTelemetry.collectorImage.repository }}:{{ $cfg.image.tag | default .Values.openTelemetry.collectorImage.tag }}
+  image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
@@ -50,13 +51,12 @@ spec:
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
   config:
-    receivers:
-{{- $kafka := .Values.openTelemetry.kafka -}}
+{{- $kafka := $root.Values.openTelemetry.kafka -}}
 {{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
 {{- $kafka = $cfg.kafka -}}
 {{- end }}
-{{- range $stream, $sCfg := $cfg.streams }}
-      kafka/{{ $stream }}:
+    receivers:
+      kafka/{{ $name }}:
         brokers:
 {{- range $kafka.brokers }}
           - {{ . }}
@@ -64,10 +64,10 @@ spec:
         protocol_version: {{ $kafka.protocol_version }}
         logs:
           topics:
-            - {{ $sCfg.topic | quote }}
+            - {{ $cfg.topic | quote }}
           encoding: {{ $kafka.encoding }}
-        group_id: {{ printf "logs-ingester-%s" $stream | quote }}
-        initial_offset: {{ $sCfg.initialOffset | default "latest" | quote }}
+        group_id: {{ printf "%s-ingester" $name | quote }}
+        initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
         autocommit:
           enable: true
           interval: 1s
@@ -80,7 +80,6 @@ spec:
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
-{{- end }}
     processors:
       memory_limiter:
         check_interval: 5s
@@ -106,8 +105,7 @@ spec:
     exporters:
       debug:
         verbosity: basic
-{{- range $stream, $sCfg := $cfg.streams }}
-      opensearch/{{ $stream }}_failover_a:
+      opensearch/{{ $name }}_failover_a:
         http:
           auth:
             authenticator: basicauth/failover_a
@@ -115,14 +113,14 @@ spec:
             ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
-        logs_index: {{ $stream | quote }}
+        logs_index: {{ $name | quote }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-      opensearch/{{ $stream }}_failover_b:
+      opensearch/{{ $name }}_failover_b:
         http:
           auth:
             authenticator: basicauth/failover_b
@@ -130,27 +128,24 @@ spec:
             ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
-        logs_index: {{ $stream | quote }}
+        logs_index: {{ $name | quote }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 10s
-{{- end }}
     connectors:
-{{- range $stream, $sCfg := $cfg.streams }}
-      failover/opensearch_{{ $stream }}:
+      failover/opensearch_{{ $name }}:
         priority_levels:
-          - [logs/{{ $stream }}_failover_a]
-          - [logs/{{ $stream }}_failover_b]
+          - [logs/{{ $name }}_failover_a]
+          - [logs/{{ $name }}_failover_b]
         retry_interval: 1m
-{{- end }}
     service:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $cfg.prometheus.podMonitor.enabled }}
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
           level: detailed
@@ -170,17 +165,16 @@ spec:
           region: ${region}
 {{- end }}
       pipelines:
-{{- range $stream, $sCfg := $cfg.streams }}
-        logs/{{ $stream }}:
-          receivers: [kafka/{{ $stream }}]
+        logs/{{ $name }}:
+          receivers: [kafka/{{ $name }}]
           processors: [memory_limiter, attributes/cluster]
-          exporters: [failover/opensearch_{{ $stream }}]
-        logs/{{ $stream }}_failover_a:
-          receivers: [failover/opensearch_{{ $stream }}]
-          exporters: [opensearch/{{ $stream }}_failover_a]
-        logs/{{ $stream }}_failover_b:
-          receivers: [failover/opensearch_{{ $stream }}]
-          exporters: [opensearch/{{ $stream }}_failover_b]
+          exporters: [failover/opensearch_{{ $name }}]
+        logs/{{ $name }}_failover_a:
+          receivers: [failover/opensearch_{{ $name }}]
+          exporters: [opensearch/{{ $name }}_failover_a]
+        logs/{{ $name }}_failover_b:
+          receivers: [failover/opensearch_{{ $name }}]
+          exporters: [opensearch/{{ $name }}_failover_b]
 {{- end }}
 {{- end }}
 {{- end }}
