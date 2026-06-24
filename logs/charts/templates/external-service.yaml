@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: external-collector
   annotations:
-{{- if .Values.openTelemetry.externalCollector.externalIP }}
+{{- if and .Values.openTelemetry.externalCollector.externalIP .Values.openTelemetry.externalCollector.calicoLoadBalancerIP }}
     projectcalico.org/loadBalancerIPs: '["{{ .Values.openTelemetry.externalCollector.externalIP }}"]'
 {{- end }}
 {{- with .Values.openTelemetry.externalCollector.serviceAnnotations }}
