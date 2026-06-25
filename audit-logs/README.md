@@ -116,6 +116,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
 | auditLogs.region | string | `nil` | Region label for Logging |
 | commonLabels | string | `nil` | Common labels to apply to all resources |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
 
 ### Examples
 
