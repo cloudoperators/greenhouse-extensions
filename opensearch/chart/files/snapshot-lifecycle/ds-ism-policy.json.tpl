@@ -52,6 +52,7 @@
         "name": "snapshot",
         "actions": [
           {
+            "timeout": "10h",
             "retry": {
               "count": 3,
               "backoff": "exponential",
@@ -76,6 +77,7 @@
         "name": "link_snapshot",
         "actions": [
           {
+            "timeout": "3h",
             "retry": {
               "count": 3,
               "backoff": "exponential",

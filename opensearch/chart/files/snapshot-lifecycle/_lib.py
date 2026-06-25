@@ -11,6 +11,7 @@ Required env (read on import):
 Optional env:
   TLS_SKIP_VERIFY  "true" disables certificate verification
   CA_BUNDLE        path to a CA bundle used for verification
+  DEBUG            "true" logs full URL, request body, and response body
 """
 import base64
 import json
@@ -25,6 +26,7 @@ _PASSWORD = os.environ["PASSWORD"]
 
 _SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
 _CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
+_DEBUG = os.environ.get("DEBUG", "").lower() in ("1", "true", "yes")
 
 if _SKIP_VERIFY:
     SSL_CTX = ssl.create_default_context()
@@ -76,17 +78,27 @@ class Response:
 
 def http(method: str, path: str, body: dict | None = None, timeout: int = 30) -> Response:
     """Issue an authenticated HTTP request against $CLUSTER_HOST."""
+    url = f"{CLUSTER}{path}"
     data = json.dumps(body).encode() if body is not None else None
-    req = request.Request(f"{CLUSTER}{path}", data=data, method=method)
+    if _DEBUG:
+        log("debug", "http request", method=method, url=url, body=json.dumps(body, indent=2) if body is not None else "null")
+    req = request.Request(url, data=data, method=method)
     req.add_header("Authorization", _AUTH_HEADER)
     if data is not None:
         req.add_header("Content-Type", "application/json")
     try:
         with request.urlopen(req, timeout=timeout, context=SSL_CTX) as resp:
-            return Response(resp.status, resp.read())
+            r = Response(resp.status, resp.read())
     except error.HTTPError as e:
-        return Response(e.code, e.read())
+        r = Response(e.code, e.read())
     except (error.URLError, TimeoutError, ConnectionError, ssl.SSLError) as e:
         # DNS, connection refused, TLS handshake errors. Surface as a
         # synthetic Response so callers handle it like any other failure.
-        return Response(0, str(e).encode())
+        r = Response(0, str(e).encode())
+    if _DEBUG:
+        try:
+            resp_body = json.dumps(r.json(), indent=2)
+        except Exception:
+            resp_body = r.text
+        log("debug", "http response", method=method, url=url, status=r.status, body=resp_body)
+    return r
