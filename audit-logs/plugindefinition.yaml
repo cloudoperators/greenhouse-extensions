@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.0.25
+    version: 0.1.0
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.0.25
+        version: 0.1.0
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -88,6 +88,11 @@ spec:
           description: Collector image tag
           required: false
           type: string
+        - name: auditLogs.logsCollector.enabled
+          default: true
+          description: Top-level toggle for the producer-side audit logs collector. Set to false in consumer-only PluginPresets to skip rendering the producer DaemonSet.
+          required: false
+          type: bool
         - name: auditLogs.logsCollector.auditd.enabled
           description: Enable auditd ingestion
           required: false
@@ -142,3 +147,26 @@ spec:
           description: Skip server certificate verification (leave false for production)
           required: false
           type: bool
+        - name: auditLogs.ingesterCollector.enabled
+          default: false
+          description: Top-level toggle for the Kafka -> OpenSearch audit ingest collectors
+          required: false
+          type: bool
+        - name: auditLogs.ingesterCollector.replicas
+          default: 1
+          description: Replica count per ingest collector Deployment
+          required: false
+          type: int
+        - name: auditLogs.ingesterCollector.resources
+          description: Pod resources per ingest collector Deployment
+          required: false
+          type: map
+        - name: auditLogs.ingesterCollector.prometheus.podMonitor.enabled
+          default: true
+          description: Render a PodMonitor per enabled ingest collector
+          required: false
+          type: bool
+        - name: auditLogs.ingesterCollector.collectors
+          description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `audit-ingester-<name>` consuming a single Kafka topic and writing to OpenSearch index `<name>`. See chart values.yaml for the entry schema.
+          required: false
+          type: map

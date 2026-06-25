@@ -1,0 +1,180 @@
+{{/*
+SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+{{- if .Values.openTelemetry.ingesterCollector.enabled -}}
+{{- $root := . -}}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
+{{- if and $cfg.enabled $cfg.topic }}
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: logs-ingester-{{ $name }}
+  labels:
+  {{- include "plugin.labels" $root | nindent 4 }}
+  {{- if $root.Values.openTelemetry.customLabels }}
+  {{ toYaml $root.Values.openTelemetry.customLabels | nindent 4 }}
+  {{- end }}
+spec:
+  mode: deployment
+  replicas: {{ $root.Values.openTelemetry.ingesterCollector.replicas }}
+  podAnnotations:
+    kubectl.kubernetes.io/default-container: "otc-container"
+    secret.reloader.stakater.com/reload: "logs-ingester-{{ $name }}-auth"
+  terminationGracePeriodSeconds: 30
+  {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  env:
+    - name: cluster
+      value: "{{ $root.Values.openTelemetry.cluster }}"
+    - name: region
+      value: "{{ $root.Values.openTelemetry.region }}"
+  envFrom:
+    - secretRef:
+        name: logs-ingester-{{ $name }}-auth
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
+  ports:
+    - name: prometheus
+      port: 8888
+{{- end }}
+  image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
+  volumeMounts:
+    - name: opensearch-ca
+      mountPath: /etc/ssl/opensearch
+      readOnly: true
+  volumes:
+    - name: opensearch-ca
+      secret:
+        secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
+  config:
+{{- $kafka := $root.Values.openTelemetry.kafka -}}
+{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
+{{- $kafka = $cfg.kafka -}}
+{{- end }}
+    receivers:
+      kafka/{{ $name }}:
+        brokers:
+{{- range $kafka.brokers }}
+          - {{ . }}
+{{- end }}
+        protocol_version: {{ $kafka.protocol_version }}
+        logs:
+          topics:
+            - {{ $cfg.topic | quote }}
+          encoding: {{ $kafka.encoding }}
+        group_id: {{ printf "logs-ingester-%s" $name | quote }}
+        initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
+        autocommit:
+          enable: true
+          interval: 1s
+        message_marking:
+          after: true
+          on_error: false
+          on_permanent_error: false
+        error_backoff:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 30s
+          max_elapsed_time: 3m
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 30
+      attributes/cluster:
+        actions:
+          - action: insert
+            key: k8s.cluster.name
+            value: ${cluster}
+          - action: insert
+            key: region
+            value: ${region}
+    extensions:
+      basicauth/failover_a:
+        client_auth:
+          username: ${failover_username_a}
+          password: ${failover_password_a}
+      basicauth/failover_b:
+        client_auth:
+          username: ${failover_username_b}
+          password: ${failover_password_b}
+    exporters:
+      debug:
+        verbosity: basic
+      opensearch/{{ $name }}_failover_a:
+        http:
+          auth:
+            authenticator: basicauth/failover_a
+          tls:
+            ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
+            insecure: {{ $cfg.opensearch.tls.insecure }}
+          endpoint: {{ $cfg.opensearch.endpoint | quote }}
+        logs_index: {{ $name | quote }}
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
+      opensearch/{{ $name }}_failover_b:
+        http:
+          auth:
+            authenticator: basicauth/failover_b
+          tls:
+            ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
+            insecure: {{ $cfg.opensearch.tls.insecure }}
+          endpoint: {{ $cfg.opensearch.endpoint | quote }}
+        logs_index: {{ $name | quote }}
+        retry_on_failure:
+          enabled: true
+          initial_interval: 1s
+          max_interval: 5s
+          max_elapsed_time: 30s
+        timeout: 10s
+    connectors:
+      failover/opensearch_{{ $name }}:
+        priority_levels:
+          - [logs/{{ $name }}_failover_a]
+          - [logs/{{ $name }}_failover_b]
+        retry_interval: 1m
+    service:
+      extensions:
+        - basicauth/failover_a
+        - basicauth/failover_b
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
+      telemetry:
+        metrics:
+          level: detailed
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 0.0.0.0
+                    port: 8888
+                    without_type_suffix: false
+                    with_resource_constant_labels:
+                      included:
+                        - k8s_cluster_name
+                        - region
+        resource:
+          k8s_cluster_name: ${cluster}
+          region: ${region}
+{{- end }}
+      pipelines:
+        logs/{{ $name }}:
+          receivers: [kafka/{{ $name }}]
+          processors: [memory_limiter, attributes/cluster]
+          exporters: [failover/opensearch_{{ $name }}]
+        logs/{{ $name }}_failover_a:
+          receivers: [failover/opensearch_{{ $name }}]
+          exporters: [opensearch/{{ $name }}_failover_a]
+        logs/{{ $name }}_failover_b:
+          receivers: [failover/opensearch_{{ $name }}]
+          exporters: [opensearch/{{ $name }}_failover_b]
+{{- end }}
+{{- end }}
+{{- end }}
