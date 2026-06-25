@@ -141,6 +141,8 @@ spec:
           - [logs/{{ $name }}_failover_a]
           - [logs/{{ $name }}_failover_b]
         retry_interval: 1m
+        sending_queue:
+          enabled: false
     service:
       extensions:
         - basicauth/failover_a
