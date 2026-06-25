@@ -94,7 +94,7 @@ spec:
       name: openTelemetry.ingesterCollector.prometheus.podMonitor.enabled
       required: false
       type: bool
-    - description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `<name>-ingester` consuming a single Kafka topic and writing to OpenSearch index `<name>`. See chart values.yaml for the entry schema.
+    - description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `logs-ingester-<name>` consuming a single Kafka topic and writing to OpenSearch index `<name>`. See chart values.yaml for the entry schema.
       name: openTelemetry.ingesterCollector.collectors
       required: false
       type: map
