@@ -4,6 +4,9 @@
 # -- common labels to apply to all resources.
 commonLabels: {}
 
+# -- Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies.
+extraManifests: []
+
 # opentelemetry-operator is an upstream dependency, it is required that it is a separate block. This is customised configuration of the dependency.
 opentelemetry-operator:
   # -- Set to true to enable the installation of the OpenTelemetry Operator.
