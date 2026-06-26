@@ -19,7 +19,7 @@ spec:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
-    secret.reloader.stakater.com/reload: "otel-basic-auth{{- if .Values.openTelemetry.externalCollector.syslogConfig.enabled }},otel-syslog-audit-auth{{- end }}"
+    secret.reloader.stakater.com/reload: "otel-basic-auth{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }},otel-syslog-audit-auth{{- end }}"
 {{- end }}
   terminationGracePeriodSeconds: 10
   env:
@@ -30,10 +30,10 @@ spec:
 {{- if not .Values.openTelemetry.kafka.enabled }}
   envFrom:
     - secretRef:
-         name: otel-basic-auth
-{{- if .Values.openTelemetry.externalCollector.syslogConfig.enabled }}
+        name: otel-basic-auth
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     - secretRef:
-         name: otel-syslog-audit-auth
+        name: otel-syslog-audit-auth
 {{- end }}
 {{- end }}
   ports:
