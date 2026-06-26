@@ -5,7 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 {{/*
   Syslog Audit/Non-Audit Filter Configuration
-  Migrated from Logstash filter rules for c0001/c0815 syslog processing.
+  Separates syslog logs into audit-relevant and non-audit streams
+  for VMware infrastructure sources (ESXi, vCSA, NSX-T).
 
   This implements:
   1. Early drop of known non-audit-relevant log messages (by content pattern)
@@ -18,16 +19,16 @@ SPDX-License-Identifier: Apache-2.0
   8. VM event parsing (ESXi reconfigure/error events)
   9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
 
-  Field mapping (Logstash → OTel syslog receiver):
+  Field mapping (syslog → OTel receiver attributes):
     The OTel syslog receiver (both rfc5424 and rfc3164) parses syslog fields
     into log record ATTRIBUTES (not body). The body retains the raw syslog line.
 
-    [message]          → attributes["message"]
-    [syslog_process]   → attributes["appname"]
-    [syslog_hostname]  → attributes["hostname"] (rfc5424) or net.peer.name (rfc3164)
-    [syslog_pid]       → attributes["proc_id"]
-    [syslog_severity]  → severity_number (OTel numeric severity)
-    [syslog_facility]  → attributes["facility"]
+    message            → attributes["message"]
+    process/appname    → attributes["appname"]
+    hostname           → attributes["hostname"] (rfc5424) or net.peer.name (rfc3164)
+    pid                → attributes["proc_id"]
+    severity           → severity_number (OTel numeric severity)
+    facility           → attributes["facility"]
     body               → raw syslog line as string
 
 */}}
