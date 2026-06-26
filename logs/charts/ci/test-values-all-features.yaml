@@ -70,6 +70,15 @@ openTelemetry:
       enabled: true
       tcp_port: 514
       udp_port: 514
+      auditKafkaTopic: syslog-audit
+      nonAuditKafkaTopic: syslog-logs
+      openSearchLogs:
+        auditEndpoint: ""
+        nonAuditEndpoint: ""
+        audit_failover_username_a: ""
+        audit_failover_password_a: ""
+        audit_failover_username_b: ""
+        audit_failover_password_b: ""
     syslogTLSConfig:
       enabled: true
       tcp_port: 6514

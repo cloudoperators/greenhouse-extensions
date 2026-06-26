@@ -19,7 +19,7 @@ spec:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
-    secret.reloader.stakater.com/reload: "otel-basic-auth"
+    secret.reloader.stakater.com/reload: "otel-basic-auth{{- if .Values.openTelemetry.externalCollector.syslogConfig.enabled }},otel-syslog-audit-auth{{- end }}"
 {{- end }}
   terminationGracePeriodSeconds: 10
   env:
@@ -31,6 +31,10 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
+{{- if .Values.openTelemetry.externalCollector.syslogConfig.enabled }}
+    - secretRef:
+         name: otel-syslog-audit-auth
+{{- end }}
 {{- end }}
   ports:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
@@ -119,6 +123,9 @@ spec:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
     {{- include "external.transform" . | nindent 6 -}}
 {{- end }}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+    {{- include "syslog_audit_filter.transform" . | nindent 6 -}}
+{{- end }}
       memory_limiter:
         check_interval: 5s
         limit_percentage: 80
@@ -164,7 +171,7 @@ spec:
     {{- include "external.exporter" . | nindent 6 -}}
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
-    {{- include "syslog.exporter" . | nindent 6 -}}
+    {{- include "syslog_audit_filter.exporter" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
     {{- include "traces.exporter" . | nindent 6 -}}
@@ -181,17 +188,31 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+      basicauth/syslog_audit_failover_a:
+        client_auth:
+          username: ${audit_failover_username_a}
+          password: ${audit_failover_password_a}
+      basicauth/syslog_audit_failover_b:
+        client_auth:
+          username: ${audit_failover_username_b}
+          password: ${audit_failover_password_b}
 {{- end }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- end }}
+{{- if or (not .Values.openTelemetry.kafka.enabled) .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     connectors:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
+{{- if not .Values.openTelemetry.kafka.enabled }}
     {{- include "external.connectors" . | nindent 6 -}}
 {{- end }}
+{{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
-    {{- include "syslog.connectors" . | nindent 6 -}}
+    {{- include "syslog_audit_filter.connectors" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
+{{- if not .Values.openTelemetry.kafka.enabled }}
     {{- include "traces.connectors" . | nindent 6 -}}
+{{- end }}
 {{- end }}
 {{- end }}
     service:
@@ -201,6 +222,10 @@ spec:
 {{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+        - basicauth/syslog_audit_failover_a
+        - basicauth/syslog_audit_failover_b
+{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
@@ -230,6 +255,9 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_tls.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+    {{- include "syslog_audit_filter.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
     {{- include "traces.pipeline" . | nindent 8 -}}

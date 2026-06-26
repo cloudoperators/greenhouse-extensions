@@ -67,6 +67,13 @@ openTelemetry:
       enabled: true
       tcp_port: 514
       udp_port: 514
+      openSearchLogs:
+        auditEndpoint: test
+        nonAuditEndpoint: test
+        audit_failover_username_a: test
+        audit_failover_password_a: test
+        audit_failover_username_b: test
+        audit_failover_password_b: test
     tracesConfig:
       enabled: true
   metricsCollector:
