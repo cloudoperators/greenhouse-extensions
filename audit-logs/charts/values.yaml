@@ -111,10 +111,12 @@ auditLogs:
     #     enabled: bool                         # render this collector
     #     topic: <kafka-topic>                  # single Kafka topic consumed by this collector
     #     initialOffset: latest | earliest      # optional, defaults to latest
+    #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
     #     kafka: { brokers, protocol_version, encoding }  # optional override of auditLogs.logsCollector.kafka
     #     opensearch:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
+    #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".

@@ -93,6 +93,10 @@ spec:
           - action: insert
             key: region
             value: ${region}
+{{- range $cfg.extraProcessors }}
+      {{ .name }}:
+        {{- toYaml .config | nindent 8 }}
+{{- end }}
     extensions:
       basicauth/failover_a:
         client_auth:
@@ -114,6 +118,10 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+{{- with $cfg.opensearch.mapping }}
+        mapping:
+          {{- toYaml . | nindent 10 }}
+{{- end }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -129,6 +137,10 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+{{- with $cfg.opensearch.mapping }}
+        mapping:
+          {{- toYaml . | nindent 10 }}
+{{- end }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -169,7 +181,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster]
+          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
