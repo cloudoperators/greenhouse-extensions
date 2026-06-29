@@ -31,7 +31,7 @@ jobs:
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
             Platform: linux/amd64
-          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#main
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
             Dockerfiles: Dockerfile
             Imagename: opensearch-query-exporter
             Platform: linux/amd64
@@ -145,7 +145,7 @@ jobs:
           - Context: logs/build
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
-          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#main
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
             Dockerfiles: Dockerfile
             Imagename: opensearch-query-exporter
 

@@ -253,7 +253,7 @@ queryExporter:
   image:
     registry: ghcr.io
     repository: cloudoperators/opensearch-query-exporter
-    tag: latest
+    tag: v0.1.0
   logLevel: debug
   credentialsRef: logs
   additionalCredentialsRefs:

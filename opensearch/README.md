@@ -274,7 +274,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | queryExporter.enabled | bool | `false` | Enable the OpenSearch query exporter |
 | queryExporter.image.registry | string | `"ghcr.io"` | Image registry for the query exporter |
 | queryExporter.image.repository | string | `"cloudoperators/opensearch-query-exporter"` | Image repository for the query exporter |
-| queryExporter.image.tag | string | `"latest"` | Image tag for the query exporter |
+| queryExporter.image.tag | string | `"v0.1.0"` | Image tag for the query exporter |
 | queryExporter.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | queryExporter.insecure | bool | `false` | Skip TLS verification when connecting to OpenSearch. |
 | queryExporter.logLevel | string | `"info"` | Log level (debug, info, warn, error) |

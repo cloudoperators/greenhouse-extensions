@@ -1009,7 +1009,7 @@ queryExporter:
     # -- Image repository for the query exporter
     repository: cloudoperators/opensearch-query-exporter
     # -- Image tag for the query exporter
-    tag: latest
+    tag: v0.1.0
   # -- Image pull policy
   imagePullPolicy: IfNotPresent
 
