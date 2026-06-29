@@ -1013,6 +1013,9 @@ queryExporter:
   # -- Image pull policy
   imagePullPolicy: IfNotPresent
 
+  # -- Skip TLS verification when connecting to OpenSearch.
+  insecure: false
+
   # -- Number of replicas
   replicas: 1
 

@@ -60,5 +60,4 @@ Query exporter selector labels
 */}}
 {{- define "opensearch.query-exporter-selector" -}}
 app.kubernetes.io/name: {{ include "opensearch.query-exporter-name" . }}
-app.kubernetes.io/component: query-exporter
 {{- end }}

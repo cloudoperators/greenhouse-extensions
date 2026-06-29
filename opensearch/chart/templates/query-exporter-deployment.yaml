@@ -99,9 +99,11 @@ spec:
               mountPath: /queries
               readOnly: true
             {{- end }}
+            {{- if .Values.certManager.enable }}
             - name: certs
               mountPath: /certs
               readOnly: true
+            {{- end }}
       {{- with .Values.queryExporter.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -119,10 +121,12 @@ spec:
           configMap:
             name: {{ $name }}-queries
         {{- end }}
+        {{- if .Values.certManager.enable }}
         - name: certs
           secret:
             secretName: opensearch-http-cert
             items:
               - key: ca.crt
                 path: ca.crt
+        {{- end }}
 {{- end }}

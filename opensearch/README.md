@@ -276,6 +276,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | queryExporter.image.repository | string | `"cloudoperators/opensearch-query-exporter"` | Image repository for the query exporter |
 | queryExporter.image.tag | string | `"latest"` | Image tag for the query exporter |
 | queryExporter.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| queryExporter.insecure | bool | `false` | Skip TLS verification when connecting to OpenSearch. |
 | queryExporter.logLevel | string | `"info"` | Log level (debug, info, warn, error) |
 | queryExporter.maxQueryRange | string | `"168h"` | Maximum allowed time range for queries (rejects queries looking back further). Prevents queries from hitting warm/cold storage tiers. |
 | queryExporter.nodeSelector | object | `{}` | Node selector |

@@ -9,6 +9,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+    {{- include "opensearch.query-exporter-selector" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
