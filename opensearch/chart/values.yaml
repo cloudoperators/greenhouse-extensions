@@ -1043,6 +1043,7 @@ queryExporter:
     # - logs2
 
   # -- Resource requests and limits
+  # @default -- <pre>requests:<br>  cpu: 50m<br>  memory: 64Mi<br>limits:<br>  cpu: 200m<br>  memory: 128Mi</pre>
   resources:
     requests:
       cpu: 50m
@@ -1061,6 +1062,7 @@ queryExporter:
   tolerations: []
 
   # -- Security context for the container
+  # @default -- <pre>allowPrivilegeEscalation: false<br>readOnlyRootFilesystem: true<br>runAsNonRoot: true<br>runAsUser: 1000<br>capabilities:<br>  drop: [ALL]</pre>
   securityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
