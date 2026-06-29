@@ -131,8 +131,11 @@ queryExporter:
         query:
           bool:
             must:
-              - match: { level: "ERROR" }
-              - range: { "@timestamp": { gte: "now-5m" } }
+              - match:
+                  level: "ERROR"
+              - range:
+                  "@timestamp":
+                    gte: "now-5m"
     - name: ingestion_rate
       support_group: observability
       service: logs
@@ -145,4 +148,6 @@ queryExporter:
         query:
           bool:
             filter:
-              - range: { "@timestamp": { gte: "now-1m" } }
+              - range:
+                  "@timestamp":
+                    gte: "now-1m"
