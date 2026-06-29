@@ -100,7 +100,7 @@ cluster:
             secretName: opensearch-http-cert
 
 queryExporter:
-  enabled: false
+  enabled: true
   image:
     registry: ghcr.io
     repository: cloudoperators/opensearch-query-exporter
