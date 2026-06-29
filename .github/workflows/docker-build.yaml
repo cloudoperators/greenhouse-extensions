@@ -31,6 +31,10 @@ jobs:
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
             Platform: linux/amd64
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#main
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-query-exporter
+            Platform: linux/amd64
 
     permissions:
       contents: read
@@ -141,6 +145,9 @@ jobs:
           - Context: logs/build
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#main
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-query-exporter
 
     name: Vulnerability Scan
     needs: build

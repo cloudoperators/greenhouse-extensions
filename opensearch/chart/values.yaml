@@ -1007,7 +1007,7 @@ queryExporter:
     # -- Image registry for the query exporter
     registry: ghcr.io
     # -- Image repository for the query exporter
-    repository: sap-cloud-infrastructure/opensearch-query-exporter
+    repository: cloudoperators/opensearch-query-exporter
     # -- Image tag for the query exporter
     tag: latest
   # -- Image pull policy

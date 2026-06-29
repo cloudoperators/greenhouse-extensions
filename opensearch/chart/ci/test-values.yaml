@@ -252,7 +252,7 @@ queryExporter:
   enabled: true
   image:
     registry: ghcr.io
-    repository: sap-cloud-infrastructure/opensearch-query-exporter
+    repository: cloudoperators/opensearch-query-exporter
     tag: latest
   logLevel: debug
   credentialsRef: logs

@@ -269,6 +269,28 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.useRoleBindings | bool | `false` |  |
 | operator.webhook.enabled | bool | `true` |  |
 | operator.webhook.failurePolicy | string | `"Ignore"` |  |
+| queryExporter.additionalCredentialsRefs | list | `[]` | Additional credential keys for failover (optional). Listed keys are tried in order after credentialsRef. |
+| queryExporter.credentialsRef | string | `"logs"` | Credentials key from cluster.usersCredentials to use for OpenSearch access. The referenced key must exist under cluster.usersCredentials and will be mounted from the corresponding <key>-credentials Secret. |
+| queryExporter.enabled | bool | `false` | Enable the OpenSearch query exporter |
+| queryExporter.image.registry | string | `"ghcr.io"` | Image registry for the query exporter |
+| queryExporter.image.repository | string | `"cloudoperators/opensearch-query-exporter"` | Image repository for the query exporter |
+| queryExporter.image.tag | string | `"latest"` | Image tag for the query exporter |
+| queryExporter.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| queryExporter.logLevel | string | `"info"` | Log level (debug, info, warn, error) |
+| queryExporter.maxQueryRange | string | `"168h"` | Maximum allowed time range for queries (rejects queries looking back further). Prevents queries from hitting warm/cold storage tiers. |
+| queryExporter.nodeSelector | object | `{}` | Node selector |
+| queryExporter.podAnnotations | object | `{}` | Pod annotations |
+| queryExporter.port | int | `9206` | Port the exporter listens on |
+| queryExporter.queries | list | `[]` | Query configuration. Each entry defines a periodic OpenSearch query whose results are exposed as Prometheus metrics. See https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter for full docs. |
+| queryExporter.replicas | int | `1` | Number of replicas |
+| queryExporter.resources | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Resource requests and limits |
+| queryExporter.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1000}` | Security context for the container |
+| queryExporter.serviceMonitor.enabled | bool | `true` | Create a ServiceMonitor for the query exporter |
+| queryExporter.serviceMonitor.interval | string | `"30s"` | Scrape interval |
+| queryExporter.serviceMonitor.labels | object | `{}` | Additional labels for the ServiceMonitor (e.g. for Prometheus selector matching) |
+| queryExporter.serviceMonitor.scrapeTimeout | string | `"25s"` | Scrape timeout |
+| queryExporter.timeout | string | `"30s"` | Query timeout |
+| queryExporter.tolerations | list | `[]` | Tolerations |
 | s3.clients | object | <pre>clients: {}</pre> | Map of S3 client names to credentials. |
 | s3.enabled | bool | `false` | Enable the S3 keystore Secret. When enabled, renders a Secret with `s3.client.<name>.access_key` / `s3.client.<name>.secret_key` entries for the repository-s3 plugin (warm nodes, snapshots). Wire the rendered Secret via `cluster.cluster.general.keystore` and configure endpoints under `cluster.cluster.general.additionalConfig`. |
 | s3.secretName | string | `"opensearch-s3-keystore"` | Name of the rendered Secret. |
