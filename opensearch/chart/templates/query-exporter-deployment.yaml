@@ -1,25 +1,25 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
 {{- if .Values.queryExporter.enabled }}
-{{- $name := include "opensearch.query-exporter-name" . }}
 {{- $credRef := .Values.queryExporter.credentialsRef | default "logs" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $name }}
+  name: opensearch-query-exporter
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
+    {{- include "opensearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: query-exporter
 spec:
   replicas: {{ .Values.queryExporter.replicas | default 1 }}
   selector:
     matchLabels:
-      {{- include "opensearch.query-exporter-selector" . | nindent 6 }}
+      app.kubernetes.io/name: opensearch-query-exporter
   template:
     metadata:
       labels:
-        {{- include "opensearch.query-exporter-selector" . | nindent 8 }}
+        app.kubernetes.io/name: opensearch-query-exporter
       annotations:
         checksum/config: {{ include (print .Template.BasePath "/query-exporter-config.yaml") . | sha256sum }}
         {{- with .Values.queryExporter.podAnnotations }}
@@ -115,11 +115,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ $name }}-config
+            name: opensearch-query-exporter-config
         {{- if .Values.queryExporter.queries }}
         - name: queries
           configMap:
-            name: {{ $name }}-queries
+            name: opensearch-query-exporter-queries
         {{- end }}
         {{- if .Values.certManager.enable }}
         - name: certs

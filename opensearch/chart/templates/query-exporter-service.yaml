@@ -1,15 +1,16 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
 {{- if .Values.queryExporter.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "opensearch.query-exporter-name" . }}
+  name: opensearch-query-exporter
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "opensearch.query-exporter-labels" . | nindent 4 }}
-    {{- include "opensearch.query-exporter-selector" . | nindent 4 }}
+    {{- include "opensearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: query-exporter
+    app.kubernetes.io/name: opensearch-query-exporter
 spec:
   type: ClusterIP
   ports:
@@ -18,5 +19,5 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    {{- include "opensearch.query-exporter-selector" . | nindent 4 }}
+    app.kubernetes.io/name: opensearch-query-exporter
 {{- end }}
