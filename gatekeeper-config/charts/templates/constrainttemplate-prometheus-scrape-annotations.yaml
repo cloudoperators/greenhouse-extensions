@@ -1,0 +1,52 @@
+{{- if .Values.policies.prometheusScrapeAnnotations.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkprometheusscrapeannotations
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkPrometheusScrapeAnnotations
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+            rego: |
+              package prometheusscrapeannotations
+
+              import data.lib.add_support_labels
+
+              iro := input.review.object
+
+              # Requires a Gatekeeper Config resource syncing
+              # monitoring.coreos.com/v1 Prometheus objects into the OPA cache.
+              # The policy defaults to disabled until that Config exists.
+              is_valid_target contains target if {
+                  target := data.inventory.namespace[_]["monitoring.coreos.com/v1"].Prometheus[_].metadata.name
+              }
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  regex.match("^(?:Service|Pod)$", iro.kind)
+                  anno := object.get(iro, ["metadata", "annotations"], {})
+                  object.get(anno, "prometheus.io/scrape", "false") == "true"
+
+                  targets := regex.split(`\s*,\s*`, object.get(anno, "prometheus.io/targets", ""))
+                  count(targets) != count({t | t := targets[_]; is_valid_target[_] == t})
+
+                  all_valid_targets := {t | is_valid_target[t]}
+
+                  msg := sprintf(
+                      "has prometheus.io/scrape annotation, but prometheus.io/targets annotation is missing or does not have a valid value (got: %s, valid: %s)",
+                      [json.marshal(sort(targets)), json.marshal(sort(all_valid_targets))],
+                  )
+              }
+{{- end }}

@@ -4,6 +4,9 @@
 # -- Common labels to apply to all resources
 commonLabels:
 
+# -- Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies.
+extraManifests: []
+
 auditLogs:
 
   nodeSelector: {}
@@ -84,6 +87,41 @@ auditLogs:
       key:
     # -- Labels to be added to Elastic logs
     labels: []
+
+  # -- Kafka -> OpenSearch ingest collectors for audit logs. One Deployment per entry.
+  # @default -- see values.yaml
+  ingesterCollector:
+    # -- Enable the ingest collectors block.
+    enabled: false
+    # -- Replica count per ingest collector Deployment.
+    replicas: 1
+    image:
+      # -- Image repository override; falls back to auditLogs.collectorImage.repository.
+      repository: ""
+      # -- Image tag override; falls back to auditLogs.collectorImage.tag.
+      tag: ""
+    # -- Pod resources per ingest collector Deployment.
+    resources: {}
+    prometheus:
+      podMonitor:
+        # -- Render a PodMonitor per enabled ingest collector.
+        enabled: true
+    # Entry shape:
+    #   <name>:
+    #     enabled: bool                         # render this collector
+    #     topic: <kafka-topic>                  # single Kafka topic consumed by this collector
+    #     initialOffset: latest | earliest      # optional, defaults to latest
+    #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
+    #     kafka: { brokers, protocol_version, encoding }  # optional override of auditLogs.logsCollector.kafka
+    #     opensearch:
+    #       endpoint: <url>
+    #       tls: { caSecret, caSecretKey, insecure }
+    #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
+    #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
+    # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
+    # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
+    # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
+    collectors: {}
 
 
   prometheus:

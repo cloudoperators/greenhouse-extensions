@@ -75,6 +75,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
 | auditLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
 | auditLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
+| auditLogs.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors for audit logs. One Deployment per entry. |
+| auditLogs.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
+| auditLogs.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
+| auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
+| auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
+| auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
+| auditLogs.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
+| auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
@@ -108,6 +116,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
 | auditLogs.region | string | `nil` | Region label for Logging |
 | commonLabels | string | `nil` | Common labels to apply to all resources |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
 
 ### Examples
 
