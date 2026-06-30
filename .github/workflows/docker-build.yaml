@@ -36,8 +36,8 @@ jobs:
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
             Platform: linux/amd64
-          - Context: opensearch/build
-            Dockerfiles: opensearch/build/Dockerfile
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
+            Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
             Platform: linux/amd64
 
@@ -99,7 +99,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=raw,value=${{ github.sha }}
-            type=raw,value=${{ inputs.fortlogs_tag }},enable=${{ inputs.fortlogs_tag != '' && matrix.Imagename == 'opensearch-fortlogs' }}
+            type=raw,value=${{ inputs.fortlogs_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.fortlogs_tag != '' && matrix.Imagename == 'opensearch-fortlogs' }}
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
 
