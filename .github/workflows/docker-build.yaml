@@ -1,7 +1,12 @@
 name: Build Docker images and push to registry
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      fortlogs_tag:
+        description: 'Extra tag for opensearch-fortlogs image (e.g. 3.7.0)'
+        required: false
+        type: string
   push:
     branches:
         - main
@@ -94,6 +99,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=raw,value=${{ github.sha }}
+            type=raw,value=${{ inputs.fortlogs_tag }},enable=${{ inputs.fortlogs_tag != '' && matrix.Imagename == 'opensearch-fortlogs' }}
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
 
