@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.queryExporter.enabled }}
+{{- $credRef := .Values.queryExporter.credentialsRef | default "logs" }}
+{{- $clusterName := default (default .Release.Name .Values.cluster.cluster.name) (.Values.cluster.cluster.general).serviceName | trunc 63 | trimSuffix "-" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-query-exporter-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: query-exporter
+data:
+  config.yaml: |
+    opensearch_url: https://{{ $clusterName }}:9200
+    ca_cert_path: /certs/ca.crt
+    insecure: {{ .Values.queryExporter.insecure | default false }}
+    credentials:
+      - username: "${{ upper $credRef }}_USERNAME"
+        password: "${{ upper $credRef }}_PASSWORD"
+    {{- range $ref := (.Values.queryExporter.additionalCredentialsRefs | default list) }}
+      - username: "${{ upper $ref }}_USERNAME"
+        password: "${{ upper $ref }}_PASSWORD"
+    {{- end }}
+    timeout: {{ .Values.queryExporter.timeout | default "30s" }}
+    max_query_range: {{ .Values.queryExporter.maxQueryRange | default "168h" }}
+    queries: []
+{{- if .Values.queryExporter.queries }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensearch-query-exporter-queries
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: query-exporter
+data:
+  queries.yaml: |
+    queries:
+      {{- toYaml .Values.queryExporter.queries | nindent 6 }}
+{{- end }}
+{{- end }}
