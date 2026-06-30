@@ -107,8 +107,6 @@ queryExporter:
     tag: v0.1.0
   logLevel: debug
   credentialsRef: logs
-  additionalCredentialsRefs:
-    - logs2
   resources:
     requests:
       cpu: 50m
