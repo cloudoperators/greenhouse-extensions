@@ -106,7 +106,7 @@ queryExporter:
     repository: cloudoperators/opensearch-query-exporter
     tag: v0.1.0
   logLevel: debug
-  credentialsRef: logs
+  credentialsRef: admin
   resources:
     requests:
       cpu: 50m
