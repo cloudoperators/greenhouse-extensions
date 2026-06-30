@@ -151,8 +151,8 @@ jobs:
           - Context: logs/build
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
-          - Context: opensearch/build
-            Dockerfiles: opensearch/build/Dockerfile
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
+            Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
 
     name: Vulnerability Scan
