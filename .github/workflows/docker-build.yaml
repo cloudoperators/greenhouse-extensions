@@ -34,6 +34,7 @@ jobs:
           - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
             Dockerfiles: Dockerfile
             Imagename: opensearch-query-exporter
+            Imagetag: v0.1.0
             Platform: linux/amd64
 
     permissions:
@@ -94,6 +95,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=raw,value=${{ github.sha }}
+            type=raw,value=${{ matrix.Imagetag }},enable=${{ matrix.Imagetag != '' }}
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
 
