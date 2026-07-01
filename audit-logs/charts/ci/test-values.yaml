@@ -1,31 +1,63 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
+# Consolidated CI test values exercising all collector features:
+# - auditd (hostPID, privileged, initContainer, volumes)
+# - containerd (keystone/vault/falco transforms, ingress)
+# - journald
+# - kube-apiserver audit
+# - auditpoller filelog receiver
+# - prometheus podMonitor + telemetry
+# - kafka exporter path
+# - ingester collector (kafka -> opensearch)
+# - audit-poller subchart
+
 auditLogs:
+  cluster: test
+  region: test
   openSearchLogs:
     failover_username_a: testusera
     failover_password_a: passworda
     failover_username_b: testuserb
     failover_password_b: passwordb
-    endpoint: test-endpoint
-    index: test
-  elastic:
-    enabled: false
-  cluster: test
-  region: test
+    endpoint: https://opensearch:9200
+    index: audit
   logsCollector:
-    kafka:
-      enabled: true
-      brokers:
-        - kafka.test.svc.cluster.local:9092
-      protocol_version: "3.9.0"
-      encoding: otlp_proto
-  ingesterCollector:
     enabled: true
+    auditd:
+      enabled: true
+    containerd:
+      enabled: true
+    journald:
+      enabled: true
+    kubeApiAudit:
+      enabled: true
+    auditpoller:
+      enabled: true
+    kafka:
+      enabled: false
+      brokers:
+        - kafka-bootstrap.kafka.svc.cluster.local:9092
+      topic: audit-logs
+      protocol_version: "3.9.0"
+      encoding: otlp_json
+      compression: snappy
+  prometheus:
+    podMonitor:
+      enabled: true
+    additionalLabels:
+      prometheus: test
+    rules:
+      create: true
+      additionalRuleLabels:
+        service: logs
+        support_group: observability
+  ingesterCollector:
+    enabled: false
     replicas: 1
     prometheus:
       podMonitor:
-        enabled: false
+        enabled: true
     collectors:
       audit:
         enabled: true
@@ -40,3 +72,25 @@ auditLogs:
           failover_password_a: test
           failover_username_b: test
           failover_password_b: test
+
+auditPoller:
+  enabled: false
+  image:
+    repository: registry.example.com
+    tag: "20240722095753"
+  logDir: "/audit"
+  iasApi:
+    user: testuser
+    password: testpassword
+    tokenURL: https://token.example.com
+    apiURL: https://api.example.com
+    alternateApiURL: https://api2.example.com
+  iasChangelog:
+    user: testuser
+    password: testpassword
+    url: https://changelog.example.com
+
+global:
+  region: test
+  clusterType: test
+  prometheus: test

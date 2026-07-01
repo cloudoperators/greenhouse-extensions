@@ -67,6 +67,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| auditLogs.affinity | object | `{}` | Node affinity rules for the collector DaemonSet pods |
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
 | auditLogs.collectorImage.tag | string | `"a8981ba"` | overrides the default image tag for the OpenTelemetry Collector image. |
@@ -84,6 +85,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
 | auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
+| auditLogs.logsCollector.auditpoller.enabled | bool | `false` | Activates the receiver for ingesting audit-poller logs |
 | auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.logsCollector.journald.enabled | bool | `false` | Activates ingestion of systemd journal logs |
@@ -100,13 +102,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
 | auditLogs.nodeSelector | object | `{}` |  |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
-| auditLogs.openSearchLogs.failover | object | `{"enabled":true}` | Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired. |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
 | auditLogs.openSearchLogs.failover_password_b | string | `nil` | Second Password (as a failover) for OpenSearch endpoint |
 | auditLogs.openSearchLogs.failover_username_a | string | `nil` | Username for OpenSearch endpoint |
 | auditLogs.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
 | auditLogs.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | auditLogs.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch requests |
+| auditLogs.podAnnotations | object | `{}` | Annotations to add to collector pods |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |
 | auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"create":true,"labels":{}}` | Default rules for monitoring the opentelemetry components. |
@@ -115,8 +117,36 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
 | auditLogs.region | string | `nil` | Region label for Logging |
+| auditLogs.terminationGracePeriodSeconds | int | `30` | Grace period for pod termination in seconds |
+| auditPoller.enabled | bool | `false` | Enables the audit-poller deployment for polling IAS audit logs |
+| auditPoller.iasApi.alternateApiURL | string | `nil` |  |
+| auditPoller.iasApi.apiURL | string | `nil` |  |
+| auditPoller.iasApi.fileName | string | `"ias_api.log"` |  |
+| auditPoller.iasApi.interval | int | `5` |  |
+| auditPoller.iasApi.password | string | `nil` |  |
+| auditPoller.iasApi.syncFrom | string | `nil` |  |
+| auditPoller.iasApi.tokenURL | string | `nil` |  |
+| auditPoller.iasApi.user | string | `nil` |  |
+| auditPoller.iasChangelog.fileName | string | `"ias_changelog.log"` |  |
+| auditPoller.iasChangelog.interval | int | `30` |  |
+| auditPoller.iasChangelog.password | string | `nil` |  |
+| auditPoller.iasChangelog.syncFrom | string | `nil` |  |
+| auditPoller.iasChangelog.url | string | `nil` |  |
+| auditPoller.iasChangelog.user | string | `nil` |  |
+| auditPoller.image.repository | string | `""` | Image repository for the audit-poller |
+| auditPoller.image.tag | string | `""` | Image tag for the audit-poller |
+| auditPoller.logDir | string | `"/audit-poller"` |  |
+| auditPoller.logLevel | string | `"info"` |  |
+| auditPoller.metricsPort | int | `9298` |  |
+| auditPoller.persistence.enabled | bool | `false` |  |
+| auditPoller.playbook.basePath | string | `"docs/support/playbook/audit-poller"` | Base path for alert playbook URLs (anchor fragment is appended per alert) |
 | commonLabels | string | `nil` | Common labels to apply to all resources |
 | extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
+| global | object | `{"cluster":"","clusterType":"","prometheus":"","region":""}` | Global values shared with subcharts (audit-poller) |
+| global.cluster | string | `""` | Cluster name (defaults to region if empty) |
+| global.clusterType | string | `""` | Cluster type identifier |
+| global.prometheus | string | `""` | Prometheus label selector for PodMonitor/PrometheusRule resources |
+| global.region | string | `""` | Region identifier |
 
 ### Examples
 

@@ -1,6 +1,8 @@
 dependencies:
   - logs
-
+  - kube-monitoring
+  - kafka
+  
 values:
   opentelemetry-operator:
     enabled: true

@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.1.3
+    version: 0.1.4
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.1.3
+        version: 0.1.4
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -43,19 +43,14 @@ spec:
           description: Password for OpenSearch endpoint
           required: false
           type: secret
-        - name: auditLogs.openSearchLogs.failover.enabled
-          default: false
-          description: Activates the a failover mechanism for a second user (in case the first user is invalidated)
-          required: false
-          type: bool
         - name: auditLogs.openSearchLogs.failover_username_b
           description: Second Username (as a failover) for OpenSearch endpoint
           required: false
           type: secret
         - name: auditLogs.openSearchLogs.failover_password_b
-          description: Second Username (as a failover) for OpenSearch endpoint
+          description: Second Password (as a failover) for OpenSearch endpoint
           required: false
-          type: secret  
+          type: secret
         - name: auditLogs.prometheus.podMonitor.enabled
           default: false
           description: auditLogs.prometheus.podMonitor.enabled
@@ -170,6 +165,69 @@ spec:
           description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `audit-ingester-<name>` consuming a single Kafka topic and writing to OpenSearch index `<name>`. See chart values.yaml for the entry schema.
           required: false
           type: map
+        - name: auditLogs.logsCollector.auditpoller.enabled
+          default: false
+          description: Activates the receiver for ingesting audit-poller logs
+          required: false
+          type: bool
+        - name: auditPoller.enabled
+          default: false
+          description: Enable the audit-poller deployment for polling IAS audit logs
+          required: false
+          type: bool
+        - name: auditPoller.image.repository
+          description: Image repository for the audit-poller
+          required: false
+          type: string
+        - name: auditPoller.image.tag
+          description: Image tag for the audit-poller
+          required: false
+          type: string
+        - name: auditPoller.logLevel
+          description: Log level for the audit-poller (debug, info, warn, error)
+          required: false
+          type: string
+        - name: auditPoller.iasApi.user
+          description: IAS API username
+          required: false
+          type: secret
+        - name: auditPoller.iasApi.password
+          description: IAS API password
+          required: false
+          type: secret
+        - name: auditPoller.iasApi.tokenURL
+          description: IAS OAuth2 token URL
+          required: false
+          type: string
+        - name: auditPoller.iasApi.apiURL
+          description: IAS audit log API URL
+          required: false
+          type: string
+        - name: auditPoller.iasApi.alternateApiURL
+          description: Alternate IAS audit log API URL
+          required: false
+          type: string
+        - name: auditPoller.iasApi.syncFrom
+          description: Timestamp to start syncing audit logs from (dd-MM-yyyy HH:mm:ss)
+          required: false
+          type: string
+        - name: auditPoller.iasChangelog.user
+          description: IAS changelog username
+          required: false
+          type: secret
+        - name: auditPoller.iasChangelog.password
+          description: IAS changelog password
+          required: false
+          type: secret
+        - name: auditPoller.iasChangelog.url
+          description: IAS changelog URL
+          required: false
+          type: string
+        - name: auditPoller.persistence.enabled
+          default: false
+          description: Enable persistence for the audit-poller
+          required: false
+          type: bool
         - name: extraManifests
           description: Extra Kubernetes manifests to include in the Helm release. Useful for ConfigMaps that satisfy cluster admission policies.
           required: false
