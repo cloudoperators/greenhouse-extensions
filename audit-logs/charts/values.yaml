@@ -29,6 +29,10 @@ auditLogs:
     auditd:
       # -- Activates the ingestion of auditd logs.
       enabled: true
+      # -- Init container image used to stop the host auditd service.
+      initImage:
+        repository: alpine
+        tag: latest
     kubeApiAudit:
       # -- Activates export for kube-apiserver audit logs
       enabled: false
