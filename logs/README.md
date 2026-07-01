@@ -97,7 +97,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.externalCollector | object | `{"calicoLoadBalancerIP":false,"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"externalIP":null,"externalTrafficPolicy":"Local","kafkaTopic":"","kafkaTracesTopic":"","replicas":2,"serviceAnnotations":{},"serviceType":"LoadBalancer","syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector | object | `{"calicoLoadBalancerIP":false,"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"externalIP":null,"externalTrafficPolicy":"Local","kafkaTopic":"","kafkaTracesTopic":"","replicas":2,"serviceAnnotations":{},"serviceType":"LoadBalancer","syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.calicoLoadBalancerIP | bool | `false` | Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP |
 | openTelemetry.externalCollector.enabled | bool | `false` | Enables the standalone external OTel Collector StatefulSet and its PodMonitor. |
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
@@ -113,9 +113,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
-| openTelemetry.externalCollector.syslogTLSConfig | object | `{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
+| openTelemetry.externalCollector.syslogTLSConfig | object | `{"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
-| openTelemetry.externalCollector.syslogTLSConfig.issuerName | string | `nil` | cert-manager ClusterIssuer name for DigiCert |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerGroup | string | `"cert-manager.io"` | cert-manager issuer group (e.g. cert-manager.io or certmanager.cloud.sap) |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerKind | string | `"ClusterIssuer"` | cert-manager issuer kind (Issuer or ClusterIssuer) |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerName | string | `nil` | cert-manager Issuer or ClusterIssuer name for TLS certificate |
 | openTelemetry.externalCollector.syslogTLSConfig.tcp_port | int | `6514` | TCP port for TLS syslog (rfc5424) |
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
