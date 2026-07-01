@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.purestorageErrorAlerts | toString) "false" }}
+groups:
+  - name: purestorage_error_alerts
+    rules:
+      - alert: PureStorageError_New
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            purestorage_error_log_total
+          )
+          unless
+          sum by (messageid, messagetext, cluster, source)(
+            purestorage_error_log_total offset 24h
+          )
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: purestorage
+        annotations:
+          summary: "New PureStorage error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+
+      - alert: PureStorageError_LessFrequent
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            increase(purestorage_error_log_total[24h])
+          ) > 0
+          and
+          sum by (messageid, messagetext, cluster, source)(
+            increase(purestorage_error_log_total[24h])
+          ) <= 50
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: purestorage
+        annotations:
+          summary: "PureStorage error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+
+      - alert: PureStorageError_MoreFrequent
+        expr: |
+          sum by (messageid, messagetext, cluster, source)(
+            increase(purestorage_error_log_total[24h])
+          ) > 50
+        for: 0m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: purestorage
+        annotations:
+          summary: "PureStorage error MessageID: ({{`{{ $labels.messageid }}`}})"
+          description: |
+            Message: {{`{{ $labels.messagetext }}`}}
+            Source: {{`{{ $labels.source }}`}}
+{{- else }}
+groups: []
+{{- end }}

@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ printf "%s-harvest-pod-monitor" .Release.Name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- with .Values.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "netapp-monitoring-operations.labels" . | nindent 4 }}
+spec:
+  jobLabel: {{ default "ccloud/service" .Values.podMonitor.jobLabel | quote }}
+  namespaceSelector:
+    matchNames:
+      {{- range (required "podMonitor.targetNamespaces is required; list the namespace(s) where your target pods run." .Values.podMonitor.targetNamespaces) }}
+      - {{ . }}
+      {{- end }}
+  selector:
+    matchLabels:
+      {{- required "podMonitor.selectorMatchLabels is required; provide pod labels that uniquely select your deployment pods." .Values.podMonitor.selectorMatchLabels | toYaml | nindent 6 }}
+  podMetricsEndpoints:
+    - interval: {{ default "15s" .Values.podMonitor.scrapeInterval }}
+      path: {{ default "/metrics" .Values.podMonitor.path | quote }}
+      scheme: {{ default "http" .Values.podMonitor.scheme | quote }}
+      port: {{ default "metrics" .Values.podMonitor.port | quote }}
+      {{- with .Values.podMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      metricRelabelings:
+        - sourceLabels: [cluster]
+          targetLabel: netapp_cluster
+          action: replace
+        {{- with .Values.podMonitor.additionalMetricRelabelings }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

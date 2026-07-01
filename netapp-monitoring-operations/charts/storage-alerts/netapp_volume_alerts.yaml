@@ -1,0 +1,103 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappVolumeAlerts | toString) "false" }}
+groups:
+  - name: netapp_volume_alerts
+    rules:
+      - alert: VolumeInodeNearlyFull
+        expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 90
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: Inode nearly full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Inode used > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Volume: {{ "{{" }} $labels.volume {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: VolumeInodeFull
+        expr: (avg_over_time(volume_inode_used_percent {volume!~".*root.*",volume!~".*dummy.*"}[15m])) > 95
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: Inode full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Inode used > 95%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Volume: {{ "{{" }} $labels.volume {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: SnapmirrorLagTime
+        expr: (last_over_time(snapmirror_lag_time[1h])) > 172800
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: Snapmirror Lag time (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Snapmirror Lag time > 48h
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Source volume: {{ "{{" }} $labels.source_volume {{ "}}" }}, Source vserver: {{ "{{" }} $labels.source_vserver {{ "}}" }},
+            Destination volume: {{ "{{" }} $labels.destination_volume {{ "}}" }}, Destination vserver: {{ "{{" }} $labels.destination_vserver {{ "}}" }},
+            Relationship ID: {{ "{{" }} $labels.relationship_id {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: WAFLVolInvalidateFH
+        expr: (ems_events{message="wafl.vol.invalidate.fh"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: NVRAM failure invalidated filehandles (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Invalidating all filehandles due to previous NVRAM failure.
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: WAFLVolInNVFailedState
+        expr: (ems_events{message="wafl.vol.setting.in.nvfailed.state"})
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: Volume marked as in-nvfailed-state (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Volume {{ "{{" }} $labels.volume {{ "}}" }} is marked as in-nvfailed-state
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: WAFLDirSizeMaxWarning
+        expr: (ems_events{message="wafl.dir.size.max.warning"})
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_volume
+        annotations:
+          summary: Directory approaching maxdirsize (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Directory size for file ID {{ "{{" }} $labels.fileid {{ "}}" }} in volume {{ "{{" }} $labels.volume {{ "}}" }} is nearing maxdirsize limit.
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+{{- else }}
+groups: []
+{{- end }}

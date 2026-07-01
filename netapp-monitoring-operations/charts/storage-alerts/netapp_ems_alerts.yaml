@@ -1,0 +1,1520 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappEmsAlerts | toString) "false" }}
+groups:
+  - name: netapp_ems_alerts
+    rules:
+      - alert: LUNVolNoSpace
+        expr: last_over_time(ems_events{message="LUN.vol.no.space"}[1m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LUN volume has no space'
+          description: 'LUN {{ "{{ $labels.lun_path }}" }} in volume {{ "{{ $labels.volume }}" }} is out of space |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }} |
+            Volume DS ID: {{ "{{ $labels.volume_ds_id }}" }}'
+      - alert: NbladeNfsV4PoolExhaust
+        expr: last_over_time(ems_events{message="Nblade.nfsV4PoolExhaust"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'NFSv4 Pool Exhaustion'
+          description: 'Pool {{ "{{ $labels.poolname }}" }} of type {{ "{{ $labels.object_type }}" }} is exhausted. |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: DiskInventoryMismatch
+        expr: last_over_time(ems_events{message="cf.disk.inventory.mismatch"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Disk inventory mismatch detected'
+          description: 'Disk inventory mismatch for disk {{ "{{ $labels.disk }}" }} on host {{ "{{ $labels.host }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }} |
+            Object UID: {{ "{{ $labels.object_uid }}" }}'
+      - alert: TakeoverFailed
+        expr: last_over_time(ems_events{message="cf.fm.takeoverFailed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Takeover operation failed'
+          description: 'Takeover operation failed due to reason {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }} |
+            Partner Node UID: {{ "{{ $labels.partner_node_uuid }}" }} |
+            Token: {{ "{{ $labels.token }}" }}'
+      - alert: VersionMismatch
+        expr: last_over_time(ems_events{message="cf.fm.versionMismatch"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Version mismatch between subsystems'
+          description: 'Subsystem {{ "{{ $labels.subsystem }}" }} version mismatch. Local version: {{ "{{ $labels.version }}" }}, partner version: {{ "{{ $labels.partner_version }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TakeoverNoHeartbeat
+        expr: last_over_time(ems_events{message="cf.fsm.takeover.noHeartbeat"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'No heartbeat detected for takeover'
+          description: 'No heartbeat detected for takeover process |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TakeoverByPartnerDisabled
+        expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Takeover by partner is disabled'
+          description: 'Takeover by partner is disabled. Reason: {{ "{{ $labels.reason }}" }} |
+            Local: {{ "{{ $labels.local }}" }} |
+            Partner: {{ "{{ $labels.partner }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TakeoverHung
+        expr: last_over_time(ems_events{message="cf.fsm.takeoverHung"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Takeover process hung'
+          description: 'Takeover process is hung in module {{ "{{ $labels.moduleName }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: NotifyCfgFailed
+        expr: last_over_time(ems_events{message="cf.hwassist.notifyCfgFailed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Hardware assist notify config failed'
+          description: 'Hardware assist notify config failed for {{ "{{ $labels.hwtype }}" }} due to error {{ "{{ $labels.errorstr }}" }} (Code: {{ "{{ $labels.error }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TakeoverDisabled
+        expr: last_over_time(ems_events{message="cf.takeover.disabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Takeover disabled'
+          description: 'Takeover is disabled. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: NodeOutOfQuorum
+        expr: last_over_time(ems_events{message="clam.node.ooq"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Node out of quorum'
+          description: 'Node {{ "{{ $labels.hostname }}" }} is out of quorum. Reason: {{ "{{ $labels.reason }}" }} |
+            Node ID: {{ "{{ $labels.nodeid }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: NoNeighbors
+        expr: last_over_time(ems_events{message="clus.net.noNeighbors"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'No neighbors detected'
+          description: 'No neighbors detected in cluster network |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: DrivePhyDisableError
+        expr: last_over_time(ems_events{message="ds.sas.drivephy.disableErr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'SAS drive PHY disable error'
+          description: 'SAS drive PHY disable error detected. Drive: {{ "{{ $labels.disk_data }}" }}, Reason: {{ "{{ $labels.reason }}" }} |
+            Shelf ID: {{ "{{ $labels.shelfID }}" }} |
+            Bay: {{ "{{ $labels.bay }}" }} |
+            Channels: {{ "{{ $labels.channels }}" }} |
+            Element: {{ "{{ $labels.element }}" }} |
+            PHY: {{ "{{ $labels.phy }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: LicenseExpiring
+        expr: last_over_time(ems_events{message="license.check.warn.expiring"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'License is expiring'
+          description: 'License {{ "{{ $labels.package }}" }} is expiring. Expiration date: {{ "{{ $labels.expiration }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: NFSListenersFailure
+        expr: last_over_time(ems_events{message="mgmt.nfslisteners.failure"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'NFS listeners failure'
+          description: 'NFS listener failure detected. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapMirrorCatchupFail
+        expr: last_over_time(ems_events{message="mgmt.snapmir.ls.catchup.fail"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'SnapMirror catchup failure'
+          description: 'SnapMirror catchup failure for source {{ "{{ $labels.srcpath }}" }} to destination {{ "{{ $labels.dstpath }}" }}. Error: {{ "{{ $labels.error }}" }} (Job ID: {{ "{{ $labels.jobID }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: CertExpired
+        expr: last_over_time(ems_events{message="mgmtgwd.certificate.expired"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Certificate expired'
+          description: 'Certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} of type {{ "{{ $labels.type }}" }} for vServer {{ "{{ $labels.vserver }}" }} has expired |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: CertExpiring
+        expr: last_over_time(ems_events{message="mgmtgwd.certificate.expiring"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Certificate expiring'
+          description: 'Certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} of type {{ "{{ $labels.type }}" }} for vServer {{ "{{ $labels.vserver }}" }} is expiring in {{ "{{ $labels.days }}" }} days |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SignCertExpired
+        expr: last_over_time(ems_events{message="mgmtgwd.sign.cert.expired"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Signing certificate expired'
+          description: 'Signing certificate {{ "{{ $labels.common_name }}" }} (Serial: {{ "{{ $labels.serial_number }}" }}, CA Serial: {{ "{{ $labels.ca_serial_number }}" }}) issued by {{ "{{ $labels.certificate_authority }}" }} for vServer {{ "{{ $labels.vserver }}" }} has expired |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: LACPSpeedDowngraded
+        expr: last_over_time(ems_events{message="net.ifgrp.lacp.link.inactive"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LACP link inactive'
+          description: 'LACP link {{ "{{ $labels.link_aggregate_name }}" }} inactive on port {{ "{{ $labels.port }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: BadEepromDetected
+        expr: last_over_time(ems_events{message="netif.badEeprom"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Bad EEPROM detected'
+          description: 'Bad EEPROM detected on interface {{ "{{ $labels.interface_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: LinkErrorsDetected
+        expr: last_over_time(ems_events{message="netif.linkErrors"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Link errors detected'
+          description: 'Link errors detected on interface {{ "{{ $labels.if_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SpeedDowngraded
+        expr: last_over_time(ems_events{message="netif.speedDowngraded"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Speed downgraded'
+          description: 'Speed downgraded on interface {{ "{{ $labels.if_name }}" }}. New speed: {{ "{{ $labels.speed }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: DuplicateIPAddress
+        expr: last_over_time(ems_events{message="netinet.ethr.duplct.ipAdrr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Duplicate IP address detected'
+          description: 'Duplicate IP address {{ "{{ $labels.ip_address }}" }} detected with MAC address {{ "{{ $labels.ethernet_address }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ExcessiveCECErrors
+        expr: last_over_time(ems_events{message="nvram.excessive.cecc.errs"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Excessive CECC errors'
+          description: 'Excessive CECC errors detected |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: LACPSyncError
+        expr: last_over_time(ems_events{message="pvif.lacp.outofsync"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LACP out of sync'
+          description: 'LACP out of sync detected on VIF {{ "{{ $labels.vif_name }}" }} and link {{ "{{ $labels.link_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: RecoveryFailed
+        expr: last_over_time(ems_events{message="rdb.recovery.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'RDB recovery failed'
+          description: 'RDB recovery failed for unit {{ "{{ $labels.unit }}" }}. Error message: {{ "{{ $labels.error_message }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ModuleError
+        expr: last_over_time(ems_events{message="ses.status.ModuleError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Module error detected'
+          description: 'Module error detected in {{ "{{ $labels.module_type }}" }} (Module #: {{ "{{ $labels.module_number }}" }}, Channel: {{ "{{ $labels.product_channel }}" }}, Location: {{ "{{ $labels.location_text }}" }}, Type: {{ "{{ $labels.type_text }}" }}) |
+            Error: {{ "{{ $labels.error_message }}" }} ({{ "{{ $labels.error_text }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ChangeLogFull
+        expr: last_over_time(ems_events{message="sis.changelog.full"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Change log full'
+          description: 'Change log full for volume {{ "{{ $labels.volume }}" }} (Vol: {{ "{{ $labels.vol }}" }}, VolIdent: {{ "{{ $labels.volident }}" }}, Volume Identifier: {{ "{{ $labels.volume_identifier }}" }}) on host {{ "{{ $labels.host }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: DuplicateIPDetected
+        expr: last_over_time(ems_events{message="tcpip.duplicate.ip"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Duplicate IP address detected'
+          description: 'Duplicate IP address {{ "{{ $labels.ip_address }}" }} detected with MAC address {{ "{{ $labels.mac_address }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: AggrOffline
+        expr: last_over_time(ems_events{message="callhome.aggr.offline"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Aggregate inconsistent and taken offline'
+          description: 'Aggregate inconsistent and taken offline |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: GivebackAggrOnlineFailed
+        expr: last_over_time(ems_events{message="ha.giveback.aggrOnlineFailed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Aggregate online failed after giveback'
+          description: 'Bringing online of aggregate {{ "{{ $labels.aggrName }}" }} or its volumes failed after giveback with error {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: UninitializedParityVol
+        expr: last_over_time(ems_events{message="raid.uninitialized.parity.vol"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Raid error uninitialized parity volume'
+          description: 'WARNING {{ "{{ $labels.vol_type }}" }} {{ "{{ $labels.owner }}" }} {{ "{{ $labels.vol }}" }} was created with no parity; do not fail its data disks!! |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: raidtecDegraded
+        expr: last_over_time(ems_events{message="monitor.raidtec.dblDegraded"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Raid group degraded'
+          description: '{{ "{{ $labels.type }}" }} in RAID group {{ "{{ $labels.rgname }}" }} are broken |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: AggrRestricted
+        expr: last_over_time(ems_events{message="callhome.aggr.restricted"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Aggregate reconstruction error'
+          description: 'Call home for MEDIUM ERROR DURING RECONSTRUCTION |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: waflInconsistent
+        expr: last_over_time(ems_events{message="callhome.wafl.inconsistent"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'WAFL INCONSISTENT'
+          description: 'Call home for WAFL INCONSISTENT |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: FcpAdapterFailed
+        expr: last_over_time(ems_events{message="callhome.fcp.adapter.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'FCP Adapter Failed'
+          description: 'Call home for {{ "{{ $labels.subject }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VifmgrStartupFailoverError
+        expr: last_over_time(ems_events{message="callhome.vifmgr.startup.failover.err"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Vifmgr startup failover error'
+          description: 'VIFMgr encountered errors during startup |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: lifdown
+        expr: last_over_time(ems_events{message="vifmgr.cluscheck.lifdown"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LIF is administratively down'
+          description: 'Cluster LIF {{ "{{ $labels.lif_name }}" }} is administratively down |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ArraylunPathFO
+        expr: last_over_time(ems_events{message="mlm.array.lun.PathFO"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Lun Primary Path Failed, Failover initiated'
+          description: 'Path via adapter {{ "{{ $labels.adapterName }}" }} and device {{ "{{ $labels.deviceName }}" }} to array {{ "{{ $labels.arrayName }}" }} is currently offline. |
+            Path failover is delayed for {{ "{{ $labels.delay }}" }} seconds. |
+            If the path comes back online during this delay, I/O will resume on this path. Otherwise, I/O will fail over to an alternate path. |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: lunOnePath
+        expr: last_over_time(ems_events{message="mlm.array.lun.OnePath"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Redundancy loss on LUN Path'
+          description: 'Array LUN {{ "{{ $labels.diskName }}" }} is connected using only one path. |
+            To avoid potential data loss if the remaining path fails, all array LUNs should have at least two paths. |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ArrayPortOneController
+        expr: last_over_time(ems_events{message="callhome.mlm.array.portOneController"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LUN Path failover to single controller'
+          description: 'Call home for ALL PATHS FOR THE ARRAY LUN ARE CONNECTED TO THE SAME CONTROLLER |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: takeoverClusterDisable
+        expr: last_over_time(ems_events{message="cf.fm.notkoverClusterDisable"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover State Takeover Impossible'
+          description: 'Failover monitor: takeover disabled. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ChassisPowerSupplyDegraded
+        expr: last_over_time(ems_events{message="monitor.chassisPowerSupply.degraded"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover State Takeover Impossible'
+          description: 'Chassis power supply {{ "{{ $labels.ps_number }}" }} is degraded. Reason: {{ "{{ $labels.reasonText }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: takeoverByPartnerDisabled
+        expr: last_over_time(ems_events{message="cf.fsm.takeoverByPartnerDisabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover Not Configured'
+          description: 'Failover monitor: takeover of {{ "{{ $labels.local }}" }} by {{ "{{ $labels.partner }}" }} is disabled. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: takeoverOfPartnerDisabled
+        expr: last_over_time(ems_events{message="cf.fsm.takeoverOfPartnerDisabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover Not Configured'
+          description: 'Failover monitor: takeover of partner {{ "{{ $labels.partner }}" }} (Node: {{ "{{ $labels.partner_node }}" }}) is disabled. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: FansFailed
+        expr: last_over_time(ems_events{message="callhome.fans.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'One or More Failed Fans'
+          description: 'Call home for MULTIPLE FAN FAILURE |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: StoragePartnerDown
+        expr: last_over_time(ems_events{message="callhome.partner.down"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover Node Status Down'
+          description: 'Call home for PARTNER DOWN, TAKEOVER IMPOSSIBLE |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SFOtakeover
+        expr: last_over_time(ems_events{message="callhome.sfo.takeover"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover State Takeover'
+          description: 'Call home for {{ "{{ $labels.subject }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: HAinterconnectDown
+        expr: last_over_time(ems_events{message="callhome.hainterconnect.down"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover Interconnect One Or More Links Down'
+          description: 'Call home for {{ "{{ $labels.subject }}" }} due to {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: PartialGiveback
+        expr: last_over_time(ems_events{message="sfo.PartialGiveback"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover State Partial Giveback'
+          description: 'Partial giveback detected (SFO) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TakeOverOpFail
+        expr: last_over_time(ems_events{message="cf.rsrc.takeoverOpFail"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage Failover Takeover Not Possible'
+          description: 'Failover monitor: takeover during {{ "{{ $labels.op }}" }} failed; takeover continuing |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VserverRootVolumeFull
+        expr: last_over_time(ems_events{message="vserver.rootVolume.full"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Node Root Volume Space Full'
+          description: 'Root volume is full for vServer {{ "{{ $labels.vserver_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: PortDown
+        expr: last_over_time(ems_events{message="vifmgr.portdown"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Storage port down'
+          description: 'A link down event was received on node {{ "{{ $labels.nodename }}" }}, port {{ "{{ $labels.portname }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SPHeartbeatStopped
+        expr: last_over_time(ems_events{message="callhome.sp.hbt.stopped"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Service Processor Offline'
+          description: 'Call home for SP HBT STOPPED |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SPNotConfigured
+        expr: last_over_time(ems_events{message="sp.notConfigured"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Service Processor Not Configured'
+          description: 'The system Service Processor (SP) is not configured (Object type: {{ "{{ $labels.object_type }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: FanFailed
+        expr: last_over_time(ems_events{message="monitor.fan.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Disk Shelf Fans Failed'
+          description: 'Disk shelf fans failed. Report: {{ "{{ $labels.report }}" }} (Object UUID: {{ "{{ $labels.object_uuid }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ShelfFault
+        expr: last_over_time(ems_events{message="callhome.shlf.fault"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Disk Shelf Power Supplies Failed'
+          description: 'Call home for SHELF COOLING UNIT FAILED |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ShelfCurrentWarning
+        expr: last_over_time(ems_events{message="ses.status.currentWarning"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Abnormal Current Range Warning'
+          description: '{{ "{{ $labels.prodChannel }}" }} current warning for {{ "{{ $labels.typeText }}" }} {{ "{{ $labels.psNumber }}" }} |
+            Error: {{ "{{ $labels.errorMsg }}" }} {{ "{{ $labels.errorText }}" }} |
+            Location: {{ "{{ $labels.locationText }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ShelfCurrentError
+        expr: last_over_time(ems_events{message="ses.status.currentError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Abnormal Current Range Error'
+          description: '{{ "{{ $labels.prodChannel }}" }} current error for {{ "{{ $labels.typeText }}" }} {{ "{{ $labels.psNumber }}" }} |
+            Error: {{ "{{ $labels.errorMsg }}" }} {{ "{{ $labels.errorText }}" }} |
+            Location: {{ "{{ $labels.locationText }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: ShelfPathFailure
+        expr: last_over_time(ems_events{message="ses.multipath.ReqError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Disk Shelf Path Failure'
+          description: 'SAS disk shelf detected without a multipath configuration |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapCreateSkip
+        expr: last_over_time(ems_events{message="wafl.snap.create.skip.reason"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Snapshot creation skipped for BB clusters'
+          description: 'Snapshot creation skipped |
+            Volume: {{ "{{ $labels.vol }}" }} |
+            Snapshot: {{ "{{ $labels.snap_name }}" }} |
+            Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: TelnetEnabled
+        expr: last_over_time(ems_events{message="telnet.enabled"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'telnet enabled'
+          description: 'Insecure protocol service Telnet has been enabled in the cluster |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: HTTPSTransportDisabled
+        expr: last_over_time(ems_events{message="spm.httpd.process.exit"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'AutoSupport HTTPS transport disabled'
+          description: 'The web server httpd with ID {{ "{{ $labels.id }}" }} exited due to {{ "{{ $labels.cause }}" }}. It will attempt to restart. |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapmirrorMigrateDstErr
+        expr: last_over_time(ems_events{message="snapmirror.migrate.dstErr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Mirror Replication Initialize Failed'
+          description: 'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed. Error: {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapmirrorMigrateSrcErr
+        expr: last_over_time(ems_events{message="snapmirror.migrate.srcErr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Mirror Replication Initialize Failed'
+          description: 'SnapMirror migration from {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} to {{ "{{ $labels.dstfiler }}" }}:{{ "{{ $labels.dstpath }}" }} failed. Error: {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: snapvaultOpNotComplete
+        expr: last_over_time(ems_events{message="snapvault.dst.opNotComplete"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Asynchronous Vault Update Failed'
+          description: 'Asynchronous Vault Update Failed |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }} |
+            Destination Path: {{ "{{ $labels.dst_path }}" }}'
+      - alert: ReplicationdstResyncFailed
+        expr: last_over_time(ems_events{message="replication.dst.resync.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Asynchronous Mirror and Vault Resync Failed'
+          description: '{{ "{{ $labels.rtype }}" }} resync of {{ "{{ $labels.dstpath }}" }} to {{ "{{ $labels.srcfiler }}" }}:{{ "{{ $labels.srcpath }}" }} failed. Error: {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: mgmtSnapmirInitFail
+        expr: last_over_time(ems_events{message="mgmt.snapmir.init.fail"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Asynchronous Mirror and Vault Initialize Failed'
+          description: 'Initialize from source volume {{ "{{ $labels.srcpath }}" }} to destination volume {{ "{{ $labels.dstpaths }}" }} failed. Error: {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapmirrorStatusUpdateStatusErr
+        expr: last_over_time(ems_events{message="snapmirror.status.updateStatusErr"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Mirror Replication Update Failed'
+          description: 'ONTAP failed to update the system registry with upgraded SnapMirror status keys |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: MgmtSnapmirResyncFail
+        expr: last_over_time(ems_events{message="mgmt.snapmir.resync.fail"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Mirror Replication Resync Failed'
+          description: 'Resync from source volume {{ "{{ $labels.srcpath }}" }} to destination volume {{ "{{ $labels.dstpath }}" }} failed. Error: {{ "{{ $labels.error }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: SnapvaultTgtFailure
+        expr: last_over_time(ems_events{message="snapvault.tgt.failure"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Asynchronous Vault Initialize Failed'
+          description: 'Failed to create snapshot target {{ "{{ $labels.snapname }}" }} on volume {{ "{{ $labels.volume }}" }}. Reason: {{ "{{ $labels.reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: RaidConfigSpareDiskMissing
+        expr: last_over_time(ems_events{message="raid.config.spare.disk.missing"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Cluster Lacks Spare Disks'
+          description: 'Spare disk missing on shelf {{ "{{ $labels.shelf }}" }}, bay {{ "{{ $labels.bay }}" }} (Disk: {{ "{{ $labels.disk_info }}" }}, Serial: {{ "{{ $labels.serialno }}" }}, Model: {{ "{{ $labels.model }}" }}). Reason: {{ "{{ $labels.failure_reason }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: diskErrUnsupported
+        expr: last_over_time(ems_events{message="disk.init.err.unsupported"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Some Unsupported Disks'
+          description: 'Disk {{ "{{ $labels.diskName }}" }} is not recognized as a supported disk and cannot be used on this node |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: netifexcessLinkInterrupts
+        expr: last_over_time(ems_events{message="netif.excessLinkInterrupts"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Excessive link interrupts occurred on network interface'
+          description: 'Excessive link status change interrupts occurred on network interface {{ "{{ $labels.interface_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: NetifSFPNotSupported
+        expr: last_over_time(ems_events{message="netif.sfpNotSupported"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Excessive link interrupts occurred on network interface'
+          description: 'The SFP or QSFP module {{ "{{ $labels.sfp_vendor }}" }} {{ "{{ $labels.sfp_pn }}" }} installed in {{ "{{ $labels.if_name }}" }} is not supported with this network interface |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: UncorEccError
+        expr: last_over_time(ems_events{message="netif.uncorEccError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Unrecoverable ECC error on network interface'
+          description: 'Unrecoverable ECC error on network interface {{ "{{ $labels.if_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: vifmgrCluslinkdown
+        expr: last_over_time(ems_events{message="vifmgr.clus.linkdown"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Port Down'
+          description: 'The cluster port {{ "{{ $labels.port_name }}" }} on node {{ "{{ $labels.node_name }}" }} has gone down unexpectedly |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: vifmgrlifdownnoports
+        expr: last_over_time(ems_events{message="vifmgr.lifdown.noports"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Port Down with no failover targets'
+          description: 'LIF {{ "{{ $labels.vif_name }}" }} on virtual server {{ "{{ $labels.virtual_server_id }}" }} with IP address {{ "{{ $labels.vif_ip }}" }} cannot be hosted on node {{ "{{ $labels.to_node }}" }} port {{ "{{ $labels.to_port }}" }} or any of its failover targets and is being marked as down |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VifmgrlifsClusterlimit
+        expr: last_over_time(ems_events{message="vifmgr.lifs.clusterlimit"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Data Lif limit exceeded'
+          description: 'The total number of data LIFs in this cluster {{ "{{ $labels.number_of_lifs }}" }} exceeds the supported limit of {{ "{{ $labels.lif_limit }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: vifmgr.lifs.overcapacity
+        expr: last_over_time(ems_events{message="vifmgr.lifs.overcapacity"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Data Lif limit exceeded'
+          description: 'Node with failover targets over-provisioned {{ "{{ $labels.over_amount }}" }} LIFs could be marked "down" during node outage |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VifmgrPortMonitorFailed
+        expr: last_over_time(ems_events{message="vifmgr.port.monitor.failed"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Port is in degraded state'
+          description: 'The {{ "{{ $labels.health_check_type }}" }} health check for port {{ "{{ $labels.port_name }}" }} on node {{ "{{ $labels.node_name }}" }} has failed. The port is operating in a degraded state |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VifmgrPortMtumismatch
+        expr: last_over_time(ems_events{message="vifmgr.port.mtumismatch"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'vifmgr port mtu mismatch'
+          description: 'The MTU of port {{ "{{ $labels.port_name }}" }} ({{ "{{ $labels.port_mtu }}" }}) does not match the MTU of broadcast domain {{ "{{ $labels.broadcast_domain }}" }} ({{ "{{ $labels.broadcast_domain_mtu }}" }}) |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: VifmgrPortDeglifHosted
+        expr: last_over_time(ems_events{message="vifmgr.portDeg.lifHosted"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'LIF hosted on a degraded port'
+          description: 'LIF {{ "{{ $labels.vif_name }}" }} on virtual server {{ "{{ $labels.virtual_server_id }}" }} is hosted on a degraded port {{ "{{ $labels.port_name }}" }} on node {{ "{{ $labels.node_name }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: WaflDirSizeMaxWarning
+        expr: last_over_time(ems_events{message="wafl.dir.size.max.warning"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Max DIR limit reached'
+          description: 'Directory size for file ID {{ "{{ $labels.file_id }}" }} in volume {{ "{{ $labels.volume }}" }} is approaching the maximum directory size limit. |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: diskioMediumError
+        expr: last_over_time(ems_events{message="disk.ioMediumError"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: info
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Medium error on disk'
+          description: 'Medium error on disk {{ "{{ $labels.disk_name }}" }} {{ "{{ $labels.disk_info }}" }} {{ "{{ $labels.disk_information }}" }} |
+            Operation: {{ "{{ $labels.operation }}" }} |
+            Sector: {{ "{{ $labels.sector }}" }} (Code: {{ "{{ $labels.sector_code }}" }}) |
+            Sense Key: {{ "{{ $labels.sense_key }}" }} |
+            Sense Code: {{ "{{ $labels.sense_code }}" }} |
+            Sense Info: {{ "{{ $labels.sense_info }}" }} |
+            Qualifier: {{ "{{ $labels.qualifier }}" }} |
+            FRU Failed: {{ "{{ $labels.fru_failed }}" }} |
+            Command Time: {{ "{{ $labels.command_time }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+      - alert: MonitorGlobalStatusCritical
+        expr: last_over_time(ems_events{message="monitor.globalStatus.critical"}[5m]) == 1
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_ems
+        annotations:
+          summary: 'Cluster Health Critical'
+          description: 'Global Status Critical alert triggered: {{ "{{ $labels.problem_description }}" }} |
+            Cluster: {{ "{{ $labels.cluster }}" }} |
+            NetApp Cluster: {{ "{{ $labels.netapp_cluster }}" }} |
+            Node: {{ "{{ $labels.node }}" }} |
+            Datacenter: {{ "{{ $labels.datacenter }}" }} |
+            LOB: {{ "{{ $labels.lob }}" }} |
+            Service: {{ "{{ $labels.Service }}" }}'
+{{- else }}
+groups: []
+{{- end }}

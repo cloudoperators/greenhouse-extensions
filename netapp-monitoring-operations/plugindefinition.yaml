@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and cobaltcore-dev contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: netapp-monitoring-operations
+spec:
+  version: 1.0.0
+  displayName: NetApp Monitoring operations bundle
+  description: Operations bundle for the NetApp storage backend
+  helmChart:
+    name: netapp-monitoring-operations
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts/netapp-monitoring-operations
+    version: 1.0.0
+  options:
+    - name: prometheusRules.create
+      description: Create Prometheus alerting rules (PrometheusRule resources)
+      required: false
+      default: true
+      type: bool
+    - name: prometheusRules.labels
+      description: Labels applied to every PrometheusRule; `plugin` must match the Prometheus ruleSelector
+      required: false
+      type: map
+    - name: prometheusRules.ruleGroups
+      description: Map of per-file keys to true/false to enable/disable a whole alert file (one toggle per file; forge files are disabled by default)
+      required: false
+      type: map
+    - name: prometheusRules.commonLabels
+      description: Labels applied to every alert (team, support_group); defaults to storage / sci-storage
+      required: false
+      type: map
+    - name: podMonitor.labels
+      description: Labels applied to the PodMonitor; `plugin` must match the Prometheus podMonitorSelector
+      required: false
+      type: map
+    - name: podMonitor.targetNamespaces
+      description: Namespace(s) where the target poller pods run
+      required: true
+      type: list
+    - name: podMonitor.selectorMatchLabels
+      description: Pod labels that uniquely select the target poller pods
+      required: true
+      type: map
+    - name: podMonitor.scrapeInterval
+      description: Scrape interval for the PodMonitor
+      required: false
+      default: 15s
+      type: string
+    - name: podMonitor.port
+      description: Container port name to scrape
+      required: false
+      default: metrics
+      type: string
+    - name: podMonitor.path
+      description: Metrics path to scrape
+      required: false
+      default: /metrics
+      type: string
+    - name: podMonitor.scheme
+      description: Scrape scheme (http or https)
+      required: false
+      default: http
+      type: string
+    - name: podMonitor.jobLabel
+      description: Pod label key whose value becomes the Prometheus job label
+      required: false
+      default: ccloud/service
+      type: string

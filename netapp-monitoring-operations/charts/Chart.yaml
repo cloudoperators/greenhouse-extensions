@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: netapp-monitoring-operations
+description: Deploys NetApp (and related storage) Prometheus alerting rules as PrometheusRules, plus a PodMonitor that scrapes the NetApp Harvest poller pods.
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Ganesh Kugulakrishnan
+  - name: Chandrakanth Renduchintala
+dependencies:
+  - name: owner-info
+    repository: oci://keppel.eu-de-1.cloud.sap/ccloud-helm
+    version: 1.0.0

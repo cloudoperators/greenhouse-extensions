@@ -1,0 +1,55 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+prometheusRules:
+  create: true
+  # Labels applied to every PrometheusRule's metadata. `plugin` must match the
+  # Prometheus ruleSelector so the rules are picked up; add any extra labels here.
+  labels:
+    plugin: storage-metrics-product
+  # Enable or disable an entire alert file. One toggle per file; the key is the
+  # camelCase form of the file name. Set a key to false to drop that file's rules.
+  ruleGroups:
+    brocadeErrorAlerts: false      # brocade-error-alerts.yaml (forge, not in sci scope)
+    harvestPollerAlerts: true      # harvest-poller-alerts.yaml
+    netappAggrAlerts: true         # netapp_aggr_alerts.yaml
+    netappClusterAlerts: true      # netapp_cluster_alerts.yaml
+    netappDiskAlerts: true         # netapp_disk_alerts.yaml
+    netappEmsAlerts: true          # netapp_ems_alerts.yaml
+    netappLunAlerts: true          # netapp_lun_alerts.yaml
+    netappNetworkAlerts: true      # netapp_network_alerts.yaml
+    netappNvdimmAlerts: true       # netapp_nvdimm_alerts.yaml
+    netappTestAlerts: true         # netapp_test_alerts.yaml
+    netappVolumeAlerts: true       # netapp_volume_alerts.yaml
+    powerscaleErrorAlerts: false   # powerscale-error-alerts.yaml (forge, not in sci scope)
+    purestorageErrorAlerts: false  # purestorage-error-alerts.yaml (forge, not in sci scope)
+    pvcUsageAlerts: false          # pvc-usage-alerts.yaml (forge, not in sci scope)
+  commonLabels:
+    team: sci-storage
+    support_group: storage
+
+podMonitor:
+  scrapeInterval: 15s
+  # Labels applied to the PodMonitor metadata. `plugin` must match the Prometheus
+  # podMonitorSelector so the resource is picked up; add any extra labels here.
+  labels:
+    plugin: storage-metrics-product
+  # Namespace(s) where your target deployment pods run.
+  targetNamespaces:
+    - storage-product
+  # Pod labels that uniquely select your deployment pods (and exclude netapp-harvest).
+  selectorMatchLabels:
+    ccloud/service: netapp-monitoring
+  # Name of the container port exposed by your pod. The poller container exposes
+  # port 13000 named "metrics"; the worker container's port is named "liveness",
+  # so selecting "metrics" scrapes ONLY the poller container.
+  port: metrics
+  path: /metrics
+  scheme: http
+  # Optional: pod label key whose value becomes the Prometheus job label.
+  # ccloud/service has the value "netapp-monitoring", so job=netapp-monitoring.
+  jobLabel: ccloud/service
+  # Optional relabelings applied at target relabel phase.
+  relabelings: []
+  # Optional additional metric relabelings appended after netapp_cluster mapping.
+  additionalMetricRelabelings: []

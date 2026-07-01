@@ -1,0 +1,173 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.netappAggrAlerts | toString) "false" }}
+groups:
+  - name: netapp_aggr_alerts
+    rules:
+      - alert: AggrNearlyFull
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 70
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate nearly full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 70%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrFull
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster=~"stnpc.*"}[2h])) > 80
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 80%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrNearlyFullbrazilstorec2
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 90
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate nearly full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrFullbrazilstorec2
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="brazilstorec2"}[2h])) > 95
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 95%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrNearlyFullHEC
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 95
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate nearly full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 95%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrFullHEC
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="hec03fc005"}[2h])) > 90
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrNearlyFullHEC03FC005
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 85
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 85%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrFullHEC03FC005
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster="hec03fc005"}[2h])) > 90
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrNearlyFullInternal
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 85
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 85%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: AggrFullInternal
+        expr: (avg_over_time(aggr_space_physical_used_percent{netapp_cluster!="derotnpc001",netapp_cluster!="derotnpc0013",netapp_cluster!~"hec.*",netapp_cluster!~"stnpca.*",netapp_cluster!="brazilstorec2",aggr!="aggr_sata_sl_00103"}[2h])) > 90
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate full (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate used space > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+
+      - alert: HeadroomAggrCurrentUtilization
+        expr: (avg_over_time(headroom_aggr_current_utilization{netapp_cluster!~".*root.*"}[2h])) > 90
+        for: 5m
+        labels:
+          severity: warning
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: netapp_aggr
+        annotations:
+          summary: Aggregate headroom current utilization (instance {{ "{{" }} $labels.instance {{ "}}" }})
+          description: |
+            Aggregate headroom current utilization > 90%
+            VALUE = {{ "{{" }} $value {{ "}}" }}
+            Cluster: {{ "{{" }} $labels.netapp_cluster {{ "}}" }}, Node: {{ "{{" }} $labels.node {{ "}}" }}, Datacenter: {{ "{{" }} $labels.datacenter {{ "}}" }}
+{{- else }}
+groups: []
+{{- end }}

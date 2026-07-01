@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if ne (.Values.prometheusRules.ruleGroups.harvestPollerAlerts | toString) "false" }}
+groups:
+  - name: harvest-netapp-scrape
+    rules:
+      - alert: HarvestNotScrapingNetApp
+        expr: |
+          (
+            group by (poller, cluster, addr, Service, datacenter, lob) (poller_status)
+            unless on (poller)
+            label_replace(count_over_time(node_labels[10m]) > 0, "poller", "$1", "netapp_cluster", "(.*)")
+          )
+          unless on (poller)
+          label_replace(count_over_time(cisco_switch_labels[10m]) > 0, "poller", "$1", "switch", "(.*)")
+        for: 5m
+        labels:
+          severity: critical
+          support_group: {{ dig "support_group" "storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          team: {{ dig "team" "sci-storage" (.Values.prometheusRules.commonLabels | default dict) }}
+          component: harvest-poller
+        annotations:
+          summary: "Harvest not scraping Poller {{`{{ $labels.poller }}`}}"
+          description: |
+            Harvest Poller {{`{{ $labels.poller }}`}} has not scraped this NetApp device since 15 minutes.
+
+            **Details:**
+            • Service: {{`{{ $labels.Service }}`}}
+            • Address: {{`{{ $labels.addr }}`}}
+            • Gardener-Cluster: {{`{{ $labels.cluster }}`}}
+            • Datacenter: {{`{{ $labels.datacenter }}`}}
+            • Lob: {{`{{ $labels.lob }}`}}
+            • Poller: {{`{{ $labels.poller }}`}}
+{{- else }}
+groups: []
+{{- end }}

@@ -32,6 +32,7 @@ on:
       - repo-guard/charts/**
       - oidc-discovery-access/**
       - netapp-monitoring/charts/**
+      - netapp-monitoring-operations/charts/**
 
 
 permissions:
@@ -97,6 +98,8 @@ jobs:
             chartName: oidc-discovery-access
           - chartDir: netapp-monitoring/charts
             chartName: netapp-monitoring
+          - chartDir: netapp-monitoring-operations/charts
+            chartName: netapp-monitoring-operations
 
 
     steps:
