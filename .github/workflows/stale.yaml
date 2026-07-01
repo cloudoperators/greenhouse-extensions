@@ -8,4 +8,4 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-    uses: cloudoperators/common/.github/workflows/shared-stale.yaml@c5ee48b3e45f779545e42861b3f361cd3848abd8 # main
+    uses: cloudoperators/common/.github/workflows/shared-stale.yaml@f26f4ef8a904160c45e9fc942423d6be2ffd0f03 # main
