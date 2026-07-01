@@ -11,11 +11,11 @@ maintainers:
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.10.0
+version: 0.11.0
 dependencies:
   - name: thanos
     repository: https://thanos-community.github.io/helm-charts/
-    version: 0.11.0
+    version: 0.20.0
     alias: thanosCommunity
     condition: thanosCommunity.enabled
 keywords:
