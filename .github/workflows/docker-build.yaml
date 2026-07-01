@@ -1,12 +1,7 @@
 name: Build Docker images and push to registry
 
 on:
-  workflow_dispatch:
-    inputs:
-      fortlogs_tag:
-        description: 'Extra tag for opensearch-fortlogs image (e.g. 3.7.0)'
-        required: false
-        type: string
+  workflow_dispatch: {}
   push:
     branches:
         - main
@@ -36,9 +31,15 @@ jobs:
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
             Platform: linux/amd64
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-query-exporter
+            Imagetag: v0.1.0
+            Platform: linux/amd64
           - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
             Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
+            Imagetag: 3.7.0
             Platform: linux/amd64
 
     permissions:
@@ -99,7 +100,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=raw,value=${{ github.sha }}
-            type=raw,value=${{ inputs.fortlogs_tag }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.fortlogs_tag != '' && matrix.Imagename == 'opensearch-fortlogs' }}
+            type=raw,value=${{ matrix.Imagetag }},enable=${{ matrix.Imagetag != '' }}
             type=sha,enable=true,format=short,prefix=
             type=edge,branch=master
 
@@ -151,6 +152,9 @@ jobs:
           - Context: logs/build
             Dockerfiles: logs/build/Dockerfile
             Imagename: opentelemetry-collector-contrib
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-query-exporter
           - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
             Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
