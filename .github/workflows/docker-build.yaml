@@ -36,6 +36,11 @@ jobs:
             Imagename: opensearch-query-exporter
             Imagetag: v0.1.0
             Platform: linux/amd64
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-fortlogs
+            Imagetag: 3.7.0-dev
+            Platform: linux/amd64
 
     permissions:
       contents: read
@@ -150,6 +155,9 @@ jobs:
           - Context: https://github.com/SAP-cloud-infrastructure/opensearch-query-exporter.git#v0.1.0
             Dockerfiles: Dockerfile
             Imagename: opensearch-query-exporter
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
+            Dockerfiles: Dockerfile
+            Imagename: opensearch-fortlogs
 
     name: Vulnerability Scan
     needs: build
