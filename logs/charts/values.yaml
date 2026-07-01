@@ -140,8 +140,12 @@ openTelemetry:
       enabled: false
       # -- TCP port for TLS syslog (rfc5424)
       tcp_port: 6514
-      # -- cert-manager ClusterIssuer name for DigiCert
+      # -- cert-manager Issuer or ClusterIssuer name for TLS certificate
       issuerName:
+      # -- cert-manager issuer kind (Issuer or ClusterIssuer)
+      issuerKind: ClusterIssuer
+      # -- cert-manager issuer group (e.g. cert-manager.io or certmanager.cloud.sap)
+      issuerGroup: cert-manager.io
       # -- DNS name for the TLS certificate
       dnsName:
     # -- Activates the external alertmanager webhook and deployment event receivers.
