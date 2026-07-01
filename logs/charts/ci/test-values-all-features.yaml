@@ -71,7 +71,7 @@ openTelemetry:
       tcp_port: 514
       udp_port: 514
       auditKafkaTopic: syslog-audit
-      nonAuditKafkaTopic: syslog-logs
+      nonAuditKafkaTopic: syslog
       openSearchLogs:
         auditEndpoint: ""
         nonAuditEndpoint: ""
