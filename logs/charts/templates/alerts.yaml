@@ -130,4 +130,244 @@ spec:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
           summary: OTel log exporting is failing. Check logs and exporter connectivity.
   {{- end }}
+
+  {{- if (has "OTelLogsSLOBurnRateCritical" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsSLOBurnRateCritical
+        expr: |
+          (
+            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+            /
+            (
+              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+            )
+          ) > (14 * 0.005)
+          and
+          (
+            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+            /
+            (
+              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+            )
+          ) > (14 * 0.005)
+        for: 2m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel log export SLO burn rate critical (14x)
+          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+  {{- end }}
+
+  {{- if (has "OTelLogsSLOBurnRateWarning" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsSLOBurnRateWarning
+        expr: |
+          (
+            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+            /
+            (
+              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+            )
+          ) > (6 * 0.005)
+          and
+          (
+            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+            /
+            (
+              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+            )
+          ) > (6 * 0.005)
+        for: 15m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: OTel log export SLO burn rate elevated (6x)
+          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+  {{- end }}
+
+  {{- if (has "OTelLogsExportFailureRatioHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsExportFailureRatioHigh
+        expr: |
+          sum by (k8s_cluster_name, exporter) (
+            rate(otelcol_exporter_send_failed_log_records_total{
+              job=~".*/opentelemetry-collector-logs",
+              exporter!~"debug"
+            }[10m])
+          )
+          /
+          (
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_sent_log_records_total{
+                job=~".*/opentelemetry-collector-logs",
+                exporter!~"debug"
+              }[10m])
+            )
+            +
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_send_failed_log_records_total{
+                job=~".*/opentelemetry-collector-logs",
+                exporter!~"debug"
+              }[10m])
+            )
+          ) > 0.1
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'OTel export failure ratio above 10% for exporter {{`{{ $labels.exporter }}`}}'
+          description: 'OTel collector on {{`{{ $labels.k8s_cluster_name }}`}} has >10% export failures on exporter {{`{{ $labels.exporter }}`}} for 5+ minutes. Current failure ratio: {{`{{ $value | humanizePercentage }}`}}.'
+  {{- end }}
+
+  {{- if (has "OTelExporterQueueFilling" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelExporterQueueFilling
+        expr: |
+          (
+            otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            /
+            otelcol_exporter_queue_capacity{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+          ) > 0.8
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is above 80% capacity'
+          description: 'Queue for exporter {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is at {{`{{ $value | humanizePercentage }}`}} capacity. If this reaches 100% with block_on_overflow=true, the collector will stall.'
+  {{- end }}
+
+  {{- if (has "OTelExporterQueueFull" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelExporterQueueFull
+        expr: |
+          (
+            otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            /
+            otelcol_exporter_queue_capacity{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+          ) >= 1.0
+        for: 2m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is full — pipeline stalled'
+          description: 'Exporter queue {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is 100% full. New log records are blocked. Immediate action required.'
+  {{- end }}
+
+  {{- if (has "OTelLogsVolumeSpike" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsVolumeSpike
+        expr: |
+          sum by (k8s_cluster_name) (
+            rate(otelcol_receiver_accepted_log_records_total{
+              job=~".*/opentelemetry-collector-logs"
+            }[5m])
+          )
+          /
+          sum by (k8s_cluster_name) (
+            rate(otelcol_receiver_accepted_log_records_total{
+              job=~".*/opentelemetry-collector-logs"
+            }[1h] offset 1h)
+          ) > 5
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Log volume on {{`{{ $labels.k8s_cluster_name }}`}} is 5x above baseline'
+          description: 'Cluster {{`{{ $labels.k8s_cluster_name }}`}} is receiving logs at 5x the hourly baseline rate. This may indicate a logging misconfiguration, a noisy application, or a log injection attempt.'
+  {{- end }}
+
+  {{- if (has "OTelLogsVolumeDropFast" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsVolumeDropFast
+        expr: |
+          sum by (k8s_cluster_name) (
+            rate(otelcol_exporter_sent_log_records_total{
+              job=~".*/opentelemetry-collector-logs",
+              exporter!~"debug"
+            }[10m])
+          )
+          /
+          sum by (k8s_cluster_name) (
+            rate(otelcol_exporter_sent_log_records_total{
+              job=~".*/opentelemetry-collector-logs",
+              exporter!~"debug"
+            }[1h] offset 1h)
+          ) < 0.2
+        for: 10m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Log volume dropped >80% vs 1h baseline on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'OTel on {{`{{ $labels.k8s_cluster_name }}`}} is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
+  {{- end }}
+
+  {{- if (has "OTelCollectorMemoryHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelCollectorMemoryHigh
+        expr: |
+          otelcol_process_memory_rss{job=~".*/opentelemetry-collector-logs"}
+          > 1.5 * 1024 * 1024 * 1024
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelCollectorMemoryHigh.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'OTel collector RSS memory above 1.5 GiB on {{`{{ $labels.k8s_node_name }}`}}'
+          description: 'The logs-collector on {{`{{ $labels.k8s_node_name }}`}} is using {{`{{ $value | humanize1024 }}`}}B of RSS memory. The memory_limiter is configured at 80% limit / 30% spike; this alert fires before the limiter kicks in and starts refusing records.'
+  {{- end }}
+
+  {{- if (has "JournaldReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: JournaldReceiverRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"journald"}[1m])) > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Journald receiver is refusing logs
+          description: The journald receiver is rejecting log records. This may indicate that /var/log/journal is not accessible or the journald socket is broken on one or more nodes.
+  {{- end }}
+
+  {{- if (has "K8sEventsReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: K8sEventsReceiverRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"k8s_events"}[1m])) > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: k8s_events receiver is refusing logs
+          description: The k8s_events receiver is rejecting Kubernetes event records. This may indicate a ServiceAccount permission issue or API server connectivity problem.
+  {{- end }}
 {{- end }}
