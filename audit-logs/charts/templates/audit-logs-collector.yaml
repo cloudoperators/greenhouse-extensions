@@ -19,6 +19,7 @@ spec:
   nodeSelector:
     {{- toYaml .Values.auditLogs.nodeSelector | nindent 4 }}
   {{- end }}
+{{- if .Values.auditLogs.logsCollector.auditd.enabled }}
   hostPID: true
   securityContext:
     privileged: true
@@ -29,8 +30,20 @@ spec:
         - 'AUDIT_READ'
         - 'AUDIT_WRITE'
         - 'AUDIT_CONTROL'
+{{- end }}
   tolerations:
   - operator: Exists
+  {{- if .Values.auditLogs.podAnnotations }}
+  podAnnotations:
+    {{- toYaml .Values.auditLogs.podAnnotations | nindent 4 }}
+  {{- end }}
+  {{- if .Values.auditLogs.terminationGracePeriodSeconds }}
+  terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
+  {{- end }}
+  {{- if .Values.auditLogs.affinity }}
+  affinity:
+    {{- toYaml .Values.auditLogs.affinity | nindent 4 }}
+  {{- end }}
   env:
     - name: NAMESPACE
       valueFrom:
@@ -54,7 +67,7 @@ spec:
       value: "{{ .Values.auditLogs.openSearchLogs.index }}"
   envFrom:
     - secretRef:
-         name: audit-logs-basic-auth
+        name: audit-logs-basic-auth
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
@@ -124,6 +137,10 @@ spec:
   {{- include "auditd.receiver" . | nindent 6 -}}
 {{ end }}
 
+{{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
+  {{- include "auditpoller.receiver" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -155,6 +172,115 @@ spec:
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
   {{- include "auditd.processors" . | nindent 6 -}}
 {{ end }}
+
+{{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
+  {{- include "auditpoller.processors" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.auditLogs.logsCollector.containerd.enabled }}
+      transform/keystone_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "keystone-api"
+            statements:
+              - set(log.attributes["sap.cc.audit.source"], "keystone-api")
+
+      transform/keystone_global_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.namespace.name"] == "monsoon3global"
+            statements:
+              - set(log.attributes["sap.cc.audit.source"], "keystone-global-api")
+
+      transform/vault_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.namespace.name"] == "vault"
+            statements:
+              - set(log.attributes["sap.cc.audit.source"], "vault")
+
+      transform/falco_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "falco"
+            statements:
+              - set(log.attributes["sap.cc.audit.source"], "falco")
+
+      transform/keystone_api:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "keystone-api"
+            statements:
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{LOGLEVEL:severity_text} %{NOTSPACE:otel.scope.name} \\[%{NOTSPACE:infra.request.id} %{NOTSPACE:infra.global.request.id} usr %{NOTSPACE:user.id} prj %{NOTSPACE:domain.project.id} dom %{NOTSPACE} usr-dom %{NOTSPACE} prj-dom %{NOTSPACE:domain.name}\\] %{GREEDYDATA:msg}", true), "upsert")
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{NOTSPACE:severity_text} %{NOTSPACE:otel.scope.name} \"%{NOTSPACE:infra.global.request.id}\" %{NOTSPACE:client.address} - - \"%{NOTSPACE:http.request.method} %{NOTSPACE:url.path} %{NOTSPACE:httpversion}\" %{NUMBER:http.response.status_code} %{GREEDYDATA} \"%{GREEDYDATA}\" \"%{GREEDYDATA:user_agent.original}\"", true), "upsert")
+              - set(log.attributes["keystone_timestamp"], Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"], ".", log.attributes["microseconds"]], "")) where log.attributes["timestamp_date"] != nil
+              - set(log.time_unix_nano, UnixNano(Time(Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"]], " "), "%Y-%m-%d %H:%M:%S")) + Int(log.attributes["microseconds"]) * 1000) where log.attributes["timestamp_date"] != nil
+              - set(log.attributes["log.kind"], "cadf_action") where IsMatch(log.attributes["msg"], "^\\s*cadf action for '")
+              - set(log.attributes["log.kind"], "target_type_uri") where IsMatch(log.attributes["msg"], "^\\s*target type URI of requests '")
+              - set(log.attributes["log.kind"], "authentication") where IsMatch(log.attributes["msg"], "^\\s*Authenticating")
+              - set(log.attributes["log.kind"], "keystone_exception_UserNotFound") where IsMatch(log.attributes["msg"], "keystone\\.exception\\.UserNotFound|_handle_keystone_exception")
+              - set(log.attributes["log.kind"], "keystone_middleware_lifesaver") where log.attributes["otel.scope.name"] == "cc.keystone.middleware.lifesaver" and IsMatch(log.attributes["msg"], "has a remaining credit of")
+              - set(log.attributes["log.kind"], "keystone_exception_Unauthorized") where IsMatch(log.attributes["msg"], "keystone\\.exception\\.Unauthorized")
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"],"^\\s*cadf action for '%{NOTSPACE:http.request.method} %{URIPATH:url.path}' is '%{NOTSPACE:event.action}' %{GREEDYDATA}",true),"upsert") where log.attributes["log.kind"] == "cadf_action"
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"],"^\\s*target type URI of requests '%{NOTSPACE:request.method} %{URIPATH:url.path}' is '%{NOTSPACE:target.type_uri}' %{GREEDYDATA}",true),"upsert") where log.attributes["log.kind"] == "target_type_uri"
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"],"^\\s*Authenticating %{NOTSPACE:user.id}@%{NOTSPACE:domain.name}\\.\\.",true),"upsert") where log.attributes["log.kind"] == "authentication"
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"],"^\\s*Could not find user:[\\s]+%{NOTSPACE:user.id}\\.",true),"upsert") where log.attributes["log.kind"] == "keystone_exception_UserNotFound"
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"],"^\\s*User b'%{DATA:user.id}' b'%{DATA:domain.name}'\\s+%{GREEDYDATA}",true),"upsert") where log.attributes["log.kind"] == "keystone_middleware_lifesaver"
+              - merge_maps(log.attributes,ExtractGrokPatterns(log.attributes["msg"], "Authorization failed. The request you have made requires authentication. from %{IP:client.address}:[\\s]*",true),"upsert") where log.attributes["log.kind"] == "keystone_exception_Unauthorized"
+              - delete_key(log.attributes, "timestamp_date")
+              - delete_key(log.attributes, "timestamp_time")
+              - delete_key(log.attributes, "msg")
+
+      transform/vault:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.namespace.name"] == "vault"
+            statements:
+              - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+              - set(log.attributes["time"], log.cache["time"])
+              - set(log.attributes["type"], log.cache["type"])
+              - set(log.attributes["auth.accessor"], log.cache["auth"]["accessor"])
+              - set(log.attributes["auth.client_token"], log.cache["auth"]["client_token"])
+              - set(log.attributes["auth.display_name"], log.cache["auth"]["display_name"])
+              - set(log.attributes["auth.entity_id"], log.cache["auth"]["entity_id"])
+              - set(log.attributes["auth.metadata"], log.cache["auth"]["metadata"])
+              - set(log.attributes["auth.policy_results"], log.cache["auth"]["policy_results"])
+              - set(log.attributes["auth.metadata.role_name"], log.cache["auth"]["metadata.role_name"])
+              - set(log.attributes["auth.policies"], log.cache["auth"]["policies"])
+              - set(log.attributes["auth.policy_results.allowed"], log.cache["auth"]["policy_results"]["allowed"])
+              - set(log.attributes["auth.policy_results.granting_policies"], log.cache["auth"]["policy_results"]["granting_policies"])
+              - set(log.attributes["auth.token_policies"], log.cache["auth"]["token_policies"])
+              - set(log.attributes["auth.token_issue_time"], log.cache["auth"]["token_issue_time"])
+              - set(log.attributes["auth.token_ttl"], log.cache["auth"]["token_ttl"])
+              - set(log.attributes["auth.token_type"], log.cache["auth"]["token_type"])
+              - set(log.attributes["auth.request.client_id"], log.cache["auth"]["client_id"])
+              - set(log.attributes["auth.request.client_token"], log.cache["auth"]["client_token"])
+              - set(log.attributes["auth.request.client_token_accessor"], log.cache["auth"]["client_token_accessor"])
+              - set(log.attributes["auth.request.headers.user-agent"], log.cache["auth"]["headers"][".user-agent"])
+              - set(log.attributes["auth.mount_class"], log.cache["auth"]["mount_class"])
+              - set(log.attributes["auth.mount_point"], log.cache["auth"]["mount_point"])
+              - set(log.attributes["auth.mount_running_version"], log.cache["auth"]["mount_running_version"])
+              - set(log.attributes["auth.mount_type"], log.cache["auth"]["mount_type"])
+              - set(log.attributes["auth.namespace.id"], log.cache["auth"]["namespace"]["id"])
+              - set(log.attributes["auth.operation"], log.cache["auth"]["operation"])
+              - set(log.attributes["auth.path"], log.cache["auth"]["path"])
+              - set(log.attributes["auth.remote_address"], log.cache["auth"]["remote_address"])
+              - set(log.attributes["auth.remote_port"], log.cache["auth"]["remote_port"])
+              - set(log.attributes["auth.request_uri"], log.cache["auth"]["request_uri"])
+              - set(log.body, "") where log.attributes["type"] != nil
+{{- end }}
 
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
@@ -215,9 +341,7 @@ spec:
           - action: insert
             key: failover_username_opensearch
             value: ${failover_username_a}
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.attributes" . | nindent 6 -}}
-{{- end }}
+  {{- include "failover.attributes" . | nindent 6 }}
 
 {{- if .Values.auditLogs.logsCollector.journald.enabled }}
       transform/journal:
@@ -381,9 +505,7 @@ spec:
           enabled: true
           max_elapsed_time: 0s
         timeout: {{ .Values.auditLogs.openSearchLogs.timeout }}
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.exporter" . | nindent 6 -}}
-{{- end }}
+  {{- include "failover.exporter" . | nindent 6 }}
 {{- end }}
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.exporters" . | nindent 6 -}}
@@ -396,12 +518,16 @@ spec:
         client_auth:
           username: ${failover_username_a}
           password: ${failover_password_a}
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-  {{- include "failover.extension" . | nindent 6 -}}
-{{- end }}
+  {{- include "failover.extension" . | nindent 6 }}
 {{- end }}
     connectors:
-      forward: {}
+      routing:
+        default_pipelines:
+          - audit-logs/default
+{{- if .Values.auditLogs.elastic.enabled }}
+          - logs/es
+{{- end }}
+        table: []
 {{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       failover:
         retry_interval: 2m
@@ -413,9 +539,7 @@ spec:
         max_retries: 0
         priority_levels:
           - [logs/failover_a]
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
           - [logs/failover_b]
-{{- end }}
 {{- end }}
     service:
       extensions:
@@ -423,9 +547,7 @@ spec:
         - opensearch_log_encoding
 {{- else }}
         - basicauth/failover_a
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
         - basicauth/failover_b
-{{- end }}
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
@@ -448,8 +570,8 @@ spec:
           region: ${region}
 {{- end }}
       pipelines:
-        logs/forward:
-          receivers: [forward]
+        audit-logs/default:
+          receivers: [routing]
           processors: [batch]
 {{- if .Values.auditLogs.logsCollector.kafka.enabled }}
           exporters: [kafka]
@@ -459,9 +581,7 @@ spec:
           receivers: [failover]
           processors: [attributes/failover_username_a]
           exporters: [opensearch/failover_a]
-{{- if .Values.auditLogs.openSearchLogs.failover.enabled }}
-    {{- include "failover.pipeline" . | nindent 8 -}}
-{{- end }}
+    {{- include "failover.pipeline" . | nindent 8 }}
 {{- end }}
 {{- if .Values.auditLogs.elastic.enabled }}
    {{- include "es.pipeline" . | nindent 8 -}}
@@ -470,24 +590,33 @@ spec:
   {{- include "auditd.pipelines" . | nindent 8 -}}
 {{ end }}
 
+{{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
+  {{- include "auditpoller.pipelines" . | nindent 8 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
         logs/kube_audit:
           receivers: [file_log/kube_audit]
           processors: [k8s_attributes,transform/kube_audit,attributes/cluster, batch]
-          exporters: [forward]
+          exporters: [routing]
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [file_log/containerd]
-          processors: [k8s_attributes,attributes/cluster,transform/ingress,batch]
-          exporters: [forward]
+          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/falco_attributes,transform/ingress,batch]
+          exporters: [routing]
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.journald.enabled }}
         logs/journald:
           receivers: [journald]
           processors: [attributes/cluster,transform/journal,batch]
-          exporters: [forward]
+          exporters: [routing]
 {{- end }}
+
+        logs/k8sevents:
+          receivers: [k8s_events]
+          processors: [attributes/k8sevents,transform/consolidate_label,resource,batch]
+          exporters: [routing]
 {{- end }}

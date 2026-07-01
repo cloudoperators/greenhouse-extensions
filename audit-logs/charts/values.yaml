@@ -4,12 +4,31 @@
 # -- Common labels to apply to all resources
 commonLabels:
 
+# -- Global values shared with subcharts (audit-poller)
+global:
+  # -- Prometheus label selector for PodMonitor/PrometheusRule resources
+  prometheus: ""
+  # -- Region identifier
+  region: ""
+  # -- Cluster type identifier
+  clusterType: ""
+  # -- Cluster name (defaults to region if empty)
+  cluster: ""
 # -- Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies.
 extraManifests: []
 
 auditLogs:
 
   nodeSelector: {}
+
+  # -- Node affinity rules for the collector DaemonSet pods
+  affinity: {}
+
+  # -- Annotations to add to collector pods
+  podAnnotations: {}
+
+  # -- Grace period for pod termination in seconds
+  terminationGracePeriodSeconds: 30
 
   collectorImage:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
@@ -29,6 +48,9 @@ auditLogs:
     auditd:
       # -- Activates the ingestion of auditd logs.
       enabled: true
+    auditpoller:
+      # -- Activates the receiver for ingesting audit-poller logs
+      enabled: false
     kubeApiAudit:
       # -- Activates export for kube-apiserver audit logs
       enabled: false
@@ -69,9 +91,6 @@ auditLogs:
     failover_username_a:
     # -- Password for OpenSearch endpoint
     failover_password_a:
-    # -- Activates the failover mechanism for shipping logs using the failover_username_band failover_password_b credentials in case the credentials failover_username_a and failover_password_a have expired.
-    failover:
-      enabled: true
     # -- Second Username (as a failover) for OpenSearch endpoint
     failover_username_b:
     # -- Second Password (as a failover) for OpenSearch endpoint
@@ -150,3 +169,36 @@ auditLogs:
       additionalRuleLabels:
         # support_group: support
         # service: my-service
+
+auditPoller:
+  # -- Enables the audit-poller deployment for polling IAS audit logs
+  enabled: false
+  image:
+    # -- Image repository for the audit-poller
+    repository: ""
+    # -- Image tag for the audit-poller
+    tag: ""
+  logLevel: "info"
+  logDir: "/audit-poller"
+  metricsPort: 9298
+  iasApi:
+    fileName: "ias_api.log"
+    interval: 5
+    user:
+    password:
+    tokenURL:
+    apiURL:
+    alternateApiURL:
+    syncFrom:
+  iasChangelog:
+    fileName: "ias_changelog.log"
+    interval: 30
+    user:
+    password:
+    url:
+    syncFrom:
+  persistence:
+    enabled: false
+  playbook:
+    # -- Base path for alert playbook URLs (anchor fragment is appended per alert)
+    basePath: "docs/support/playbook/audit-poller"

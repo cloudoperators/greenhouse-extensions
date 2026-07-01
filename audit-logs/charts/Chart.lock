@@ -1,0 +1,6 @@
+dependencies:
+- name: audit-poller
+  repository: file://vendor/audit-poller
+  version: 0.1.1
+digest: sha256:2289e09d37830e973ad00d9bdb0f9d9843f37c22b1563dfbfaa976ba409b22af
+generated: "2026-06-25T15:45:00.433162+02:00"
