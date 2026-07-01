@@ -11,7 +11,7 @@ metadata:
   {{- end }}
   name: {{ include "release.name" . }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.thanos.query.ingress.ingressClassName  | default "nginx" }}
   rules:
     {{- range .Values.thanos.query.ingress.hosts }}
     - host: {{ .host | quote }}
