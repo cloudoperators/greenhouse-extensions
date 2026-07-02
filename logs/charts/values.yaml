@@ -135,6 +135,24 @@ openTelemetry:
       tcp_port: 514
       # -- UDP port for syslog (rfc3164)
       udp_port: 514
+      # -- Kafka topic for audit-relevant syslog logs (only used when kafka is enabled)
+      auditKafkaTopic: ""
+      # -- Kafka topic for non-audit syslog logs (only used when kafka is enabled)
+      nonAuditKafkaTopic: ""
+      # -- OpenSearch configuration for syslog logs
+      openSearchLogs:
+        # -- OpenSearch endpoint for audit-relevant syslog logs
+        auditEndpoint: ""
+        # -- OpenSearch endpoint for non-audit syslog logs
+        nonAuditEndpoint: ""
+        # -- Username for primary failover OpenSearch endpoint (audit)
+        audit_failover_username_a: ""
+        # -- Password for primary failover OpenSearch endpoint (audit)
+        audit_failover_password_a: ""
+        # -- Username for secondary failover OpenSearch endpoint (audit)
+        audit_failover_username_b: ""
+        # -- Password for secondary failover OpenSearch endpoint (audit)
+        audit_failover_password_b: ""
     # -- Activates syslog TCP with TLS ingestion (rfc5424).
     syslogTLSConfig:
       enabled: false

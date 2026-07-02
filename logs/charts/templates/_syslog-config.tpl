@@ -46,90 +46,45 @@ syslog/tcp-tls:
       {{- end }}
 {{- end }}
 
-{{- define "syslog.exporter" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-opensearch/failover_a_syslog:
-  http:
-    auth:
-      authenticator: basicauth/failover_a
-    endpoint: {{ required "openTelemetry.openSearchLogs.endpoint is required when openTelemetry.kafka.enabled=false" $.Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: logs-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
-opensearch/failover_b_syslog:
-  http:
-    auth:
-      authenticator: basicauth/failover_b
-    endpoint: {{ required "openTelemetry.openSearchLogs.endpoint is required when openTelemetry.kafka.enabled=false" $.Values.openTelemetry.openSearchLogs.endpoint }}
-  logs_index: logs-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
-{{- end }}
-{{- end }}
-
-{{- define "syslog.connectors" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-failover/opensearch_syslog:
-  priority_levels:
-    - [logs/failover_a_syslog]
-    - [logs/failover_b_syslog]
-  retry_interval: 1h
-  sending_queue:
-    block_on_overflow: true
-    enabled: true
-    num_consumers: 2
-    queue_size: 10000
-    sizer: requests
-{{- end }}
-{{- end }}
-
 {{- define "syslog.pipeline" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-logs/failover_a_syslog:
-  receivers: [failover/opensearch_syslog]
-  processors: [attributes/failover_username_a]
-  exporters: [opensearch/failover_a_syslog]
-
-logs/failover_b_syslog:
-  receivers: [failover/opensearch_syslog]
-  processors: [attributes/failover_username_b]
-  exporters: [opensearch/failover_b_syslog]
-
-{{- end }}
 logs/syslog_tcp:
   receivers: [syslog/tcp]
-  processors: [attributes/cluster, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka]
-{{- else }}
-  exporters: [failover/opensearch_syslog]
-{{- end }}
+  processors:
+    - filter/syslog_early_drop
+    - filter/syslog_drop_verbose
+    - transform/syslog_user_extraction
+    - transform/syslog_hostname_parsing
+    - transform/syslog_esxi_vm_events
+    - transform/syslog_esxi_sshd
+    - transform/syslog_audit_classification
+    - attributes/cluster
+  exporters: [routing/syslog_audit]
 
 logs/syslog_udp:
   receivers: [syslog/udp]
-  processors: [attributes/cluster, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka]
-{{- else }}
-  exporters: [failover/opensearch_syslog]
-{{- end }}
+  processors:
+    - filter/syslog_early_drop
+    - filter/syslog_drop_verbose
+    - transform/syslog_user_extraction
+    - transform/syslog_hostname_parsing
+    - transform/syslog_esxi_vm_events
+    - transform/syslog_esxi_sshd
+    - transform/syslog_audit_classification
+    - attributes/cluster
+  exporters: [routing/syslog_audit]
 {{- end }}
 
 {{- define "syslog_tls.pipeline" }}
 logs/syslog_tcp_tls:
   receivers: [syslog/tcp-tls]
-  processors: [attributes/cluster, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka]
-{{- else }}
-  exporters: [failover/opensearch_syslog]
-{{- end }}
+  processors:
+    - filter/syslog_early_drop
+    - filter/syslog_drop_verbose
+    - transform/syslog_user_extraction
+    - transform/syslog_hostname_parsing
+    - transform/syslog_esxi_vm_events
+    - transform/syslog_esxi_sshd
+    - transform/syslog_audit_classification
+    - attributes/cluster
+  exporters: [routing/syslog_audit]
 {{- end }}
