@@ -41,7 +41,9 @@ syslog/tcp-tls:
     tls:
       cert_file: /etc/ssl/syslog-tls/tls.crt
       key_file: /etc/ssl/syslog-tls/tls.key
+      {{- if .Values.openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled }}
       ca_file: /etc/ssl/syslog-tls/ca.crt
+      {{- end }}
 {{- end }}
 
 {{- define "syslog.exporter" }}
@@ -57,7 +59,7 @@ opensearch/failover_a_syslog:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 opensearch/failover_b_syslog:
   http:
     auth:
@@ -69,7 +71,7 @@ opensearch/failover_b_syslog:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 10s
+  timeout: 30s
 {{- end }}
 {{- end }}
 

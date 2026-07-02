@@ -11,7 +11,20 @@ global:
 
 # @ignored
 thanosCommunity:
-  enabled: false
+  enabled: true
+  global:
+    thanosRules:
+      enabled: false
+    serviceAccount:
+      create: false
+  compactor:
+    enabled: false
+  query:
+    enabled: false
+  receive:
+    enabled: false
+  storegateway:
+    enabled: false
 
 thanos:
   image:

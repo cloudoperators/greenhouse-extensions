@@ -91,31 +91,46 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 |-----|------|---------|-------------|
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
+| extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a8981ba"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.externalCollector | object | `{"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"kafkaTopic":"","kafkaTracesTopic":"","loadBalancerIP":null,"replicas":2,"serviceAnnotations":{},"syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector | object | `{"calicoLoadBalancerIP":false,"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"externalIP":null,"externalTrafficPolicy":"Local","kafkaTopic":"","kafkaTracesTopic":"","replicas":2,"serviceAnnotations":{},"serviceType":"LoadBalancer","syslogConfig":{"enabled":false,"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector.calicoLoadBalancerIP | bool | `false` | Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP |
 | openTelemetry.externalCollector.enabled | bool | `false` | Enables the standalone external OTel Collector StatefulSet and its PodMonitor. |
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
 | openTelemetry.externalCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
 | openTelemetry.externalCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
+| openTelemetry.externalCollector.externalIP | string | `nil` | External IP exposed on the service |
+| openTelemetry.externalCollector.externalTrafficPolicy | string | `"Local"` | External traffic policy for the external collector service (Local preserves source IP) |
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
-| openTelemetry.externalCollector.loadBalancerIP | string | `nil` | IP address to request from the cloud LoadBalancer (optional, omit for auto-assigned) |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
+| openTelemetry.externalCollector.serviceType | string | `"LoadBalancer"` | Service type for the external collector service |
 | openTelemetry.externalCollector.syslogConfig | object | `{"enabled":false,"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
-| openTelemetry.externalCollector.syslogTLSConfig | object | `{"dnsName":null,"enabled":false,"issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
+| openTelemetry.externalCollector.syslogTLSConfig | object | `{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
+| openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled | bool | `false` | Enable client CA verification (mTLS). Requires a ca.crt key in the TLS secret. |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
-| openTelemetry.externalCollector.syslogTLSConfig.issuerName | string | `nil` | cert-manager ClusterIssuer name for DigiCert |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerGroup | string | `"cert-manager.io"` | cert-manager issuer group (e.g. cert-manager.io or certmanager.cloud.sap) |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerKind | string | `"ClusterIssuer"` | cert-manager issuer kind (Issuer or ClusterIssuer) |
+| openTelemetry.externalCollector.syslogTLSConfig.issuerName | string | `nil` | cert-manager Issuer or ClusterIssuer name for TLS certificate |
 | openTelemetry.externalCollector.syslogTLSConfig.tcp_port | int | `6514` | TCP port for TLS syslog (rfc5424) |
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
+| openTelemetry.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors. One Deployment per entry. |
+| openTelemetry.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
+| openTelemetry.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
+| openTelemetry.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to openTelemetry.collectorImage.repository. |
+| openTelemetry.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to openTelemetry.collectorImage.tag. |
+| openTelemetry.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
+| openTelemetry.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
+| openTelemetry.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":""}` | Kafka exporter configuration shared by all collectors |
 | openTelemetry.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |

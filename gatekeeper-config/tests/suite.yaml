@@ -262,3 +262,79 @@ tests:
     assertions:
     - violations: 1
       message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.containers\["app"\]\.securityContext\.capabilities\.add = \["NET_ADMIN"\] \(image = "alpine"\)$'
+
+- name: ingress-annotations-insecure-snippets
+  template: rendered/gatekeeper-config/templates/constrainttemplate-ingress-annotations.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-ingress-annotations-insecure-snippets.yaml
+  cases:
+  - name: ingress-auth-snippet-modern
+    object: fixtures/ingress-annotations/ingress-auth-snippet-modern.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has disabled annotation: "nginx\.ingress\.kubernetes\.io/auth-snippet" \(disabled due to CVE-2021-25742\)$'
+  - name: ingress-modsecurity-snippet-legacy
+    object: fixtures/ingress-annotations/ingress-modsecurity-snippet-legacy.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has disabled annotation: "ingress\.kubernetes\.io/modsecurity-snippet" \(disabled due to CVE-2021-25742\)$'
+  - name: ingress-no-snippet
+    object: fixtures/ingress-annotations/ingress-no-snippet.yaml
+    assertions:
+    - violations: 0
+
+- name: ingress-annotations-wrong-prefix
+  template: rendered/gatekeeper-config/templates/constrainttemplate-ingress-annotations.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-ingress-annotations-wrong-prefix.yaml
+  cases:
+  - name: ingress-legacy-prefix
+    object: fixtures/ingress-annotations/ingress-legacy-prefix.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has disabled annotation: "ingress\.kubernetes\.io/auth-url" \(use the prefix "nginx\.ingress\.kubernetes\.io/" instead \(the legacy "ingress\.kubernetes\.io/" prefix is deprecated\)\)$'
+  - name: ingress-modern-prefix
+    object: fixtures/ingress-annotations/ingress-modern-prefix.yaml
+    assertions:
+    - violations: 0
+
+- name: ingress-annotations-migration
+  template: rendered/gatekeeper-config/templates/constrainttemplate-ingress-annotations-migration.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-ingress-annotations-migration.yaml
+  cases:
+  - name: ingress-old-only
+    object: fixtures/ingress-annotations-migration/ingress-old-only.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has not correctly migrated ingress\.kubernetes\.io/auth-url annotation \(value in old annotation is "https://auth\.example\.com", value in new annotation is "<unset>"\)$'
+  - name: ingress-new-only
+    object: fixtures/ingress-annotations-migration/ingress-new-only.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has deleted ingress\.kubernetes\.io/auth-url annotation too early \(still required while the legacy prefix is in use\)$'
+  - name: ingress-both-matching
+    object: fixtures/ingress-annotations-migration/ingress-both-matching.yaml
+    assertions:
+    - violations: 0
+  - name: ingress-both-mismatched
+    object: fixtures/ingress-annotations-migration/ingress-both-mismatched.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has not correctly migrated ingress\.kubernetes\.io/auth-url annotation \(value in old annotation is "https://old\.example\.com", value in new annotation is "https://new\.example\.com"\)$'
+
+- name: prometheus-scrape-annotations
+  template: rendered/gatekeeper-config/templates/constrainttemplate-prometheus-scrape-annotations.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-prometheus-scrape-annotations.yaml
+  cases:
+  - name: pod-scrape-true-no-targets
+    object: fixtures/prometheus-scrape-annotations/pod-scrape-true-no-targets.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has prometheus\.io/scrape annotation, but prometheus\.io/targets annotation is missing or does not have a valid value \(got: \[""\], valid: \[\]\)$'
+  - name: pod-scrape-false
+    object: fixtures/prometheus-scrape-annotations/pod-scrape-false.yaml
+    assertions:
+    - violations: 0
+  - name: service-scrape-true-no-targets
+    object: fixtures/prometheus-scrape-annotations/service-scrape-true-no-targets.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> has prometheus\.io/scrape annotation, but prometheus\.io/targets annotation is missing or does not have a valid value \(got: \[""\], valid: \[\]\)$'
