@@ -91,9 +91,12 @@ entityOperator:
   # -- Enable Entity Operator
   enabled: true
 
-  # -- Topic Operator resource configuration
-  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
+  # Topic Operator configuration
   topicOperator:
+    # -- Enable Topic Operator
+    enabled: true
+    # -- Topic Operator resource configuration
+    # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
     resources:
       requests:
         memory: "128Mi"
@@ -102,9 +105,12 @@ entityOperator:
         memory: "256Mi"
         cpu: "200m"
 
-  # -- User Operator resource configuration
-  # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
+  # User Operator configuration
   userOperator:
+    # -- Enable User Operator
+    enabled: false
+    # -- User Operator resource configuration
+    # @default -- requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU
     resources:
       requests:
         memory: "128Mi"

@@ -23,14 +23,18 @@ spec:
           name: {{ .Values.kafka.name }}-metrics
           key: kafka-metrics-config.yml
     {{- end }}
-  {{- if .Values.entityOperator.enabled }}
+  {{- if and .Values.entityOperator.enabled (or .Values.entityOperator.topicOperator.enabled .Values.entityOperator.userOperator.enabled) }}
   entityOperator:
+    {{- if .Values.entityOperator.topicOperator.enabled }}
     topicOperator:
       resources:
         {{- toYaml .Values.entityOperator.topicOperator.resources | nindent 8 }}
+    {{- end }}
+    {{- if .Values.entityOperator.userOperator.enabled }}
     userOperator:
       resources:
         {{- toYaml .Values.entityOperator.userOperator.resources | nindent 8 }}
+    {{- end }}
   {{- end }}
   {{- if .Values.kafkaExporter.enabled }}
   kafkaExporter:
