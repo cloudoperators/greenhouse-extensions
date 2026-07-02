@@ -209,7 +209,8 @@ routing/syslog_audit:
   default_pipelines: [logs/syslog_non_audit]
   error_mode: ignore
   table:
-    - pipelines: [logs/syslog_audit]
+    - context: log
+      pipelines: [logs/syslog_audit]
       statement: route() where attributes["audit_relevant"] == "true"
 
 failover/opensearch_syslog_audit:
@@ -240,7 +241,8 @@ routing/syslog_audit:
   default_pipelines: [logs/syslog_non_audit]
   error_mode: ignore
   table:
-    - pipelines: [logs/syslog_audit]
+    - context: log
+      pipelines: [logs/syslog_audit]
       statement: route() where attributes["audit_relevant"] == "true"
 {{- end }}
 {{- end }}
