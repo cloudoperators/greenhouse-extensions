@@ -62,6 +62,10 @@ spec:
           - {{ . }}
 {{- end }}
         protocol_version: {{ $kafka.protocol_version }}
+{{- if (default false (dig "tls" "enabled" false $kafka)) }}
+        tls:
+          insecure: false
+{{- end }}
         logs:
           topics:
             - {{ $cfg.topic | quote }}

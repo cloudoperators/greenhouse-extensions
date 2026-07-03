@@ -153,6 +153,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
         brokers:
@@ -165,6 +169,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}

@@ -309,6 +309,10 @@ kafka/syslog_audit:
     encoding: {{ .Values.openTelemetry.kafka.encoding }}
   producer:
     compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+  tls:
+    insecure: false
+{{- end }}
 kafka/syslog_non_audit:
   brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -320,6 +324,10 @@ kafka/syslog_non_audit:
     encoding: {{ .Values.openTelemetry.kafka.encoding }}
   producer:
     compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+  tls:
+    insecure: false
+{{- end }}
 {{- end }}
 {{- end }}
 

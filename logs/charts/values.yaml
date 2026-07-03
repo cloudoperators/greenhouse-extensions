@@ -83,6 +83,10 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
+    # -- TLS configuration for Kafka connections
+    tls:
+      # -- Enable TLS for Kafka connections
+      enabled: false
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true

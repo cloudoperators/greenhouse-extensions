@@ -244,6 +244,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
       kafka/storage:
         brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -255,6 +259,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
 {{- else }}
       opensearch/failover_a:
         http:
