@@ -62,7 +62,7 @@ spec:
           - {{ . }}
 {{- end }}
         protocol_version: {{ $kafka.protocol_version }}
-{{- if (default false (dig "tls" "enabled" false $kafka)) }}
+{{- if or (default false (dig "tls" "enabled" false $kafka)) $root.Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
 {{- end }}
