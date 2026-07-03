@@ -96,6 +96,13 @@ spec:
         send_batch_max_size: 5000
         timeout: 30s
         send_batch_size: 100
+      transform/fix_log_attribute:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - set(attributes["log_message"], attributes["log"]) where attributes["log"] != nil
+              - delete_key(attributes, "log") where attributes["log"] != nil
       attributes/cluster:
         actions:
           - action: insert
@@ -419,7 +426,7 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -435,7 +442,7 @@ spec:
 {{- end }}
         logs/route_cronus:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -469,7 +476,7 @@ spec:
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
         logs/route_storage:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka/storage]
 {{- else }}
