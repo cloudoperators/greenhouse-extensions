@@ -112,7 +112,7 @@ transform/coredns_api:
       statements:
         - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
         - set(log.attributes["log.level"], log.cache["level"])
-        - set(log.attributes["time"], log.cache["time"])
+        - set(log.attributes["coredns.time"], log.cache["time"])
         - set(log.attributes["request.id"], log.cache["request-id"])
         - set(log.attributes["duration"], log.cache["duration"])
         - set(log.attributes["component"], log.cache["component"])
