@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: ClusterPluginDefinition
+metadata:
+  name: permission-manager
+spec:
+  version: "0.1.0"
+  displayName: Permission Manager
+  description: Permission Manager is a Kubernetes operator for managing GitHub and Kubernetes permissions as code
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/permission-manager/refs/heads/main/README.md
+  helmChart:
+    name: permission-manager
+    repository: oci://ghcr.io/cloudoperators/charts
+    version: 0.1.0
+  options:
+    - name: manager
+      description: Manager deployment configuration
+      required: false
+      type: map
+    - name: providers
+      description: Enable or disable permission providers (kubernetes, github)
+      required: false
+      type: map
+    - name: certManager
+      description: Cert-manager integration for TLS certificates
+      required: false
+      type: map
+    - name: prometheus
+      description: Prometheus ServiceMonitor configuration
+      required: false
+      type: map
+    - name: networkPolicy
+      description: Network policies for controlling traffic to the controller
+      required: false
+      type: map
+    - name: metrics
+      description: Metrics endpoint configuration
+      required: false
+      type: map
+    - name: rbac
+      description: RBAC resource scope and helper roles configuration
+      required: false
+      type: map
