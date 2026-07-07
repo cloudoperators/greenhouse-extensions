@@ -37,12 +37,6 @@ spec:
       {{- else }}
       insecureSkipVerify: true
       {{- end }}
-    metricRelabelings:
-      - sourceLabels: [__name__]
-        regex: "(.*)"
-        targetLabel: __name__
-        replacement: "opensearch_guardian_$1"
-        action: replace
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
