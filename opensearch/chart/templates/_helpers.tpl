@@ -19,7 +19,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{- define "opensearch.guardianEnabled" -}}
-{{- range .Values.cluster.cluster.general.pluginList -}}
+{{- range .Values.cluster.cluster.general.pluginsList -}}
   {{- if contains "guardian" . -}}
     true
   {{- end -}}
