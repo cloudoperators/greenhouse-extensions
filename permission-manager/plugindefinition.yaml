@@ -10,5 +10,5 @@ spec:
   version: 0.1.0
   helmChart:
     name: permission-manager
-    repository: oci://ghcr.io/cloudoperators/charts
+    repository: oci://ghcr.io/cloudoperators/permission-manager/charts
     version: 0.1.0
