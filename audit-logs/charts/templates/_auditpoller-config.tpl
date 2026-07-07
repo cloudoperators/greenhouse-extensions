@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- define "auditpoller.receiver" }}
-filelog/auditpoller:
+file_log/auditpoller:
   include_file_path: true
   include: [ /var/log/pods/{{ .Release.Namespace }}_audit-poller*/audit-poller/*.log ]
   exclude: [ /var/log/pods/{{ .Release.Namespace }}_audit-logs-collector* ]
@@ -35,7 +35,7 @@ attributes/auditpoller:
 
 {{- define "auditpoller.pipelines" }}
 logs/auditpoller_logs:
-  receivers: [filelog/auditpoller]
+  receivers: [file_log/auditpoller]
   processors: [transform/auditpoller,attributes/auditpoller,k8s_attributes,attributes/cluster,batch]
   exporters: [routing]
 {{- end }}
