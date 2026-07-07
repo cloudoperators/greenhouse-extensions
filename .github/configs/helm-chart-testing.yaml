@@ -26,7 +26,6 @@ chart-dirs:
   - opensearch
   - perses
   - service-proxy/charts/1.0.0
-  - shoot-grafter
   - thanos
   - trust-manager
 chart-repos:
