@@ -130,6 +130,15 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+      transform/truncate_message:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - "truncate_all(attributes, 32000)"
+              - "truncate_all(resource.attributes, 32000)"
+{{- end }}
       resource:
         attributes:
         - action: insert
