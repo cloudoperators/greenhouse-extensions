@@ -256,6 +256,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.manager.resources.requests.memory | string | `"350Mi"` |  |
 | operator.manager.securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | operator.manager.watchNamespace | string | `nil` |  |
+| operator.manager.metricsBindAddress | string | `"127.0.0.1:8080"` | Address on which operator metrics should be exposed. The only acceptable value other then default is `:8443`. |
 | operator.nameOverride | string | `""` |  |
 | operator.namespace | string | `""` |  |
 | operator.nodeSelector | object | `{}` |  |

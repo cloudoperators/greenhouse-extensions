@@ -30,3 +30,18 @@ spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
+{{- $guardianEnabled := include "opensearch.guardianEnabled" . -}}
+{{- if and .Values.cluster.cluster.general.monitoring.enable $guardianEnabled }}
+{{- range $path, $bytes := .Files.Glob "alerts/opensearch-guardian.yaml" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name ($path | trimSuffix ".yaml") | replace "/" "-" | trunc 63 }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" $ | nindent 4 }}
+spec:
+{{ tpl (printf "%s" $bytes) $root | indent 2 }}
+{{- end }}
+{{- end }}
