@@ -89,6 +89,13 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+      transform/truncate_message:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - "truncate_all(attributes, 32000)"
+              - "truncate_all(resource.attributes, 32000)"
       attributes/cluster:
         actions:
           - action: insert
@@ -173,7 +180,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster]
+          processors: [memory_limiter, transform/truncate_message, attributes/cluster]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]

@@ -3,16 +3,32 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 {{- define "syslog.receiver" }}
-syslog/tcp:
+tcplog/syslog:
+  listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
+  add_attributes: true
   operators:
-  - field: attributes.log.type
-    id: syslogtcp
-    type: add
+  - type: router
+    id: syslog_format_router
+    routes:
+    - expr: 'body matches "^<\\d+>\\d+ "'
+      output: syslog_5424_parser
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
+      output: syslog_3164_parser
+    default: add_log_type
+  - type: syslog_parser
+    id: syslog_5424_parser
+    protocol: rfc5424
+    on_error: send
+    output: add_log_type
+  - type: syslog_parser
+    id: syslog_3164_parser
+    protocol: rfc3164
+    on_error: send
+    output: add_log_type
+  - type: add
+    id: add_log_type
+    field: attributes.log.type
     value: syslogtcp
-  protocol: rfc5424
-  tcp:
-    listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
-    add_attributes: true
 syslog/udp:
   location: UTC
   operators:
@@ -48,7 +64,7 @@ syslog/tcp-tls:
 
 {{- define "syslog.pipeline" }}
 logs/syslog_tcp:
-  receivers: [syslog/tcp]
+  receivers: [tcplog/syslog]
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
