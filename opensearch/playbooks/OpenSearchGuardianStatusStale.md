@@ -16,11 +16,11 @@ The OpenSearch Guardian plugin could not refresh the status. Status should be re
 
 ## Diagnosis
 
-Validate Guardian Configuration of `plugins.guardian.job_interval`. Log into k8s cluster and run:
+Validate Guardian configuration for `plugins.guardian.job_interval`. Log into the Kubernetes cluster and run:
 ```bash
-kubectl exec -it opensearch-audit-manager-2 -c opensearch -- cat config/opensearch.yml | grep guardian
+kubectl -n <namespace> exec -i <opensearch-pod-name> -c opensearch -- cat config/opensearch.yml | grep guardian
 ```
-If you will see  `plugins.guardian.job_interval` that shows value which is greater than 5 then it looks like the alert is not configured properly for the guardian interval. If no setting at all - then the default of 5 should be enforced.
+If you see `plugins.guardian.job_interval` set to a value greater than 5, the alert threshold likely needs to be adjusted to match the configured interval. If the setting is absent, the default interval of 5 minutes should apply.
 
 For more follow playbooks:
 [OpenSearchGuardianEmpty](https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md)

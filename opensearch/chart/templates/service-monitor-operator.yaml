@@ -1,4 +1,4 @@
-{{- if .Values.cluster.cluster.general.monitoring.enable }}
+{{- if and .Values.operator.enabled .Values.cluster.cluster.general.monitoring.enable (ne (.Values.operator.manager.metricsBindAddress | default "127.0.0.1:8080") "127.0.0.1:8080") }}
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 apiVersion: monitoring.coreos.com/v1
@@ -15,6 +15,7 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: operator
+      app.kubernetes.io/instance: {{ .Release.Name }}
   endpoints:
   - port: https
     path: /metrics

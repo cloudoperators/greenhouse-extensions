@@ -120,9 +120,9 @@ operator:
     runAsNonRoot: true
   priorityClassName: ""
   manager:
-    # By default operator binds it's metrics to loopback IP
-    # To configure it on expose port use ":8443" - in order to make it work ClusterRole and ClusterRoleBinding
-    # needs to be created to allow prometheus scrape the /metrics endpoint
+    # By default the operator binds its metrics endpoint to the loopback interface.
+    # To expose metrics, set this to ":8443". When exposing metrics, Prometheus may need ClusterRole/ClusterRoleBinding
+    # to authenticate/authorize against the /metrics endpoint
     metricsBindAddress: "127.0.0.1:8080"
     securityContext:
       allowPrivilegeEscalation: false
