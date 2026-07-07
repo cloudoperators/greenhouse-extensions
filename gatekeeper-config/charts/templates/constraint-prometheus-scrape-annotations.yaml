@@ -1,0 +1,17 @@
+{{- if .Values.policies.prometheusScrapeAnnotations.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkPrometheusScrapeAnnotations
+metadata:
+  name: prometheus-scrape-annotations
+  labels:
+    severity: 'debug'
+spec:
+  enforcementAction: {{ .Values.policies.prometheusScrapeAnnotations.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod", "Service"]
+    scope: Namespaced
+{{- end }}

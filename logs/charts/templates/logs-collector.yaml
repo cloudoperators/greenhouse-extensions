@@ -96,6 +96,13 @@ spec:
         send_batch_max_size: 5000
         timeout: 30s
         send_batch_size: 100
+      transform/fix_log_attribute:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - set(attributes["log_message"], attributes["log"]) where attributes["log"] != nil
+              - delete_key(attributes, "log") where attributes["log"] != nil
       attributes/cluster:
         actions:
           - action: insert
@@ -244,6 +251,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
       kafka/storage:
         brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -255,6 +266,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+{{- if .Values.openTelemetry.kafka.tls.enabled }}
+        tls:
+          insecure: false
+{{- end }}
 {{- else }}
       opensearch/failover_a:
         http:
@@ -267,7 +282,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/failover_b:
         http:
           auth:
@@ -279,7 +294,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/cronus_failover_a:
         http:
           auth:
@@ -291,7 +306,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
       opensearch/cronus_failover_b:
         http:
           auth:
@@ -303,7 +318,7 @@ spec:
           initial_interval: 1s
           max_interval: 5s
           max_elapsed_time: 30s
-        timeout: 10s
+        timeout: 30s
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
@@ -350,7 +365,7 @@ spec:
         sending_queue:
           block_on_overflow: true
           enabled: true
-          num_consumers: 10
+          num_consumers: 2
           queue_size: 10000
           sizer: requests
       failover/opensearch_cronus:
@@ -373,7 +388,7 @@ spec:
         sending_queue:
           block_on_overflow: true
           enabled: true
-          num_consumers: 10
+          num_consumers: 2
           queue_size: 10000
           sizer: requests
 {{- end }}
@@ -415,7 +430,7 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -431,7 +446,7 @@ spec:
 {{- end }}
         logs/route_cronus:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -465,7 +480,7 @@ spec:
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
         logs/route_storage:
           receivers: [routing]
-          processors: [batch]
+          processors: [transform/fix_log_attribute, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka/storage]
 {{- else }}

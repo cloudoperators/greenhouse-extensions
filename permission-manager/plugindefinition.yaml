@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: ClusterPluginDefinition
+metadata:
+  name: permission-manager
+spec:
+  description: Kubernetes operator for managing GitHub and Kubernetes permissions as code
+  version: 0.1.0
+  helmChart:
+    name: permission-manager
+    repository: oci://ghcr.io/cloudoperators/permission-manager/charts
+    version: 0.1.0

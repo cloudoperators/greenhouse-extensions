@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
 apiVersion: greenhouse.sap/v1alpha1
@@ -6,11 +6,16 @@ kind: PluginDefinition
 metadata:
   name: opensearch
 spec:
-  version: 0.2.8
+  version: 0.2.11
   displayName: OpenSearch
   description: Creates and manages an OpenSearch environment with automated deployment, provisioning, and orchestration of clusters and dashboards using the OpenSearch Operator.
   icon: 'https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/opensearch/logo.png'
   helmChart:
     name: opensearch
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.2.8
+    version: 0.2.11
+  options:
+    - name: queryExporter.enabled
+      description: "Enable the OpenSearch query exporter for custom Prometheus metrics from OpenSearch queries"
+      required: false
+      type: bool

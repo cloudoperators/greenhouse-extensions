@@ -1,0 +1,21 @@
+{{- if .Values.policies.ingressAnnotations.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkIngressAnnotations
+metadata:
+  name: ingress-annotations-insecure-snippets
+  labels:
+    severity: 'info'
+spec:
+  enforcementAction: {{ .Values.policies.ingressAnnotations.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["networking.k8s.io"]
+        kinds: ["Ingress"]
+    scope: Namespaced
+  parameters:
+    hint: 'disabled due to CVE-2021-25742'
+    regexes:
+      - '^(?:nginx\.)?ingress\.kubernetes\.io/(?:auth|configuration|server|modsecurity)-snippet$'
+{{- end }}

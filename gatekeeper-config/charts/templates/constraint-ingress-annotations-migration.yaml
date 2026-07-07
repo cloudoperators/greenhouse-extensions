@@ -1,0 +1,17 @@
+{{- if .Values.policies.ingressAnnotationsMigration.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkIngressAnnotationsMigration
+metadata:
+  name: ingress-annotations-migration
+  labels:
+    severity: 'error'
+spec:
+  enforcementAction: {{ .Values.policies.ingressAnnotationsMigration.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["networking.k8s.io"]
+        kinds: ["Ingress"]
+    scope: Namespaced
+{{- end }}

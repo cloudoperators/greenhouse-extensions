@@ -1,7 +1,7 @@
 {{- define "auditd.initContainer" }}
 initContainers:
 - name: init
-  image: alpine:latest
+  image: "{{ .Values.auditLogs.logsCollector.auditd.initImage.repository }}:{{ .Values.auditLogs.logsCollector.auditd.initImage.tag }}"
   securityContext:
     privileged: true
   command:

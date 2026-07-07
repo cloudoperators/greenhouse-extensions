@@ -59,8 +59,10 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | cruiseControl.enabled | bool | `false` | Enable Cruise Control |
 | cruiseControl.resources | object | requests: 512Mi memory, 500m CPU; limits: 1Gi memory, 1 CPU | Cruise Control resource configuration |
 | entityOperator.enabled | bool | `true` | Enable Entity Operator |
-| entityOperator.topicOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
-| entityOperator.userOperator | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
+| entityOperator.topicOperator.enabled | bool | `true` | Enable Topic Operator |
+| entityOperator.topicOperator.resources | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | Topic Operator resource configuration |
+| entityOperator.userOperator.enabled | bool | `false` | Enable User Operator |
+| entityOperator.userOperator.resources | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
 | extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry can be a raw YAML string or a map object. |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |

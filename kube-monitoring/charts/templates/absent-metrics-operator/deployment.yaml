@@ -33,6 +33,9 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - --prom-rule-name={{ .Values.absentMetricsOperator.promRuleName }}
+          {{- with .Values.absentMetricsOperator.extraArgs }}
+            {{- . | toYaml | nindent 12}}
+          {{- end }}
           resources:
             requests:
               cpu: "20m"

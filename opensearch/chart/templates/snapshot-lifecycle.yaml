@@ -193,6 +193,5 @@ spec:
             backoff: exponential
             delay: 1m
           delete: {}
-      transitions: []
 {{- end }}
 {{- end }}

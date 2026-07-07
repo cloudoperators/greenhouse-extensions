@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: gatekeeper-config
 spec:
-  version: 0.2.0
+  version: 0.3.0
   displayName: Gatekeeper Config
   description: |
     Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
@@ -17,7 +17,7 @@ spec:
   helmChart:
     name: gatekeeper-config
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.2.0
+    version: 0.3.0
   options:
     - name: policies.highCpuRequests.enabled
       displayName: High CPU requests policy enabled
@@ -148,3 +148,45 @@ spec:
         is keyed by {matchNamespace, matchRepository}.
       required: false
       type: list
+
+    - name: policies.ingressAnnotations.enabled
+      displayName: Ingress annotations policy enabled
+      description: Enable the ingress-annotations policy (flags disabled-snippet annotations and the legacy ingress.kubernetes.io/ prefix).
+      default: true
+      required: false
+      type: bool
+    - name: policies.ingressAnnotations.enforcementAction
+      displayName: Ingress annotations enforcement action
+      description: Gatekeeper enforcementAction for ingress-annotations (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.ingressAnnotationsMigration.enabled
+      displayName: Ingress annotations migration policy enabled
+      description: Enable the ingress-annotations-migration policy (catches inconsistent or premature removal of legacy/modern annotation pairs).
+      default: false
+      required: false
+      type: bool
+    - name: policies.ingressAnnotationsMigration.enforcementAction
+      displayName: Ingress annotations migration enforcement action
+      description: Gatekeeper enforcementAction for ingress-annotations-migration (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+
+    - name: policies.prometheusScrapeAnnotations.enabled
+      displayName: Prometheus scrape annotations policy enabled
+      description: |
+        Enable the prometheus-scrape-annotations policy (flags prometheus.io/scrape=true
+        annotations without a matching prometheus.io/targets entry). Requires a Gatekeeper
+        Config resource syncing monitoring.coreos.com/v1 Prometheus into the OPA cache.
+      default: false
+      required: false
+      type: bool
+    - name: policies.prometheusScrapeAnnotations.enforcementAction
+      displayName: Prometheus scrape annotations enforcement action
+      description: Gatekeeper enforcementAction for prometheus-scrape-annotations (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
