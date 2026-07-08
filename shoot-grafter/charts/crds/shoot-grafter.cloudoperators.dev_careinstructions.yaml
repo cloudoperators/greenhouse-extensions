@@ -55,6 +55,13 @@ spec:
             description: CareInstructionSpec holds the configuration for how to onboard
               Gardener shoots to Greenhouse.
             properties:
+              additionalAnnotations:
+                additionalProperties:
+                  type: string
+                description: |-
+                  AdditionalAnnotations are annotations to be added to the Greenhouse cluster Secret
+                  created for each matched Shoot.
+                type: object
               additionalLabels:
                 additionalProperties:
                   type: string
