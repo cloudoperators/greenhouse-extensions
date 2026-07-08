@@ -26,6 +26,9 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" $ | nindent 4 }}
+    {{- if $.Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
 spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
@@ -41,6 +44,9 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "opensearch.labels" $ | nindent 4 }}
+    {{- if $.Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
 spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
