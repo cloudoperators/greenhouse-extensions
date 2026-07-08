@@ -48,6 +48,24 @@ attributes/syslog_audit_failover_username_b:
 {{- end }}
 {{/*
   ============================================================================
+  Extract forwarded_by attribute from message body
+  Logs forwarded via Logstash have "forwarded_by=octobus_logstash" appended
+  to the message. This extracts it into a proper attribute and removes it
+  from the message body.
+  ============================================================================
+*/}}
+transform/syslog_forwarded_by:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] != nil and IsMatch(attributes["message"], ".*forwarded_by=octobus_logstash.*")'
+        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
+        - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
+        - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+
+{{/*
+  ============================================================================
   Early drop of non-audit-relevant messages
   ============================================================================
 */}}

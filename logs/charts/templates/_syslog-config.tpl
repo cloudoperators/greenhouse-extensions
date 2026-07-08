@@ -84,6 +84,7 @@ logs/syslog_tcp:
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
+    - transform/syslog_forwarded_by
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
@@ -98,6 +99,7 @@ logs/syslog_udp:
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
+    - transform/syslog_forwarded_by
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
@@ -114,6 +116,7 @@ logs/syslog_tcp_tls:
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
+    - transform/syslog_forwarded_by
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
