@@ -39,7 +39,7 @@ jobs:
           - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
             Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
-            Imagetag: 3.7.0-dev
+            Imagetag: 3.7.0-dev01
             Platform: linux/amd64
 
     permissions:
