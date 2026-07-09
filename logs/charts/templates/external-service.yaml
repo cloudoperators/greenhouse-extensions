@@ -11,6 +11,11 @@ metadata:
 {{- with .Values.openTelemetry.externalCollector.serviceAnnotations }}
     {{- toYaml . | nindent 4 }}
 {{- end }}
+  labels:
+  {{- include "plugin.labels" . | nindent 4 }}
+  {{- if .Values.openTelemetry.customLabels }}
+  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     app.kubernetes.io/component: opentelemetry-collector

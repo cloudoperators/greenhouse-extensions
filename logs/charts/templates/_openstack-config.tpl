@@ -196,7 +196,13 @@ opensearch/storage_failover_a:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 30s
+  sending_queue:
+    block_on_overflow: true
+    enabled: true
+    num_consumers: 10
+    queue_size: 50000
+    sizer: requests
+  timeout: 10s
 opensearch/storage_failover_b:
   http:
     auth:
@@ -208,7 +214,13 @@ opensearch/storage_failover_b:
     initial_interval: 1s
     max_interval: 5s
     max_elapsed_time: 30s
-  timeout: 30s
+  sending_queue:
+    block_on_overflow: true
+    enabled: true
+    num_consumers: 10
+    queue_size: 50000
+    sizer: requests
+  timeout: 10s
 {{- end }}
 
 {{- define "openstack.pipeline" }}

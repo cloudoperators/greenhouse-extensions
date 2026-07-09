@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 {{- define "syslog.receiver" }}
-tcplog/syslog:
+tcp_log/syslog:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
   add_attributes: true
   operators:
@@ -80,7 +80,7 @@ tcplog/syslog_tls:
 
 {{- define "syslog.pipeline" }}
 logs/syslog_tcp:
-  receivers: [tcplog/syslog]
+  receivers: [tcp_log/syslog]
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
@@ -112,7 +112,7 @@ logs/syslog_udp:
 
 {{- define "syslog_tls.pipeline" }}
 logs/syslog_tcp_tls:
-  receivers: [tcplog/syslog_tls]
+  receivers: [tcp_log/syslog_tls]
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose

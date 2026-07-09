@@ -261,6 +261,7 @@ spec:
                     - region
         resource:
           k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
           region: ${region}
 {{- end }}
       pipelines:

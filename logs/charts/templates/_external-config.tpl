@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 webhookevent/external-alerts:
   endpoint: "0.0.0.0:{{.Values.openTelemetry.externalCollector.externalConfig.alertmanager_port}}"
 
-tcplog/external-deployments:
+tcp_log/external-deployments:
   listen_address: "0.0.0.0:{{.Values.openTelemetry.externalCollector.externalConfig.deployments_port}}"
 {{- end }}
 
@@ -104,7 +104,7 @@ logs/external-alerts:
 {{- end }}
 
 logs/external-deployments:
-  receivers: [tcplog/external-deployments]
+  receivers: [tcp_log/external-deployments]
   processors: [transform/external-deployments, attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka]
