@@ -507,7 +507,7 @@ absentMetricsOperator:
   image:
     registry: ghcr.io
     repository: cloudoperators/absent-metrics-operator
-    tag: "edge@sha256:f4040afac0d5e9a8de7e1e403966917b903187baec8fc300db528e9a65b59bf9"
+    tag: "edge@sha256:e3adecf748ed51eac27f8546fcd63fdd41c7670e535982abe58e30daa84bd317"
   # @ignored
   imagePullPolicy: IfNotPresent
 
