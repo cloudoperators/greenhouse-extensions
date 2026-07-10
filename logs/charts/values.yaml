@@ -90,6 +90,14 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Batch processor settings for the logs collector.
+    batch:
+      # -- Flush when this many records are buffered (raise for larger downstream batches).
+      sendBatchSize: 100
+      # -- Hard cap on records per batch.
+      sendBatchMaxSize: 5000
+      # -- Flush after this duration regardless of size.
+      timeout: 30s
     # -- Kafka topic name for general logs (e.g., "logs")
     kafkaTopic: ""
     # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
