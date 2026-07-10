@@ -118,6 +118,10 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -133,6 +137,10 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
