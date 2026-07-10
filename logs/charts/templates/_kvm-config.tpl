@@ -47,6 +47,18 @@ file_log/ch_logs:
       id: file-label
       type: add
       value: files-ch
+journald/pstore:
+  storage: file_storage/journald
+  units:
+    - systemd-pstore.service
+  start_at: beginning
+  all: true
+  merge: true
+  operators:
+    - id: pstore-label
+      type: add
+      field: attributes["log.type"]
+      value: "journald-pstore"
 {{- end }}
 {{- define "kvm.transform" }}
 transform/kvm_openvswitch:
@@ -121,6 +133,23 @@ transform/ch_logs:
       - set(log.attributes["config.parsed"], "libvirt-ch")
       - set(log.observed_time, Now())
       - set(log.time, log.observed_time)
+
+transform/pstore:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - attributes["log.type"] == "pstore"
+      statements:
+        - merge_maps(log.cache, log.body, "upsert")
+        - set(log.attributes["message"], log.cache["MESSAGE"])
+        - set(log.attributes["pstore.file"], log.cache["FILE"])
+        - set(log.attributes["boot_id"], log.cache["_BOOT_ID"])
+        - set(resource.attributes["host.name"], log.cache["_HOSTNAME"])
+        - set(resource.attributes["syslog.unit"], log.cache["_SYSTEMD_UNIT"])
+        - set(log.attributes["config.parsed"], "pstore")
+        - set(log.observed_time, Now())
+        - set(log.time, log.observed_time)
 {{- end }}
 {{- define "kvm.pipeline" }}
 logs/kvm_containerd:
@@ -130,6 +159,10 @@ logs/kvm_containerd:
 logs/kvm_file_log:
   receivers: [file_log/qemu_logs,file_log/openvswitch_logs,file_log/kvm_monitoring,file_log/ch_logs]
   processors: [k8s_attributes, attributes/cluster, transform/kvm_logs, transform/kvm_monitoring, transform/qemu_logs, transform/ch_logs]
+  exporters: [routing]
+logs/kvm_pstore:
+  receivers: [journald/pstore]
+  processors: [attributes/cluster, transform/pstore]
   exporters: [routing]
 {{- end }}
 
