@@ -39,7 +39,7 @@ tcp_log/syslog:
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: '2006-01-02T15:04:05.999999999Z'
+      layout: '2006-01-02T15:04:05.999999999Z07:00'
       layout_type: gotime
     output: syslog_iso_cleanup
   - type: remove
@@ -77,6 +77,10 @@ syslog/udp:
     id: syslogudp
     type: add
     value: syslogudp
+  - field: attributes.log.syslog.format
+    id: syslogudp_format
+    type: add
+    value: rfc3164
   protocol: rfc3164
   udp:
     listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.udp_port }}
@@ -127,7 +131,7 @@ tcp_log/syslog_tls:
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: '2006-01-02T15:04:05.999999999Z'
+      layout: '2006-01-02T15:04:05.999999999Z07:00'
       layout_type: gotime
     output: syslog_tls_iso_cleanup
   - type: remove
