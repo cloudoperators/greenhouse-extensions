@@ -51,3 +51,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /owner-label-injector/    @cloudoperators/greenhouse-backend
 /shoot-grafter/           @cloudoperators/greenhouse-backend
 /oidc-discovery-access    @cloudoperators/greenhouse-backend
+/permission-manager/      @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-src
