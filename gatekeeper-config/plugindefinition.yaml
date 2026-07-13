@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: gatekeeper-config
 spec:
-  version: 0.4.0
+  version: 0.4.1
   displayName: Gatekeeper Config
   description: |
     Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
@@ -17,7 +17,7 @@ spec:
   helmChart:
     name: gatekeeper-config
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.4.0
+    version: 0.4.1
   options:
     - name: policies.highCpuRequests.enabled
       displayName: High CPU requests policy enabled

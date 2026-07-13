@@ -61,6 +61,8 @@ spec:
                   release.error == ""
                   not is_exception
 
+                  helm_release.is_helm_release(iro)
+
                   owned_by := object.get(release, ["owner_info", "owned-by"], "")
                   owned_by == ""
 

@@ -126,6 +126,8 @@ parse_k8s_object(obj, baseURL) := result if {
 	result := __parse_response(resp)
 }
 
+is_helm_release(obj) if __is_helm_release(obj)
+
 __is_helm_release(obj) if {
 	obj.kind == "Secret"
 	obj.type == "helm.sh/release.v1"

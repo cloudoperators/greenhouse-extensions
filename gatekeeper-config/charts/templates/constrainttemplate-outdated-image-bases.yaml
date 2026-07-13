@@ -55,7 +55,10 @@ spec:
                   pod.isFound
                   check := checks[_]
                   check.error == ""
-                  createdAtAsUnixTime := to_number(trim_space(object.get(check.headers, input.parameters.createdAtHeader, "Unclear")))
+
+                  createdAt := trim_space(object.get(check.headers, input.parameters.createdAtHeader, ""))
+                  regex.match(`^[0-9]+$`, createdAt)
+                  createdAtAsUnixTime := to_number(createdAt)
 
                   nowAsUnixTime := time.now_ns() / 1000000000
                   ageInSeconds := nowAsUnixTime - createdAtAsUnixTime
@@ -65,6 +68,20 @@ spec:
                   msg := sprintf(
                       "image %s for container %q uses a very old base image (oldest layer is %.0f days old)",
                       [check.containerImage, check.containerName, ageInDays],
+                  )
+              }
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+                  check := checks[_]
+                  check.error == ""
+
+                  createdAt := trim_space(object.get(check.headers, input.parameters.createdAtHeader, ""))
+                  not regex.match(`^[0-9]+$`, createdAt)
+
+                  msg := sprintf(
+                      "image %s for container %q returned no valid %q header from doop-image-checker (got %q)",
+                      [check.containerImage, check.containerName, input.parameters.createdAtHeader, createdAt],
                   )
               }
 {{- end }}
