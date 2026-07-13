@@ -1,0 +1,98 @@
+{{- if .Values.policies.vulnerableImages.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkvulnerableimages
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkVulnerableImages
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            doopImageCheckerURL:
+              type: string
+            vulnStatusHeader:
+              type: string
+            reportingLevel:
+              type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.image_check" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package vulnerableimages
+
+              import data.lib.add_support_labels
+              import data.lib.image_check
+              import data.lib.traversal
+
+              iro := input.review.object
+              phase := object.get(iro, ["status", "phase"], "Running") # only relevant for iro.kind == "Pod"
+              pod := traversal.find_pod(iro)
+              checks := __run_image_check(phase)
+
+              __run_image_check(phase) := result if {
+                  input.parameters.reportingLevel == "pod"
+                  phase != "Succeeded"
+                  phase != "Failed"
+                  result = image_check.for_pod(iro, input.parameters.doopImageCheckerURL)
+              }
+
+              __run_image_check(phase) := result if {
+                  input.parameters.reportingLevel == "pod"
+
+                  # ignore pods that have already finished running, but still exist
+                  # as a k8s object (e.g. leftovers of completed or failed jobs)
+                  phase in ["Succeeded", "Failed"]
+                  result = []
+              }
+
+              __run_image_check(phase) := result if {
+                  input.parameters.reportingLevel == "pod-owner"
+                  pod.isFound
+                  result = image_check.for_pod_template(pod, input.parameters.doopImageCheckerURL)
+              }
+
+              __run_image_check(phase) := result if {
+                  input.parameters.reportingLevel == "pod-owner"
+                  not pod.isFound
+
+                  # ignore pod owners that are suppressed, e.g. ReplicaSets within Deployments
+                  result = []
+              }
+
+              violation contains {"msg": check.error} if {
+                  check := checks[_]
+                  check.error != ""
+              }
+
+              violation contains {"msg": add_support_labels.extra("status", status, add_support_labels.from_k8s_object(iro, msg))} if {
+                  check := checks[_]
+                  check.error == ""
+                  status := trim_space(object.get(check.headers, input.parameters.vulnStatusHeader, "Unclear"))
+
+                  # report everything with a definite vulnerability
+                  status != "Clean"
+                  status != "Unknown"
+
+                  msg := sprintf(
+                      "image %s for container %q has \"%s: %s\"",
+                      [check.containerImage, check.containerName, input.parameters.vulnStatusHeader, status],
+                  )
+              }
+{{- end }}

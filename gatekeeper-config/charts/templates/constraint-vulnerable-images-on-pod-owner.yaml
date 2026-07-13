@@ -1,0 +1,23 @@
+{{- if .Values.policies.vulnerableImages.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: GkVulnerableImages
+metadata:
+  name: vulnerable-images-on-pod-owner
+  labels:
+    severity: 'warning'
+spec:
+  enforcementAction: {{ .Values.policies.vulnerableImages.enforcementAction }}
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "DaemonSet", "StatefulSet", "ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job", "CronJob"]
+    scope: Namespaced
+  parameters:
+    doopImageCheckerURL: {{ required "policies.vulnerableImages.imageCheckerURL is required when policies.vulnerableImages.enabled=true" .Values.policies.vulnerableImages.imageCheckerURL | quote }}
+    vulnStatusHeader: {{ required "policies.vulnerableImages.vulnStatusHeader is required when policies.vulnerableImages.enabled=true" .Values.policies.vulnerableImages.vulnStatusHeader | quote }}
+    reportingLevel: "pod-owner"
+{{- end }}
