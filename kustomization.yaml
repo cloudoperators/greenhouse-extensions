@@ -10,6 +10,7 @@ resources:
   - external-dns/plugindefinition.yaml
   - gatekeeper/plugindefinition.yaml
   - gatekeeper-config/plugindefinition.yaml
+  - gatekeeper-doop/plugindefinition.yaml
   - repo-guard/plugindefinition.yaml
   - ingress-nginx/plugindefinition.yaml
   - kafka/plugindefinition.yaml

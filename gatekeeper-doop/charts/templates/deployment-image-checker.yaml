@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-image-checker
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+    app.kubernetes.io/component: image-checker
+spec:
+  replicas: {{ .Values.imageChecker.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+  selector:
+    matchLabels:
+      {{- include "gatekeeper-doop.labels" . | nindent 6 }}
+      app.kubernetes.io/component: image-checker
+  template:
+    metadata:
+      labels:
+        {{- include "gatekeeper-doop.labels" . | nindent 8 }}
+        app.kubernetes.io/component: image-checker
+      annotations:
+        kubectl.kubernetes.io/default-container: image-checker
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: image-checker
+          image: {{ include "gatekeeper-doop.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["doop-image-checker"]
+          args: [":8080"]
+          env:
+            - name: LOG_ALL_REQUESTS
+              value: "false"
+            - name: REGISTRY_URL
+              value: {{ .Values.imageChecker.registryURL | required ".Values.imageChecker.registryURL is required" | quote }}
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            timeoutSeconds: 10
+            periodSeconds: 60
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.imageChecker.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
