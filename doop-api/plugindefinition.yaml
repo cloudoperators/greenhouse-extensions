@@ -17,7 +17,7 @@ spec:
     version: 0.1.0
   options:
     - name: image.repository
-      description: Container image repository for the gatekeeper-addons bundle. Override if you host the image elsewhere (SAP users use keppel.global.cloud.sap/ccloud/gatekeeper-addons).
+      description: Container image repository for the gatekeeper-addons bundle. Override if you host the image elsewhere.
       default: ghcr.io/cloudoperators/gatekeeper-addons
       required: false
       type: string
