@@ -166,12 +166,6 @@ filter/hermes_logstash:
     log_record:
       - 'IsMatch(body, ".*Authorization: Basic.*")'
 
-filter/rgw:
-  error_mode: ignore
-  logs:
-    log_record:
-      - 'resource.attributes["k8s.container.name"] == "rgw"'
-
 transform/swift_proxy:
   error_mode: ignore
   log_statements:
