@@ -241,6 +241,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.manager.livenessProbe.successThreshold | int | `1` |  |
 | operator.manager.livenessProbe.timeoutSeconds | int | `3` |  |
 | operator.manager.loglevel | string | `"debug"` |  |
+| operator.manager.metricsBindAddress | string | `"127.0.0.1:8080"` |  |
 | operator.manager.parallelRecoveryEnabled | bool | `true` |  |
 | operator.manager.pprofEndpointsEnabled | bool | `false` |  |
 | operator.manager.readinessProbe.failureThreshold | int | `3` |  |

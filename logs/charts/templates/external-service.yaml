@@ -12,7 +12,10 @@ metadata:
     {{- toYaml . | nindent 4 }}
 {{- end }}
   labels:
-    app.kubernetes.io/managed-by: Helm
+  {{- include "plugin.labels" . | nindent 4 }}
+  {{- if .Values.openTelemetry.customLabels }}
+  {{ toYaml .Values.openTelemetry.customLabels | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     app.kubernetes.io/component: opentelemetry-collector

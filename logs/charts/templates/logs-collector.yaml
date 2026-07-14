@@ -93,9 +93,9 @@ spec:
 {{- end }}
     processors:
       batch:
-        send_batch_max_size: 5000
-        timeout: 30s
-        send_batch_size: 100
+        send_batch_max_size: {{ dig "batch" "sendBatchMaxSize" 5000 .Values.openTelemetry.logsCollector }}
+        timeout: {{ dig "batch" "timeout" "30s" .Values.openTelemetry.logsCollector | quote }}
+        send_batch_size: {{ dig "batch" "sendBatchSize" 100 .Values.openTelemetry.logsCollector }}
       transform/fix_log_attribute:
         error_mode: ignore
         log_statements:

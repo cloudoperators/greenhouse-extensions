@@ -7,8 +7,8 @@ metadata:
   name: permission-manager
 spec:
   description: Kubernetes operator for managing GitHub and Kubernetes permissions as code
-  version: 0.1.0
+  version: 0.2.0
   helmChart:
     name: permission-manager
     repository: oci://ghcr.io/cloudoperators/permission-manager/charts
-    version: 0.1.0
+    version: 0.2.0

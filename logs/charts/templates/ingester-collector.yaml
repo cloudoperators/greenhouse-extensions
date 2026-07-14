@@ -19,7 +19,7 @@ metadata:
   {{- end }}
 spec:
   mode: deployment
-  replicas: {{ $root.Values.openTelemetry.ingesterCollector.replicas }}
+  replicas: {{ dig "replicas" $root.Values.openTelemetry.ingesterCollector.replicas $cfg }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/reload: "logs-ingester-{{ $name }}-auth"
@@ -118,6 +118,11 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -133,6 +138,11 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -168,6 +178,7 @@ spec:
                         - region
         resource:
           k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
           region: ${region}
 {{- end }}
       pipelines:

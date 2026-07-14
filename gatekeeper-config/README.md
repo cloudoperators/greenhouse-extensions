@@ -20,6 +20,10 @@ Requires the [OPA Gatekeeper](https://github.com/cloudoperators/greenhouse-exten
 | `ingressAnnotations` | Flags Ingresses using insecure nginx snippet annotations or the deprecated `ingress.kubernetes.io/` prefix. |
 | `ingressAnnotationsMigration` | During the nginx annotation prefix migration, flags Ingresses that set only one of the old/new prefix or set both with mismatched values. |
 | `prometheusScrapeAnnotations` | Flags Pods and Services that opt into scraping via `prometheus.io/scrape: "true"` but are not matched by any configured Prometheus CR. |
+| `deprecatedApiVersion` | Flags Helm releases that declare resources using API versions removed in a specific Kubernetes release. Requires `gatekeeper-doop`. |
+| `oliLabelsRequired` | Flags Helm release Secrets without the `greenhouse.sap/owned-by` label injected by Owner Label Injector. Requires `gatekeeper-doop`. |
+| `outdatedImageBases` | Flags workloads whose container base images are older than `maxAgeDays`, as reported by `doop-image-checker`. Requires `gatekeeper-doop`. |
+| `vulnerableImages` | Flags workloads running container images with known vulnerabilities, as reported by `doop-image-checker`. Requires `gatekeeper-doop`. |
 
 ## Default behavior
 

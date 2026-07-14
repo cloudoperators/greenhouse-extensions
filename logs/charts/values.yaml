@@ -90,6 +90,14 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Batch processor settings for the logs collector.
+    batch:
+      # -- Flush when this many records are buffered (raise for larger downstream batches).
+      sendBatchSize: 100
+      # -- Hard cap on records per batch.
+      sendBatchMaxSize: 5000
+      # -- Flush after this duration regardless of size.
+      timeout: 30s
     # -- Kafka topic name for general logs (e.g., "logs")
     kafkaTopic: ""
     # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
@@ -209,11 +217,14 @@ openTelemetry:
     #     enabled: bool                         # render this collector
     #     topic: <kafka-topic>                  # single Kafka topic consumed by this collector
     #     initialOffset: latest | earliest      # optional, defaults to latest
+    #     replicas: <int>                        # optional; per-collector replica count, falls back to ingesterCollector.replicas
     #     kafka: { brokers, protocol_version, encoding }  # optional override of openTelemetry.kafka
     #     opensearch:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
+    #       sendingQueue: { enabled, numConsumers, queueSize }  # optional; default enabled=false (synchronous)
+    #         (set enabled=true + numConsumers>1 to raise export concurrency; keep queueSize small to preserve backpressure)
     # Each entry renders one OpenTelemetryCollector named "logs-ingester-<name>" with
     # group_id "logs-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.

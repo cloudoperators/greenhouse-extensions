@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: gatekeeper-config
 spec:
-  version: 0.3.0
+  version: 0.4.1
   displayName: Gatekeeper Config
   description: |
     Deploys OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes
@@ -17,7 +17,7 @@ spec:
   helmChart:
     name: gatekeeper-config
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.3.0
+    version: 0.4.1
   options:
     - name: policies.highCpuRequests.enabled
       displayName: High CPU requests policy enabled
@@ -188,5 +188,103 @@ spec:
       displayName: Prometheus scrape annotations enforcement action
       description: Gatekeeper enforcementAction for prometheus-scrape-annotations (dryrun, warn, or deny).
       default: dryrun
+      required: false
+      type: string
+
+    - name: policies.deprecatedApiVersion.enabled
+      displayName: Deprecated API version policy enabled
+      description: Enable the deprecated-api-version policy. Requires gatekeeper-doop (helm-manifest-parser).
+      default: false
+      required: false
+      type: bool
+    - name: policies.deprecatedApiVersion.enforcementAction
+      displayName: Deprecated API version enforcement action
+      description: Gatekeeper enforcementAction for deprecated-api-version (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.deprecatedApiVersion.helmManifestParserURL
+      displayName: Helm manifest parser URL (deprecated-api-version)
+      description: URL of the helm-manifest-parser service. Required when deprecated-api-version is enabled.
+      required: false
+      type: string
+
+    - name: policies.oliLabelsRequired.enabled
+      displayName: OLI labels required policy enabled
+      description: Enable the oli-labels-required policy. Requires gatekeeper-doop (helm-manifest-parser).
+      default: false
+      required: false
+      type: bool
+    - name: policies.oliLabelsRequired.enforcementAction
+      displayName: OLI labels required enforcement action
+      description: Gatekeeper enforcementAction for oli-labels-required (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.oliLabelsRequired.helmManifestParserURL
+      displayName: Helm manifest parser URL (oli-labels-required)
+      description: URL of the helm-manifest-parser service. Required when oli-labels-required is enabled.
+      required: false
+      type: string
+    - name: policies.oliLabelsRequired.knownExceptions
+      displayName: OLI labels known exceptions
+      description: Helm releases temporarily exempt from the policy, in "namespace/release-name" format.
+      required: false
+      type: list
+    - name: policies.oliLabelsRequired.excludedNamespaces
+      displayName: OLI labels excluded namespaces
+      description: Namespaces excluded from the oli-labels-required policy.
+      required: false
+      type: list
+
+    - name: policies.outdatedImageBases.enabled
+      displayName: Outdated image bases policy enabled
+      description: Enable the outdated-image-bases policy. Requires gatekeeper-doop (doop-image-checker).
+      default: false
+      required: false
+      type: bool
+    - name: policies.outdatedImageBases.enforcementAction
+      displayName: Outdated image bases enforcement action
+      description: Gatekeeper enforcementAction for outdated-image-bases (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.imageCheckerURL
+      displayName: Image checker URL (outdated-image-bases)
+      description: URL of the doop-image-checker service. Required when outdated-image-bases is enabled.
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.createdAtHeader
+      displayName: Image creation timestamp header
+      description: Name of the HTTP response header from doop-image-checker that carries the minimum layer creation timestamp (Unix seconds).
+      required: false
+      type: string
+    - name: policies.outdatedImageBases.maxAgeDays
+      displayName: Outdated image bases max age (days)
+      description: Containers whose base image is older than this many days are flagged.
+      default: 365
+      required: false
+      type: int
+
+    - name: policies.vulnerableImages.enabled
+      displayName: Vulnerable images policy enabled
+      description: Enable the vulnerable-images policy. Requires gatekeeper-doop (doop-image-checker).
+      default: false
+      required: false
+      type: bool
+    - name: policies.vulnerableImages.enforcementAction
+      displayName: Vulnerable images enforcement action
+      description: Gatekeeper enforcementAction for vulnerable-images (dryrun, warn, or deny).
+      default: dryrun
+      required: false
+      type: string
+    - name: policies.vulnerableImages.imageCheckerURL
+      displayName: Image checker URL (vulnerable-images)
+      description: URL of the doop-image-checker service. Required when vulnerable-images is enabled.
+      required: false
+      type: string
+    - name: policies.vulnerableImages.vulnStatusHeader
+      displayName: Vulnerability status header
+      description: Name of the HTTP response header from doop-image-checker that carries the vulnerability status. Required when vulnerable-images is enabled.
       required: false
       type: string

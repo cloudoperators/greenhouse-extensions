@@ -5,9 +5,9 @@ groups:
     rules:
       - alert: OpenSearchClusterRed
         expr: |
-          (sum by (opster_io_opensearch_cluster) (opensearch_cluster_status))
+          (sum by (opensearch_org_opensearch_cluster) (opensearch_cluster_status))
           /
-          (count by (opster_io_opensearch_cluster) (opensearch_cluster_status))
+          (count by (opensearch_org_opensearch_cluster) (opensearch_cluster_status))
           == 2
         for: 5m
         labels:
@@ -15,14 +15,14 @@ groups:
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
-          summary: "OpenSearch cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} is RED"
-          description: "OpenSearch cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
+          summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
+          description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
 
       - alert: OpenSearchClusterYellow
         expr: |
-          (sum by (opster_io_opensearch_cluster) (opensearch_cluster_status))
+          (sum by (opensearch_org_opensearch_cluster) (opensearch_cluster_status))
           /
-          (count by (opster_io_opensearch_cluster) (opensearch_cluster_status))
+          (count by (opensearch_org_opensearch_cluster) (opensearch_cluster_status))
           == 1
         for: 120m
         labels:
@@ -30,8 +30,8 @@ groups:
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
-          summary: "OpenSearch cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} is YELLOW"
-          description: "OpenSearch cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} is in YELLOW status for more than 120 minutes"
+          summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is YELLOW"
+          description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in YELLOW status for more than 120 minutes"
 
       - alert: OpenSearchDiskSpaceRunningLow
         expr: predict_linear(opensearch_fs_total_free_bytes[24h], 24*3600) < 0
@@ -42,10 +42,10 @@ groups:
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch disk space predicted to run out"
-          description: "OpenSearch node {{`{{ $labels.node }}`}} in cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} is predicted to run out of disk space within 24 hours"
+          description: "OpenSearch node {{`{{ $labels.node }}`}} in cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is predicted to run out of disk space within 24 hours"
 
       - alert: OpenSearchIndexSizeTooLarge
-        expr: (max by (opster_io_opensearch_cluster, index) (opensearch_index_store_size_bytes{context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(opster_io_opensearch_cluster, index) (rate(opensearch_index_doc_number{context="primaries", index=~".ds.*"}[15m]) > 1)
+        expr: (max by (opensearch_org_opensearch_cluster, index) (opensearch_index_store_size_bytes{context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(opensearch_org_opensearch_cluster, index) (rate(opensearch_index_doc_number{context="primaries", index=~".ds.*"}[15m]) > 1)
         for: 30m
         labels:
           severity: info # warning
@@ -53,4 +53,4 @@ groups:
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "Index size of {{`{{ $labels.index }}`}} has exceeded the threshold."
-          description: "The index {{`{{ $labels.index }}`}} in cluster {{`{{ $labels.opster_io_opensearch_cluster }}`}} has exceeded 200 GB in size and is still actively receiving data. Please check the rollover status."
+          description: "The index {{`{{ $labels.index }}`}} in cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} has exceeded 200 GB in size and is still actively receiving data. Please check the rollover status."
