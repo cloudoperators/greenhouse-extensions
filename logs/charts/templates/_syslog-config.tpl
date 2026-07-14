@@ -44,7 +44,7 @@ syslog/udp:
 {{- end }}
 
 {{- define "syslog_tls.receiver" }}
-tcplog/syslog_tls:
+tcp_log/syslog_tls:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogTLSConfig.tcp_port }}
   add_attributes: true
   tls:
