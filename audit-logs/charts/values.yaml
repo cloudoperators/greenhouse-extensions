@@ -97,7 +97,7 @@ auditLogs:
   ingesterCollector:
     # -- Enable the ingest collectors block.
     enabled: false
-    # -- Replica count per ingest collector Deployment.
+    # -- Default replica count per ingest collector Deployment. Override per collector with `replicas` inside a collectors entry.
     replicas: 1
     image:
       # -- Image repository override; falls back to auditLogs.collectorImage.repository.

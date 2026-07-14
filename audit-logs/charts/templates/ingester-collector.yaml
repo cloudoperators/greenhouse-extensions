@@ -19,7 +19,7 @@ metadata:
   {{- end }}
 spec:
   mode: deployment
-  replicas: {{ $root.Values.auditLogs.ingesterCollector.replicas }}
+  replicas: {{ dig "replicas" $root.Values.auditLogs.ingesterCollector.replicas $cfg }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/reload: "audit-ingester-{{ $name }}-auth"
