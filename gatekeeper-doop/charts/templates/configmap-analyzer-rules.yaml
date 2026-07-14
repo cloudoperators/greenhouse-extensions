@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
-{{- $cname     := .Values.cluster.name           | required ".Values.cluster.name is required" -}}
+{{ $cname     := .Values.cluster.name           | required ".Values.cluster.name is required" -}}
 {{- $clayer    := .Values.cluster.layer          | required ".Values.cluster.layer is required" -}}
 {{- $ctype     := .Values.cluster.type           | required ".Values.cluster.type is required" -}}
 {{- $region    := .Values.swift.region           | required ".Values.swift.region is required" -}}
@@ -20,7 +20,7 @@ data:
         "type": {{ quote $ctype }}
       },
       "swift": {
-        "container_name": "doop-analyzer{{ if $cname | regexMatch "^[akv]-" }}-kubernikus{{ end }}",
+        "container_name": "doop-analyzer",
         "object_name": {{ quote $cname }}
       },
       "processing_rules": [
@@ -92,27 +92,7 @@ data:
               "message": "$1<region>$2"
             }
           }
-        }{{- if contains "qa" $region }},
-        {
-          "description": "M213: Merge across usages of eu-de-1 as a primary image source (if eu-de-1 mentioned in name)",
-          "replace": {
-            "source": "name",
-            "pattern": "(.*)keppel.eu-de-1(.*)",
-            "target": {
-              "name": "$1keppel.<region>$2"
-            }
-          }
-        },
-        {
-          "description": "M214: Merge across usages of eu-de-1 as a primary image source (if eu-de-1 mentioned in message)",
-          "replace": {
-            "source": "message",
-            "pattern": "(.*)keppel.eu-de-1(.*)",
-            "target": {
-              "message": "$1keppel.<region>$2"
-            }
-          }
-        }{{- end }}{{- if ne $altregion $region }},
+        }{{- if ne $altregion $region }},
         {
           "description": "M221: Merge across alternate regions (if alternate region mentioned in name)",
           "replace": {
@@ -133,22 +113,6 @@ data:
             }
           }
         }{{- end }},
-        {{- if eq $ctype "cloudshell" "test" }}
-        {
-          "description": "M301: Merge across pods managed by cloud-shell",
-          "match": {
-            "namespace": "cloud-shell",
-            "kind": "Pod"
-          },
-          "replace": {
-            "source": "name",
-            "pattern": "shell-(?:c[0-9]{7}|[di][0-9]{6})",
-            "target": {
-              "name": "shell-<uid>"
-            }
-          }
-        },
-        {{- end }}
         {
           "description": "M401: Merge across pods in the same DaemonSet, Job or ReplicaSet",
           "match": {
@@ -214,22 +178,9 @@ data:
               "name": "$1-<index>"
             }
           }
-        }{{- if eq $ctype "kubernikus" "test" }},
+        },
         {
-          "description": "M501: Merge across Kubernikus clusters of the same name in different projects",
-          "match": {
-            "namespace": "kubernikus"
-          },
-          "replace": {
-            "source": "name",
-            "pattern": "(.+)-[0-9a-f]{32}(-.+)?",
-            "target": {
-              "name": "$1-<variable>$2"
-            }
-          }
-        }{{- end }}{{- if eq $ctype "scaleout" "test" }},
-        {
-          "description": "M502: Merge across Grafana deployments managed by the grafana-operator",
+          "description": "M501: Merge across Grafana deployments managed by the grafana-operator",
           "match": {
             "name": "grafana-.*"
           },
@@ -240,6 +191,9 @@ data:
               "namespace": "<variable>"
             }
           }
-        }{{- end }}
+        }
+        {{- range .Values.analyzer.extraMergingRules }},
+        {{ . | toJson }}
+        {{- end }}
       ]
     }

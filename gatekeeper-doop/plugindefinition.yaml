@@ -35,11 +35,11 @@ spec:
       required: true
       type: string
     - name: cluster.layer
-      description: Cluster layer label (e.g. prod, qa, labs). Reported alongside each violation.
+      description: Cluster layer label (e.g. prod, qa). Reported alongside each violation.
       required: true
       type: string
     - name: cluster.type
-      description: Cluster type label (e.g. baremetal, scaleout, kubernikus). Drives which merging rules apply.
+      description: Cluster type label. Reported alongside each violation.
       required: true
       type: string
     - name: swift.authURL
@@ -92,13 +92,17 @@ spec:
           memory: 64Mi
       required: false
       type: map
+    - name: analyzer.extraMergingRules
+      description: Additional analyzer merging rules appended to the built-in generic set. Each item is a merging-rule object. Use to add fleet-specific deduplication without forking the chart.
+      required: false
+      type: list
     - name: imageChecker.replicas
       description: Number of doop-image-checker replicas.
       default: 2
       required: false
       type: int
     - name: imageChecker.registryURL
-      description: Container registry endpoint that the image-checker queries for image vulnerability and provenance metadata (e.g. a Keppel-compatible URL). Required for the vulnerable-images and outdated-image-bases policies to function.
+      description: Container registry endpoint that the image-checker queries for image vulnerability and provenance metadata. Required for the vulnerable-images and outdated-image-bases policies to function.
       required: true
       type: string
     - name: imageChecker.resources

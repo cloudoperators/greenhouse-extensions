@@ -23,6 +23,7 @@ swift:
 
 analyzer:
   replicas: 1
+  extraMergingRules: []        # appended to the built-in generic merging rules; supply fleet-specific dedup rules here
   resources:
     requests:
       cpu: 50m
