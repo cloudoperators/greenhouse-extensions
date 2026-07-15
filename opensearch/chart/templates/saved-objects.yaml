@@ -70,7 +70,6 @@ data:
     ${CURL} -H 'Content-Type: application/json' \
       -X POST "${DASHBOARDS}/api/saved_objects/index-pattern/{{ .id }}?overwrite=true" \
       --data @/tmp/body.json >/dev/null
-    rm -f /tmp/fc.json /tmp/body.json
     {{- end }}
 
     {{- range $cfg.imports }}
