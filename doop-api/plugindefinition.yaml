@@ -1,0 +1,118 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: doop-api
+spec:
+  version: 0.1.0
+  displayName: DOOP API
+  description: Central API for the DOOP (Decentralized Observer of Policies) system that aggregates Gatekeeper audit reports from OpenStack Swift and serves them to the DOOP UI plugin.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/doop-api/README.md
+  icon: https://raw.githubusercontent.com/open-policy-agent/opa/main/logo/logo.png
+  helmChart:
+    name: doop-api
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 0.1.0
+  options:
+    - name: image.repository
+      description: Container image repository for the gatekeeper-addons bundle. Override if you host the image elsewhere.
+      default: ghcr.io/cloudoperators/gatekeeper-addons
+      required: false
+      type: string
+    - name: image.tag
+      description: Container image tag. If empty, the chart's appVersion is used.
+      required: false
+      type: string
+    - name: image.pullPolicy
+      description: Image pull policy.
+      default: IfNotPresent
+      required: false
+      type: string
+    - name: replicas
+      description: Number of doop-api replicas.
+      default: 1
+      required: false
+      type: int
+    - name: swift.authURL
+      description: OpenStack Keystone v3 auth URL.
+      required: true
+      type: string
+    - name: swift.username
+      description: OpenStack username with read access to the Swift container.
+      required: true
+      type: string
+    - name: swift.password
+      description: OpenStack password for the username above. Stored as a Kubernetes Secret.
+      required: true
+      type: secret
+    - name: swift.userDomain
+      description: OpenStack user domain name.
+      default: Default
+      required: false
+      type: string
+    - name: swift.projectName
+      description: OpenStack project that owns the Swift container.
+      required: true
+      type: string
+    - name: swift.projectDomain
+      description: OpenStack project domain name.
+      default: Default
+      required: false
+      type: string
+    - name: swift.region
+      description: OpenStack region for the Swift endpoint.
+      required: true
+      type: string
+    - name: swift.container
+      description: Swift container name where doop-analyzer uploads reports.
+      default: doop-analyzer
+      required: false
+      type: string
+    - name: objectIdentityLabels
+      description: Labels carried over from each violation's object_identity into the metric label set. Match this with the policies you run in your fleet.
+      default:
+        - support_group
+        - service
+        - status
+      required: false
+      type: list
+    - name: resources
+      description: Resource requests and limits for the doop-api container.
+      default:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 1Gi
+      required: false
+      type: map
+    - name: ingress.enabled
+      description: Expose the API via an Ingress resource.
+      default: false
+      required: false
+      type: bool
+    - name: ingress.host
+      description: Hostname for the Ingress. Required when ingress.enabled is true.
+      required: false
+      type: string
+    - name: ingress.className
+      description: Ingress class name.
+      required: false
+      type: string
+    - name: ingress.annotations
+      description: Annotations applied to the Ingress resource. Use this to configure ingress-controller-specific behaviour such as CORS, auth, or rate limits.
+      default: {}
+      required: false
+      type: map
+    - name: ingress.tls.enabled
+      description: Enable TLS on the Ingress.
+      default: false
+      required: false
+      type: bool
+    - name: ingress.tls.secretName
+      description: Existing Kubernetes Secret with TLS cert and key. Required when ingress.tls.enabled is true.
+      required: false
+      type: string

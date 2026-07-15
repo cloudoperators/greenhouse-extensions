@@ -123,11 +123,17 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["keystone_scope.application.credential.id"], log.cache["keystone_scope"]["application_credential"]["id"])
         - set(log.attributes["keystone_scope.application_credential.name"], log.cache["keystone_scope"]["application_credential"]["name"])
         - set(log.attributes["keystone_scope.application_credential.restricted"], log.cache["keystone_scope"]["application_credential"]["restricted"])
+
+filter/rgw:
+  error_mode: ignore
+  logs:
+    log_record:
+      - 'resource.attributes["k8s.container.name"] == "rgw"'
 {{- end }}
 
 {{- define "ceph.pipeline" }}
 logs/ceph:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar]
+  processors: [k8s_attributes, attributes/cluster, filter/rgw, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar]
   exporters: [routing]
 {{- end }}

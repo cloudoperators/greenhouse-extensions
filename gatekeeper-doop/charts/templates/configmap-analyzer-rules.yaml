@@ -1,0 +1,199 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{ $cname     := .Values.cluster.name           | required ".Values.cluster.name is required" -}}
+{{- $clayer    := .Values.cluster.layer          | required ".Values.cluster.layer is required" -}}
+{{- $ctype     := .Values.cluster.type           | required ".Values.cluster.type is required" -}}
+{{- $region    := .Values.swift.region           | required ".Values.swift.region is required" -}}
+{{- $altregion := .Values.swift.alternateRegion  | default $region -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-analyzer
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {
+      "cluster_identity": {
+        "layer": {{ quote $clayer }},
+        "type": {{ quote $ctype }}
+      },
+      "swift": {
+        "container_name": "doop-analyzer",
+        "object_name": {{ quote $cname }}
+      },
+      "processing_rules": [
+        {
+          "description": "R101: Rewrite Helm releases into a more readable pseudo-Kind",
+          "match": {
+            "kind": "Secret"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "sh\\.helm\\.release\\.v1\\.(.*)(\\.v\\d+)",
+            "target": {
+              "kind": "Helm 3 release",
+              "name": "$1$2"
+            }
+          }
+        }
+      ],
+      "merging_rules": [
+        {
+          "description": "M101: Merge across versions of the same Helm release",
+          "match": {
+            "kind": "Helm 3 release"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.*)\\.v\\d+",
+            "target": {
+              "name": "$1"
+            }
+          }
+        }{{- if ne $cname $region }},
+        {
+          "description": "M201: Merge across clusters (if cluster mentioned in name)",
+          "replace": {
+            "source": "name",
+            "pattern": "(.*){{ $cname }}(.*)",
+            "target": {
+              "name": "$1<cluster>$2"
+            }
+          }
+        },
+        {
+          "description": "M202: Merge across clusters (if cluster mentioned in message)",
+          "replace": {
+            "source": "message",
+            "pattern": "(.*){{ $cname }}(.*)",
+            "target": {
+              "message": "$1<cluster>$2"
+            }
+          }
+        }{{- end }},
+        {
+          "description": "M211: Merge across regions (if region mentioned in name)",
+          "replace": {
+            "source": "name",
+            "pattern": "(.*){{ $region }}(.*)",
+            "target": {
+              "name": "$1<region>$2"
+            }
+          }
+        },
+        {
+          "description": "M212: Merge across regions (if region mentioned in message)",
+          "replace": {
+            "source": "message",
+            "pattern": "(.*){{ $region }}(.*)",
+            "target": {
+              "message": "$1<region>$2"
+            }
+          }
+        }{{- if ne $altregion $region }},
+        {
+          "description": "M221: Merge across alternate regions (if alternate region mentioned in name)",
+          "replace": {
+            "source": "name",
+            "pattern": "(.*){{ $altregion }}(.*)",
+            "target": {
+              "name": "$1<altregion>$2"
+            }
+          }
+        },
+        {
+          "description": "M222: Merge across alternate regions (if alternate region mentioned in message)",
+          "replace": {
+            "source": "message",
+            "pattern": "(.*){{ $altregion }}(.*)",
+            "target": {
+              "message": "$1<altregion>$2"
+            }
+          }
+        }{{- end }},
+        {
+          "description": "M401: Merge across pods in the same DaemonSet, Job or ReplicaSet",
+          "match": {
+            "kind": "Pod"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.+)-[0-9a-z]{5}",
+            "target": {
+              "name": "$1-<variable>"
+            }
+          }
+        },
+        {
+          "description": "M402: Merge across ReplicaSets in the same Deployment",
+          "match": {
+            "kind": "Pod|ReplicaSet"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.+)-[0-9a-f]{8,10}(?:-<variable>)?",
+            "target": {
+              "name": "$1-<variable>"
+            }
+          }
+        },
+        {
+          "description": "M403: Merge across pods in ReplicaSets in the same Deployment even if the child suffixes are fused",
+          "match": {
+            "kind": "Pod",
+            "name": ".{63}"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.+)-[0-9a-f]{1,10}[0-9a-z]{5}",
+            "target": {
+              "name": "$1-<variable>"
+            }
+          }
+        },
+        {
+          "description": "M404: Merge across jobs in the same CronJob",
+          "match": {
+            "kind": "Pod|Job"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.+)-[0-9]{8}(?:-<variable>)?",
+            "target": {
+              "name": "$1-<variable>"
+            }
+          }
+        },
+        {
+          "description": "M405: Merge across pods in the same StatefulSet",
+          "match": {
+            "kind": "Pod"
+          },
+          "replace": {
+            "source": "name",
+            "pattern": "(.+)-[0-9]{1,2}",
+            "target": {
+              "name": "$1-<index>"
+            }
+          }
+        },
+        {
+          "description": "M501: Merge across Grafana deployments managed by the grafana-operator",
+          "match": {
+            "name": "grafana-.*"
+          },
+          "replace": {
+            "source": "namespace",
+            "pattern": "[0-9a-f]{32}",
+            "target": {
+              "namespace": "<variable>"
+            }
+          }
+        }
+        {{- range .Values.analyzer.extraMergingRules }},
+        {{ . | toJson }}
+        {{- end }}
+      ]
+    }

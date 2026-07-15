@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-doop-agent
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-doop-agent
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - constraints.gatekeeper.sh
+      - templates.gatekeeper.sh
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Name }}-doop-agent
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}-doop-agent
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-doop-agent
+    namespace: {{ .Release.Namespace }}
