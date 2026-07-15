@@ -68,7 +68,7 @@ transform/ceph_rgw:
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:log.level} %{TIMESTAMP_ISO8601:log.timestamp}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{NOTSPACE}(%{SPACE})?%{WORD}\\:(%{SPACE})?%{WORD}\\:(%{SPACE})?%{IP:client.address}(%{SPACE})?%{NOTSPACE}(%{SPACE})%{PROJECT_ID:project.id}(\\$%{NOTSPACE})?(%{SPACE})?\\[%{HTTPDATE:request.timestamp}\\] \"%{WORD:request.method} \\/(?<bucket>[a-zA-Z0-9._+-]+)?(\\/)?(%{NOTSPACE:request.path})? %{WORD:network.protocol.name}/%{NOTSPACE:network.protocol.version}\" %{NUMBER:response} %{NUMBER:content.length:int} %{NOTSPACE} \"%{GREEDYDATA:user_agent.name}\" %{NOTSPACE} latency=%{NUMBER:latency:float}", true, ["PROJECT_ID=([A-Za-z0-9-]+)"]),"upsert")
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{WORD:log_level}", true),"upsert")
-        - set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["network.protocol.name"], "lower")) where log.cache["network.protocol.name"] != nil
+        - set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["network.protocol.name"], "lower")) where log.attributes["network.protocol.name"] != nil
         - set(log.attributes["config.parsed"], "ceph_rgw") where log.attributes["project.id"] != nil
         - set(log.attributes["config.parsed"], "ceph_rgw") where log.attributes["log.level"] != nil
 
@@ -123,12 +123,6 @@ transform/ceph_prysm_sidecar:
         - set(log.attributes["keystone_scope.application.credential.id"], log.cache["keystone_scope"]["application_credential"]["id"])
         - set(log.attributes["keystone_scope.application_credential.name"], log.cache["keystone_scope"]["application_credential"]["name"])
         - set(log.attributes["keystone_scope.application_credential.restricted"], log.cache["keystone_scope"]["application_credential"]["restricted"])
-
-filter/rgw:
-  error_mode: ignore
-  logs:
-    log_record:
-      - 'resource.attributes["k8s.container.name"] == "rgw"'
 {{- end }}
 
 {{- define "ceph.pipeline" }}
