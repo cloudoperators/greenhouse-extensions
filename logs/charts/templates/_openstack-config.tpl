@@ -166,6 +166,14 @@ filter/hermes_logstash:
     log_record:
       - 'IsMatch(body, ".*Authorization: Basic.*")'
 
+{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+filter/rgw:
+  error_mode: ignore
+  logs:
+    log_record:
+      - 'resource.attributes["k8s.container.name"] == "rgw"'
+{{- end }}
+
 transform/swift_proxy:
   error_mode: ignore
   log_statements:
@@ -226,6 +234,6 @@ opensearch/storage_failover_b:
 {{- define "openstack.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}, filter/rgw{{- end }}, transform/ingress, transform/protocol, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash, transform/swift_proxy, attributes/swift_proxy]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}, filter/rgw{{- end }}, transform/swift_proxy, attributes/swift_proxy]
   exporters: [routing]
 {{- end }}
