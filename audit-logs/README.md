@@ -81,7 +81,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
 | auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
 | auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
-| auditLogs.ingesterCollector.replicas | int | `1` | Default replica count per ingest collector Deployment. Override per collector with `replicas` inside a collectors entry. |
+| auditLogs.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
 | auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.auditd.initImage | object | `{"repository":"alpine","tag":"latest"}` | Init container image used to stop the host auditd service. |
