@@ -59,6 +59,12 @@
 {{- end }}
 
 {{- define "ceph.transform" }}
+filter/rgw:
+  error_mode: ignore
+  logs:
+    log_record:
+      - 'resource.attributes["k8s.container.name"] == "rgw"'
+
 transform/ceph_rgw:
   error_mode: ignore
   log_statements:
@@ -128,6 +134,6 @@ transform/ceph_prysm_sidecar:
 {{- define "ceph.pipeline" }}
 logs/ceph:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, filter/rgw, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar]
   exporters: [routing]
 {{- end }}
