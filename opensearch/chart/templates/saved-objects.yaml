@@ -6,6 +6,9 @@
 {{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
 {{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
 {{- $dashboardsHost := $cfg.dashboardsHost | default (printf "http://%s-dashboards:5601" $serviceName) }}
+{{- /* Reuse the cluster's OpenSearch image; it has curl + python3. */ -}}
+{{- $imageRepo := (.Values.cluster.cluster.general).image }}
+{{- $imageTag := (.Values.cluster.cluster.general).version }}
 {{- if not $cfg.credentialsSecret.name }}
   {{- fail "cluster.savedObjects.credentialsSecret.name is required when savedObjects.enabled is true" }}
 {{- end }}
@@ -55,11 +58,15 @@ data:
     echo "dashboards ready"
 
     {{- range $cfg.indexPatterns }}
-    echo "applying index-pattern {{ .id }}"
+    echo "applying index-pattern {{ .id }} (title={{ .title }})"
+    # Bake the field list into the saved object; Dashboards does not populate it
+    # on API create, which otherwise forces a manual "Refresh field list".
+    ${CURL} "${DASHBOARDS}/api/index_patterns/_fields_for_wildcard?pattern={{ .title }}&meta_fields=_source&meta_fields=_id&meta_fields=_index&meta_fields=_score" \
+      | TITLE={{ .title | quote }} TIMEFIELD={{ .timeFieldName | default "" | quote }} python3 -c 'import json,os,sys; f=json.load(sys.stdin).get("fields",[]); a={"title":os.environ["TITLE"]}; a.update({"timeFieldName":os.environ["TIMEFIELD"]} if os.environ["TIMEFIELD"] else {}); a.update({"fields":json.dumps(f)} if f else {}); json.dump({"attributes":a},open("/tmp/body.json","w")); sys.stderr.write("baked %d fields\n"%len(f))'
     ${CURL} -H 'Content-Type: application/json' \
       -X POST "${DASHBOARDS}/api/saved_objects/index-pattern/{{ .id }}?overwrite=true" \
-      -d '{"attributes":{"title":{{ .title | quote }}{{ if .timeFieldName }},"timeFieldName":{{ .timeFieldName | quote }}{{ end }}}}' \
-      >/dev/null
+      --data @/tmp/body.json >/dev/null
+    rm -f /tmp/body.json
     {{- end }}
 
     {{- range $cfg.imports }}
@@ -102,7 +109,7 @@ spec:
       {{- end }}
       containers:
         - name: install
-          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          image: "{{ $imageRepo }}:{{ $imageTag }}"
           imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
           command: ["sh", "/scripts/install.sh"]
           env:

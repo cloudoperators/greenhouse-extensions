@@ -188,7 +188,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.savedObjects.credentialsSecret | object | `{"name":"dashboards-credentials","passwordKey":"password","usernameKey":"username"}` | Credentials Secret for a user that can write `.kibana*`. |
 | cluster.savedObjects.dashboardsHost | string | `""` | Dashboards URL. Defaults to the in-cluster HTTP Service. |
 | cluster.savedObjects.enabled | bool | `false` | Enable the saved-objects bootstrap Job. |
-| cluster.savedObjects.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/curlimages/curl","tag":"8.10.1"}` | Job image. Needs `curl` and a POSIX `sh`. |
+| cluster.savedObjects.image | object | `{"pullPolicy":"IfNotPresent"}` | Image pull policy for the Job. The image is always the cluster's OpenSearch image (`cluster.general.image`:`cluster.general.version`). |
 | cluster.savedObjects.imports | list | `[]` | NDJSON saved-object bundles to import. Each entry references a key in an existing ConfigMap (created out of band). |
 | cluster.savedObjects.indexPatterns | list | `[]` | Index patterns to upsert by id. |
 | cluster.savedObjects.jobName | string | `""` | Override Job name (default `opensearch-saved-objects`). |

@@ -961,10 +961,9 @@ cluster:
       name: dashboards-credentials
       usernameKey: username
       passwordKey: password
-    # -- Job image. Needs `curl` and a POSIX `sh`.
+    # -- Image pull policy for the Job. The image is always the cluster's
+    # OpenSearch image (`cluster.general.image`:`cluster.general.version`).
     image:
-      repository: docker.io/curlimages/curl
-      tag: "8.10.1"
       pullPolicy: IfNotPresent
     # -- Job pod resources.
     resources: {}
