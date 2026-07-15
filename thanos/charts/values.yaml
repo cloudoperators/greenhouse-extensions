@@ -409,7 +409,6 @@ thanos:
         # key: object-storage-configs.yaml
 
     # -- Name of the Secret containing tls.crt and tls.key to enable TLS on the ruler gRPC port (10901).
-    # When set, also adds --grpc-client-tls-skip-verify to the query so it can connect to the ruler.
     grpcTlsSecretName: ""
 
     # -- Resource requests and limits for the Thanos Ruler container.

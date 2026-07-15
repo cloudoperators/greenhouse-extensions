@@ -91,7 +91,6 @@ spec:
     key: alertManagerConfig.yaml # Key name for Alertmanager config YAML
     name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing Alertmanager config
   {{- end }}
-  {{- /* containers and volumes must be a single block — merge all mounts here */}}
   {{- if or (and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled) .Values.thanos.ruler.grpcTlsSecretName }}
   containers:
     - name: thanos-ruler
