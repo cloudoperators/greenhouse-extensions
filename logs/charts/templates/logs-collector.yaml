@@ -101,8 +101,8 @@ spec:
         log_statements:
           - context: log
             statements:
-              - set(attributes["log_message"], attributes["log"]) where attributes["log"] != nil
-              - delete_key(attributes, "log") where attributes["log"] != nil
+              - set(log.attributes["log_message"], log.attributes["log"]) where log.attributes["log"] != nil
+              - delete_key(log.attributes, "log") where log.attributes["log"] != nil
       attributes/cluster:
         actions:
           - action: insert
@@ -419,9 +419,13 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: k8s_node_name
+              value: ${KUBE_NODE_NAME}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
         logs/route_default:
