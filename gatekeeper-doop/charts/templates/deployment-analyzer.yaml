@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-analyzer
+  labels:
+    {{- include "gatekeeper-doop.labels" . | nindent 4 }}
+    app.kubernetes.io/component: analyzer
+spec:
+  replicas: {{ .Values.analyzer.replicas }}
+  strategy:
+    type: Recreate
+  minReadySeconds: 15
+  selector:
+    matchLabels:
+      {{- include "gatekeeper-doop.labels" . | nindent 6 }}
+      app.kubernetes.io/component: analyzer
+  template:
+    metadata:
+      labels:
+        {{- include "gatekeeper-doop.labels" . | nindent 8 }}
+        app.kubernetes.io/component: analyzer
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap-analyzer-rules.yaml") . | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: {{ .Release.Name }}-doop-agent
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: analyzer
+          image: {{ include "gatekeeper-doop.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["doop-analyzer"]
+          args: ["run", "/etc/doop-analyzer/config.json"]
+          env:
+            - name: OS_AUTH_URL
+              value: {{ .Values.swift.authURL | required ".Values.swift.authURL is required" | quote }}
+            - name: OS_AUTH_VERSION
+              value: "3"
+            - name: OS_IDENTITY_API_VERSION
+              value: "3"
+            - name: OS_USER_DOMAIN_NAME
+              value: {{ .Values.swift.userDomain | quote }}
+            - name: OS_USERNAME
+              value: {{ .Values.swift.username | required ".Values.swift.username is required" | quote }}
+            - name: OS_PROJECT_DOMAIN_NAME
+              value: {{ .Values.swift.projectDomain | quote }}
+            - name: OS_PROJECT_NAME
+              value: {{ .Values.swift.projectName | required ".Values.swift.projectName is required" | quote }}
+            - name: OS_REGION_NAME
+              value: {{ .Values.swift.region | required ".Values.swift.region is required" | quote }}
+            - name: OS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-doop-agent
+                  key: swift_password
+          ports:
+            - name: metrics
+              containerPort: 8080
+          resources:
+            {{- toYaml .Values.analyzer.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/doop-analyzer
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-analyzer

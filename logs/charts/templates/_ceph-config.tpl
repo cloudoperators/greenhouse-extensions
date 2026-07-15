@@ -134,6 +134,6 @@ filter/rgw:
 {{- define "ceph.pipeline" }}
 logs/ceph:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar, filter/rgw]
+  processors: [k8s_attributes, attributes/cluster, filter/rgw, transform/ingress, transform/ceph_rgw, transform/ceph_osd, transform/ceph_prysm_sidecar]
   exporters: [routing]
 {{- end }}
