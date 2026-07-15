@@ -3,7 +3,7 @@ groups:
     interval: 30s
     rules:
       - alert: OpenSearchOperatorDown
-        expr: up{job=~".*opensearch-operator.*"} == 0
+        expr: up{job=~".*opensearch-operator.*", namespace="{{ .Release.Namespace }}"} == 0
         for: 10m
         labels:
           severity: info # critical
