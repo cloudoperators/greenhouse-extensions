@@ -961,8 +961,7 @@ cluster:
       name: dashboards-credentials
       usernameKey: username
       passwordKey: password
-    # -- Image pull policy for the Job. The image is always the cluster's
-    # OpenSearch image (`cluster.general.image`:`cluster.general.version`).
+    # -- Image pull policy for the Job. Image is the cluster's OpenSearch image.
     image:
       pullPolicy: IfNotPresent
     # -- Job pod resources.
