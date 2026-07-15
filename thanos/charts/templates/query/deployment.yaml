@@ -60,6 +60,9 @@ spec:
         - --grpc-client-tls-cert=/etc/tls/client/tls.crt
         - --grpc-client-tls-key=/etc/tls/client/tls.key
         - --grpc-client-tls-secure
+        {{- if .Values.thanos.ruler.grpcTlsSecretName }}
+        - --grpc-client-tls-skip-verify
+        {{- end }}
         {{- end }}
         image: "{{ .Values.thanos.image.repository }}:{{ .Values.thanos.image.tag }}"
         imagePullPolicy: {{ default "IfNotPresent" .Values.thanos.image.pullPolicy }}

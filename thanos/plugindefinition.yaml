@@ -219,3 +219,7 @@ spec:
       default: {}
       required: false
       type: map
+    - name: thanos.ruler.grpcTlsSecretName
+      description: Name of the Secret containing tls.crt and tls.key to enable TLS on the ruler gRPC port (10901). When set, also adds --grpc-client-tls-skip-verify to the query.
+      required: false
+      type: string
