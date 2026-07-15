@@ -36,7 +36,7 @@ groups:
           summary: "OpenSearch Guardian errors detected"                                                                                                                           
           description: "OpenSearch in namespace {{`{{ $labels.namespace }}`}} reported Guardian errors in the last 10 minutes"
       - alert: OpenSearchGuardianStatusStale                                                                                                                                            
-        expr: (time() - opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} / 1000) > 420 and opensearch_guardian_status{cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} > 0
+        expr: (time() - opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} / 1000) > 420 and opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} > 0
         for: 0m                                                                                                                                                                    
         labels:                                                                                                                                                                    
           severity: info # critical                                                                                                                                                           
