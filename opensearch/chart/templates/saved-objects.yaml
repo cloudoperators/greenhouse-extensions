@@ -59,10 +59,10 @@ data:
 
     {{- range $cfg.indexPatterns }}
     echo "applying index-pattern {{ .id }} (title={{ .title }})"
-    # Bake the field list into the saved object; Dashboards does not populate it
-    # on API create, which otherwise forces a manual "Refresh field list". When
-    # the backing index does not exist yet the field-caps call 404s; in that case
-    # the pattern is created without a field cache instead of failing.
+    # Bake the field list into the saved object. Dashboards does not populate it
+    # on API create, so patterns would otherwise start empty until a manual
+    # "Refresh field list". A missing backing index yields a 404, in which case
+    # the pattern is created without a field cache.
     curl -sS ${AUTH} -H osd-xsrf:true \
       "${DASHBOARDS}/api/index_patterns/_fields_for_wildcard?pattern={{ .title }}&meta_fields=_source&meta_fields=_id&meta_fields=_index&meta_fields=_score" \
       -o /tmp/fc.json || true
