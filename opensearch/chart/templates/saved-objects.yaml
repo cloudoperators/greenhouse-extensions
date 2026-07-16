@@ -3,7 +3,6 @@
 
 {{- if .Values.cluster.savedObjects.enabled }}
 {{- $cfg := .Values.cluster.savedObjects }}
-{{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
 {{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
 {{- $dashboardsHost := $cfg.dashboardsHost | default (printf "http://%s-dashboards:5601" $serviceName) }}
 {{- /* Reuse the cluster's OpenSearch image; it has curl + python3. */ -}}
@@ -34,7 +33,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $cmName }}
+  name: opensearch-saved-objects
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
@@ -83,12 +82,11 @@ data:
     {{- end }}
 
     echo "done"
-{{- $jobName := $cfg.jobName | default "opensearch-saved-objects" | trunc 63 | trimSuffix "-" }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $jobName }}
+  name: opensearch-saved-objects
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
@@ -149,7 +147,7 @@ spec:
       volumes:
         - name: scripts
           configMap:
-            name: {{ $cmName }}
+            name: opensearch-saved-objects
             defaultMode: 0755
         {{- range $importVolumes }}
         - name: {{ .vol }}
