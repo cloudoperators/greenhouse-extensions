@@ -251,7 +251,7 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
-          max_message_bytes: {{ .Values.openTelemetry.kafka.maxMessageBytes | int64 }}
+          max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
@@ -267,7 +267,7 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
-          max_message_bytes: {{ .Values.openTelemetry.kafka.maxMessageBytes | int64 }}
+          max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
