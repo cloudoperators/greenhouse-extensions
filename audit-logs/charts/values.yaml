@@ -115,6 +115,7 @@ auditLogs:
     #     enabled: bool                         # render this collector
     #     topic: <kafka-topic>                  # single Kafka topic consumed by this collector
     #     initialOffset: latest | earliest      # optional, defaults to latest
+    #     replicas: <int>                        # optional; per-collector replica count, falls back to ingesterCollector.replicas
     #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
     #     kafka: { brokers, protocol_version, encoding }  # optional override of auditLogs.logsCollector.kafka
     #     opensearch:

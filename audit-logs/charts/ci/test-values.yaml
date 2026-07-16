@@ -30,6 +30,7 @@ auditLogs:
       audit:
         enabled: true
         topic: audit
+        replicas: 2
         opensearch:
           endpoint: https://opensearch.test.svc.cluster.local:9200
           tls:
