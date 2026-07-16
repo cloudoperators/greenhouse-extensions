@@ -137,7 +137,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.transform" . | nindent 6 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.transform" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
@@ -206,7 +206,7 @@ spec:
             - tag_name: app.label.release
               key: release
               from: pod
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.labels" . | nindent 12 -}}
 {{- end }}
         pod_association:
@@ -319,7 +319,7 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 30s
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
 {{- end }}
@@ -341,9 +341,9 @@ spec:
     connectors:
       routing:
         default_pipelines:
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
           - logs/route_storage
-{{- else }}
+{{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
           - logs/route_default
 {{- end }}
         error_mode: ignore
@@ -379,7 +379,7 @@ spec:
           num_consumers: 2
           queue_size: 1000
           sizer: requests
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
       failover/opensearch_storage:
         priority_levels:
           - [logs/failover_a_storage]
@@ -466,18 +466,18 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "openstack.pipeline" . | nindent 8 -}}
-{{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
+{{- else if and .Values.openTelemetry.logsCollector.containerdConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "containerd.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
         logs/route_storage:
           receivers: [routing]
           processors: [transform/fix_log_attribute, batch]
