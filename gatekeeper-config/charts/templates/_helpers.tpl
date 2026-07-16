@@ -7,6 +7,12 @@ Shared Rego libraries inlined into every ConstraintTemplate.
   add_support_labels: annotates violation messages with the
     greenhouse.sap/owned-by label so reports can be routed to the right team.
 
+  helm_release: calls the helm-manifest-parser service to decode the
+    `data.release` blob in Helm release Secrets into a JSON manifest.
+
+  image_check: calls the doop-image-checker service to retrieve
+    vulnerability / base-image headers for a container image.
+
   traversal: walks the Kubernetes ownership chain (Pod, ReplicaSet,
     Deployment, etc.) so policies can target the workload owner instead of
     the synthesized Pod.
@@ -98,5 +104,125 @@ __extract_container_specs(pod) := result if {
 		object.get(pod.spec, "containers", []),
 		object.get(pod.spec, "initContainers", []),
 	)
+}
+{{- end }}
+
+{{- define "gatekeeper-config.lib.helm_release" -}}
+package lib.helm_release
+
+# Returns {"error": ""} for non-Helm Secrets so callers can short-circuit without
+# emitting violations. The Constraint should use match.labelSelector to filter
+# down to Helm release Secrets in the first place; this guard is a defence in
+# depth.
+parse_k8s_object(obj, baseURL) := result if {
+	not __is_helm_release(obj)
+	result := {"error": "", "items": [], "owner_info": {}}
+}
+
+parse_k8s_object(obj, baseURL) := result if {
+	__is_helm_release(obj)
+	url := sprintf("%s/v3", [baseURL])
+	resp := http.send({"url": url, "method": "POST", "raise_error": false, "raw_body": obj.data.release, "timeout": "15s"})
+	result := __parse_response(resp)
+}
+
+is_helm_release(obj) if __is_helm_release(obj)
+
+__is_helm_release(obj) if {
+	obj.kind == "Secret"
+	obj.type == "helm.sh/release.v1"
+}
+
+__is_helm_release(obj) := false if {
+	obj.kind != "Secret"
+}
+
+__is_helm_release(obj) := false if {
+	obj.type != "helm.sh/release.v1"
+}
+
+__parse_response(resp) := result if {
+	resp.status_code == 200
+	result := object.union(resp.body, {"error": ""})
+}
+
+__parse_response(resp) := result if {
+	resp.status_code != 200
+	object.get(resp, ["error", "message"], "") == ""
+	result := {"error": sprintf("helm-manifest-parser returned HTTP status %d, but we expected 200. Please retry in ~5 minutes.", [resp.status_code])}
+}
+
+__parse_response(resp) := result if {
+	resp.status_code != 200
+	msg := object.get(resp, ["error", "message"], "")
+	msg != ""
+	result := {"error": sprintf("Could not reach helm-manifest-parser (%q). Please retry in ~5 minutes.", [msg])}
+}
+{{- end }}
+
+{{- define "gatekeeper-config.lib.image_check" -}}
+package lib.image_check
+
+for_pod(pod, baseURL) := result if {
+	pod.kind != "Pod"
+	result := [{"error": "not a pod"}]
+}
+
+for_pod(pod, baseURL) := result if {
+	pod.kind == "Pod"
+
+	containerStatuses := array.concat(
+		object.get(pod, ["status", "containerStatuses"], []),
+		object.get(pod, ["status", "initContainerStatuses"], []),
+	)
+	result := [__run_check(c, baseURL, true) | c := containerStatuses[_]]
+}
+
+for_pod_template(podTemplate, baseURL) := result if {
+	containerSpecs := array.concat(
+		object.get(podTemplate, ["spec", "containers"], []),
+		object.get(podTemplate, ["spec", "initContainers"], []),
+	)
+	result := [__run_check(c, baseURL, false) | c := containerSpecs[_]]
+}
+
+__run_check(container, baseURL, hasImageID) := result if {
+	imageRef := __get_image_ref(container, hasImageID)
+	url := sprintf("%s/v1/headers?image=%s", [baseURL, imageRef])
+	resp := http.send({"url": url, "method": "GET", "raise_error": false, "timeout": "15s"})
+	result := __parse_response(container, resp)
+}
+
+__get_image_ref(container, hasImageID) := result if {
+	hasImageID
+	result := trim_prefix(container.imageID, "docker-pullable://")
+}
+
+__get_image_ref(container, hasImageID) := result if {
+	not hasImageID
+	result := container.image
+}
+
+__parse_response(container, resp) := result if {
+	resp.status_code == 200
+	result := {
+		"error": "",
+		"containerName": container.name,
+		"containerImage": container.image,
+		"headers": resp.body,
+	}
+}
+
+__parse_response(container, resp) := result if {
+	resp.status_code != 200
+	object.get(resp, ["error", "message"], "") == ""
+	result := {"error": sprintf("doop-image-checker returned HTTP status %d, but we expected 200. Please retry in ~5 minutes.", [resp.status_code])}
+}
+
+__parse_response(container, resp) := result if {
+	resp.status_code != 200
+	msg := object.get(resp, ["error", "message"], "")
+	msg != ""
+	result := {"error": sprintf("Could not reach doop-image-checker (%q). Please retry in ~5 minutes.", [msg])}
 }
 {{- end }}

@@ -213,6 +213,16 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+# Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
+# (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
+transform/syslog_observed_timestamp_fallback:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'time_unix_nano == 0'
+      statements:
+        - 'set(time_unix_nano, observed_time_unix_nano)'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}

@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-api
+  labels:
+    {{- include "doop-api.labels" . | nindent 4 }}
+spec:
+  revisionHistoryLimit: 5
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "doop-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "doop-api.selectorLabels" . | nindent 8 }}
+      annotations:
+        kubectl.kubernetes.io/default-container: api
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: {{ include "doop-api.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["doop-api"]
+          env:
+            - name: DOOP_API_DEBUG
+              value: "false"
+            - name: DOOP_API_LISTEN_ADDRESS
+              value: ":8080"
+            - name: DOOP_API_OBJECT_IDENTITY_LABELS
+              value: {{ .Values.objectIdentityLabels | join " " | quote }}
+            - name: DOOP_API_SWIFT_CONTAINER
+              value: {{ .Values.swift.container | quote }}
+            - name: OS_AUTH_URL
+              value: {{ .Values.swift.authURL | required ".Values.swift.authURL is required" | quote }}
+            - name: OS_AUTH_VERSION
+              value: "3"
+            - name: OS_IDENTITY_API_VERSION
+              value: "3"
+            - name: OS_USER_DOMAIN_NAME
+              value: {{ .Values.swift.userDomain | quote }}
+            - name: OS_USERNAME
+              value: {{ .Values.swift.username | required ".Values.swift.username is required" | quote }}
+            - name: OS_PROJECT_DOMAIN_NAME
+              value: {{ .Values.swift.projectDomain | quote }}
+            - name: OS_PROJECT_NAME
+              value: {{ .Values.swift.projectName | required ".Values.swift.projectName is required" | quote }}
+            - name: OS_REGION_NAME
+              value: {{ .Values.swift.region | required ".Values.swift.region is required" | quote }}
+            - name: OS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: swift_password
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            timeoutSeconds: 10
+            periodSeconds: 60
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

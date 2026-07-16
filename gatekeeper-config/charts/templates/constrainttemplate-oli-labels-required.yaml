@@ -1,0 +1,71 @@
+{{- if .Values.policies.oliLabelsRequired.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkolilabelsrequired
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkOliLabelsRequired
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            helmManifestParserURL:
+              type: string
+            knownExceptions:
+              type: array
+              items:
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.helm_release" . | indent 16 }}
+            rego: |
+              package olilabelsrequired
+
+              import data.lib.add_support_labels
+              import data.lib.helm_release
+
+              iro := input.review.object
+              release := helm_release.parse_k8s_object(iro, input.parameters.helmManifestParserURL)
+
+              violation contains {"msg": release.error} if {
+                  release.error != ""
+              }
+
+              # release_key is the "<namespace>/<release-name>" key used to look up
+              # entries in knownExceptions. The release name is read with object.get
+              # so a missing label leaves the key with an empty release name rather
+              # than leaving the rule unbound (which would also break is_exception).
+              release_key := sprintf("%s/%s", [iro.metadata.namespace, object.get(iro.metadata, ["labels", "name"], "")])
+
+              default is_exception := false
+
+              is_exception if {
+                  input.parameters.knownExceptions[_] == release_key
+              }
+
+              violation contains {"msg": add_support_labels.from_helm_release(release, msg)} if {
+                  release.error == ""
+                  not is_exception
+
+                  helm_release.is_helm_release(iro)
+
+                  owned_by := object.get(release, ["owner_info", "owned-by"], "")
+                  owned_by == ""
+
+                  msg := "Helm release is missing greenhouse.sap/owned-by label. Ensure Owner Label Injector is running and has labelled this namespace."
+              }
+{{- end }}

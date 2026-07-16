@@ -49,5 +49,34 @@ policies:
     enabled: false
     enforcementAction: dryrun
 
+  # requires gatekeeper-doop: helmManifestParserURL must be set
+  deprecatedApiVersion:
+    enabled: false
+    enforcementAction: dryrun
+    helmManifestParserURL: ""
+
+  # requires gatekeeper-doop: helmManifestParserURL must be set
+  oliLabelsRequired:
+    enabled: false
+    enforcementAction: dryrun
+    helmManifestParserURL: ""
+    knownExceptions: []
+    excludedNamespaces: []
+
+  # requires gatekeeper-doop: imageCheckerURL must be set
+  outdatedImageBases:
+    enabled: false
+    enforcementAction: dryrun
+    imageCheckerURL: ""
+    createdAtHeader: ""
+    maxAgeDays: 365
+
+  # requires gatekeeper-doop: imageCheckerURL must be set
+  vulnerableImages:
+    enabled: false
+    enforcementAction: dryrun
+    imageCheckerURL: ""
+    vulnStatusHeader: ""
+
 tests:
   enabled: false

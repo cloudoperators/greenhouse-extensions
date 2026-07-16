@@ -4,8 +4,8 @@
 apiVersion: v2
 description: Helm chart deploying OPA Gatekeeper ConstraintTemplates and Constraints for Kubernetes admission control.
 name: gatekeeper-config
-version: 0.3.0
-appVersion: 0.3.0
+version: 0.4.1
+appVersion: 0.4.1
 icon: https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/logo/gatekeeper-horizontal-color.png
 keywords:
   - gatekeeper

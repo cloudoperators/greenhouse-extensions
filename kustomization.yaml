@@ -6,10 +6,12 @@ resources:
   - audit-logs/plugindefinition.yaml
   - blackbox-exporter/plugindefinition.yaml
   - cert-manager/plugindefinition.yaml
+  - doop-api/plugindefinition.yaml
   - exposed-services/plugindefinition.yaml
   - external-dns/plugindefinition.yaml
   - gatekeeper/plugindefinition.yaml
   - gatekeeper-config/plugindefinition.yaml
+  - gatekeeper-doop/plugindefinition.yaml
   - repo-guard/plugindefinition.yaml
   - ingress-nginx/plugindefinition.yaml
   - kafka/plugindefinition.yaml

@@ -15,10 +15,10 @@ plugindefinition: audit-logs
 
 {{/* Generate prometheus specific labels */}}
 {{- define "plugin.prometheusLabels" }}
-{{- if and .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.additionalLabels }}
+{{- if .Values.auditLogs.prometheus.additionalLabels }}
 {{- tpl (toYaml .Values.auditLogs.prometheus.additionalLabels) . }}
 {{- end }}
-{{- if and .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.rules.labels }}
+{{- if .Values.auditLogs.prometheus.rules.labels }}
 {{ tpl (toYaml .Values.auditLogs.prometheus.rules.labels) . }}
 {{- end }}
 {{- end }}
