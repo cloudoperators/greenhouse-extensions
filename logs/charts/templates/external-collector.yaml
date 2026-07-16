@@ -31,6 +31,10 @@ spec:
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
+    - name: KUBE_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
 {{- if not .Values.openTelemetry.kafka.enabled }}
   envFrom:
     - secretRef:
@@ -261,16 +265,13 @@ spec:
                   without_type_suffix: false
                   with_resource_constant_labels:
                     included:
+                    - k8s_node_name
                     - k8s_cluster_name
                     - region
         resource:
-          attributes:
-            - name: k8s_cluster_name
-              value: ${cluster}
-            - name: k8s_node_name
-              value: ${KUBE_NODE_NAME}
-            - name: region
-              value: ${region}
+          k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
+          region: ${region}
 {{- end }}
       pipelines:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
