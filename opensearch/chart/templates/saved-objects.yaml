@@ -58,18 +58,15 @@ data:
 
     {{- range $cfg.indexPatterns }}
     echo "applying index-pattern {{ .id }} (title={{ .title }})"
-    # Bake the field list into the saved object. Dashboards does not populate it
-    # on API create, so patterns would otherwise start empty until a manual
-    # "Refresh field list". A missing backing index yields a 404, in which case
-    # the pattern is created without a field cache. Any other HTTP error fails
-    # the Job so it is retried instead of silently caching no fields.
+    # Fetch field caps for build-body.py. 404 = backing index absent (patterns
+    # get no field cache); any other error fails the Job so it is retried.
     code=$(curl -sS ${AUTH} -H osd-xsrf:true -o /tmp/fc.json -w '%{http_code}' \
       "${DASHBOARDS}/api/index_patterns/_fields_for_wildcard?pattern={{ .title }}&meta_fields=_source&meta_fields=_id&meta_fields=_index&meta_fields=_score")
     if [ "$code" != "200" ] && [ "$code" != "404" ]; then
       echo "field caps for {{ .title }} failed with HTTP $code" >&2
       exit 1
     fi
-    TITLE={{ .title | quote }} TIMEFIELD={{ .timeFieldName | default "" | quote }} python3 -c 'import json,os,sys; raw=open("/tmp/fc.json").read().strip(); d=json.loads(raw) if raw.startswith("{") else {}; f=d.get("fields",[]); a={"title":os.environ["TITLE"]}; a.update({"timeFieldName":os.environ["TIMEFIELD"]} if os.environ["TIMEFIELD"] else {}); a.update({"fields":json.dumps(f)} if f else {}); json.dump({"attributes":a},open("/tmp/body.json","w")); sys.stderr.write("baked %d fields\n"%len(f))'
+    TITLE={{ .title | quote }} TIMEFIELD={{ .timeFieldName | default "" | quote }} python3 /scripts/build-body.py
     ${CURL} -H 'Content-Type: application/json' \
       -X POST "${DASHBOARDS}/api/saved_objects/index-pattern/{{ .id }}?overwrite=true" \
       --data @/tmp/body.json >/dev/null
@@ -82,6 +79,8 @@ data:
     {{- end }}
 
     echo "done"
+  build-body.py: |
+{{ .Files.Get "files/saved-objects/build-body.py" | indent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
