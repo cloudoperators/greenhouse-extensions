@@ -468,7 +468,7 @@ spec:
 {{- end }}
 {{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
     {{- include "openstack.pipeline" . | nindent 8 -}}
-{{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
+{{- else if and .Values.openTelemetry.logsCollector.containerdConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "containerd.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
