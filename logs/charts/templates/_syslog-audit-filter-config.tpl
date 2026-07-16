@@ -48,6 +48,24 @@ attributes/syslog_audit_failover_username_b:
 {{- end }}
 {{/*
   ============================================================================
+  Extract forwarded_by attribute from message body
+  Logs forwarded via Logstash have "forwarded_by=octobus_logstash" appended
+  to the message. This extracts it into a proper attribute and removes it
+  from the message body.
+  ============================================================================
+*/}}
+transform/syslog_forwarded_by:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] != nil and IsMatch(attributes["message"], ".*forwarded_by=octobus_logstash.*")'
+        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
+        - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
+        - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+
+{{/*
+  ============================================================================
   Early drop of non-audit-relevant messages
   ============================================================================
 */}}
@@ -195,6 +213,16 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+# Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
+# (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
+transform/syslog_observed_timestamp_fallback:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'time_unix_nano == 0'
+      statements:
+        - 'set(time_unix_nano, observed_time_unix_nano)'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}

@@ -17,3 +17,11 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ . | toYaml }}
 {{- end -}}
 {{- end -}}
+
+{{- define "opensearch.guardianEnabled" -}}
+{{- range .Values.cluster.cluster.general.pluginsList -}}
+  {{- if contains "guardian" . -}}
+    true
+  {{- end -}}
+{{- end -}}
+{{- end -}}

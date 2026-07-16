@@ -120,6 +120,10 @@ operator:
     runAsNonRoot: true
   priorityClassName: ""
   manager:
+    # By default the operator binds its metrics endpoint to the loopback interface.
+    # To expose metrics, set this to ":8443". When exposing metrics, Prometheus may need ClusterRole/ClusterRoleBinding
+    # to authenticate/authorize against the /metrics endpoint
+    metricsBindAddress: "127.0.0.1:8080"
     securityContext:
       allowPrivilegeEscalation: false
     extraEnv: []

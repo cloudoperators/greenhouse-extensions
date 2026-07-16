@@ -93,16 +93,16 @@ spec:
 {{- end }}
     processors:
       batch:
-        send_batch_max_size: 5000
-        timeout: 30s
-        send_batch_size: 100
+        send_batch_max_size: {{ dig "batch" "sendBatchMaxSize" 5000 .Values.openTelemetry.logsCollector }}
+        timeout: {{ dig "batch" "timeout" "30s" .Values.openTelemetry.logsCollector | quote }}
+        send_batch_size: {{ dig "batch" "sendBatchSize" 100 .Values.openTelemetry.logsCollector }}
       transform/fix_log_attribute:
         error_mode: ignore
         log_statements:
           - context: log
             statements:
-              - set(attributes["log_message"], attributes["log"]) where attributes["log"] != nil
-              - delete_key(attributes, "log") where attributes["log"] != nil
+              - set(log.attributes["log_message"], log.attributes["log"]) where log.attributes["log"] != nil
+              - delete_key(log.attributes, "log") where log.attributes["log"] != nil
       attributes/cluster:
         actions:
           - action: insert
@@ -388,7 +388,7 @@ spec:
         sending_queue:
           block_on_overflow: true
           enabled: true
-          num_consumers: 2
+          num_consumers: 10
           queue_size: 10000
           sizer: requests
 {{- end }}
@@ -419,9 +419,13 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: k8s_node_name
+              value: ${KUBE_NODE_NAME}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
         logs/route_default:

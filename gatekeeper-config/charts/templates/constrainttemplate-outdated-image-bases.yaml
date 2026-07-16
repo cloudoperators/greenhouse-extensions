@@ -1,0 +1,87 @@
+{{- if .Values.policies.outdatedImageBases.enabled }}
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: gkoutdatedimagebases
+spec:
+  crd:
+    spec:
+      names:
+        kind: GkOutdatedImageBases
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            doopImageCheckerURL:
+              type: string
+            createdAtHeader:
+              type: string
+            maxAgeDays:
+              type: integer
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      code:
+        - engine: Rego
+          source:
+            version: "v1"
+            libs:
+              - |
+{{ include "gatekeeper-config.lib.add_support_labels" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.image_check" . | indent 16 }}
+              - |
+{{ include "gatekeeper-config.lib.traversal" . | indent 16 }}
+            rego: |
+              package outdatedimagebases
+
+              import data.lib.add_support_labels
+              import data.lib.image_check
+              import data.lib.traversal
+
+              iro := input.review.object
+              pod := traversal.find_pod(iro)
+              checks := image_check.for_pod_template(pod, input.parameters.doopImageCheckerURL)
+
+              violation contains {"msg": check.error} if {
+                  pod.isFound
+                  check := checks[_]
+                  check.error != ""
+              }
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+                  check := checks[_]
+                  check.error == ""
+
+                  createdAt := trim_space(object.get(check.headers, input.parameters.createdAtHeader, ""))
+                  regex.match(`^[0-9]+$`, createdAt)
+                  createdAtAsUnixTime := to_number(createdAt)
+
+                  nowAsUnixTime := time.now_ns() / 1000000000
+                  ageInSeconds := nowAsUnixTime - createdAtAsUnixTime
+                  ageInDays := ageInSeconds / 86400
+                  ageInDays > input.parameters.maxAgeDays
+
+                  msg := sprintf(
+                      "image %s for container %q uses a very old base image (oldest layer is %.0f days old)",
+                      [check.containerImage, check.containerName, ageInDays],
+                  )
+              }
+
+              violation contains {"msg": add_support_labels.from_k8s_object(iro, msg)} if {
+                  pod.isFound
+                  check := checks[_]
+                  check.error == ""
+
+                  createdAt := trim_space(object.get(check.headers, input.parameters.createdAtHeader, ""))
+                  not regex.match(`^[0-9]+$`, createdAt)
+
+                  msg := sprintf(
+                      "image %s for container %q returned no valid %q header from doop-image-checker (got %q)",
+                      [check.containerImage, check.containerName, input.parameters.createdAtHeader, createdAt],
+                  )
+              }
+{{- end }}
