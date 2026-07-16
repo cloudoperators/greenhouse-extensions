@@ -466,7 +466,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "openstack.pipeline" . | nindent 8 -}}
 {{- else if and .Values.openTelemetry.logsCollector.containerdConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "containerd.pipeline" . | nindent 8 -}}
@@ -474,7 +474,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
