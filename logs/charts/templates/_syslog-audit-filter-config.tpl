@@ -338,11 +338,11 @@ kafka/syslog_audit:
   producer:
     compression: {{ .Values.openTelemetry.kafka.compression }}
     max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
-    flush_max_messages: {{ dig "producer" "flushMaxMessages" 10000 .Values.openTelemetry.kafka | int64 }}
-    linger: {{ dig "producer" "linger" "10ms" .Values.openTelemetry.kafka | quote }}
+    flush_max_messages: {{ .Values.openTelemetry.kafka.producer.flushMaxMessages | int64 }}
+    linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
   sending_queue:
-    enabled: {{ dig "sendingQueue" "enabled" true .Values.openTelemetry.kafka }}
-    queue_size: {{ dig "sendingQueue" "queueSize" 1000 .Values.openTelemetry.kafka | int64 }}
+    enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false
@@ -359,11 +359,11 @@ kafka/syslog_non_audit:
   producer:
     compression: {{ .Values.openTelemetry.kafka.compression }}
     max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
-    flush_max_messages: {{ dig "producer" "flushMaxMessages" 10000 .Values.openTelemetry.kafka | int64 }}
-    linger: {{ dig "producer" "linger" "10ms" .Values.openTelemetry.kafka | quote }}
+    flush_max_messages: {{ .Values.openTelemetry.kafka.producer.flushMaxMessages | int64 }}
+    linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
   sending_queue:
-    enabled: {{ dig "sendingQueue" "enabled" true .Values.openTelemetry.kafka }}
-    queue_size: {{ dig "sendingQueue" "queueSize" 1000 .Values.openTelemetry.kafka | int64 }}
+    enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false
