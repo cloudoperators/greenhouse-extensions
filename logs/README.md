@@ -146,9 +146,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.enabled | bool | `false` | Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering) |
 | openTelemetry.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | openTelemetry.kafka.max_message_bytes | int | `1000000` | Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes. |
-| openTelemetry.kafka.producer | object | `{"flushMaxMessages":10000,"linger":"100ms"}` | Producer batching (raise linger to build larger batches per broker request) |
+| openTelemetry.kafka.producer | object | `{"flushMaxMessages":10000,"linger":"10ms"}` | Producer batching (raise linger to build larger batches per broker request) |
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
-| openTelemetry.kafka.sendingQueue | object | `{"queueSize":10000}` | Producer sending queue size |
+| openTelemetry.kafka.sendingQueue | object | `{"queueSize":1000}` | Producer sending queue size |
 | openTelemetry.kafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.logsCollector.batch | object | `{"sendBatchMaxSize":5000,"sendBatchSize":100,"timeout":"30s"}` | Batch processor settings for the logs collector. |

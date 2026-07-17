@@ -88,11 +88,11 @@ openTelemetry:
     max_message_bytes: 1000000
     # -- Producer sending queue size
     sendingQueue:
-      queueSize: 10000
+      queueSize: 1000
     # -- Producer batching (raise linger to build larger batches per broker request)
     producer:
       flushMaxMessages: 10000
-      linger: 100ms
+      linger: 10ms
     # -- TLS configuration for Kafka connections
     tls:
       # -- Enable TLS for Kafka connections
