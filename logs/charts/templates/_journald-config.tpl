@@ -50,6 +50,7 @@ transform/journal:
         - set(log.attributes["user.id"], log.cache["_UID"])
         - set(log.attributes["cursor"], log.cache["__CURSOR"])
         - set(log.attributes["monotonic_timestamp"], log.cache["__MONOTONIC_TIMESTAMP"])
+        - set(log.attributes["pstore.file"], log.cache["FILE"]) where log.cache["FILE"] != nil
         - delete_key(log.attributes, "log.cache")
 {{- end }}
 

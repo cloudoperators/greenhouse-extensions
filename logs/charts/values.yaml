@@ -83,6 +83,8 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
+    # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1000000
     # -- TLS configuration for Kafka connections
     tls:
       # -- Enable TLS for Kafka connections

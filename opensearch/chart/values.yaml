@@ -941,7 +941,9 @@ cluster:
     #   # Optional override for the convert_index_to_remote rename_pattern.
     #   # Default is `remote_{name}_$1`.
     #   # renamePattern: "remote_my-stream_$1"
-    #   minSize: "50gb"
+    #   # Rollover trigger: one of minPrimaryShardSize (largest single primary
+    #   # shard) or minSize (total primary storage).
+    #   minPrimaryShardSize: "40gb"
     #   retention:
     #     local: "7d"
     #     remote: "31d"

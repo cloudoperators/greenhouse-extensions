@@ -7,24 +7,6 @@
     "states": [
       {
         "name": "initial",
-        "actions": [],
-        "transitions": [
-          {
-            "state_name": "rollover",
-            "conditions": {
-              "min_index_age": "{{ .stream.retention.local }}"
-            }
-          },
-          {
-            "state_name": "rollover",
-            "conditions": {
-              "min_size": "{{ .stream.minSize }}"
-            }
-          }
-        ]
-      },
-      {
-        "name": "rollover",
         "actions": [
           {
             "retry": {
@@ -33,8 +15,13 @@
               "delay": "1m"
             },
             "rollover": {
-              "min_doc_count": 5,
-              "min_index_age": "1d",
+{{- if .stream.minPrimaryShardSize }}
+              "min_primary_shard_size": "{{ .stream.minPrimaryShardSize }}",
+{{- else }}
+              "min_size": "{{ .stream.minSize }}",
+{{- end }}
+              "min_index_age": "{{ .stream.retention.local }}",
+              "prevent_empty_rollover": true,
               "copy_alias": false
             }
           }

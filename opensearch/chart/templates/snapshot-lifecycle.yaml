@@ -82,7 +82,7 @@ volumes:
 {{- range $stream := $cfg.streams }}
   {{- $_ := required (printf "snapshotLifecycle.streams[%s].name is required" $stream.name) $stream.name }}
   {{- $_ := required (printf "snapshotLifecycle.streams[%s].repository is required" $stream.name) $stream.repository }}
-  {{- $_ := required (printf "snapshotLifecycle.streams[%s].minSize is required" $stream.name) $stream.minSize }}
+  {{- $_ := required (printf "snapshotLifecycle.streams[%s]: one of minPrimaryShardSize or minSize is required" $stream.name) (or $stream.minPrimaryShardSize $stream.minSize) }}
   {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns is required" $stream.name) $stream.indexPatterns }}
   {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.hot is required" $stream.name) $stream.indexPatterns.hot }}
   {{- $_ := required (printf "snapshotLifecycle.streams[%s].indexPatterns.remote is required" $stream.name) $stream.indexPatterns.remote }}

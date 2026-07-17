@@ -140,11 +140,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
 | openTelemetry.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
 | openTelemetry.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
-| openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","protocol_version":"","tls":{"enabled":false}}` | Kafka exporter configuration shared by all collectors |
+| openTelemetry.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"enabled":false}}` | Kafka exporter configuration shared by all collectors |
 | openTelemetry.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | openTelemetry.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.kafka.enabled | bool | `false` | Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering) |
 | openTelemetry.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
+| openTelemetry.kafka.max_message_bytes | int | `1000000` | Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes. |
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.kafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
