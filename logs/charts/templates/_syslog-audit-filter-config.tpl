@@ -341,7 +341,7 @@ kafka/syslog_audit:
     flush_max_messages: {{ dig "producer" "flushMaxMessages" 10000 .Values.openTelemetry.kafka | int64 }}
     linger: {{ dig "producer" "linger" "10ms" .Values.openTelemetry.kafka | quote }}
   sending_queue:
-    enabled: true
+    enabled: {{ dig "sendingQueue" "enabled" true .Values.openTelemetry.kafka }}
     queue_size: {{ dig "sendingQueue" "queueSize" 1000 .Values.openTelemetry.kafka | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
@@ -362,7 +362,7 @@ kafka/syslog_non_audit:
     flush_max_messages: {{ dig "producer" "flushMaxMessages" 10000 .Values.openTelemetry.kafka | int64 }}
     linger: {{ dig "producer" "linger" "10ms" .Values.openTelemetry.kafka | quote }}
   sending_queue:
-    enabled: true
+    enabled: {{ dig "sendingQueue" "enabled" true .Values.openTelemetry.kafka }}
     queue_size: {{ dig "sendingQueue" "queueSize" 1000 .Values.openTelemetry.kafka | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:

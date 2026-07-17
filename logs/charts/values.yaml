@@ -88,6 +88,7 @@ openTelemetry:
     max_message_bytes: 1000000
     # -- Producer sending queue size
     sendingQueue:
+      enabled: true
       queueSize: 1000
     # -- Producer batching (raise linger to build larger batches per broker request)
     producer:
