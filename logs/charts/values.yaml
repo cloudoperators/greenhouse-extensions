@@ -72,6 +72,7 @@ openTelemetry:
   # -- Region label for Logging
   region:
   # -- Kafka exporter configuration shared by all collectors
+  # @default -- See values.yaml
   kafka:
     # -- Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering)
     enabled: false
