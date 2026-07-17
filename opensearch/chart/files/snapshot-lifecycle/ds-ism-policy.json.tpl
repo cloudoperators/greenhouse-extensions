@@ -18,7 +18,7 @@
           {
             "state_name": "rollover",
             "conditions": {
-              "min_size": "{{ .stream.minSize }}"
+              "min_primary_shard_size": "{{ .stream.minPrimaryShardSize }}"
             }
           }
         ]
