@@ -15,6 +15,10 @@ metadata:
   {{- end }}
 spec:
   mode: deployment
+{{- with .Values.openTelemetry.metricsCollector.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   podAnnotations:
     prometheus.io/scrape: "false"
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}

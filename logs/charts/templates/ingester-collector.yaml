@@ -20,6 +20,10 @@ metadata:
 spec:
   mode: deployment
   replicas: {{ dig "replicas" $root.Values.openTelemetry.ingesterCollector.replicas $cfg }}
+{{- with (dig "affinity" $root.Values.openTelemetry.ingesterCollector.affinity $cfg) }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/reload: "logs-ingester-{{ $name }}-auth"

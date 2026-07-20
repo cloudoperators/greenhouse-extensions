@@ -101,6 +101,21 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Pod affinity rules for the logs collector CR
+    # @default -- See values.yaml
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cloud.sap/deployment-state
+              operator: NotIn
+              values:
+              - reinstalling
+            - key: cloud.sap/esx-in-maintenance
+              operator: NotIn
+              values:
+              - alarm
     # -- Batch processor settings for the logs collector.
     batch:
       # -- Flush when this many records are buffered (raise for larger downstream batches).
@@ -132,11 +147,14 @@ openTelemetry:
     openstackConfig:
       enabled: false
   # -- Standalone external OTel Collector as StatefulSet.
+  # @default -- See values.yaml
   externalCollector:
     # -- Enables the standalone external OTel Collector StatefulSet and its PodMonitor.
     enabled: false
     # -- Number of replicas for the external collector StatefulSet
     replicas: 2
+    # -- Pod affinity rules for the external collector CR
+    affinity: {}
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -210,6 +228,8 @@ openTelemetry:
   ingesterCollector:
     # -- Enable the ingest collectors block.
     enabled: false
+    # -- Pod affinity rules for the ingester collector CRs
+    affinity: {}
     # -- Replica count per ingest collector Deployment.
     replicas: 1
     image:
@@ -243,6 +263,8 @@ openTelemetry:
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
+    # -- Pod affinity rules for the metrics collector CR
+    affinity: {}
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:

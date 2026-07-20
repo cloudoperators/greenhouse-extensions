@@ -16,6 +16,10 @@ metadata:
 spec:
   mode: statefulset
   replicas: {{ .Values.openTelemetry.externalCollector.replicas }}
+{{- with .Values.openTelemetry.externalCollector.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}

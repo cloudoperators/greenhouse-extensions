@@ -97,7 +97,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
 | openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
-| openTelemetry.externalCollector | object | `{"calicoLoadBalancerIP":false,"enabled":false,"externalConfig":{"alertmanager_port":1515,"deployments_port":1516,"enabled":false},"externalIP":null,"externalTrafficPolicy":"Local","kafkaTopic":"","kafkaTracesTopic":"","replicas":2,"serviceAnnotations":{},"serviceType":"LoadBalancer","syslogConfig":{"auditKafkaTopic":"","enabled":false,"nonAuditKafkaTopic":"","openSearchLogs":{"auditEndpoint":"","audit_failover_password_a":"","audit_failover_password_b":"","audit_failover_username_a":"","audit_failover_username_b":"","nonAuditEndpoint":""},"tcp_port":514,"udp_port":514},"syslogTLSConfig":{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514},"tracesConfig":{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}}` | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
+| openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
 | openTelemetry.externalCollector.calicoLoadBalancerIP | bool | `false` | Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP |
 | openTelemetry.externalCollector.enabled | bool | `false` | Enables the standalone external OTel Collector StatefulSet and its PodMonitor. |
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
@@ -133,6 +134,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
 | openTelemetry.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors. One Deployment per entry. |
+| openTelemetry.ingesterCollector.affinity | object | `{}` | Pod affinity rules for the ingester collector CRs |
 | openTelemetry.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
 | openTelemetry.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
 | openTelemetry.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to openTelemetry.collectorImage.repository. |
@@ -151,6 +153,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.sendingQueue | object | `{"enabled":true,"queueSize":1000}` | Producer sending queue size |
 | openTelemetry.kafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
+| openTelemetry.logsCollector.affinity | object | See values.yaml | Pod affinity rules for the logs collector CR |
 | openTelemetry.logsCollector.batch | object | `{"sendBatchMaxSize":5000,"sendBatchSize":100,"timeout":"30s"}` | Batch processor settings for the logs collector. |
 | openTelemetry.logsCollector.batch.sendBatchMaxSize | int | `5000` | Hard cap on records per batch. |
 | openTelemetry.logsCollector.batch.sendBatchSize | int | `100` | Flush when this many records are buffered (raise for larger downstream batches). |
@@ -164,7 +167,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafkaTopic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
-| openTelemetry.metricsCollector | object | `{"enabled":false}` | Activates the standard configuration for metrics. |
+| openTelemetry.metricsCollector | object | `{"affinity":{},"enabled":false}` | Activates the standard configuration for metrics. |
+| openTelemetry.metricsCollector.affinity | object | `{}` | Pod affinity rules for the metrics collector CR |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | openTelemetry.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
 | openTelemetry.openSearchLogs.failover_password_b | string | `nil` | Second Password (as a failover) for OpenSearch endpoint |

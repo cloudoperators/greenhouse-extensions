@@ -23,19 +23,10 @@ spec:
     secret.reloader.stakater.com/reload: "otel-basic-auth"
 {{- end }}
     prometheus.io/scrape: "false"
+{{- with .Values.openTelemetry.logsCollector.affinity }}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: cloud.sap/deployment-state
-            operator: NotIn
-            values:
-            - reinstalling
-          - key: cloud.sap/esx-in-maintenance
-            operator: NotIn
-            values:
-            - alarm
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   terminationGracePeriodSeconds: 10
   env:
     - name: NAMESPACE
