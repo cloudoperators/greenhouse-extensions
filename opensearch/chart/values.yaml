@@ -963,10 +963,8 @@ cluster:
       name: dashboards-credentials
       usernameKey: username
       passwordKey: password
-    # -- Job image. Needs `curl` and a POSIX `sh`.
+    # -- Image pull policy for the Job. Image is the cluster's OpenSearch image.
     image:
-      repository: docker.io/curlimages/curl
-      tag: "8.10.1"
       pullPolicy: IfNotPresent
     # -- Job pod resources.
     resources: {}
@@ -984,10 +982,6 @@ cluster:
     waitTimeoutSeconds: 300
     # -- Seconds to keep finished Job pods before garbage collection.
     ttlSecondsAfterFinished: 86400
-    # -- Override Job name (default `opensearch-saved-objects`).
-    jobName: ""
-    # -- Override ConfigMap name (default `opensearch-saved-objects`).
-    configMapName: ""
     # -- Index patterns to upsert by id.
     indexPatterns: []
     # - id: logs
