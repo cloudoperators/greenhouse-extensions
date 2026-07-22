@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
+# additionalLabels: extra labels merged into the common label set applied to
+# every resource this chart renders (and the runtime worker Deployment template).
+additionalLabels: {}
+
 harvest:
   image:
     repository:
@@ -98,10 +102,8 @@ apps:
 finalizers:
   - dme-storage/prevent-deletion
 
-owner-info:
-  support-group: storage
-  service: netapp-monitoring
-  maintainers:
-    - Ganesh Kugulakrishnan
-    - Chandrakanth Renduchintala
-  helm-chart-url: https://github.com/sapcc/helm-charts/tree/master/prometheus-exporters/netapp-monitoring
+# extraManifests: arbitrary additional manifests to render with the chart.
+# Each entry must be a YAML object/map (a full Kubernetes manifest), not a raw
+# YAML string. Entries are passed through Helm templating (tpl) so they may
+# reference chart values.
+extraManifests: []

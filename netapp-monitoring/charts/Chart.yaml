@@ -5,14 +5,10 @@ apiVersion: v2
 name: netapp-monitoring
 description: A Helm chart for harvest.io - https://github.com/NetApp/harvest
 type: application
-version: 1.0.2
+version: 1.0.3
 
 # * Release tag of Harvest - https://github.com/NetApp/harvest/releases
 appVersion: "25.11.0"
 maintainers:
   - name: Ganesh Kugulakrishnan
   - name: Chandrakanth Renduchintala
-dependencies:
-  - name: owner-info
-    repository: oci://keppel.eu-de-1.cloud.sap/ccloud-helm
-    version: 1.0.0

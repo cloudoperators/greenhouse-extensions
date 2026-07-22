@@ -45,6 +45,7 @@ spec:
         app: {{ include "netapp-monitoring.fullname" . }}-{{ .appName }}-worker
         # netappsd runtime: per-filer pod identity, filled by the master.
         name: {{`{{ .Name }}`}}
+        {{- include "netapp-monitoring.additionalLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:

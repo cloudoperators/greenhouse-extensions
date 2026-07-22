@@ -28,6 +28,7 @@ spec:
       labels:
         app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
         name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+        {{- include "netapp-monitoring.additionalLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:

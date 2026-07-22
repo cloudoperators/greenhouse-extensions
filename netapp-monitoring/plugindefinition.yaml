@@ -6,13 +6,13 @@ kind: PluginDefinition
 metadata:
   name: netapp-monitoring
 spec:
-  version: 1.0.2
+  version: 1.0.3
   displayName: NetApp Monitoring
   description: Helm chart for NetApp storage monitoring using harvest.io
   helmChart:
     name: netapp-monitoring
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts/netapp-monitoring
-    version: 1.0.2
+    version: 1.0.3
   options:
     - name: harvest.image.repository
       description: Harvest container image repository
@@ -80,3 +80,11 @@ spec:
       description: "Map of apps to enable (e.g. cinder, manila, apod, cinder-manila)"
       required: false
       type: map
+    - name: additionalLabels
+      description: "Extra labels merged into the common label set applied to every rendered resource (e.g. ccloud/service, ccloud/support-group)"
+      required: false
+      type: map
+    - name: extraManifests
+      description: "List of additional Kubernetes manifests to render alongside the chart. Each list item must be a YAML object/map (a full manifest), not a raw YAML string; entries are passed through Helm templating so they may reference chart values."
+      required: false
+      type: list

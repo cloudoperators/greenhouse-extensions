@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Renders arbitrary user-supplied manifests from .Values.extraManifests.
+# Replaces the owner-info subchart: use it to ship owner-info / support-group
+# metadata objects alongside the chart. Each list entry is a full manifest and
+# is passed through `tpl` so it may reference chart values.
+{{- range .Values.extraManifests }}
+---
+{{ tpl (toYaml .) $ }}
+{{- end }}

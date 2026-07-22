@@ -44,6 +44,18 @@ helm.sh/chart: {{ include "netapp-monitoring.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- include "netapp-monitoring.additionalLabels" . }}
+{{- end }}
+
+{{/*
+User-supplied additional labels, quoted so non-string scalars (numbers/bools)
+render as valid metadata.labels strings. Included both in the common label set
+and directly in pod templates so worker/master pods inherit them too.
+*/}}
+{{- define "netapp-monitoring.additionalLabels" -}}
+{{- range $k, $v := .Values.additionalLabels }}
+{{ $k }}: {{ $v | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
