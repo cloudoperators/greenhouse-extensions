@@ -408,6 +408,9 @@ thanos:
         # name: kube-monitoring-prometheus
         # key: object-storage-configs.yaml
 
+    # -- Name of the Secret containing tls.crt and tls.key to enable TLS on the ruler gRPC port (10901).
+    grpcTlsSecretName: ""
+
     # -- Resource requests and limits for the Thanos Ruler container.
     resources: {}
 

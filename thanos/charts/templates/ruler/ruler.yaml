@@ -91,16 +91,35 @@ spec:
     key: alertManagerConfig.yaml # Key name for Alertmanager config YAML
     name: thanos-ruler-{{ include "release.name" . }}-alertmanager-config # Secret name containing Alertmanager config
   {{- end }}
-  {{- if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
+  {{- if or (and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled) .Values.thanos.ruler.grpcTlsSecretName }}
   containers:
     - name: thanos-ruler
       volumeMounts:
+        {{- if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
         - mountPath: /etc/thanos/secrets/thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
           name: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
           readOnly: true
+        {{- end }}
+        {{- if .Values.thanos.ruler.grpcTlsSecretName }}
+        - mountPath: /etc/thanos/grpc-server-tls
+          name: grpc-server-tls
+          readOnly: true
+        {{- end }}
   volumes:
+    {{- if and .Values.thanos.ruler.alertmanagers.authentication.enabled .Values.thanos.ruler.alertmanagers.enabled }}
     - name: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
       secret:
         secretName: thanos-ruler-{{ include "release.name" . }}-alertmanager-sso-cert
+    {{- end }}
+    {{- if .Values.thanos.ruler.grpcTlsSecretName }}
+    - name: grpc-server-tls
+      secret:
+        secretName: {{ .Values.thanos.ruler.grpcTlsSecretName }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.thanos.ruler.grpcTlsSecretName }}
+  grpcServerTlsConfig:
+    certFile: /etc/thanos/grpc-server-tls/tls.crt
+    keyFile: /etc/thanos/grpc-server-tls/tls.key
   {{- end }}
 {{- end }}

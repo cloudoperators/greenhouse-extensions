@@ -3,4 +3,4 @@ dependencies:
   repository: https://thanos-community.github.io/helm-charts/
   version: 0.23.1
 digest: sha256:44f062d84fcc7c22abbaf351c47e340c92c2b694bac7b9b42780f414b8952f62
-generated: "2026-07-02T09:44:27.819644+02:00"
+generated: "2026-07-15T11:05:23.376+02:00"
