@@ -177,6 +177,8 @@ logs/syslog_tcp:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
@@ -193,6 +195,8 @@ logs/syslog_udp:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
@@ -211,6 +215,8 @@ logs/syslog_tcp_tls:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
