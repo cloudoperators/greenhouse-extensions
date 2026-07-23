@@ -59,6 +59,13 @@ openTelemetry:
   externalCollector:
     enabled: true
     replicas: 2
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: external-collector
     externalIP: 10.0.0.1
     kafkaTopic: "logs"
     kafkaTracesTopic: "traces"
@@ -93,6 +100,13 @@ openTelemetry:
   ingesterCollector:
     enabled: true
     replicas: 1
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: logs-ingester
     prometheus:
       podMonitor:
         enabled: false

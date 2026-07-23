@@ -24,9 +24,11 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/targets: storage
         checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
+        checksum/deployment-template: {{ include "netapp-monitoring.checksum.deploymentTemplate" (dict "root" . "appName" $appName) }}
       labels:
         app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
         name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master
+        {{- include "netapp-monitoring.additionalLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:
@@ -41,8 +43,8 @@ spec:
             - {{ $appName }}
             - --listen-addr
             - 0.0.0.0:{{ .Values.netappsd.ports.master }}
-            - --worker
-            - {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+            - --deployment-template
+            - /etc/netappsd/deployment.yaml.tpl
           env:
             - name: NETAPP_USERNAME
               valueFrom:
@@ -73,6 +75,13 @@ spec:
               containerPort: {{ .Values.netappsd.ports.master }}
           resources:
             {{- toYaml .Values.netappsd.resources | nindent 12 }}
+          volumeMounts:
+            - name: deployment-template
+              mountPath: /etc/netappsd
+      volumes:
+        - name: deployment-template
+          configMap:
+            name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-deployment-template
 ---
 {{- end }}
 {{- end }}

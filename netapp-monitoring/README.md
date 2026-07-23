@@ -16,8 +16,21 @@ Components included in this plugin:
 
 - **Harvest** — Collects metrics from NetApp ONTAP systems using REST/ZAPI collectors and exports them in Prometheus format.
 - **NetApp SD (Service Discovery)** — Discovers filers from Netbox and manages Harvest worker instances dynamically.
-  - **Master** — Queries Netbox for filer inventory and coordinates workers.
-  - **Worker** — Runs Harvest instances for discovered filers and exposes metrics.
+  - **Master** — One Deployment per configured app (`--tag`). It queries Netbox for the filer inventory and reconciles one worker Deployment per discovered filer, rendering each from a deployment template mounted from a ConfigMap.
+  - **Worker** — Runs as a sidecar next to the Harvest poller. It learns its own filer name from the master (via `--filer-name`), fetches that filer's details from the master's `/filer/{name}` endpoint, and renders the Harvest exporter config.
+
+### Reconciliation model
+
+The master reconciles worker Deployments as filers come and go:
+
+1. It discovers filers from Netbox and probes each of them every 5 minutes.
+2. For every active, reachable filer, it **creates** a worker Deployment named after the filer — only if one does not already exist.
+3. When a filer goes inactive or disappears from Netbox, it **deletes** that filer's Deployment.
+
+Worker Deployments the master creates are labeled `app.kubernetes.io/managed-by=netappsd` and carry a `netappsd/filer=<name>` label identifying their filer. These Deployments are **not** tracked by Helm — they are created at runtime — which has two consequences the chart handles explicitly:
+
+- **Uninstall cleanup.** A `pre-delete` hook Job ([harvest-netappsd-cleanup-hook.yaml](charts/templates/harvest-netappsd-cleanup-hook.yaml)) deletes all `managed-by=netappsd` Deployments before the release is removed, so the master-created workers are not orphaned on `helm uninstall`. The hook image is configured via `netappsd.cleanup.image.repository` and `netappsd.cleanup.image.tag`.
+- **Template changes do not auto-propagate.** Because reconciliation is create-if-missing, editing the worker template ([files/deployment.yaml.tpl](charts/files/deployment.yaml.tpl)) does **not** update already-running worker Deployments — the master only applies the new template to workers it creates afterward (as filers churn). To roll existing workers onto a new template, delete the managed worker Deployments (`kubectl delete deploy -l app.kubernetes.io/managed-by=netappsd -n <namespace>`); the master recreates them from the current template within its next reconcile (~5 min).
 
 ## Quick Start
 
@@ -50,7 +63,11 @@ Configure the required options:
 | `netappsd.netapp_exporter_password` | NetApp exporter password | Yes |
 | `netappsd.netbox_api_token` | Netbox API token | Yes |
 | `netappsd.netbox_host` | Netbox host URL | Yes |
+| `netappsd.cleanup.image.repository` | kubectl image repository for the pre-delete cleanup hook | No |
+| `netappsd.cleanup.image.tag` | kubectl image tag for the pre-delete cleanup hook | No |
 | `apps` | Map of app labels to enable discovery (for example cinder/manila/apod/cinder-manila) | No |
+| `additionalLabels` | Extra labels merged onto every resource the chart renders (for example `ccloud/service`, `ccloud/support-group`) | No |
+| `extraManifests` | List of additional Kubernetes manifests to render alongside the chart (for example owner-info metadata) | No |
 
 ## Configuration
 
@@ -59,18 +76,20 @@ Configure the required options:
 The `netappsd` master component acts as a controller for discovered filers.
 
 - It monitors filer inventory from Netbox and reconciles the desired worker state.
-- It scales worker Deployments up and down based on filers discovered for each configured app label.
+- It creates and deletes worker Deployments per filer, rendered from the `deployment.yaml.tpl` template. The template is delivered per app through a per-app `deployment-template` ConfigMap ([harvest-netappsd-deployment-template-configmap.yaml](charts/templates/harvest-netappsd-deployment-template-configmap.yaml)), mounted into the master at `/etc/netappsd` and passed via the `--deployment-template` flag.
 - It patches Pod metadata to update the `filer` label, which is used to associate running workers with the discovered filer identity.
 
 For this reason, the chart grants the `netappsd` service account these permissions in its namespace:
 
 - `get`, `list`, `update`, `patch` on Pods
-- `get`, `list`, `update`, `patch` on Deployments
+- `get`, `list`, `update`, `patch`, `create`, `delete` on Deployments
 - `get`, `list` on Endpoints
 
-Without `patch` and `update`, the master cannot reconcile runtime labels or scaling decisions correctly.
+Without `create`/`delete` the master cannot reconcile worker Deployments, and without `patch`/`update` it cannot maintain runtime pod labels. The `delete` verb is also what lets the pre-delete cleanup hook remove managed workers on uninstall.
 
-The Deployment selectors and pod labels also stay app-specific on purpose. In [harvest-netappsd-master-deployment.yaml](charts/templates/harvest-netappsd-master-deployment.yaml) and [harvest-netappsd-worker-deployment.yaml](charts/templates/harvest-netappsd-worker-deployment.yaml), the shared helper labels used elsewhere in the chart are the same for every app (`cinder`, `manila`, `apod`, `cinder-manila`), so using them as the Deployment selector would make all master and worker Deployments select across each other's pods and break isolation. The `name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master` label remains inline because it uniquely identifies pods per app and keeps each Deployment scoped to its own workload.
+The master Deployment selectors and pod labels stay app-specific on purpose. In [harvest-netappsd-master-deployment.yaml](charts/templates/harvest-netappsd-master-deployment.yaml), the shared helper labels used elsewhere in the chart are the same for every app (`cinder`, `manila`, `apod`, `cinder-manila`), so using them as the Deployment selector would make all master Deployments select across each other's pods and break isolation. The `name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master` label remains inline because it uniquely identifies pods per app and keeps each Deployment scoped to its own workload.
+
+Worker pods created from the template carry two labels: a stable per-app `app: <fullname>-<app>-worker` label (set at chart install time) that the per-app worker Service selects on, and a `name: <filer>` label (filled by the master at runtime) that uniquely identifies each filer's pod. Keeping scraping keyed off the stable `app` label means the Service continues to select every filer's worker pod regardless of which filers are currently discovered.
 
 ### Harvest
 
@@ -100,6 +119,25 @@ apps:
   cinder-manila:
     enabled: true
 ```
+
+### Additional Labels
+
+`additionalLabels` are applied in two places:
+
+- On the `metadata.labels` of every resource the chart renders (master Deployments, Services, ConfigMaps, the cleanup hook, and the runtime worker Deployment template), via the common label set.
+- On the **pod template** labels of the master and worker Deployments, so the running master and master-created worker pods carry them too.
+
+Values are quoted when rendered, so non-string scalars are emitted as valid label strings. Note that YAML parses unquoted numbers/bools before templating (e.g. `1.0` becomes `1`); quote such values in your config to preserve them exactly.
+
+```yaml
+additionalLabels:
+  ccloud/service: netapp-monitoring
+  ccloud/support-group: storage
+```
+
+### Extra Manifests
+
+`extraManifests` renders arbitrary Kubernetes objects alongside the chart. Each list entry is a full manifest and is passed through Helm templating, so entries may reference chart values.
 
 ### Example Plugin Resource
 

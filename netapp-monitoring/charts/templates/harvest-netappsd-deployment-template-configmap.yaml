@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.netappsd.enabled }}
+{{- range $appName, $appValues := .Values.apps }}
+{{- if $appValues.enabled }}
+{{- with $ }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-deployment-template
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+data:
+  deployment.yaml.tpl: |
+{{ tpl (.Files.Get "files/deployment.yaml.tpl") (merge (dict "appName" $appName) .) | indent 4 }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

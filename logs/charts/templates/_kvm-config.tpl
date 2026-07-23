@@ -47,6 +47,18 @@ file_log/ch_logs:
       id: file-label
       type: add
       value: files-ch
+journald/pstore:
+  storage: file_storage/journald
+  start_at: beginning
+  merge: true
+  priority: debug
+  all: true
+  units: [systemd-pstore.service]
+  operators:
+    - id: journal-label
+      type: add
+      field: attributes["log.type"]
+      value: "journald"
 {{- end }}
 {{- define "kvm.transform" }}
 transform/kvm_openvswitch:
@@ -130,6 +142,10 @@ logs/kvm_containerd:
 logs/kvm_file_log:
   receivers: [file_log/qemu_logs,file_log/openvswitch_logs,file_log/kvm_monitoring,file_log/ch_logs]
   processors: [k8s_attributes, attributes/cluster, transform/kvm_logs, transform/kvm_monitoring, transform/qemu_logs, transform/ch_logs]
+  exporters: [routing]
+logs/kvm_pstore:
+  receivers: [journald/pstore]
+  processors: [attributes/cluster, transform/journal]
   exporters: [routing]
 {{- end }}
 

@@ -1,21 +1,31 @@
 # SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-{{- if .Values.netappsd.enabled }}
-{{- range $appName, $appValues := .Values.apps }}
-{{- if $appValues.enabled }}
-{{- with $ }}
+# This file is the worker Deployment template consumed by the netappsd master
+# (via --deployment-template). It is rendered in TWO layers:
+#   1. Helm "tpl" (at chart install time) resolves all Values/Release/include
+#      actions below.
+#   2. The netappsd master (at runtime) fills the backtick-escaped Go-template
+#      placeholders (.Name etc.) — one worker Deployment per discovered filer.
+#      These are escaped so Helm passes them through verbatim, matching the
+#      pattern used in harvest-netappsd-configmap.yaml.
+#
+# NOTE: The netappsd runtime placeholders below follow the master's
+# --deployment-template field contract. Adjust the field names here if netappsd
+# exposes them differently.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+  # netappsd runtime: per-filer deployment name
+  name: {{`{{ .Name }}`}}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "netapp-monitoring.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+      # netappsd runtime: per-filer pod identity
+      name: {{`{{ .Name }}`}}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,8 +41,11 @@ spec:
         checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
         checksum/basic-auth: {{ include "netapp-monitoring.checksum.basicAuthSecret" . }}
       labels:
-        app: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}
-        name: {{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-worker
+        # Stable per-app label used by the worker Service selector (Helm-time).
+        app: {{ include "netapp-monitoring.fullname" . }}-{{ .appName }}-worker
+        # netappsd runtime: per-filer pod identity, filled by the master.
+        name: {{`{{ .Name }}`}}
+        {{- include "netapp-monitoring.additionalLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
       containers:
@@ -75,13 +88,16 @@ spec:
               readOnly: true
           securityContext:
             {{- toYaml .Values.harvest.securityContext | nindent 12 }}
-        - name: worker
+        - name: netappsd-worker
           image: "{{ required ".Values.netappsd.image.repository is required" .Values.netappsd.image.repository }}:{{ required ".Values.netappsd.image.tag is required" .Values.netappsd.image.tag }}"
           imagePullPolicy: {{ .Values.netappsd.image.pullPolicy | default "IfNotPresent" }}
           command: ["/netappsd", "worker"]
           args:
             - --master-url
-            - http://{{ include "netapp-monitoring.fullname" . }}-{{ $appName }}-master.{{ .Release.Namespace }}.svc:{{ .Values.netappsd.ports.master }}
+            - http://{{ include "netapp-monitoring.fullname" . }}-{{ .appName }}-master.{{ .Release.Namespace }}.svc:{{ .Values.netappsd.ports.master }}
+            - --filer-name
+            # netappsd runtime: master fills .Name with the discovered filer name.
+            - {{`{{ .Name }}`}}
             - --listen-addr
             - :{{ .Values.netappsd.ports.worker }}
             - --template-file
@@ -110,22 +126,6 @@ spec:
           ports:
             - name: liveness
               containerPort: {{ .Values.netappsd.ports.worker }}
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: {{ .Values.netappsd.ports.worker }}
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: {{ .Values.netappsd.ports.worker }}
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
           resources:
             {{- toYaml .Values.netappsd.resources | nindent 12 }}
           volumeMounts:
@@ -143,8 +143,3 @@ spec:
         - name: basic-auth
           secret:
             secretName: {{ required ".Values.netappsd.credentials_secret is required" .Values.netappsd.credentials_secret }}
----
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}

@@ -23,19 +23,10 @@ spec:
     secret.reloader.stakater.com/reload: "otel-basic-auth"
 {{- end }}
     prometheus.io/scrape: "false"
+{{- with .Values.openTelemetry.logsCollector.affinity }}
   affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: cloud.sap/deployment-state
-            operator: NotIn
-            values:
-            - reinstalling
-          - key: cloud.sap/esx-in-maintenance
-            operator: NotIn
-            values:
-            - alarm
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   terminationGracePeriodSeconds: 10
   env:
     - name: NAMESPACE
@@ -137,7 +128,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.transform" . | nindent 6 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.transform" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
@@ -206,7 +197,7 @@ spec:
             - tag_name: app.label.release
               key: release
               from: pod
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.labels" . | nindent 12 -}}
 {{- end }}
         pod_association:
@@ -251,6 +242,7 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+          max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
@@ -266,6 +258,7 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+          max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
@@ -319,7 +312,7 @@ spec:
           max_interval: 5s
           max_elapsed_time: 30s
         timeout: 30s
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
     {{- include "openstack.exporter" . | nindent 6 -}}
 {{- end }}
 {{- end }}
@@ -341,9 +334,9 @@ spec:
     connectors:
       routing:
         default_pipelines:
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
           - logs/route_storage
-{{- else }}
+{{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
           - logs/route_default
 {{- end }}
         error_mode: ignore
@@ -379,7 +372,7 @@ spec:
           num_consumers: 2
           queue_size: 1000
           sizer: requests
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
       failover/opensearch_storage:
         priority_levels:
           - [logs/failover_a_storage]
@@ -419,13 +412,9 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          attributes:
-            - name: k8s_cluster_name
-              value: ${cluster}
-            - name: k8s_node_name
-              value: ${KUBE_NODE_NAME}
-            - name: region
-              value: ${region}
+          k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
+          region: ${region}
 {{- end }}
       pipelines:
         logs/route_default:
@@ -466,18 +455,18 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
     {{- include "k8sevents.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.containerdConfig.enabled .Values.openTelemetry.logsCollector.openstackConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "openstack.pipeline" . | nindent 8 -}}
-{{- else if .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
+{{- else if and .Values.openTelemetry.logsCollector.containerdConfig.enabled (not .Values.openTelemetry.logsCollector.cephConfig.enabled) }}
     {{- include "containerd.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled }}
     {{- include "ceph.pipeline" . | nindent 8 -}}
 {{- end }}
-{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled .Values.openTelemetry.logsCollector.cephConfig.enabled }}
+{{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
         logs/route_storage:
           receivers: [routing]
           processors: [transform/fix_log_attribute, batch]

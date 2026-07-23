@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Helm pre-delete hook: on `helm uninstall`, delete the per-filer worker
+# Deployments the master created at runtime. Helm does not track these (they
+# are not part of the chart), so without this hook they would be orphaned.
+# Runs as a short-lived Job before the rest of the release is removed.
+{{- if .Values.netappsd.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "netapp-monitoring.fullname" . }}-cleanup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "netapp-monitoring.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: {{ include "netapp-monitoring.fullname" . }}-cleanup
+    spec:
+      serviceAccountName: {{ .Values.netappsd.serviceAccountName | default "netappsd" }}
+      restartPolicy: Never
+      containers:
+        - name: cleanup
+          image: "{{ required ".Values.netappsd.cleanup.image.repository is required" .Values.netappsd.cleanup.image.repository }}:{{ required ".Values.netappsd.cleanup.image.tag is required" .Values.netappsd.cleanup.image.tag }}"
+          command:
+            - kubectl
+            - delete
+            - deployments
+            - --namespace
+            - {{ .Release.Namespace }}
+            - --selector
+            - app.kubernetes.io/managed-by=netappsd
+            - --ignore-not-found
+{{- end }}

@@ -166,13 +166,6 @@ filter/hermes_logstash:
     log_record:
       - 'IsMatch(body, ".*Authorization: Basic.*")'
 
-{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}
-filter/rgw:
-  error_mode: ignore
-  logs:
-    log_record:
-      - 'resource.attributes["k8s.container.name"] == "rgw"'
-{{- end }}
 
 transform/swift_proxy:
   error_mode: ignore

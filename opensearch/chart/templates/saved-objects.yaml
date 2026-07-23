@@ -3,9 +3,10 @@
 
 {{- if .Values.cluster.savedObjects.enabled }}
 {{- $cfg := .Values.cluster.savedObjects }}
-{{- $cmName := $cfg.configMapName | default "opensearch-saved-objects" }}
 {{- $serviceName := (.Values.cluster.cluster.general).serviceName | default .Values.cluster.cluster.name | default .Release.Name }}
 {{- $dashboardsHost := $cfg.dashboardsHost | default (printf "http://%s-dashboards:5601" $serviceName) }}
+{{- $imageRepo := (.Values.cluster.cluster.general).image }}
+{{- $imageTag := (.Values.cluster.cluster.general).version }}
 {{- if not $cfg.credentialsSecret.name }}
   {{- fail "cluster.savedObjects.credentialsSecret.name is required when savedObjects.enabled is true" }}
 {{- end }}
@@ -31,7 +32,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $cmName }}
+  name: opensearch-saved-objects
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
@@ -55,11 +56,19 @@ data:
     echo "dashboards ready"
 
     {{- range $cfg.indexPatterns }}
-    echo "applying index-pattern {{ .id }}"
+    echo "applying index-pattern {{ .id }} (title={{ .title }})"
+    # Fetch the field list for build-index-pattern.py. A 404 means the index
+    # does not exist yet (pattern gets no fields), any other error fails the Job.
+    code=$(curl -sS ${AUTH} -H osd-xsrf:true -o /tmp/fields.json -w '%{http_code}' \
+      "${DASHBOARDS}/api/index_patterns/_fields_for_wildcard?pattern={{ .title }}&meta_fields=_source&meta_fields=_id&meta_fields=_index&meta_fields=_score")
+    if [ "$code" != "200" ] && [ "$code" != "404" ]; then
+      echo "field fetch for {{ .title }} failed with HTTP $code" >&2
+      exit 1
+    fi
+    TITLE={{ .title | quote }} TIMEFIELD={{ .timeFieldName | default "" | quote }} python3 /scripts/build-index-pattern.py
     ${CURL} -H 'Content-Type: application/json' \
       -X POST "${DASHBOARDS}/api/saved_objects/index-pattern/{{ .id }}?overwrite=true" \
-      -d '{"attributes":{"title":{{ .title | quote }}{{ if .timeFieldName }},"timeFieldName":{{ .timeFieldName | quote }}{{ end }}}}' \
-      >/dev/null
+      --data @/tmp/body.json >/dev/null
     {{- end }}
 
     {{- range $cfg.imports }}
@@ -69,12 +78,13 @@ data:
     {{- end }}
 
     echo "done"
-{{- $jobName := $cfg.jobName | default "opensearch-saved-objects" | trunc 63 | trimSuffix "-" }}
+  build-index-pattern.py: |
+{{ .Files.Get "files/saved-objects/build-index-pattern.py" | indent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ $jobName }}
+  name: opensearch-saved-objects
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "opensearch.labels" . | nindent 4 }}
@@ -102,7 +112,7 @@ spec:
       {{- end }}
       containers:
         - name: install
-          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          image: "{{ $imageRepo }}:{{ $imageTag }}"
           imagePullPolicy: {{ $cfg.image.pullPolicy | default "IfNotPresent" }}
           command: ["sh", "/scripts/install.sh"]
           env:
@@ -135,7 +145,7 @@ spec:
       volumes:
         - name: scripts
           configMap:
-            name: {{ $cmName }}
+            name: opensearch-saved-objects
             defaultMode: 0755
         {{- range $importVolumes }}
         - name: {{ .vol }}

@@ -72,6 +72,7 @@ openTelemetry:
   # -- Region label for Logging
   region:
   # -- Kafka exporter configuration shared by all collectors
+  # @default -- See values.yaml
   kafka:
     # -- Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering)
     enabled: false
@@ -83,6 +84,16 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
+    # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1000000
+    # -- Producer sending queue size
+    sendingQueue:
+      enabled: true
+      queueSize: 1000
+    # -- Producer batching (raise linger to build larger batches per broker request)
+    producer:
+      flushMaxMessages: 10000
+      linger: 10ms
     # -- TLS configuration for Kafka connections
     tls:
       # -- Enable TLS for Kafka connections
@@ -90,6 +101,21 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Pod affinity rules for the logs collector CR
+    # @default -- See values.yaml
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cloud.sap/deployment-state
+              operator: NotIn
+              values:
+              - reinstalling
+            - key: cloud.sap/esx-in-maintenance
+              operator: NotIn
+              values:
+              - alarm
     # -- Batch processor settings for the logs collector.
     batch:
       # -- Flush when this many records are buffered (raise for larger downstream batches).
@@ -121,11 +147,14 @@ openTelemetry:
     openstackConfig:
       enabled: false
   # -- Standalone external OTel Collector as StatefulSet.
+  # @default -- See values.yaml
   externalCollector:
     # -- Enables the standalone external OTel Collector StatefulSet and its PodMonitor.
     enabled: false
     # -- Number of replicas for the external collector StatefulSet
     replicas: 2
+    # -- Pod affinity rules for the external collector CR
+    affinity: {}
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -199,6 +228,8 @@ openTelemetry:
   ingesterCollector:
     # -- Enable the ingest collectors block.
     enabled: false
+    # -- Pod affinity rules for the ingester collector CRs
+    affinity: {}
     # -- Replica count per ingest collector Deployment.
     replicas: 1
     image:
@@ -232,6 +263,8 @@ openTelemetry:
   # -- Activates the standard configuration for metrics.
   metricsCollector:
     enabled: false
+    # -- Pod affinity rules for the metrics collector CR
+    affinity: {}
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:
