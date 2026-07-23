@@ -1,6 +1,6 @@
 dependencies:
 - name: thanos
   repository: https://thanos-community.github.io/helm-charts/
-  version: 0.23.1
-digest: sha256:44f062d84fcc7c22abbaf351c47e340c92c2b694bac7b9b42780f414b8952f62
-generated: "2026-07-02T09:44:27.819644+02:00"
+  version: 0.25.0
+digest: sha256:8277e90ba5df479025a93aad19a2ca654c9f429e7dd260a58ad8478ab8acaedd
+generated: "2026-07-23T11:51:11.133148+02:00"

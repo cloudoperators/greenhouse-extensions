@@ -9,7 +9,7 @@ kind: PrometheusRule
 metadata:
   name: {{ include "release.name" $root }}-{{ $fileName }}-alerts
   labels:
-    {{- include "thanos.labels" $root | nindent 4 }}
+    {{- include "thanosParent.labels" $root | nindent 4 }}
     {{- if $root.Values.thanos.serviceMonitor.labels }}
     {{- toYaml $root.Values.thanos.serviceMonitor.labels | nindent 4 }}
     {{- end }}
