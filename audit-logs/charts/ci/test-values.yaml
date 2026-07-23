@@ -92,3 +92,11 @@ global:
   region: test
   clusterType: test
   prometheus: test
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent
