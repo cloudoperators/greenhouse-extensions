@@ -5,7 +5,7 @@ metadata:
   name: {{ printf "%s-%s" $.Release.Name "plutono-datasource" }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
-    {{- include "thanos.labels" . | nindent 4 }}
+    {{- include "thanosParent.labels" . | nindent 4 }}
     {{- with .Values.thanos.query.plutonoDatasource.selector }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

@@ -15,7 +15,7 @@ plugin: {{ $.Release.Name }}
 {{- end }}
 
 {{/* Base labels to be glued on everything */}}
-{{- define "thanos.labels" -}}
+{{- define "thanosParent.labels" -}}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 release: {{ $.Release.Name | quote }}
 {{- end }}
