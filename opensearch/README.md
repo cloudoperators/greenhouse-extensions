@@ -287,7 +287,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | queryExporter.securityContext | object | <pre>allowPrivilegeEscalation: false<br>readOnlyRootFilesystem: true<br>runAsNonRoot: true<br>runAsUser: 1000<br>capabilities:<br>  drop: [ALL]</pre> | Security context for the container |
 | queryExporter.serviceMonitor.enabled | bool | `true` | Create a ServiceMonitor for the query exporter |
 | queryExporter.serviceMonitor.interval | string | `"30s"` | Scrape interval |
-| queryExporter.serviceMonitor.labels | object | `{}` | Additional labels for the ServiceMonitor (e.g. for Prometheus selector matching) |
 | queryExporter.serviceMonitor.scrapeTimeout | string | `"25s"` | Scrape timeout |
 | queryExporter.timeout | string | `"30s"` | Query timeout |
 | queryExporter.tolerations | list | `[]` | Tolerations |
