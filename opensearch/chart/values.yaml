@@ -1080,8 +1080,6 @@ queryExporter:
     interval: 30s
     # -- Scrape timeout
     scrapeTimeout: 25s
-    # -- Additional labels for the ServiceMonitor (e.g. for Prometheus selector matching)
-    labels: {}
 
   # -- Query configuration. Each entry defines a periodic OpenSearch query
   # whose results are exposed as Prometheus metrics.

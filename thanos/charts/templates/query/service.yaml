@@ -8,7 +8,7 @@ metadata:
       ) | indent 2 }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
-    {{- include "thanos.labels" . | nindent 4 }}
+    {{- include "thanosParent.labels" . | nindent 4 }}
     {{- if .Values.thanos.query.serviceLabels }}
     {{- toYaml .Values.thanos.query.serviceLabels | nindent 4 }}
     {{- end }}

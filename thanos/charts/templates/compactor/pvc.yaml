@@ -8,7 +8,7 @@ metadata:
   {{- end }}
   labels:
     {{- include "plugin.labels" . | nindent 4 }}
-    {{- include "thanos.labels" . | nindent 4 }}
+    {{- include "thanosParent.labels" . | nindent 4 }}
     {{- if .Values.thanos.compactor.volume.labels }}
     {{- toYaml .Values.thanos.compactor.volume.labels | nindent 4 }}
     {{- end }}
