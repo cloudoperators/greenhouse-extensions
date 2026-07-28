@@ -66,10 +66,9 @@ transform/syslog_forwarded_by:
 
 {{/*
   ============================================================================
-  Semantic Convention Normalization (Fortlogs semconv)
+  Semantic Convention Normalization
   Maps OTel syslog receiver legacy field names to canonical OTel semantic
-  convention field names as defined in:
-  fortlogs/semantic-conventions/model/logs/syslog/common.yaml
+  convention field names.
   Backward-compatible: legacy fields are kept, semconv fields are added.
   ============================================================================
 */}}
