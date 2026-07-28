@@ -383,9 +383,6 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.persesDatasource.create | bool | `true` | Creates a Perses datasource for Thanos Query |
 | thanos.query.persesDatasource.isDefault | bool | `true` | set datasource as default for Perses. Consider setting this to `false` only if you have another (default) datasource for Perses already. |
 | thanos.query.persesDatasource.selector | object | `{}` | Label selectors for the Perses sidecar to detect this datasource. |
-| thanos.query.plutonoDatasource.create | bool | `false` | Creates a Perses datasource for Thanos Query |
-| thanos.query.plutonoDatasource.isDefault | bool | `false` | set datasource as default for Plutono |
-| thanos.query.plutonoDatasource.selector | object | `{}` | Label selectors for the Plutono sidecar to detect this datasource. |
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
 | thanos.query.replicas | int | `1` | Number of Thanos Query replicas to deploy |
 | thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |

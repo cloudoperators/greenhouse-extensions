@@ -11,7 +11,7 @@ maintainers:
 name: thanos
 sources:
   - https://github.com/cloudoperators/greenhouse-extensions
-version: 0.11.1
+version: 0.11.2
 dependencies:
   - name: thanos
     repository: https://thanos-community.github.io/helm-charts/
