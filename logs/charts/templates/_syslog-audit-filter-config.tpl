@@ -66,6 +66,75 @@ transform/syslog_forwarded_by:
 
 {{/*
   ============================================================================
+  Semantic Convention Normalization
+  Maps OTel syslog receiver legacy field names to canonical OTel semantic
+  convention field names.
+  Backward-compatible: legacy fields are kept, semconv fields are added.
+  ============================================================================
+*/}}
+transform/syslog_semconv_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # Role mapping (Collector = server, sender = client)
+        # All statements are defensive: only populate semconv field if not already set.
+        - 'set(attributes["server.address"], attributes["net.host.name"]) where attributes["server.address"] == nil and attributes["net.host.name"] != nil'
+        - 'set(attributes["server.port"], attributes["net.host.port"]) where attributes["server.port"] == nil and attributes["net.host.port"] != nil'
+        - 'set(attributes["client.address"], attributes["net.peer.name"]) where attributes["client.address"] == nil and attributes["net.peer.name"] != nil'
+        - 'set(attributes["client.port"], attributes["net.peer.port"]) where attributes["client.port"] == nil and attributes["net.peer.port"] != nil'
+
+        # Network vantage-point view
+        - 'set(attributes["network.local.address"], attributes["net.host.ip"]) where attributes["network.local.address"] == nil and attributes["net.host.ip"] != nil'
+        - 'set(attributes["network.peer.address"], attributes["net.peer.ip"]) where attributes["network.peer.address"] == nil and attributes["net.peer.ip"] != nil'
+        - 'set(attributes["network.peer.port"], attributes["net.peer.port"]) where attributes["network.peer.port"] == nil and attributes["net.peer.port"] != nil'
+        # network.transport: normalize legacy "IP.TCP"/"IP.UDP" to lowercase semconv enum values.
+        # Semconv requires transport whenever a port is set (ports are ambiguous without it).
+        - 'set(attributes["network.transport"], "tcp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.TCP"'
+        - 'set(attributes["network.transport"], "udp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.UDP"'
+        # Fallback: if some other value shows up, lowercase it defensively.
+        - 'set(attributes["network.transport"], ConvertCase(attributes["net.transport"], "lower")) where attributes["network.transport"] == nil and attributes["net.transport"] != nil'
+
+        # Syslog fields
+        - 'set(attributes["syslog.facility.code"], Int(attributes["facility"])) where attributes["syslog.facility.code"] == nil and attributes["facility"] != nil'
+        - 'set(attributes["syslog.facility.name"], attributes["facility_text"]) where attributes["syslog.facility.name"] == nil and attributes["facility_text"] != nil'
+
+        # Resource: host identity
+        - 'set(resource.attributes["host.name"], attributes["hostname"]) where resource.attributes["host.name"] == nil and attributes["hostname"] != nil'
+
+{{/*
+  ============================================================================
+  Legacy Field Cleanup
+  Drops legacy OTel field names after semconv normalization has populated
+  their canonical replacements. Guards ensure a legacy key is only removed
+  once its semconv counterpart has been successfully set.
+  ============================================================================
+*/}}
+transform/syslog_drop_legacy_fields:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # Role / address / port mappings
+        - 'delete_key(attributes, "net.host.name") where attributes["server.address"] != nil'
+        - 'delete_key(attributes, "net.host.port") where attributes["server.port"] != nil'
+        - 'delete_key(attributes, "net.peer.name") where attributes["client.address"] != nil'
+        - 'delete_key(attributes, "net.peer.port") where attributes["client.port"] != nil and attributes["network.peer.port"] != nil'
+
+        # Network vantage-point
+        - 'delete_key(attributes, "net.host.ip") where attributes["network.local.address"] != nil'
+        - 'delete_key(attributes, "net.peer.ip") where attributes["network.peer.address"] != nil'
+        - 'delete_key(attributes, "net.transport") where attributes["network.transport"] != nil'
+
+        # Syslog fields
+        - 'delete_key(attributes, "facility") where attributes["syslog.facility.code"] != nil'
+        - 'delete_key(attributes, "facility_text") where attributes["syslog.facility.name"] != nil'
+
+        # Resource-mapped: hostname → resource.host.name
+        - 'delete_key(attributes, "hostname") where resource.attributes["host.name"] != nil'
+
+{{/*
+  ============================================================================
   Early drop of non-audit-relevant messages
   ============================================================================
 */}}
