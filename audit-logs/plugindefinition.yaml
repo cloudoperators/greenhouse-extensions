@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.1
+    version: 0.2.2
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
