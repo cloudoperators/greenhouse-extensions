@@ -48,22 +48,22 @@ tcp_log/syslog:
     output: add_format_iso
   - type: add
     id: add_format_rfc5424
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc5424
     output: add_log_type
   - type: add
     id: add_format_rfc3164
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc3164
     output: add_log_type
   - type: add
     id: add_format_iso
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc3164_iso8601
     output: add_log_type
   - type: add
     id: add_format_unknown
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: unknown
     output: add_log_type
   - type: add
@@ -77,7 +77,7 @@ syslog/udp:
     id: syslogudp
     type: add
     value: syslogudp
-  - field: attributes.log.syslog.format
+  - field: attributes.syslog.format
     id: syslogudp_format
     type: add
     value: rfc3164
@@ -140,22 +140,22 @@ tcp_log/syslog_tls:
     output: add_tls_format_iso
   - type: add
     id: add_tls_format_rfc5424
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc5424
     output: add_tls_log_type
   - type: add
     id: add_tls_format_rfc3164
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc3164
     output: add_tls_log_type
   - type: add
     id: add_tls_format_iso
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: rfc3164_iso8601
     output: add_tls_log_type
   - type: add
     id: add_tls_format_unknown
-    field: attributes.log.syslog.format
+    field: attributes.syslog.format
     value: unknown
     output: add_tls_log_type
   - type: add
@@ -177,6 +177,8 @@ logs/syslog_tcp:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
@@ -193,6 +195,8 @@ logs/syslog_udp:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
@@ -211,6 +215,8 @@ logs/syslog_tcp_tls:
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
