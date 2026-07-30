@@ -1,0 +1,16 @@
+# Default values are defined in the parent chart under auditPoller.*
+# This file only provides structural defaults to prevent nil pointer errors.
+image:
+  repository: ""
+  tag: ""
+iasApi:
+  fileName: "ias_api.log"
+  interval: 5
+iasChangelog:
+  fileName: "ias_changelog.log"
+  interval: 30
+logLevel: "info"
+logDir: "/audit-poller"
+persistence:
+  enabled: false
+metricsPort: 9298
