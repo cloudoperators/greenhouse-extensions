@@ -119,10 +119,10 @@ spec:
       file_log/containerd:
         include_file_path: true
         include:
-        - /var/log/pods/*/keystone-api/*.log
-        - /var/log/pods/dns_coredns-api*/audit/*.log
-        - /var/log/pods/vault*/audit/*.log
-        - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
+          - /var/log/pods/*/keystone-api/*.log
+          - /var/log/pods/dns_coredns-api*/audit/*.log
+          - /var/log/pods/vault*/audit/*.log
+          - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
         max_log_size: 16384
         operators:
           - id: container-parser
@@ -172,10 +172,10 @@ spec:
       transform/fix_log_attribute:
         error_mode: ignore
         log_statements:
-        - context: log
-          statements:
-          - set(attributes["log_message"], attributes["log"]) where IsString(attributes["log"])
-          - delete_key(attributes, "log") where IsString(attributes["log"]) 
+          - context: log
+            statements:
+            - set(attributes["log_message"], attributes["log"]) where IsString(attributes["log"])
+            - delete_key(attributes, "log") where IsString(attributes["log"]) 
 
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.labels" . | nindent 6 -}}
@@ -598,11 +598,11 @@ spec:
           - logs/es
 {{- end }}
         table:
-        - statement: route()
-          pipelines:
-          - logs/default
+          - statement: route()
+            pipelines:
+            - logs/default
 {{- if .Values.auditLogs.elastic.enabled }}
-          - logs/es
+            - logs/es
 {{- end }}
 {{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       failover:
