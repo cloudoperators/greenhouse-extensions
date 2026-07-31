@@ -9,6 +9,12 @@ commonLabels: {}
 # Leave empty ({}) for no affinity constraint (default).
 nodeAffinity: {}
 
+# -- Pod anti-affinity rules for Kafka broker/controller pods.
+# When set, placed at spec.template.pod.affinity.podAntiAffinity in the KafkaNodePool.
+# Use to spread brokers across nodes so a single node loss cannot take down quorum.
+# Leave empty ({}) for no constraint (default).
+podAntiAffinity: {}
+
 # Strimzi Kafka Operator configuration
 operator:
   # -- Enable or disable the Strimzi Kafka Operator installation
