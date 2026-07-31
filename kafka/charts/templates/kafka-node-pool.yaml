@@ -21,11 +21,17 @@ spec:
   jvmOptions:
     -Xms: {{ .Values.kafka.jvmOptions.xms | quote }}
     -Xmx: {{ .Values.kafka.jvmOptions.xmx | quote }}
-  {{- if .Values.nodeAffinity }}
+  {{- if or .Values.nodeAffinity .Values.podAntiAffinity }}
   template:
     pod:
       affinity:
+        {{- with .Values.nodeAffinity }}
         nodeAffinity:
-          {{- toYaml .Values.nodeAffinity | nindent 10 }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.podAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
   {{- end }}
 {{- end }}

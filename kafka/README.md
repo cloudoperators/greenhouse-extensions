@@ -85,6 +85,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | monitoring.podMonitor.labels | object | `{}` | Labels to add to the PodMonitor so Prometheus can discover it. |
 | nodeAffinity | object | `{}` | Node affinity rules for Kafka broker/controller pods. When set, placed at spec.template.pod.affinity.nodeAffinity in the KafkaNodePool. Leave empty ({}) for no affinity constraint (default). |
 | operator.enabled | bool | `true` | Enable or disable the Strimzi Kafka Operator installation |
+| podAntiAffinity | object | `{}` | Pod anti-affinity rules for Kafka broker/controller pods. When set, placed at spec.template.pod.affinity.podAntiAffinity in the KafkaNodePool. Use to spread brokers across nodes so a single node loss cannot take down quorum. Leave empty ({}) for no constraint (default). |
 | testFramework.enabled | bool | `true` | Activates the Helm chart testing framework. |
 | testFramework.image | object | ghcr.io/cloudoperators/greenhouse-extensions-integration-test:main | Test framework image configuration |
 | testFramework.image.pullPolicy | string | `"Always"` | Defines the image pull policy for the test framework. |
