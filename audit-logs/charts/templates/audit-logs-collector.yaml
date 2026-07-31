@@ -564,6 +564,7 @@ spec:
           encoding: {{ .Values.auditLogs.logsCollector.kafka.encoding }}
         producer:
           compression: {{ .Values.auditLogs.logsCollector.kafka.compression }}
+          max_message_bytes: {{ .Values.auditLogs.logsCollector.kafka.max_message_bytes | int64 }}
 {{- else }}
       opensearch/failover_a:
         http:

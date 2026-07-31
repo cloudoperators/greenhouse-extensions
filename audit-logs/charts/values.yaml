@@ -78,6 +78,8 @@ auditLogs:
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""
+      # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
+      max_message_bytes: 1000000
       # -- TLS settings for the Kafka exporter. Enable when the broker terminates TLS.
       tls:
         # -- Enable TLS on the connection to Kafka.
