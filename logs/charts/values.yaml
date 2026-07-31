@@ -368,7 +368,6 @@ openTelemetry:
         - OTelExporterQueueFull
         - OTelLogsVolumeSpike
         - OTelLogsVolumeDropFast
-        - OTelCollectorMemoryHigh
         - JournaldReceiverRefusedLogs
         - K8sEventsReceiverRefusedLogs
 
