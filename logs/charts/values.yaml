@@ -328,7 +328,6 @@ openTelemetry:
         - OTelLogsMissing
         - OTelLogsIncreasing
         - OTelLogsDecreasing
-        - OTelLogsExportingFailed
         - OTelLogsSLOBurnRateCritical
         - OTelLogsSLOBurnRateWarning
         - OTelLogsExportFailureRatioHigh

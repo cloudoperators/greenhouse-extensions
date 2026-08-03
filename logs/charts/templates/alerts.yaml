@@ -131,20 +131,20 @@ spec:
       - alert: OTelLogsSLOBurnRateCritical
         expr: |
           (
-            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
             /
             (
-              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
-              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
             )
           ) > (14 * 0.005)
-          and
+          and on(k8s_cluster_name)
           (
-            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
             /
             (
-              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
-              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
             )
           ) > (14 * 0.005)
         for: 2m
@@ -162,20 +162,20 @@ spec:
       - alert: OTelLogsSLOBurnRateWarning
         expr: |
           (
-            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
             /
             (
-              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
-              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
             )
           ) > (6 * 0.005)
-          and
+          and on(k8s_cluster_name)
           (
-            sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
             /
             (
-              sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
-              + sum(rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
             )
           ) > (6 * 0.005)
         for: 15m
