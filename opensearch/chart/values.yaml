@@ -204,6 +204,9 @@ operator:
 # -- Additional labels for PrometheusRule alerts
 additionalRuleLabels: {}
 
+# -- Labels for the PrometheusRule holding alerts that use kube-side metrics (kubelet/kube-state/node-exporter), so it is picked up by the Prometheus that scrapes kubelet. Set per deployment (e.g. prometheus: kubernetes).
+kubernetesPrometheusRuleLabels: {}
+
 cluster:
   nameOverride: ""
   fullnameOverride: ""
