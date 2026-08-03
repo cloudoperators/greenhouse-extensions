@@ -12,12 +12,16 @@ tcp_log/syslog:
   #   RFC 3164: "<priority>Mmm dd HH:MM:SS ..."  e.g. "<13>Jan 15 10:30:00..."
   #   RFC 3164 with ISO 8601 timestamp (non-standard, used by VMware ESXi/vSAN):
   #             "<priority>ISO-timestamp ..."     e.g. "<12>2026-07-10T09:34:11.260Z..."
+  #   Cisco IOS: "<priority>SEQ: HOSTNAME: Mmm dd HH:MM:SS[.ms]: %FACILITY-SEV-MNEMONIC: msg"
+  #             e.g. "<190>137967: eu-de-1-vp101a: Aug  3 13:03:58.869: %SYS-6-..."
   #   Unknown:  anything else (no syslog header, continuation lines, garbage)
   - type: router
     id: syslog_format_router
     routes:
     - expr: 'body matches "^<\\d+>\\d+ "'
       output: syslog_5424_parser
+    - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
+      output: syslog_cisco_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_3164_parser
     - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
@@ -46,6 +50,20 @@ tcp_log/syslog:
     id: syslog_iso_cleanup
     field: attributes.timestamp
     output: add_format_iso
+  # Cisco IOS format parser
+  - type: regex_parser
+    id: syslog_cisco_parser
+    regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
+    on_error: send
+    timestamp:
+      parse_from: attributes.timestamp
+      layout: 'Jan _2 15:04:05.000'
+      layout_type: gotime
+    output: syslog_cisco_cleanup
+  - type: remove
+    id: syslog_cisco_cleanup
+    field: attributes.timestamp
+    output: add_format_cisco
   - type: add
     id: add_format_rfc5424
     field: attributes.syslog.format
@@ -62,6 +80,11 @@ tcp_log/syslog:
     value: rfc3164_iso8601
     output: add_log_type
   - type: add
+    id: add_format_cisco
+    field: attributes.syslog.format
+    value: cisco_ios
+    output: add_log_type
+  - type: add
     id: add_format_unknown
     field: attributes.syslog.format
     value: unknown
@@ -70,22 +93,97 @@ tcp_log/syslog:
     id: add_log_type
     field: attributes.log.type
     value: syslogtcp
-syslog/udp:
-  location: UTC
+udp_log/syslog:
+  listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.udp_port }}
+  add_attributes: true
+  async: {}
   operators:
-  - field: attributes.log.type
-    id: syslogudp
-    type: add
-    value: syslogudp
-  - field: attributes.syslog.format
-    id: syslogudp_format
-    type: add
+  # Routes incoming syslog messages based on their header format:
+  #   RFC 5424: "<priority>VERSION timestamp ..." e.g. "<134>1 2026-07-10T09:32:35..."
+  #   RFC 3164: "<priority>Mmm dd HH:MM:SS ..."  e.g. "<13>Jan 15 10:30:00..."
+  #   RFC 3164 with ISO 8601 timestamp (non-standard, used by VMware ESXi/vSAN):
+  #             "<priority>ISO-timestamp ..."     e.g. "<12>2026-07-10T09:34:11.260Z..."
+  #   Cisco IOS: "<priority>SEQ: HOSTNAME: Mmm dd HH:MM:SS[.ms]: %FACILITY-SEV-MNEMONIC: msg"
+  #             e.g. "<190>137967: eu-de-1-vp101a: Aug  3 13:03:58.869: %SYS-6-..."
+  #   Unknown:  anything else (no syslog header, continuation lines, garbage)
+  - type: router
+    id: syslog_udp_format_router
+    routes:
+    - expr: 'body matches "^<\\d+>\\d+ "'
+      output: syslog_udp_5424_parser
+    - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
+      output: syslog_udp_cisco_parser
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
+      output: syslog_udp_3164_parser
+    - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
+      output: syslog_udp_iso_parser
+    default: add_udp_format_unknown
+  - type: syslog_parser
+    id: syslog_udp_5424_parser
+    protocol: rfc5424
+    on_error: send
+    output: add_udp_format_rfc5424
+  - type: syslog_parser
+    id: syslog_udp_3164_parser
+    protocol: rfc3164
+    on_error: send
+    output: add_udp_format_rfc3164
+  - type: regex_parser
+    id: syslog_udp_iso_parser
+    regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
+    on_error: send
+    timestamp:
+      parse_from: attributes.timestamp
+      layout: '2006-01-02T15:04:05.999999999Z07:00'
+      layout_type: gotime
+    output: syslog_udp_iso_cleanup
+  - type: remove
+    id: syslog_udp_iso_cleanup
+    field: attributes.timestamp
+    output: add_udp_format_iso
+  # Cisco IOS format parser
+  - type: regex_parser
+    id: syslog_udp_cisco_parser
+    regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
+    on_error: send
+    timestamp:
+      parse_from: attributes.timestamp
+      layout: 'Jan _2 15:04:05.000'
+      layout_type: gotime
+    output: syslog_udp_cisco_cleanup
+  - type: remove
+    id: syslog_udp_cisco_cleanup
+    field: attributes.timestamp
+    output: add_udp_format_cisco
+  - type: add
+    id: add_udp_format_rfc5424
+    field: attributes.syslog.format
+    value: rfc5424
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_rfc3164
+    field: attributes.syslog.format
     value: rfc3164
-  protocol: rfc3164
-  udp:
-    listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.udp_port }}
-    add_attributes: true
-    async: {}
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_iso
+    field: attributes.syslog.format
+    value: rfc3164_iso8601
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_cisco
+    field: attributes.syslog.format
+    value: cisco_ios
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_unknown
+    field: attributes.syslog.format
+    value: unknown
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_log_type
+    field: attributes.log.type
+    value: syslogudp
 {{- end }}
 
 {{- define "syslog_tls.receiver" }}
@@ -104,12 +202,16 @@ tcp_log/syslog_tls:
   #   RFC 3164: "<priority>Mmm dd HH:MM:SS ..."  e.g. "<13>Jan 15 10:30:00..."
   #   RFC 3164 with ISO 8601 timestamp (non-standard, used by VMware ESXi/vSAN):
   #             "<priority>ISO-timestamp ..."     e.g. "<12>2026-07-10T09:34:11.260Z..."
+  #   Cisco IOS: "<priority>SEQ: HOSTNAME: Mmm dd HH:MM:SS[.ms]: %FACILITY-SEV-MNEMONIC: msg"
+  #             e.g. "<190>137967: eu-de-1-vp101a: Aug  3 13:03:58.869: %SYS-6-..."
   #   Unknown:  anything else (no syslog header, continuation lines, garbage)
   - type: router
     id: syslog_tls_format_router
     routes:
     - expr: 'body matches "^<\\d+>\\d+ "'
       output: syslog_tls_5424_parser
+    - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
+      output: syslog_tls_cisco_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_tls_3164_parser
     - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
@@ -138,6 +240,20 @@ tcp_log/syslog_tls:
     id: syslog_tls_iso_cleanup
     field: attributes.timestamp
     output: add_tls_format_iso
+  # Cisco IOS format parser
+  - type: regex_parser
+    id: syslog_tls_cisco_parser
+    regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
+    on_error: send
+    timestamp:
+      parse_from: attributes.timestamp
+      layout: 'Jan _2 15:04:05.000'
+      layout_type: gotime
+    output: syslog_tls_cisco_cleanup
+  - type: remove
+    id: syslog_tls_cisco_cleanup
+    field: attributes.timestamp
+    output: add_tls_format_cisco
   - type: add
     id: add_tls_format_rfc5424
     field: attributes.syslog.format
@@ -152,6 +268,11 @@ tcp_log/syslog_tls:
     id: add_tls_format_iso
     field: attributes.syslog.format
     value: rfc3164_iso8601
+    output: add_tls_log_type
+  - type: add
+    id: add_tls_format_cisco
+    field: attributes.syslog.format
+    value: cisco_ios
     output: add_tls_log_type
   - type: add
     id: add_tls_format_unknown
@@ -184,7 +305,7 @@ logs/syslog_tcp:
   exporters: [routing/syslog_audit]
 
 logs/syslog_udp:
-  receivers: [syslog/udp]
+  receivers: [udp_log/syslog]
   processors:
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
