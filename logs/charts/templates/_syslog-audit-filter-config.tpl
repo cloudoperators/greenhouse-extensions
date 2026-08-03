@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 {{/*
   Syslog Audit/Non-Audit Filter Configuration
   Separates syslog logs into audit-relevant and non-audit streams
-  for VMware infrastructure sources (ESXi, vCSA, NSX-T).
+  for VMware infrastructure sources (ESXi, vCSA, NSX-T) and Cisco IOS devices.
 
   This implements:
   1. Early drop of known non-audit-relevant log messages (by content pattern)
@@ -20,16 +20,24 @@ SPDX-License-Identifier: Apache-2.0
   9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
 
   Field mapping (syslog → OTel receiver attributes):
-    The OTel syslog receiver (both rfc5424 and rfc3164) parses syslog fields
-    into log record ATTRIBUTES (not body). The body retains the raw syslog line.
+    The OTel syslog receiver (rfc5424, rfc3164, ISO8601, and Cisco IOS) parses
+    syslog fields into log record ATTRIBUTES (not body). The body retains the
+    raw syslog line.
 
     message            → attributes["message"]
-    process/appname    → attributes["appname"]
-    hostname           → attributes["hostname"] (rfc5424) or net.peer.name (rfc3164)
+    process/appname    → attributes["appname"]        (rfc5424 / rfc3164 only)
+    hostname           → attributes["hostname"]       (rfc5424, ISO, Cisco IOS)
+                         or attributes["net.peer.name"] (rfc3164, or fallback
+                         via reverse-DNS of sender IP)
     pid                → attributes["proc_id"]
     severity           → severity_number (OTel numeric severity)
     facility           → attributes["facility"]
     body               → raw syslog line as string
+
+  Hostname resolution priority (see transform/syslog_hostname_parsing):
+    1. attributes["hostname"]      (parsed from syslog header — most reliable)
+    2. attributes["net.peer.name"] (reverse-DNS of sender IP — RFC3164 fallback)
+    3. attributes["client.address"] (already-normalized semconv equivalent)
 
 */}}
 
@@ -212,6 +220,10 @@ transform/syslog_user_extraction:
 {{/*
   ============================================================================
   Hostname parsing - extract node name, audit source, building block
+  Sources (in priority order):
+    1. attributes["hostname"]      - parsed from syslog header (rfc5424, ISO, Cisco IOS)
+    2. attributes["net.peer.name"] - reverse-DNS of sender IP (rfc3164 fallback)
+    3. attributes["client.address"] - already-normalized semconv equivalent
   ============================================================================
 */}}
 transform/syslog_hostname_parsing:
@@ -219,21 +231,30 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
-        # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
+        # ---- ESXi node name extraction (node### / nodeswift##) ----
+        # Primary: parsed syslog hostname
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
-        # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
+        # Fallback 1: net.peer.name (RFC3164 reverse-DNS)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["node_nodename"] == nil and log.attributes["net.peer.name"] != nil'
+        # Fallback 2: client.address (semconv-normalized)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["client.address"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["node_nodename"] == nil and log.attributes["client.address"] != nil'
         # Set audit source to ESXi if node name was extracted
         - 'set(log.attributes["audit_source"], "ESXi") where log.attributes["node_nodename"] != nil'
-        # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
-        # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
-        # Extract building block from hostname (for ESXi and NSX-T)
+
+        # ---- NSX-T hostname detection (nsx-ctl*) ----
+        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["audit_source"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
+        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["audit_source"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
+        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["audit_source"] == nil and log.attributes["client.address"] != nil and IsMatch(log.attributes["client.address"], "nsx-ctl.*")'
+
+        # ---- VCSA hostname detection (vc-*) ----
+        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["audit_source"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
+        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["audit_source"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["audit_source"] == nil and log.attributes["client.address"] != nil and IsMatch(log.attributes["client.address"], "vc-.*")'
+
+        # ---- Building block extraction (bb###) for ESXi and NSX-T ----
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["node_building_block"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["client.address"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["node_building_block"] == nil and log.attributes["client.address"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
 
 {{/*
   ============================================================================
