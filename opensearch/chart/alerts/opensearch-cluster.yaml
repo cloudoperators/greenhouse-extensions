@@ -5,9 +5,7 @@ groups:
     rules:
       - alert: OpenSearchClusterRed
         expr: |
-          (sum by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"}))
-          /
-          (count by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"}))
+          max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
           == 2
         for: 5m
         labels:
@@ -21,9 +19,7 @@ groups:
 
       - alert: OpenSearchClusterYellow
         expr: |
-          (sum by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"}))
-          /
-          (count by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"}))
+          max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
           == 1
         for: 120m
         labels:
@@ -34,18 +30,6 @@ groups:
         annotations:
           summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is YELLOW"
           description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in YELLOW status for more than 120 minutes"
-
-      - alert: OpenSearchDiskSpaceRunningLow
-        expr: predict_linear(opensearch_fs_total_free_bytes{namespace="{{ .Release.Namespace }}"}[24h], 24*3600) < 0
-        for: 1h
-        labels:
-          severity: info # critical
-          component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
-          {{- include "opensearch-alert-labels" . | nindent 10 }}
-        annotations:
-          summary: "OpenSearch disk space predicted to run out"
-          description: "OpenSearch node {{`{{ $labels.node }}`}} in cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is predicted to run out of disk space within 24 hours"
 
       - alert: OpenSearchIndexSizeTooLarge
         expr: (max by (opensearch_org_opensearch_cluster, index) (opensearch_index_store_size_bytes{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(opensearch_org_opensearch_cluster, index) (rate(opensearch_index_doc_number{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"}[15m]) > 1)

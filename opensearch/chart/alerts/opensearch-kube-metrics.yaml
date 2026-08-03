@@ -1,0 +1,36 @@
+# Alerts using kube-side metrics (kubelet/kube-state/node-exporter); routed to the kube-monitoring Prometheus.
+groups:
+  - name: opensearch-kube-metrics
+    rules:
+      # Per-tier capacity alert: whole data tier running out of disk, needs more nodes/disk.
+      - alert: OpenSearchHotTierDiskFull
+        expr: |
+          sum(kubelet_volume_stats_used_bytes{namespace="{{ .Release.Namespace }}", persistentvolumeclaim=~"data-opensearch-.*-data-hot-.*"})
+          /
+          sum(kubelet_volume_stats_capacity_bytes{namespace="{{ .Release.Namespace }}", persistentvolumeclaim=~"data-opensearch-.*-data-hot-.*"})
+          > 0.85
+        for: 30m
+        labels:
+          severity: info # critical
+          component: opensearch
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch hot tier in {{ .Release.Namespace }} above 85% disk usage"
+          description: "The OpenSearch hot data tier in namespace {{ .Release.Namespace }} is over 85% full across all nodes. Add disk or nodes."
+
+      - alert: OpenSearchWarmTierDiskFull
+        expr: |
+          sum(kubelet_volume_stats_used_bytes{namespace="{{ .Release.Namespace }}", persistentvolumeclaim=~"data-opensearch-.*-data-warm-.*"})
+          /
+          sum(kubelet_volume_stats_capacity_bytes{namespace="{{ .Release.Namespace }}", persistentvolumeclaim=~"data-opensearch-.*-data-warm-.*"})
+          > 0.85
+        for: 30m
+        labels:
+          severity: info # critical
+          component: opensearch
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch warm tier in {{ .Release.Namespace }} above 85% disk usage"
+          description: "The OpenSearch warm data tier in namespace {{ .Release.Namespace }} is over 85% full across all nodes. Add disk or nodes."
