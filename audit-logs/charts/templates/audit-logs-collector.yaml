@@ -123,6 +123,7 @@ spec:
           - /var/log/pods/dns_coredns-api*/audit/*.log
           - /var/log/pods/vault*/audit/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
+          - /var/log/pods/kube-monitoring_kube-monitoring-scaleout-falco*/*/*.log
         max_log_size: 16384
         operators:
           - id: container-parser
