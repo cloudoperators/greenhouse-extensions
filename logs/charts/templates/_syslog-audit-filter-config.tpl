@@ -18,7 +18,6 @@ SPDX-License-Identifier: Apache-2.0
   7. Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
   8. VM event parsing (ESXi reconfigure/error events)
   9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
- 10. Priority decomposition for zero-padded RFC3164 senders (Fortinet, Cisco ACI)
 
   Field mapping (syslog → OTel receiver attributes):
     The OTel syslog receiver (rfc5424, rfc3164, ISO8601, Cisco IOS, and the
@@ -32,7 +31,8 @@ SPDX-License-Identifier: Apache-2.0
                          via reverse-DNS of sender IP)
     pid                → attributes["proc_id"]
     severity           → severity_number (OTel numeric severity)
-                         Computed via transform/syslog_priority_decompose for rfc3164_padded.
+                         Only populated by the built-in syslog_parser (rfc5424, rfc3164).
+                         For rfc3164_padded / ISO / Cisco IOS the field remains unset.
     facility           → attributes["facility"]
     body               → raw syslog line as string
 
@@ -73,46 +73,6 @@ transform/syslog_forwarded_by:
         - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
         - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
         - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
-
-{{/*
-  ============================================================================
-  Priority → severity + facility decomposition
-  Logs parsed by the custom zero-padded RFC3164 regex parser (syslog.format
-  == "rfc3164_padded") only carry the raw priority as a string. The
-  built-in syslog_parser computes severity_number/facility automatically, but
-  our regex_parser cannot. This processor fills that gap so downstream
-  filters keyed on severity_number and semconv normalization keyed on
-  facility continue to work uniformly.
-
-  RFC 3164: PRI = facility * 8 + severity
-    severity 0=Emergency, 1=Alert, 2=Critical, 3=Error,
-             4=Warning, 5=Notice, 6=Info, 7=Debug
-  ============================================================================
-*/}}
-transform/syslog_priority_decompose:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'attributes["syslog.format"] == "rfc3164_padded"'
-        - 'attributes["priority"] != nil'
-      statements:
-        - 'set(attributes["_pri_int"], Int(attributes["priority"]))'
-        - 'set(attributes["_severity"], attributes["_pri_int"] % 8)'
-        - 'set(attributes["_facility"], attributes["_pri_int"] / 8)'
-        # Map severity 0-7 to OTel severity_number
-        - 'set(severity_number, SEVERITY_NUMBER_FATAL) where attributes["_severity"] <= 2'
-        - 'set(severity_number, SEVERITY_NUMBER_ERROR) where attributes["_severity"] == 3'
-        - 'set(severity_number, SEVERITY_NUMBER_WARN)  where attributes["_severity"] == 4'
-        - 'set(severity_number, SEVERITY_NUMBER_INFO)  where attributes["_severity"] == 5 or attributes["_severity"] == 6'
-        - 'set(severity_number, SEVERITY_NUMBER_DEBUG) where attributes["_severity"] == 7'
-        # Populate facility in the same shape the built-in parser produces,
-        # so the semconv normalization step maps it to syslog.facility.code.
-        - 'set(attributes["facility"], attributes["_facility"])'
-        # Clean up temp keys
-        - 'delete_key(attributes, "_pri_int")'
-        - 'delete_key(attributes, "_severity")'
-        - 'delete_key(attributes, "_facility")'
 
 {{/*
   ============================================================================
