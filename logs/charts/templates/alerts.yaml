@@ -50,6 +50,7 @@ spec:
         expr: sum by (region, k8s_node_name, pod) (rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
         for: 120m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md
@@ -90,7 +91,8 @@ spec:
         expr: sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) / sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name) > 4
         for: 6h
         labels:
-          severity: info
+          context: logshipping
+          severity: warning
           no_alert_on_absence: "true"
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
@@ -104,6 +106,7 @@ spec:
         expr: sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
         for: 2h
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
@@ -118,6 +121,7 @@ spec:
         expr: sum(increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records_total{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
         for: 1h
         labels:
+          context: logshipping
           severity: info
           no_alert_on_absence: "true"
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
@@ -149,6 +153,7 @@ spec:
           ) > (14 * 0.005)
         for: 2m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
@@ -180,6 +185,7 @@ spec:
           ) > (6 * 0.005)
         for: 15m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
@@ -216,6 +222,7 @@ spec:
           ) > 0.1
         for: 5m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md
@@ -235,6 +242,7 @@ spec:
           ) > 0.8
         for: 5m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
@@ -254,6 +262,7 @@ spec:
           ) >= 1.0
         for: 2m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
@@ -279,6 +288,7 @@ spec:
           ) > 5
         for: 5m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
@@ -306,6 +316,7 @@ spec:
           ) < 0.2
         for: 10m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
@@ -320,9 +331,10 @@ spec:
         expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"journald"}[1m])) > 0
         for: 5m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/JournaldReceiverRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Journald receiver is refusing logs
@@ -334,9 +346,10 @@ spec:
         expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"k8s_events"}[1m])) > 0
         for: 5m
         labels:
+          context: logshipping
           severity: warning
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/K8sEventsReceiverRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: k8s_events receiver is refusing logs
