@@ -30,7 +30,7 @@ tcp_log/syslog:
     # to keep severity_number / facility / structured appname & proc_id intact.
     # Space-padded single-digit days ("Aug  5") also correctly fall through to the
     # built-in parser, since the char after the space is a space, not "0".
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0\\d "'
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
       output: syslog_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_3164_parser
@@ -144,7 +144,7 @@ udp_log/syslog:
       output: syslog_udp_5424_parser
     - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_udp_cisco_parser
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0\\d "'
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
       output: syslog_udp_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_udp_3164_parser
@@ -261,7 +261,7 @@ tcp_log/syslog_tls:
       output: syslog_tls_5424_parser
     - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_tls_cisco_parser
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0\\d "'
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
       output: syslog_tls_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_tls_3164_parser
