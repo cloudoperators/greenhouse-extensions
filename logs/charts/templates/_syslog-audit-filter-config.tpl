@@ -110,7 +110,9 @@ transform/syslog_semconv_normalization:
         - 'set(attributes["syslog.facility.name"], attributes["facility_text"]) where attributes["syslog.facility.name"] == nil and attributes["facility_text"] != nil'
 
         # Resource: host identity
+        # Transforms host.name from fqdn to short-name
         - 'set(resource.attributes["host.name"], attributes["hostname"]) where resource.attributes["host.name"] == nil and attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"])'
 
 {{/*
   ============================================================================
