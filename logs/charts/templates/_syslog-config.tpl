@@ -83,7 +83,7 @@ tcp_log/syslog:
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan _2 15:04:05.000'
+      layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
     output: syslog_cisco_cleanup
   - type: remove
@@ -191,7 +191,7 @@ udp_log/syslog:
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan _2 15:04:05.000'
+      layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
     output: syslog_udp_cisco_cleanup
   - type: remove
@@ -306,7 +306,7 @@ tcp_log/syslog_tls:
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan _2 15:04:05.000'
+      layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
     output: syslog_tls_cisco_cleanup
   - type: remove
