@@ -1,0 +1,29 @@
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.prometheus.rules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-alerts" $.Release.Name | trunc 63 }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+{{- if $.Values.auditLogs.prometheus.rules.labels }}
+{{ toYaml $.Values.auditLogs.prometheus.rules.labels | indent 4 }}
+{{- end }}
+spec:
+  groups:
+  - name: audit-logs-plugin-alerts
+    rules:
+  {{- if (has "KafkaReceiverRefusedAuditLogs" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: KafkaReceiverRefusedAuditLogs
+        expr: sum by (namespace, receiver, pod) (rate(otelcol_receiver_refused_log_records_total{receiver=~"kafka/(audit|hermes|syslog-audit)"}[10m])) > 0
+        for: 1h
+        labels:
+          severity: critical
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/KafkaReceiverRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Audit log ingestion stalled for over 1h ({{`{{ $labels.receiver }}`}})
+          description: 'Audit ingester''s Kafka receiver has been refusing records for over 1h. Audit events are being retained in Kafka but not indexed in OpenSearch — compliance-visible gap. Kafka retention will start dropping records once elapsed. Follow the playbook and roll the corrected index template urgently.'
+  {{- end }}
+{{- end }}

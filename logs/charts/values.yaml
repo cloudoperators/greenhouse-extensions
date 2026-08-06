@@ -285,6 +285,7 @@ openTelemetry:
       # -- PrometheusRules to enable.
       enabled:
         - FilelogRefusedLogs
+        - KafkaReceiverRefusedLogs
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth

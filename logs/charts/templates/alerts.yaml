@@ -23,12 +23,26 @@ spec:
         for: 5m
         labels:
           severity: warning
-          no_alert_on_absence: "true" # OTel will not expose the metric if null 
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
           description: Filelog receiver is increasingly rejecting logs
+  {{- end }}
+
+  {{- if (has "KafkaReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: KafkaReceiverRefusedLogs
+        expr: sum by (namespace, receiver, pod) (rate(otelcol_receiver_refused_log_records_total{receiver=~"kafka/.*"}[10m])) > 0
+        for: 15m
+        labels:
+          severity: warning
+          no_alert_on_absence: "true" # OTel will not expose the metric if null
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/KafkaReceiverRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Kafka -> OpenSearch ingestion is stalling in {{`{{ $labels.namespace }}`}} ({{`{{ $labels.receiver }}`}})
+          description: 'The ingester''s Kafka receiver has been refusing records for 15m. Downstream (OpenSearch bulk) is rejecting the batch — most commonly a mapping / field-type mismatch (mapper_parsing_exception). Kafka offsets stall until fixed. Check pod {{`{{ $labels.pod }}`}} logs.'
   {{- end }}
 
   {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}

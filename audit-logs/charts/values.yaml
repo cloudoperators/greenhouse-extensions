@@ -168,6 +168,10 @@ auditLogs:
       # -- Enables PrometheusRule resources to be created.
       create: true
 
+      # -- PrometheusRules to enable.
+      enabled:
+        - KafkaReceiverRefusedAuditLogs
+
       # -- Labels for PrometheusRules.
       labels: {}
 
