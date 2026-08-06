@@ -7,6 +7,18 @@ tcp_log/syslog:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
   add_attributes: true
   operators:
+  - type: regex_parser
+    id: syslog_deframe
+    regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
+    parse_from: body
+    on_error: send
+    output: syslog_deframe_promote
+  - type: move
+    id: syslog_deframe_promote
+    from: attributes.syslogmsg
+    to: body
+    on_error: send
+    output: syslog_format_router
   # Routes incoming syslog messages based on their header format:
   #   RFC 5424:              "<priority>VERSION timestamp ..." e.g. "<134>1 2026-07-10T09:32:35..."
   #   Cisco IOS:             "<priority>SEQ: HOSTNAME: Mmm dd HH:MM:SS[.ms]: %FACILITY-SEV-MNEMONIC: msg"
@@ -255,6 +267,18 @@ tcp_log/syslog_tls:
     ca_file: /etc/ssl/syslog-tls/ca.crt
     {{- end }}
   operators:
+  - type: regex_parser
+    id: syslog_tls_deframe
+    regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
+    parse_from: body
+    on_error: send
+    output: syslog_tls_deframe_promote
+  - type: move
+    id: syslog_tls_deframe_promote
+    from: attributes.syslogmsg
+    to: body
+    on_error: send
+    output: syslog_tls_format_router
   # Same routing logic as tcp_log/syslog. See comments above for format details.
   - type: router
     id: syslog_tls_format_router
