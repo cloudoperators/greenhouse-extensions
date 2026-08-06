@@ -198,7 +198,7 @@ spec:
             conditions:
               - resource.attributes["k8s.container.name"] == "keystone-api"
             statements:
-              - set(log.attributes["sap.cc.audit.source"], "keystone-api")
+              - set(log.attributes["audit.source"], "keystone-api")
 
       transform/keystone_global_attributes:
         error_mode: ignore
@@ -207,7 +207,7 @@ spec:
             conditions:
               - resource.attributes["k8s.namespace.name"] == "monsoon3global"
             statements:
-              - set(log.attributes["sap.cc.audit.source"], "keystone-global-api")
+              - set(log.attributes["audit.source"], "keystone-global-api")
 
       transform/vault_attributes:
         error_mode: ignore
@@ -216,7 +216,7 @@ spec:
             conditions:
               - resource.attributes["k8s.namespace.name"] == "vault"
             statements:
-              - set(log.attributes["sap.cc.audit.source"], "vault")
+              - set(log.attributes["audit.source"], "vault")
 
       transform/falco_attributes:
         error_mode: ignore
@@ -225,7 +225,7 @@ spec:
             conditions:
               - resource.attributes["k8s.container.name"] == "falco"
             statements:
-              - set(log.attributes["sap.cc.audit.source"], "falco")
+              - set(log.attributes["audit.source"], "falco")
 
       transform/keystone_api:
         error_mode: ignore

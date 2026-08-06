@@ -9,15 +9,17 @@ SPDX-License-Identifier: Apache-2.0
   for VMware infrastructure sources (ESXi, vCSA, NSX-T).
 
   This implements:
-  1. Early drop of known non-audit-relevant log messages (by content pattern)
-  2. Process-based audit classification (whitelist of audit-relevant processes)
-  3. Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
-  4. Drop of verbose logs
-  5. Routing of non-audit logs to a separate index
-  6. User field extraction (ESXi user, failed login user)
-  7. Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
-  8. VM event parsing (ESXi reconfigure/error events)
-  9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  1.  Early drop of known non-audit-relevant log messages (by content pattern)
+  2.  Process-based audit classification (whitelist of audit-relevant processes)
+  3.  Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
+  4.  Drop of verbose logs
+  5.  Routing of non-audit logs to a separate index
+  6.  User field extraction (ESXi user, failed login user)
+  7.  Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
+  8.  VM event parsing (ESXi reconfigure/error events)
+  9.  SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  10. Appname recovery from message when the receiver's ISO8601 regex_parser
+      path did not populate it (fixes ESXi audit routing)
 
   Field mapping (syslog → OTel receiver attributes):
     The OTel syslog receiver (both rfc5424 and rfc3164) parses syslog fields
@@ -66,6 +68,18 @@ transform/syslog_forwarded_by:
 
 {{/*
   ============================================================================
+  Extract appname from message body
+  ============================================================================
+*/}}
+transform/syslog_extract_appname_from_message:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and log.attributes["message"] != nil'
+
+{{/*
+  ============================================================================
   Semantic Convention Normalization
   Maps OTel syslog receiver legacy field names to canonical OTel semantic
   convention field names.
@@ -100,7 +114,9 @@ transform/syslog_semconv_normalization:
         - 'set(attributes["syslog.facility.name"], attributes["facility_text"]) where attributes["syslog.facility.name"] == nil and attributes["facility_text"] != nil'
 
         # Resource: host identity
+        # Transforms host.name from fqdn to short-name
         - 'set(resource.attributes["host.name"], attributes["hostname"]) where resource.attributes["host.name"] == nil and attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
 
 {{/*
   ============================================================================
@@ -224,16 +240,16 @@ transform/syslog_hostname_parsing:
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
         # Set audit source to ESXi if node name was extracted
-        - 'set(log.attributes["audit_source"], "ESXi") where log.attributes["node_nodename"] != nil'
+        - 'set(log.attributes["audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
         # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
+        - 'set(log.attributes["audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
+        - 'set(log.attributes["audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
         # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        - 'set(log.attributes["audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
+        - 'set(log.attributes["audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
         # Extract building block from hostname (for ESXi and NSX-T)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["audit.source"] == "ESXi" or log.attributes["audit.source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit.source"] == "ESXi" or log.attributes["audit.source"] == "NSX-T")'
 
 {{/*
   ============================================================================
@@ -245,7 +261,7 @@ transform/syslog_esxi_vm_events:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit_source"] == "ESXi"'
+        - 'log.attributes["audit.source"] == "ESXi"'
       statements:
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert")'
@@ -260,7 +276,7 @@ transform/syslog_esxi_sshd:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit_source"] == "ESXi"'
+        - 'log.attributes["audit.source"] == "ESXi"'
         - 'log.attributes["appname"] == "sshd"'
         - 'IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
