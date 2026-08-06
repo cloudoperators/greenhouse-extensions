@@ -122,6 +122,7 @@ spec:
           - /var/log/pods/*/keystone-api/*.log
           - /var/log/pods/dns_coredns-api*/audit/*.log
           - /var/log/pods/vault*/audit/*.log
+          - /var/log/pods/vault_vault-tec-*/vault-tec*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-scaleout-falco*/*/*.log
         max_log_size: 16384
@@ -217,6 +218,15 @@ spec:
               - resource.attributes["k8s.namespace.name"] == "vault"
             statements:
               - set(log.attributes["audit.source"], "vault")
+
+      transform/vault-tec_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "vault-tec"
+            statements:
+              - set(log.attributes["audit.source"], "vault-tec")
 
       transform/falco_attributes:
         error_mode: ignore
@@ -683,7 +693,7 @@ spec:
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [file_log/containerd]
-          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/falco_attributes,transform/ingress,batch]
+          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/ingress,batch]
           exporters: [routing]
 {{- end }}
 
