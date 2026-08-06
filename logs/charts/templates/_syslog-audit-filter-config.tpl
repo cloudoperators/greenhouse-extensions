@@ -9,15 +9,17 @@ SPDX-License-Identifier: Apache-2.0
   for VMware infrastructure sources (ESXi, vCSA, NSX-T).
 
   This implements:
-  1. Early drop of known non-audit-relevant log messages (by content pattern)
-  2. Process-based audit classification (whitelist of audit-relevant processes)
-  3. Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
-  4. Drop of verbose logs
-  5. Routing of non-audit logs to a separate index
-  6. User field extraction (ESXi user, failed login user)
-  7. Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
-  8. VM event parsing (ESXi reconfigure/error events)
-  9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  1.  Early drop of known non-audit-relevant log messages (by content pattern)
+  2.  Process-based audit classification (whitelist of audit-relevant processes)
+  3.  Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
+  4.  Drop of verbose logs
+  5.  Routing of non-audit logs to a separate index
+  6.  User field extraction (ESXi user, failed login user)
+  7.  Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
+  8.  VM event parsing (ESXi reconfigure/error events)
+  9.  SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  10. Appname recovery from message when the receiver's ISO8601 regex_parser
+      path did not populate it (fixes ESXi audit routing)
 
   Field mapping (syslog → OTel receiver attributes):
     The OTel syslog receiver (both rfc5424 and rfc3164) parses syslog fields
@@ -63,6 +65,40 @@ transform/syslog_forwarded_by:
         - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
         - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
         - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+
+{{/*
+  ============================================================================
+  Extract appname from message body
+  The tcp_log syslog receiver routes lines with an ISO8601 timestamp
+  (e.g. "<166>2026-08-06T07:28:13.586Z host Hostd: …") through a
+  regex_parser that only captures priority/timestamp/hostname/message —
+  it does NOT populate `appname`. The tag ("Hostd", "sshd", "vpxd", …)
+  stays glued to the front of `message`.
+
+  Without `appname`:
+    - transform/syslog_audit_classification cannot flip audit_relevant to
+      "true" for audit-relevant processes (Hostd, NSX, procstate, shell,
+      sshd, ssoAudit, vpxd, ssoadminserver, sudo), so ESXi audit records
+      wrongly land in the non-audit datastream.
+    - transform/syslog_user_extraction skips its Hostd/vobd/vpxd-guarded
+      login-failure grok.
+    - transform/syslog_esxi_sshd and its VM-event parser never fire.
+
+  This transform recovers appname from the leading "<tag>:" token in
+  `message` when appname is not already set, then strips the tag from
+  `message` so downstream matchers do not re-match it.
+
+  Must be wired AFTER transform/syslog_forwarded_by and BEFORE
+  transform/syslog_user_extraction in every syslog pipeline.
+  ============================================================================
+*/}}
+transform/syslog_extract_appname_from_message:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and log.attributes["message"] != nil'
+        - 'replace_pattern(log.attributes["message"], "^[A-Za-z0-9_.-]+:\\s*", "") where log.attributes["appname"] != nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "^[A-Za-z0-9_.-]+:\\s*")'
 
 {{/*
   ============================================================================
