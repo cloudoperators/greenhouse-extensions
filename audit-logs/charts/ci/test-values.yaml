@@ -39,6 +39,16 @@ auditLogs:
       protocol_version: "3.9.0"
       encoding: otlp_json
       compression: snappy
+    logstashExternal:
+      syslog:
+        enabled: true
+        port: 514
+      http:
+        enabled: true
+        port: 443
+      mtls:
+        enabled: true
+        port: 1081
   prometheus:
     podMonitor:
       enabled: true

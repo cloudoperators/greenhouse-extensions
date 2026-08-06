@@ -146,6 +146,16 @@ spec:
   {{- include "auditpoller.receiver" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logstashExternal.syslog.enabled }}
+  {{- include "syslog.receivers" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.http.enabled }}
+  {{- include "http_audit.receiver" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.mtls.enabled }}
+  {{- include "mtls_audit.receiver" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -353,6 +363,16 @@ spec:
               - set(log.body, "") where log.attributes["type"] != nil
 {{- end }}
 
+
+{{- if .Values.auditLogs.logstashExternal.syslog.enabled }}
+  {{- include "syslog.processors" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.http.enabled }}
+  {{- include "http_audit.processors" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.mtls.enabled }}
+  {{- include "mtls_audit.processors" . | nindent 6 -}}
+{{- end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       transform/kube_audit:
@@ -591,6 +611,9 @@ spec:
           username: ${failover_username_a}
           password: ${failover_password_a}
   {{- include "failover.extension" . | nindent 6 }}
+{{- if .Values.auditLogs.logstashExternal.http.enabled }}
+  {{- include "http_audit.extension" . | nindent 6 -}}
+{{- end }}
 {{- end }}
     connectors:
       routing:
@@ -626,6 +649,8 @@ spec:
 {{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if .Values.auditLogs.logstashExternal.http.enabled }}
+        - basicauth/http_audit
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
@@ -698,4 +723,15 @@ spec:
           receivers: [k8s_events]
           processors: [attributes/k8sevents,transform/consolidate_label,resource,batch]
           exporters: [routing]
+
+{{- if .Values.auditLogs.logstashExternal.syslog.enabled }}
+  {{- include "syslog.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.http.enabled }}
+  {{- include "http_audit.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.logstashExternal.mtls.enabled }}
+  {{- include "mtls_audit.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- end }}
 {{- end }}

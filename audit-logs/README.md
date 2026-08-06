@@ -102,6 +102,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.tls.insecure_skip_verify | bool | `false` | Skip server certificate verification. Leave false for production. |
 | auditLogs.logsCollector.kafka.topic | string | `""` | Kafka topic name for audit logs |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
+| auditLogs.logstashExternal.http.enabled | bool | `false` | Activates the HTTP OTLP receiver with basic-auth and TLS. Translates the logstash http input (AUDIT_HTTP_USER/PWD). Parses JSON body and sets sap.cc.audit.source from event.details.serviceProvider or logger_name. |
+| auditLogs.logstashExternal.http.port | int | `443` | Port to listen on for the HTTP OTLP receiver. |
+| auditLogs.logstashExternal.mtls.enabled | bool | `false` | Activates the mTLS OTLP receiver for kube-api audit events. Translates the logstash mtls input (kube-api tag). Parses kube-api audit JSON, fixes managedFields/status type conflicts and uses requestReceivedTimestamp. |
+| auditLogs.logstashExternal.mtls.port | int | `1081` | Port to listen on for the mTLS OTLP receiver. |
+| auditLogs.logstashExternal.syslog.enabled | bool | `false` | Activates syslog UDP/TCP receivers (rfc3164). Translates the logstash syslog input with source detection for remoteboard/ucsc/hsm. |
+| auditLogs.logstashExternal.syslog.port | int | `514` | Port to listen on for syslog UDP and TCP. |
 | auditLogs.nodeSelector | object | `{}` |  |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |
@@ -117,7 +123,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | auditLogs.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
 | auditLogs.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
-| auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
+| auditLogs.prometheus.serviceMonitor.enabled | bool | `false` |  |
 | auditLogs.region | string | `nil` | Region label for Logging |
 | auditLogs.terminationGracePeriodSeconds | int | `30` | Grace period for pod termination in seconds |
 | auditPoller.enabled | bool | `false` | Enables the audit-poller deployment for polling IAS audit logs |

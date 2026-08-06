@@ -150,11 +150,27 @@ auditLogs:
     collectors: {}
 
 
+  logstashExternal:
+    syslog:
+      # -- Activates syslog UDP/TCP receivers (rfc3164). Translates the logstash syslog input with source detection for remoteboard/ucsc/hsm.
+      enabled: false
+      # -- Port to listen on for syslog UDP and TCP.
+      port: 514
+    http:
+      # -- Activates the HTTP OTLP receiver with basic-auth and TLS. Translates the logstash http input (AUDIT_HTTP_USER/PWD). Parses JSON body and sets sap.cc.audit.source from event.details.serviceProvider or logger_name.
+      enabled: false
+      # -- Port to listen on for the HTTP OTLP receiver.
+      port: 443
+    mtls:
+      # -- Activates the mTLS OTLP receiver for kube-api audit events. Translates the logstash mtls input (kube-api tag). Parses kube-api audit JSON, fixes managedFields/status type conflicts and uses requestReceivedTimestamp.
+      enabled: false
+      # -- Port to listen on for the mTLS OTLP receiver.
+      port: 1081
+    
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     podMonitor:
       enabled: false
-    # -- Activates the pod-monitoring for the Logs Collector.
     serviceMonitor:
       enabled: false
 
