@@ -284,14 +284,17 @@ openTelemetry:
 
       # -- PrometheusRules to enable.
       enabled:
-        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
         - OTelLogsMissing
         - OTelLogsIncreasing
         - OTelLogsDecreasing
-        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsSLOBurnRateWarning
+        - OTelLogsExportFailureRatioHigh
+        - OTelExporterQueueFull
 
       # -- Labels for PrometheusRules.
       labels: {}
