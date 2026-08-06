@@ -7,13 +7,26 @@ tcp_log/syslog:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
   add_attributes: true
   operators:
+  - type: regex_parser
+    id: syslog_deframe
+    regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
+    parse_from: body
+    on_error: send
+    output: syslog_deframe_promote
+  - type: move
+    id: syslog_deframe_promote
+    from: attributes.syslogmsg
+    to: body
+    on_error: send
+    output: syslog_format_router
   # Routes incoming syslog messages based on their header format:
   #   RFC 5424:              "<priority>VERSION timestamp ..." e.g. "<134>1 2026-07-10T09:32:35..."
   #   Cisco IOS:             "<priority>SEQ: HOSTNAME: Mmm dd HH:MM:SS[.ms]: %FACILITY-SEV-MNEMONIC: msg"
   #                          e.g. "<190>137967: eu-de-1-vp101a: Aug  3 13:03:58.869: %SYS-6-..."
-  #   RFC 3164 (zero-pad):   "<priority>Mmm 0D HH:MM:SS ..." (NON-STANDARD, Fortinet / Cisco ACI, days 01-09 only)
-  #                          e.g. "<44>Aug 05 13:04:13 eu-de-1-fw401a CEF:0|..."
-  #   RFC 3164 (standard):   "<priority>Mmm _d HH:MM:SS ..."  e.g. "<13>Jan 15 10:30:00..." or "Aug  5 13:04:44"
+  #   RFC 3164 (1-digit day):"<priority>Mmm  D HH:MM:SS ..." zero-padded ("Aug 06") OR space-padded ("Aug  6"),
+  #                          days 1-9 only (Fortinet / Cisco ACI). e.g. "<44>Aug 05 13:04:13 eu-de-1-fw401a CEF:0|..."
+  #   RFC 3164 (2-digit day):"<priority>Mmm DD HH:MM:SS ..." days 10-31, handled by built-in parser.
+  #                          e.g. "<13>Jan 15 10:30:00..."
   #   RFC 3164 + ISO 8601:   "<priority>YYYY-MM-DDTHH:MM:SS ..." (VMware ESXi/vSAN)
   #                          e.g. "<12>2026-07-10T09:34:11.260Z..."
   #   Unknown:               anything else (no syslog header, continuation lines, garbage)
@@ -24,13 +37,12 @@ tcp_log/syslog:
       output: syslog_5424_parser
     - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_cisco_parser
-    # Zero-padded day: only matches days 01-09 (non-standard Fortinet / Cisco ACI).
-    # Using "0\d" (not "\d{2}") prevents this route from swallowing standard
-    # RFC3164 messages with 2-digit days 10-31, which must reach syslog_3164_parser
-    # to keep severity_number / facility / structured appname & proc_id intact.
-    # Space-padded single-digit days ("Aug  5") also correctly fall through to the
-    # built-in parser, since the char after the space is a space, not "0".
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
+    # Non-standard single-digit days: zero-padded ("Aug 06") OR space-padded ("Aug  6"),
+    # days 1-9 only. Routed to the regex parser because the built-in RFC3164 parser
+    # mishandles these Fortinet/Cisco-ACI style messages (e.g. CEF payloads),
+    # dropping the hostname. 2-digit days (10-31) still fall through to the built-in
+    # syslog_3164_parser to preserve severity_number / facility / appname / proc_id.
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (0[1-9]| [1-9]) "'
       output: syslog_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_3164_parser
@@ -49,17 +61,19 @@ tcp_log/syslog:
     on_error: send
     output: add_format_rfc3164
 
-  # Zero-padded RFC3164 fallback (Fortinet, Cisco ACI, etc.), days 01-09 only.
-  # Handles "<pri>Mmm 0D HH:MM:SS HOSTNAME [TAG[PID]:] MESSAGE"
+  # Single-digit-day RFC3164 fallback (Fortinet, Cisco ACI, etc.), days 1-9 only,
+  # zero-padded ("Aug 06") or space-padded ("Aug  6"). The "\s+\d{1,2}" in the regex
+  # and the "Jan _2" layout tolerate both paddings.
+  # Handles "<pri>Mmm  D HH:MM:SS HOSTNAME [TAG[PID]:] MESSAGE"
   # The optional appname group only matches "TAG: " or "TAG[PID]: " (colon + whitespace),
   # so payloads like "CEF:0|..." or "%LOG_LOCAL7-2-..." remain in the message field.
   - type: regex_parser
     id: syslog_3164_padded_parser
-    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
+    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan 02 15:04:05'
+      layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
     output: syslog_3164_padded_cleanup
@@ -144,7 +158,7 @@ udp_log/syslog:
       output: syslog_udp_5424_parser
     - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_udp_cisco_parser
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (0[1-9]| [1-9]) "'
       output: syslog_udp_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_udp_3164_parser
@@ -162,14 +176,14 @@ udp_log/syslog:
     on_error: send
     output: add_udp_format_rfc3164
 
-  # Zero-padded RFC3164 fallback (UDP), days 01-09 only.
+  # Single-digit-day RFC3164 fallback (UDP), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_udp_3164_padded_parser
-    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
+    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan 02 15:04:05'
+      layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
     output: syslog_udp_3164_padded_cleanup
@@ -253,6 +267,18 @@ tcp_log/syslog_tls:
     ca_file: /etc/ssl/syslog-tls/ca.crt
     {{- end }}
   operators:
+  - type: regex_parser
+    id: syslog_tls_deframe
+    regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
+    parse_from: body
+    on_error: send
+    output: syslog_tls_deframe_promote
+  - type: move
+    id: syslog_tls_deframe_promote
+    from: attributes.syslogmsg
+    to: body
+    on_error: send
+    output: syslog_tls_format_router
   # Same routing logic as tcp_log/syslog. See comments above for format details.
   - type: router
     id: syslog_tls_format_router
@@ -261,7 +287,7 @@ tcp_log/syslog_tls:
       output: syslog_tls_5424_parser
     - expr: 'body matches "^<\\d+>\\d+: \\S+: (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_tls_cisco_parser
-    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) 0[1-9] "'
+    - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (0[1-9]| [1-9]) "'
       output: syslog_tls_3164_padded_parser
     - expr: 'body matches "^<\\d+>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"'
       output: syslog_tls_3164_parser
@@ -279,14 +305,14 @@ tcp_log/syslog_tls:
     on_error: send
     output: add_tls_format_rfc3164
 
-  # Zero-padded RFC3164 fallback (TLS), days 01-09 only.
+  # Single-digit-day RFC3164 fallback (TLS), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_tls_3164_padded_parser
-    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
+    regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
     on_error: send
     timestamp:
       parse_from: attributes.timestamp
-      layout: 'Jan 02 15:04:05'
+      layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
     output: syslog_tls_3164_padded_cleanup
