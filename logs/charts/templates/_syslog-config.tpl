@@ -393,6 +393,7 @@ logs/syslog_tcp:
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
+    - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
@@ -411,6 +412,7 @@ logs/syslog_udp:
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
+    - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
@@ -431,6 +433,7 @@ logs/syslog_tcp_tls:
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
+    - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_esxi_vm_events
