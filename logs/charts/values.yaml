@@ -321,7 +321,7 @@ openTelemetry:
 
       # -- PrometheusRules to enable.
       enabled:
-        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
