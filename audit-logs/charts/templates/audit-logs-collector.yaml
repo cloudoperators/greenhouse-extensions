@@ -364,6 +364,8 @@ spec:
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
               - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["responseObject"]["data"] != nil
+              - delete_key(attributes["requestObject"]["metadata"], "labels") where attributes["requestObject"] != nil and attributes["requestObject"]["metadata"] != nil and attributes["requestObject"]["metadata"]["labels"] != nil
+              - delete_key(attributes["responseObject"]["metadata"], "labels") where attributes["responseObject"] != nil and attributes["responseObject"]["metadata"] != nil and attributes["responseObject"]["metadata"]["labels"] != nil
 {{- end }}
 
       attributes/cluster:
