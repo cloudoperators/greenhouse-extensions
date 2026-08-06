@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.kafka.enabled .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-alerts" .Values.kafka.name | trunc 63 }}
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+    {{- with .Values.monitoring.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+    - name: kafka.rules
+      rules:
+        - alert: KafkaConsumerLagTooHigh
+          expr: sum by (topic, consumergroup) (kafka_consumergroup_lag{namespace="{{ .Release.Namespace }}", topic!="__consumer_offsets", consumergroup!=""}) > 1000
+          for: 15m
+          labels:
+            severity: info # real severity: warning
+            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagTooHigh.md
+            {{- include "kafka.alert-labels" . | nindent 12 }}
+          annotations:
+            summary: Kafka consumer lag is too high.
+            description: 'Consumer group {{`{{ $labels.consumergroup }}`}} on topic {{`{{ $labels.topic }}`}} has a lag of {{`{{ printf "%.0f" $value }}`}} messages.'
+        - alert: KafkaUnderReplicatedPartitions
+          expr: sum by (topic) (kafka_topic_partition_under_replicated_partition{namespace="{{ .Release.Namespace }}"}) > 0
+          for: 15m
+          labels:
+            severity: info # real severity: critical
+            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaUnderReplicatedPartitions.md
+            {{- include "kafka.alert-labels" . | nindent 12 }}
+          annotations:
+            summary: Kafka has under-replicated partitions.
+            description: 'Topic {{`{{ $labels.topic }}`}} has {{`{{ printf "%.0f" $value }}`}} under-replicated partition(s).'
+        - alert: KafkaNoBrokersOnline
+          expr: absent(kafka_server_kafkaserver_brokerstate{namespace="{{ .Release.Namespace }}"})
+          for: 5m
+          labels:
+            severity: info # real severity: critical
+            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaNoBrokersOnline.md
+            {{- include "kafka.alert-labels" . | nindent 12 }}
+          annotations:
+            summary: Kafka has no brokers online.
+            description: No Kafka brokers are reporting metrics. The cluster is likely down.
+{{- end }}
