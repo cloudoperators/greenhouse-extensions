@@ -65,6 +65,8 @@ transform/syslog_forwarded_by:
         - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
         - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
         - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+        - 'set(attributes["forwarded_by"], "logstash-audit-external") where attributes["message"] != nil and IsMatch(attributes["message"], ".*forwarded_by=logstash-audit-external.*")'
+        - 'set(attributes["forwarded_by"], "logstash-audit-external") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=logstash-audit-external.*")'
 
 {{/*
   ============================================================================
@@ -251,6 +253,16 @@ transform/syslog_hostname_parsing:
         # Extract building block from hostname (for ESXi and NSX-T)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+        # Additional audit sources from old Logstash pipeline
+        # Remoteboard: node## or node###r pattern
+        - 'set(log.attributes["sap.cc.audit.source"], "remoteboard") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "^node\\d{2,3}r.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "remoteboard") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "^node\\d{2,3}r.*")'
+        # HSM: Hardware Security Module
+        - 'set(log.attributes["sap.cc.audit.source"], "hsm") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "(?i).*hsm.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "hsm") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "(?i).*hsm.*")'
+        # UCS Central: specific IPs (from old Logstash line 102)
+        - 'set(log.attributes["sap.cc.audit.source"], "ucsc") where log.attributes["net.peer.ip"] == "10.46.22.24" or log.attributes["net.peer.ip"] == "10.67.75.240"'
+        - 'set(log.attributes["sap.cc.audit.source"], "ucsc") where log.attributes["network.peer.address"] == "10.46.22.24" or log.attributes["network.peer.address"] == "10.67.75.240"'
 
 {{/*
   ============================================================================
@@ -299,6 +311,9 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        # Mark as audit if forwarded by Logstash from audit sources (AWX, etc.)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["forwarded_by"] == "logstash-audit-external"'
+
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
