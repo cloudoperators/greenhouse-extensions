@@ -431,6 +431,7 @@ kafka/syslog_audit:
     linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
   sending_queue:
     enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
@@ -452,6 +453,7 @@ kafka/syslog_non_audit:
     linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
   sending_queue:
     enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:

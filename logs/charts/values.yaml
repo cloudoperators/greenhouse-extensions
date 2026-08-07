@@ -90,6 +90,8 @@ openTelemetry:
     sendingQueue:
       enabled: true
       queueSize: 1000
+      # -- Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput.
+      numConsumers: 1
     # -- Producer batching (raise linger to build larger batches per broker request)
     producer:
       flushMaxMessages: 10000
@@ -153,6 +155,8 @@ openTelemetry:
     enabled: false
     # -- Number of replicas for the external collector StatefulSet
     replicas: 2
+    # -- Pod resource requests/limits for the external collector container. Empty = unbounded.
+    resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
     # -- External IP exposed on the service

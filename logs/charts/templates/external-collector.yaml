@@ -16,6 +16,10 @@ metadata:
 spec:
   mode: statefulset
   replicas: {{ .Values.openTelemetry.externalCollector.replicas }}
+{{- with .Values.openTelemetry.externalCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 {{- with .Values.openTelemetry.externalCollector.affinity }}
   affinity:
     {{- toYaml . | nindent 4 }}
@@ -170,6 +174,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
@@ -186,6 +194,10 @@ spec:
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false

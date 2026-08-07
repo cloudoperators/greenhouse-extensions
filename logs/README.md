@@ -109,6 +109,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
+| openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
 | openTelemetry.externalCollector.serviceType | string | `"LoadBalancer"` | Service type for the external collector service |
 | openTelemetry.externalCollector.syslogConfig | object | `{"auditKafkaTopic":"","enabled":false,"nonAuditKafkaTopic":"","openSearchLogs":{"auditEndpoint":"","audit_failover_password_a":"","audit_failover_password_b":"","audit_failover_username_a":"","audit_failover_username_b":"","nonAuditEndpoint":""},"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
@@ -150,7 +151,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.max_message_bytes | int | `1000000` | Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes. |
 | openTelemetry.kafka.producer | object | `{"flushMaxMessages":10000,"linger":"10ms"}` | Producer batching (raise linger to build larger batches per broker request) |
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
-| openTelemetry.kafka.sendingQueue | object | `{"enabled":true,"queueSize":1000}` | Producer sending queue size |
+| openTelemetry.kafka.sendingQueue | object | `{"enabled":true,"numConsumers":1,"queueSize":1000}` | Producer sending queue size |
+| openTelemetry.kafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
 | openTelemetry.kafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.logsCollector.affinity | object | See values.yaml | Pod affinity rules for the logs collector CR |
