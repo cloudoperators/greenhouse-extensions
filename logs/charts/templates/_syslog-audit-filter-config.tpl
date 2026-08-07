@@ -36,18 +36,6 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- define "syslog_audit_filter.transform" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-attributes/syslog_audit_failover_username_a:
-  actions:
-    - action: insert
-      key: failover_username_opensearch
-      value: ${audit_failover_username_a}
-attributes/syslog_audit_failover_username_b:
-  actions:
-    - action: insert
-      key: failover_username_opensearch
-      value: ${audit_failover_username_b}
-{{- end }}
 {{/*
   ============================================================================
   Extract forwarded_by attribute from message body
@@ -330,18 +318,6 @@ routing/syslog_audit:
       pipelines: [logs/syslog_audit]
       statement: route() where attributes["audit_relevant"] == "true"
 
-failover/opensearch_syslog_audit:
-  priority_levels:
-    - [logs/failover_a_syslog_audit]
-    - [logs/failover_b_syslog_audit]
-  retry_interval: 1h
-  sending_queue:
-    block_on_overflow: true
-    enabled: true
-    num_consumers: 2
-    queue_size: 10000
-    sizer: requests
-
 failover/opensearch_syslog_non_audit:
   priority_levels:
     - [logs/failover_a_syslog_non_audit]
@@ -366,30 +342,6 @@ routing/syslog_audit:
 
 {{- define "syslog_audit_filter.exporter" }}
 {{- if not .Values.openTelemetry.kafka.enabled }}
-opensearch/failover_a_syslog_audit:
-  http:
-    auth:
-      authenticator: basicauth/syslog_audit_failover_a
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
-  logs_index: audit-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
-opensearch/failover_b_syslog_audit:
-  http:
-    auth:
-      authenticator: basicauth/syslog_audit_failover_b
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
-  logs_index: audit-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
 opensearch/failover_a_syslog_non_audit:
   http:
     auth:
@@ -415,28 +367,6 @@ opensearch/failover_b_syslog_non_audit:
     max_elapsed_time: 30s
   timeout: 30s
 {{- else }}
-kafka/syslog_audit:
-  brokers:
-{{- range .Values.openTelemetry.kafka.brokers }}
-    - {{ . }}
-{{- end }}
-  protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
-  logs:
-    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
-    encoding: {{ .Values.openTelemetry.kafka.encoding }}
-  producer:
-    compression: {{ .Values.openTelemetry.kafka.compression }}
-    max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
-    flush_max_messages: {{ .Values.openTelemetry.kafka.producer.flushMaxMessages | int64 }}
-    linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
-  sending_queue:
-    enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
-    num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
-    queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
-{{- if .Values.openTelemetry.kafka.tls.enabled }}
-  tls:
-    insecure: false
-{{- end }}
 kafka/syslog_non_audit:
   brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -471,16 +401,6 @@ kafka/syslog_non_audit:
   ============================================================================
 */}}
 {{- if not .Values.openTelemetry.kafka.enabled }}
-logs/failover_a_syslog_audit:
-  receivers: [failover/opensearch_syslog_audit]
-  processors: [attributes/syslog_audit_failover_username_a]
-  exporters: [opensearch/failover_a_syslog_audit]
-
-logs/failover_b_syslog_audit:
-  receivers: [failover/opensearch_syslog_audit]
-  processors: [attributes/syslog_audit_failover_username_b]
-  exporters: [opensearch/failover_b_syslog_audit]
-
 logs/failover_a_syslog_non_audit:
   receivers: [failover/opensearch_syslog_non_audit]
   processors: [attributes/failover_username_a]
