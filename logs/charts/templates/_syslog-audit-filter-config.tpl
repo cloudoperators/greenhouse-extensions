@@ -287,6 +287,7 @@ transform/syslog_esxi_sshd:
   ============================================================================
   Adds an attribute to identify audit logs for routing.
   Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo
+  Also marks any log with a known audit source (sap.cc.audit.source) as audit-relevant.
   Everything else is non-audit (and goes to logs-datastream).
   ============================================================================
 */}}
@@ -299,6 +300,8 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
