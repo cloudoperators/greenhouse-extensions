@@ -153,6 +153,8 @@ openTelemetry:
     enabled: false
     # -- Number of replicas for the external collector StatefulSet
     replicas: 2
+    # -- Pod resource requests/limits for the external collector container. Empty = unbounded.
+    resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
     # -- External IP exposed on the service

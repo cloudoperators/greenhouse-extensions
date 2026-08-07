@@ -16,6 +16,10 @@ metadata:
 spec:
   mode: statefulset
   replicas: {{ .Values.openTelemetry.externalCollector.replicas }}
+{{- with .Values.openTelemetry.externalCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 {{- with .Values.openTelemetry.externalCollector.affinity }}
   affinity:
     {{- toYaml . | nindent 4 }}
