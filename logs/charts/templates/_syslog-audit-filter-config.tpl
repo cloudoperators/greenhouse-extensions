@@ -241,16 +241,16 @@ transform/syslog_hostname_parsing:
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
         # Set audit source to ESXi if node name was extracted
-        - 'set(log.attributes["audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
+        - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
         # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
-        - 'set(log.attributes["audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
         # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
-        - 'set(log.attributes["audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
         # Extract building block from hostname (for ESXi and NSX-T)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["audit.source"] == "ESXi" or log.attributes["audit.source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit.source"] == "ESXi" or log.attributes["audit.source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
 
 {{/*
   ============================================================================
@@ -262,7 +262,7 @@ transform/syslog_esxi_vm_events:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit.source"] == "ESXi"'
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert")'
@@ -277,7 +277,7 @@ transform/syslog_esxi_sshd:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit.source"] == "ESXi"'
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
         - 'log.attributes["appname"] == "sshd"'
         - 'IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
