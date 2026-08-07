@@ -91,6 +91,20 @@ transform/syslog_semconv_normalization:
   log_statements:
     - context: log
       statements:
+        # Genugate mappings
+        - 'set(attributes["client.address"], attributes["caddr"]) where attributes["client.address"] == nil and attributes["caddr"] != nil'
+        - 'set(attributes["client.address"], attributes["caddr_inet6"]) where attributes["client.address"] == nil and attributes["caddr_inet6"] != nil'
+        - 'set(attributes["client.port"], Int(attributes["cport"])) where attributes["client.port"] == nil and attributes["cport"] != nil'
+        - 'set(attributes["server.address"], attributes["saddr"]) where attributes["server.address"] == nil and attributes["saddr"] != nil'
+        - 'set(attributes["server.address"], attributes["saddr_inet6"]) where attributes["server.address"] == nil and attributes["saddr_inet6"] != nil'
+        - 'set(attributes["server.port"], Int(attributes["sport"])) where attributes["server.port"] == nil and attributes["sport"] != nil'
+        - 'set(attributes["http.response.status_code"], Int(attributes["response_code"])) where attributes["http.response.status_code"] == nil and attributes["response_code"] != nil'
+        - 'set(attributes["user.name"], attributes["user"]) where attributes["user.name"] == nil and attributes["user"] != nil'
+        - 'set(attributes["user.name"], attributes["proxy_user"]) where attributes["user.name"] == nil and attributes["proxy_user"] != nil'
+        - 'set(resource.attributes["process.pid"], Int(attributes["pid"])) where resource.attributes["process.pid"] == nil and attributes["pid"] != nil'
+        - 'set(resource.attributes["process.executable.name"], attributes["progname"]) where resource.attributes["process.executable.name"] == nil and attributes["progname"] != nil'
+        - 'set(attributes["http.request.method"], attributes["method"]) where attributes["http.request.method"] == nil and attributes["method"] != nil'
+
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
         - 'set(attributes["server.address"], attributes["net.host.name"]) where attributes["server.address"] == nil and attributes["net.host.name"] != nil'
@@ -132,6 +146,20 @@ transform/syslog_drop_legacy_fields:
   log_statements:
     - context: log
       statements:
+        # Genugate legacy cleanup
+        - 'delete_key(attributes, "caddr") where attributes["client.address"] != nil'
+        - 'delete_key(attributes, "caddr_inet6") where attributes["client.address"] != nil'
+        - 'delete_key(attributes, "cport") where attributes["client.port"] != nil'
+        - 'delete_key(attributes, "saddr") where attributes["server.address"] != nil'
+        - 'delete_key(attributes, "saddr_inet6") where attributes["server.address"] != nil'
+        - 'delete_key(attributes, "sport") where attributes["server.port"] != nil'
+        - 'delete_key(attributes, "response_code") where attributes["http.response.status_code"] != nil'
+        - 'delete_key(attributes, "user") where attributes["user.name"] != nil'
+        - 'delete_key(attributes, "proxy_user") where attributes["user.name"] != nil'
+        - 'delete_key(attributes, "pid") where resource.attributes["process.pid"] != nil'
+        - 'delete_key(attributes, "progname") where resource.attributes["process.executable.name"] != nil'
+        - 'delete_key(attributes, "method") where attributes["http.request.method"] != nil'
+
         # Role / address / port mappings
         - 'delete_key(attributes, "net.host.name") where attributes["server.address"] != nil'
         - 'delete_key(attributes, "net.host.port") where attributes["server.port"] != nil'
