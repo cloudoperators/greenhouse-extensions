@@ -227,6 +227,29 @@ openTelemetry:
       otlp_grpc_port: 4317
       # -- HTTP port for OTLP traces
       otlp_http_port: 4318
+    # -- Activates the HTTP-JSON receiver for Logstash/fluent-bit-style
+    # pushers. Records land in the audit stream (audit-datastream /
+    # auditKafkaTopic) reusing the syslog audit exporters. Multiple senders
+    # may target this endpoint; each should set its own `forwarded_by`.
+    externalHttpConfig:
+      enabled: false
+      # -- TCP port for the HTTP-JSON receiver.
+      port: 1517
+      # -- HTTP path the receiver serves. Sender must POST here. Expects one
+      # JSON object per request; a JSON array or newline batch is accepted but
+      # stored as a single record (not split per element).
+      path: /audit/external
+      # -- Neutral catch-all forwarder identity written to log attribute
+      # `forwarded_by` ONLY when the sender did not set one. Senders (Logstash,
+      # logshipper fluent-bit, other devices) should set their own
+      # `forwarded_by` and it is preserved. Sender-provided sap.cc.audit.source
+      # values (ESXi, NSX-T, VCSA, remoteboard, hsm, ucsc) are also preserved.
+      forwardedBy: external-http
+      # -- TLS for the HTTP-JSON receiver. When enabled, the collector
+      # terminates TLS using the cert provisioned by syslogTLSConfig (secret
+      # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
+      tls:
+        enabled: true
   # -- Kafka -> OpenSearch ingest collectors. One Deployment per entry.
   # @default -- see values.yaml
   ingesterCollector:
