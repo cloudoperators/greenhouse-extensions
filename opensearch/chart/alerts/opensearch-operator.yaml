@@ -6,7 +6,7 @@ groups:
         expr: up{job=~".*opensearch-operator.*", namespace="{{ .Release.Namespace }}"} == 0
         for: 10m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch-operator
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}

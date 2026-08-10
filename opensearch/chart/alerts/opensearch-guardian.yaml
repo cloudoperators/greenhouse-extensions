@@ -6,7 +6,7 @@ groups:
         expr: opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="noncompliant"} > 0
         for: 10m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch-guardian
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianNoncompliant.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
@@ -17,7 +17,7 @@ groups:
         expr: opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="empty"} > 0
         for: 10m
         labels:
-          severity: info # critical
+          severity: warning
           component: opensearch-guardian
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
@@ -28,7 +28,7 @@ groups:
         expr: increase(opensearch_guardian_errors_total{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}"}[10m]) > 0                                                                    
         for: 0m                                                                                                                                                                    
         labels:                                                                                                                                                                    
-          severity: info # critical                                                                                                                                                           
+          severity: warning                                                                                                                                                          
           component: opensearch-guardian                                                                                                                                           
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md                                                                                                                                                         
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  
@@ -39,7 +39,7 @@ groups:
         expr: (time() - opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} / 1000) > 420 and opensearch_guardian_status{namespace="{{ .Release.Namespace }}", cluster="{{ .Values.cluster.cluster.name }}", status="compliant"} > 0
         for: 0m                                                                                                                                                                    
         labels:                                                                                                                                                                    
-          severity: info # critical                                                                                                                                                           
+          severity: warning                                                                                                                                                      
           component: opensearch-guardian                                                                                                                                           
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md                                                                                                                                                         
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  

@@ -9,7 +9,7 @@ groups:
           == 2
         for: 5m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
@@ -23,7 +23,7 @@ groups:
           == 1
         for: 120m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
@@ -35,7 +35,7 @@ groups:
         expr: (max by (opensearch_org_opensearch_cluster, index) (opensearch_index_store_size_bytes{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(opensearch_org_opensearch_cluster, index) (rate(opensearch_index_doc_number{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"}[15m]) > 1)
         for: 30m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
