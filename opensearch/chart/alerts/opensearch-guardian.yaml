@@ -8,7 +8,7 @@ groups:
         labels:
           severity: critical
           component: opensearch-guardian
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianNoncompliant.md
+          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianNoncompliant }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch is NONCOMPLIANT"
@@ -19,7 +19,7 @@ groups:
         labels:
           severity: warning
           component: opensearch-guardian
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md
+          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianEmpty }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch has empty Guardian status"
@@ -30,7 +30,7 @@ groups:
         labels:                                                                                                                                                                    
           severity: warning                                                                                                                                                          
           component: opensearch-guardian                                                                                                                                           
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md                                                                                                                                                         
+          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianErrors }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  
         annotations:                                                                                                                                                               
           summary: "OpenSearch Guardian errors detected"                                                                                                                           
@@ -41,7 +41,7 @@ groups:
         labels:                                                                                                                                                                    
           severity: warning                                                                                                                                                      
           component: opensearch-guardian                                                                                                                                           
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md                                                                                                                                                         
+          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianStatusStale }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  
         annotations:                                                                                                                                                               
           summary: "OpenSearch Guardian status is stale"                                                                                                                           
