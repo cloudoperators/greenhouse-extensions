@@ -6,13 +6,14 @@ Generic plugin name
 {{- end}}
 
 {{/*
-True when any external-collector source that feeds the audit stream is enabled
-(syslog, syslog-TLS, or the HTTP-JSON receiver). These share the audit
-exporters/extensions/connectors/pipelines from _external-audit-exporter.tpl.
+True when the shared syslog-audit exporters/connectors/pipelines are needed.
+That is: syslog or syslog-TLS is on, OR the HTTP receiver is on in non-Kafka
+mode (where it reuses the OpenSearch audit failover). In Kafka mode the HTTP
+receiver has its own kafka/external_http exporter and does not need these.
 Usage: {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
 */}}
 {{- define "externalCollector.auditEnabled" -}}
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled -}}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled (not .Values.openTelemetry.kafka.enabled)) -}}
 true
 {{- end -}}
 {{- end -}}
