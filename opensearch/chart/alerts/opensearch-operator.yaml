@@ -8,7 +8,7 @@ groups:
         labels:
           severity: critical
           component: opensearch-operator
-          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchOperatorDown }}
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchOperatorDown }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch operator is down"

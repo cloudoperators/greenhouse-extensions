@@ -291,19 +291,6 @@ cluster:
         # -- ServiceMonitor labels
         labels: {}
 
-        # -- Playbooks URLs for alerts
-        playbooksUrls:
-          opensearchClusterRed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md"
-          opensearchClusterYellow: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md"
-          opensearchIndexSizeTooLarge: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md"
-          opensearchGuardianNoncompliant: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianNoncompliant.md"
-          opensearchGuardianEmpty: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md"
-          opensearchGuardianErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md"
-          opensearchGuardianStatusStale: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md"
-          opensearchHotTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
-          opensearchWarmTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
-          opensearchOperatorDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md"
-
       # -- List of Opensearch plugins to install
       pluginsList: []
 
@@ -964,6 +951,19 @@ cluster:
     #     local: "7d"
     #     remote: "31d"
     #     snapshot: "93d"
+
+  # -- Playbook URLs for alerts. Override to point to custom runbooks.
+  playbooksUrls:
+    opensearchClusterRed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md"
+    opensearchClusterYellow: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md"
+    opensearchIndexSizeTooLarge: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md"
+    opensearchGuardianNoncompliant: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianNoncompliant.md"
+    opensearchGuardianEmpty: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md"
+    opensearchGuardianErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md"
+    opensearchGuardianStatusStale: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md"
+    opensearchHotTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
+    opensearchWarmTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
+    opensearchOperatorDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md"
 
   # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
   # dashboards, visualizations). Runs as a post-install/upgrade Helm

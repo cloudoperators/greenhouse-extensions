@@ -8,7 +8,7 @@ groups:
         labels:
           severity: critical
           component: opensearch-guardian
-          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianNoncompliant }}
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchGuardianNoncompliant }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch is NONCOMPLIANT"
@@ -19,7 +19,7 @@ groups:
         labels:
           severity: warning
           component: opensearch-guardian
-          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianEmpty }}
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchGuardianEmpty }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch has empty Guardian status"
@@ -30,7 +30,7 @@ groups:
         labels:                                                                                                                                                                    
           severity: warning                                                                                                                                                          
           component: opensearch-guardian                                                                                                                                           
-          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianErrors }}
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchGuardianErrors }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  
         annotations:                                                                                                                                                               
           summary: "OpenSearch Guardian errors detected"                                                                                                                           
@@ -41,7 +41,7 @@ groups:
         labels:                                                                                                                                                                    
           severity: warning                                                                                                                                                      
           component: opensearch-guardian                                                                                                                                           
-          playbook: {{ .Values.cluster.cluster.general.monitoring.playbooksUrls.opensearchGuardianStatusStale }}
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchGuardianStatusStale }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}                                                                                                                  
         annotations:                                                                                                                                                               
           summary: "OpenSearch Guardian status is stale"                                                                                                                           
