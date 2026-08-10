@@ -1,4 +1,3 @@
-# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
 groups:
   - name: opensearch-cluster
     interval: 30s
