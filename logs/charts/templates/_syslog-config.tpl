@@ -13,6 +13,12 @@ tcp_log/syslog:
     parse_from: body
     on_error: send
     output: syslog_deframe_promote
+  - type: router
+    id: syslog_deframe_check
+    routes:
+    - expr: 'attributes.syslogmsg != nil'
+      output: syslog_deframe_promote
+    default: syslog_format_router
   - type: move
     id: syslog_deframe_promote
     from: attributes.syslogmsg
