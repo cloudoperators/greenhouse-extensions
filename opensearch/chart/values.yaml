@@ -953,6 +953,7 @@ cluster:
     #     snapshot: "93d"
 
   # -- Playbook URLs for alerts. Override to point to custom runbooks.
+  # @default -- See values.yaml
   playbooksUrls:
     opensearchClusterRed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md"
     opensearchClusterYellow: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md"
