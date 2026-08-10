@@ -19,7 +19,7 @@ spec:
           for: 15m
           labels:
             severity: warning
-            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagTooHigh.md
+            playbook: {{ .Values.monitoring.playbooksUrls.kafkaConsumerLagTooHigh }}
             {{- include "kafka.alert-labels" . | nindent 12 }}
           annotations:
             summary: Kafka consumer lag is too high.
@@ -29,7 +29,7 @@ spec:
           for: 15m
           labels:
             severity: critical
-            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaUnderReplicatedPartitions.md
+            playbook: {{ .Values.monitoring.playbooksUrls.kafkaUnderReplicatedPartitions }}
             {{- include "kafka.alert-labels" . | nindent 12 }}
           annotations:
             summary: Kafka has under-replicated partitions.
@@ -39,7 +39,7 @@ spec:
           for: 5m
           labels:
             severity: critical
-            playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaNoBrokersOnline.md
+            playbook: {{ .Values.monitoring.playbooksUrls.kafkaNoBrokersOnline }}
             {{- include "kafka.alert-labels" . | nindent 12 }}
           annotations:
             summary: Kafka has no brokers online.

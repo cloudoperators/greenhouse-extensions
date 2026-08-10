@@ -175,6 +175,12 @@ monitoring:
   # -- Additional labels for PrometheusRule alerts
   additionalRuleLabels: {}
 
+  # -- Playbook URLs for alerts. Override to point to custom runbooks.
+  playbooksUrls:
+    kafkaConsumerLagTooHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagTooHigh.md"
+    kafkaUnderReplicatedPartitions: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaUnderReplicatedPartitions.md"
+    kafkaNoBrokersOnline: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaNoBrokersOnline.md"
+
 # Test framework configuration
 testFramework:
   # -- Activates the Helm chart testing framework.
