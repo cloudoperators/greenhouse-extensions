@@ -6,7 +6,7 @@ groups:
         expr: up{job=~".*opensearch-operator.*", namespace="{{ .Release.Namespace }}"} == 0
         for: 10m
         labels:
-          severity: critical
+          severity: warning
           component: opensearch-operator
           playbook: {{ .Values.cluster.playbooksUrls.opensearchOperatorDown }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
