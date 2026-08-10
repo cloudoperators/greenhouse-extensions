@@ -176,6 +176,7 @@ monitoring:
   additionalRuleLabels: {}
 
   # -- Playbook URLs for alerts. Override to point to custom runbooks.
+  # @default -- See values.yaml
   playbooksUrls:
     kafkaConsumerLagTooHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagTooHigh.md"
     kafkaUnderReplicatedPartitions: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaUnderReplicatedPartitions.md"
