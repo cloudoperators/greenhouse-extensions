@@ -11,7 +11,7 @@ tcp_log/syslog:
     id: syslog_deframe
     regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
     parse_from: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_deframe_check
   - type: router
     id: syslog_deframe_check
