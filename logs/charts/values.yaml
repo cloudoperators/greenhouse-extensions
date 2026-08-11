@@ -160,8 +160,7 @@ openTelemetry:
     # -- Pod affinity rules for the external collector CR
     affinity: {}
     # -- Node Selector rules for the external collector CR
-    nodeSelector: 
-      topology.kubernetes.io/zone:  eu-de-1a
+    nodeSelector: {}
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
