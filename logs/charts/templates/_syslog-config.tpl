@@ -12,7 +12,7 @@ tcp_log/syslog:
     regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
     parse_from: body
     on_error: send
-    output: syslog_deframe_promote
+    output: syslog_deframe_check
   - type: router
     id: syslog_deframe_check
     routes:
