@@ -21,8 +21,6 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: netappsd
-        prometheus.io/scrape: "true"
-        prometheus.io/targets: storage
         checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
         checksum/deployment-template: {{ include "netapp-monitoring.checksum.deploymentTemplate" (dict "root" . "appName" $appName) }}
       labels:
