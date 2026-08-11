@@ -114,6 +114,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.externalTrafficPolicy | string | `"Local"` | External traffic policy for the external collector service (Local preserves source IP) |
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
+| openTelemetry.externalCollector.nodeSelector | object | `{}` | Node Selector rules for the external collector CR |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
