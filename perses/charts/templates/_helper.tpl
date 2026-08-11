@@ -36,7 +36,7 @@ provisioning-{{ printf "%s-perses" .Release.Name | trunc 63 | trimSuffix "-" }}-
 
 {{- define "perses.alertLabels" -}}
 {{- if not (empty .Values.greenhouse.alertLabels) }}
-{{- toYaml .Values.greenhouse.alertLabels  -}}
+{{- tpl (toYaml .Values.greenhouse.alertLabels) $  -}}
 {{- end }}
 {{- end }}
 
