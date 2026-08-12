@@ -236,6 +236,8 @@ transform/syslog_hostname_parsing:
         # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
         - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
         - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        # STNPA source detection from appname prefix (do not overwrite an existing source)
+        - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi and NSX-T)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
