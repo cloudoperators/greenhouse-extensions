@@ -23,7 +23,7 @@ tcp_log/syslog:
     id: syslog_deframe_promote
     from: attributes.syslogmsg
     to: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_format_router
   # Routes incoming syslog messages based on their header format:
   #   RFC 5424:              "<priority>VERSION timestamp ..." e.g. "<134>1 2026-07-10T09:32:35..."
@@ -59,12 +59,12 @@ tcp_log/syslog:
   - type: syslog_parser
     id: syslog_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_format_rfc5424
   - type: syslog_parser
     id: syslog_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_format_rfc3164
 
   # Single-digit-day RFC3164 fallback (Fortinet, Cisco ACI, etc.), days 1-9 only,
@@ -76,7 +76,7 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
@@ -91,7 +91,7 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
@@ -105,7 +105,7 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
@@ -174,19 +174,19 @@ udp_log/syslog:
   - type: syslog_parser
     id: syslog_udp_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_udp_format_rfc5424
   - type: syslog_parser
     id: syslog_udp_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_udp_format_rfc3164
 
   # Single-digit-day RFC3164 fallback (UDP), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_udp_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
@@ -201,7 +201,7 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
@@ -215,7 +215,7 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
@@ -277,13 +277,13 @@ tcp_log/syslog_tls:
     id: syslog_tls_deframe
     regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
     parse_from: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_tls_deframe_promote
   - type: move
     id: syslog_tls_deframe_promote
     from: attributes.syslogmsg
     to: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_tls_format_router
   # Same routing logic as tcp_log/syslog. See comments above for format details.
   - type: router
@@ -303,19 +303,19 @@ tcp_log/syslog_tls:
   - type: syslog_parser
     id: syslog_tls_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_tls_format_rfc5424
   - type: syslog_parser
     id: syslog_tls_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_tls_format_rfc3164
 
   # Single-digit-day RFC3164 fallback (TLS), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_tls_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
@@ -330,7 +330,7 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
@@ -344,7 +344,7 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
