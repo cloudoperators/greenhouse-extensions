@@ -85,6 +85,7 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+{{- include "field_normalisation.transform" . | nindent 6 -}}
       attributes/cluster:
         actions:
           - action: insert
@@ -181,7 +182,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
+          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
