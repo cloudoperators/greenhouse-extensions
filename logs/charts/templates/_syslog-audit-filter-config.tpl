@@ -244,6 +244,22 @@ transform/syslog_hostname_parsing:
 
 {{/*
   ============================================================================
+  NSX-T FQDN extraction - extract NSX-T transport-node FQDN from message
+  ============================================================================
+*/}}
+transform/syslog_nsxt:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
+      statements:
+        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
+        # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and log.attributes["message"] != nil'
+
+{{/*
+  ============================================================================
   ESXi VM event parsing
   ============================================================================
 */}}
