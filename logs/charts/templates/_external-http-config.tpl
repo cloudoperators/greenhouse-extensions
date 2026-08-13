@@ -42,15 +42,15 @@ transform/external-http:
         - set(log.attributes["audit_relevant"], "true")
         # Record the forwarder identity (shipper, not producer) when absent.
         - set(log.attributes["forwarded_by"], {{ .Values.openTelemetry.externalCollector.externalHttpConfig.forwardedBy | quote }}) where log.attributes["forwarded_by"] == nil
-        # FIXME: this is a best-effort data transofrmation of the unknown http payloads.
-        - set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host.name"] == nil and log.attributes["host"] != nil
-        - delete_key(log.attributes, "host") where log.attributes["host"] != nil
-        - set(log.attributes["sourceIPs.0"], log.attributes["sourceIPs"]) where log.attributes["sourceIPs.0"] == nil and log.attributes["sourceIPs"] != nil
-        - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs"] != nil
-        - set(log.attributes["event.category.0"], log.attributes["event.category"]) where log.attributes["event.category.0"] == nil and log.attributes["event.category"] != nil
-        - delete_key(log.attributes, "event.category") where log.attributes["event.category"] != nil
-        - set(log.attributes["log.http"], log.attributes["log"]) where log.attributes["log.http"] == nil and log.attributes["log"] != nil
-        - delete_key(log.attributes, "log") where log.attributes["log"] != nil
+        # FIXME: this is a best-effort data transformation of the unknown http payloads.
+        - set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host.name"] == nil and log.attributes["host"] != nil and IsString(log.attributes["host"])
+        - delete_key(log.attributes, "host") where log.attributes["host.name"] != nil and log.attributes["host"] != nil and IsString(log.attributes["host"])
+        - set(log.attributes["sourceIPs.0"], log.attributes["sourceIPs"]) where log.attributes["sourceIPs.0"] == nil and log.attributes["sourceIPs"] != nil and IsString(log.attributes["sourceIPs"])
+        - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs.0"] != nil and log.attributes["sourceIPs"] != nil and IsString(log.attributes["sourceIPs"])
+        - set(log.attributes["event.category.0"], log.attributes["event.category"]) where log.attributes["event.category.0"] == nil and log.attributes["event.category"] != nil and IsString(log.attributes["event.category"])
+        - delete_key(log.attributes, "event.category") where log.attributes["event.category.0"] != nil and log.attributes["event.category"] != nil and IsString(log.attributes["event.category"])
+        - set(log.attributes["log.http"], log.attributes["log"]) where log.attributes["log.http"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"])
+        - delete_key(log.attributes, "log") where log.attributes["log.http"] != nil and log.attributes["log"] != nil and IsString(log.attributes["log"])
         
 {{- end }}
 
