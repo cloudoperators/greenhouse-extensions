@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 resources:
+  - agentgateway-crds/plugindefinition.yaml
+  - agentgateway/plugindefinition.yaml
   - alerts/plugindefinition.yaml
   - audit-logs/plugindefinition.yaml
   - blackbox-exporter/plugindefinition.yaml
