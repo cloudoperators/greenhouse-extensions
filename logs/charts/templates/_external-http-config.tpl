@@ -23,6 +23,15 @@ transform/external-http:
       statements:
         - set(log.time_unix_nano, log.observed_time_unix_nano)
         - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        # Auditbeat sends auditd.paths (variable-length array of objects) and
+        # auditd.data (open-ended map). Left as nested objects they cause
+        # unbounded OpenSearch field-mapping growth (paths.0.*, paths.1.*, ...),
+        # which trips "Limit of total fields [1000] has been exceeded". Collapse
+        # each to a single JSON string field so it stays searchable but maps once.
+        - set(log.attributes["auditd.paths"], String(log.attributes["auditd"]["paths"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
+        - delete_key(log.attributes["auditd"], "paths") where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
+        - set(log.attributes["auditd.data"], String(log.attributes["auditd"]["data"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
+        - delete_key(log.attributes["auditd"], "data") where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         # Flatten sender's nested [sap][cc][audit][source] into the dotted
         # attribute the audit datastream mapping expects. Only when the dotted
         # key is not already present, so a pre-flattened sender wins.
@@ -33,6 +42,16 @@ transform/external-http:
         - set(log.attributes["audit_relevant"], "true")
         # Record the forwarder identity (shipper, not producer) when absent.
         - set(log.attributes["forwarded_by"], {{ .Values.openTelemetry.externalCollector.externalHttpConfig.forwardedBy | quote }}) where log.attributes["forwarded_by"] == nil
+        # FIXME: this is a best-effort data transformation of the unknown http payloads.
+        - set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host.name"] == nil and log.attributes["host"] != nil and IsString(log.attributes["host"])
+        - delete_key(log.attributes, "host") where log.attributes["host.name"] != nil and log.attributes["host"] != nil and IsString(log.attributes["host"])
+        - set(log.attributes["sourceIPs.0"], log.attributes["sourceIPs"]) where log.attributes["sourceIPs.0"] == nil and log.attributes["sourceIPs"] != nil and IsString(log.attributes["sourceIPs"])
+        - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs.0"] != nil and log.attributes["sourceIPs"] != nil and IsString(log.attributes["sourceIPs"])
+        - set(log.attributes["event.category.0"], log.attributes["event.category"]) where log.attributes["event.category.0"] == nil and log.attributes["event.category"] != nil and IsString(log.attributes["event.category"])
+        - delete_key(log.attributes, "event.category") where log.attributes["event.category.0"] != nil and log.attributes["event.category"] != nil and IsString(log.attributes["event.category"])
+        - set(log.attributes["log.http"], log.attributes["log"]) where log.attributes["log.http"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"])
+        - delete_key(log.attributes, "log") where log.attributes["log.http"] != nil and log.attributes["log"] != nil and IsString(log.attributes["log"])
+        
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
