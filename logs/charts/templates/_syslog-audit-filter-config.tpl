@@ -256,7 +256,7 @@ transform/syslog_nsxt:
       statements:
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>(?:[A-Za-z0-9_-]+\\.){2,}[A-Za-z_-]+)"), "upsert") where log.attributes["fqdn"] == nil and log.attributes["message"] != nil'
 
 {{/*
   ============================================================================
