@@ -85,7 +85,7 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
-      {{- include "field_normalisation.transform" . | nindent 6 -}}
+{{- include "field_normalisation.transform" . | nindent 6 }}
       attributes/cluster:
         actions:
           - action: insert
