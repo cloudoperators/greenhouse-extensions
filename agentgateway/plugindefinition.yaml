@@ -21,8 +21,7 @@ spec:
   options:
     - name: image.registry
       description: >-
-        Container image registry. Override to use a regional Keppel mirror
-        (e.g. keppel.eu-de-1.cloud.sap/ccloud-agentgateway-mirror) if the
+        Container image registry. Override with a mirror registry if the
         cluster cannot reach cr.agentgateway.dev directly.
       default: "cr.agentgateway.dev"
       required: false

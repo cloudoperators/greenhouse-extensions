@@ -30,7 +30,7 @@ k8s-gateway-api  →  agentgateway-crds  →  agentgateway
 
 | Option | Description | Default |
 |---|---|---|
-| `image.registry` | Container image registry. Override if the cluster cannot reach `cr.agentgateway.dev` (e.g. use a Keppel mirror). | `cr.agentgateway.dev` |
+| `image.registry` | Container image registry. Override with a mirror registry if the cluster cannot reach `cr.agentgateway.dev` directly. | `cr.agentgateway.dev` |
 | `image.tag` | Image tag. Uses chart `appVersion` when empty. | `""` |
 | `controller.replicaCount` | Number of controller replicas. | `1` |
 
