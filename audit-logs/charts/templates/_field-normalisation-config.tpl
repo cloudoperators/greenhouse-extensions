@@ -23,8 +23,8 @@ transform/field-normalisation:
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - set(log.attributes["audit_status"], String(log.attributes["status"])) where log.attributes["status"] != nil
         - delete_key(log.attributes, "status") where log.attributes["status"] != nil
-        - set(log.attributes["http_string"], String(log.attributes["log"]["http"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil and log.attributes["log"]["http"] != nil
-        - delete_key(log.attributes["log"], "http") where log.attributes["log"] != nil and log.attributes["log"]["http"] != nil
+        - set(log.attributes["http_string"], String(log.attributes["log"]["http"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
+        - delete_key(log.attributes["log"], "http") where log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log.http"])) where log.attributes["http_string"] == nil and log.attributes["log.http"] != nil
         - delete_key(log.attributes, "log.http") where log.attributes["log.http"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil
