@@ -34,6 +34,7 @@ on:
       - repo-guard/charts/**
       - oidc-discovery-access/**
       - netapp-monitoring/charts/**
+      - k8s-gateway-api/charts/**
 
 
 permissions:
@@ -103,6 +104,8 @@ jobs:
             chartName: oidc-discovery-access
           - chartDir: netapp-monitoring/charts
             chartName: netapp-monitoring
+          - chartDir: k8s-gateway-api/charts
+            chartName: k8s-gateway-api
 
 
     steps:

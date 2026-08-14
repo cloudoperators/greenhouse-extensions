@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: k8s-gateway-api
+spec:
+  version: 1.6.1
+  displayName: Kubernetes Gateway API
+  description: Installs the Kubernetes Gateway API CRDs (standard channel).
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/k8s-gateway-api/README.md
+  icon: https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/main/site/static/images/logo/logo-text-horizontal.png
+  helmChart:
+    name: k8s-gateway-api
+    repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
+    version: 1.6.1
