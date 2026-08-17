@@ -201,6 +201,8 @@ topics:
   logs:
     # -- Enable this topic
     enabled: true
+    # -- Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!)
+    useClusterPrefix: false
     # -- Number of partitions (should match OpenSearch index shards)
     partitions: 3
     # -- Replication factor
@@ -222,6 +224,8 @@ topics:
   audit:
     # -- Enable this topic
     enabled: true
+    # -- Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!)
+    useClusterPrefix: false
     # -- Number of partitions (should match OpenSearch index shards)
     partitions: 3
     # -- Replication factor

@@ -4,11 +4,12 @@
 {{- if .Values.kafka.enabled }}
 {{- range $name, $topic := .Values.topics }}
 {{- if $topic.enabled }}
+{{- $metadataName := ternary (printf "%s-%s" $.Values.kafka.name $name) $name $topic.useClusterPrefix }}
 ---
 apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
-  name: {{ $name }}
+  name: {{ $metadataName }}
   labels:
     {{- include "kafka.labels" $ | nindent 4 }}
     strimzi.io/cluster: {{ $.Values.kafka.name }}
@@ -18,6 +19,11 @@ spec:
 
   # Replication factor - should match kafka.config.default.replication.factor
   replicas: {{ $topic.replicas | default (index $.Values.kafka.config "default.replication.factor" | default 3) }}
+
+  # The name of the topic. When absent this will default to the metadata.name of the topic.
+  {{- if $topic.useClusterPrefix }}
+  topicName: {{ $name }}
+  {{- end }}
 
   config:
     # Retention period in milliseconds
