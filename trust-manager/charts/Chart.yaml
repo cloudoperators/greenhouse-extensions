@@ -9,12 +9,12 @@ keywords:
   - cert-manager
   - tls
   - ca-bundle
-version: 0.22.3
-appVersion: 0.22.2
+version: 0.24.0
+appVersion: 0.24.0
 maintainers:
   - name: jagoleni
   - name: fwiesel
 dependencies:
   - name: trust-manager
     repository: https://charts.jetstack.io
-    version: v0.22.1
+    version: v0.24.0
