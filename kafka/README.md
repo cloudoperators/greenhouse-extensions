@@ -70,6 +70,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | kafka.listeners | list | plaintext on 9092, TLS on 9093 | Listener configuration |
 | kafka.metricsEnabled | bool | `true` | Enable metrics |
 | kafka.name | string | `"kafka"` | Name of the Kafka cluster |
+| kafka.nodePoolName | string | `"broker"` | Name of the KafkaNodePool for cluster |
 | kafka.replicas | int | `3` | Number of Kafka broker/controller replicas (for KRaft mode) |
 | kafka.resources | object | requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU | Resource configuration for Kafka brokers |
 | kafka.storage | object | JBOD with 100Gi persistent volume per broker | Storage configuration for Kafka brokers |

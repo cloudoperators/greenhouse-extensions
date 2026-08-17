@@ -28,6 +28,9 @@ kafka:
   # -- Name of the Kafka cluster
   name: kafka
 
+  # -- Name of the KafkaNodePool for cluster
+  nodePoolName: broker
+
   # -- Kafka version
   version: "4.2.0"
 
