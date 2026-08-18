@@ -24,14 +24,16 @@ OpenSearch Dashboard (UI) is unavailable which means there is no running pod.
 ## Resolution Steps
 
 1. **Migration problem**:
-    - Delete problematic index mentioned in the pod's logs (`.kibana_4`). As DevTools is not accessible you need to `curl` command. The credentials for admin user to perform the curl you can find in k8s secret `admin-credentials` or in vault under `/secrets/{{ $region }}/fortlogs/audit/users/{{ $user.name }}/username` and `/secrets/{{ $region }}/fortlogs/audit/users/{{ $user.name }}/password`
+    - Delete problematic index mentioned in the pod's logs (`.kibana_4`). As DevTools is not accessible you need to use a `curl` command against the current OpenSearch endpoint for your environment. The credentials for admin user to perform the curl you can find in k8s secret `admin-credentials` or in vault under `/secrets/{{ $region }}/fortlogs/audit/users/{{ $user.name }}/username` and `/secrets/{{ $region }}/fortlogs/audit/users/{{ $user.name }}/password` . Use `-k` or better use CA from secret `opensearch-http-cert-external`.
     ```
-    # e.g. logs-api.fortlogs.eu-de-1.cloud.sap
-    curl -X -k DELETE https://logs-api.fortlogs.eu-de-1.cloud.sap/.kibana_4 -u username:password
+    # e.g. DASHBOARDS_URL=https://logs-api.fortlogs.eu-de-1.cloud.sap
+    curl -X DELETE ${DASHBOARDS_URL}/.kibana_4 -u username
     ```
-    - Delete the opensearch dashboards pod and let the pod recreate `.kibana_4` index.
+    - Delete the opensearch dashboards pod using a label selector and let Kubernetes recreate the pod and the `.kibana_4` index.
     ```
-    kubectl delete pod opensearch-logs-dashboards-9669f5d95-xzzdk
+    kubectl delete pods -l opensearch.cluster.dashboards=opensearch-logs # logs cluster
+    or
+    kubectl delete pods -l opensearch.cluster.dashboards=opensearch-audit # audit cluster
     ```
 
 2. **Contact support**: If the opensearch dashboard is not getting up after these steps, investigate further or seek assistance from your operations team.

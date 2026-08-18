@@ -44,7 +44,7 @@ groups:
           description: "The index {{`{{ $labels.index }}`}} in cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} has exceeded 200 GB in size and is still actively receiving data. Please check the rollover status."
 
       - alert: OpenSearchDashboardsUnavailable
-        expr: (sum by (deployment) (kube_deployment_status_replicas_available{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"})) == 0
+        expr: (sum by (deployment) (kube_deployment_status_replicas_available{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"})) == 0 and (sum by (deployment) (kube_deployment_spec_replicas{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"}) > 0)
         for: 10m
         labels:
           severity: info # warning
@@ -52,5 +52,5 @@ groups:
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchDashboardsUnavailable.md
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
-          summary: "OpenSearch Dashboards (UI) is unavailabe."
+          summary: "OpenSearch Dashboards (UI) is unavailable."
           description: "Deployment for OpenSearch Dashboards {{`{{ $labels.deployment }}`}} in namespace {{ .Release.Namespace }} is unavailable. Users cannot see their logs."
