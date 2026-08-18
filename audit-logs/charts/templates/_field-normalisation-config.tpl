@@ -23,6 +23,9 @@ transform/field-normalisation:
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - set(log.attributes["audit_status"], String(log.attributes["status"])) where log.attributes["status"] != nil
         - delete_key(log.attributes, "status") where log.attributes["status"] != nil
+        - set(log.attributes["audit_syslog_ts"], log.attributes["syslog_timestamp"]) where log.attributes["syslog_timestamp"] != nil
+        - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil
+        - delete_key(log.attributes, "status") where log.attributes["status"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log"]["http"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
         - delete_key(log.attributes["log"], "http") where log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log.http"])) where log.attributes["http_string"] == nil and log.attributes["log.http"] != nil
@@ -50,5 +53,6 @@ transform/field-normalisation:
         - delete_matching_keys(log.attributes, "^process\\..*")
         - delete_matching_keys(log.attributes, "^prometheus\\..*")
         - delete_matching_keys(log.attributes, "^args\\..*")
+        - delete_matching_keys(log.attributes, "^syslog_timestamp\\..*")
         
 {{- end }}
