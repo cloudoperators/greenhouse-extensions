@@ -28,7 +28,7 @@ kafka:
   # -- Name of the Kafka cluster
   name: kafka
 
-  # -- Name of the KafkaNodePool for cluster
+  # -- Name of the KafkaNodePool for the cluster
   nodePoolName: broker
 
   # -- Kafka version
