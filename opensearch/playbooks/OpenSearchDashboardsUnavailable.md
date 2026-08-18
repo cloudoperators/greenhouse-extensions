@@ -34,4 +34,4 @@ OpenSearch Dashboard (UI) is unavailable which means there is no running pod.
     kubectl delete pod opensearch-logs-dashboards-9669f5d95-xzzdk
     ```
 
-2. **Contact support**: If the cluster doesn't start rerouting after these steps, investigate further or seek assistance from your operations team.
+2. **Contact support**: If the opensearch dashboard is not getting up after these steps, investigate further or seek assistance from your operations team.
