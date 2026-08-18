@@ -257,6 +257,12 @@ transform/syslog_nsxt:
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and log.attributes["message"] != nil'
+        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        # Extract audit operation fields
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\""), "upsert") where log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Operation=\"(?P<nsx_operation>[^\"]+)\""), "upsert") where log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["message"] != nil'
 
 {{/*
   ============================================================================
