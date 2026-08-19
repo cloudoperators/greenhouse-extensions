@@ -190,7 +190,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ required "openTelemetry.externalCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.kafkaTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.kafkaTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
@@ -210,7 +210,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         traces:
-          topic: {{ required "openTelemetry.externalCollector.kafkaTracesTopic is required when kafka is enabled and tracesConfig is enabled" .Values.openTelemetry.externalCollector.kafkaTracesTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTracesTopic is required when kafka is enabled and tracesConfig is enabled" .Values.openTelemetry.externalCollector.kafkaTracesTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
