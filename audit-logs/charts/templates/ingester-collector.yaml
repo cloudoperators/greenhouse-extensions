@@ -36,7 +36,7 @@ spec:
   envFrom:
     - secretRef:
         name: audit-ingester-{{ $name }}-auth
-{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
+{{- if include "auditLogs.ingesterCollector.serviceMonitorEnabled" $root }}
   ports:
     - name: prometheus
       port: 8888
@@ -160,7 +160,7 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
+{{- if include "auditLogs.ingesterCollector.serviceMonitorEnabled" $root }}
       telemetry:
         metrics:
           level: detailed

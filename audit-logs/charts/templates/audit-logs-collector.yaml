@@ -69,7 +69,7 @@ spec:
     - secretRef:
         name: audit-logs-basic-auth
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+{{- if include "auditLogs.serviceMonitorEnabled" . }}
   ports:
     - name: prometheus
       port: 8888
@@ -637,7 +637,7 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+{{- if include "auditLogs.serviceMonitorEnabled" . }}
       telemetry:
         metrics:
           level: detailed

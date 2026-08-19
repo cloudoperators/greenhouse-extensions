@@ -128,9 +128,15 @@ auditLogs:
     # -- Pod resources per ingest collector Deployment.
     resources: {}
     prometheus:
-      podMonitor:
-        # -- Render a PodMonitor per enabled ingest collector.
+      serviceMonitor:
+        # -- Render a ServiceMonitor per enabled ingest collector and expose
+        # the internal telemetry Prometheus endpoint (:8888) on the pod.
         enabled: true
+      # DEPRECATED: use serviceMonitor.enabled. Kept for backward
+      # compatibility with existing PluginPresets; when true it is treated as
+      # serviceMonitor.enabled=true. Will be removed in a future release.
+      podMonitor:
+        enabled: false
     # Entry shape:
     #   <name>:
     #     enabled: bool                         # render this collector
@@ -151,11 +157,16 @@ auditLogs:
 
 
   prometheus:
-    # -- Activates the service-monitoring for the Logs Collector.
-    podMonitor:
-      enabled: false
-    # -- Activates the pod-monitoring for the Logs Collector.
+    # -- Render a ServiceMonitor for the Logs Collector and expose the
+    # internal telemetry Prometheus endpoint (:8888) on the pod. This is the
+    # canonical scraping switch; when enabled the collector's `ports:` and
+    # `service.telemetry.metrics` blocks are also rendered.
     serviceMonitor:
+      enabled: false
+    # DEPRECATED: use serviceMonitor.enabled. Kept for backward
+    # compatibility with existing PluginPresets; when true it is treated as
+    # serviceMonitor.enabled=true. Will be removed in a future release.
+    podMonitor:
       enabled: false
 
     # -- Label selectors for the Prometheus resources to be picked up by prometheus-operator.

@@ -3,13 +3,13 @@ SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.ingesterCollector.enabled .Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled -}}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.ingesterCollector.enabled (include "auditLogs.ingesterCollector.serviceMonitorEnabled" .) -}}
 {{- $root := . -}}
 {{- range $name, $cfg := .Values.auditLogs.ingesterCollector.collectors -}}
 {{- if and $cfg.enabled $cfg.topic }}
 ---
 apiVersion: monitoring.coreos.com/v1
-kind: PodMonitor
+kind: ServiceMonitor
 metadata:
   name: opentelemetry-collector-audit-ingester-{{ $name }}
   labels:
@@ -19,18 +19,25 @@ metadata:
     {{- end }}
     {{- include "plugin.prometheusLabels" $root | nindent 4 }}
 spec:
-  podMetricsEndpoints:
-    - interval: 60s
+  endpoints:
+    - port: prometheus
+      interval: 60s
       scrapeTimeout: 50s
       path: /metrics
       scheme: http
-      port: prometheus
+      relabelings:
+        - regex: pod
+          action: labeldrop
+  # The OpenTelemetry Operator creates three Services per collector with
+  # identical app.kubernetes.io/* labels (base, headless, monitoring).
+  # Restrict to the base Service so /metrics is scraped exactly once.
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
       app.kubernetes.io/instance: {{ $root.Release.Namespace }}.audit-ingester-{{ $name }}
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
+      operator.opentelemetry.io/collector-service-type: base
 {{- end }}
 {{- end }}
 {{- end }}

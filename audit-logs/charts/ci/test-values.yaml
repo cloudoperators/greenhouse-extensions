@@ -7,7 +7,7 @@
 # - journald
 # - kube-apiserver audit
 # - auditpoller filelog receiver
-# - prometheus podMonitor + telemetry
+# - prometheus serviceMonitor + telemetry
 
 auditLogs:
   cluster: test
@@ -40,7 +40,7 @@ auditLogs:
       encoding: otlp_json
       compression: snappy
   prometheus:
-    podMonitor:
+    serviceMonitor:
       enabled: true
     additionalLabels:
       prometheus: test
@@ -53,7 +53,7 @@ auditLogs:
     enabled: false
     replicas: 1
     prometheus:
-      podMonitor:
+      serviceMonitor:
         enabled: true
     collectors:
       audit:

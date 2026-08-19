@@ -81,7 +81,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
 | auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
-| auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
+| auditLogs.ingesterCollector.prometheus.serviceMonitor.enabled | bool | `true` | Render a ServiceMonitor per enabled ingest collector and expose the internal telemetry Prometheus endpoint (:8888) on the pod. |
 | auditLogs.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
 | auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
@@ -112,12 +112,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch requests |
 | auditLogs.podAnnotations | object | `{}` | Annotations to add to collector pods |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
-| auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |
+| auditLogs.prometheus.podMonitor.enabled | bool | `false` |  |
 | auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"create":true,"labels":{}}` | Default rules for monitoring the opentelemetry components. |
 | auditLogs.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | auditLogs.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
 | auditLogs.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
-| auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Activates the pod-monitoring for the Logs Collector. |
+| auditLogs.prometheus.serviceMonitor | object | `{"enabled":false}` | Render a ServiceMonitor for the Logs Collector and expose the internal telemetry Prometheus endpoint (:8888) on the pod. This is the canonical scraping switch; when enabled the collector's `ports:` and `service.telemetry.metrics` blocks are also rendered. |
 | auditLogs.region | string | `nil` | Region label for Logging |
 | auditLogs.terminationGracePeriodSeconds | int | `30` | Grace period for pod termination in seconds |
 | auditPoller.enabled | bool | `false` | Enables the audit-poller deployment for polling IAS audit logs |

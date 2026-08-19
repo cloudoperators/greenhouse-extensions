@@ -51,14 +51,14 @@ spec:
           description: Second Password (as a failover) for OpenSearch endpoint
           required: false
           type: secret
-        - name: auditLogs.prometheus.podMonitor.enabled
-          default: false
-          description: auditLogs.prometheus.podMonitor.enabled
-          required: false
-          type: bool
         - name: auditLogs.prometheus.serviceMonitor.enabled
           default: false
-          description: auditLogs.prometheus.serviceMonitor.enabled
+          description: Render a ServiceMonitor for the logs collector and expose its :8888 metrics endpoint.
+          required: false
+          type: bool
+        - name: auditLogs.prometheus.podMonitor.enabled
+          default: false
+          description: DEPRECATED. Use serviceMonitor.enabled. Currently treated as serviceMonitor.enabled=true for backward compatibility.
           required: false
           type: bool
         - name: auditLogs.prometheus.rules.create
@@ -160,9 +160,14 @@ spec:
           description: Pod resources per ingest collector Deployment
           required: false
           type: map
-        - name: auditLogs.ingesterCollector.prometheus.podMonitor.enabled
+        - name: auditLogs.ingesterCollector.prometheus.serviceMonitor.enabled
           default: true
-          description: Render a PodMonitor per enabled ingest collector
+          description: Render a ServiceMonitor per enabled ingest collector.
+          required: false
+          type: bool
+        - name: auditLogs.ingesterCollector.prometheus.podMonitor.enabled
+          default: false
+          description: DEPRECATED. Use serviceMonitor.enabled. Currently treated as serviceMonitor.enabled=true for backward compatibility.
           required: false
           type: bool
         - name: auditLogs.ingesterCollector.collectors
