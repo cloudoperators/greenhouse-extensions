@@ -28,6 +28,9 @@ kafka:
   # -- Name of the Kafka cluster
   name: kafka
 
+  # -- Name of the KafkaNodePool for the cluster
+  nodePoolName: broker
+
   # -- Kafka version
   version: "4.2.0"
 
@@ -198,6 +201,8 @@ topics:
   logs:
     # -- Enable this topic
     enabled: true
+    # -- Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!)
+    useClusterPrefix: false
     # -- Number of partitions (should match OpenSearch index shards)
     partitions: 3
     # -- Replication factor
@@ -219,6 +224,8 @@ topics:
   audit:
     # -- Enable this topic
     enabled: true
+    # -- Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!)
+    useClusterPrefix: false
     # -- Number of partitions (should match OpenSearch index shards)
     partitions: 3
     # -- Replication factor

@@ -70,6 +70,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | kafka.listeners | list | plaintext on 9092, TLS on 9093 | Listener configuration |
 | kafka.metricsEnabled | bool | `true` | Enable metrics |
 | kafka.name | string | `"kafka"` | Name of the Kafka cluster |
+| kafka.nodePoolName | string | `"broker"` | Name of the KafkaNodePool for the cluster |
 | kafka.replicas | int | `3` | Number of Kafka broker/controller replicas (for KRaft mode) |
 | kafka.resources | object | requests: 2Gi memory, 1 CPU; limits: 4Gi memory, 2 CPU | Resource configuration for Kafka brokers |
 | kafka.storage | object | JBOD with 100Gi persistent volume per broker | Storage configuration for Kafka brokers |
@@ -101,6 +102,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | topics.audit.replicas | int | `3` | Replication factor |
 | topics.audit.retention | int | `86400000` | Retention period (24 hours = 86400000 ms) |
 | topics.audit.segmentBytes | int | `1073741824` | Segment size (1 GB) |
+| topics.audit.useClusterPrefix | bool | `false` | Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!) |
 | topics.logs.cleanupPolicy | string | `"delete"` | Cleanup policy |
 | topics.logs.compressionType | string | `"producer"` | Compression type |
 | topics.logs.enabled | bool | `true` | Enable this topic |
@@ -110,3 +112,4 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | topics.logs.replicas | int | `3` | Replication factor |
 | topics.logs.retention | int | `86400000` | Retention period (24 hours = 86400000 ms) |
 | topics.logs.segmentBytes | int | `1073741824` | Segment size (1 GB) |
+| topics.logs.useClusterPrefix | bool | `false` | Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!) |
