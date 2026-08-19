@@ -7,6 +7,7 @@ webhookevent/external-http:
   endpoint: "0.0.0.0:{{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}"
   path: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.path | quote }}
   health_path: {{ printf "%s/health" .Values.openTelemetry.externalCollector.externalHttpConfig.path | quote }}
+  max_request_body_size: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.maxRequestBodySize | int64 }}
   split_logs_at_newline: false
 {{- if .Values.openTelemetry.externalCollector.externalHttpConfig.tls.enabled }}
   tls:

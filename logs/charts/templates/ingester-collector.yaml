@@ -78,6 +78,8 @@ spec:
           topics:
             - {{ $cfg.topic | quote }}
           encoding: {{ $kafka.encoding }}
+        max_fetch_size: {{ dig "max_fetch_size" $root.Values.openTelemetry.kafka.max_fetch_size $kafka | int64 }}
+        max_partition_fetch_size: {{ dig "max_partition_fetch_size" $root.Values.openTelemetry.kafka.max_partition_fetch_size $kafka | int64 }}
         group_id: {{ printf "logs-ingester-%s" $name | quote }}
         initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
         autocommit:

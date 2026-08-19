@@ -84,8 +84,12 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
-    # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
-    max_message_bytes: 1000000
+    # -- Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1048576
+    # -- Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records.
+    max_fetch_size: 1048576
+    # -- Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records.
+    max_partition_fetch_size: 1048576
     # -- Producer sending queue size
     sendingQueue:
       enabled: true
@@ -175,6 +179,8 @@ openTelemetry:
     kafkaTopic: ""
     # -- Kafka topic name for traces (e.g., "traces")
     kafkaTracesTopic: ""
+    # -- Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size.
+    maxMessageLength: 32000
     # -- Activates syslog TCP/UDP ingestion (rfc5424/rfc3164).
     syslogConfig:
       enabled: false
@@ -236,6 +242,8 @@ openTelemetry:
       enabled: false
       # -- TCP port for the HTTP-JSON receiver.
       port: 1517
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
       # -- HTTP path the receiver serves. Sender must POST here.
       path: /audit/external
       # -- Kafka topic for the HTTP records (Kafka mode only). Separate from
