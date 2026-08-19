@@ -124,6 +124,9 @@ spec:
         send_batch_max_size: 10000
         timeout: 5s
         send_batch_size: 5000
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.batch" . | nindent 6 -}}
+{{- end }}
       attributes/cluster:
         actions:
           - action: insert

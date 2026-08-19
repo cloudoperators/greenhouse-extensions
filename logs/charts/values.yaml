@@ -252,6 +252,9 @@ openTelemetry:
       # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
       tls:
         enabled: true
+      max_request_body_size: 100000
+      read_timeout: 500ms
+      write_timeout: 500ms
   # -- Kafka -> OpenSearch ingest collectors. One Deployment per entry.
   # @default -- see values.yaml
   ingesterCollector:
