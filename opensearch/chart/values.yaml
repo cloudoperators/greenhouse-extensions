@@ -810,6 +810,9 @@ cluster:
             number_of_shards: 1
             number_of_replicas: 1
             refresh_interval: 1s
+            mapping:
+              total_fields:
+                limit: 2000
         mappings:
           properties:
             "@timestamp":
@@ -822,6 +825,26 @@ cluster:
                   type: long
                 text:
                   type: keyword
+      dataStream: {}
+      priority: 100
+    - name: audit-index-template
+      indexPatterns:
+        - "audit*"
+      templateSpec:
+        settings:
+          index:
+            number_of_shards: 1
+            number_of_replicas: 1
+            refresh_interval: 1s
+            mapping:
+              total_fields:
+                limit: 2000
+        mappings:
+          properties:
+            "@timestamp":
+              type: date
+            message:
+              type: text
       dataStream: {}
       priority: 100
 

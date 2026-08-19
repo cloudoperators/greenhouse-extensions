@@ -49,10 +49,10 @@ transform/syslog_forwarded_by:
   log_statements:
     - context: log
       statements:
-        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] != nil and IsMatch(attributes["message"], ".*forwarded_by=octobus_logstash.*")'
-        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
-        - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
-        - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] != nil and IsMatch(log.attributes["message"], ".*forwarded_by=octobus_logstash.*")'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] == nil and log.body != nil and IsMatch(log.body, ".*forwarded_by=octobus_logstash.*")'
+        - 'replace_pattern(log.attributes["message"], " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.attributes["message"] != nil'
+        - 'replace_pattern(log.body, " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.body != nil'
 
 {{/*
   ============================================================================
@@ -81,29 +81,29 @@ transform/syslog_semconv_normalization:
       statements:
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
-        - 'set(attributes["server.address"], attributes["net.host.name"]) where attributes["server.address"] == nil and attributes["net.host.name"] != nil'
-        - 'set(attributes["server.port"], attributes["net.host.port"]) where attributes["server.port"] == nil and attributes["net.host.port"] != nil'
-        - 'set(attributes["client.address"], attributes["net.peer.name"]) where attributes["client.address"] == nil and attributes["net.peer.name"] != nil'
-        - 'set(attributes["client.port"], attributes["net.peer.port"]) where attributes["client.port"] == nil and attributes["net.peer.port"] != nil'
+        - 'set(log.attributes["server.address"], log.attributes["net.host.name"]) where log.attributes["server.address"] == nil and log.attributes["net.host.name"] != nil'
+        - 'set(log.attributes["server.port"], log.attributes["net.host.port"]) where log.attributes["server.port"] == nil and log.attributes["net.host.port"] != nil'
+        - 'set(log.attributes["client.address"], log.attributes["net.peer.name"]) where log.attributes["client.address"] == nil and log.attributes["net.peer.name"] != nil'
+        - 'set(log.attributes["client.port"], log.attributes["net.peer.port"]) where log.attributes["client.port"] == nil and log.attributes["net.peer.port"] != nil'
 
         # Network vantage-point view
-        - 'set(attributes["network.local.address"], attributes["net.host.ip"]) where attributes["network.local.address"] == nil and attributes["net.host.ip"] != nil'
-        - 'set(attributes["network.peer.address"], attributes["net.peer.ip"]) where attributes["network.peer.address"] == nil and attributes["net.peer.ip"] != nil'
-        - 'set(attributes["network.peer.port"], attributes["net.peer.port"]) where attributes["network.peer.port"] == nil and attributes["net.peer.port"] != nil'
+        - 'set(log.attributes["network.local.address"], log.attributes["net.host.ip"]) where log.attributes["network.local.address"] == nil and log.attributes["net.host.ip"] != nil'
+        - 'set(log.attributes["network.peer.address"], log.attributes["net.peer.ip"]) where log.attributes["network.peer.address"] == nil and log.attributes["net.peer.ip"] != nil'
+        - 'set(log.attributes["network.peer.port"], log.attributes["net.peer.port"]) where log.attributes["network.peer.port"] == nil and log.attributes["net.peer.port"] != nil'
         # network.transport: normalize legacy "IP.TCP"/"IP.UDP" to lowercase semconv enum values.
         # Semconv requires transport whenever a port is set (ports are ambiguous without it).
-        - 'set(attributes["network.transport"], "tcp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.TCP"'
-        - 'set(attributes["network.transport"], "udp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.UDP"'
+        - 'set(log.attributes["network.transport"], "tcp") where log.attributes["network.transport"] == nil and log.attributes["net.transport"] == "IP.TCP"'
+        - 'set(log.attributes["network.transport"], "udp") where log.attributes["network.transport"] == nil and log.attributes["net.transport"] == "IP.UDP"'
         # Fallback: if some other value shows up, lowercase it defensively.
-        - 'set(attributes["network.transport"], ConvertCase(attributes["net.transport"], "lower")) where attributes["network.transport"] == nil and attributes["net.transport"] != nil'
+        - 'set(log.attributes["network.transport"], ConvertCase(log.attributes["net.transport"], "lower")) where log.attributes["network.transport"] == nil and log.attributes["net.transport"] != nil'
 
         # Syslog fields
-        - 'set(attributes["syslog.facility.code"], Int(attributes["facility"])) where attributes["syslog.facility.code"] == nil and attributes["facility"] != nil'
-        - 'set(attributes["syslog.facility.name"], attributes["facility_text"]) where attributes["syslog.facility.name"] == nil and attributes["facility_text"] != nil'
+        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil'
+        - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
 
         # Resource: host identity
         # Transforms host.name from fqdn to short-name
-        - 'set(resource.attributes["host.name"], attributes["hostname"]) where resource.attributes["host.name"] == nil and attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where resource.attributes["host.name"] == nil and log.attributes["hostname"] != nil'
         - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
@@ -121,22 +121,27 @@ transform/syslog_drop_legacy_fields:
     - context: log
       statements:
         # Role / address / port mappings
-        - 'delete_key(attributes, "net.host.name") where attributes["server.address"] != nil'
-        - 'delete_key(attributes, "net.host.port") where attributes["server.port"] != nil'
-        - 'delete_key(attributes, "net.peer.name") where attributes["client.address"] != nil'
-        - 'delete_key(attributes, "net.peer.port") where attributes["client.port"] != nil and attributes["network.peer.port"] != nil'
+        - 'delete_key(log.attributes, "net.host.name") where log.attributes["server.address"] != nil'
+        - 'delete_key(log.attributes, "net.host.port") where log.attributes["server.port"] != nil'
+        - 'delete_key(log.attributes, "net.peer.name") where log.attributes["client.address"] != nil'
+        - 'delete_key(log.attributes, "net.peer.port") where log.attributes["client.port"] != nil and log.attributes["network.peer.port"] != nil'
 
         # Network vantage-point
-        - 'delete_key(attributes, "net.host.ip") where attributes["network.local.address"] != nil'
-        - 'delete_key(attributes, "net.peer.ip") where attributes["network.peer.address"] != nil'
-        - 'delete_key(attributes, "net.transport") where attributes["network.transport"] != nil'
+        - 'delete_key(log.attributes, "net.host.ip") where log.attributes["network.local.address"] != nil'
+        - 'delete_key(log.attributes, "net.peer.ip") where log.attributes["network.peer.address"] != nil'
+        - 'delete_key(log.attributes, "net.transport") where log.attributes["network.transport"] != nil'
 
         # Syslog fields
-        - 'delete_key(attributes, "facility") where attributes["syslog.facility.code"] != nil'
-        - 'delete_key(attributes, "facility_text") where attributes["syslog.facility.name"] != nil'
+        - 'delete_key(log.attributes, "facility") where log.attributes["syslog.facility.code"] != nil'
+        - 'delete_key(log.attributes, "facility_text") where log.attributes["syslog.facility.name"] != nil'
+        # Drop raw syslog_timestamp only when a valid timestamp was parsed into time_unix_nano.
+        # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
+        # (strict_date_optional_time||epoch_millis). Keeping it when time_unix_nano == 0
+        # preserves the only timing info available for that log.
+        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
-        - 'delete_key(attributes, "hostname") where resource.attributes["host.name"] != nil'
+        - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
 
 {{/*
   ============================================================================
@@ -313,7 +318,7 @@ transform/syslog_audit_classification:
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
-        - 'set(log.attributes["audit_relevant"], "true") where body != nil and IsMatch(body, "(?i)(ise-idc|Check Point|Fortinet|Palo Alto Networks|TrendMicro|Tufin)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.body != nil and IsMatch(log.body, "(?i)(ise-idc|Check Point|Fortinet|Palo Alto Networks|TrendMicro|Tufin)")'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
