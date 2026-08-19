@@ -23,10 +23,22 @@ spec:
     relabelings:
       - regex: pod
         action: labeldrop
+  # The OpenTelemetry Operator creates three Services per collector with
+  # identical app.kubernetes.io/* labels:
+  #   <name>-collector             (collector-service-type=base)
+  #   <name>-collector-headless    (collector-service-type=headless)
+  #   <name>-collector-monitoring  (collector-service-type=monitoring)
+  # Selecting on the shared labels alone matches all three, so the same
+  # :8888 /metrics endpoint gets scraped three times (jobs
+  # audit-logs-collector, audit-logs-collector-headless,
+  # audit-logs-collector-monitoring) and produces duplicate otelcol_* series.
+  # Restrict to the base Service; the base Service already exposes both the
+  # prometheus and monitoring ports declared on the collector.
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
       app.kubernetes.io/instance: {{ .Release.Namespace }}.audit-logs
       app.kubernetes.io/managed-by: opentelemetry-operator
       app.kubernetes.io/part-of: opentelemetry
+      operator.opentelemetry.io/collector-service-type: base
 {{- end }}
