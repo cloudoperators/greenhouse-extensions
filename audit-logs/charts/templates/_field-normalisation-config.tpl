@@ -50,5 +50,14 @@ transform/field-normalisation:
         - delete_matching_keys(log.attributes, "^process\\..*")
         - delete_matching_keys(log.attributes, "^prometheus\\..*")
         - delete_matching_keys(log.attributes, "^args\\..*")
-        
+        # stringify attributes.context.* map into single string, then drop all nested keys
+        - set(log.attributes["context_string"], String(log.attributes["context"]))
+          where log.attributes["context"] != nil
+        - delete_key(log.attributes, "context") where log.attributes["context"] != nil
+        - delete_matching_keys(log.attributes, "^context\\..*")
+        # stringify attributes.headers.* map into single string, then drop all nested keys
+        - set(log.attributes["headers_string"], String(log.attributes["headers"]))
+            where log.attributes["headers"] != nil
+        - delete_key(log.attributes, "headers") where log.attributes["headers"] != nil
+        - delete_matching_keys(log.attributes, "^headers\\..*")
 {{- end }}
