@@ -278,6 +278,7 @@ transform/syslog_esxi_vm_events:
     - context: log
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
+        - 'log.attributes["message"] != nil'
       statements:
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert")'
@@ -294,6 +295,7 @@ transform/syslog_esxi_sshd:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
         - 'log.attributes["appname"] == "sshd"'
+        - 'log.attributes["message"] != nil'
         - 'IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert")'
