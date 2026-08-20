@@ -276,17 +276,25 @@ spec:
   {{- if (has "OTelLogsVolumeSpike" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsVolumeSpike
         expr: |
-          sum by (k8s_cluster_name) (
-            rate(otelcol_receiver_accepted_log_records_total{
-              job=~".*/opentelemetry-collector-logs"
-            }[5m])
-          )
-          /
+          (
+            sum by (k8s_cluster_name) (
+              rate(otelcol_receiver_accepted_log_records_total{
+                job=~".*/opentelemetry-collector-logs"
+              }[5m])
+            )
+            /
+            sum by (k8s_cluster_name) (
+              rate(otelcol_receiver_accepted_log_records_total{
+                job=~".*/opentelemetry-collector-logs"
+              }[1h] offset 1h)
+            )
+          ) > 5
+          and on(k8s_cluster_name)
           sum by (k8s_cluster_name) (
             rate(otelcol_receiver_accepted_log_records_total{
               job=~".*/opentelemetry-collector-logs"
             }[1h] offset 1h)
-          ) > 5
+          ) > 0
         for: 5m
         labels:
           context: logshipping
@@ -302,19 +310,28 @@ spec:
   {{- if (has "OTelLogsVolumeDropFast" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsVolumeDropFast
         expr: |
-          sum by (k8s_cluster_name) (
-            rate(otelcol_exporter_sent_log_records_total{
-              job=~".*/opentelemetry-collector-logs",
-              exporter!~"debug"
-            }[10m])
-          )
-          /
+          (
+            sum by (k8s_cluster_name) (
+              rate(otelcol_exporter_sent_log_records_total{
+                job=~".*/opentelemetry-collector-logs",
+                exporter!~"debug"
+              }[10m])
+            )
+            /
+            sum by (k8s_cluster_name) (
+              rate(otelcol_exporter_sent_log_records_total{
+                job=~".*/opentelemetry-collector-logs",
+                exporter!~"debug"
+              }[1h] offset 1h)
+            )
+          ) < 0.2
+          and on(k8s_cluster_name)
           sum by (k8s_cluster_name) (
             rate(otelcol_exporter_sent_log_records_total{
               job=~".*/opentelemetry-collector-logs",
               exporter!~"debug"
             }[1h] offset 1h)
-          ) < 0.2
+          ) > 0
         for: 10m
         labels:
           context: logshipping
