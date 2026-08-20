@@ -49,9 +49,9 @@ transform/syslog_forwarded_by:
   log_statements:
     - context: log
       statements:
-        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] != nil and IsMatch(log.attributes["message"], ".*forwarded_by=octobus_logstash.*")'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*forwarded_by=octobus_logstash.*")'
         - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] == nil and log.body != nil and IsMatch(log.body, ".*forwarded_by=octobus_logstash.*")'
-        - 'replace_pattern(log.attributes["message"], " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.attributes["message"] != nil'
+        - 'replace_pattern(log.attributes["message"], " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and IsString(log.attributes["message"])'
         - 'replace_pattern(log.body, " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.body != nil'
 
 {{/*
@@ -64,7 +64,7 @@ transform/syslog_extract_appname_from_message:
   log_statements:
     - context: log
       statements:
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -204,20 +204,20 @@ transform/syslog_user_extraction:
     - context: log
       statements:
         # Extract "user=xyz]" pattern
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert") where log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert") where IsString(log.attributes["message"])'
         # Extract "for user xyz from" pattern (fallback if user not already found)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
     # Failed/Cannot login parsing - only for Hostd, vobd, vpxd processes
     - context: log
       conditions:
         - 'IsMatch(log.attributes["appname"], "(?i)^(Hostd|vobd|vpxd):?$")'
       statements:
         # Match userid in format <userid>@<domain>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
         # Match userid in format <domain>\<userid>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
         # Match simple userid (fallback)
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -261,11 +261,11 @@ transform/syslog_nsxt:
       statements:
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
         # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
         # Extract audit operation fields in a single pass
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and log.attributes["message"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -278,10 +278,9 @@ transform/syslog_esxi_vm_events:
     - context: log
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
-        - 'log.attributes["message"] != nil'
       statements:
         # Parse VM reconfigure/error events
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert")'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -295,10 +294,9 @@ transform/syslog_esxi_sshd:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
         - 'log.attributes["appname"] == "sshd"'
-        - 'log.attributes["message"] != nil'
-        - 'IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
+        - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert")'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
