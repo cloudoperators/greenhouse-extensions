@@ -143,3 +143,8 @@ spec:
         key: config.yaml
       required: false
       type: map
+    - name: kubeMonitoring.prometheus.prometheusSpec.disableCompaction
+      description: Whether to disable local TSDB compaction on Prometheus.
+      default: true
+      required: false
+      type: bool
