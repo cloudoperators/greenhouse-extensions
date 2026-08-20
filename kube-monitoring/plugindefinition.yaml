@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 15.0.0
+  version: 15.0.1
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -53,6 +53,11 @@ spec:
       description: The storage class to use for the persistent volume.
       required: false
       type: string
+    - name: kubeMonitoring.prometheus.prometheusSpec.disableCompaction
+      description: Whether to disable local TSDB compaction on Prometheus.
+      default: true
+      required: false
+      type: bool
     - name: alerts.enabled
       description: Whether the Alerts Plugin is configured
       default: false
