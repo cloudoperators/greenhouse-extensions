@@ -85,6 +85,7 @@ tcp_log/syslog:
     output: syslog_3164_padded_cleanup
   - type: remove
     id: syslog_3164_padded_cleanup
+    on_error: send_quiet
     field: attributes.timestamp
     output: add_format_rfc3164_padded
 
@@ -99,6 +100,7 @@ tcp_log/syslog:
     output: syslog_iso_cleanup
   - type: remove
     id: syslog_iso_cleanup
+    on_error: send_quiet
     field: attributes.timestamp
     output: add_format_iso
   # Cisco IOS format parser
@@ -114,6 +116,7 @@ tcp_log/syslog:
     output: syslog_cisco_cleanup
   - type: remove
     id: syslog_cisco_cleanup
+    on_error: send_quiet
     field: attributes.timestamp
     output: add_format_cisco
   - type: add
