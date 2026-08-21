@@ -9,11 +9,21 @@ webhookevent/external-http:
   health_path: {{ printf "%s/health" .Values.openTelemetry.externalCollector.externalHttpConfig.path | quote }}
   max_request_body_size: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.maxRequestBodySize | int64 }}
   split_logs_at_newline: false
+  max_request_body_size: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.max_request_body_size }}
+  read_timeout: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.read_timeout }}
+  write_timeout: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.write_timeout }}
 {{- if .Values.openTelemetry.externalCollector.externalHttpConfig.tls.enabled }}
   tls:
     cert_file: /etc/ssl/syslog-tls/tls.crt
     key_file: /etc/ssl/syslog-tls/tls.key
 {{- end }}
+{{- end }}
+
+{{- define "external_http.batch" }}
+batch/external-http:
+  send_batch_max_size: 1000
+  send_batch_size: 500
+  timeout: 500ms
 {{- end }}
 
 {{- define "external_http.transform" }}
@@ -63,7 +73,7 @@ transform/external-http:
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
 {{- define "external_http.exporter" }}
 {{- if .Values.openTelemetry.kafka.enabled }}
-kafka/external_http:
+kafka/external-http:
   brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
     - {{ . }}
@@ -88,6 +98,7 @@ kafka/external_http:
 {{- end }}
 {{- end }}
 
+
 {{- define "external_http.pipeline" }}
 logs/external-http:
   receivers: [webhookevent/external-http]
@@ -95,9 +106,9 @@ logs/external-http:
     - transform/external-http
     - transform/truncate_message
     - attributes/cluster
-    - batch
+    - batch/external-http
 {{- if .Values.openTelemetry.kafka.enabled }}
-  exporters: [kafka/external_http]
+  exporters: [kafka/external-http]
 {{- else }}
   exporters: [failover/opensearch_syslog_audit]
 {{- end }}
