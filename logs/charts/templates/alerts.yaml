@@ -17,9 +17,9 @@ spec:
   groups:
   - name: logs-plugin-alerts
     rules:
-  {{- if (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+  {{- if (or (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled)) }}
       - alert: ReceiverRefusedLogs
-        expr: sum by (receiver) (rate(otelcol_receiver_refused_log_records_total{job=~".*/opentelemetry-collector-logs"}[1m])) > 0
+        expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records_total{job=~".*/opentelemetry-collector-logs"}[1m])) > 0
         for: 5m
         labels:
           context: logshipping
@@ -28,8 +28,8 @@ spec:
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          summary: 'OTel receiver {{`{{ $labels.receiver }}`}} is refusing log records'
-          description: 'The {{`{{ $labels.receiver }}`}} receiver is rejecting log records. Check the receiver configuration and the log source on affected nodes.'
+          summary: 'OTel receiver {{`{{ $labels.receiver }}`}} is refusing log records on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'The {{`{{ $labels.receiver }}`}} receiver on {{`{{ $labels.k8s_cluster_name }}`}} is rejecting log records. Check the receiver configuration and the log source on affected nodes.'
   {{- end }}
 
   {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
