@@ -7,7 +7,7 @@ weight: 20
 
 ## Problem
 
-The in-memory sending queue for an exporter is filling up. `OTelExporterQueueFilling` fires at >80% capacity (warning). `OTelExporterQueueFull` fires at 100% capacity (pipeline stalled).
+The in-memory sending queue for an exporter is filling up. `OTelExporterQueueFilling` fires at >80% capacity (info). `OTelExporterQueueFull` fires at 100% capacity (pipeline stalled).
 
 The failover connectors are configured with `block_on_overflow: true`. When the queue is full, the collector stops processing new log records.
 
