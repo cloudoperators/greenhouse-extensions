@@ -17,7 +17,21 @@ spec:
   groups:
   - name: logs-plugin-alerts
     rules:
-  {{- if (or (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled)) }}
+  {{- if (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FilelogRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records_total{receiver=~"filelog"}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Logs are not successfully pushed into the filelog-receiver
+          description: Filelog receiver is increasingly rejecting logs
+  {{- end }}
+
+  {{- if (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: ReceiverRefusedLogs
         expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records_total{job=~".*/opentelemetry-collector-logs"}[1m])) > 0
         for: 5m
