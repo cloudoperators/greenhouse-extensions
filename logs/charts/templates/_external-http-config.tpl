@@ -61,10 +61,11 @@ transform/external-http:
 transform/parse_batch:
   error_mode: ignore
   log_statements:
-  - context: log
-    statements:
-    - set(log.body, ParseJSON(log.body)) where IsString(log.body) and IsMatch(log.body,
-      "^\\[")
+    - context: log
+      statements:
+        - set(log.body, ParseJSON(log.body)) where IsString(log.body) and IsMatch(log.body, "^[\\[{]")
+unroll:
+  recursive: true
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
