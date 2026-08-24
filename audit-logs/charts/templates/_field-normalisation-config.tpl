@@ -8,7 +8,6 @@ transform/field-normalisation:
         - delete_key(log.attributes["auditd"], "paths") where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
         - set(log.attributes["auditd.data"], String(log.attributes["auditd"]["data"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - delete_key(log.attributes["auditd"], "data") where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
-        #
         - set(log.attributes["audit_host"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - set(log.attributes["audit_source_ips"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
@@ -41,6 +40,7 @@ transform/field-normalisation:
         - delete_key(log.attributes, "requestObject") where log.attributes["requestObject"] != nil
         - set(log.attributes["k8s_resp_payload"], String(log.attributes["responseObject"])) where log.attributes["responseObject"] != nil
         - delete_key(log.attributes, "responseObject") where log.attributes["responseObject"] != nil
+        - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0
         - delete_matching_keys(log.attributes, "^requestObject\\..*")
         - delete_matching_keys(log.attributes, "^responseObject\\..*")
         - delete_matching_keys(log.attributes, "^user\\..*")
@@ -50,5 +50,16 @@ transform/field-normalisation:
         - delete_matching_keys(log.attributes, "^process\\..*")
         - delete_matching_keys(log.attributes, "^prometheus\\..*")
         - delete_matching_keys(log.attributes, "^args\\..*")
-        
+        - set(log.attributes["context_string"], String(log.attributes["context"])) where log.attributes["context"] != nil
+        - delete_key(log.attributes, "context") where log.attributes["context"] != nil
+        - delete_matching_keys(log.attributes, "^context\\..*")
+        - set(log.attributes["headers_string"], String(log.attributes["headers"])) where log.attributes["headers"] != nil
+        - delete_key(log.attributes, "headers") where log.attributes["headers"] != nil
+        - delete_matching_keys(log.attributes, "^headers\\..*")
+        - set(log.attributes["tags_string"], String(log.attributes["tags"])) where log.attributes["tags"] != nil
+        - delete_key(log.attributes, "tags") where log.attributes["tags"] != nil
+        - delete_matching_keys(log.attributes, "^tags\\..*")
+        - set(log.attributes["tenant_ids_string"], String(log.attributes["tenant_ids"])) where log.attributes["tags"] != nil
+        - delete_key(log.attributes, "tenant_ids") where log.attributes["tenant_ids"] != nil
+        - delete_matching_keys(log.attributes, "^tenant_ids\\..*")
 {{- end }}

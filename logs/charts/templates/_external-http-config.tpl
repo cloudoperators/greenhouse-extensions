@@ -23,7 +23,7 @@ transform/external-http:
     - context: log
       statements:
         - set(log.time_unix_nano, log.observed_time_unix_nano)
-        - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        - merge_maps(log.attributes, log.body, "upsert") where IsMap(log.body)
         # Auditbeat sends auditd.paths (variable-length array of objects) and
         # auditd.data (open-ended map). Left as nested objects they cause
         # unbounded OpenSearch field-mapping growth (paths.0.*, paths.1.*, ...),
@@ -57,7 +57,6 @@ transform/external-http:
         - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
         - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])
         - delete_key(log.attributes, "event") where log.attributes["event"] != nil
-        
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
@@ -92,10 +91,10 @@ kafka/external_http:
 logs/external-http:
   receivers: [webhookevent/external-http]
   processors:
+    - memory_limiter
     - transform/external-http
     - transform/truncate_message
     - attributes/cluster
-    - batch
 {{- if .Values.openTelemetry.auditKafka.enabled }}
   exporters: [kafka/external_http]
 {{- else }}

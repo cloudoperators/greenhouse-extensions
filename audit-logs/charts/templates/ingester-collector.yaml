@@ -85,6 +85,7 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+      # Used to handle external http poison messages in kafka.
 {{- include "field_normalisation.transform" . | nindent 6 }}
       attributes/cluster:
         actions:
