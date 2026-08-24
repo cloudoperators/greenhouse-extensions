@@ -87,16 +87,6 @@ spec:
         spike_limit_percentage: 30
       # Used to handle external http poison messages in kafka.
 {{- include "field_normalisation.transform" . | nindent 6 }}
-      # Used to handle external http poison messages in kafka.
-      transform/parse_batch:
-        error_mode: ignore
-        log_statements:
-          - context: log
-            statements:
-              - set(log.body, ParseJSON(log.body)) where IsString(log.body) and IsMatch(log.body, "^[\\[{]")
-      # Used to handle external http poison messages in kafka.
-      unroll:
-        recursive: true
       attributes/cluster:
         actions:
           - action: insert
@@ -193,7 +183,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, transform/parse_batch, unroll, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
+          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]

@@ -57,15 +57,6 @@ transform/external-http:
         - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
         - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])
         - delete_key(log.attributes, "event") where log.attributes["event"] != nil
-    
-transform/parse_batch:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      statements:
-        - set(log.body, ParseJSON(log.body)) where IsString(log.body) and IsMatch(log.body, "^[\\[{]")
-unroll:
-  recursive: true
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
@@ -101,7 +92,6 @@ logs/external-http:
   receivers: [webhookevent/external-http]
   processors:
     - memory_limiter
-    - transform/parse_batch
     - transform/external-http
     - transform/truncate_message
     - attributes/cluster
