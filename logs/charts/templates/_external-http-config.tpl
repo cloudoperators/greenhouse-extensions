@@ -65,8 +65,6 @@ transform/parse_batch:
     statements:
     - set(log.body, ParseJSON(log.body)) where IsString(log.body) and IsMatch(log.body,
       "^\\[")
-unroll:
-  recursive: true
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
@@ -101,12 +99,11 @@ kafka/external_http:
 logs/external-http:
   receivers: [webhookevent/external-http]
   processors:
+    - memory_limiter
     - transform/parse_batch
-    - unroll
     - transform/external-http
     - transform/truncate_message
     - attributes/cluster
-    - batch
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka/external_http]
 {{- else }}
