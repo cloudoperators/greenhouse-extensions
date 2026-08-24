@@ -104,6 +104,39 @@ openTelemetry:
     tls:
       # -- Enable TLS for Kafka connections
       enabled: false
+  # -- Audit Kafka exporter configuration shared by all collectors
+  # @default -- See values.yaml
+  auditKafka:
+    # -- Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering)
+    enabled: false
+    # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
+    brokers: []
+    # -- Kafka protocol version (e.g., "3.9.0")
+    protocol_version: ""
+    # -- Message encoding format (otlp_json, otlp_proto, raw)
+    encoding: ""
+    # -- Compression type (none, gzip, snappy, lz4, zstd)
+    compression: ""
+    # -- Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1048576
+    # -- Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records.
+    max_fetch_size: 1048576
+    # -- Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records.
+    max_partition_fetch_size: 1048576
+    # -- Producer sending queue size
+    sendingQueue:
+      enabled: true
+      queueSize: 1000
+      # -- Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput.
+      numConsumers: 1
+    # -- Producer batching (raise linger to build larger batches per broker request)
+    producer:
+      flushMaxMessages: 10000
+      linger: 10ms
+    # -- TLS configuration for Kafka connections
+    tls:
+      # -- Enable TLS for Kafka connections
+      enabled: false
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true

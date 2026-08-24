@@ -92,6 +92,20 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | commonLabels | object | `{}` | common labels to apply to all resources. |
 | customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
 | extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
+| openTelemetry.auditKafka | object | See values.yaml | Audit Kafka exporter configuration shared by all collectors |
+| openTelemetry.auditKafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
+| openTelemetry.auditKafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
+| openTelemetry.auditKafka.enabled | bool | `false` | Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering) |
+| openTelemetry.auditKafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
+| openTelemetry.auditKafka.max_fetch_size | int | `1048576` | Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records. |
+| openTelemetry.auditKafka.max_message_bytes | int | `1048576` | Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes. |
+| openTelemetry.auditKafka.max_partition_fetch_size | int | `1048576` | Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records. |
+| openTelemetry.auditKafka.producer | object | `{"flushMaxMessages":10000,"linger":"10ms"}` | Producer batching (raise linger to build larger batches per broker request) |
+| openTelemetry.auditKafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
+| openTelemetry.auditKafka.sendingQueue | object | `{"enabled":true,"numConsumers":1,"queueSize":1000}` | Producer sending queue size |
+| openTelemetry.auditKafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
+| openTelemetry.auditKafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
+| openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a8981ba"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
