@@ -69,7 +69,7 @@ kafka/external_http:
 {{- end }}
   protocol_version: {{ .Values.openTelemetry.auditKafka.protocol_version }}
   logs:
-    topic: {{ required "openTelemetry.externalCollector.externalHttpConfig.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.externalHttpConfig.kafkaTopic }}
+    topic: {{ required "openTelemetry.externalCollector.externalHttpConfig.kafkaTopic is required when audit kafka is enabled" .Values.openTelemetry.externalCollector.externalHttpConfig.kafkaTopic }}
     encoding: {{ .Values.openTelemetry.auditKafka.encoding }}
   producer:
     compression: {{ .Values.openTelemetry.auditKafka.compression }}

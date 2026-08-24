@@ -67,7 +67,7 @@ opensearch/failover_a_syslog_audit:
   http:
     auth:
       authenticator: basicauth/syslog_audit_failover_a
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
+    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when audit kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
   logs_index: audit-datastream
   retry_on_failure:
     enabled: true
@@ -79,7 +79,7 @@ opensearch/failover_b_syslog_audit:
   http:
     auth:
       authenticator: basicauth/syslog_audit_failover_b
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
+    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when audit kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
   logs_index: audit-datastream
   retry_on_failure:
     enabled: true
@@ -95,7 +95,7 @@ kafka/syslog_audit:
 {{- end }}
   protocol_version: {{ .Values.openTelemetry.auditKafka.protocol_version }}
   logs:
-    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
+    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when audit kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
     encoding: {{ .Values.openTelemetry.auditKafka.encoding }}
   producer:
     compression: {{ .Values.openTelemetry.auditKafka.compression }}
