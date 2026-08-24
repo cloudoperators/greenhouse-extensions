@@ -167,7 +167,7 @@ spec:
           - context: log
             statements:
               # Attribute values map to keyword fields. Keep below Lucene's 32766-byte term limit or OpenSearch rejects the document.
-              - "truncate_all(attributes, 32000)"
+              - "truncate_all(log.attributes, 32000)"
               - "truncate_all(resource.attributes, 32000)"
               - 'set(log.body, Substring(log.body, 0, {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }}'
 {{- end }}

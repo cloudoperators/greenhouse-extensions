@@ -138,7 +138,7 @@ transform/syslog_drop_legacy_fields:
         # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
         # (strict_date_optional_time||epoch_millis). Keeping it when time_unix_nano == 0
         # preserves the only timing info available for that log.
-        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0'
+        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
         - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
@@ -326,9 +326,9 @@ transform/syslog_observed_timestamp_fallback:
   log_statements:
     - context: log
       conditions:
-        - 'time_unix_nano == 0'
+        - 'log.time_unix_nano == 0'
       statements:
-        - 'set(time_unix_nano, observed_time_unix_nano)'
+        - 'set(log.time_unix_nano, log.observed_time_unix_nano)'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}
