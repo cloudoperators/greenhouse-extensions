@@ -93,9 +93,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | customCRDs.enabled | bool | `true` | The required CRDs used by this dependency are version-controlled in this repository under ./charts/crds. |
 | extraManifests | list | `[]` | Extra Kubernetes manifests to include in the Helm release. Each entry is rendered as-is (map) or with `tpl` (string). Useful for ConfigMaps that satisfy cluster admission policies. |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a8981ba"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a62a383"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"a8981ba"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"a62a383"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
@@ -104,9 +104,10 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
 | openTelemetry.externalCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
 | openTelemetry.externalCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
-| openTelemetry.externalCollector.externalHttpConfig | object | `{"enabled":false,"forwardedBy":"external-http","kafkaTopic":"audit","path":"/audit/external","port":1517,"tls":{"enabled":true}}` | HTTP-JSON receiver for Logstash/fluent-bit-style pushers. In Kafka mode records go to externalHttpConfig.kafkaTopic; in non-Kafka mode to the syslog audit OpenSearch failover (audit-datastream). |
+| openTelemetry.externalCollector.externalHttpConfig | object | `{"enabled":false,"forwardedBy":"external-http","kafkaTopic":"audit","maxRequestBodySize":10485760,"path":"/audit/external","port":1517,"tls":{"enabled":true}}` | HTTP-JSON receiver for Logstash/fluent-bit-style pushers. In Kafka mode records go to externalHttpConfig.kafkaTopic; in non-Kafka mode to the syslog audit OpenSearch failover (audit-datastream). |
 | openTelemetry.externalCollector.externalHttpConfig.forwardedBy | string | `"external-http"` | Neutral catch-all forwarder identity written to log attribute `forwarded_by` ONLY when the sender did not set one. Senders (Logstash, logshipper fluent-bit, other devices) should set their own `forwarded_by` and it is preserved. Sender-provided sap.cc.audit.source values (ESXi, NSX-T, VCSA, remoteboard, hsm, ucsc) are also preserved. |
 | openTelemetry.externalCollector.externalHttpConfig.kafkaTopic | string | `"audit"` | Kafka topic for the HTTP records (Kafka mode only). Separate from syslog audit, which uses syslogConfig.auditKafkaTopic. |
+| openTelemetry.externalCollector.externalHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
 | openTelemetry.externalCollector.externalHttpConfig.path | string | `"/audit/external"` | HTTP path the receiver serves. Sender must POST here. |
 | openTelemetry.externalCollector.externalHttpConfig.port | int | `1517` | TCP port for the HTTP-JSON receiver. |
 | openTelemetry.externalCollector.externalHttpConfig.tls | object | `{"enabled":true}` | TLS for the HTTP-JSON receiver. When enabled, the collector terminates TLS using the cert provisioned by syslogTLSConfig (secret logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName. |
@@ -114,6 +115,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.externalTrafficPolicy | string | `"Local"` | External traffic policy for the external collector service (Local preserves source IP) |
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
+| openTelemetry.externalCollector.maxMessageLength | int | `32000` | Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size. |
+| openTelemetry.externalCollector.nodeSelector | object | `{}` | Node Selector rules for the external collector CR |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
@@ -154,7 +157,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | openTelemetry.kafka.enabled | bool | `false` | Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering) |
 | openTelemetry.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
-| openTelemetry.kafka.max_message_bytes | int | `1000000` | Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes. |
+| openTelemetry.kafka.max_fetch_size | int | `1048576` | Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records. |
+| openTelemetry.kafka.max_message_bytes | int | `1048576` | Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes. |
+| openTelemetry.kafka.max_partition_fetch_size | int | `1048576` | Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records. |
 | openTelemetry.kafka.producer | object | `{"flushMaxMessages":10000,"linger":"10ms"}` | Producer batching (raise linger to build larger batches per broker request) |
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.kafka.sendingQueue | object | `{"enabled":true,"numConsumers":1,"queueSize":1000}` | Producer sending queue size |

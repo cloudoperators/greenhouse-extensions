@@ -24,6 +24,10 @@ spec:
   affinity:
     {{- toYaml . | nindent 4 }}
 {{- end }}
+{{- with .Values.openTelemetry.externalCollector.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
@@ -117,9 +121,9 @@ spec:
 {{- end }}
     processors:
       batch:
-        send_batch_max_size: 5000
-        timeout: 30s
-        send_batch_size: 100
+        send_batch_max_size: 10000
+        timeout: 5s
+        send_batch_size: 5000
       attributes/cluster:
         actions:
           - action: insert
@@ -162,9 +166,10 @@ spec:
         log_statements:
           - context: log
             statements:
-              - "truncate_all(attributes, 32000)"
+              # Attribute values map to keyword fields. Keep below Lucene's 32766-byte term limit or OpenSearch rejects the document.
+              - "truncate_all(log.attributes, 32000)"
               - "truncate_all(resource.attributes, 32000)"
-              - 'set(log.body, Substring(log.body, 0, 32000)) where log.body != nil and Len(log.body) > 32000'
+              - 'set(log.body, Substring(log.body, 0, {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }}'
 {{- end }}
       resource:
         attributes:
@@ -185,7 +190,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.externalCollector.kafkaTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.kafkaTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
@@ -205,7 +210,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         traces:
-          topic: {{ .Values.openTelemetry.externalCollector.kafkaTracesTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTracesTopic is required when kafka is enabled and tracesConfig is enabled" .Values.openTelemetry.externalCollector.kafkaTracesTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}

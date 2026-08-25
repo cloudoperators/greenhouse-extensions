@@ -15,9 +15,10 @@ receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkareceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver v0.152.0
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/webhookeventreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/tcplogreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/udplogreceiver v0.152.0
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/webhookeventreceiver v0.152.2
+
 
 processors:
   - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.152.0
@@ -27,6 +28,7 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.152.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/unrollprocessor v0.152.0
 
 providers:
   - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.58.0

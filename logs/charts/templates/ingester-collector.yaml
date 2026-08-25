@@ -78,6 +78,8 @@ spec:
           topics:
             - {{ $cfg.topic | quote }}
           encoding: {{ $kafka.encoding }}
+        max_fetch_size: {{ dig "max_fetch_size" $root.Values.openTelemetry.kafka.max_fetch_size $kafka | int64 }}
+        max_partition_fetch_size: {{ dig "max_partition_fetch_size" $root.Values.openTelemetry.kafka.max_partition_fetch_size $kafka | int64 }}
         group_id: {{ printf "logs-ingester-%s" $name | quote }}
         initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
         autocommit:
@@ -129,6 +131,7 @@ spec:
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
@@ -149,6 +152,7 @@ spec:
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:

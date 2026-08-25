@@ -85,6 +85,8 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+      # Used to handle external http poison messages in kafka.
+{{- include "field_normalisation.transform" . | nindent 6 }}
       attributes/cluster:
         actions:
           - action: insert
@@ -122,6 +124,12 @@ spec:
         mapping:
           {{- toYaml . | nindent 10 }}
 {{- end }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -141,6 +149,12 @@ spec:
         mapping:
           {{- toYaml . | nindent 10 }}
 {{- end }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -181,7 +195,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
+          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]

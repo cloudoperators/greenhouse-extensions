@@ -238,7 +238,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.logsCollector.kafkaTopic }}
+          topic: {{ required "openTelemetry.logsCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.logsCollector.kafkaTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
@@ -258,7 +258,7 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.logsCollector.kafkaStorageTopic }}
+          topic: {{ required "openTelemetry.logsCollector.kafkaStorageTopic is required when kafka is enabled" .Values.openTelemetry.logsCollector.kafkaStorageTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}

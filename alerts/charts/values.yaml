@@ -1,8 +1,4 @@
 global:
-  ## common labels to apply to all resources
-  ##
-  commonLabels: {}
-
   ## Additional caCert to add to the CA bundle
   ##
   caCert: ""
@@ -12,6 +8,9 @@ global:
   greenhouse:
     # base domain of the greenhouse organisation
     baseDomain:
+
+commonLabels:
+  plugindefinition: alerts
 
 # @ignored
 defaultNotificationTemplates: true
@@ -73,16 +72,6 @@ alerts:
       prometheus: false
       prometheusOperator: false
       windows: false
-
-  ## Create curated dashboards for generic monitoring (e.g. monitoring Alertmanager)
-  ##
-  dashboards:
-    create: true
-
-    ## Label selectors for the Plutono dashboards to be picked up by Plutono.
-    plutonoSelectors:
-      - name: plutono-dashboard
-        value: '"true"'
 
   ## Flag to disable all the kubernetes component scrapers
   ##

@@ -11,13 +11,19 @@ tcp_log/syslog:
     id: syslog_deframe
     regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
     parse_from: body
-    on_error: send
-    output: syslog_deframe_promote
+    on_error: send_quiet
+    output: syslog_deframe_check
+  - type: router
+    id: syslog_deframe_check
+    routes:
+    - expr: 'attributes.syslogmsg != nil'
+      output: syslog_deframe_promote
+    default: syslog_format_router
   - type: move
     id: syslog_deframe_promote
     from: attributes.syslogmsg
     to: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_format_router
   # Routes incoming syslog messages based on their header format:
   #   RFC 5424:              "<priority>VERSION timestamp ..." e.g. "<134>1 2026-07-10T09:32:35..."
@@ -53,12 +59,12 @@ tcp_log/syslog:
   - type: syslog_parser
     id: syslog_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_format_rfc5424
   - type: syslog_parser
     id: syslog_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_format_rfc3164
 
   # Single-digit-day RFC3164 fallback (Fortinet, Cisco ACI, etc.), days 1-9 only,
@@ -70,13 +76,19 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
-    output: syslog_3164_padded_cleanup
+    output: syslog_3164_padded_cleanup_guard
+  - type: router
+    id: syslog_3164_padded_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_3164_padded_cleanup
+    default: add_format_rfc3164_padded_failed
   - type: remove
     id: syslog_3164_padded_cleanup
     field: attributes.timestamp
@@ -85,12 +97,18 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
       layout_type: gotime
-    output: syslog_iso_cleanup
+    output: syslog_iso_cleanup_guard
+  - type: router
+    id: syslog_iso_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_iso_cleanup
+    default: add_format_iso_failed
   - type: remove
     id: syslog_iso_cleanup
     field: attributes.timestamp
@@ -99,13 +117,19 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
       location: UTC
-    output: syslog_cisco_cleanup
+    output: syslog_cisco_cleanup_guard
+  - type: router
+    id: syslog_cisco_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_cisco_cleanup
+    default: add_format_cisco_failed
   - type: remove
     id: syslog_cisco_cleanup
     field: attributes.timestamp
@@ -126,14 +150,29 @@ tcp_log/syslog:
     value: rfc3164_padded
     output: add_log_type
   - type: add
+    id: add_format_rfc3164_padded_failed
+    field: attributes.syslog.format
+    value: rfc3164_padded_failed
+    output: add_log_type
+  - type: add
     id: add_format_iso
     field: attributes.syslog.format
     value: rfc3164_iso8601
     output: add_log_type
   - type: add
+    id: add_format_iso_failed
+    field: attributes.syslog.format
+    value: rfc3164_iso8601_failed
+    output: add_log_type
+  - type: add
     id: add_format_cisco
     field: attributes.syslog.format
     value: cisco_ios
+    output: add_log_type
+  - type: add
+    id: add_format_cisco_failed
+    field: attributes.syslog.format
+    value: cisco_ios_failed
     output: add_log_type
   - type: add
     id: add_format_unknown
@@ -168,25 +207,30 @@ udp_log/syslog:
   - type: syslog_parser
     id: syslog_udp_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_udp_format_rfc5424
   - type: syslog_parser
     id: syslog_udp_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_udp_format_rfc3164
 
-  # Single-digit-day RFC3164 fallback (UDP), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_udp_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
-    output: syslog_udp_3164_padded_cleanup
+    output: syslog_udp_3164_padded_cleanup_guard
+  - type: router
+    id: syslog_udp_3164_padded_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_udp_3164_padded_cleanup
+    default: add_udp_format_rfc3164_padded_failed
   - type: remove
     id: syslog_udp_3164_padded_cleanup
     field: attributes.timestamp
@@ -195,12 +239,18 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
       layout_type: gotime
-    output: syslog_udp_iso_cleanup
+    output: syslog_udp_iso_cleanup_guard
+  - type: router
+    id: syslog_udp_iso_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_udp_iso_cleanup
+    default: add_udp_format_iso_failed
   - type: remove
     id: syslog_udp_iso_cleanup
     field: attributes.timestamp
@@ -209,13 +259,19 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
       location: UTC
-    output: syslog_udp_cisco_cleanup
+    output: syslog_udp_cisco_cleanup_guard
+  - type: router
+    id: syslog_udp_cisco_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_udp_cisco_cleanup
+    default: add_udp_format_cisco_failed
   - type: remove
     id: syslog_udp_cisco_cleanup
     field: attributes.timestamp
@@ -236,14 +292,29 @@ udp_log/syslog:
     value: rfc3164_padded
     output: add_udp_log_type
   - type: add
+    id: add_udp_format_rfc3164_padded_failed
+    field: attributes.syslog.format
+    value: rfc3164_padded_failed
+    output: add_udp_log_type
+  - type: add
     id: add_udp_format_iso
     field: attributes.syslog.format
     value: rfc3164_iso8601
     output: add_udp_log_type
   - type: add
+    id: add_udp_format_iso_failed
+    field: attributes.syslog.format
+    value: rfc3164_iso8601_failed
+    output: add_udp_log_type
+  - type: add
     id: add_udp_format_cisco
     field: attributes.syslog.format
     value: cisco_ios
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_cisco_failed
+    field: attributes.syslog.format
+    value: cisco_ios_failed
     output: add_udp_log_type
   - type: add
     id: add_udp_format_unknown
@@ -271,13 +342,13 @@ tcp_log/syslog_tls:
     id: syslog_tls_deframe
     regex: '^(?:\d+ )?(?P<syslogmsg><\d+>.*)$'
     parse_from: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_tls_deframe_promote
   - type: move
     id: syslog_tls_deframe_promote
     from: attributes.syslogmsg
     to: body
-    on_error: send
+    on_error: send_quiet
     output: syslog_tls_format_router
   # Same routing logic as tcp_log/syslog. See comments above for format details.
   - type: router
@@ -297,25 +368,31 @@ tcp_log/syslog_tls:
   - type: syslog_parser
     id: syslog_tls_5424_parser
     protocol: rfc5424
-    on_error: send
+    on_error: send_quiet
     output: add_tls_format_rfc5424
   - type: syslog_parser
     id: syslog_tls_3164_parser
     protocol: rfc3164
-    on_error: send
+    on_error: send_quiet
     output: add_tls_format_rfc3164
 
   # Single-digit-day RFC3164 fallback (TLS), days 1-9 only, zero- or space-padded.
   - type: regex_parser
     id: syslog_tls_3164_padded_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2} \d{2}:\d{2}:\d{2})\s+(?P<hostname>\S+)\s+(?:(?P<appname>[^\s:\[]+)(?:\[(?P<proc_id>\d+)\])?:\s+)?(?P<message>.*)$'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05'
       layout_type: gotime
       location: UTC
-    output: syslog_tls_3164_padded_cleanup
+    output: syslog_tls_3164_padded_cleanup_guard
+  - type: router
+    id: syslog_tls_3164_padded_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_tls_3164_padded_cleanup
+    default: add_tls_format_rfc3164_padded_failed
   - type: remove
     id: syslog_tls_3164_padded_cleanup
     field: attributes.timestamp
@@ -324,12 +401,18 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_iso_parser
     regex: '^<(?P<priority>\d+)>(?P<timestamp>\d{4}-\d{2}-\d{2}T\S+)\s+(?P<hostname>\S+)\s+(?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: '2006-01-02T15:04:05.999999999Z07:00'
       layout_type: gotime
-    output: syslog_tls_iso_cleanup
+    output: syslog_tls_iso_cleanup_guard
+  - type: router
+    id: syslog_tls_iso_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_tls_iso_cleanup
+    default: add_tls_format_iso_failed
   - type: remove
     id: syslog_tls_iso_cleanup
     field: attributes.timestamp
@@ -338,13 +421,19 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_cisco_parser
     regex: '^<(?P<priority>\d+)>(?P<sequence>\d+): (?P<hostname>\S+): (?P<timestamp>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+\s+\d+:\d+:\d+(?:\.\d+)?): (?P<message>.*)'
-    on_error: send
+    on_error: send_quiet
     timestamp:
       parse_from: attributes.timestamp
       layout: 'Jan _2 15:04:05.999999999'
       layout_type: gotime
       location: UTC
-    output: syslog_tls_cisco_cleanup
+    output: syslog_tls_cisco_cleanup_guard
+  - type: router
+    id: syslog_tls_cisco_cleanup_guard
+    routes:
+    - expr: 'attributes.timestamp != nil'
+      output: syslog_tls_cisco_cleanup
+    default: add_tls_format_cisco_failed
   - type: remove
     id: syslog_tls_cisco_cleanup
     field: attributes.timestamp
@@ -365,14 +454,29 @@ tcp_log/syslog_tls:
     value: rfc3164_padded
     output: add_tls_log_type
   - type: add
+    id: add_tls_format_rfc3164_padded_failed
+    field: attributes.syslog.format
+    value: rfc3164_padded_failed
+    output: add_tls_log_type
+  - type: add
     id: add_tls_format_iso
     field: attributes.syslog.format
     value: rfc3164_iso8601
     output: add_tls_log_type
   - type: add
+    id: add_tls_format_iso_failed
+    field: attributes.syslog.format
+    value: rfc3164_iso8601_failed
+    output: add_tls_log_type
+  - type: add
     id: add_tls_format_cisco
     field: attributes.syslog.format
     value: cisco_ios
+    output: add_tls_log_type
+  - type: add
+    id: add_tls_format_cisco_failed
+    field: attributes.syslog.format
+    value: cisco_ios_failed
     output: add_tls_log_type
   - type: add
     id: add_tls_format_unknown
@@ -396,6 +500,7 @@ logs/syslog_tcp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
@@ -415,6 +520,7 @@ logs/syslog_udp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification
@@ -436,6 +542,7 @@ logs/syslog_tcp_tls:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
     - transform/syslog_audit_classification

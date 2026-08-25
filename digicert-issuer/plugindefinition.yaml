@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: digicert-issuer
 spec:
-  version: 1.4.0
+  version: 1.4.1
   displayName: DigiCert extensions
   description: Extensions to the cert-manager for DigiCert support
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/digicert-issuer/README.md
   helmChart:
     name: digicert-issuer
     repository: oci://ghcr.io/sapcc/helm-charts
-    version: 2.8.2
+    version: 2.9.2
   options:
     - name: provisioner.apiToken
       description: DigiCert cert-central API token
@@ -36,6 +36,10 @@ spec:
       required: false
       type: string
       default: ssl_securesite_flex
+    - name: provisioner.cacheSyncTimeout
+      description: Cache sync timeout for the provisioner
+      required: false
+      type: string
     - name: certManager.serviceAccount.name
       description: Name of the service account used by the cert-manager
       required: false

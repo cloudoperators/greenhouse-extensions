@@ -34,7 +34,7 @@ spec:
       type: int
     - name: gatekeeper.validatingWebhookFailurePolicy
       displayName: Webhook failure policy
-      description: Failure policy for the main validation webhook: `Ignore` or `Fail`.
+      description: "Failure policy for the main validation webhook: `Ignore` or `Fail`."
       default: Ignore
       required: false
       type: string
@@ -74,7 +74,7 @@ spec:
       type: map
     - name: gatekeeper.validatingWebhookCheckIgnoreFailurePolicy
       displayName: Check-ignore-label webhook failure policy
-      description: Failure policy for the `check-ignore-label.gatekeeper.sh` webhook: `Ignore` or `Fail`.
+      description: "Failure policy for the `check-ignore-label.gatekeeper.sh` webhook: `Ignore` or `Fail`."
       default: Fail
       required: false
       type: string

@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+description: A Helm chart for installing the Kubernetes Gateway API CRDs.
+name: k8s-gateway-api
+icon: https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/main/site/static/images/logo/logo-text-horizontal.png
+keywords:
+  - kubernetes
+  - gateway-api
+  - networking
+version: 1.6.1
+appVersion: 1.6.1
+maintainers:
+  - name: abhijith-darshan

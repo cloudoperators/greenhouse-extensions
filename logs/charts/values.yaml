@@ -51,7 +51,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "a8981ba"
+    tag: "a62a383"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -84,8 +84,12 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
-    # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
-    max_message_bytes: 1000000
+    # -- Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1048576
+    # -- Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records.
+    max_fetch_size: 1048576
+    # -- Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records.
+    max_partition_fetch_size: 1048576
     # -- Producer sending queue size
     sendingQueue:
       enabled: true
@@ -159,6 +163,8 @@ openTelemetry:
     resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
+    # -- Node Selector rules for the external collector CR
+    nodeSelector: {}
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -173,6 +179,8 @@ openTelemetry:
     kafkaTopic: ""
     # -- Kafka topic name for traces (e.g., "traces")
     kafkaTracesTopic: ""
+    # -- Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size.
+    maxMessageLength: 32000
     # -- Activates syslog TCP/UDP ingestion (rfc5424/rfc3164).
     syslogConfig:
       enabled: false
@@ -234,6 +242,8 @@ openTelemetry:
       enabled: false
       # -- TCP port for the HTTP-JSON receiver.
       port: 1517
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
       # -- HTTP path the receiver serves. Sender must POST here.
       path: /audit/external
       # -- Kafka topic for the HTTP records (Kafka mode only). Separate from
@@ -281,8 +291,7 @@ openTelemetry:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
-    #       sendingQueue: { enabled, numConsumers, queueSize }  # optional; default enabled=false (synchronous)
-    #         (set enabled=true + numConsumers>1 to raise export concurrency; keep queueSize small to preserve backpressure)
+    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
     # Each entry renders one OpenTelemetryCollector named "logs-ingester-<name>" with
     # group_id "logs-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
