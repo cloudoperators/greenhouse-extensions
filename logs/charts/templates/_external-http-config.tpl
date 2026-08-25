@@ -33,7 +33,7 @@ transform/external-http:
         - set(log.attributes["sap.cc.audit.source"], log.attributes["sap"]["cc"]["audit"]["source"]) where log.attributes["sap.cc.audit.source"] == nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil
         - delete_key(log.attributes["sap"]["cc"]["audit"], "source") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil
         - set(log.attributes["audit_relevant"], "true")
-        - set(log.attributes["forwarded_by"], "external-http") where log.attributes["forwarded_by"] == nil
+        - set(log.attributes["forwarded_by"], {{ .Values.openTelemetry.externalCollector.externalHttpConfig.forwardedBy | quote }}) where log.attributes["forwarded_by"] == nil
         - set(log.attributes["tags"], String(log.attributes["tags"])) where log.attributes["tags"] != nil and not IsString(log.attributes["tags"])
         - set(log.attributes["sourceIPs"], String(log.attributes["sourceIPs"]))  where log.attributes["sourceIPs"] != nil and not IsString(log.attributes["sourceIPs"])
         - flatten(log.attributes, resolveConflicts=true)
