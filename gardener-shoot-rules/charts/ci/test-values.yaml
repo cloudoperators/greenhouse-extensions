@@ -6,4 +6,3 @@ rules:
   additionalRuleLabels:
     thanos-ruler: test-ruler
     support_group: test-group
-    service: metrics

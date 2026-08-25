@@ -17,7 +17,7 @@ This plugin installs the same 54 shoot alert rules as a new `PrometheusRule` res
 | Name | Type | Default | Description |
 |---|---|---|---|
 | `rules.create` | bool | `true` | Deploy the PrometheusRule resource |
-| `rules.additionalRuleLabels` | map | `{}` | Extra labels injected into every alert rule (e.g. `thanos-ruler`, `support_group`) |
+| `rules.additionalRuleLabels` | map | `{}` | Extra labels injected into every alert rule (e.g. `thanos-ruler`, `support_group`). Note: keys that overlap with built-in rule labels (`service`, `severity`, `type`, `visibility`) will override those upstream values. |
 | `global.commonLabels` | map | `{}` | Labels added to the PrometheusRule metadata |
 
 ## Upgrading
@@ -25,6 +25,7 @@ This plugin installs the same 54 shoot alert rules as a new `PrometheusRule` res
 Rules are extracted from [gardener/gardener](https://github.com/gardener/gardener) source files. A Renovate comment in `Chart.yaml` tracks the upstream version. To regenerate after a Gardener upgrade:
 
 ```bash
+# Example: upgrading from v1.148.3 to v1.150.0
 make generate GARDENER_VERSION=v1.150.0
 git diff charts/templates/prometheusrule-shoot.yaml
 ```
