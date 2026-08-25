@@ -46,9 +46,9 @@ groups:
         expr: (sum by (deployment) (kube_deployment_status_replicas_available{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"})) == 0 and (sum by (deployment) (kube_deployment_spec_replicas{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"}) > 0)
         for: 10m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchDashboardsUnavailable.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchDashboardsUnavailable }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch Dashboards (UI) is unavailable."

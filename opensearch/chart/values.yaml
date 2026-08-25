@@ -958,6 +958,7 @@ cluster:
     opensearchClusterRed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md"
     opensearchClusterYellow: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md"
     opensearchIndexSizeTooLarge: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md"
+    opensearchDashboardsUnavailable: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchDashboardsUnavailable.md"
     opensearchGuardianNoncompliant: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianNoncompliant.md"
     opensearchGuardianEmpty: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md"
     opensearchGuardianErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md"
