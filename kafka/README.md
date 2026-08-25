@@ -82,6 +82,7 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | kafkaExporter.topicRegex | string | `".*"` | Topic regex for metrics export |
 | monitoring.additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
 | monitoring.enabled | bool | `true` | Enable Prometheus monitoring |
+| monitoring.playbooksUrls | object | See values.yaml | Playbook URLs for alerts. Override to point to custom runbooks. |
 | monitoring.podMonitor | object | `{"labels":{}}` | Pod Monitor configuration |
 | monitoring.podMonitor.labels | object | `{}` | Labels to add to the PodMonitor so Prometheus can discover it. |
 | nodeAffinity | object | `{}` | Node affinity rules for Kafka broker/controller pods. When set, placed at spec.template.pod.affinity.nodeAffinity in the KafkaNodePool. Leave empty ({}) for no affinity constraint (default). |
