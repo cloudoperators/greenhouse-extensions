@@ -62,7 +62,7 @@ transform/field-normalisation:
         - set(log.attributes["tenant_ids_string"], String(log.attributes["tenant_ids"])) where log.attributes["tags"] != nil
         - delete_key(log.attributes, "tenant_ids") where log.attributes["tenant_ids"] != nil
         - delete_matching_keys(log.attributes, "^tenant_ids\\..*")
-        - set(log.attributes["kubernetes_string"], String(log.attributes["kubernetes"])) where log.attributes["tags"] != nil
+        - set(log.attributes["kubernetes_string"], String(log.attributes["kubernetes"])) where log.attributes["kubernetes"] != nil
         - delete_key(log.attributes, "kubernetes") where log.attributes["kubernetes"] != nil
         - delete_matching_keys(log.attributes, "^kubernetes\\..*")
 {{- end }}
