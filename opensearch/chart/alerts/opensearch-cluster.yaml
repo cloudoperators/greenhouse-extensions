@@ -1,4 +1,3 @@
-# All alert severities are set to 'info' for setup only. Original severity is preserved as a comment on each line.
 groups:
   - name: opensearch-cluster
     interval: 30s
@@ -9,9 +8,9 @@ groups:
           == 2
         for: 5m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterRed.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchClusterRed }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
@@ -23,9 +22,9 @@ groups:
           == 1
         for: 120m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchClusterYellow.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchClusterYellow }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is YELLOW"
@@ -35,9 +34,9 @@ groups:
         expr: (max by (opensearch_org_opensearch_cluster, index) (opensearch_index_store_size_bytes{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"} / (1024^3)) > 200) and on(opensearch_org_opensearch_cluster, index) (rate(opensearch_index_doc_number{namespace="{{ .Release.Namespace }}", context="primaries", index=~".ds.*"}[15m]) > 1)
         for: 30m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchIndexTooLarge.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchIndexSizeTooLarge }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "Index size of {{`{{ $labels.index }}`}} has exceeded the threshold."
@@ -47,9 +46,9 @@ groups:
         expr: (sum by (deployment) (kube_deployment_status_replicas_available{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"})) == 0 and (sum by (deployment) (kube_deployment_spec_replicas{namespace="{{ .Release.Namespace }}", deployment=~"opensearch-.*-dashboards"}) > 0)
         for: 10m
         labels:
-          severity: info # warning
+          severity: warning
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchDashboardsUnavailable.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchDashboardsUnavailable }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch Dashboards (UI) is unavailable."

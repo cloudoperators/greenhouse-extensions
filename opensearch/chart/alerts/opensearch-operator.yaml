@@ -6,9 +6,9 @@ groups:
         expr: up{job=~".*opensearch-operator.*", namespace="{{ .Release.Namespace }}"} == 0
         for: 10m
         labels:
-          severity: info # critical
+          severity: warning
           component: opensearch-operator
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchOperatorDown }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch operator is down"
