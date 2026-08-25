@@ -13,7 +13,7 @@ receiver has its own kafka/external_http exporter and does not need these.
 Usage: {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
 */}}
 {{- define "externalCollector.auditEnabled" -}}
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled (not .Values.openTelemetry.kafka.enabled)) -}}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled (not .Values.openTelemetry.auditKafka.enabled)) -}}
 true
 {{- end -}}
 {{- end -}}

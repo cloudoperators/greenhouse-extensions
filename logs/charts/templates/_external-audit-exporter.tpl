@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
 
 {{/* Processors that inject the audit failover username per endpoint (non-Kafka only). */}}
 {{- define "external_audit_only.processors" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 attributes/syslog_audit_failover_username_a:
   actions:
     - action: insert
@@ -40,7 +40,7 @@ attributes/syslog_audit_failover_username_b:
 
 {{/* basicauth extensions for the audit failover endpoints (map form, non-Kafka only). */}}
 {{- define "external_audit_only.extensions" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 basicauth/syslog_audit_failover_a:
   client_auth:
     username: ${audit_failover_username_a}
@@ -54,7 +54,7 @@ basicauth/syslog_audit_failover_b:
 
 {{/* service.extensions list fragment for the audit basicauth extensions (non-Kafka only). */}}
 {{- define "external_audit_only.serviceExtensions" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 - basicauth/syslog_audit_failover_a
 - basicauth/syslog_audit_failover_b
 {{- end }}
@@ -62,12 +62,12 @@ basicauth/syslog_audit_failover_b:
 
 {{/* Audit exporters: OpenSearch failover pair (non-Kafka) or kafka/syslog_audit (Kafka). */}}
 {{- define "external_audit_only.exporter" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 opensearch/failover_a_syslog_audit:
   http:
     auth:
       authenticator: basicauth/syslog_audit_failover_a
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
+    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when audit kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
   logs_index: audit-datastream
   retry_on_failure:
     enabled: true
@@ -79,7 +79,7 @@ opensearch/failover_b_syslog_audit:
   http:
     auth:
       authenticator: basicauth/syslog_audit_failover_b
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
+    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when audit kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
   logs_index: audit-datastream
   retry_on_failure:
     enabled: true
@@ -90,23 +90,23 @@ opensearch/failover_b_syslog_audit:
 {{- else }}
 kafka/syslog_audit:
   brokers:
-{{- range .Values.openTelemetry.kafka.brokers }}
+{{- range .Values.openTelemetry.auditKafka.brokers }}
     - {{ . }}
 {{- end }}
-  protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
+  protocol_version: {{ .Values.openTelemetry.auditKafka.protocol_version }}
   logs:
-    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
-    encoding: {{ .Values.openTelemetry.kafka.encoding }}
+    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when audit kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
+    encoding: {{ .Values.openTelemetry.auditKafka.encoding }}
   producer:
-    compression: {{ .Values.openTelemetry.kafka.compression }}
-    max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
-    flush_max_messages: {{ .Values.openTelemetry.kafka.producer.flushMaxMessages | int64 }}
-    linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
+    compression: {{ .Values.openTelemetry.auditKafka.compression }}
+    max_message_bytes: {{ .Values.openTelemetry.auditKafka.max_message_bytes | int64 }}
+    flush_max_messages: {{ .Values.openTelemetry.auditKafka.producer.flushMaxMessages | int64 }}
+    linger: {{ .Values.openTelemetry.auditKafka.producer.linger | quote }}
   sending_queue:
-    enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
-    num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
-    queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
-{{- if .Values.openTelemetry.kafka.tls.enabled }}
+    enabled: {{ .Values.openTelemetry.auditKafka.sendingQueue.enabled }}
+    num_consumers: {{ .Values.openTelemetry.auditKafka.sendingQueue.numConsumers | default 1 | int64 }}
+    queue_size: {{ .Values.openTelemetry.auditKafka.sendingQueue.queueSize | int64 }}
+{{- if .Values.openTelemetry.auditKafka.tls.enabled }}
   tls:
     insecure: false
 {{- end }}
@@ -115,7 +115,7 @@ kafka/syslog_audit:
 
 {{/* Failover connector for the audit OpenSearch pair (non-Kafka only). */}}
 {{- define "external_audit_only.connectors" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 failover/opensearch_syslog_audit:
   priority_levels:
     - [logs/failover_a_syslog_audit]
@@ -132,7 +132,7 @@ failover/opensearch_syslog_audit:
 
 {{/* Downstream failover pipelines so the connector has routes (non-Kafka only). */}}
 {{- define "external_audit_only.pipeline" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 logs/failover_a_syslog_audit:
   receivers: [failover/opensearch_syslog_audit]
   processors: [attributes/syslog_audit_failover_username_a]

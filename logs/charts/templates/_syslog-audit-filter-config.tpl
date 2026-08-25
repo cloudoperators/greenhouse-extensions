@@ -338,7 +338,7 @@ transform/syslog_observed_timestamp_fallback:
   Audit logs go to audit-datastream, non-audit logs go to logs-datastream
   ============================================================================
 */}}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 routing/syslog_audit:
   default_pipelines: [logs/syslog_non_audit]
   error_mode: ignore
@@ -429,7 +429,7 @@ kafka/syslog_non_audit:
   Non-audit logs → logs-datastream
   ============================================================================
 */}}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 logs/failover_a_syslog_non_audit:
   receivers: [failover/opensearch_syslog_non_audit]
   processors: [attributes/failover_username_a]
@@ -445,7 +445,7 @@ logs/failover_b_syslog_non_audit:
 logs/syslog_audit:
   receivers: [routing/syslog_audit]
   processors: [batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if .Values.openTelemetry.auditKafka.enabled }}
   exporters: [kafka/syslog_audit]
 {{- else }}
   exporters: [failover/opensearch_syslog_audit]
