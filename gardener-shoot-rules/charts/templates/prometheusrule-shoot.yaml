@@ -363,7 +363,7 @@ spec:
         summary: The API server has too many open file descriptors
     - alert: KubeApiServerLatency
       expr: >-
-        histogram_quantile(0.99, sum without (instance,resource,subresource) (rate(apiserver_request_duration_seconds_bucket{subresource!~"log|portforward|exec|proxy|attach",verb!~"CONNECT|WATCHLIST|WATCH|PROXY proxy"}[5m]))) > 3
+        histogram_quantile(0.99, sum without (instance,resource,subresource) (rate(apiserver_request_duration_seconds_bucket{subresource!~"log|portforward|exec|proxy|attach",verb!~"CONNECT|WATCHLIST|WATCH|PROXY|proxy"}[5m]))) > 3
       for: 30m
       labels:
         service: kube-apiserver
