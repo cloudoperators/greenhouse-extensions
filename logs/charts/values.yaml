@@ -353,14 +353,29 @@ openTelemetry:
 
       # -- PrometheusRules to enable.
       enabled:
-        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
         - OTelLogsMissing
         - OTelLogsIncreasing
         - OTelLogsDecreasing
-        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsSLOBurnRateWarning
+        - OTelLogsExportFailureRatioHigh
+        - OTelExporterQueueFull
+      # Opt-in alerts (not enabled by default):
+      #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
+      #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
+      #     bursty workloads.
+      #   - OTelLogsVolumeSpike: compares current ingest rate against a 1h offset baseline.
+      #     Useful for detecting log storms and injection attempts, but can generate false
+      #     positives on new or recently-idle clusters where the baseline is very low or
+      #     zero. Enable after the pipeline has been running long enough to establish a stable
+      #     baseline.
+      #   - OTelLogsVolumeDropFast: same offset-based approach as OTelLogsVolumeSpike.
+      #     Disabled by default for the same reason; also fires legitimately on planned
+      #     maintenance windows unless silenced.
 
       # -- Labels for PrometheusRules.
       labels: {}
