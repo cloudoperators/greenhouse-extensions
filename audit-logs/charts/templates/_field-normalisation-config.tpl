@@ -4,7 +4,7 @@ transform/field-normalisation:
   log_statements:
     - context: log
       statements:
-        # These are operations that reduce bloat in OpenSearch by putting complex objects into a string field.
+        # These are operations that reduces bloat in OpenSearch by putting complex objects into a string field.
         - set(log.attributes["audit_status"], String(log.attributes["status"])) where log.attributes["status"] != nil
         - delete_key(log.attributes, "status") where log.attributes["status"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log"]["http"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
@@ -24,7 +24,7 @@ transform/field-normalisation:
         - set(log.attributes["objectRef_string"], String(log.attributes["objectRef"])) where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0 
-        # Below are multiple stringify-rules, always the same 3 operations set+delete_key+delete_matching_keys. Possibly aggressive, possibly slow. But it resolves the bloat.
+        # Below are multiple stringify-rules, always the same 3 operations set+delete_key+delete_matching_key. Possibly aggressive, possibly slow. But it resolves the bloat.
         - set(log.attributes["audit_host"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
