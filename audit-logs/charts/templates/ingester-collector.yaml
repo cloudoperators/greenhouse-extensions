@@ -199,7 +199,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
+          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
