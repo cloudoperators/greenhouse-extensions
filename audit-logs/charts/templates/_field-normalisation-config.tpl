@@ -24,7 +24,7 @@ transform/field-normalisation:
         - set(log.attributes["objectRef_string"], String(log.attributes["objectRef"])) where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0 
-        # Below are multiple stringify-rules, always the same 3 operations set+delete_key+delete_matching_key. Possibly aggressive, possibly slow. But it resolves the bloat.
+        # Below are multiple stringify-rules, always the same 3 operations set+delete_key+delete_matching_keys. Possibly aggressive, possibly slow. But it resolves the bloat.
         - set(log.attributes["audit_host"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
