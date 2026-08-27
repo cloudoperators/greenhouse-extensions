@@ -51,7 +51,7 @@ transform/external-http:
         - delete_key(log.attributes, "impersonatedUser") where log.attributes["impersonatedUser"] != nil
         - set(log.attributes["objectRef_string"], String(log.attributes["objectRef"])) where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
-        - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and time_unix_nano != 0
+        - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
         # Stringify with delete_matching_keys to remove all nested/flattened subfields
         - set(log.attributes["audit_host"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
