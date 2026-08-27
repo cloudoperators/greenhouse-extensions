@@ -89,8 +89,6 @@ spec:
         timeout: 5s
         send_batch_size: 100
         send_batch_max_size: 500
-      # Used to handle external http poison messages in kafka.
-{{- include "field_normalisation.transform" . | nindent 6 }}
       attributes/cluster:
         actions:
           - action: insert
@@ -199,7 +197,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, transform/field-normalisation, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
+          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
