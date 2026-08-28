@@ -33,7 +33,7 @@ transform/external-http:
         - set(log.attributes["forwarded_by"], {{ .Values.openTelemetry.externalCollector.externalHttpConfig.forwardedBy | quote }}) where log.attributes["forwarded_by"] == nil
         - delete_matching_keys(log.attributes, "^\\.*$")
         # Field normalisation: reduce OpenSearch bloat by stringifying complex objects
-        - set(log.attributes["audit_status"], String(log.attributes["status"])) where log.attributes["status"] != nil
+        - set(log.attributes["status_string"], String(log.attributes["status"])) where log.attributes["status"] != nil
         - delete_key(log.attributes, "status") where log.attributes["status"] != nil
         - set(log.attributes["http_string"], String(log.attributes["log"]["http"])) where log.attributes["http_string"] == nil and log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
         - delete_key(log.attributes["log"], "http") where log.attributes["log"] != nil and IsString(log.attributes["log"]) == false and log.attributes["log"]["http"] != nil
@@ -53,31 +53,31 @@ transform/external-http:
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
         # Stringify with delete_matching_keys to remove all nested/flattened subfields
-        - set(log.attributes["audit_host"], String(log.attributes["host"])) where log.attributes["host"] != nil
+        - set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
-        - set(log.attributes["audit_source_ips"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
+        - set(log.attributes["source_ips_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
         - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs"] != nil
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
-        - set(log.attributes["audit_event_category"], String(log.attributes["event.category"])) where log.attributes["event.category"] != nil
+        - set(log.attributes["event_category_string"], String(log.attributes["event.category"])) where log.attributes["event.category"] != nil
         - delete_key(log.attributes, "event.category") where log.attributes["event.category"] != nil
         - delete_matching_keys(log.attributes, "^event\\..*")
-        - set(log.attributes["audit_process"], String(log.attributes["process"])) where log.attributes["process"] != nil
+        - set(log.attributes["process_string"], String(log.attributes["process"])) where log.attributes["process"] != nil
         - delete_key(log.attributes, "process") where log.attributes["process"] != nil
         - delete_matching_keys(log.attributes, "^process\\..*")
-        - set(log.attributes["audit_prometheus"], String(log.attributes["prometheus"])) where log.attributes["prometheus"] != nil
+        - set(log.attributes["prometheus_string"], String(log.attributes["prometheus"])) where log.attributes["prometheus"] != nil
         - delete_key(log.attributes, "prometheus") where log.attributes["prometheus"] != nil
         - delete_matching_keys(log.attributes, "^prometheus\\..*")
-        - set(log.attributes["audit_args"], String(log.attributes["args"])) where log.attributes["args"] != nil
+        - set(log.attributes["args_string"], String(log.attributes["args"])) where log.attributes["args"] != nil
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - delete_matching_keys(log.attributes, "^args\\..*")
         - set(log.attributes["user_string"], String(log.attributes["user"])) where log.attributes["user"] != nil
         - delete_key(log.attributes, "user") where log.attributes["user"] != nil
         - delete_matching_keys(log.attributes, "^user\\..*")
-        - set(log.attributes["k8s_req_payload"], String(log.attributes["requestObject"])) where log.attributes["requestObject"] != nil
+        - set(log.attributes["request_object_string"], String(log.attributes["requestObject"])) where log.attributes["requestObject"] != nil
         - delete_key(log.attributes, "requestObject") where log.attributes["requestObject"] != nil
         - delete_matching_keys(log.attributes, "^requestObject\\..*")
-        - set(log.attributes["k8s_resp_payload"], String(log.attributes["responseObject"])) where log.attributes["responseObject"] != nil
+        - set(log.attributes["response_object_string"], String(log.attributes["responseObject"])) where log.attributes["responseObject"] != nil
         - delete_key(log.attributes, "responseObject") where log.attributes["responseObject"] != nil
         - delete_matching_keys(log.attributes, "^responseObject\\..*")
         - set(log.attributes["context_string"], String(log.attributes["context"])) where log.attributes["context"] != nil
