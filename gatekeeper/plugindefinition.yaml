@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: gatekeeper
 spec:
-  version: 1.0.0
+  version: 1.1.0
   displayName: OPA Gatekeeper
   description: |
     Policy controller for Kubernetes admission based on the Open Policy Agent
@@ -18,7 +18,7 @@ spec:
   helmChart:
     name: gatekeeper
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 1.0.0
+    version: 1.1.0
   options:
     - name: gatekeeper.replicas
       displayName: Controller replicas
