@@ -42,6 +42,6 @@ spec:
             playbook: {{ .Values.monitoring.playbooksUrls.kafkaNoBrokersOnline }}
             {{- include "kafka.alert-labels" . | nindent 12 }}
           annotations:
-            summary: Kafka has no brokers online.
-            description: No Kafka brokers are reporting metrics. The cluster is likely down.
+            summary: Kafka in namespace {{ .Release.Namespace }} has no brokers online.
+            description: No Kafka brokers in namespace {{ .Release.Namespace }} are reporting metrics. The cluster is likely down.
 {{- end }}
