@@ -101,6 +101,36 @@ transform/external-http:
         - set(log.attributes["changes_string"], String(log.attributes["changes"])) where log.attributes["changes"] != nil
         - delete_key(log.attributes, "changes") where log.attributes["changes"] != nil
         - delete_matching_keys(log.attributes, "^changes\\..*")
+        - set(log.attributes["summary_fields_string"], String(log.attributes["summary_fields"])) where log.attributes["summary_fields"] != nil
+        - delete_key(log.attributes, "summary_fields") where log.attributes["summary_fields"] != nil
+        - delete_matching_keys(log.attributes, "^summary_fields\\..*")
+        - set(log.attributes["git_string"], String(log.attributes["git"])) where log.attributes["git"] != nil
+        - delete_key(log.attributes, "git") where log.attributes["git"] != nil
+        - delete_matching_keys(log.attributes, "^git\\..*")
+        - set(log.attributes["annotations_string"], String(log.attributes["annotations"])) where log.attributes["annotations"] != nil
+        - delete_key(log.attributes, "annotations") where log.attributes["annotations"] != nil
+        - delete_matching_keys(log.attributes, "^annotations\\..*")
+        - set(log.attributes["details_string"], String(log.attributes["Details"])) where log.attributes["Details"] != nil
+        - delete_key(log.attributes, "Details") where log.attributes["Details"] != nil
+        - delete_matching_keys(log.attributes, "^Details\\..*")
+        - set(log.attributes["event_data_string"], String(log.attributes["event_data"])) where log.attributes["event_data"] != nil
+        - delete_key(log.attributes, "event_data") where log.attributes["event_data"] != nil
+        - delete_matching_keys(log.attributes, "^event_data\\..*")
+        - set(log.attributes["output_fields_string"], String(log.attributes["output_fields"])) where log.attributes["output_fields"] != nil
+        - delete_key(log.attributes, "output_fields") where log.attributes["output_fields"] != nil
+        - delete_matching_keys(log.attributes, "^output_fields\\..*")
+        - set(log.attributes["auth_string"], String(log.attributes["auth"])) where log.attributes["auth"] != nil
+        - delete_key(log.attributes, "auth") where log.attributes["auth"] != nil
+        - delete_matching_keys(log.attributes, "^auth\\..*")
+        - set(log.attributes["response_status_string"], String(log.attributes["responseStatus"])) where log.attributes["responseStatus"] != nil
+        - delete_key(log.attributes, "responseStatus") where log.attributes["responseStatus"] != nil
+        - delete_matching_keys(log.attributes, "^responseStatus\\..*")
+        - set(log.attributes["initiator_string"], String(log.attributes["initiator"])) where log.attributes["initiator"] != nil
+        - delete_key(log.attributes, "initiator") where log.attributes["initiator"] != nil
+        - delete_matching_keys(log.attributes, "^initiator\\..*")
+        - set(log.attributes["target_string"], String(log.attributes["target"])) where log.attributes["target"] != nil
+        - delete_key(log.attributes, "target") where log.attributes["target"] != nil
+        - delete_matching_keys(log.attributes, "^target\\..*")
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
