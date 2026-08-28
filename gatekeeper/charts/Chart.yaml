@@ -10,7 +10,7 @@ keywords:
   - opa
   - policy
   - admission-control
-version: 1.0.0
+version: 1.1.0
 appVersion: 3.22.2
 maintainers:
   - name: mikolajkucinski
@@ -19,4 +19,4 @@ maintainers:
 dependencies:
   - name: gatekeeper
     repository: https://open-policy-agent.github.io/gatekeeper/charts
-    version: 3.22.2
+    version: 3.23.0
