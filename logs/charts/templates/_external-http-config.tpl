@@ -56,7 +56,7 @@ transform/external-http:
         - set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
-        - set(log.attributes["source_ips_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
+        - set(log.attributes["sourceIPs_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
         - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs"] != nil
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
         - set(log.attributes["event_category_string"], String(log.attributes["event.category"])) where log.attributes["event.category"] != nil
