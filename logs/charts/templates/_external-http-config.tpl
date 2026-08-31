@@ -61,6 +61,7 @@ transform/external-http:
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
         - set(log.attributes["event_string"], String(log.attributes["event"])) where log.attributes["event"] != nil
         - delete_key(log.attributes, "event") where log.attributes["event"] != nil
+        - delete_matching_keys(log.attributes, "^event\\..*")
         - set(log.attributes["process_string"], String(log.attributes["process"])) where log.attributes["process"] != nil
         - delete_key(log.attributes, "process") where log.attributes["process"] != nil
         - delete_matching_keys(log.attributes, "^process\\..*")
