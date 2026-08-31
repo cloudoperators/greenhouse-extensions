@@ -131,6 +131,18 @@ transform/external-http:
         - set(log.attributes["target_string"], String(log.attributes["target"])) where log.attributes["target"] != nil
         - delete_key(log.attributes, "target") where log.attributes["target"] != nil
         - delete_matching_keys(log.attributes, "^target\\..*")
+        - set(log.attributes["attachments_string"], String(log.attributes["attachments"])) where log.attributes["attachments"] != nil
+        - delete_key(log.attributes, "attachments") where log.attributes["attachments"] != nil
+        - delete_matching_keys(log.attributes, "^attachments\\..*")
+        - set(log.attributes["file_string"], String(log.attributes["file"])) where log.attributes["file"] != nil
+        - delete_key(log.attributes, "file") where log.attributes["file"] != nil
+        - delete_matching_keys(log.attributes, "^file\\..*")
+        - set(log.attributes["k8s_string"], String(log.attributes["k8s"])) where log.attributes["k8s"] != nil
+        - delete_key(log.attributes, "k8s") where log.attributes["k8s"] != nil
+        - delete_matching_keys(log.attributes, "^k8s\\..*")
+        - set(log.attributes["helm_release_string"], String(log.attributes["helm-release"])) where log.attributes["helm-release"] != nil
+        - delete_key(log.attributes, "helm-release") where log.attributes["helm-release"] != nil
+        - delete_matching_keys(log.attributes, "^helm-release\\..*")
 {{- end }}
 
 {{/* HTTP path Kafka exporter (its own topic, separate from syslog audit). */}}
