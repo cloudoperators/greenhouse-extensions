@@ -152,7 +152,7 @@ spec:
           required: false
           type: bool
         - name: auditLogs.ingesterCollector.replicas
-          default: 1
+          default: 3
           description: Replica count per ingest collector Deployment
           required: false
           type: int
