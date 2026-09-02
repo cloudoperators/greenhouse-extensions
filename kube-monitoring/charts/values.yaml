@@ -598,3 +598,64 @@ additionalScrapeConfigs:
     prometheusPort: 80
     metricRelabelConfigs: []
     params: []
+
+# Ceph S3 bucket pre-install job configuration.
+# When enabled, a Helm pre-install hook Job runs the amazon/aws-cli image to
+# create an S3 bucket on the provided Ceph (S3-compatible) endpoint using the
+# supplied EC2-style access key and secret key.
+cephBucket:
+  # -- Enable the pre-install job that creates an S3 bucket in the provided Ceph endpoint.
+  # @section -- Ceph bucket options
+  enabled: false
+
+  # -- S3-compatible endpoint URL of the Ceph cluster (e.g. https://s3.example.com).
+  # @section -- Ceph bucket options
+  endpoint: ""
+
+  # -- Name of the bucket to create in the Ceph endpoint.
+  # @section -- Ceph bucket options
+  bucketName: ""
+
+  # EC2-style credentials used to authenticate against the Ceph S3 endpoint.
+  ec2:
+    # -- EC2 access key (used as AWS_ACCESS_KEY_ID).
+    # @section -- Ceph bucket options
+    accessKey: ""
+    # -- EC2 secret key (used as AWS_SECRET_ACCESS_KEY).
+    # @section -- Ceph bucket options
+    secretKey: ""
+
+  # -- Container image used to run the bucket creation job.
+  # @section -- Ceph bucket options
+  image:
+    repository: amazon/aws-cli
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  # -- Number of retries before considering the Job failed.
+  # @section -- Ceph bucket options
+  backoffLimit: 3
+
+  # -- Seconds to retain the Job after completion before automatic cleanup.
+  # @section -- Ceph bucket options
+  ttlSecondsAfterFinished: 300
+
+  # -- Optional ServiceAccount to run the Job under.
+  # @section -- Ceph bucket options
+  serviceAccountName: ""
+
+  # -- Resource requests/limits for the Job pod.
+  # @section -- Ceph bucket options
+  resources: {}
+
+  # -- Node selector for the Job pod.
+  # @section -- Ceph bucket options
+  nodeSelector: {}
+
+  # -- Tolerations for the Job pod.
+  # @section -- Ceph bucket options
+  tolerations: []
+
+  # -- Affinity rules for the Job pod.
+  # @section -- Ceph bucket options
+  affinity: {}

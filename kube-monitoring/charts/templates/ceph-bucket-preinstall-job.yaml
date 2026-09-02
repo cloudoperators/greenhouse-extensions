@@ -1,0 +1,96 @@
+{{- if .Values.cephBucket.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-ceph-bucket-credentials
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-ceph-bucket
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: {{ .Values.cephBucket.ec2.accessKey | quote }}
+  AWS_SECRET_ACCESS_KEY: {{ .Values.cephBucket.ec2.secretKey | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-ceph-bucket-create
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-ceph-bucket
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.cephBucket.backoffLimit | default 3 }}
+  ttlSecondsAfterFinished: {{ .Values.cephBucket.ttlSecondsAfterFinished | default 300 }}
+  template:
+    metadata:
+      name: {{ .Release.Name }}-ceph-bucket-create
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-ceph-bucket
+    spec:
+      restartPolicy: OnFailure
+      {{- with .Values.cephBucket.serviceAccountName }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      containers:
+        - name: aws-cli
+          image: "{{ .Values.cephBucket.image.repository }}:{{ .Values.cephBucket.image.tag }}"
+          imagePullPolicy: {{ .Values.cephBucket.image.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-ceph-bucket-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-ceph-bucket-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: CEPH_ENDPOINT
+              value: {{ .Values.cephBucket.endpoint | quote }}
+            - name: BUCKET_NAME
+              value: {{ .Values.cephBucket.bucketName | quote }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Ensuring bucket '${BUCKET_NAME}' exists at ${CEPH_ENDPOINT}..."
+              # On Ceph RGW, s3api create-bucket is idempotent: it returns
+              # exit code 0 with no output if the bucket already exists.
+              aws --endpoint-url "${CEPH_ENDPOINT}" s3api create-bucket --bucket "${BUCKET_NAME}"
+              echo "Bucket '${BUCKET_NAME}' is ready."
+          {{- with .Values.cephBucket.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.cephBucket.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.cephBucket.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.cephBucket.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
