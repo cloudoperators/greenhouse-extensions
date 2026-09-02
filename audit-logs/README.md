@@ -82,7 +82,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
 | auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
 | auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
-| auditLogs.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
+| auditLogs.ingesterCollector.replicas | int | `3` | Replica count per ingest collector Deployment. |
 | auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.auditd.initImage | object | `{"repository":"alpine","tag":"latest"}` | Init container image used to stop the host auditd service. |
@@ -102,6 +102,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.tls.insecure_skip_verify | bool | `false` | Skip server certificate verification. Leave false for production. |
 | auditLogs.logsCollector.kafka.topic | string | `""` | Kafka topic name for audit logs |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
+| auditLogs.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
 | auditLogs.nodeSelector | object | `{}` |  |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |

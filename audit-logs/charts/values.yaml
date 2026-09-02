@@ -86,6 +86,9 @@ auditLogs:
         enabled: false
         # -- Skip server certificate verification. Leave false for production.
         insecure_skip_verify: false
+    # -- Max characters for the log body in the truncate_message processor. Keep below the
+    # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
+    maxMessageLength: 32000
   openSearchLogs:
     # -- Endpoint URL for OpenSearch
     endpoint:
@@ -119,7 +122,7 @@ auditLogs:
     # -- Enable the ingest collectors block.
     enabled: false
     # -- Replica count per ingest collector Deployment.
-    replicas: 1
+    replicas: 3
     image:
       # -- Image repository override; falls back to auditLogs.collectorImage.repository.
       repository: ""
