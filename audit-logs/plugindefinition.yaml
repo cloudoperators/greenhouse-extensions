@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.15
+    version: 0.2.16
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.15
+        version: 0.2.16
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -152,7 +152,7 @@ spec:
           required: false
           type: bool
         - name: auditLogs.ingesterCollector.replicas
-          default: 1
+          default: 3
           description: Replica count per ingest collector Deployment
           required: false
           type: int

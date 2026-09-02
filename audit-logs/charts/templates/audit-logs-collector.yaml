@@ -178,6 +178,14 @@ spec:
             statements:
             - set(attributes["log_message"], attributes["log"]) where IsString(attributes["log"])
             - delete_key(attributes, "log") where IsString(attributes["log"]) 
+      transform/truncate_message:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - "truncate_all(log.attributes, 32000)"
+              - "truncate_all(resource.attributes, 32000)"
+              - 'set(log.body, Substring(log.body, 0, {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }}'
 
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.labels" . | nindent 6 -}}
@@ -661,7 +669,7 @@ spec:
       pipelines:
         logs/default:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, batch]
+          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
 {{- if .Values.auditLogs.logsCollector.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
