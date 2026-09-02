@@ -167,6 +167,9 @@ openTelemetry:
     kafkaTopic: ""
     # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
     kafkaStorageTopic: ""
+    # -- Max characters for the log body in the truncate_message processor. Keep below the
+    # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
+    maxMessageLength: 32000
     # -- Activates the journald receiver (requires logsCollector to be enabled).
     journaldConfig:
       enabled: true
@@ -301,7 +304,7 @@ openTelemetry:
     # -- Pod affinity rules for the ingester collector CRs
     affinity: {}
     # -- Replica count per ingest collector Deployment.
-    replicas: 1
+    replicas: 3
     image:
       # -- Image repository override; falls back to openTelemetry.collectorImage.repository.
       repository: ""
