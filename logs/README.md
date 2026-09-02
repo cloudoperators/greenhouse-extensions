@@ -164,7 +164,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to openTelemetry.collectorImage.repository. |
 | openTelemetry.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to openTelemetry.collectorImage.tag. |
 | openTelemetry.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
-| openTelemetry.ingesterCollector.replicas | int | `1` | Replica count per ingest collector Deployment. |
+| openTelemetry.ingesterCollector.replicas | int | `3` | Replica count per ingest collector Deployment. |
 | openTelemetry.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | openTelemetry.kafka | object | See values.yaml | Kafka exporter configuration shared by all collectors |
 | openTelemetry.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
@@ -193,6 +193,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kafkaStorageTopic | string | `""` | Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage") |
 | openTelemetry.logsCollector.kafkaTopic | string | `""` | Kafka topic name for general logs (e.g., "logs") |
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
 | openTelemetry.metricsCollector | object | `{"affinity":{},"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.metricsCollector.affinity | object | `{}` | Pod affinity rules for the metrics collector CR |
