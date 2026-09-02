@@ -286,6 +286,24 @@ spec:
 | blackboxExporter.enabled | bool | `false` | To enable Blackbox Exporter (supported probers: grpc-prober) |
 | blackboxExporter.extraVolumes | list | <pre>- name: blackbox-exporter-tls<br>  secret:<br>    defaultMode: 420<br>    secretName: \<secretName\></pre> | TLS secret of the Thanos global instance to mount for probing, mandatory for using Blackbox exporter. |
 
+### Ceph bucket options
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| cephBucket.affinity | object | `{}` | Affinity rules for the Job pod. |
+| cephBucket.backoffLimit | int | `3` | Number of retries before considering the Job failed. |
+| cephBucket.bucketName | string | `""` | Name of the bucket to create in the Ceph endpoint. |
+| cephBucket.ec2.accessKey | string | `""` | EC2 access key (used as AWS_ACCESS_KEY_ID). |
+| cephBucket.ec2.secretKey | string | `""` | EC2 secret key (used as AWS_SECRET_ACCESS_KEY). |
+| cephBucket.enabled | bool | `false` | Enable the pre-install job that creates an S3 bucket in the provided Ceph endpoint. |
+| cephBucket.endpoint | string | `""` | S3-compatible endpoint URL of the Ceph cluster (e.g. https://s3.example.com). |
+| cephBucket.image | object | `{"pullPolicy":"IfNotPresent","repository":"amazon/aws-cli","tag":"latest"}` | Container image used to run the bucket creation job. |
+| cephBucket.nodeSelector | object | `{}` | Node selector for the Job pod. |
+| cephBucket.resources | object | `{}` | Resource requests/limits for the Job pod. |
+| cephBucket.serviceAccountName | string | `""` | Optional ServiceAccount to run the Job under. |
+| cephBucket.tolerations | list | `[]` | Tolerations for the Job pod. |
+| cephBucket.ttlSecondsAfterFinished | int | `300` | Seconds to retain the Job after completion before automatic cleanup. |
+
 ### Global options
 
 | Key | Type | Default | Description |
