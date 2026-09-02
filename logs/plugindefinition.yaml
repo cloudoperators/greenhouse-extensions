@@ -85,7 +85,7 @@ spec:
       name: openTelemetry.ingesterCollector.enabled
       required: false
       type: bool
-    - default: 1
+    - default: 3
       description: Replica count per ingest collector Deployment
       name: openTelemetry.ingesterCollector.replicas
       required: false
