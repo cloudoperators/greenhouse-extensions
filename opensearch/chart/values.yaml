@@ -883,7 +883,7 @@ cluster:
     # standard library only, no `requests` dependency).
     image:
       repository: docker.io/library/python
-      tag: "3.12-slim"
+      tag: "3.14-slim"
       pullPolicy: IfNotPresent
     # -- Optional resource requests/limits for the install Job pod.
     resources: {}
