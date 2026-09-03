@@ -321,6 +321,20 @@ transform/syslog_network_parsing:
         # LAST because "attacker" is broad; only unclassified events reach here.
         - 'set(log.attributes["sap.cc.audit.source"], "loadbalancer") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*attacker.*")'
         - 'set(log.attributes["sap.cc.audit.source"], "loadbalancer") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*attacker.*")'
+    - context: log
+      statements:
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["sap.cc.audit.source"] != nil and IsMatch(log.attributes["sap.cc.audit.source"], "^(checkpoint|cise|cisco-asa|cisco-nexus|cisco-router|trendmicro|fortinet|radware|paloalto|tufin|waf|loadbalancer)$")'
+        - 'set(log.attributes["hw.vendor"], "Check Point") where log.attributes["sap.cc.audit.source"] == "checkpoint"'
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cise"'
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-asa"'
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-nexus"'
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-router"'
+        - 'set(log.attributes["hw.vendor"], "Trend Micro") where log.attributes["sap.cc.audit.source"] == "trendmicro"'
+        - 'set(log.attributes["hw.vendor"], "Fortinet") where log.attributes["sap.cc.audit.source"] == "fortinet"'
+        - 'set(log.attributes["hw.vendor"], "Radware") where log.attributes["sap.cc.audit.source"] == "radware"'
+        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["sap.cc.audit.source"] == "paloalto"'
+        - 'set(log.attributes["hw.vendor"], "Tufin") where log.attributes["sap.cc.audit.source"] == "tufin"'
+        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["sap.cc.audit.source"] == "waf"'
 
 {{/*
   ============================================================================
