@@ -259,6 +259,8 @@ transform/syslog_network_parsing:
   error_mode: ignore
   log_statements:
     - context: log
+      conditions:
+        - 'log.attributes["sap.cc.audit.source"] == nil'
       statements:
         # Check Point (CEF) - message contains "(Check Point)"
         # Highest priority: the generic fw/daemon branch explicitly excludes this.
