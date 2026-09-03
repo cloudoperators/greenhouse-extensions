@@ -22,12 +22,6 @@ This plugin installs the same 54 shoot alert rules as a new `PrometheusRule` res
 
 ## Upgrading
 
-Rules are extracted from [gardener/gardener](https://github.com/gardener/gardener) source files. A Renovate comment in `Chart.yaml` tracks the upstream version. To regenerate after a Gardener upgrade:
+Rules are extracted from [gardener/gardener](https://github.com/gardener/gardener) source files. A Renovate comment in `Chart.yaml` tracks the upstream version tag.
 
-```bash
-# Example: upgrading from v1.148.3 to v1.150.0
-make generate GARDENER_VERSION=v1.150.0
-git diff charts/templates/prometheusrule-shoot.yaml
-```
-
-Requires Go ≥ 1.21 and a GitHub token (`gh auth token` or `GITHUB_TOKEN` env var).
+When Gardener upgrades, the rules in `charts/templates/prometheusrule-shoot.yaml` need to be manually re-extracted from the new version and the `version:` fields in `Chart.yaml` and `plugindefinition.yaml` bumped accordingly.
