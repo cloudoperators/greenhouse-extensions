@@ -4,6 +4,25 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- define "syslog_hardware_processor.transform" }}
+{{/*
+  =======================================================================================
+  Hardware classification.
+  Classifies hardware from syslog message/body content in two stages:
+    1. Vendor extraction  -> hw.vendor (e.g. Cisco, Check Point, Palo Alto Networks).
+    2. Per-vendor refinement -> hw.type (component category) and sap.cc.hw.role
+       (device function/role, e.g. router, firewall, switch, ise).
+
+  Applicable to any hardware category (network, compute, storage, etc.) - the current
+  rule set covers network devices, but additional vendors/roles can be added over time.
+
+  Only sets each attribute if not already set (gated by conditions + `== nil` guards).
+  OTTL is first-match-wins, so statement ORDER encodes precedence.
+
+  NOTE: Authoritative model/family data (e.g. hw.model like "ASR1002-HX") should come
+  from inventory enrichment (NetBox), not regex guessing. This processor only derives
+  what the log itself reliably reveals.
+  =======================================================================================
+*/}}
 transform/syslog_hardware_classification:
   error_mode: ignore
   log_statements:
