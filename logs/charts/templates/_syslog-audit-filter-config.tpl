@@ -249,94 +249,76 @@ transform/syslog_hostname_parsing:
 
 {{/*
   =======================================================================================
-  Network device parsing - extract audit source.
-  Detects vendor/product based on message content patterns.
-  Only sets sap.cc.audit.source if it hasn't been set already.
-  OTTL is first-match-wins via the `== nil` guard, so statement ORDER encodes precedence.
+  Hardware classification.
+  Classifies hardware from syslog message/body content in two stages:
+    1. Vendor extraction  -> hw.vendor (e.g. Cisco, Check Point, Palo Alto Networks).
+    2. Per-vendor refinement -> hw.type (component category) and sap.cc.hw.role
+       (device function/role, e.g. router, firewall, switch, ise).
+
+  Applicable to any hardware category (network, compute, storage, etc.) - the current
+  rule set covers network devices, but additional vendors/roles can be added over time.
+
+  Only sets each attribute if not already set (gated by conditions + `== nil` guards).
+  OTTL is first-match-wins, so statement ORDER encodes precedence.
+
+  NOTE: Authoritative model/family data (e.g. hw.model like "ASR1002-HX") should come
+  from inventory enrichment (NetBox), not regex guessing. This processor only derives
+  what the log itself reliably reveals.
   =======================================================================================
 */}}
-transform/syslog_network_parsing:
+transform/syslog_hardware_classification:
   error_mode: ignore
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["sap.cc.audit.source"] == nil'
+        - 'log.attributes["hw.vendor"] == nil'
       statements:
-        # Check Point (CEF) - message contains "(Check Point)"
-        # Highest priority: the generic fw/daemon branch explicitly excludes this.
-        - 'set(log.attributes["sap.cc.audit.source"], "checkpoint") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*\\(Check Point\\).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "checkpoint") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*\\(Check Point\\).*")'
-        # Cisco ISE - "ise-saas", "ise-idc", or "eu-de-2-gmp-prx-1[abc]"
-        # Placed before Cisco Router because ISE hostnames may contain "-rt##"
-        # patterns that would otherwise match the router rule.
-        - 'set(log.attributes["sap.cc.audit.source"], "cise") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "cise") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        # TrendMicro - "TrendMicro" AND ("IPSevent" or "IPSaudit")
-        - 'set(log.attributes["sap.cc.audit.source"], "trendmicro") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*TrendMicro.*") and IsMatch(log.attributes["message"], ".*(IPSevent|IPSaudit).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "trendmicro") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*TrendMicro.*") and IsMatch(log.body, ".*(IPSevent|IPSaudit).*")'
+        # Check Point (CEF) - contains "(Check Point)". Highest priority.
+        - 'set(log.attributes["hw.vendor"], "Check Point") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\(Check Point\\).*")'
+        # Cisco ISE - before Cisco Router (ISE hostnames may contain "-rt##").
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
+        # Trend Micro - "TrendMicro" AND ("IPSevent"|"IPSaudit").
+        - 'set(log.attributes["hw.vendor"], "Trend Micro") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*TrendMicro.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit).*")'
         # Fortinet
-        - 'set(log.attributes["sap.cc.audit.source"], "fortinet") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Fortinet.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "fortinet") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*Fortinet.*")'
+        - 'set(log.attributes["hw.vendor"], "Fortinet") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
         # Radware (DefensePro / CyberController)
-        - 'set(log.attributes["sap.cc.audit.source"], "radware") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Radware.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "radware") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*Radware.*")'
-        # Palo Alto Networks - CEF messages containing "Palo Alto Networks"
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Palo Alto Networks.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*Palo Alto Networks.*")'
-        # Palo Alto Networks - "fw-idc-pan" hostname (does NOT contain the
-        # literal "Palo Alto Networks"; matches the Logstash negative lookahead).
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*fw-idc-pan.*") and not IsMatch(log.attributes["message"], ".*Palo Alto Networks.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*fw-idc-pan.*") and not IsMatch(log.body, ".*Palo Alto Networks.*")'
-        # Palo Alto Networks (netsplunk IPS - m-ips-sms[1|2|5|6|9|10]) AND (IPSevent|IPSaudit)
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*m-ips-sms(1|2|5|6|9|10).*") and IsMatch(log.attributes["message"], ".*(IPSevent|IPSaudit).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*m-ips-sms(1|2|5|6|9|10).*") and IsMatch(log.body, ".*(IPSevent|IPSaudit).*")'
-        # Palo Alto Networks (netsplunk system/audit events)
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*(IPSsystem|SMSsystem|SMSaudit).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "paloalto") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*(IPSsystem|SMSsystem|SMSaudit).*")'
-        # Cisco ASA firewall - message contains "%ASA-" (leading space preserved
-        # to match Logstash "(?: %ASA-)").
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-asa") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".* %ASA-.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-asa") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".* %ASA-.*")'
-        # Check Point firewall gateway syslog (daemon logs) -
-        # hostname matches fw|FW- AND a known daemon AND NOT "(Check Point)".
-        # Replicates Logstash: (fw|FW-) and (daemons...) and !(Check Point)
-        - 'set(log.attributes["sap.cc.audit.source"], "checkpoint") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*(fw|FW-).*") and IsMatch(log.attributes["message"], ".*(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:).*") and not IsMatch(log.attributes["message"], ".*\\(Check Point\\).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "checkpoint") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*(fw|FW-).*") and IsMatch(log.body, ".*(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:).*") and not IsMatch(log.body, ".*\\(Check Point\\).*")'
-        # Cisco Nexus (MAC move / flap events)
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-nexus") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-nexus") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-        # Cisco Router - hostname pattern "rt-*" or "*-rt##*"
-        # (excludes CISE_Failed_Attempts, matching the Logstash guard).
-        # Placed AFTER ISE/PAN/Nexus so those more-specific vendors win.
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-router") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(log.attributes["message"], ".*CISE_Failed_Attempts.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-router") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(log.body, ".*CISE_Failed_Attempts.*")'
-        # Cisco Router - "rtb" hostname pattern e.g. "<123>rtb...:"
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-router") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "<\\d+>rtb\\S+:")'
-        - 'set(log.attributes["sap.cc.audit.source"], "cisco-router") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, "<\\d+>rtb\\S+:")'
-        # Tufin SecureTrack / TOS Monitoring
-        - 'set(log.attributes["sap.cc.audit.source"], "tufin") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and (IsMatch(log.attributes["message"], ".* SecureTrack: .*") or IsMatch(log.attributes["message"], ".*Tufin SecureTrack, .*") or IsMatch(log.attributes["message"], ".*TOS Monitoring Notification.*"))'
-        - 'set(log.attributes["sap.cc.audit.source"], "tufin") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and (IsMatch(log.body, ".* SecureTrack: .*") or IsMatch(log.body, ".*Tufin SecureTrack, .*") or IsMatch(log.body, ".*TOS Monitoring Notification.*"))'
-        # F5 ASM WAF - message contains "ASM:unit_hostname"
-        - 'set(log.attributes["sap.cc.audit.source"], "waf") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*ASM:unit_hostname.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "waf") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*ASM:unit_hostname.*")'
-        # Load Balancer - message contains "attacker".
-        # LAST because "attacker" is broad; only unclassified events reach here.
-        - 'set(log.attributes["sap.cc.audit.source"], "loadbalancer") where log.attributes["sap.cc.audit.source"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*attacker.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "loadbalancer") where log.attributes["sap.cc.audit.source"] == nil and log.body != nil and IsMatch(log.body, ".*attacker.*")'
+        - 'set(log.attributes["hw.vendor"], "Radware") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Radware.*")'
+        # Palo Alto Networks - CEF "Palo Alto Networks".
+        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Palo Alto Networks.*")'
+        # Palo Alto Networks - "fw-idc-pan" hostname without literal "Palo Alto Networks".
+        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*fw-idc-pan.*")'
+        # Palo Alto Networks - netsplunk IPS (m-ips-sms[1|2|5|6|9|10]) AND (IPSevent|IPSaudit).
+        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*m-ips-sms(1|2|5|6|9|10).*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit).*")'
+        # Palo Alto Networks - netsplunk system/audit events.
+        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSsystem|SMSsystem|SMSaudit).*")'
+        # Cisco ASA firewall - "%ASA-" (leading space preserved).
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
+        # Check Point gateway daemon logs - (fw|FW-) AND daemon AND NOT "(Check Point)".
+        - 'set(log.attributes["hw.vendor"], "Check Point") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(fw|FW-).*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:).*")'
+        # Cisco Nexus (MAC move / flap events).
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
+        # Cisco Router - "rt-*" or "*-rt##*" (excludes CISE_Failed_Attempts). After ISE/PAN/Nexus.
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
+        # Cisco Router - "rtb" hostname e.g. "<123>rtb...:".
+        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
+        # Tufin SecureTrack / TOS Monitoring.
+        - 'set(log.attributes["hw.vendor"], "Tufin") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification).*")'
+        # F5 ASM WAF - "ASM:unit_hostname".
+        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # Load Balancer - "attacker". LAST (broad match).
+        - 'set(log.attributes["hw.vendor"], "Load Balancer") where log.attributes["hw.vendor"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
     - context: log
+      conditions:
+        - 'log.attributes["hw.vendor"] == "Cisco"'
       statements:
-        - 'set(log.attributes["hw.type"], "network") where log.attributes["sap.cc.audit.source"] != nil and IsMatch(log.attributes["sap.cc.audit.source"], "^(checkpoint|cise|cisco-asa|cisco-nexus|cisco-router|trendmicro|fortinet|radware|paloalto|tufin|waf|loadbalancer)$")'
-        - 'set(log.attributes["hw.vendor"], "Check Point") where log.attributes["sap.cc.audit.source"] == "checkpoint"'
-        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cise"'
-        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-asa"'
-        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-nexus"'
-        - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["sap.cc.audit.source"] == "cisco-router"'
-        - 'set(log.attributes["hw.vendor"], "Trend Micro") where log.attributes["sap.cc.audit.source"] == "trendmicro"'
-        - 'set(log.attributes["hw.vendor"], "Fortinet") where log.attributes["sap.cc.audit.source"] == "fortinet"'
-        - 'set(log.attributes["hw.vendor"], "Radware") where log.attributes["sap.cc.audit.source"] == "radware"'
-        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["sap.cc.audit.source"] == "paloalto"'
-        - 'set(log.attributes["hw.vendor"], "Tufin") where log.attributes["sap.cc.audit.source"] == "tufin"'
-        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["sap.cc.audit.source"] == "waf"'
+        # Standard component category (pairs with hw.state). All these are network devices.
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        # Finer device role (custom, log-derived).
+        - 'set(log.attributes["sap.cc.hw.role"], "ise") where log.attributes["sap.cc.hw.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
+        - 'set(log.attributes["sap.cc.hw.role"], "firewall") where log.attributes["sap.cc.hw.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
+        - 'set(log.attributes["sap.cc.hw.role"], "switch") where log.attributes["sap.cc.hw.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
+        - 'set(log.attributes["sap.cc.hw.role"], "router") where log.attributes["sap.cc.hw.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
+        - 'set(log.attributes["sap.cc.hw.role"], "router") where log.attributes["sap.cc.hw.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
 
 {{/*
   ============================================================================
