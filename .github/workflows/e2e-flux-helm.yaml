@@ -29,13 +29,13 @@ jobs:
           version: "v3.19.5"
 
       - name: Set up Flux CLI
-        uses: fluxcd/flux2/action@1fd61a06264d71cf445ed55c4f14d401d26a1c64 # v2.8.8
+        uses: fluxcd/flux2/action@889be9d6cc8afa8ed639e1e1ba4ab678e3b38d8c # v2.9.4
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
 
       - name: Run Git Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
