@@ -230,8 +230,8 @@ transform/syslog_hostname_parsing:
     - context: log
       statements:
         # handle double header / relay host name
-        - 'set(log.attributes["sap.cc.relay.host.name"], log.attributes["sap_cc_relay_host_name"]) where log.attributes["sap_cc_relay_host_name"] != nil'
-        - 'delete_key(log.attributes, "sap_cc_relay_host_name") where log.attributes["sap_cc_relay_host_name"] != nil'
+        - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
+        - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
