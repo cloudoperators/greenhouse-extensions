@@ -149,6 +149,7 @@ spec:
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.transform" . | nindent 6 -}}
+    {{- include "syslog_hardware_processor.transform" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
     {{- include "external_http.transform" . | nindent 6 -}}
