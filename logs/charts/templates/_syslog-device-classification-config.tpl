@@ -74,9 +74,9 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         # Finer device product and role (custom, log-derived).
         - 'set(log.attributes["sap.cc.device.product"], "Identity Services Engine") where log.attributes["sap.cc.device.product"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        - 'set(log.attributes["sap.cc.device.role"], "authentication-server") where log.attributes["sap.cc.device.product"] == "Identity Services Engine"'
+        - 'set(log.attributes["sap.cc.device.role"], "authentication-server") where log.attributes["sap.cc.device.role"] == nil and log.attributes["sap.cc.device.product"] == "Identity Services Engine"'
         - 'set(log.attributes["sap.cc.device.product"], "ASA Secure Firewall") where log.attributes["sap.cc.device.product"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
-        - 'set(log.attributes["sap.cc.device.role"], "firewall") where log.attributes["sap.cc.device.product"] == "ASA Secure Firewall"'
+        - 'set(log.attributes["sap.cc.device.role"], "firewall") where log.attributes["sap.cc.device.role"] == nil and log.attributes["sap.cc.device.product"] == "ASA Secure Firewall"'
         - 'set(log.attributes["sap.cc.device.role"], "switch") where log.attributes["sap.cc.device.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
         - 'set(log.attributes["sap.cc.device.role"], "router") where log.attributes["sap.cc.device.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
         - 'set(log.attributes["sap.cc.device.role"], "router") where log.attributes["sap.cc.device.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
@@ -93,7 +93,7 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["hw.vendor"], "Trend Micro") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["sap.cc.device.role"], "ips") where log.attributes["sap.cc.device.role"] == nil'
+        - 'set(log.attributes["sap.cc.device.role"], "ips-ids") where log.attributes["sap.cc.device.role"] == nil'
     - context: log
       conditions:
         - 'log.attributes["device.manufacturer"] == "Fortinet"'
@@ -107,14 +107,14 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["hw.vendor"], "Radware") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["sap.cc.device.role"], "ddos_protection") where log.attributes["sap.cc.device.role"] == nil'
+        - 'set(log.attributes["sap.cc.device.role"], "ddos-security-appliance") where log.attributes["sap.cc.device.role"] == nil'
     - context: log
       conditions:
         - 'log.attributes["device.manufacturer"] == "Palo Alto Networks"'
       statements:
         - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["sap.cc.device.role"], "ips") where log.attributes["sap.cc.device.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+        - 'set(log.attributes["sap.cc.device.role"], "ips-ids") where log.attributes["sap.cc.device.role"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
         - 'set(log.attributes["sap.cc.device.role"], "firewall") where log.attributes["sap.cc.device.role"] == nil'
     - context: log
       conditions:
@@ -128,11 +128,4 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["sap.cc.device.role"], "waf") where log.attributes["sap.cc.device.role"] == nil'
-    # Unknown vendor - inferred load-balancer role from the "attacker" keyword.
-    - context: log
-      conditions:
-        - 'log.attributes["device.manufacturer"] == "unknown"'
-        - 'log.attributes["sap.cc.device.role"] == "loadbalancer"'
-      statements:
-        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
 {{- end }}
