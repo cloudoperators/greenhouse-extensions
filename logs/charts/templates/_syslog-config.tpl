@@ -503,6 +503,7 @@ logs/syslog_tcp:
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
+    - transform/syslog_hardware_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
@@ -523,6 +524,7 @@ logs/syslog_udp:
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
+    - transform/syslog_hardware_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
@@ -545,6 +547,7 @@ logs/syslog_tcp_tls:
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
     - transform/syslog_esxi_sshd
+    - transform/syslog_hardware_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields

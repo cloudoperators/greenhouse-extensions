@@ -21,6 +21,10 @@ SPDX-License-Identifier: Apache-2.0
   NOTE: Authoritative model/family data (e.g. hw.model like "ASR1002-HX") should come
   from inventory enrichment (NetBox), not regex guessing. This processor only derives
   what the log itself reliably reveals.
+
+  NOTE2: Currently the vendor extraction is based on the body, because not all
+  hostnames are reliably ingested into resource.host.name. If this issue is solved,
+  we can switch some of the extraction rules to resource.host.name.
   =======================================================================================
 */}}
 transform/syslog_hardware_classification:
@@ -124,6 +128,6 @@ transform/syslog_hardware_classification:
       conditions:
         - 'log.attributes["hw.vendor"] == "unknown"'
       statements:
-        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["sap.cc.hw.role"], "load_balancer") where log.attributes["sap.cc.hw.role"] == nil'
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil and log.attributes["sap.cc.hw.role"] == "load_balancer"'
 {{- end }}
