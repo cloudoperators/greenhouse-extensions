@@ -41,20 +41,30 @@ spec:
     - name: prometheus
       port: 8888
 {{- end }}
+{{- $kafka := $root.Values.auditLogs.logsCollector.kafka -}}
+{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
+{{- $kafka = $cfg.kafka -}}
+{{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.auditLogs.ingesterCollector.image.repository | default $root.Values.auditLogs.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.auditLogs.ingesterCollector.image.tag | default $root.Values.auditLogs.collectorImage.tag }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
       readOnly: true
+{{- if (dig "tls" "enabled" false $kafka) }}
+    - name: kafka-ca
+      mountPath: /etc/ssl/kafka
+      readOnly: true
+{{- end }}
   volumes:
     - name: opensearch-ca
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
-  config:
-{{- $kafka := $root.Values.auditLogs.logsCollector.kafka -}}
-{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
-{{- $kafka = $cfg.kafka -}}
+{{- if (dig "tls" "enabled" false $kafka) }}
+    - name: kafka-ca
+      secret:
+        secretName: {{ dig "tls" "caSecret" "" $kafka | quote }}
 {{- end }}
+  config:
     receivers:
       kafka/{{ $name }}:
         brokers:
@@ -80,6 +90,12 @@ spec:
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
+{{- if (dig "tls" "enabled" false $kafka) }}
+        tls:
+          insecure: false
+          insecure_skip_verify: {{ dig "tls" "insecure_skip_verify" false $kafka }}
+          ca_file: /etc/ssl/kafka/{{ dig "tls" "caSecretKey" "" $kafka }}
+{{- end }}
     processors:
       memory_limiter:
         check_interval: 5s

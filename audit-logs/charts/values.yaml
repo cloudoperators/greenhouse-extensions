@@ -86,6 +86,10 @@ auditLogs:
         enabled: false
         # -- Skip server certificate verification. Leave false for production.
         insecure_skip_verify: false
+        # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers.
+        caSecret: kafka-audit-cluster-ca-cert
+        # -- K8s secret key which holds the CA ertificate.
+        caSecretKey: ca.crt
     # -- Max characters for the log body in the truncate_message processor. Keep below the
     # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
     maxMessageLength: 32000
@@ -141,7 +145,7 @@ auditLogs:
     #     initialOffset: latest | earliest      # optional, defaults to latest
     #     replicas: <int>                        # optional; per-collector replica count, falls back to ingesterCollector.replicas
     #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
-    #     kafka: { brokers, protocol_version, encoding }  # optional override of auditLogs.logsCollector.kafka
+    #     kafka: { brokers, protocol_version, encoding, tls}  # optional override of auditLogs.logsCollector.kafka
     #     opensearch:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
