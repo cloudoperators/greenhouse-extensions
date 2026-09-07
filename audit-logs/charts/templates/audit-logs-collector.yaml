@@ -84,7 +84,7 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
-{{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) }}
   - name: kafka-ca
     mountPath: /etc/ssl/kafka
     readOnly: true
@@ -99,7 +99,7 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
-{{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) }}
   - name: kafka-ca
     secret:
       secretName: {{ .Values.auditLogs.logsCollector.kafka.tls.caSecret | quote }}
@@ -587,7 +587,9 @@ spec:
         tls:
           insecure: false
           insecure_skip_verify: {{ .Values.auditLogs.logsCollector.kafka.tls.insecure_skip_verify }}
+{{- if and (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ .Values.auditLogs.logsCollector.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
         logs:
           topic: {{ .Values.auditLogs.logsCollector.kafka.topic }}
