@@ -94,7 +94,6 @@ spec:
         tls:
           insecure: false
           insecure_skip_verify: {{ dig "tls" "insecure_skip_verify" false $kafka }}
-          ca_file: /etc/ssl/kafka/{{ dig "tls" "caSecretKey" "" $kafka }}
 {{- if and (not (empty $kafka.tls.caSecret)) (not (empty $kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
 {{- end }}
