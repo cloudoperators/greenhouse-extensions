@@ -26,3 +26,4 @@ resources:
   - thanos/plugindefinition.yaml
   - trust-manager/plugindefinition.yaml
   - netapp-monitoring/plugindefinition.yaml
+  - nvidia-gpu-operator/plugindefinition.yaml
