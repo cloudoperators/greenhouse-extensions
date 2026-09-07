@@ -41,7 +41,7 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_double_header_detect
     parse_from: body
-    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
+    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |\\d+: |\\S+: \\d{4} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
     regex: '^(?P<relay_priority><\d+>)(?P<relay_header>[^<]*?)\s+(?P<inner><\d+>.*)$'
     on_error: send_quiet
     output: syslog_double_header_check
@@ -283,7 +283,7 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_double_header_detect
     parse_from: body
-    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
+    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |\\d+: |\\S+: \\d{4} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
     regex: '^(?P<relay_priority><\d+>)(?P<relay_header>[^<]*?)\s+(?P<inner><\d+>.*)$'
     on_error: send_quiet
     output: syslog_udp_double_header_check
@@ -516,7 +516,7 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_double_header_detect
     parse_from: body
-    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
+    if: 'body matches "^<\\d+>[^<]*<\\d+>(?:\\d{4}-\\d{2}-\\d{2}T|\\d+ |\\d+: |\\S+: \\d{4} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) |(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) )"'
     regex: '^(?P<relay_priority><\d+>)(?P<relay_header>[^<]*?)\s+(?P<inner><\d+>.*)$'
     on_error: send_quiet
     output: syslog_tls_double_header_check
