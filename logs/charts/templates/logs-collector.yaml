@@ -61,10 +61,20 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    mountPath: /etc/ssl/kafka
+    readOnly: true
+{{- end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.kafka.tls.caSecret | quote }}
+{{- end }}
   config:
     receivers:
 {{- if .Values.openTelemetry.logsCollector.journaldConfig.enabled }}
@@ -258,6 +268,9 @@ spec:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
       kafka/storage:
         brokers:
@@ -278,6 +291,9 @@ spec:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- else }}
       opensearch/failover_a:

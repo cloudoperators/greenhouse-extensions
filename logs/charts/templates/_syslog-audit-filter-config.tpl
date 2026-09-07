@@ -420,6 +420,9 @@ kafka/syslog_non_audit:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+    ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -104,6 +104,10 @@ openTelemetry:
     tls:
       # -- Enable TLS for Kafka connections
       enabled: false
+      # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert)
+      caSecret: ""
+      # -- K8s secret key which holds the CA ertificate. (e.g. ca.crt)
+      caSecretKey: ""
   # -- Audit Kafka exporter configuration shared by all collectors
   # @default -- See values.yaml
   auditKafka:
@@ -137,6 +141,10 @@ openTelemetry:
     tls:
       # -- Enable TLS for Kafka connections
       enabled: false
+      # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert)
+      caSecret: ""
+      # -- K8s secret key which holds the CA ertificate. (e.g. ca.crt)
+      caSecretKey: ""
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true

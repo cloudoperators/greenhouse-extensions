@@ -104,7 +104,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.auditKafka.sendingQueue | object | `{"enabled":true,"numConsumers":1,"queueSize":1000}` | Producer sending queue size |
 | openTelemetry.auditKafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
-| openTelemetry.auditKafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
+| openTelemetry.auditKafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false}` | TLS configuration for Kafka connections |
+| openTelemetry.auditKafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert) |
+| openTelemetry.auditKafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA ertificate. (e.g. ca.crt) |
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a62a383"}` | OpenTelemetry Collector image configuration |
@@ -178,7 +180,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | openTelemetry.kafka.sendingQueue | object | `{"enabled":true,"numConsumers":1,"queueSize":1000}` | Producer sending queue size |
 | openTelemetry.kafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
-| openTelemetry.kafka.tls | object | `{"enabled":false}` | TLS configuration for Kafka connections |
+| openTelemetry.kafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false}` | TLS configuration for Kafka connections |
+| openTelemetry.kafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert) |
+| openTelemetry.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA ertificate. (e.g. ca.crt) |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.logsCollector.affinity | object | See values.yaml | Pod affinity rules for the logs collector CR |
 | openTelemetry.logsCollector.batch | object | `{"sendBatchMaxSize":5000,"sendBatchSize":100,"timeout":"30s"}` | Batch processor settings for the logs collector. |
