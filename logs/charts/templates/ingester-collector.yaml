@@ -54,7 +54,7 @@ spec:
 {{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) }}
 {{- $kafka = $cfg.kafka }}
 {{- end }}
-{{- $kafkaCASecret := dig "tls" "caSecret" "" $kafka }}
+{{- $kafkaCASecret := $kafka.tls.caSecret }}
 {{- $shouldMountKafkaCASecret := and $kafka.tls $kafka.tls.enabled (not (empty $kafkaCASecret)) (not (empty ($kafka.tls.caSecretKey))) }}
   volumeMounts:
     - name: opensearch-ca
