@@ -55,7 +55,7 @@ spec:
 {{- $kafka = $cfg.kafka -}}
 {{- end }}
 {{- $kafkaCASecret := dig "tls" "caSecret" "" $kafka -}}
-{{- $shouldMountKafkaCASecret := and (or (default false (dig "tls" "enabled" false $kafka)) $root.Values.openTelemetry.kafka.tls.enabled) (not (empty $kafkaCASecret)) -}}
+{{- $shouldMountKafkaCASecret := and (or (default false (dig "tls" "enabled" false $kafka)) $root.Values.openTelemetry.kafka.tls.enabled) (not (empty $kafkaCASecret)) (not (empty (dig "tls" "caSecretKey" "" $kafka))) -}}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch

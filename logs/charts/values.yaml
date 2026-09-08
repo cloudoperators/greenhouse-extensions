@@ -106,7 +106,7 @@ openTelemetry:
       enabled: false
       # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert)
       caSecret: ""
-      # -- K8s secret key which holds the CA ertificate. (e.g. ca.crt)
+      # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
       caSecretKey: ""
   # -- Audit Kafka exporter configuration shared by all collectors
   # @default -- See values.yaml

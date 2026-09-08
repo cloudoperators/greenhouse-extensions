@@ -106,7 +106,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
 | openTelemetry.auditKafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.auditKafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert) |
-| openTelemetry.auditKafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA ertificate. (e.g. ca.crt) |
+| openTelemetry.auditKafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA certificate. (e.g. ca.crt) |
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
 | openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"a62a383"}` | OpenTelemetry Collector image configuration |
