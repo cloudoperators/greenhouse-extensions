@@ -328,9 +328,19 @@ transform/syslog_audit_classification:
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|fortinet|palo-alto-networks|trend-micro|tufin|radware|f5)")'
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != "cisco" and log.attributes["netbox.platform.slug"] == "cisco-ise"'
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != "cisco" and log.attributes["netbox.platform.slug"] == "cisco-asa"'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*THREAT*")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*ips*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*IPS*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*user*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*auth*")'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
