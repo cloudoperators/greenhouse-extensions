@@ -99,7 +99,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | auditLogs.logsCollector.kafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false}` | TLS settings for the Kafka exporter. Enable when the broker terminates TLS. |
 | auditLogs.logsCollector.kafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert) |
-| auditLogs.logsCollector.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA ertificate. (e.g. ca.crt) |
+| auditLogs.logsCollector.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA certificate. (e.g. ca.crt) |
 | auditLogs.logsCollector.kafka.tls.enabled | bool | `false` | Enable TLS on the connection to Kafka. |
 | auditLogs.logsCollector.kafka.tls.insecure_skip_verify | bool | `false` | Skip server certificate verification. Leave false for production. |
 | auditLogs.logsCollector.kafka.topic | string | `""` | Kafka topic name for audit logs |
