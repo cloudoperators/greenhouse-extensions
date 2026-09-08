@@ -182,7 +182,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.sendingQueue.numConsumers | int | `1` | Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput. |
 | openTelemetry.kafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false}` | TLS configuration for Kafka connections |
 | openTelemetry.kafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert) |
-| openTelemetry.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA ertificate. (e.g. ca.crt) |
+| openTelemetry.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA certificate. (e.g. ca.crt) |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.logsCollector.affinity | object | See values.yaml | Pod affinity rules for the logs collector CR |
 | openTelemetry.logsCollector.batch | object | `{"sendBatchMaxSize":5000,"sendBatchSize":100,"timeout":"30s"}` | Batch processor settings for the logs collector. |
