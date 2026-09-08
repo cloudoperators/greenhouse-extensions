@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: kgateway
+spec:
+  version: 2.4.3
+  displayName: KGateway
+  description: >-
+    Kubernetes-native API gateway built on Envoy and the Gateway API. Originally
+    created by Solo.io as Gloo. Supports HTTPRoute, TCPRoute, and advanced traffic
+    management including AI extensions. Requires the kgateway-crds and
+    k8s-gateway-api plugins to be installed first.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kgateway/README.md
+  helmChart:
+    name: kgateway
+    repository: oci://cr.kgateway.dev/kgateway-dev/charts
+    version: v2.4.3
+  options:
+    - name: image.registry
+      description: >-
+        Global container image registry. Override with a mirror registry if the
+        cluster cannot reach cr.kgateway.dev directly.
+      default: "cr.kgateway.dev/kgateway-dev"
+      required: false
+      type: string
+    - name: controller.replicaCount
+      description: Number of kgateway controller replicas.
+      default: 1
+      required: false
+      type: int
