@@ -325,7 +325,7 @@ transform/syslog_audit_classification:
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["device.manufacturer"] != nil and IsMatch(log.attributes["device.manufacturer"], "(Cisco|Check Point|Fortinet|Palo Alto Networks|Trend Micro|Tufin|Radware|F5|VMware)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["device.manufacturer"] != nil and IsMatch(log.attributes["device.manufacturer"], "(Cisco|Check Point|Fortinet|Palo Alto Networks|Trend Micro|Tufin|Radware|F5)")'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
