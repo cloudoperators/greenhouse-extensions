@@ -29,6 +29,12 @@ transform/syslog_device_classification:
     - context: log
       conditions:
         - 'log.attributes["device.manufacturer"] == nil'
+        - 'log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
+      statements:
+        - 'set(log.attributes["device.manufacturer"], "Cisco")'
+    - context: log
+      conditions:
+        - 'log.attributes["device.manufacturer"] == nil'
       statements:
         # Check Point (CEF) - contains "(Check Point)". Highest priority.
         - 'set(log.attributes["device.manufacturer"], "Check Point") where log.attributes["device.manufacturer"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\(Check Point\\).*")'
@@ -70,6 +76,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["device.manufacturer"] == "Cisco"'
       statements:
+        - 'set(log.attributes["os.name"], "Cisco NX-OS") where log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
         - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         # Finer device product and role (custom, log-derived).
