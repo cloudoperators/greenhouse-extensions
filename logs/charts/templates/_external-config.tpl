@@ -39,6 +39,7 @@ opensearch/failover_a_external_{{ toString . }}:
       authenticator: basicauth/failover_a
     endpoint: {{ $.Values.openTelemetry.openSearchLogs.endpoint }}
   logs_index: {{ toString . }}-datastream
+  logs_index_on_error: {{ toString . }}-datastream-error
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -51,6 +52,7 @@ opensearch/failover_b_external_{{ toString . }}:
       authenticator: basicauth/failover_b
     endpoint: {{ $.Values.openTelemetry.openSearchLogs.endpoint }}
   logs_index: {{ toString . }}-datastream
+  logs_index_on_error: {{ toString . }}-datastream-error
   retry_on_failure:
     enabled: true
     initial_interval: 1s
