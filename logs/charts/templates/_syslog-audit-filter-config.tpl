@@ -263,8 +263,8 @@ transform/syslog_nsxt:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug""] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug""] == nil'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
@@ -285,8 +285,8 @@ transform/syslog_esxi_vm_events:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug""] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug""] == nil'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
 
@@ -304,8 +304,8 @@ transform/syslog_esxi_sshd:
         - 'log.attributes["appname"] == "sshd"'
         - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug""] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug""] == nil'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
