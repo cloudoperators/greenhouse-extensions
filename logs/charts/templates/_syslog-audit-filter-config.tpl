@@ -263,7 +263,7 @@ transform/syslog_nsxt:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
++       - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
         - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
@@ -341,6 +341,7 @@ transform/syslog_audit_classification:
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*ips*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*IPS*")'
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*user*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*auth*")'
+
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:

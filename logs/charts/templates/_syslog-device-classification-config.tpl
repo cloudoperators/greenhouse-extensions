@@ -12,6 +12,7 @@ SPDX-License-Identifier: Apache-2.0
     2. Per-manufacturer refinement -> hw.type (component category), netbox.platform and
        netbox.device_role.slug
 
+
   Applicable to any hardware category (network, compute, storage, etc.) - the current
   rule set covers network devices, but additional vendors/roles can be added over time.
 
