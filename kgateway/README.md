@@ -11,7 +11,6 @@ Deploys the [kgateway](https://kgateway.dev/) control plane — a Kubernetes-nat
 
 - **Gateway API native** — full support for HTTPRoute, TCPRoute, and other Gateway API resources
 - **Envoy-based** — high-performance data plane powered by Envoy proxy
-- **AI extensions** — built-in support for AI traffic management
 - **Advanced traffic management** — retries, timeouts, traffic splitting, and header manipulation
 
 ## Prerequisites
