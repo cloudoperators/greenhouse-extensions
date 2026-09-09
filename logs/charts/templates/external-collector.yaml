@@ -97,10 +97,30 @@ spec:
   - mountPath: /etc/ssl/syslog-tls
     name: syslog-tls
     readOnly: true
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    mountPath: /etc/ssl/kafka
+    readOnly: true
+{{- end }}
+{{- if and .Values.openTelemetry.auditKafka.enabled .Values.openTelemetry.auditKafka.tls.enabled (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) }}
+  - name: audit-kafka-ca
+    mountPath: /etc/ssl/audit-kafka
+    readOnly: true
+{{- end }}
   volumes:
   - name: syslog-tls
     secret:
       secretName: logs-syslog-tls
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.kafka.tls.caSecret | quote }}
+{{- end }}
+{{- if and .Values.openTelemetry.auditKafka.enabled .Values.openTelemetry.auditKafka.tls.enabled (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) }}
+  - name: audit-kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.auditKafka.tls.caSecret | quote }}
+{{- end }}
 {{- end }}
   config:
     receivers:
@@ -202,6 +222,9 @@ spec:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
@@ -222,6 +245,9 @@ spec:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

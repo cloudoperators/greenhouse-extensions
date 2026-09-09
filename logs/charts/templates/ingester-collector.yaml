@@ -50,19 +50,31 @@ spec:
       port: 8888
 {{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
+{{- $kafka := $root.Values.openTelemetry.kafka }}
+{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) }}
+{{- $kafka = $cfg.kafka }}
+{{- end }}
+{{- $kafkaCASecret := $kafka.tls.caSecret }}
+{{- $shouldMountKafkaCASecret := and $kafka.tls $kafka.tls.enabled (not (empty $kafkaCASecret)) (not (empty ($kafka.tls.caSecretKey))) }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
       readOnly: true
+{{- if $shouldMountKafkaCASecret }}
+    - name: kafka-ca
+      mountPath: /etc/ssl/kafka
+      readOnly: true
+{{- end }}
   volumes:
     - name: opensearch-ca
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
-  config:
-{{- $kafka := $root.Values.openTelemetry.kafka -}}
-{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
-{{- $kafka = $cfg.kafka -}}
+{{- if $shouldMountKafkaCASecret }}
+    - name: kafka-ca
+      secret:
+        secretName: {{ $kafkaCASecret | quote }}
 {{- end }}
+  config:
     receivers:
       kafka/{{ $name }}:
         brokers:
@@ -73,6 +85,9 @@ spec:
 {{- if or (default false (dig "tls" "enabled" false $kafka)) $root.Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if $shouldMountKafkaCASecret }}
+          ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
         logs:
           topics:
