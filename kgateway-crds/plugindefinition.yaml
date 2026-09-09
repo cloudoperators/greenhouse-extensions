@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: kgateway-crds
+spec:
+  version: 2.4.3
+  displayName: KGateway CRDs
+  description: >-
+    Installs the Custom Resource Definitions required by the kgateway controller.
+    Install this before the kgateway plugin. Requires the k8s-gateway-api
+    plugin (Gateway API CRDs) to be installed first.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kgateway-crds/README.md
+  helmChart:
+    name: kgateway-crds
+    repository: oci://cr.kgateway.dev/kgateway-dev/charts
+    version: v2.4.3
