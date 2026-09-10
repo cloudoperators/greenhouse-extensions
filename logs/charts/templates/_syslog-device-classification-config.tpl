@@ -8,9 +8,9 @@ SPDX-License-Identifier: Apache-2.0
   =======================================================================================
   Hardware classification.
   Classifies hardware from syslog message/body content in two stages:
-    1. Manufacturer extraction  -> netbox.manufacturer.slug (e.g. Cisco, Check Point, Palo Alto Networks).
-    2. Per-manufacturer refinement -> hw.type (component category), netbox.platform and
-       netbox.device_role.slug
+    1. Platform extraction  -> netbox.platform.slug ("cisco-nx-os", "cisco-asa", ) 
+    Background: netbox.platform is shared between from VMs (virtualization) and physical devices (dcim).
+    2. Per-Platform refinement -> netbox.role.slug, netbox.manufacturer.slug (e.g. Cisco, Check Point, Palo Alto Networks).
 
 
   Applicable to any hardware category (network, compute, storage, etc.) - the current
@@ -71,9 +71,8 @@ transform/syslog_device_classification:
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
         # Unknown manufacturer - broad "attacker" keyword. LAST (only unclassified events reach here).
-        - 'set(log.attributes["netbox.device_role.slug"], "loadbalancer") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
+        - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
         - 'set(log.attributes["netbox.manufacturer.slug"], "unknown") where log.attributes["netbox.manufacturer.slug"] == nil'
-
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "cisco"'
@@ -83,58 +82,60 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         # Finer device product and role (custom, log-derived).
         - 'set(log.attributes["netbox.platform.slug"], "cisco-ise") where log.attributes["netbox.platform.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        - 'set(log.attributes["netbox.device_role.slug"], "Authentication Server") where log.attributes["netbox.device_role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise"'
+        - 'set(log.attributes["netbox.role.slug"], "Authentication Server") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise"'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-asa") where log.attributes["netbox.platform.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
-        - 'set(log.attributes["netbox.device_role.slug"], "firewall") where log.attributes["netbox.device_role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-asa"'
-        - 'set(log.attributes["netbox.device_role.slug"], "switch") where log.attributes["netbox.device_role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-        - 'set(log.attributes["netbox.device_role.slug"], "router") where log.attributes["netbox.device_role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
-        - 'set(log.attributes["netbox.device_role.slug"], "router") where log.attributes["netbox.device_role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-asa"'
+        - 'set(log.attributes["netbox.role.slug"], "switch") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
+        - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
+        - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "check-point"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "Check Point") where log.attributes["hw.vendor"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "check-point-gaia) where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "firewall") where log.attributes["netbox.device_role.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
+    # Trend Micro is no official Manufacturer, Platfrom or anything similar in Netbox. We will still handle it as such for transformation purposes.
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "trend-micro"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "Trend Micro") where log.attributes["hw.vendor"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "ips-ids") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "ips-ids") where log.attributes["netbox.device_role.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "Fortinet") where log.attributes["hw.vendor"] == nil'
+        # netbox.platform.slug could be "fortimanager" or "fortios"
+        # netbox.role.slug could be "firewall" or "firewall-management"; because logstash always sets "firewall", we will do the same here for now
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "firewall") where log.attributes["netbox.device_role.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "Radware") where log.attributes["hw.vendor"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "radwareos") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "ddos-security-appliance") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "ddos-security-appliance") where log.attributes["netbox.device_role.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "Palo Alto Networks") where log.attributes["hw.vendor"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "pan-os") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "ips-ids") where log.attributes["netbox.device_role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
-        - 'set(log.attributes["netbox.device_role.slug"], "firewall") where log.attributes["netbox.device_role.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
       statements:
-        - 'set(log.attributes["netbox.device_role.slug"], "policy_management") where log.attributes["netbox.device_role.slug"] == nil'
+        # - 'set(log.attributes["netbox.role.slug"], "policy_management") where log.attributes["netbox.role.slug"] == nil'
+        # "policy_management" is no official netbox role
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
       statements:
-        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
+        # netbox.platform.slug can be f5os or f5-tmos
+        - 'set(log.attributes["netbox.role.slug"], "waf") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["netbox.device_role.slug"], "waf") where log.attributes["netbox.device_role.slug"] == nil'
 {{- end }}
