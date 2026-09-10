@@ -302,7 +302,7 @@ spec:
 | cephBucket.resources | object | `{}` | Resource requests/limits for the Job pod. |
 | cephBucket.serviceAccountName | string | `""` | Optional ServiceAccount to run the Job under. |
 | cephBucket.tolerations | list | `[]` | Tolerations for the Job pod. |
-| cephBucket.ttlSecondsAfterFinished | int | `300` | Seconds to retain the Job after it reaches a terminal state  (only applies if the Job isn't immediately removed by Helm hook delete-policy). |
+| cephBucket.ttlSecondsAfterFinished | int | `300` | Seconds to retain the Job after it reaches a terminal state (only applies if the Job isn't immediately removed by Helm hook delete-policy). |
 
 ### Global options
 
