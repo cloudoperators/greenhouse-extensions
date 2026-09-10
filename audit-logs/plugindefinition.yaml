@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.16
+    version: 0.2.18
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.16
+        version: 0.2.18
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -136,16 +136,10 @@ spec:
           description: Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
           required: false
           type: int
-        - name: auditLogs.logsCollector.kafka.tls.enabled
-          default: false
-          description: Enable TLS on the connection to Kafka
+        - name: auditLogs.logsCollector.kafka.tls
+          description: Configure TLS on the connection to Kafka
           required: false
-          type: bool
-        - name: auditLogs.logsCollector.kafka.tls.insecure_skip_verify
-          default: false
-          description: Skip server certificate verification (leave false for production)
-          required: false
-          type: bool
+          type: map
         - name: auditLogs.ingesterCollector.enabled
           default: false
           description: Top-level toggle for the Kafka -> OpenSearch audit ingest collectors

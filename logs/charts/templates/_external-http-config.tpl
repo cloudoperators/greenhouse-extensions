@@ -169,6 +169,9 @@ kafka/external_http:
 {{- if .Values.openTelemetry.auditKafka.tls.enabled }}
   tls:
     insecure: false
+{{- if and (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) (not (empty .Values.openTelemetry.auditKafka.tls.caSecretKey)) }}
+    ca_file: /etc/ssl/audit-kafka/{{ .Values.openTelemetry.auditKafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

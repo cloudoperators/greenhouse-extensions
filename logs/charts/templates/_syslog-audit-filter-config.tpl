@@ -102,8 +102,9 @@ transform/syslog_semconv_normalization:
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
 
         # Resource: host identity
+        # Overwrites previously set syslog_host_name by inner hostname
         # Transforms host.name from fqdn to short-name
-        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where resource.attributes["host.name"] == nil and log.attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
         - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
@@ -229,6 +230,9 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
+        # handle double header / relay host name
+        - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
+        - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
@@ -259,6 +263,7 @@ transform/syslog_nsxt:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
       statements:
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
@@ -279,6 +284,7 @@ transform/syslog_esxi_vm_events:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
 
@@ -296,6 +302,7 @@ transform/syslog_esxi_sshd:
         - 'log.attributes["appname"] == "sshd"'
         - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
@@ -318,7 +325,7 @@ transform/syslog_audit_classification:
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
-        - 'set(log.attributes["audit_relevant"], "true") where log.body != nil and IsMatch(log.body, "(?i)(ise-idc|Check Point|Fortinet|Palo Alto Networks|TrendMicro|Tufin)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["device.manufacturer"] != nil and IsMatch(log.attributes["device.manufacturer"], "(Cisco|Check Point|Fortinet|Palo Alto Networks|Trend Micro|Tufin|Radware|F5)")'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
@@ -417,6 +424,9 @@ kafka/syslog_non_audit:
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+    ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
