@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   Hardware classification.
   Classifies hardware from syslog message/body content in two stages:
     1. Platform extraction  -> netbox.platform.slug ("cisco-nx-os", "cisco-asa", ) 
-    Background: netbox.platform is shared between from VMs (virtualization) and physical devices (dcim).
+    Background: netbox.platform is shared between VMs (virtualization) and physical devices (dcim).
     2. Per-Platform refinement -> netbox.role.slug, netbox.manufacturer.slug (e.g. Cisco, Check Point, Palo Alto Networks).
 
 
@@ -32,7 +32,7 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
         - 'log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -74,7 +74,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "cisco"'
       statements:
-        - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os") where log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
+        - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os") where log.attributes["netbox.platform.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
         - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         # Finer device product and role (custom, log-derived).
