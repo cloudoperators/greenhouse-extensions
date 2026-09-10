@@ -140,7 +140,7 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
-        logs_index_on_error: {{ $name | quote }}-error
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
 {{- with $cfg.opensearch.mapping }}
         mapping:
           {{- toYaml . | nindent 10 }}
@@ -166,7 +166,7 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
-        logs_index_on_error: {{ $name | quote }}-error
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
 {{- with $cfg.opensearch.mapping }}
         mapping:
           {{- toYaml . | nindent 10 }}
