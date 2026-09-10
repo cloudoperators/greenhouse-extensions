@@ -71,7 +71,6 @@ transform/syslog_device_classification:
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
         # Unknown manufacturer - broad "attacker" keyword. LAST (only unclassified events reach here).
-        - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
         - 'set(log.attributes["netbox.manufacturer.slug"], "unknown") where log.attributes["netbox.manufacturer.slug"] == nil'
     - context: log
       conditions:

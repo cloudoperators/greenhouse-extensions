@@ -344,6 +344,11 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.auth.*")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "unknown"'
+      statements:
+        - set(log.attributes["audit_relevant"], "true") where setIsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
+    - context: log
+      conditions:
         - 'log.attributes["audit_relevant"] == "true"'
         - 'log.attributes["sap.cc.audit.source"] == nil'
         - 'log.attributes["netbox.manufacturer.slug"] != nil'
