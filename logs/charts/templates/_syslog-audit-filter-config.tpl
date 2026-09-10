@@ -341,10 +341,10 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.ips.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.IPS.*")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.auth.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.auth.*")'    
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == "unknown"'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         - set(log.attributes["audit_relevant"], "true") where setIsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
     - context: log
