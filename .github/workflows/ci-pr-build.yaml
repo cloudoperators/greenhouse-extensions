@@ -70,7 +70,7 @@ jobs:
             chartName: netapp-monitoring
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
             fetch-depth: 0
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
         with:
           version: "v3.19.5"
 
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
             python-version: '3.x'
             check-latest: true
@@ -100,7 +100,7 @@ jobs:
 
       - name: Log into registry ${{ env.REGISTRY }}
         if: steps.changed-files.outputs.all_changed_files != ''
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
             registry: ${{ env.REGISTRY }}
             username: ${{ github.actor }}
@@ -120,7 +120,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     steps:
         - name: Delete PR container image tag
-          uses: dataaxiom/ghcr-cleanup-action@34a2b6c814b9c6bcb92f78cba3e56a7ab9ca7a86 # v1.1.0
+          uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
           with:
             tags: ${{ env.PR_NUMBER }}-pr
             packages: ${{ github.event.repository.name }}/charts/*
