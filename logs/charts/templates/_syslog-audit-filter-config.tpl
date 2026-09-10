@@ -384,6 +384,7 @@ opensearch/failover_a_syslog_non_audit:
       authenticator: basicauth/failover_a
     endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint }}
   logs_index: logs-datastream
+  logs_index_on_error: logs-datastream-deadletter
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -396,6 +397,7 @@ opensearch/failover_b_syslog_non_audit:
       authenticator: basicauth/failover_b
     endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint }}
   logs_index: logs-datastream
+  logs_index_on_error: logs-datastream-deadletter
   retry_on_failure:
     enabled: true
     initial_interval: 1s

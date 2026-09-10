@@ -143,6 +143,7 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
@@ -164,6 +165,7 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
