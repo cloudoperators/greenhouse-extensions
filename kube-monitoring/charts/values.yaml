@@ -636,7 +636,7 @@ cephBucket:
   # @section -- Ceph bucket options
   backoffLimit: 3
 
-  # -- Seconds to retain the Job after it reaches a terminal state 
+  # -- Seconds to retain the Job after it reaches a terminal state
   # (only applies if the Job isn't immediately removed by Helm hook delete-policy).
   # @section -- Ceph bucket options
   ttlSecondsAfterFinished: 300
