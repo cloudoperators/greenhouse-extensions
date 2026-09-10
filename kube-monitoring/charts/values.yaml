@@ -629,14 +629,15 @@ cephBucket:
   # @section -- Ceph bucket options
   image:
     repository: amazon/aws-cli
-    tag: latest
+    tag: 2.36.42
     pullPolicy: IfNotPresent
 
   # -- Number of retries before considering the Job failed.
   # @section -- Ceph bucket options
   backoffLimit: 3
 
-  # -- Seconds to retain the Job after completion before automatic cleanup.
+  # -- Seconds to retain the Job after it reaches a terminal state 
+  # (only applies if the Job isn't immediately removed by Helm hook delete-policy).
   # @section -- Ceph bucket options
   ttlSecondsAfterFinished: 300
 

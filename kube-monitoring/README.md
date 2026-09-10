@@ -297,12 +297,12 @@ spec:
 | cephBucket.ec2.secretKey | string | `""` | EC2 secret key (used as AWS_SECRET_ACCESS_KEY). |
 | cephBucket.enabled | bool | `false` | Enable the pre-install job that creates an S3 bucket in the provided Ceph endpoint. |
 | cephBucket.endpoint | string | `""` | S3-compatible endpoint URL of the Ceph cluster (e.g. https://s3.example.com). |
-| cephBucket.image | object | `{"pullPolicy":"IfNotPresent","repository":"amazon/aws-cli","tag":"latest"}` | Container image used to run the bucket creation job. |
+| cephBucket.image | object | `{"pullPolicy":"IfNotPresent","repository":"amazon/aws-cli","tag":"2.36.42"}` | Container image used to run the bucket creation job. |
 | cephBucket.nodeSelector | object | `{}` | Node selector for the Job pod. |
 | cephBucket.resources | object | `{}` | Resource requests/limits for the Job pod. |
 | cephBucket.serviceAccountName | string | `""` | Optional ServiceAccount to run the Job under. |
 | cephBucket.tolerations | list | `[]` | Tolerations for the Job pod. |
-| cephBucket.ttlSecondsAfterFinished | int | `300` | Seconds to retain the Job after completion before automatic cleanup. |
+| cephBucket.ttlSecondsAfterFinished | int | `300` | Seconds to retain the Job after it reaches a terminal state  (only applies if the Job isn't immediately removed by Helm hook delete-policy). |
 
 ### Global options
 

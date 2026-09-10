@@ -14,11 +14,11 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
 type: Opaque
 stringData:
-  AWS_ACCESS_KEY_ID: {{ .Values.cephBucket.ec2.accessKey | quote }}
-  AWS_SECRET_ACCESS_KEY: {{ .Values.cephBucket.ec2.secretKey | quote }}
+  AWS_ACCESS_KEY_ID: {{ required "cephBucket.ec2.accessKey is required when cephBucket.enabled is true" .Values.cephBucket.ec2.accessKey | quote }}
+  AWS_SECRET_ACCESS_KEY: {{ required "cephBucket.ec2.secretKey is required when cephBucket.enabled is true" .Values.cephBucket.ec2.secretKey | quote }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -64,9 +64,9 @@ spec:
                   name: {{ .Release.Name }}-ceph-bucket-credentials
                   key: AWS_SECRET_ACCESS_KEY
             - name: CEPH_ENDPOINT
-              value: {{ .Values.cephBucket.endpoint | quote }}
+              value: {{ required "cephBucket.endpoint is required when cephBucket.enabled is true" .Values.cephBucket.endpoint | quote }}
             - name: BUCKET_NAME
-              value: {{ .Values.cephBucket.bucketName | quote }}
+              value: {{ required "cephBucket.bucketName is required when cephBucket.enabled is true" .Values.cephBucket.bucketName | quote }}
           command:
             - /bin/sh
             - -c
