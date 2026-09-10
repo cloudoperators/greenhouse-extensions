@@ -89,7 +89,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "check-point"'
       statements:
-        - 'set(log.attributes["netbox.platform.slug"], "check-point-gaia) where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "check-point-gaia") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
     # Trend Micro is no official Manufacturer, Platfrom or anything similar in Netbox. We will still handle it as such for transformation purposes.

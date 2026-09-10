@@ -263,7 +263,7 @@ transform/syslog_nsxt:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
       statements:
-+       - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
         - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
@@ -334,19 +334,19 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.THREAT.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*THREAT.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.ips.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.IPS.*")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "*.user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "*.auth.*")'    
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ips.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*IPS.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*auth.*")'    
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        - set(log.attributes["audit_relevant"], "true") where setIsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] == "true"'
