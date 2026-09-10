@@ -32,7 +32,7 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
         - 'log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
