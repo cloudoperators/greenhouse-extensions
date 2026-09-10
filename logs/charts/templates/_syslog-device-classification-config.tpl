@@ -32,7 +32,7 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
         - 'log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed"'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -79,7 +79,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         # Finer device product and role (custom, log-derived).
         - 'set(log.attributes["netbox.platform.slug"], "cisco-ise") where log.attributes["netbox.platform.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        - 'set(log.attributes["netbox.role.slug"], "Authentication Server") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise"'
+        - 'set(log.attributes["netbox.role.slug"], "authentication-server") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise"'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-asa") where log.attributes["netbox.platform.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-asa"'
         - 'set(log.attributes["netbox.role.slug"], "switch") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
