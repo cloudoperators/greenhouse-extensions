@@ -26,6 +26,8 @@ jobs:
         include:
           - chartDir: absent-metrics-operator/charts
             chartName: absent-metrics-operator
+          - chartDir: external-dns/charts
+            chartName: external-dns
           - chartDir: alerts/charts
             chartName: alerts
           - chartDir: audit-logs/charts
