@@ -54,7 +54,7 @@ tcp_log/syslog:
   - type: regex_parser
     id: syslog_double_header_capture_relay_host
     parse_from: attributes.relay_header
-    regex: '(?P<syslog_host_name>\S+)\s*$'
+    regex: '(?P<syslog_host_name>[A-Za-z0-9][A-Za-z0-9._\-]*):?\s*$'
     on_error: send_quiet
     output: syslog_double_header_promote_inner
   - type: move
@@ -296,7 +296,7 @@ udp_log/syslog:
   - type: regex_parser
     id: syslog_udp_double_header_capture_relay_host
     parse_from: attributes.relay_header
-    regex: '(?P<syslog_host_name>\S+)\s*$'
+    regex: '(?P<syslog_host_name>[A-Za-z0-9][A-Za-z0-9._\-]*):?\s*$'
     on_error: send_quiet
     output: syslog_udp_double_header_promote_inner
   - type: move
@@ -529,7 +529,7 @@ tcp_log/syslog_tls:
   - type: regex_parser
     id: syslog_tls_double_header_capture_relay_host
     parse_from: attributes.relay_header
-    regex: '(?P<syslog_host_name>\S+)\s*$'
+    regex: '(?P<syslog_host_name>[A-Za-z0-9][A-Za-z0-9._\-]*):?\s*$'
     on_error: send_quiet
     output: syslog_tls_double_header_promote_inner
   - type: move
