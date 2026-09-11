@@ -10,7 +10,7 @@ keywords:
   - opa
   - policy
   - admission-control
-version: 1.0.0
+version: 1.0.1
 appVersion: 3.22.2
 maintainers:
   - name: mikolajkucinski
