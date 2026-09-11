@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: agentgateway
+spec:
+  version: 1.4.1
+  displayName: AgentGateway
+  description: >-
+    AI-native reverse proxy for MCP and A2A protocols. Runs as a Kubernetes
+    controller using the Gateway API. Routes tool calls with JWT authentication,
+    per-tool authorization, guardrails, circuit breakers, and OpenTelemetry.
+    Requires the agentgateway-crds and k8s-gateway-api plugins to be installed first.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/agentgateway/README.md
+  helmChart:
+    name: agentgateway
+    repository: oci://cr.agentgateway.dev/charts
+    version: v1.4.1
+  options:
+    - name: image.registry
+      description: >-
+        Container image registry. Override with a mirror registry if the
+        cluster cannot reach cr.agentgateway.dev directly.
+      default: "cr.agentgateway.dev"
+      required: false
+      type: string
+    - name: image.tag
+      description: Container image tag. Defaults to the chart appVersion when empty.
+      default: ""
+      required: false
+      type: string
+    - name: controller.replicaCount
+      description: Number of agentgateway controller replicas.
+      default: 1
+      required: false
+      type: int

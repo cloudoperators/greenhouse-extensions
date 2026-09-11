@@ -215,6 +215,24 @@ perses:
         - /etc/perses/provisioning
       interval: 3m
 
+    # -- Runtime plugin filtering (requires perses >= v0.54.0).
+    # Greenhouse only needs the Prometheus, Alertmanager and OpenSearch datasources,
+    # so all other datasource modules are disabled by module name. Panels, variables
+    # and explorers from other modules stay enabled so dashboards keep rendering.
+    # `enabled` and `disabled` are mutually exclusive.
+    # Feature reference: https://github.com/perses/perses/pull/4084
+    # @default -- <pre>plugin:<br>  disabled:<br>    - ClickHouse<br>    - GreptimeDB<br>    - Jaeger<br>    - Loki<br>    - Pyroscope<br>    - Splunk<br>    - Tempo<br>    - VictoriaLogs</pre>
+    plugin:
+      disabled:
+        - ClickHouse
+        - GreptimeDB
+        - Jaeger
+        - Loki
+        - Pyroscope
+        - Splunk
+        - Tempo
+        - VictoriaLogs
+
   # -- Persistence configuration for Perses provisioning.
   # For more information on provisioning feature, see: https://perses.dev/perses/docs/configuration/provisioning/
   # When enabled, a PersistentVolumeClaim (PVC) is created via StatefulSet volumeClaimTemplates.

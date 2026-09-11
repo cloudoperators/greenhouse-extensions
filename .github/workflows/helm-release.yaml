@@ -7,6 +7,7 @@ on:
         - main
     paths:
       - .github/workflows/helm-release.yaml
+      - external-dns/charts/**
       - absent-metrics-operator/charts/**
       - alerts/charts/**
       - audit-logs/charts/**
@@ -34,6 +35,7 @@ on:
       - repo-guard/charts/**
       - oidc-discovery-access/**
       - netapp-monitoring/charts/**
+      - k8s-gateway-api/charts/**
 
 
 permissions:
@@ -51,6 +53,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - chartDir: external-dns/charts
+            chartName: external-dns
           - chartDir: absent-metrics-operator/charts
             chartName: absent-metrics-operator
           - chartDir: alerts/charts
@@ -103,6 +107,8 @@ jobs:
             chartName: oidc-discovery-access
           - chartDir: netapp-monitoring/charts
             chartName: netapp-monitoring
+          - chartDir: k8s-gateway-api/charts
+            chartName: k8s-gateway-api
 
 
     steps:

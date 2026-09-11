@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
-{{- if and .Values.openTelemetry.externalCollector.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+{{- if and .Values.openTelemetry.externalCollector.enabled (eq (include "externalCollector.tlsEnabled" .) "true") }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -12,9 +12,9 @@ metadata:
 spec:
   secretName: logs-syslog-tls
   dnsNames:
-    - {{ required "openTelemetry.externalCollector.syslogTLSConfig.dnsName is required when syslogTLSConfig.enabled=true" .Values.openTelemetry.externalCollector.syslogTLSConfig.dnsName }}
+    - {{ required "openTelemetry.externalCollector.syslogTLSConfig.dnsName is required when syslogTLSConfig.enabled or externalHttpConfig.tls.enabled" .Values.openTelemetry.externalCollector.syslogTLSConfig.dnsName }}
   issuerRef:
-    name: {{ required "openTelemetry.externalCollector.syslogTLSConfig.issuerName is required when syslogTLSConfig.enabled=true" .Values.openTelemetry.externalCollector.syslogTLSConfig.issuerName }}
+    name: {{ required "openTelemetry.externalCollector.syslogTLSConfig.issuerName is required when syslogTLSConfig.enabled or externalHttpConfig.tls.enabled" .Values.openTelemetry.externalCollector.syslogTLSConfig.issuerName }}
     kind: {{ .Values.openTelemetry.externalCollector.syslogTLSConfig.issuerKind | default "ClusterIssuer" }}
     group: {{ .Values.openTelemetry.externalCollector.syslogTLSConfig.issuerGroup | default "cert-manager.io" }}
 {{- end }}

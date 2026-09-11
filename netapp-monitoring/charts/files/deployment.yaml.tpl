@@ -35,8 +35,6 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: poller
-        prometheus.io/scrape: "true"
-        prometheus.io/targets: storage
         checksum/sd-config: {{ include "netapp-monitoring.checksum.configmap" . }}
         checksum/sd-secret: {{ include "netapp-monitoring.checksum.sdSecret" . }}
         checksum/basic-auth: {{ include "netapp-monitoring.checksum.basicAuthSecret" . }}

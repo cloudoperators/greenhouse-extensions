@@ -95,6 +95,13 @@ openTelemetry:
       enabled: true
       otlp_grpc_port: 4317
       otlp_http_port: 4318
+    externalHttpConfig:
+      enabled: true
+      port: 1517
+      path: /audit/external
+      forwardedBy: external-http
+      tls:
+        enabled: true
   metricsCollector:
     enabled: false
   ingesterCollector:

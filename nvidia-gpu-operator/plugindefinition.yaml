@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2025 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: nvidia-gpu-operator
+spec:
+  version: 1.0.0
+  displayName: NVIDIA GPU Operator
+  description: The NVIDIA GPU Operator automates the management of NVIDIA software components in Kubernetes, including drivers, container runtime, device plugin, and monitoring. Includes node-feature-discovery as a bundled subchart.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/nvidia-gpu-operator/README.md
+  icon: https://assets.nvidiagrid.net/ngc/logos/GPUoperator.png
+  helmChart:
+    # renovate depName=nvcr.io/nvidia/cloud-native-charts/gpu-operator
+    name: gpu-operator
+    repository: oci://nvcr.io/nvidia/cloud-native-charts
+    version: v26.7.0
+  options:
+    - name: nfd.enabled
+      description: Enable the bundled node-feature-discovery subchart. Disable if NFD is already installed separately.
+      default: true
+      required: false
+      type: bool

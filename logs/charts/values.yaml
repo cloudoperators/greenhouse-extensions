@@ -51,7 +51,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "a8981ba"
+    tag: "c97076f"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -84,12 +84,18 @@ openTelemetry:
     encoding: ""
     # -- Compression type (none, gzip, snappy, lz4, zstd)
     compression: ""
-    # -- Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes.
-    max_message_bytes: 1000000
+    # -- Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1048576
+    # -- Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records.
+    max_fetch_size: 1048576
+    # -- Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records.
+    max_partition_fetch_size: 1048576
     # -- Producer sending queue size
     sendingQueue:
       enabled: true
       queueSize: 1000
+      # -- Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput.
+      numConsumers: 1
     # -- Producer batching (raise linger to build larger batches per broker request)
     producer:
       flushMaxMessages: 10000
@@ -98,6 +104,47 @@ openTelemetry:
     tls:
       # -- Enable TLS for Kafka connections
       enabled: false
+      # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert)
+      caSecret: ""
+      # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
+      caSecretKey: ""
+  # -- Audit Kafka exporter configuration shared by all collectors
+  # @default -- See values.yaml
+  auditKafka:
+    # -- Enable Kafka exporter (replaces OpenSearch failover with Kafka buffering)
+    enabled: false
+    # -- Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"])
+    brokers: []
+    # -- Kafka protocol version (e.g., "3.9.0")
+    protocol_version: ""
+    # -- Message encoding format (otlp_json, otlp_proto, raw)
+    encoding: ""
+    # -- Compression type (none, gzip, snappy, lz4, zstd)
+    compression: ""
+    # -- Max producer message size in bytes before compression. Raise to match the Kafka topic/broker max.message.bytes.
+    max_message_bytes: 1048576
+    # -- Consumer max bytes per fetch request (ingester). Match producer max_message_bytes for large records.
+    max_fetch_size: 1048576
+    # -- Consumer max bytes fetched per partition (ingester). Match producer max_message_bytes for large records.
+    max_partition_fetch_size: 1048576
+    # -- Producer sending queue size
+    sendingQueue:
+      enabled: true
+      queueSize: 1000
+      # -- Parallel export workers draining the queue to Kafka. Raise toward the topic partition count for higher throughput.
+      numConsumers: 1
+    # -- Producer batching (raise linger to build larger batches per broker request)
+    producer:
+      flushMaxMessages: 10000
+      linger: 10ms
+    # -- TLS configuration for Kafka connections
+    tls:
+      # -- Enable TLS for Kafka connections
+      enabled: false
+      # -- K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert)
+      caSecret: ""
+      # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
+      caSecretKey: ""
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
@@ -128,6 +175,9 @@ openTelemetry:
     kafkaTopic: ""
     # -- Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage")
     kafkaStorageTopic: ""
+    # -- Max characters for the log body in the truncate_message processor. Keep below the
+    # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
+    maxMessageLength: 32000
     # -- Activates the journald receiver (requires logsCollector to be enabled).
     journaldConfig:
       enabled: true
@@ -153,8 +203,12 @@ openTelemetry:
     enabled: false
     # -- Number of replicas for the external collector StatefulSet
     replicas: 2
+    # -- Pod resource requests/limits for the external collector container. Empty = unbounded.
+    resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
+    # -- Node Selector rules for the external collector CR
+    nodeSelector: {}
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -169,6 +223,8 @@ openTelemetry:
     kafkaTopic: ""
     # -- Kafka topic name for traces (e.g., "traces")
     kafkaTracesTopic: ""
+    # -- Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size.
+    maxMessageLength: 32000
     # -- Activates syslog TCP/UDP ingestion (rfc5424/rfc3164).
     syslogConfig:
       enabled: false
@@ -223,6 +279,31 @@ openTelemetry:
       otlp_grpc_port: 4317
       # -- HTTP port for OTLP traces
       otlp_http_port: 4318
+    # -- HTTP-JSON receiver for Logstash/fluent-bit-style pushers. In Kafka
+    # mode records go to externalHttpConfig.kafkaTopic; in non-Kafka mode to
+    # the syslog audit OpenSearch failover (audit-datastream).
+    externalHttpConfig:
+      enabled: false
+      # -- TCP port for the HTTP-JSON receiver.
+      port: 1517
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
+      # -- HTTP path the receiver serves. Sender must POST here.
+      path: /audit/external
+      # -- Kafka topic for the HTTP records (Kafka mode only). Separate from
+      # syslog audit, which uses syslogConfig.auditKafkaTopic.
+      kafkaTopic: audit
+      # -- Neutral catch-all forwarder identity written to log attribute
+      # `forwarded_by` ONLY when the sender did not set one. Senders (Logstash,
+      # logshipper fluent-bit, other devices) should set their own
+      # `forwarded_by` and it is preserved. Sender-provided sap.cc.audit.source
+      # values (ESXi, NSX-T, VCSA, remoteboard, hsm, ucsc) are also preserved.
+      forwardedBy: external-http
+      # -- TLS for the HTTP-JSON receiver. When enabled, the collector
+      # terminates TLS using the cert provisioned by syslogTLSConfig (secret
+      # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
+      tls:
+        enabled: true
   # -- Kafka -> OpenSearch ingest collectors. One Deployment per entry.
   # @default -- see values.yaml
   ingesterCollector:
@@ -231,7 +312,7 @@ openTelemetry:
     # -- Pod affinity rules for the ingester collector CRs
     affinity: {}
     # -- Replica count per ingest collector Deployment.
-    replicas: 1
+    replicas: 3
     image:
       # -- Image repository override; falls back to openTelemetry.collectorImage.repository.
       repository: ""
@@ -254,8 +335,7 @@ openTelemetry:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
-    #       sendingQueue: { enabled, numConsumers, queueSize }  # optional; default enabled=false (synchronous)
-    #         (set enabled=true + numConsumers>1 to raise export concurrency; keep queueSize small to preserve backpressure)
+    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
     # Each entry renders one OpenTelemetryCollector named "logs-ingester-<name>" with
     # group_id "logs-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
@@ -284,14 +364,29 @@ openTelemetry:
 
       # -- PrometheusRules to enable.
       enabled:
-        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
         - ReconcileErrors
         - ReceiverRefusedMetric
         - WorkqueueDepth
         - OTelLogsMissing
         - OTelLogsIncreasing
         - OTelLogsDecreasing
-        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsSLOBurnRateWarning
+        - OTelLogsExportFailureRatioHigh
+        - OTelExporterQueueFull
+      # Opt-in alerts (not enabled by default):
+      #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
+      #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
+      #     bursty workloads.
+      #   - OTelLogsVolumeSpike: compares current ingest rate against a 1h offset baseline.
+      #     Useful for detecting log storms and injection attempts, but can generate false
+      #     positives on new or recently-idle clusters where the baseline is very low or
+      #     zero. Enable after the pipeline has been running long enough to establish a stable
+      #     baseline.
+      #   - OTelLogsVolumeDropFast: same offset-based approach as OTelLogsVolumeSpike.
+      #     Disabled by default for the same reason; also fires legitimately on planned
+      #     maintenance windows unless silenced.
 
       # -- Labels for PrometheusRules.
       labels: {}

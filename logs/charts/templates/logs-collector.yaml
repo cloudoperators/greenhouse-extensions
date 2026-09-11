@@ -61,10 +61,20 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    mountPath: /etc/ssl/kafka
+    readOnly: true
+{{- end }}
   volumes:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.kafka.tls.caSecret | quote }}
+{{- end }}
   config:
     receivers:
 {{- if .Values.openTelemetry.logsCollector.journaldConfig.enabled }}
@@ -94,6 +104,14 @@ spec:
             statements:
               - set(log.attributes["log_message"], log.attributes["log"]) where log.attributes["log"] != nil
               - delete_key(log.attributes, "log") where log.attributes["log"] != nil
+      transform/truncate_message:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            statements:
+              - "truncate_all(log.attributes, 32000)"
+              - "truncate_all(resource.attributes, 32000)"
+              - 'set(log.body, Substring(log.body, 0, {{ .Values.openTelemetry.logsCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.openTelemetry.logsCollector.maxMessageLength | int64 }}'
       attributes/cluster:
         actions:
           - action: insert
@@ -238,14 +256,21 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.logsCollector.kafkaTopic }}
+          topic: {{ required "openTelemetry.logsCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.logsCollector.kafkaTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
           max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
       kafka/storage:
         brokers:
@@ -254,14 +279,21 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.logsCollector.kafkaStorageTopic }}
+          topic: {{ required "openTelemetry.logsCollector.kafkaStorageTopic is required when kafka is enabled" .Values.openTelemetry.logsCollector.kafkaStorageTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
           max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- else }}
       opensearch/failover_a:
@@ -270,6 +302,7 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
         logs_index: logs-datastream
+        logs_index_on_error: logs-datastream-deadletter
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -282,6 +315,7 @@ spec:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
         logs_index: logs-datastream
+        logs_index_on_error: logs-datastream-deadletter
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -294,6 +328,7 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
         logs_index: cronus-datastream
+        logs_index_on_error: cronus-datastream-deadletter
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -306,6 +341,7 @@ spec:
             authenticator: basicauth/failover_b
           endpoint: {{ .Values.openTelemetry.openSearchLogs.endpoint }}
         logs_index: cronus-datastream
+        logs_index_on_error: cronus-datastream-deadletter
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -419,7 +455,7 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, batch]
+          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -435,7 +471,7 @@ spec:
 {{- end }}
         logs/route_cronus:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, batch]
+          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
@@ -469,7 +505,7 @@ spec:
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
         logs/route_storage:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, batch]
+          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka/storage]
 {{- else }}

@@ -11,9 +11,9 @@ groups:
           > 0.85
         for: 30m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchHotTierDiskFull }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch hot tier in {{ .Release.Namespace }} above 85% disk usage"
@@ -27,9 +27,9 @@ groups:
           > 0.85
         for: 30m
         labels:
-          severity: info # critical
+          severity: critical
           component: opensearch
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchWarmTierDiskFull }}
           {{- include "opensearch-alert-labels" . | nindent 10 }}
         annotations:
           summary: "OpenSearch warm tier in {{ .Release.Namespace }} above 85% disk usage"

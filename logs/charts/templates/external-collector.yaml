@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 
-{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled) }}
+{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled) }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
@@ -16,14 +16,22 @@ metadata:
 spec:
   mode: statefulset
   replicas: {{ .Values.openTelemetry.externalCollector.replicas }}
+{{- with .Values.openTelemetry.externalCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 {{- with .Values.openTelemetry.externalCollector.affinity }}
   affinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.openTelemetry.externalCollector.nodeSelector }}
+  nodeSelector:
     {{- toYaml . | nindent 4 }}
 {{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
-    secret.reloader.stakater.com/reload: "otel-basic-auth{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }},otel-syslog-audit-auth{{- end }}"
+    secret.reloader.stakater.com/reload: "otel-basic-auth{{- if eq (include "externalCollector.auditEnabled" .) "true" }},otel-syslog-audit-auth{{- end }}"
 {{- end }}
   terminationGracePeriodSeconds: 10
   env:
@@ -39,7 +47,7 @@ spec:
   envFrom:
     - secretRef:
         name: otel-basic-auth
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     - secretRef:
         name: otel-syslog-audit-auth
 {{- end }}
@@ -74,20 +82,45 @@ spec:
       port: {{ .Values.openTelemetry.externalCollector.tracesConfig.otlp_http_port }}
       protocol: TCP
 {{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    - name: externalhttp
+      port: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}
+      protocol: TCP
+{{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
     - name: prometheus
       port: 8888
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
-{{- if .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+{{- if eq (include "externalCollector.tlsEnabled" .) "true" }}
   volumeMounts:
   - mountPath: /etc/ssl/syslog-tls
     name: syslog-tls
     readOnly: true
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    mountPath: /etc/ssl/kafka
+    readOnly: true
+{{- end }}
+{{- if and .Values.openTelemetry.auditKafka.enabled .Values.openTelemetry.auditKafka.tls.enabled (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) }}
+  - name: audit-kafka-ca
+    mountPath: /etc/ssl/audit-kafka
+    readOnly: true
+{{- end }}
   volumes:
   - name: syslog-tls
     secret:
       secretName: logs-syslog-tls
+{{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
+  - name: kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.kafka.tls.caSecret | quote }}
+{{- end }}
+{{- if and .Values.openTelemetry.auditKafka.enabled .Values.openTelemetry.auditKafka.tls.enabled (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) }}
+  - name: audit-kafka-ca
+    secret:
+      secretName: {{ .Values.openTelemetry.auditKafka.tls.caSecret | quote }}
+{{- end }}
 {{- end }}
   config:
     receivers:
@@ -103,11 +136,14 @@ spec:
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
     {{- include "traces.receiver" . | nindent 6 -}}
 {{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.receiver" . | nindent 6 -}}
+{{- end }}
     processors:
       batch:
-        send_batch_max_size: 5000
-        timeout: 30s
-        send_batch_size: 100
+        send_batch_max_size: 10000
+        timeout: 5s
+        send_batch_size: 5000
       attributes/cluster:
         actions:
           - action: insert
@@ -133,19 +169,28 @@ spec:
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.transform" . | nindent 6 -}}
+    {{- include "syslog_device_classification.transform" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.transform" . | nindent 6 -}}
+{{- end }}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.processors" . | nindent 6 -}}
 {{- end }}
       memory_limiter:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
       transform/truncate_message:
         error_mode: ignore
         log_statements:
           - context: log
             statements:
-              - "truncate_all(attributes, 32000)"
+              # Attribute values map to keyword fields. Keep below Lucene's 32766-byte term limit or OpenSearch rejects the document.
+              - "truncate_all(log.attributes, 32000)"
               - "truncate_all(resource.attributes, 32000)"
+              - 'set(log.body, Substring(log.body, 0, {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.openTelemetry.externalCollector.maxMessageLength | int64 }}'
 {{- end }}
       resource:
         attributes:
@@ -166,13 +211,20 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         logs:
-          topic: {{ .Values.openTelemetry.externalCollector.kafkaTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.kafkaTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
@@ -182,13 +234,20 @@ spec:
 {{- end }}
         protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
         traces:
-          topic: {{ .Values.openTelemetry.externalCollector.kafkaTracesTopic }}
+          topic: {{ required "openTelemetry.externalCollector.kafkaTracesTopic is required when kafka is enabled and tracesConfig is enabled" .Values.openTelemetry.externalCollector.kafkaTracesTopic | quote }}
           encoding: {{ .Values.openTelemetry.kafka.encoding }}
         producer:
           compression: {{ .Values.openTelemetry.kafka.compression }}
+        sending_queue:
+          enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+          num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
+          queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -197,6 +256,12 @@ spec:
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.exporter" . | nindent 6 -}}
+{{- end }}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.exporter" . | nindent 6 -}}
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.exporter" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
     {{- include "traces.exporter" . | nindent 6 -}}
@@ -213,18 +278,11 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
-      basicauth/syslog_audit_failover_a:
-        client_auth:
-          username: ${audit_failover_username_a}
-          password: ${audit_failover_password_a}
-      basicauth/syslog_audit_failover_b:
-        client_auth:
-          username: ${audit_failover_username_b}
-          password: ${audit_failover_password_b}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.extensions" . | nindent 6 -}}
 {{- end }}
 {{- end }}
-{{- if or (not .Values.openTelemetry.kafka.enabled) .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
+{{- if or (and (not .Values.openTelemetry.kafka.enabled) (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled)) .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     connectors:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
 {{- if not .Values.openTelemetry.kafka.enabled }}
@@ -233,6 +291,9 @@ spec:
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.connectors" . | nindent 6 -}}
+{{- end }}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.connectors" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
 {{- if not .Values.openTelemetry.kafka.enabled }}
@@ -247,9 +308,8 @@ spec:
 {{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
-        - basicauth/syslog_audit_failover_a
-        - basicauth/syslog_audit_failover_b
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.serviceExtensions" . | nindent 8 -}}
 {{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
@@ -285,6 +345,12 @@ spec:
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if eq (include "externalCollector.auditEnabled" .) "true" }}
+    {{- include "external_audit_only.pipeline" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.pipeline" . | nindent 8 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
     {{- include "traces.pipeline" . | nindent 8 -}}

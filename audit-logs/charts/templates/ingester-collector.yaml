@@ -41,20 +41,30 @@ spec:
     - name: prometheus
       port: 8888
 {{- end }}
+{{- $kafka := $root.Values.auditLogs.logsCollector.kafka -}}
+{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
+{{- $kafka = $cfg.kafka -}}
+{{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.auditLogs.ingesterCollector.image.repository | default $root.Values.auditLogs.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.auditLogs.ingesterCollector.image.tag | default $root.Values.auditLogs.collectorImage.tag }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
       readOnly: true
+{{- if and (dig "tls" "enabled" false $kafka) (not (empty $kafka.tls.caSecret)) }}
+    - name: kafka-ca
+      mountPath: /etc/ssl/kafka
+      readOnly: true
+{{- end }}
   volumes:
     - name: opensearch-ca
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
-  config:
-{{- $kafka := $root.Values.auditLogs.logsCollector.kafka -}}
-{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
-{{- $kafka = $cfg.kafka -}}
+{{- if and (dig "tls" "enabled" false $kafka) (not (empty $kafka.tls.caSecret)) }}
+    - name: kafka-ca
+      secret:
+        secretName: {{ dig "tls" "caSecret" "" $kafka | quote }}
 {{- end }}
+  config:
     receivers:
       kafka/{{ $name }}:
         brokers:
@@ -80,11 +90,23 @@ spec:
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
+{{- if (dig "tls" "enabled" false $kafka) }}
+        tls:
+          insecure: false
+          insecure_skip_verify: {{ dig "tls" "insecure_skip_verify" false $kafka }}
+{{- if and (not (empty $kafka.tls.caSecret)) (not (empty $kafka.tls.caSecretKey)) }}
+          ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
     processors:
       memory_limiter:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
+      batch/audit:
+        timeout: 5s
+        send_batch_size: 100
+        send_batch_max_size: 500
       attributes/cluster:
         actions:
           - action: insert
@@ -122,6 +144,12 @@ spec:
         mapping:
           {{- toYaml . | nindent 10 }}
 {{- end }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -141,6 +169,12 @@ spec:
         mapping:
           {{- toYaml . | nindent 10 }}
 {{- end }}
+        sending_queue:
+          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -181,7 +215,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
+          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]

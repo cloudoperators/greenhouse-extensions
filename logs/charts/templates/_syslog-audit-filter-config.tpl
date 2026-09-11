@@ -9,15 +9,17 @@ SPDX-License-Identifier: Apache-2.0
   for VMware infrastructure sources (ESXi, vCSA, NSX-T).
 
   This implements:
-  1. Early drop of known non-audit-relevant log messages (by content pattern)
-  2. Process-based audit classification (whitelist of audit-relevant processes)
-  3. Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
-  4. Drop of verbose logs
-  5. Routing of non-audit logs to a separate index
-  6. User field extraction (ESXi user, failed login user)
-  7. Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
-  8. VM event parsing (ESXi reconfigure/error events)
-  9. SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  1.  Early drop of known non-audit-relevant log messages (by content pattern)
+  2.  Process-based audit classification (whitelist of audit-relevant processes)
+  3.  Drop of specific non-audit processes (vpxd-profiler, postgres-archiver)
+  4.  Drop of verbose logs
+  5.  Routing of non-audit logs to a separate index
+  6.  User field extraction (ESXi user, failed login user)
+  7.  Hostname parsing (node name, audit source: ESXi/NSX-T/VCSA, building block)
+  8.  VM event parsing (ESXi reconfigure/error events)
+  9.  SSH login parsing (ESXi sshd accepted keyboard-interactive)
+  10. Appname recovery from message when the receiver's ISO8601 regex_parser
+      path did not populate it (fixes ESXi audit routing)
 
   Field mapping (syslog → OTel receiver attributes):
     The OTel syslog receiver (both rfc5424 and rfc3164) parses syslog fields
@@ -34,18 +36,6 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- define "syslog_audit_filter.transform" }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-attributes/syslog_audit_failover_username_a:
-  actions:
-    - action: insert
-      key: failover_username_opensearch
-      value: ${audit_failover_username_a}
-attributes/syslog_audit_failover_username_b:
-  actions:
-    - action: insert
-      key: failover_username_opensearch
-      value: ${audit_failover_username_b}
-{{- end }}
 {{/*
   ============================================================================
   Extract forwarded_by attribute from message body
@@ -59,10 +49,22 @@ transform/syslog_forwarded_by:
   log_statements:
     - context: log
       statements:
-        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] != nil and IsMatch(attributes["message"], ".*forwarded_by=octobus_logstash.*")'
-        - 'set(attributes["forwarded_by"], "octobus_logstash") where attributes["message"] == nil and body != nil and IsMatch(body, ".*forwarded_by=octobus_logstash.*")'
-        - 'replace_pattern(attributes["message"], " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and attributes["message"] != nil'
-        - 'replace_pattern(body, " forwarded_by=octobus_logstash", "") where attributes["forwarded_by"] == "octobus_logstash" and body != nil'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*forwarded_by=octobus_logstash.*")'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] == nil and log.body != nil and IsMatch(log.body, ".*forwarded_by=octobus_logstash.*")'
+        - 'replace_pattern(log.attributes["message"], " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and IsString(log.attributes["message"])'
+        - 'replace_pattern(log.body, " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.body != nil'
+
+{{/*
+  ============================================================================
+  Extract appname from message body
+  ============================================================================
+*/}}
+transform/syslog_extract_appname_from_message:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -79,28 +81,32 @@ transform/syslog_semconv_normalization:
       statements:
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
-        - 'set(attributes["server.address"], attributes["net.host.name"]) where attributes["server.address"] == nil and attributes["net.host.name"] != nil'
-        - 'set(attributes["server.port"], attributes["net.host.port"]) where attributes["server.port"] == nil and attributes["net.host.port"] != nil'
-        - 'set(attributes["client.address"], attributes["net.peer.name"]) where attributes["client.address"] == nil and attributes["net.peer.name"] != nil'
-        - 'set(attributes["client.port"], attributes["net.peer.port"]) where attributes["client.port"] == nil and attributes["net.peer.port"] != nil'
+        - 'set(log.attributes["server.address"], log.attributes["net.host.name"]) where log.attributes["server.address"] == nil and log.attributes["net.host.name"] != nil'
+        - 'set(log.attributes["server.port"], log.attributes["net.host.port"]) where log.attributes["server.port"] == nil and log.attributes["net.host.port"] != nil'
+        - 'set(log.attributes["client.address"], log.attributes["net.peer.name"]) where log.attributes["client.address"] == nil and log.attributes["net.peer.name"] != nil'
+        - 'set(log.attributes["client.port"], log.attributes["net.peer.port"]) where log.attributes["client.port"] == nil and log.attributes["net.peer.port"] != nil'
 
         # Network vantage-point view
-        - 'set(attributes["network.local.address"], attributes["net.host.ip"]) where attributes["network.local.address"] == nil and attributes["net.host.ip"] != nil'
-        - 'set(attributes["network.peer.address"], attributes["net.peer.ip"]) where attributes["network.peer.address"] == nil and attributes["net.peer.ip"] != nil'
-        - 'set(attributes["network.peer.port"], attributes["net.peer.port"]) where attributes["network.peer.port"] == nil and attributes["net.peer.port"] != nil'
+        - 'set(log.attributes["network.local.address"], log.attributes["net.host.ip"]) where log.attributes["network.local.address"] == nil and log.attributes["net.host.ip"] != nil'
+        - 'set(log.attributes["network.peer.address"], log.attributes["net.peer.ip"]) where log.attributes["network.peer.address"] == nil and log.attributes["net.peer.ip"] != nil'
+        - 'set(log.attributes["network.peer.port"], log.attributes["net.peer.port"]) where log.attributes["network.peer.port"] == nil and log.attributes["net.peer.port"] != nil'
         # network.transport: normalize legacy "IP.TCP"/"IP.UDP" to lowercase semconv enum values.
         # Semconv requires transport whenever a port is set (ports are ambiguous without it).
-        - 'set(attributes["network.transport"], "tcp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.TCP"'
-        - 'set(attributes["network.transport"], "udp") where attributes["network.transport"] == nil and attributes["net.transport"] == "IP.UDP"'
+        - 'set(log.attributes["network.transport"], "tcp") where log.attributes["network.transport"] == nil and log.attributes["net.transport"] == "IP.TCP"'
+        - 'set(log.attributes["network.transport"], "udp") where log.attributes["network.transport"] == nil and log.attributes["net.transport"] == "IP.UDP"'
         # Fallback: if some other value shows up, lowercase it defensively.
-        - 'set(attributes["network.transport"], ConvertCase(attributes["net.transport"], "lower")) where attributes["network.transport"] == nil and attributes["net.transport"] != nil'
+        - 'set(log.attributes["network.transport"], ConvertCase(log.attributes["net.transport"], "lower")) where log.attributes["network.transport"] == nil and log.attributes["net.transport"] != nil'
 
         # Syslog fields
-        - 'set(attributes["syslog.facility.code"], Int(attributes["facility"])) where attributes["syslog.facility.code"] == nil and attributes["facility"] != nil'
-        - 'set(attributes["syslog.facility.name"], attributes["facility_text"]) where attributes["syslog.facility.name"] == nil and attributes["facility_text"] != nil'
+        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil'
+        - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
 
         # Resource: host identity
-        - 'set(resource.attributes["host.name"], attributes["hostname"]) where resource.attributes["host.name"] == nil and attributes["hostname"] != nil'
+        # Overwrites previously set syslog_host_name by inner hostname
+        # Transforms host.name from fqdn to short-name
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
+        - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
 {{/*
   ============================================================================
@@ -116,22 +122,27 @@ transform/syslog_drop_legacy_fields:
     - context: log
       statements:
         # Role / address / port mappings
-        - 'delete_key(attributes, "net.host.name") where attributes["server.address"] != nil'
-        - 'delete_key(attributes, "net.host.port") where attributes["server.port"] != nil'
-        - 'delete_key(attributes, "net.peer.name") where attributes["client.address"] != nil'
-        - 'delete_key(attributes, "net.peer.port") where attributes["client.port"] != nil and attributes["network.peer.port"] != nil'
+        - 'delete_key(log.attributes, "net.host.name") where log.attributes["server.address"] != nil'
+        - 'delete_key(log.attributes, "net.host.port") where log.attributes["server.port"] != nil'
+        - 'delete_key(log.attributes, "net.peer.name") where log.attributes["client.address"] != nil'
+        - 'delete_key(log.attributes, "net.peer.port") where log.attributes["client.port"] != nil and log.attributes["network.peer.port"] != nil'
 
         # Network vantage-point
-        - 'delete_key(attributes, "net.host.ip") where attributes["network.local.address"] != nil'
-        - 'delete_key(attributes, "net.peer.ip") where attributes["network.peer.address"] != nil'
-        - 'delete_key(attributes, "net.transport") where attributes["network.transport"] != nil'
+        - 'delete_key(log.attributes, "net.host.ip") where log.attributes["network.local.address"] != nil'
+        - 'delete_key(log.attributes, "net.peer.ip") where log.attributes["network.peer.address"] != nil'
+        - 'delete_key(log.attributes, "net.transport") where log.attributes["network.transport"] != nil'
 
         # Syslog fields
-        - 'delete_key(attributes, "facility") where attributes["syslog.facility.code"] != nil'
-        - 'delete_key(attributes, "facility_text") where attributes["syslog.facility.name"] != nil'
+        - 'delete_key(log.attributes, "facility") where log.attributes["syslog.facility.code"] != nil'
+        - 'delete_key(log.attributes, "facility_text") where log.attributes["syslog.facility.name"] != nil'
+        # Drop raw syslog_timestamp only when a valid timestamp was parsed into time_unix_nano.
+        # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
+        # (strict_date_optional_time||epoch_millis). Keeping it when time_unix_nano == 0
+        # preserves the only timing info available for that log.
+        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
-        - 'delete_key(attributes, "hostname") where resource.attributes["host.name"] != nil'
+        - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
 
 {{/*
   ============================================================================
@@ -194,20 +205,20 @@ transform/syslog_user_extraction:
     - context: log
       statements:
         # Extract "user=xyz]" pattern
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert") where IsString(log.attributes["message"])'
         # Extract "for user xyz from" pattern (fallback if user not already found)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
     # Failed/Cannot login parsing - only for Hostd, vobd, vpxd processes
     - context: log
       conditions:
         - 'IsMatch(log.attributes["appname"], "(?i)^(Hostd|vobd|vpxd):?$")'
       statements:
         # Match userid in format <userid>@<domain>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
         # Match userid in format <domain>\<userid>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
         # Match simple userid (fallback)
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -219,21 +230,47 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
+        # handle double header / relay host name
+        - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
+        - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
         # Set audit source to ESXi if node name was extracted
-        - 'set(log.attributes["audit_source"], "ESXi") where log.attributes["node_nodename"] != nil'
+        - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
         # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
-        - 'set(log.attributes["audit_source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
         # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
-        - 'set(log.attributes["audit_source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        # STNPA source detection from appname prefix (do not overwrite an existing source)
+        - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi and NSX-T)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["audit_source"] == "ESXi" or log.attributes["audit_source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+
+{{/*
+  ============================================================================
+  NSX-T FQDN extraction - extract NSX-T transport-node FQDN from message
+  ============================================================================
+*/}}
+transform/syslog_nsxt:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
+      statements:
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
+        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
+        # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
+        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        # Extract audit operation fields in a single pass
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -245,10 +282,11 @@ transform/syslog_esxi_vm_events:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit_source"] == "ESXi"'
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
         # Parse VM reconfigure/error events
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert")'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
@@ -260,16 +298,18 @@ transform/syslog_esxi_sshd:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["audit_source"] == "ESXi"'
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
         - 'log.attributes["appname"] == "sshd"'
-        - 'IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
+        - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert")'
+        - 'set(log.attributes["device.manufacturer"], "VMware")'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
   ============================================================================
   Adds an attribute to identify audit logs for routing.
   Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo
+  Also marks any log with a known audit source (sap.cc.audit.source) as audit-relevant.
   Everything else is non-audit (and goes to logs-datastream).
   ============================================================================
 */}}
@@ -282,6 +322,10 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
+        # Mark network logs as audit-relevant
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["device.manufacturer"] != nil and IsMatch(log.attributes["device.manufacturer"], "(Cisco|Check Point|Fortinet|Palo Alto Networks|Trend Micro|Tufin|Radware|F5)")'
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
@@ -289,9 +333,9 @@ transform/syslog_observed_timestamp_fallback:
   log_statements:
     - context: log
       conditions:
-        - 'time_unix_nano == 0'
+        - 'log.time_unix_nano == 0'
       statements:
-        - 'set(time_unix_nano, observed_time_unix_nano)'
+        - 'set(log.time_unix_nano, log.observed_time_unix_nano)'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}
@@ -301,7 +345,7 @@ transform/syslog_observed_timestamp_fallback:
   Audit logs go to audit-datastream, non-audit logs go to logs-datastream
   ============================================================================
 */}}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 routing/syslog_audit:
   default_pipelines: [logs/syslog_non_audit]
   error_mode: ignore
@@ -309,18 +353,6 @@ routing/syslog_audit:
     - context: log
       pipelines: [logs/syslog_audit]
       statement: route() where attributes["audit_relevant"] == "true"
-
-failover/opensearch_syslog_audit:
-  priority_levels:
-    - [logs/failover_a_syslog_audit]
-    - [logs/failover_b_syslog_audit]
-  retry_interval: 1h
-  sending_queue:
-    block_on_overflow: true
-    enabled: true
-    num_consumers: 2
-    queue_size: 10000
-    sizer: requests
 
 failover/opensearch_syslog_non_audit:
   priority_levels:
@@ -346,36 +378,13 @@ routing/syslog_audit:
 
 {{- define "syslog_audit_filter.exporter" }}
 {{- if not .Values.openTelemetry.kafka.enabled }}
-opensearch/failover_a_syslog_audit:
-  http:
-    auth:
-      authenticator: basicauth/syslog_audit_failover_a
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
-  logs_index: audit-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
-opensearch/failover_b_syslog_audit:
-  http:
-    auth:
-      authenticator: basicauth/syslog_audit_failover_b
-    endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.auditEndpoint }}
-  logs_index: audit-datastream
-  retry_on_failure:
-    enabled: true
-    initial_interval: 1s
-    max_interval: 5s
-    max_elapsed_time: 30s
-  timeout: 30s
 opensearch/failover_a_syslog_non_audit:
   http:
     auth:
       authenticator: basicauth/failover_a
     endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint }}
   logs_index: logs-datastream
+  logs_index_on_error: logs-datastream-deadletter
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -388,6 +397,7 @@ opensearch/failover_b_syslog_non_audit:
       authenticator: basicauth/failover_b
     endpoint: {{ required "openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint is required when kafka is disabled" .Values.openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint }}
   logs_index: logs-datastream
+  logs_index_on_error: logs-datastream-deadletter
   retry_on_failure:
     enabled: true
     initial_interval: 1s
@@ -395,27 +405,6 @@ opensearch/failover_b_syslog_non_audit:
     max_elapsed_time: 30s
   timeout: 30s
 {{- else }}
-kafka/syslog_audit:
-  brokers:
-{{- range .Values.openTelemetry.kafka.brokers }}
-    - {{ . }}
-{{- end }}
-  protocol_version: {{ .Values.openTelemetry.kafka.protocol_version }}
-  logs:
-    topic: {{ required "openTelemetry.externalCollector.syslogConfig.auditKafkaTopic is required when kafka is enabled" .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaTopic }}
-    encoding: {{ .Values.openTelemetry.kafka.encoding }}
-  producer:
-    compression: {{ .Values.openTelemetry.kafka.compression }}
-    max_message_bytes: {{ .Values.openTelemetry.kafka.max_message_bytes | int64 }}
-    flush_max_messages: {{ .Values.openTelemetry.kafka.producer.flushMaxMessages | int64 }}
-    linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
-  sending_queue:
-    enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
-    queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
-{{- if .Values.openTelemetry.kafka.tls.enabled }}
-  tls:
-    insecure: false
-{{- end }}
 kafka/syslog_non_audit:
   brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -432,10 +421,14 @@ kafka/syslog_non_audit:
     linger: {{ .Values.openTelemetry.kafka.producer.linger | quote }}
   sending_queue:
     enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false
+{{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
+    ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -448,17 +441,7 @@ kafka/syslog_non_audit:
   Non-audit logs → logs-datastream
   ============================================================================
 */}}
-{{- if not .Values.openTelemetry.kafka.enabled }}
-logs/failover_a_syslog_audit:
-  receivers: [failover/opensearch_syslog_audit]
-  processors: [attributes/syslog_audit_failover_username_a]
-  exporters: [opensearch/failover_a_syslog_audit]
-
-logs/failover_b_syslog_audit:
-  receivers: [failover/opensearch_syslog_audit]
-  processors: [attributes/syslog_audit_failover_username_b]
-  exporters: [opensearch/failover_b_syslog_audit]
-
+{{- if not .Values.openTelemetry.auditKafka.enabled }}
 logs/failover_a_syslog_non_audit:
   receivers: [failover/opensearch_syslog_non_audit]
   processors: [attributes/failover_username_a]
@@ -474,7 +457,7 @@ logs/failover_b_syslog_non_audit:
 logs/syslog_audit:
   receivers: [routing/syslog_audit]
   processors: [batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if .Values.openTelemetry.auditKafka.enabled }}
   exporters: [kafka/syslog_audit]
 {{- else }}
   exporters: [failover/opensearch_syslog_audit]

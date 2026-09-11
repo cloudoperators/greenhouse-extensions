@@ -50,19 +50,31 @@ spec:
       port: 8888
 {{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
+{{- $kafka := $root.Values.openTelemetry.kafka }}
+{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) }}
+{{- $kafka = $cfg.kafka }}
+{{- end }}
+{{- $kafkaCASecret := $kafka.tls.caSecret }}
+{{- $shouldMountKafkaCASecret := and $kafka.tls $kafka.tls.enabled (not (empty $kafkaCASecret)) (not (empty ($kafka.tls.caSecretKey))) }}
   volumeMounts:
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
       readOnly: true
+{{- if $shouldMountKafkaCASecret }}
+    - name: kafka-ca
+      mountPath: /etc/ssl/kafka
+      readOnly: true
+{{- end }}
   volumes:
     - name: opensearch-ca
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
-  config:
-{{- $kafka := $root.Values.openTelemetry.kafka -}}
-{{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
-{{- $kafka = $cfg.kafka -}}
+{{- if $shouldMountKafkaCASecret }}
+    - name: kafka-ca
+      secret:
+        secretName: {{ $kafkaCASecret | quote }}
 {{- end }}
+  config:
     receivers:
       kafka/{{ $name }}:
         brokers:
@@ -73,11 +85,16 @@ spec:
 {{- if or (default false (dig "tls" "enabled" false $kafka)) $root.Values.openTelemetry.kafka.tls.enabled }}
         tls:
           insecure: false
+{{- if $shouldMountKafkaCASecret }}
+          ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
 {{- end }}
         logs:
           topics:
             - {{ $cfg.topic | quote }}
           encoding: {{ $kafka.encoding }}
+        max_fetch_size: {{ dig "max_fetch_size" $root.Values.openTelemetry.kafka.max_fetch_size $kafka | int64 }}
+        max_partition_fetch_size: {{ dig "max_partition_fetch_size" $root.Values.openTelemetry.kafka.max_partition_fetch_size $kafka | int64 }}
         group_id: {{ printf "logs-ingester-%s" $name | quote }}
         initial_offset: {{ $cfg.initialOffset | default "latest" | quote }}
         autocommit:
@@ -126,9 +143,11 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
@@ -146,9 +165,11 @@ spec:
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
         logs_index: {{ $name | quote }}
+        logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:

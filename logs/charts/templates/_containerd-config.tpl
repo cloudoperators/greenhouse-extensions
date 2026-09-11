@@ -12,6 +12,7 @@ file_log/containerd:
 {{- end }}
     - /var/log/pods/logs_logs-*/*/*.log
     - /var/log/pods/logs_*
+    - /var/log/pods/fortlogs-logs_*
     - /var/log/pods/logs_fluent*/*/*.log
     - /var/log/pods/dns-recursor_unbound*/*/*.log
     - /var/log/pods/kube-system_wormhole*/*/*.log

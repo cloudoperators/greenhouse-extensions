@@ -1,6 +1,7 @@
-{{- if .Values.policies.podRequiredLabels.enabled }}
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.policies.podRequiredLabels.enabled (or (.Capabilities.APIVersions.Has "constraints.gatekeeper.sh/v1beta1/GkPodRequiredLabels") .Values.tests.enabled) }}
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: GkPodRequiredLabels
 metadata:

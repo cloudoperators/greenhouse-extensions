@@ -4,6 +4,7 @@ kind: AlertmanagerConfig
 metadata:
   name: {{ include "kube-prometheus-stack.fullname" . }}-alertmanager-config
   labels:
+    plugin: {{ $.Release.Name }}
 {{- include "kube-prometheus-stack.labels" . | indent 4 }}
 spec:
   route:

@@ -1,4 +1,4 @@
-{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled) }}
+{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled) }}
 apiVersion: v1
 kind: Service
 
@@ -62,5 +62,11 @@ spec:
       protocol: TCP
       port: {{ .Values.openTelemetry.externalCollector.tracesConfig.otlp_http_port }}
       targetPort: {{ .Values.openTelemetry.externalCollector.tracesConfig.otlp_http_port }}
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    - name: externalhttp
+      protocol: TCP
+      port: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}
+      targetPort: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}
 {{- end }}
 {{- end }}
