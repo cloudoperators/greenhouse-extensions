@@ -263,7 +263,8 @@ transform/syslog_nsxt:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
       statements:
-        - 'set(log.attributes["device.manufacturer"], "VMware")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
         # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
         # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
@@ -284,7 +285,8 @@ transform/syslog_esxi_vm_events:
       conditions:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
-        - 'set(log.attributes["device.manufacturer"], "VMware")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
 
@@ -302,7 +304,8 @@ transform/syslog_esxi_sshd:
         - 'log.attributes["appname"] == "sshd"'
         - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
       statements:
-        - 'set(log.attributes["device.manufacturer"], "VMware")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
 
 {{/*
@@ -325,7 +328,33 @@ transform/syslog_audit_classification:
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["device.manufacturer"] != nil and IsMatch(log.attributes["device.manufacturer"], "(Cisco|Check Point|Fortinet|Palo Alto Networks|Trend Micro|Tufin|Radware|F5)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*THREAT.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*auth.*")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
+    - context: log
+      conditions:
+        - 'log.attributes["audit_relevant"] == "true"'
+        - 'log.attributes["sap.cc.audit.source"] == nil'
+        - 'log.attributes["netbox.manufacturer.slug"] != nil'
+      statements:
+        - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
+
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:
