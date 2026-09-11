@@ -352,6 +352,15 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
+      statements:
+        # pf packet-filter BLOCK events are security-relevant.
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+\\..*block.*")'
+        # ALG relay connections EXCEPT routine successful/reset completions (volume
+        # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'

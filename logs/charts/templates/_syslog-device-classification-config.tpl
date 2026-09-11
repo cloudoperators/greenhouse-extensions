@@ -73,6 +73,8 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification).*")'
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
+        - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["appname"] == "pf" or IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+\\..*(block|pass) (in|out) on em\\d+).*"))'
         # Cisco Nexus (MAC move / flap events).
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
         # Cisco Router - "rt-*" or "*-rt##*" (excludes CISE_Failed_Attempts). After ISE/PAN/Nexus.
@@ -116,6 +118,19 @@ transform/syslog_device_classification:
         # netbox.role.slug could be "firewall" or "firewall-management"; because logstash always sets "firewall", we will do the same here for now
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
+      statements:
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "Genua") where log.attributes["hw.vendor"] == nil'
+        # Platform: only genugate is provable from logs (ALG relays are genugate-
+        # exclusive). Set genugate-os when the ALG relay layer is present (relay
+        # accounting or *relay appname). pf-only logs are genugate-OR-genuscreen
+        # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
+        # hostname). Do NOT guess.
+        - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and (IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*"))'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
