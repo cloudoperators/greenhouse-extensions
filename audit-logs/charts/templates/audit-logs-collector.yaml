@@ -764,7 +764,7 @@ spec:
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [file_log/containerd]
-          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/ingress,batch]
+          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/falco,transform/ingress,batch]
           exporters: [routing]
 {{- end }}
 
