@@ -340,8 +340,16 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
+        # Explicit blocks/denials/drops.
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\b(action=\"?(deny|drop|block)\"?|act=deny).*")'
+        # Threat / security subsystems: IPS, UTM, virus, webfilter, DNS filter,
+        # app-control, and client-reputation scoring (crscore/crlevel present).
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\bcrscore=\\d+.*")'
+        # Authentication / admin events.
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*auth.*")'
+        # Keep existing IPS catch-all.
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'

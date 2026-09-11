@@ -85,6 +85,8 @@ operators:
 #                          e.g. "<13>Jan 15 10:30:00..."
 #   RFC 3164 + ISO 8601:   "<priority>YYYY-MM-DDTHH:MM:SS ..." (VMware ESXi/vSAN)
 #                          e.g. "<12>2026-07-10T09:34:11.260Z..."
+#   FortiOS native KV:     "<priority>date=YYYY-MM-DD time=HH:MM:SS devname=..." (native FortiGate key=value)
+#                          e.g. "<189>date=2026-09-11 time=19:08:37 devname=\"fw-idc-px-sin9-101\" devid=..."
 #   Unknown:               anything else (no syslog header, continuation lines, garbage)
 - type: router
   id: {{ $p }}_format_router
@@ -107,6 +109,11 @@ operators:
     output: {{ $p }}_3164_parser
   - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
     output: {{ $p }}_iso_parser
+  # FortiOS native key=value: "<pri>date=YYYY-MM-DD time=HH:MM:SS devname=..."
+  # No RFC3164/5424 header; timestamp split across date=/time=; hostname in devname=.
+  # Distinct from CEF (which begins "CEF:") and from the ISO route (bare timestamp).
+  - expr: 'body matches "^<\\d+>date=\\d{4}-\\d{2}-\\d{2} time=\\d{2}:\\d{2}:\\d{2} "'
+    output: {{ $p }}_fortios_kv_parser
   default: {{ $p }}_add_format_unknown
 # --- Built-in parsers ---------------------------------------------------------
 - type: syslog_parser
@@ -211,6 +218,78 @@ operators:
   id: {{ $p }}_cisco_cleanup
   field: attributes.timestamp
   output: {{ $p }}_add_format_cisco
+# --- FortiOS native key=value parser ------------------------------------------
+# Format: <pri>date=YYYY-MM-DD time=HH:MM:SS devname="HOST" devid=... eventtime=...
+#         tz="+HHMM" logid=... type=... ... (space-separated key=value pairs)
+# Extracts: priority, hostname (from devname=), and the FULL payload as message
+# (payload retained so downstream key extraction / classification still works).
+# The timestamp is built from date= + time= into a single "timestamp" field and
+# parsed with a gotime layout. tz= (position varies) is captured separately and
+# appended so the offset is honored; if absent, time is treated as UTC.
+# Field ORDER assumption: FortiOS native emits "date time devname ..." leading.
+# VERIFY across log types (traffic/utm/event) that this ordering holds.
+- type: regex_parser
+  id: {{ $p }}_fortios_kv_parser
+  regex: '^<(?P<priority>\d+)>date=(?P<fdate>\d{4}-\d{2}-\d{2}) time=(?P<ftime>\d{2}:\d{2}:\d{2}) (?P<message>devname=.*)$'
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_extract_host
+# Capture devname= as hostname (quoted or unquoted). Non-fatal if absent.
+- type: regex_parser
+  id: {{ $p }}_fortios_kv_extract_host
+  parse_from: attributes.message
+  regex: '^devname="?(?P<hostname>[^"\s]+)"?'
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_extract_tz
+# Capture tz= offset from anywhere in the payload (position varies). Non-fatal.
+- type: regex_parser
+  id: {{ $p }}_fortios_kv_extract_tz
+  parse_from: attributes.message
+  regex: 'tz="?(?P<ftz>[+-]\d{4})"?'
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_default_tz
+# Default tz to +0000 when not present so the combined layout always parses.
+- type: add
+  id: {{ $p }}_fortios_kv_default_tz
+  field: attributes.ftz
+  value: "+0000"
+  if: 'attributes.ftz == nil'
+  output: {{ $p }}_fortios_kv_build_ts
+# Build a single parseable timestamp string: "YYYY-MM-DD HH:MM:SS +HHMM".
+- type: add
+  id: {{ $p }}_fortios_kv_build_ts
+  field: attributes.fts
+  value: 'EXPR(attributes.fdate + " " + attributes.ftime + " " + attributes.ftz)'
+  output: {{ $p }}_fortios_kv_ts_parse
+# Parse the combined timestamp. On failure the log still proceeds (send_quiet)
+# and observed_time is used downstream via transform/syslog_observed_timestamp_fallback.
+- type: time_parser
+  id: {{ $p }}_fortios_kv_ts_parse
+  parse_from: attributes.fts
+  layout: '2006-01-02 15:04:05 -0700'
+  layout_type: gotime
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_cleanup_fts
+# Cleanup intermediate timestamp-building attributes (best-effort).
+- type: remove
+  id: {{ $p }}_fortios_kv_cleanup_fts
+  field: attributes.fts
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_cleanup_fdate
+- type: remove
+  id: {{ $p }}_fortios_kv_cleanup_fdate
+  field: attributes.fdate
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_cleanup_ftime
+- type: remove
+  id: {{ $p }}_fortios_kv_cleanup_ftime
+  field: attributes.ftime
+  on_error: send_quiet
+  output: {{ $p }}_fortios_kv_cleanup_ftz
+- type: remove
+  id: {{ $p }}_fortios_kv_cleanup_ftz
+  field: attributes.ftz
+  on_error: send_quiet
+  output: {{ $p }}_add_format_fortios_kv
 # --- Format taggers (all converge on add_log_type) ----------------------------
 {{- range $id, $val := dict
       "add_format_rfc5424"               "rfc5424"
@@ -223,6 +302,8 @@ operators:
       "add_format_iso_failed"            "rfc3164_iso8601_failed"
       "add_format_cisco"                 "cisco_ios"
       "add_format_cisco_failed"          "cisco_ios_failed"
+      "add_format_fortios_kv"            "fortios_kv"
+      "add_format_fortios_kv_failed"     "fortios_kv_failed"
       "add_format_unknown"               "unknown" }}
 - type: add
   id: {{ $p }}_{{ $id }}
