@@ -283,6 +283,7 @@ spec:
               - set(log.attributes["output_fields.container.id"], log.cache["output_fields"]["container.id"])
               - set(log.attributes["output_fields.container.image.repository"], log.cache["output_fields"]["container.image.repository"])
               - set(log.attributes["output_fields.container.image.tag"], log.cache["output_fields"]["container.image.tag"])
+              - set(log.attributes["output_fields.container.image.id"], log.cache["output_fields"]["container.image.id"])
               - set(log.attributes["output_fields.container.name"], log.cache["output_fields"]["container.name"])
               - set(log.attributes["output_fields.container.privileged"], log.cache["output_fields"]["container.privileged"])
               - set(log.attributes["output_fields.evt.time"], log.cache["output_fields"]["evt.time"])
