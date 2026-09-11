@@ -232,6 +232,8 @@ openTelemetry:
       tcp_port: 514
       # -- UDP port for syslog (rfc3164)
       udp_port: 514
+      # -- Kafka brokers list used by syslog kafka exporter.
+      kafkaBrokers: []
       # -- Kafka topic for audit-relevant syslog logs (only used when kafka is enabled)
       auditKafkaTopic: ""
       # -- Kafka topic for non-audit syslog logs (only used when kafka is enabled)
@@ -290,6 +292,8 @@ openTelemetry:
       maxRequestBodySize: 10485760
       # -- HTTP path the receiver serves. Sender must POST here.
       path: /audit/external
+      # -- Kafka brokers list used by external http kafka exporter.
+      kafkaBrokers: []
       # -- Kafka topic for the HTTP records (Kafka mode only). Separate from
       # syslog audit, which uses syslogConfig.auditKafkaTopic.
       kafkaTopic: audit
