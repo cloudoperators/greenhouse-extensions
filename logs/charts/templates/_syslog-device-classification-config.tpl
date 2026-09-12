@@ -8,10 +8,12 @@ SPDX-License-Identifier: Apache-2.0
   =======================================================================================
   Hardware classification.
   Classifies hardware from syslog message/body content in two stages:
-    1. Platform extraction  -> netbox.platform.slug ("cisco-nx-os", "cisco-asa", ) 
+    1. Manufacturer extraction
+      -> netbox.manufacturer.slug ("cisco", "genua", "fortinet", ...)
     Background: netbox.platform is shared between VMs (virtualization) and physical devices (dcim).
-    2. Per-Platform refinement -> netbox.role.slug, netbox.manufacturer.slug (e.g. Cisco, Check Point, Palo Alto Networks).
-
+    2. Per-Manufacturer refinement
+      -> netbox.platform.slug ("cisco-aci", "fortios", "genugate-os", ...)
+      -> netbox.role.slug     ("switch", "router", "firewall", ...)
 
   Applicable to any hardware category (network, compute, storage, etc.) - the current
   rule set covers network devices, but additional vendors/roles can be added over time.
@@ -27,6 +29,13 @@ SPDX-License-Identifier: Apache-2.0
 transform/syslog_device_classification:
   error_mode: ignore
   log_statements:
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed"'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
+        - 'set(log.attributes["netbox.platform.slug"], "fortios")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -59,17 +68,19 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
         # Check Point gateway daemon logs - (fw|FW-) AND daemon AND NOT "(Check Point)".
         - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(fw|FW-).*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:).*")'
-        # Cisco Nexus (MAC move / flap events).
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-        # Cisco Router - "rt-*" or "*-rt##*" (excludes CISE_Failed_Attempts). After ISE/PAN/Nexus.
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
-        # Cisco Router - "rtb" hostname e.g. "<123>rtb...:".
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification).*")'
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
+        - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["appname"] == "pf" or IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+\\..*(block|pass) (in|out) on em\\d+).*"))'
+        # Cisco Nexus (MAC move / flap events).
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
+        # Cisco Router - "rt-*" or "*-rt##*" (excludes CISE_Failed_Attempts). After ISE/PAN/Nexus.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "(rt-[a-zA-Z0-9.\\-]+|\\S*-rt[0-9]{2,}\\S*)")'
+        # Cisco Router - "rtb" hostname e.g. "<123>rtb...:".
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "cisco"'
@@ -107,6 +118,19 @@ transform/syslog_device_classification:
         # netbox.role.slug could be "firewall" or "firewall-management"; because logstash always sets "firewall", we will do the same here for now
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
+      statements:
+        - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
+        - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "Genua") where log.attributes["hw.vendor"] == nil'
+        # Platform: only genugate is provable from logs (ALG relays are genugate-
+        # exclusive). Set genugate-os when the ALG relay layer is present (relay
+        # accounting or *relay appname). pf-only logs are genugate-OR-genuscreen
+        # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
+        # hostname). Do NOT guess.
+        - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and (IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*"))'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'

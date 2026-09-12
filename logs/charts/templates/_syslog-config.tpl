@@ -86,6 +86,8 @@ tcp_log/syslog:
   #                          e.g. "<13>Jan 15 10:30:00..."
   #   RFC 3164 + ISO 8601:   "<priority>YYYY-MM-DDTHH:MM:SS ..." (VMware ESXi/vSAN)
   #                          e.g. "<12>2026-07-10T09:34:11.260Z..."
+  #   FortiOS native KV:     "<priority>date=YYYY-MM-DD time=HH:MM:SS devname=..." (native FortiGate key=value)
+  #                          e.g. "<189>date=2026-09-11 time=21:39:47 devname=\"fw-idc-px-sin9-101\" devid=..."
   #   Unknown:               anything else (no syslog header, continuation lines, garbage)
   - type: router
     id: syslog_format_router
@@ -108,6 +110,9 @@ tcp_log/syslog:
       output: syslog_3164_parser
     - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
       output: syslog_iso_parser
+    # FortiOS native key=value.
+    - expr: 'body matches "^<\\d+>date=\\d{4}-\\d{2}-\\d{2} time=\\d{2}:\\d{2}:\\d{2}"'
+      output: syslog_fortios_kv_parser
     default: add_format_unknown
 
   - type: syslog_parser
@@ -193,6 +198,53 @@ tcp_log/syslog:
     id: syslog_iso_cleanup
     field: attributes.timestamp
     output: add_format_iso
+
+  # FortiOS native key=value parser.
+  # Format: <pri>date=YYYY-MM-DD time=HH:MM:SS ... devname="HOST" ... tz="+HHMM" ...
+  # The full KV payload (including date/time/tz) stays in message so downstream
+  # key=value extraction still sees every field. Hostname is taken from devname.
+  # Time is parsed as UTC; tz is preserved in message for optional later mapping.
+  # VERIFY: time_parser operator + EXPR string-concat availability in your collector build.
+  - type: regex_parser
+    id: syslog_fortios_kv_parser
+    regex: '^<(?P<priority>\d+)>(?P<message>date=(?P<fortios_date>\d{4}-\d{2}-\d{2}) time=(?P<fortios_time>\d{2}:\d{2}:\d{2}) .*?devname="(?P<hostname>[^"]*)".*)$'
+    on_error: send_quiet
+    output: syslog_fortios_kv_time
+  - type: add
+    id: syslog_fortios_kv_time
+    field: attributes.fortios_ts
+    value: 'EXPR(attributes.fortios_date + " " + attributes.fortios_time)'
+    output: syslog_fortios_kv_time_parse
+  - type: time_parser
+    id: syslog_fortios_kv_time_parse
+    parse_from: attributes.fortios_ts
+    layout: '2006-01-02 15:04:05'
+    layout_type: gotime
+    location: UTC
+    on_error: send_quiet
+    output: syslog_fortios_kv_cleanup_guard
+  - type: router
+    id: syslog_fortios_kv_cleanup_guard
+    routes:
+    - expr: 'attributes.fortios_ts != nil'
+      output: syslog_fortios_kv_cleanup
+    default: add_format_fortios_kv_failed
+  - type: remove
+    id: syslog_fortios_kv_cleanup
+    field: attributes.fortios_ts
+    on_error: send_quiet
+    output: syslog_fortios_kv_cleanup_date
+  - type: remove
+    id: syslog_fortios_kv_cleanup_date
+    field: attributes.fortios_date
+    on_error: send_quiet
+    output: syslog_fortios_kv_cleanup_time
+  - type: remove
+    id: syslog_fortios_kv_cleanup_time
+    field: attributes.fortios_time
+    on_error: send_quiet
+    output: add_format_fortios_kv
+
   # Cisco IOS format parser
   - type: regex_parser
     id: syslog_cisco_parser
@@ -253,6 +305,16 @@ tcp_log/syslog:
     id: add_format_iso_failed
     field: attributes.syslog.format
     value: rfc3164_iso8601_failed
+    output: add_log_type
+  - type: add
+    id: add_format_fortios_kv
+    field: attributes.syslog.format
+    value: fortios_kv
+    output: add_log_type
+  - type: add
+    id: add_format_fortios_kv_failed
+    field: attributes.syslog.format
+    value: fortios_kv_failed
     output: add_log_type
   - type: add
     id: add_format_cisco
@@ -332,6 +394,9 @@ udp_log/syslog:
       output: syslog_udp_3164_parser
     - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
       output: syslog_udp_iso_parser
+    # FortiOS native key=value.
+    - expr: 'body matches "^<\\d+>date=\\d{4}-\\d{2}-\\d{2} time=\\d{2}:\\d{2}:\\d{2}"'
+      output: syslog_udp_fortios_kv_parser
     default: add_udp_format_unknown
   - type: syslog_parser
     id: syslog_udp_5424_parser
@@ -406,6 +471,49 @@ udp_log/syslog:
     id: syslog_udp_iso_cleanup
     field: attributes.timestamp
     output: add_udp_format_iso
+
+  # FortiOS native key=value parser (UDP). See tcp_log/syslog for full explanation.
+  # VERIFY: time_parser operator + EXPR string-concat availability in your collector build.
+  - type: regex_parser
+    id: syslog_udp_fortios_kv_parser
+    regex: '^<(?P<priority>\d+)>(?P<message>date=(?P<fortios_date>\d{4}-\d{2}-\d{2}) time=(?P<fortios_time>\d{2}:\d{2}:\d{2}) .*?devname="(?P<hostname>[^"]*)".*)$'
+    on_error: send_quiet
+    output: syslog_udp_fortios_kv_time
+  - type: add
+    id: syslog_udp_fortios_kv_time
+    field: attributes.fortios_ts
+    value: 'EXPR(attributes.fortios_date + " " + attributes.fortios_time)'
+    output: syslog_udp_fortios_kv_time_parse
+  - type: time_parser
+    id: syslog_udp_fortios_kv_time_parse
+    parse_from: attributes.fortios_ts
+    layout: '2006-01-02 15:04:05'
+    layout_type: gotime
+    location: UTC
+    on_error: send_quiet
+    output: syslog_udp_fortios_kv_cleanup_guard
+  - type: router
+    id: syslog_udp_fortios_kv_cleanup_guard
+    routes:
+    - expr: 'attributes.fortios_ts != nil'
+      output: syslog_udp_fortios_kv_cleanup
+    default: add_udp_format_fortios_kv_failed
+  - type: remove
+    id: syslog_udp_fortios_kv_cleanup
+    field: attributes.fortios_ts
+    on_error: send_quiet
+    output: syslog_udp_fortios_kv_cleanup_date
+  - type: remove
+    id: syslog_udp_fortios_kv_cleanup_date
+    field: attributes.fortios_date
+    on_error: send_quiet
+    output: syslog_udp_fortios_kv_cleanup_time
+  - type: remove
+    id: syslog_udp_fortios_kv_cleanup_time
+    field: attributes.fortios_time
+    on_error: send_quiet
+    output: add_udp_format_fortios_kv
+
   # Cisco IOS format parser
   - type: regex_parser
     id: syslog_udp_cisco_parser
@@ -466,6 +574,16 @@ udp_log/syslog:
     id: add_udp_format_iso_failed
     field: attributes.syslog.format
     value: rfc3164_iso8601_failed
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_fortios_kv
+    field: attributes.syslog.format
+    value: fortios_kv
+    output: add_udp_log_type
+  - type: add
+    id: add_udp_format_fortios_kv_failed
+    field: attributes.syslog.format
+    value: fortios_kv_failed
     output: add_udp_log_type
   - type: add
     id: add_udp_format_cisco
@@ -565,6 +683,9 @@ tcp_log/syslog_tls:
       output: syslog_tls_3164_parser
     - expr: 'body matches "^<\\d+>\\d{4}-\\d{2}-\\d{2}T"'
       output: syslog_tls_iso_parser
+    # FortiOS native key=value.
+    - expr: 'body matches "^<\\d+>date=\\d{4}-\\d{2}-\\d{2} time=\\d{2}:\\d{2}:\\d{2}"'
+      output: syslog_tls_fortios_kv_parser
     default: add_tls_format_unknown
   - type: syslog_parser
     id: syslog_tls_5424_parser
@@ -640,6 +761,49 @@ tcp_log/syslog_tls:
     id: syslog_tls_iso_cleanup
     field: attributes.timestamp
     output: add_tls_format_iso
+
+  # FortiOS native key=value parser (TLS). See tcp_log/syslog for full explanation.
+  # VERIFY: time_parser operator + EXPR string-concat availability in your collector build.
+  - type: regex_parser
+    id: syslog_tls_fortios_kv_parser
+    regex: '^<(?P<priority>\d+)>(?P<message>date=(?P<fortios_date>\d{4}-\d{2}-\d{2}) time=(?P<fortios_time>\d{2}:\d{2}:\d{2}) .*?devname="(?P<hostname>[^"]*)".*)$'
+    on_error: send_quiet
+    output: syslog_tls_fortios_kv_time
+  - type: add
+    id: syslog_tls_fortios_kv_time
+    field: attributes.fortios_ts
+    value: 'EXPR(attributes.fortios_date + " " + attributes.fortios_time)'
+    output: syslog_tls_fortios_kv_time_parse
+  - type: time_parser
+    id: syslog_tls_fortios_kv_time_parse
+    parse_from: attributes.fortios_ts
+    layout: '2006-01-02 15:04:05'
+    layout_type: gotime
+    location: UTC
+    on_error: send_quiet
+    output: syslog_tls_fortios_kv_cleanup_guard
+  - type: router
+    id: syslog_tls_fortios_kv_cleanup_guard
+    routes:
+    - expr: 'attributes.fortios_ts != nil'
+      output: syslog_tls_fortios_kv_cleanup
+    default: add_tls_format_fortios_kv_failed
+  - type: remove
+    id: syslog_tls_fortios_kv_cleanup
+    field: attributes.fortios_ts
+    on_error: send_quiet
+    output: syslog_tls_fortios_kv_cleanup_date
+  - type: remove
+    id: syslog_tls_fortios_kv_cleanup_date
+    field: attributes.fortios_date
+    on_error: send_quiet
+    output: syslog_tls_fortios_kv_cleanup_time
+  - type: remove
+    id: syslog_tls_fortios_kv_cleanup_time
+    field: attributes.fortios_time
+    on_error: send_quiet
+    output: add_tls_format_fortios_kv
+
   # Cisco IOS format parser
   - type: regex_parser
     id: syslog_tls_cisco_parser
@@ -700,6 +864,16 @@ tcp_log/syslog_tls:
     id: add_tls_format_iso_failed
     field: attributes.syslog.format
     value: rfc3164_iso8601_failed
+    output: add_tls_log_type
+  - type: add
+    id: add_tls_format_fortios_kv
+    field: attributes.syslog.format
+    value: fortios_kv
+    output: add_tls_log_type
+  - type: add
+    id: add_tls_format_fortios_kv_failed
+    field: attributes.syslog.format
+    value: fortios_kv_failed
     output: add_tls_log_type
   - type: add
     id: add_tls_format_cisco
