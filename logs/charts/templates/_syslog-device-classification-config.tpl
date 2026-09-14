@@ -36,9 +36,9 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
         - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
-        - 'set(log.attributes["fortios"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
-        # FortiOS has no "event_type" key; subtype is the closest analogue.
-        - 'set(log.attributes["event_type"], log.attributes["fortios"]["subtype"]) where log.attributes["fortios"] != nil and log.attributes["fortios"]["subtype"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
+        - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["fortios"] != nil and log.attributes["fortios"]["subtype"] != nil and log.attributes["event_type"] == nil'
+        - 'delete_key(log.attributes, "_fortios_kv")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -88,8 +88,9 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "cisco"'
       statements:
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "%(?P<cisco_facility>[A-Za-z0-9_]+)-(?P<cisco_severity>[0-7])-(?P<cisco_event_type>[A-Za-z0-9_]+):\\s*(?P<cisco_msg>.*)$"), "upsert") where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:")'
-        - 'set(log.attributes["event_type"], log.attributes["cisco_event_type"]) where log.attributes["cisco_event_type"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["_cisco"], ExtractPatterns(log.attributes["message"], "%(?P<facility>[A-Za-z0-9_]+)-(?P<severity>[0-7])-(?P<event_type>[A-Za-z0-9_]+):\\s*(?P<msg>.*)$")) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:")'
+        - 'set(log.attributes["event_type"], log.attributes["_cisco"]["event_type"]) where log.attributes["_cisco"] != nil and log.attributes["_cisco"]["event_type"] != nil and log.attributes["event_type"] == nil'
+        - 'delete_key(log.attributes, "_cisco")'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os") where log.attributes["netbox.platform.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
         - 'set(log.attributes["hw.vendor"], "Cisco") where log.attributes["hw.vendor"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
