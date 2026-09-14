@@ -150,7 +150,7 @@ transform/external-http:
 {{- if .Values.openTelemetry.auditKafka.enabled }}
 kafka/external_http:
   brokers:
-{{- $brokers := .Values.openTelemetry.externalCollector.externalHttpConfig.kafkaBrokers }}
+{{- $brokers := .Values.openTelemetry.externalCollector.externalHttpConfig.auditKafkaBrokers }}
 {{- if not $brokers }}
   {{- $brokers = .Values.openTelemetry.auditKafka.brokers }}
 {{- end }}
