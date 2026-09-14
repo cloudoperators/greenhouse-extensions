@@ -350,6 +350,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*auth.*")'
         # Keep existing IPS catch-all.
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
@@ -364,7 +365,7 @@ transform/syslog_audit_classification:
         - 'log.attributes["audit_relevant"] != "true"'
         - 'log.attributes["event_type"] != nil'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm|event)$")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
