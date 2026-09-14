@@ -70,7 +70,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.affinity | object | `{}` | Node affinity rules for the collector DaemonSet pods |
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"c97076f"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"b5645ac"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.elastic.enabled | bool | `false` | Activates the configuration for Elastic. |
 | auditLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
