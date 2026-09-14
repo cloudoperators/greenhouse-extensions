@@ -334,8 +334,19 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "THREAT"'
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*THREAT.*")'
         - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(CyberController.Forwarded.Auditing|DefensePro.Auditing|CyberController.Forwarded.Security|CyberController.Auditing|(empty)|DefensePro.Security|DefensePro.AttackEvent|FlowDetector.Auditing|FlowDetector.Configuration|CyberController.AttackLifeCycle))$")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Audit|Log|TOS Notification))$")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
