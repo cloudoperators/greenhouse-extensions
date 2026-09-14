@@ -35,7 +35,7 @@ transform/syslog_device_classification:
         - 'log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed"'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
-        - 'set(log.attributes["netbox.platform.slug"], "fortios")'
+        - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -77,7 +77,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["appname"] == "pf" or IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+\\..*(block|pass) (in|out) on em\\d+).*"))'
         # Cisco Nexus (MAC move / flap events).
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-        # Cisco Router - "rt-*" or "*-rt##*" (excludes CISE_Failed_Attempts). After ISE/PAN/Nexus.
+        # Cisco Router - "rt-*" or "*-rt##*". After ISE/PAN/Nexus.
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "(rt-[a-zA-Z0-9.\\-]+|\\S*-rt[0-9]{2,}\\S*)")'
         # Cisco Router - "rtb" hostname e.g. "<123>rtb...:".
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
