@@ -130,7 +130,7 @@ transform/syslog_device_classification:
         # accounting or *relay appname). pf-only logs are genugate-OR-genuscreen
         # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
         # hostname). Do NOT guess.
-        - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and log.attributes["appname"] != nil and (IsMatch(log.attributes["appname"], "^\\S*relay$") or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*"))'
+        - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
