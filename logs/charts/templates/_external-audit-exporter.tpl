@@ -92,7 +92,11 @@ opensearch/failover_b_syslog_audit:
 {{- else }}
 kafka/syslog_audit:
   brokers:
-{{- range .Values.openTelemetry.auditKafka.brokers }}
+{{- $brokers := .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaBrokers }}
+{{- if not $brokers }}
+  {{- $brokers = .Values.openTelemetry.auditKafka.brokers }}
+{{- end }}
+{{- range $brokers }}
     - {{ . }}
 {{- end }}
   protocol_version: {{ .Values.openTelemetry.auditKafka.protocol_version }}
