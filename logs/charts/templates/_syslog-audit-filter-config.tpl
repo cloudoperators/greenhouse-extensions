@@ -386,6 +386,13 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["audit_relevant"] == "true"'
         - 'log.attributes["sap.cc.audit.source"] == nil'
+        - 'log.attributes["netbox.platform.slug"] != nil'
+      statements:
+        - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.platform.slug"])'
+    - context: log
+      conditions:
+        - 'log.attributes["audit_relevant"] == "true"'
+        - 'log.attributes["sap.cc.audit.source"] == nil'
         - 'log.attributes["netbox.manufacturer.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
