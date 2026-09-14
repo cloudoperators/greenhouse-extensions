@@ -361,6 +361,12 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
     - context: log
       conditions:
+        - 'log.attributes["audit_relevant"] != "true"'
+        - 'log.attributes["event_type"] != nil'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm|event)$")'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
