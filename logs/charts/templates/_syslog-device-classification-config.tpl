@@ -37,7 +37,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
         - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
-        - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["event_type"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
     - context: log
       conditions:
