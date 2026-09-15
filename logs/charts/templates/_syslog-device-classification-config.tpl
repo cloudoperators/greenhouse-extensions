@@ -30,6 +30,8 @@ transform/syslog_device_classification:
   error_mode: ignore
   log_statements:
     - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] != "vmware"'
       statements:
         - 'delete_key(log.attributes, "netbox.manufacturer.slug")
         - 'delete_key(log.attributes, "netbox.platform.slug")'
