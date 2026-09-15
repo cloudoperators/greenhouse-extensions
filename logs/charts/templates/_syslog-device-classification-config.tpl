@@ -34,12 +34,6 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
-        - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
-        - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
-        - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["subtype"] == nil'
-        - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
-        - 'delete_key(log.attributes, "_fortios_kv")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
@@ -187,4 +181,15 @@ transform/syslog_device_classification:
       statements:
         # netbox.platform.slug can be f5os or f5-tmos
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
+        - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
+        - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["subtype"] == nil'
+        - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
+        - 'delete_key(log.attributes, "_fortios_kv")'
 {{- end }}
