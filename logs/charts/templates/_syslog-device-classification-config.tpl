@@ -37,7 +37,9 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
         - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], "=", " ")) where log.attributes["message"] != nil'
-        - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["subtype"] == nil'
+        - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
     - context: log
       conditions:
@@ -156,6 +158,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
         # Vendor-agnostic event fields.
         - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
+        - 'set(log.attributes["sap.cc.device.product"], Int(log.attributes["_kv"]["product"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
         # Drop the temp map so no unscoped raw KV leaks downstream.
         - 'delete_key(log.attributes, "_kv")'
     - context: log
