@@ -31,7 +31,7 @@ transform/syslog_device_classification:
   log_statements:
     - context: log
       statements:
-        - 'delete_key(log.attributes, "netbox.manufacturer.slug") where log.attributes["netbox.manufacturer.slug"] != "cisco"'
+        - 'delete_key(log.attributes, "netbox.manufacturer.slug")
         - 'delete_key(log.attributes, "netbox.platform.slug")'
         - 'delete_key(log.attributes, "netbox.role.slug")'
     - context: log
