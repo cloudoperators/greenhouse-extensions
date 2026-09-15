@@ -187,7 +187,7 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
         - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["message"], " ", "=")) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|caddr=|saddr=)")'
+        - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], " ", "=")) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|caddr=|saddr=)")'
         - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["subtype"] == nil'
         - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
         - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
