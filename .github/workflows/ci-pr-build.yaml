@@ -64,8 +64,6 @@ jobs:
             chartName: thanos
           - chartDir: trust-manager/charts
             chartName: trust-manager
-          - chartDir: shoot-grafter/charts
-            chartName: shoot-grafter
           - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
             chartName: oidc-discovery-access
           - chartDir: netapp-monitoring/charts
