@@ -25,5 +25,6 @@ resources:
   - teams2slack/plugindefinition.yaml
   - thanos/plugindefinition.yaml
   - trust-manager/plugindefinition.yaml
+  - gardener-shoot-rules/plugindefinition.yaml
   - netapp-monitoring/plugindefinition.yaml
   - nvidia-gpu-operator/plugindefinition.yaml
