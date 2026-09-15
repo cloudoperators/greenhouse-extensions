@@ -11,6 +11,7 @@ resources:
   - doop-api/plugindefinition.yaml
   - exposed-services/plugindefinition.yaml
   - external-dns/plugindefinition.yaml
+  - external-secrets/plugindefinition.yaml
   - gatekeeper/plugindefinition.yaml
   - gatekeeper-config/plugindefinition.yaml
   - gatekeeper-doop/plugindefinition.yaml
