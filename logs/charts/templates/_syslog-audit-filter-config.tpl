@@ -373,8 +373,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
     - context: log
       conditions:
-        - 'log.attributes["audit_relevant"] != "true"'
-        - 'log.attributes["event_type"] != nil'
+        - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
@@ -384,16 +383,12 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
     - context: log
       conditions:
-        - 'log.attributes["audit_relevant"] == "true"'
-        - 'log.attributes["sap.cc.audit.source"] == nil'
-        - 'log.attributes["netbox.platform.slug"] != nil'
+        - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.platform.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.platform.slug"])'
     - context: log
       conditions:
-        - 'log.attributes["audit_relevant"] == "true"'
-        - 'log.attributes["sap.cc.audit.source"] == nil'
-        - 'log.attributes["netbox.manufacturer.slug"] != nil'
+        - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.manufacturer.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
 
