@@ -795,6 +795,7 @@ logs/syslog_tcp:
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
+    - transform/syslog_mac_extract
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
@@ -816,6 +817,7 @@ logs/syslog_udp:
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
+    - transform/syslog_mac_extract
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
@@ -839,6 +841,7 @@ logs/syslog_tcp_tls:
     - transform/syslog_observed_timestamp_fallback
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
+    - transform/syslog_mac_extract
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
