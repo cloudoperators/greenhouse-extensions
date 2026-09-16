@@ -379,6 +379,8 @@ openTelemetry:
         - OTelLogsSLOBurnRateWarning
         - OTelLogsExportFailureRatioHigh
         - OTelExporterQueueFull
+        - OTelLogsDeadletterFlushFailing
+        - OTelLogsDeadletterIndexGrowing
       # Opt-in alerts (not enabled by default):
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
       #     (100%) is already in the default set; this earlier signal can be noisy on clusters with

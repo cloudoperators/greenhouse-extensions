@@ -362,4 +362,43 @@ spec:
           description: 'OTel on {{`{{ $labels.k8s_cluster_name }}`}} is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
   {{- end }}
 
+  {{- if (has "OTelLogsDeadletterIndexGrowing" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsDeadletterIndexGrowing
+        expr: |
+          sum by (k8s_cluster_name, index) (
+            increase(opensearch_exporter_on_error_docs_total{
+              job=~".*/opentelemetry-collector-logs.*"
+            }[30m])
+          ) > 0
+        for: 2h
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterIndexGrowing.md'
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Logs routed to deadletter index on {{`{{ $labels.index }}`}}, {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'OpenSearch deadletter index {{`{{ $labels.index }}`}} on {{`{{ $labels.k8s_cluster_name }}`}} is receiving documents due to permanent indexing failures. Logs have been routed to the error index for at least 2 hours.'
+  {{- end }}
+
+  {{- if (has "OTelLogsDeadletterFlushFailing" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsDeadletterFlushFailing
+        expr: |
+          sum by (k8s_cluster_name, index) (
+            increase(opensearch_exporter_on_error_flush_failures_total{
+              job=~".*/opentelemetry-collector-logs.*"
+            }[30m])
+          ) > 0
+        for: 30m
+        labels:
+          context: logshipping
+          severity: critical
+          no_alert_on_absence: "true"
+          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md'
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Deadletter index flush failing on {{`{{ $labels.index }}`}}, {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
+  {{- end }}
 {{- end }}
