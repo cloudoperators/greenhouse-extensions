@@ -195,7 +195,6 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
       telemetry:
         logs:
           level: WARN
@@ -208,6 +207,7 @@ spec:
             fortlogs.source: "otel"
             fortlogs.component: "ingester"
             sap.cc.audit.source: "fortlogs-audit-ingester-{{ $name }}-collector"
+{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:

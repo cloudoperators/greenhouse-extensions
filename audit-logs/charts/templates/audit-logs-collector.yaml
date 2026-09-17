@@ -667,7 +667,6 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
         logs:
           level: WARN
@@ -679,10 +678,10 @@ spec:
           initial_fields:
             fortlogs.source: "otel"
             sap.cc.audit.source: "fortlogs-audit-logs-collector"
-          exporters:
-            - otlp:
-                protocol: grpc/protobuf
-                endpoint: localhost:4317
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.telemetryOTLPExporter" . | nindent 10 -}}
+{{- end }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:

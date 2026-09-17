@@ -69,7 +69,7 @@ auditLogs:
       enabled: false
       # Paths to include from the filelog self-logging ingestion.
       include: []
-      # Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telementry is setup for the collector's internal logging.
+      # Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging.
       exclude: []
     # -- Kafka exporter configuration for buffering audit logs
     kafka:

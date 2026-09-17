@@ -12,12 +12,12 @@ otlp/self_logging:
 file_log/self_logging:
   include_file_path: true
   include:
-{{- range .Values.auditLogs.selflogging.include }}
+{{- range .Values.auditLogs.logsCollector.selflogging.include }}
     - {{ . }}
 {{- end }}
   exclude:
     - /var/log/pods/fortlogs-audit_audit-logs-collector-*
-{{- range .Values.auditLogs.selflogging.exclude }}
+{{- range .Values.auditLogs.logsCollector.selflogging.exclude }}
     - {{ . }}
 {{- end }}
   operators:
@@ -41,8 +41,28 @@ transform/self_logging:
       statements:
         - set(log.attributes["fortlogs.source"], log.body["fortlogs.source"]) where IsMap(log.body) and log.body["fortlogs.source"] != nil
         - set(log.attributes["fortlogs.component"], log.body["fortlogs.component"]) where IsMap(log.body) and log.body["fortlogs.component"] != nil
-        - set(log.attributes["sap.cc.audit.source"], log.body["sap.cc.audit.source"]) where IsMap(log.body) and log.body["sap.cc.audit.source"] != nil
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["app.label.component"], "kafka")
+      statements:
+        - set(log.attributes["fortlogs.source"], "kafka") where log.attributes["fortlogs.source"] == nil
+        - set(log.attributes["fortlogs.component"], "kafka") where log.attributes["fortlogs.component"] == nil
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["app.label.component"], "opensearch")
+      statements:
+        - set(log.attributes["fortlogs.source"], "opensearch") where log.attributes["fortlogs.source"] == nil
+        - set(log.attributes["fortlogs.component"], "opensearch") where log.attributes["fortlogs.component"] == nil
 {{- end }}
+
+{{- define "selflogging.telemetryOTLPExporter" -}}
+exporters:
+  - otlp:
+      protocol: grpc/protobuf
+      endpoint: localhost:4317
+{{- end }}
+
+
 
 {{- define "selflogging.pipelines" }}
 logs/self_logging:
