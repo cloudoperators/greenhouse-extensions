@@ -73,6 +73,8 @@ transform/syslog_device_classification:
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["appname"] == "pf" or (log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+\\..*(block|pass) (in|out) on em\\d+).*") )' 
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
+        # NetApp
+        - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[kern_audit:|netapp\\.com/filer/admin).*")'
         # Cisco Nexus (MAC move / flap events).
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
         # Cisco Router - "rt-*" or "*-rt##*". After ISE/PAN/Nexus.
@@ -95,6 +97,9 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "cisco-asa") where log.attributes["netbox.platform.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* %ASA-.*")'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil and log.attributes["netbox.platform.slug"] == "cisco-asa"'
         - 'set(log.attributes["netbox.role.slug"], "switch") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
+        # Extract MAC (Cisco dotted, e.g. 0201.00d5.cbff) into `macaddress` (Elastic-compatible name).
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?:Host|Mac)\\s+(?P<macaddress>[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})"), "upsert") where log.attributes["macaddress"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "(?:Host|Mac)\\s+(?P<macaddress>[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})"), "upsert") where log.attributes["macaddress"] == nil and log.body != nil'
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
     - context: log
@@ -192,4 +197,34 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
         - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
+      statements:
+        # Parse the "::"-delimited ONTAP audit line into a temp map.
+        - 'set(log.attributes["_na"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>.+?):?$")) where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\[kern_audit:.*")'
+        - 'set(log.attributes["client.address"], log.attributes["_na"]["caddr"]) where log.attributes["_na"] != nil and log.attributes["_na"]["caddr"] != nil and log.attributes["client.address"] == nil'
+        - 'set(log.attributes["client.port"], Int(log.attributes["_na"]["cport"])) where log.attributes["_na"] != nil and log.attributes["_na"]["cport"] != nil and log.attributes["client.port"] == nil'
+        - 'set(log.attributes["user.name"], log.attributes["_na"]["user"]) where log.attributes["_na"] != nil and log.attributes["_na"]["user"] != nil and log.attributes["user.name"] == nil'
+        - 'set(log.attributes["user.roles"], [log.attributes["_na"]["role"]]) where log.attributes["_na"] != nil and log.attributes["_na"]["role"] != nil and log.attributes["user.roles"] == nil'
+        - 'set(log.attributes["_http"], ExtractPatterns(log.attributes["_na"]["op"], "^(?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (?P<target>\\S+)")) where log.attributes["_na"] != nil and log.attributes["_na"]["iface"] == "http" and log.attributes["_na"]["op"] != nil'
+        - 'set(log.attributes["http.request.method"], log.attributes["_http"]["method"]) where log.attributes["_http"] != nil and log.attributes["_http"]["method"] != nil'
+        - 'set(log.attributes["url.original"], log.attributes["_http"]["target"]) where log.attributes["_http"] != nil and log.attributes["_http"]["target"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_http"]["target"], "^(?P<url_path>[^?]+)(?:\\?(?P<url_query>.*))?$"), "upsert") where log.attributes["_http"] != nil and log.attributes["_http"]["target"] != nil'
+        - 'set(log.attributes["url.path"], log.attributes["url_path"]) where log.attributes["url_path"] != nil and log.attributes["url.path"] == nil'
+        - 'set(log.attributes["url.query"], log.attributes["url_query"]) where log.attributes["url_query"] != nil and log.attributes["url.query"] == nil'
+        - 'delete_key(log.attributes, "url_path")'
+        - 'delete_key(log.attributes, "url_query")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_na"]["state"], "(?P<code>\\d{3})"), "upsert") where log.attributes["_na"] != nil and log.attributes["_na"]["state"] != nil and IsMatch(log.attributes["_na"]["state"], ".*\\d{3}.*")'
+        - 'set(log.attributes["http.response.status_code"], Int(log.attributes["code"])) where log.attributes["code"] != nil and log.attributes["http.response.status_code"] == nil'
+        - 'delete_key(log.attributes, "code")'
+        - 'set(log.attributes["event_type"], log.attributes["_na"]["state"]) where log.attributes["_na"] != nil and log.attributes["_na"]["state"] != nil and log.attributes["event_type"] == nil'
+        - 'delete_key(log.attributes, "_http")'
+        - 'delete_key(log.attributes, "_na")'
+        # Classification
+        - 'set(log.attributes["netbox.platform.slug"], "netapp-cdot") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "filer") where log.attributes["netbox.role.slug"] == nil'
+        # there is no matching hw.type-value for these kind of logs, so a custom value "storage" is chosen
+        - 'set(log.attributes["hw.type"], "storage") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "NetApp") where log.attributes["hw.vendor"] == nil'
 {{- end }}
