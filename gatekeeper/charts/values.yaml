@@ -6,3 +6,26 @@ gatekeeper:
     resources:
       limits:
         memory: 2Gi
+  validatingWebhookObjectSelector: &webhookObjectSelector
+    matchExpressions:
+    - key: gardener.cloud/purpose
+      operator: NotIn
+      values:
+      - kube-system
+    - key: kubernetes.io/metadata.name
+      operator: NotIn
+      values:
+      - kube-system
+    - key: shoot.gardener.cloud/no-cleanup
+      operator: NotIn
+      values:
+      - "true"
+  validatingWebhookExemptNamespacesLabels: &webhookExemptNamespaces
+    kubernetes.io/metadata.name:
+    - gatekeeper-system
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    - default
+  mutatingWebhookObjectSelector: *webhookObjectSelector
+  mutatingWebhookExemptNamespacesLabels: *webhookExemptNamespaces
