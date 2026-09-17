@@ -263,6 +263,9 @@ topics:
 # @default -- See values.yaml
 users: []
   # - name: test
+  #   externalPassword:
+  #     enabled: true
+  #     passwordValue: P@$$word
   #   authentication:
   #     type: scram-sha-512
   #     password:
