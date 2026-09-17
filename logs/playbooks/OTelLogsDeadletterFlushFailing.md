@@ -11,7 +11,7 @@ The OpenSearch exporter is failing to write documents to the deadletter (on-erro
 
 ## Impact
 
-**CRITICAL**: Documents are being **dropped by the exporter**, this needs to be resolved quickly. This error indicates that neither the primary index nor the deadletter fallback is receiving the logs. As FortLogs uses Kafka there is no *immediate* loss of data, as log records are only marked as "consumed" when they have "successfully" been indexed in OpenSearch (in any index). **However** logs are retained only for a short time in Kafka -- so indexing needs to resume otherwise there is permanent loss of data.
+**CRITICAL**: Documents may be dropped by the exporter and this needs to be resolved quickly. When `openTelemetry.kafka.enabled` is true, Kafka may retain records until successful processing; when Kafka is disabled, failed flushes can cause immediate data loss.
 
 ## Diagnosis
 
@@ -87,20 +87,9 @@ Common error patterns:
 ### For Disk Space Issues
 
 1. **Free up disk space immediately**:
-   - Delete old indices or snapshots via Index Management in OpenSearch Dashboards
-   - Reduce replica count temporarily
-   - Add storage capacity to OpenSearch nodes
-
-2. **Reset flood stage watermark** once space is freed — run in Dev Tools:
-
-```
-PUT _cluster/settings
-{
-  "transient": {
-    "cluster.routing.allocation.disk.watermark.flood_stage": "99%"
-  }
-}
-```
+  - Delete old indices or snapshots via Index Management in OpenSearch Dashboards
+  - Reduce replica count temporarily
+  - Add storage capacity to OpenSearch nodes
 
 ### For Network/Connectivity Issues
 
@@ -135,5 +124,5 @@ GET _cluster/health?pretty
 ## Related Alerts
 
 - `OTelLogsDeadletterIndexGrowing` - Documents successfully reaching deadletter (less severe)
-- `LogsExportingFailed` - General export failures
+- `OTelLogsExportingFailed` - General export failures
 - OpenSearch cluster alerts (if available) - disk, memory, shard allocation

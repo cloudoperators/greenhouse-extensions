@@ -388,9 +388,7 @@ spec:
           sum by (k8s_cluster_name, index) (
             increase(opensearch_exporter_on_error_flush_failures_total{
               job=~".*/opentelemetry-collector-logs.*"
-            }[30m])
-          ) > 0
-        for: 30m
+        for: 5m
         labels:
           context: logshipping
           severity: critical
