@@ -49,7 +49,7 @@ Look for:
 **Check index-level status:**
 
 ```
-GET _cat/indices/*error*?v
+GET _cat/indices/*deadletter*?v
 ```
 
 ### 3. Check OpenSearch Resource Constraints
@@ -70,10 +70,10 @@ kubectl top pods -n <opensearch-namespace>
 
 ### 4. Examine Collector Logs
 
-Check OTel Collector logs for detailed flush error messages:
+Check OTel Ingester Collector logs for detailed flush error messages:
 
 ```bash
-kubectl logs <collector-pod> -n <namespace>
+kubectl logs -l app.kubernetes.io/name=logs-ingester-logs-collector -n <namespace>
 ```
 
 Common error patterns:
@@ -88,24 +88,19 @@ Common error patterns:
 
 1. **Free up disk space immediately**:
   - Delete old indices or snapshots via Index Management in OpenSearch Dashboards
-  - Reduce replica count temporarily
   - Add storage capacity to OpenSearch nodes
 
 ### For Network/Connectivity Issues
 
-1. Verify OpenSearch endpoint is reachable from the collector pods:
+1. Verify OpenSearch endpoint is reachable from the collector pod's network:
 
 ```bash
-kubectl exec -n <namespace> <collector-pod> -- curl -I https://<opensearch-endpoint>
+  kubectl debug -it <pod-name> -n opensearch-logs --image=curlimages/curl:latest --target=<container-name> -- /bin/sh
+  $ curl -I https://<opensearch-endpoint> # is the endpoint reachable?
+  $ nslookup <opensearch-service> # is DNS resolution working?
 ```
 
-2. Check DNS resolution:
-
-```bash
-kubectl exec -n <namespace> <collector-pod> -- nslookup <opensearch-service>
-```
-
-3. Review NetworkPolicies that might block traffic
+2. Review NetworkPolicies that might block traffic
 
 ### After Resolution
 
@@ -126,3 +121,4 @@ GET _cluster/health?pretty
 - `OTelLogsDeadletterIndexGrowing` - Documents successfully reaching deadletter (less severe)
 - `OTelLogsExportingFailed` - General export failures
 - OpenSearch cluster alerts (if available) - disk, memory, shard allocation
+- Contact support: If the cluster doesn't start re-routing after these steps, investigate further or seek assistance from your operations team.

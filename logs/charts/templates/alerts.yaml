@@ -370,7 +370,7 @@ spec:
               job=~".*/opentelemetry-collector-logs.*"
             }[30m])
           ) > 0
-        for: 2h
+        for: 1h
         labels:
           context: logshipping
           severity: warning
