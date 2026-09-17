@@ -92,6 +92,15 @@ kafka:
       type: internal
       tls: true
 
+  # Authorization configuration
+  authorization:
+    # -- Enable authorization for kafka
+    enabled: false
+    # -- Authorization config
+    config:
+      type: simple
+      superUsers: []
+
   # -- Enable metrics
   metricsEnabled: true
 
@@ -249,6 +258,40 @@ topics:
     cleanupPolicy: "delete"
     # -- Max message size (1 MB)
     maxMessageBytes: 1048576
+
+# -- Kafka Users configuration
+# @default -- See values.yaml
+users: []
+  # - name: test
+  #   authentication:
+  #     type: scram-sha-512
+  #     password:
+  #       valueFrom:
+  #         secretKeyRef:
+  #           name: test-kafka-user-password
+  #           key: password
+  #   authorization:
+  #     enabled: true
+  #     acls:
+  #       - resource:
+  #           type: topic
+  #           name: my-topic
+  #           patternType: literal
+  #         operations:
+  #           - Read
+  #           - Describe
+  #       - resource:
+  #           type: group
+  #           name: my-consumer-group
+  #           patternType: literal
+  #         operations:
+  #           - Read
+  #       - resource:
+  #           type: topic
+  #           name: my-topic
+  #           patternType: literal
+  #         operations:
+  #           - Write 
 
 # cert-manager Certificate for the Kafka external listener.
 # `issuer` and `externalCert.dnsNames` are environment-specific.
