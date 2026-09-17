@@ -110,4 +110,4 @@ Once the root cause is fixed:
 
 - `OTelLogsDeadletterFlushFailing` - The deadletter index (datastream) itself is failing to write
 - `OTelLogsExportFailureRatioHigh` - High export failure rate
-- `LogsExportingFailed` - General export failures
+- `OTelLogsExportingFailed` - General export failures
