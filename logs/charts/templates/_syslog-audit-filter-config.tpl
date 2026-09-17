@@ -68,26 +68,6 @@ transform/syslog_extract_appname_from_message:
 
 {{/*
   ============================================================================
-  MAC address extraction (Cisco L2FM / MAC flap events)
-  Extracts the Cisco dotted MAC (e.g. 0201.00d5.cbff) into `macaddress`
-  to stay consistent with the legacy Elastic field name.
-  Checks attributes.message first, falls back to body.
-  Triggers on: L2FM_MAC_MOVE2, L2FM_MAC_MOVE, MAC_MOVE-SP-4-NOTIF,
-               SW_MATM-4-MACFLAP_NOTIF, FWM-2-STM_LOOP_DETECT
-  ============================================================================
-*/}}
-transform/syslog_mac_extract:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(SW_MATM-4-MACFLAP_NOTIF|L2FM-4-L2FM_MAC_MOVE2|L2FM-4-L2FM_MAC_MOVE|MAC_MOVE-SP-4-NOTIF|FWM-2-STM_LOOP_DETECT).*")'
-      statements:
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?:Host|Mac)\\s+(?P<macaddress>[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})"), "upsert") where log.attributes["macaddress"] == nil and IsString(log.attributes["message"])'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "(?:Host|Mac)\\s+(?P<macaddress>[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})"), "upsert") where log.attributes["macaddress"] == nil and IsString(log.body)'
-
-{{/*
-  ============================================================================
   Semantic Convention Normalization
   Maps OTel syslog receiver legacy field names to canonical OTel semantic
   convention field names.
