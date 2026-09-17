@@ -206,6 +206,7 @@ spec:
           error_output_paths: ["stderr"]
           initial_fields:
             fortlogs.source: "otel"
+            fortlogs.component: "ingester"
             sap.cc.audit.source: "fortlogs-audit-ingester-{{ $name }}-collector"
         metrics:
           level: detailed
