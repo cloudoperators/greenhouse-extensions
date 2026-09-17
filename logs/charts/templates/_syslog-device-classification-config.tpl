@@ -201,8 +201,12 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
       statements:
+        # Pick a single source to avoid the duplicated message/body double-match.
+        # Prefer log.body; fall back to message.
+        - 'set(log.attributes["_src"], log.body) where IsMatch(log.body, ".*\\[kern_audit:.*")'
+        - 'set(log.attributes["_src"], log.attributes["message"]) where log.attributes["_src"] == nil and IsMatch(log.attributes["message"], ".*\\[kern_audit:.*")'
         # Parse the "::"-delimited ONTAP audit line into a temp map.
-        - 'set(log.attributes["_na"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>.+?):?$")) where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\[kern_audit:.*")'
+        - 'set(log.attributes["_na"], ExtractPatterns(log.attributes["_src"], ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>Success|Pending|Error|Failure|Failed)\\b.*$")) where log.attributes["_src"] != nil'
         - 'set(log.attributes["client.address"], log.attributes["_na"]["caddr"]) where log.attributes["_na"] != nil and log.attributes["_na"]["caddr"] != nil and log.attributes["client.address"] == nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_na"]["cport"])) where log.attributes["_na"] != nil and log.attributes["_na"]["cport"] != nil and log.attributes["client.port"] == nil'
         - 'set(log.attributes["user.name"], log.attributes["_na"]["user"]) where log.attributes["_na"] != nil and log.attributes["_na"]["user"] != nil and log.attributes["user.name"] == nil'
@@ -221,6 +225,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], log.attributes["_na"]["state"]) where log.attributes["_na"] != nil and log.attributes["_na"]["state"] != nil and log.attributes["event_type"] == nil'
         - 'delete_key(log.attributes, "_http")'
         - 'delete_key(log.attributes, "_na")'
+        - 'delete_key(log.attributes, "_src")'
         # Classification
         - 'set(log.attributes["netbox.platform.slug"], "netapp-cdot") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "filer") where log.attributes["netbox.role.slug"] == nil'
