@@ -192,4 +192,14 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
         - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
+      statements:
+        # netbox.platform.slug should be on of: "netapp-cdot" (only "netapp-cdot" are syslogs, "vasa-provider" are received via http)
+        - 'set(log.attributes["netbox.platform.slug"], "netapp-cdot") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "filer") where log.attributes["netbox.role.slug"] == nil'
+        # there is no fitting hw.type-value for these kind of logs, so a custom value "storage" is chosen
+        - 'set(log.attributes["hw.type"], "storage") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "NetApp") where log.attributes["hw.vendor"] == nil'
 {{- end }}
