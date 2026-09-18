@@ -142,7 +142,7 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
-        - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
+        - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
 
 {{/*
   ============================================================================
