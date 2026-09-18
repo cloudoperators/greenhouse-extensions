@@ -105,7 +105,6 @@ transform/syslog_semconv_normalization:
         # Overwrites previously set syslog_host_name by inner hostname
         # Transforms host.name from fqdn to short-name
         - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
-        - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
 {{/*
@@ -142,7 +141,7 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
-        - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
+        - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
 
 {{/*
   ============================================================================
@@ -233,6 +232,8 @@ transform/syslog_hostname_parsing:
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
+        - 'set(log.attributes["syslog.host.name"], resource.attributes["host.name"]) where log.attributes["syslog.host.name"] == nil and log.attributes["hostname"] != nil and resource.attributes["host.name"] != nil and log.attributes["hostname"] != resource.attributes["host.name"]'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != ""'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
