@@ -265,7 +265,7 @@ users: []
   # - name: test
   #   externalPassword:
   #     enabled: true
-  #     passwordValue: P@$$word
+  #     password: P@$$word
   #   authentication:
   #     type: scram-sha-512
   #     password:
