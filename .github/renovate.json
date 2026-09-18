@@ -134,19 +134,6 @@
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "mikefarah/yq",
       "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update shoot-grafter appVersion in Chart.yaml",
-      "managerFilePatterns": [
-        "/^shoot-grafter/charts/Chart\\.yaml$/"
-      ],
-      "matchStrings": [
-        "appVersion:\\s*\"(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "ghcr.io/cloudoperators/shoot-grafter",
-      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -179,28 +166,6 @@
           "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
           "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
           "bumpType": "patch"
-        }
-      ]
-    },
-    {
-      "matchPackageNames": [
-        "/shoot-grafter/"
-      ],
-      "bumpVersions": [
-        {
-          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
-          "matchStrings": ["\\nversion:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
-          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
-        },
-        {
-          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
-          "matchStrings": ["\\n  version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
-          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
-        },
-        {
-          "filePatterns": ["{{replace '/charts?$' '' packageFileDir}}/plugindefinition.yaml"],
-          "matchStrings": ["helmChart:\\s*\\n(?:\\s*#[^\\n]*\\n)?\\s*name:[^\\n]*\\n\\s*repository:[^\\n]*\\n\\s*version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
-          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
       ]
     },
@@ -345,25 +310,6 @@
         "Makefile"
       ],
       "groupName": "Makefile dependencies"
-    },
-    {
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchPackageNames": [
-        "ghcr.io/cloudoperators/shoot-grafter"
-      ],
-      "matchFileNames": [
-        "shoot-grafter/charts/Chart.yaml",
-        "shoot-grafter/plugindefinition.yaml"
-      ],
-      "groupName": "shoot-grafter image and versions",
-      "commitMessageTopic": "shoot-grafter",
-      "commitMessageExtra": "to {{newValue}}",
-      "additionalBranchPrefix": "shoot-grafter-",
-      "semanticCommits": "enabled",
-      "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
     },
     {
       "description": "Automatically bump spec.version in plugindefinition.yaml when helmChart.version is updated by custom regex managers. The bumpType is determined by the update type (patch/minor/major) of the helmChart.version.",
