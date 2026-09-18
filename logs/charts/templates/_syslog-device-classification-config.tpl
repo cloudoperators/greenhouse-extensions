@@ -74,7 +74,7 @@ transform/syslog_device_classification:
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
-        # F5 ASM WAF - "ASM:unit_hostname".
+        # F5
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[).*")'
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
