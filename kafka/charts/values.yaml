@@ -294,7 +294,7 @@ users: []
   #           name: my-topic
   #           patternType: literal
   #         operations:
-  #           - Write 
+  #           - Write
 
 # cert-manager Certificate for the Kafka external listener.
 # `issuer` and `externalCert.dnsNames` are environment-specific.
