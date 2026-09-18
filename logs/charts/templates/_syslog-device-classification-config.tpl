@@ -128,6 +128,11 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
+        # Genua role by hostname (mirrors NetBox): -vv### = vpn-router,
+        # -adm = firewall-adm, otherwise firewall. Fallback preserves the
+        # previous unconditional "firewall" (no regression).
+        - 'set(log.attributes["netbox.role.slug"], "vpn-router") where log.attributes["netbox.role.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], ".*-vv\\d+(\\.|$)")) or (resource.attributes["host.name"] != nil and IsMatch(resource.attributes["host.name"], ".*-vv\\d+(\\.|$)")))'
+        - 'set(log.attributes["netbox.role.slug"], "firewall-adm") where log.attributes["netbox.role.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], ".*-adm(\\.|$)")) or (resource.attributes["host.name"] != nil and IsMatch(resource.attributes["host.name"], ".*-adm(\\.|$)")))'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["hw.vendor"], "Genua") where log.attributes["hw.vendor"] == nil'
