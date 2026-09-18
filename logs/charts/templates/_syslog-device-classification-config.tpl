@@ -36,12 +36,12 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["syslog.format"] == "cisco_ios"'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["syslog.format"] == "cisco_nxos_year"'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
