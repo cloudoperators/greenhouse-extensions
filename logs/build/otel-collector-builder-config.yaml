@@ -11,13 +11,13 @@ receivers:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/journaldreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/k8seventsreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver v0.152.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/auditdreceiver v0.152.2
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/auditdreceiver v0.161.1
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/kafkareceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/syslogreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/tcplogreceiver v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/udplogreceiver v0.152.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/webhookeventreceiver v0.152.2
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/receiver/webhookeventreceiver v0.161.1
 
 
 processors:
@@ -49,11 +49,11 @@ connectors:
 extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/storage/filestorage v0.152.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/extension/encoding/opensearchlogencodingextension v0.152.1
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/extension/encoding/opensearchlogencodingextension v0.161.1
 
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.152.0
   - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.152.0
-  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/exporter/opensearchexporter v0.152.13
+  - gomod: github.com/cloudoperators/opentelemetry-collector-contrib/exporter/opensearchexporter v0.161.1
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v0.152.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/kafkaexporter v0.152.0
