@@ -13,6 +13,10 @@ spec:
     version: {{ .Values.kafka.version | quote }}
     listeners:
       {{- toYaml .Values.kafka.listeners | nindent 6 }}
+    {{- if .Values.kafka.authorization.enabled }}
+    authorization:
+      {{- toYaml .Values.kafka.authorization.config | nindent 6 }}
+    {{- end }}
     config:
       {{- toYaml .Values.kafka.config | nindent 6 }}
     {{- if .Values.kafka.metricsEnabled }}
