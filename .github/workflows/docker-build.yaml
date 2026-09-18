@@ -36,10 +36,10 @@ jobs:
             Imagename: opensearch-query-exporter
             Imagetag: v0.1.0
             Platform: linux/amd64
-          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#main
+          - Context: https://github.com/SAP-cloud-infrastructure/opensearch-fortlogs.git#3.7.0
             Dockerfiles: Dockerfile
             Imagename: opensearch-fortlogs
-            Imagetag: 3.8.0
+            Imagetag: 3.7.0.6
             Platform: linux/amd64
 
     permissions:
