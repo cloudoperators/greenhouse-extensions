@@ -90,6 +90,31 @@ auditLogs:
         caSecret: ""
         # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
         caSecretKey: ""
+      users: []
+        # - name: read-all
+        #   type: consumer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: read-all2
+        #   type: consumer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all
+        #   type: producer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all2
+        #   type: producer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
     # -- Max characters for the log body in the truncate_message processor. Keep below the
     # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
     maxMessageLength: 32000
