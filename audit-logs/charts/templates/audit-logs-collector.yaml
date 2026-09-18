@@ -69,6 +69,20 @@ spec:
     - secretRef:
         name: audit-logs-basic-auth
 {{- end }}
+{{- $hasProducer := false }}
+{{- range .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq .type "producer" }}{{- $hasProducer = true }}{{- end }}
+{{- end }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled $hasProducer }}
+  envFrom:
+    {{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: {{ $user.name }}-
+    {{- end }}
+    {{- end }}
+{{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -589,6 +603,17 @@ spec:
           insecure_skip_verify: {{ .Values.auditLogs.logsCollector.kafka.tls.insecure_skip_verify }}
 {{- if and (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ .Values.auditLogs.logsCollector.kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.auditLogs.logsCollector.kafka.users) }}
+{{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name }}-password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
         logs:
