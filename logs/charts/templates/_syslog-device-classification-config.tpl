@@ -50,11 +50,11 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         # Check Point (CEF) - contains "(Check Point)". Highest priority.
-        - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\(Check Point\\).*")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.body, ".*Check Point.*")'
         # Cisco ISE - before Cisco Router (ISE hostnames may contain "-rt##").
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        # Trend Micro - "TrendMicro" AND ("IPSevent"|"IPSaudit").
-        - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.body, ".*Check Point.*")'
+        # Trend Micro - "TrendMicro"
+        - 'set(log.attributes["netbox.manufacturer.slug"], "trend-micro") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*TrendMicro.*")'
         # Fortinet
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
         # Radware (DefensePro / CyberController)
