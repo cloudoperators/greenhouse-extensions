@@ -100,6 +100,30 @@ openTelemetry:
     producer:
       flushMaxMessages: 10000
       linger: 10ms
+    # -- Users configuration for Kafka connections
+    # @default -- See values.yaml
+    users: []
+      # - name: read-all
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: read-all2
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: write-all
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: write-all2
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+
     # -- TLS configuration for Kafka connections
     tls:
       # -- Enable TLS for Kafka connections
@@ -145,6 +169,33 @@ openTelemetry:
       caSecret: ""
       # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
       caSecretKey: ""
+    # -- Users configuration for Audit Kafka connections
+    # @default -- See values.yaml
+    users: []
+      # - name: read-all
+      #   type: consumer
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: read-all2
+      #   type: consumer
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: write-all
+      #   type: producer
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
+      # - name: write-all2
+      #   type: producer
+      #   secret:
+      #     generate: true
+      #     name: existing-from-kafka-deployment
+      #     password: vault+222
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true

@@ -496,6 +496,17 @@ kafka/syslog_non_audit:
     ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+  auth:
+    sasl:
+      username: {{ $user.name }}
+      password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
+      mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 
