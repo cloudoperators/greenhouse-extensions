@@ -52,6 +52,33 @@ spec:
         name: otel-syslog-audit-auth
 {{- end }}
 {{- end }}
+{{- $producerExistForLogsKafka := false }}
+{{- range .Values.openTelemetry.kafka.users }}
+{{- if eq .type "producer" }}{{- $producerExistForLogsKafka = true }}{{- end }}
+{{- end }}
+{{- $producerExistForAuditKafka := false }}
+{{- range .Values.openTelemetry.auditKafka.users }}
+{{- if eq .type "producer" }}{{- $producerExistForAuditKafka = true }}{{- end }}
+{{- end }}
+
+
+{{- if and .Values.openTelemetry.kafka.enabled (or $producerExistForLogsKafka $producerExistForAuditKafka) }}
+  envFrom:
+    {{- range $user := .Values.openTelemetry.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: kafka-logs-{{ $user.name }}-
+    {{- end }}
+    {{- end }}
+    {{- range $user := .Values.openTelemetry.auditKafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: kafka-audit-{{ $user.name }}-
+    {{- end }}
+    {{- end }}
+{{- end }}
   ports:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
     - name: am-webhook
@@ -226,6 +253,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
         brokers:
@@ -247,6 +285,17 @@ spec:
           insecure: false
 {{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name }}-password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

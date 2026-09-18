@@ -44,6 +44,15 @@ spec:
   envFrom:
     - secretRef:
         name: logs-ingester-{{ $name }}-auth
+    {{- if not (empty $root.Values.openTelemetry.kafka.users) }}
+    {{- range $user := $root.Values.openTelemetry.kafka.users }}
+    {{- if eq $user.type "consumer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: {{ $user.name }}-
+    {{- end }}
+    {{- end }}
+    {{- end }}
 {{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -87,6 +96,17 @@ spec:
           insecure: false
 {{- if $shouldMountKafkaCASecret }}
           ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty $root.Values.openTelemetry.kafka.users) }}
+{{- range $user := $root.Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "read-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name }}-password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
         logs:
