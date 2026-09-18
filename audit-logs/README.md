@@ -90,7 +90,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.logsCollector.journald.enabled | bool | `false` | Activates ingestion of systemd journal logs |
-| auditLogs.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false},"topic":""}` | Kafka exporter configuration for buffering audit logs |
+| auditLogs.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false},"topic":"","users":[]}` | Kafka exporter configuration for buffering audit logs |
 | auditLogs.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | auditLogs.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | auditLogs.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch. |
