@@ -90,7 +90,7 @@ auditLogs:
         caSecret: ""
         # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
         caSecretKey: ""
-      # -- Kafka user list (with secret/password generation if needed)
+      # -- Users configuration for Kafka connections
       # @default -- see values.yaml
       users: []
         # - name: read-all # kafka user name

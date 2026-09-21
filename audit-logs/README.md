@@ -103,7 +103,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.tls.enabled | bool | `false` | Enable TLS on the connection to Kafka. |
 | auditLogs.logsCollector.kafka.tls.insecure_skip_verify | bool | `false` | Skip server certificate verification. Leave false for production. |
 | auditLogs.logsCollector.kafka.topic | string | `""` | Kafka topic name for audit logs |
-| auditLogs.logsCollector.kafka.users | list | see values.yaml | Kafka user list (with secret/password generation if needed) |
+| auditLogs.logsCollector.kafka.users | list | see values.yaml | Users configuration for Kafka connections |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
 | auditLogs.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
 | auditLogs.nodeSelector | object | `{}` |  |
