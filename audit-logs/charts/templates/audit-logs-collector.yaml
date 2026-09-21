@@ -615,9 +615,7 @@ spec:
     {{- include "es.exporters" . | nindent 6 -}}
 {{- end }}
     extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-      opensearch_log_encoding: {}
-{{- else }}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -646,16 +644,13 @@ spec:
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
-        max_retries: 0
         priority_levels:
           - [logs/failover_a]
           - [logs/failover_b]
 {{- end }}
     service:
       extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-        - opensearch_log_encoding
-{{- else }}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
@@ -676,9 +671,10 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            k8s_cluster_name: ${cluster}
+            k8s_node_name: ${KUBE_NODE_NAME}
+            region: ${region}
 {{- end }}
       pipelines:
         logs/default:
