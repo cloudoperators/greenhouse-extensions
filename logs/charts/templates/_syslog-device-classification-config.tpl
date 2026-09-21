@@ -204,10 +204,10 @@ transform/syslog_device_classification:
         - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
         # CEF format parsing (CEF:0|Fortinet|Fortigate|...).
-        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "cat=")'
-        - 'set(log.attributes["action_type"], ExtractPatterns(log.attributes["message"], "act=(?P<v>\\S+)")["v"]) where log.attributes["action_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
-        - 'set(log.attributes["proto"], ExtractPatterns(log.attributes["message"], "(?:^|\\s)proto=(?P<v>\\S+)")["v"]) where log.attributes["proto"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "proto=")'
-        - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|\\s)msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "msg=")'
+        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
+        - 'set(log.attributes["action_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["action_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
+        - 'set(log.attributes["proto"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])proto=(?P<v>\\S+)")["v"]) where log.attributes["proto"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])proto=")'
+        - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
