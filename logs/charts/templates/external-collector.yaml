@@ -312,8 +312,18 @@ spec:
     {{- include "external_audit_only.serviceExtensions" . | nindent 8 -}}
 {{- end }}
 {{- end }}
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stderr"]
+          error_output_paths: ["stderr"]
+          initial_fields:
+            fortlogs.source: "otel"
+            fortlogs.component: "external-collector"
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
