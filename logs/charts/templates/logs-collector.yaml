@@ -355,9 +355,6 @@ spec:
     extensions:
       file_storage/journald:
         directory: .
-{{- if .Values.openTelemetry.kafka.enabled }}
-      opensearch_log_encoding: {}
-{{- else }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -366,7 +363,6 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
-{{- end }}
     connectors:
       routing:
         default_pipelines:
@@ -425,12 +421,8 @@ spec:
     service:
       extensions:
         - file_storage/journald
-{{- if .Values.openTelemetry.kafka.enabled }}
-        - opensearch_log_encoding
-{{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
-{{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
         metrics:
@@ -448,9 +440,10 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            k8s_cluster_name: ${cluster}
+            k8s_node_name: ${KUBE_NODE_NAME}
+            region: ${region}
 {{- end }}
       pipelines:
         logs/route_default:
