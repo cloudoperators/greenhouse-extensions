@@ -60,7 +60,7 @@ spec:
     {{- range $user := .Values.openTelemetry.kafka.users }}
     {{- if eq $user.type "producer" }}
     - secretRef:
-        name: {{ $user.secret.name }}
+        name: {{ $user.secret.name | default (printf "kafka-user-%s-password" $user.name) }}
       prefix: {{ $user.name }}-
     {{- end }}
     {{- end }}

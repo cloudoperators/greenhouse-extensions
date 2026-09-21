@@ -62,7 +62,7 @@ spec:
 {{- end }}
 
 
-{{- if and .Values.openTelemetry.kafka.enabled (or $producerExistForLogsKafka $producerExistForAuditKafka) }}
+{{- if or (and .Values.openTelemetry.kafka.enabled $producerExistForLogsKafka) (and .Values.openTelemetry.auditKafka.enabled $producerExistForAuditKafka) }}
   envFrom:
     {{- range $user := .Values.openTelemetry.kafka.users }}
     {{- if eq $user.type "producer" }}
@@ -293,7 +293,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}{{ $user.name }}-password}
+            password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}
