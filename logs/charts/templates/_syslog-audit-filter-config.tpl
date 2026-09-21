@@ -65,6 +65,8 @@ transform/syslog_extract_appname_from_message:
     - context: log
       statements:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^\\S+-pfl\\s+(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^\\S+-pfl\\s+")'
+        - 'set(log.attributes["appname"], "had") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^had\\[\\d+\\]:")'
 
 {{/*
   ============================================================================
@@ -367,7 +369,7 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
         # pf packet-filter BLOCK events are security-relevant.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+\\..*block.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+.*block.*")'
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
