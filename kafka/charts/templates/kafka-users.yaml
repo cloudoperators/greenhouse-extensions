@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
 # SPDX-License-Identifier: Apache-2.0
 
-{{- if and .Values.kafka.enabled .Values.entityOperator.enabled .Values.entityOperator.userOperator }}
+{{- if and .Values.kafka.enabled .Values.entityOperator.enabled .Values.entityOperator.userOperator.enabled }}
 {{- range $user := .Values.users }}
 ---
 apiVersion: kafka.strimzi.io/v1
