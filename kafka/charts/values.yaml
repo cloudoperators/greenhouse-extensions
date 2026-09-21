@@ -262,20 +262,20 @@ topics:
 # -- Kafka Users configuration
 # @default -- See values.yaml
 users: []
-  # - name: test
+  # - name: test # name of a kafka user
   #   externalPassword:
-  #     enabled: true
-  #     password: P@$$word
-  #   authentication:
+  #     enabled: true # enable creation of k8s secret with specified kafka user password
+  #     password: P@$$word # kafka user's password
+  #   authentication: # authentication section see: https://strimzi.io/docs/operators/latest/deploying#scram_sha_512_authentication
   #     type: scram-sha-512
   #     password:
   #       valueFrom:
   #         secretKeyRef:
   #           name: test-kafka-user-password
   #           key: password
-  #   authorization:
-  #     enabled: true
-  #     acls:
+  #   authorization: # authorization section
+  #     enabled: true # enable acl list
+  #     acls: # acl list see: https://strimzi.io/docs/operators/latest/deploying#proc-configuring-kafka-connect-user-authorization-str
   #       - resource:
   #           type: topic
   #           name: my-topic
