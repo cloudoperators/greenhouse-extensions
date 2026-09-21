@@ -22,7 +22,7 @@ spec:
   replicas: {{ dig "replicas" $root.Values.auditLogs.ingesterCollector.replicas $cfg }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "audit-ingester-{{ $name }}-auth"
+    secret.reloader.stakater.com/auto: "true"
   terminationGracePeriodSeconds: 30
   {{- with $root.Values.auditLogs.ingesterCollector.resources }}
   resources:
@@ -40,7 +40,7 @@ spec:
     {{- range $user := $root.Values.auditLogs.logsCollector.kafka.users }}
     {{- if eq $user.type "consumer" }}
     - secretRef:
-        name: {{ $user.secret.name }}
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
       prefix: {{ $user.name }}-
     {{- end }}
     {{- end }}

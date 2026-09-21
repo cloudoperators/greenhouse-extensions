@@ -36,6 +36,7 @@ spec:
   {{- if .Values.auditLogs.podAnnotations }}
   podAnnotations:
     {{- toYaml .Values.auditLogs.podAnnotations | nindent 4 }}
+    secret.reloader.stakater.com/auto: "true"
   {{- end }}
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
@@ -78,7 +79,7 @@ spec:
     {{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
     {{- if eq $user.type "producer" }}
     - secretRef:
-        name: {{ $user.secret.name }}
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
       prefix: {{ $user.name }}-
     {{- end }}
     {{- end }}
