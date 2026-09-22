@@ -36,6 +36,7 @@ spec:
   {{- if .Values.auditLogs.podAnnotations }}
   podAnnotations:
     {{- toYaml .Values.auditLogs.podAnnotations | nindent 4 }}
+    secret.reloader.stakater.com/auto: "true"
   {{- end }}
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
@@ -68,6 +69,20 @@ spec:
   envFrom:
     - secretRef:
         name: audit-logs-basic-auth
+{{- end }}
+{{- $hasProducer := false }}
+{{- range .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq .type "producer" }}{{- $hasProducer = true }}{{- end }}
+{{- end }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled $hasProducer }}
+  envFrom:
+    {{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
@@ -591,6 +606,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.auditLogs.logsCollector.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.auditLogs.logsCollector.kafka.users) }}
+{{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
         logs:
           topic: {{ .Values.auditLogs.logsCollector.kafka.topic }}
           encoding: {{ .Values.auditLogs.logsCollector.kafka.encoding }}
@@ -615,9 +641,7 @@ spec:
     {{- include "es.exporters" . | nindent 6 -}}
 {{- end }}
     extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-      opensearch_log_encoding: {}
-{{- else }}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -646,16 +670,13 @@ spec:
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
-        max_retries: 0
         priority_levels:
           - [logs/failover_a]
           - [logs/failover_b]
 {{- end }}
     service:
       extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-        - opensearch_log_encoding
-{{- else }}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
@@ -676,9 +697,10 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            k8s_cluster_name: ${cluster}
+            k8s_node_name: ${KUBE_NODE_NAME}
+            region: ${region}
 {{- end }}
       pipelines:
         logs/default:
