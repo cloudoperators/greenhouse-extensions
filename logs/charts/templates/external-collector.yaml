@@ -63,7 +63,6 @@ spec:
 {{- if eq .type "producer" }}{{- $producerExistForAuditKafka = true }}{{- end }}
 {{- end }}
 
-
 {{- if or (and .Values.openTelemetry.kafka.enabled $producerExistForLogsKafka) (and .Values.openTelemetry.auditKafka.enabled $producerExistForAuditKafka) }}
   envFrom:
     {{- range $user := .Values.openTelemetry.kafka.users }}
