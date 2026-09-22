@@ -125,7 +125,7 @@ kafka/syslog_audit:
   auth:
     sasl:
       username: {{ $user.name }}
-      password: ${{ "{" }}kafka-audit-{{ $user.name }}-password}
+      password: ${{ "{" }}kafka_audit_{{ $user.name | replace "-" "_" }}_password}
       mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}

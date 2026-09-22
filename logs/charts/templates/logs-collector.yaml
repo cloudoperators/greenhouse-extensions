@@ -21,6 +21,8 @@ spec:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
     secret.reloader.stakater.com/reload: "otel-basic-auth"
+{{- else }}
+    secret.reloader.stakater.com/auto: "true"
 {{- end }}
     prometheus.io/scrape: "false"
 {{- with .Values.openTelemetry.logsCollector.affinity }}
@@ -61,7 +63,7 @@ spec:
     {{- if eq $user.type "producer" }}
     - secretRef:
         name: {{ $user.secret.name | default (printf "kafka-user-%s-password" $user.name) }}
-      prefix: {{ $user.name }}-
+      prefix: {{ $user.name | replace "-" "_" }}_
     {{- end }}
     {{- end }}
 {{- end }}
@@ -292,7 +294,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}{{ $user.name }}-password}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}
@@ -326,7 +328,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}{{ $user.name }}-password}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}

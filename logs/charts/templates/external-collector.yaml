@@ -32,6 +32,8 @@ spec:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
     secret.reloader.stakater.com/reload: "otel-basic-auth{{- if eq (include "externalCollector.auditEnabled" .) "true" }},otel-syslog-audit-auth{{- end }}"
+{{- else }}
+    secret.reloader.stakater.com/auto: "true"
 {{- end }}
   terminationGracePeriodSeconds: 10
   env:
@@ -68,14 +70,14 @@ spec:
     {{- if eq $user.type "producer" }}
     - secretRef:
         name: {{ $user.secret.name }}
-      prefix: kafka-logs-{{ $user.name }}-
+      prefix: kafka_logs_{{ $user.name | replace "-" "_" }}_
     {{- end }}
     {{- end }}
     {{- range $user := .Values.openTelemetry.auditKafka.users }}
     {{- if eq $user.type "producer" }}
     - secretRef:
         name: {{ $user.secret.name }}
-      prefix: kafka-audit-{{ $user.name }}-
+      prefix: kafka_audit_{{ $user.name | replace "-" "_" }}_
     {{- end }}
     {{- end }}
 {{- end }}
@@ -259,7 +261,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
+            password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}
@@ -293,7 +295,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
+            password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}

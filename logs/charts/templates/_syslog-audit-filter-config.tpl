@@ -504,7 +504,7 @@ kafka/syslog_non_audit:
   auth:
     sasl:
       username: {{ $user.name }}
-      password: ${{ "{" }}kafka-logs-{{ $user.name }}-password}
+      password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
       mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}
