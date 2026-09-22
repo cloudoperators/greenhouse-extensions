@@ -34,7 +34,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "c767832"
+    tag: "560cef5"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
@@ -74,7 +74,7 @@ auditLogs:
       topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
-      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding)
+      # -- Message encoding format (otlp_json, otlp_proto, raw)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""

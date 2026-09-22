@@ -318,9 +318,6 @@ spec:
     {{- include "traces.exporter" . | nindent 6 -}}
 {{- end }}
     extensions:
-{{- if .Values.openTelemetry.kafka.enabled }}
-      opensearch_log_encoding: {}
-{{- else }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -331,7 +328,6 @@ spec:
           password: ${failover_password_b}
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.extensions" . | nindent 6 -}}
-{{- end }}
 {{- end }}
 {{- if or (and (not .Values.openTelemetry.kafka.enabled) (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled)) .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     connectors:
@@ -354,14 +350,10 @@ spec:
 {{- end }}
     service:
       extensions:
-{{- if .Values.openTelemetry.kafka.enabled }}
-        - opensearch_log_encoding
-{{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.serviceExtensions" . | nindent 8 -}}
-{{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
@@ -380,9 +372,10 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          k8s_cluster_name: ${cluster}
-          k8s_node_name: ${KUBE_NODE_NAME}
-          region: ${region}
+          attributes:
+            k8s_cluster_name: ${cluster}
+            k8s_node_name: ${KUBE_NODE_NAME}
+            region: ${region}
 {{- end }}
       pipelines:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}

@@ -110,9 +110,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.auditKafka.users | list | See values.yaml | Users configuration for Audit Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"c767832"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"560cef5"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"c767832"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"560cef5"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
@@ -226,6 +226,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.admissionWebhooks.failurePolicy | string | `"Ignore"` | Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server. |
 | opentelemetry-operator.crds.create | bool | `false` | If you want to use the upstream CRDs, set this variable to `true``. |
 | opentelemetry-operator.enabled | bool | `true` | Set to true to enable the installation of the OpenTelemetry Operator. |
+| opentelemetry-operator.manager.extraEnvs[0].name | string | `"NAMESPACE"` |  |
+| opentelemetry-operator.manager.extraEnvs[0].valueFrom.fieldRef.fieldPath | string | `"metadata.namespace"` |  |
 | opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
 | opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
 | opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |
