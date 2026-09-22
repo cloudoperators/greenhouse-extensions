@@ -78,7 +78,7 @@ If you need to pull in upstream changes or modify custom components:
 ```bash
 cd opentelemetry-collector-contrib   # the fork
 git fetch upstream
-git merge upstream/main              # or rebase onto the target release tag
+git merge upstream/main              # or rebase onto the target release tag. only rebase if difference is small, otherwise you have to replay all commits on all upstream ones -- massive headache.
 # resolve conflicts, test, push
 ```
 
@@ -162,3 +162,69 @@ The `audit-logs/` plugin uses the same image. Update `audit-logs/charts/values.y
 - **Go module resolution errors**: Make sure the fork has per-module git tags (e.g., `receiver/auditdreceiver/v0.149.0`) pushed to the remote. The root `v0.149.0` tag is not enough — Go requires tags matching the module path prefix. Never delete and re-push tags; increment the patch version instead.
 - **Module path mismatch**: If the build fails with `module declares its path as: github.com/open-telemetry/... but was required as: github.com/cloudoperators/...`, the `go.mod` and Go import paths in the fork module haven't been updated to the `cloudoperators` path.
 - **Image not found**: Verify the CI pipeline ran successfully and the image exists at `ghcr.io/cloudoperators/opentelemetry-collector-contrib:<sha>`.
+
+
+
+--- 
+
+# Fork Update Playbook
+
+## Pre-merge
+
+1. Note current upstream version your fork tracks (check main `go.mod` or `versions.yaml`).
+2. `git fetch upstream && git merge upstream/main` — resolve conflicts.
+
+## Scope of custom components to check
+
+- `exporter/kafkaexporter`
+- `exporter/opensearchexporter`
+- `receiver/webhookeventreceiver`
+- `receiver/auditdreceiver`
+
+## Breaking-change scan
+
+Read `CHANGELOG-API.md` from your old version to new. Only care about breaking changes in packages your custom components import. Check imports with:
+
+```
+grep "go.opentelemetry.io/collector\|opentelemetry-collector-contrib" <component>/go.mod
+```
+
+Common risk areas (skip if not imported):
+- `pkg/ottl` — heavy churn, mostly hits processors
+- `pkg/stanza` — hits log receivers built on adapter
+- `processor/filter`, `processor/transform` — extension APIs
+- `internal/kafka`, `pkg/kafka/configkafka` — kafka components (sarama → franz-go migration done in v0.153)
+- `extension/observer` — receivercreator only
+- Config embedding changes (v0.158) — check for `,squash` on embedded config structs
+
+## Verify each component builds
+
+Each is its own Go module. Must `cd` into it:
+
+```
+cd <component> && go build ./... && go test ./...
+```
+
+If `go.sum` errors → `go mod tidy` in that module.
+
+## Version-mismatch check
+
+For any custom component still on old collector-core version (like auditdreceiver was on v0.147):
+
+1. Pick a similar upstream component at the target version as template for `go.mod`.
+2. Match all `go.opentelemetry.io/collector/*` versions.
+3. Bump `go 1.X` line to match.
+4. Drop stale `replace` directives pointing at dead commits.
+5. `rm go.sum && go mod tidy`.
+6. Build for `darwin` and `GOOS=linux` (auditdreceiver has linux build tags).
+7. Fix compile errors — likely candidates: `receiver.Settings` field renames, factory helper signatures, mdatagen output (regenerate if needed).
+
+## Fork-specific gotchas
+
+- Custom module paths use `github.com/cloudoperators/...` — don't accidentally replace with upstream `github.com/open-telemetry/...` in go.mod.
+- Some go.mod files carry a `replace` line redirecting the upstream module path to your local dir — preserve those.
+- `internal/kafka` fork is already migrated to franz-go; keep it that way.
+
+## Commit conventions
+
+Follow AGENTS.md: use `Assisted-by:` trailer, NOT `Co-authored-by:` (breaks EasyCLA).

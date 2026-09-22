@@ -25,7 +25,6 @@ chart-dirs:
   - oidc-discovery-access/charts/1.0.0
   - opensearch
   - perses
-  - service-proxy/charts/1.0.0
   - thanos
   - trust-manager
 chart-repos:
