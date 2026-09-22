@@ -21,6 +21,8 @@ spec:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
     secret.reloader.stakater.com/reload: "otel-basic-auth"
+{{- else }}
+    secret.reloader.stakater.com/auto: "true"
 {{- end }}
     prometheus.io/scrape: "false"
 {{- with .Values.openTelemetry.logsCollector.affinity }}
@@ -50,6 +52,20 @@ spec:
   envFrom:
     - secretRef:
          name: otel-basic-auth
+{{- end }}
+{{- $hasProducer := false }}
+{{- range .Values.openTelemetry.kafka.users }}
+{{- if eq .type "producer" }}{{- $hasProducer = true }}{{- end }}
+{{- end }}
+{{- if and .Values.openTelemetry.kafka.enabled $hasProducer }}
+  envFrom:
+    {{- range $user := .Values.openTelemetry.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
 {{- end }}
 {{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
   ports:
@@ -272,6 +288,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
       kafka/storage:
         brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -293,6 +320,17 @@ spec:
           insecure: false
 {{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
 {{- else }}

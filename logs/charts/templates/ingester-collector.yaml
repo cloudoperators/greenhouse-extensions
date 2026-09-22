@@ -26,7 +26,7 @@ spec:
 {{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "logs-ingester-{{ $name }}-auth"
+    secret.reloader.stakater.com/auto: "true"
   terminationGracePeriodSeconds: 30
   {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
@@ -44,6 +44,15 @@ spec:
   envFrom:
     - secretRef:
         name: logs-ingester-{{ $name }}-auth
+    {{- if not (empty $root.Values.openTelemetry.kafka.users) }}
+    {{- range $user := $root.Values.openTelemetry.kafka.users }}
+    {{- if eq $user.type "consumer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
+    {{- end }}
 {{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -87,6 +96,17 @@ spec:
           insecure: false
 {{- if $shouldMountKafkaCASecret }}
           ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty $root.Values.openTelemetry.kafka.users) }}
+{{- range $user := $root.Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "read-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
         logs:
