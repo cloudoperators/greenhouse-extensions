@@ -41,7 +41,7 @@ spec:
     {{- if eq $user.type "consumer" }}
     - secretRef:
         name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
-      prefix: {{ $user.name }}-
+      prefix: {{ $user.name | replace "-" "_" }}_
     {{- end }}
     {{- end }}
     {{- end }}
@@ -113,7 +113,7 @@ spec:
         auth:
           sasl:
             username: {{ $user.name }}
-            password: ${{ "{" }}{{ $user.name }}-password}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
             mechanism: SCRAM-SHA-512
 {{- end }}
 {{- end }}
