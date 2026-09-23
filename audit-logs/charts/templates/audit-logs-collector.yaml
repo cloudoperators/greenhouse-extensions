@@ -36,6 +36,7 @@ spec:
   {{- if .Values.auditLogs.podAnnotations }}
   podAnnotations:
     {{- toYaml .Values.auditLogs.podAnnotations | nindent 4 }}
+    secret.reloader.stakater.com/auto: "true"
   {{- end }}
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
@@ -68,6 +69,20 @@ spec:
   envFrom:
     - secretRef:
         name: audit-logs-basic-auth
+{{- end }}
+{{- $hasProducer := false }}
+{{- range .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq .type "producer" }}{{- $hasProducer = true }}{{- end }}
+{{- end }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled $hasProducer }}
+  envFrom:
+    {{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
@@ -591,6 +606,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.auditLogs.logsCollector.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.auditLogs.logsCollector.kafka.users) }}
+{{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
         logs:
           topic: {{ .Values.auditLogs.logsCollector.kafka.topic }}
           encoding: {{ .Values.auditLogs.logsCollector.kafka.encoding }}
@@ -672,9 +698,12 @@ spec:
                     - region
         resource:
           attributes:
-            k8s_cluster_name: ${cluster}
-            k8s_node_name: ${KUBE_NODE_NAME}
-            region: ${region}
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: k8s_node_name
+              value: ${KUBE_NODE_NAME}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
         logs/default:

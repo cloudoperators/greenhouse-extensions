@@ -163,8 +163,6 @@ The `audit-logs/` plugin uses the same image. Update `audit-logs/charts/values.y
 - **Module path mismatch**: If the build fails with `module declares its path as: github.com/open-telemetry/... but was required as: github.com/cloudoperators/...`, the `go.mod` and Go import paths in the fork module haven't been updated to the `cloudoperators` path.
 - **Image not found**: Verify the CI pipeline ran successfully and the image exists at `ghcr.io/cloudoperators/opentelemetry-collector-contrib:<sha>`.
 
-
-
 --- 
 
 # Fork Update Playbook

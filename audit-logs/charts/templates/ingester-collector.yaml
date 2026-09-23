@@ -22,7 +22,7 @@ spec:
   replicas: {{ dig "replicas" $root.Values.auditLogs.ingesterCollector.replicas $cfg }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
-    secret.reloader.stakater.com/reload: "audit-ingester-{{ $name }}-auth"
+    secret.reloader.stakater.com/auto: "true"
   terminationGracePeriodSeconds: 30
   {{- with $root.Values.auditLogs.ingesterCollector.resources }}
   resources:
@@ -36,6 +36,15 @@ spec:
   envFrom:
     - secretRef:
         name: audit-ingester-{{ $name }}-auth
+    {{- if not (empty $root.Values.auditLogs.logsCollector.kafka.users) }}
+    {{- range $user := $root.Values.auditLogs.logsCollector.kafka.users }}
+    {{- if eq $user.type "consumer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
+    {{- end }}
 {{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
   ports:
     - name: prometheus
@@ -96,6 +105,17 @@ spec:
           insecure_skip_verify: {{ dig "tls" "insecure_skip_verify" false $kafka }}
 {{- if and (not (empty $kafka.tls.caSecret)) (not (empty $kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ $kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty $root.Values.auditLogs.logsCollector.kafka.users) }}
+{{- range $user := $root.Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq $user.name "read-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
     processors:
@@ -212,8 +232,10 @@ spec:
                         - region
         resource:
           attributes:
-            k8s_cluster_name: ${cluster}
-            region: ${region}
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
         logs/{{ $name }}:

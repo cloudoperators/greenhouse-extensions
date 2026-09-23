@@ -90,6 +90,33 @@ auditLogs:
         caSecret: ""
         # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
         caSecretKey: ""
+      # -- Users configuration for Kafka connections
+      # @default -- see values.yaml
+      users: []
+        # - name: read-all # kafka user name
+        #   type: consumer # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
+        #   secret:
+        #     generate: true # enable creation of k8s secret that contains the kafka user password
+        #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
+        #     password: vault+222 # kafka user password
+        # - name: read-all2
+        #   type: consumer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all
+        #   type: producer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all2
+        #   type: producer
+        #   secret:
+        #     generate: true
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
     # -- Max characters for the log body in the truncate_message processor. Keep below the
     # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
     maxMessageLength: 32000

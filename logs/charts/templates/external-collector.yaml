@@ -32,6 +32,8 @@ spec:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
     secret.reloader.stakater.com/reload: "otel-basic-auth{{- if eq (include "externalCollector.auditEnabled" .) "true" }},otel-syslog-audit-auth{{- end }}"
+{{- else }}
+    secret.reloader.stakater.com/auto: "true"
 {{- end }}
   terminationGracePeriodSeconds: 10
   env:
@@ -51,6 +53,32 @@ spec:
     - secretRef:
         name: otel-syslog-audit-auth
 {{- end }}
+{{- end }}
+{{- $producerExistForLogsKafka := false }}
+{{- range .Values.openTelemetry.kafka.users }}
+{{- if eq .type "producer" }}{{- $producerExistForLogsKafka = true }}{{- end }}
+{{- end }}
+{{- $producerExistForAuditKafka := false }}
+{{- range .Values.openTelemetry.auditKafka.users }}
+{{- if eq .type "producer" }}{{- $producerExistForAuditKafka = true }}{{- end }}
+{{- end }}
+
+{{- if or (and .Values.openTelemetry.kafka.enabled $producerExistForLogsKafka) (and .Values.openTelemetry.auditKafka.enabled $producerExistForAuditKafka) }}
+  envFrom:
+    {{- range $user := .Values.openTelemetry.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: kafka_logs_{{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
+    {{- range $user := .Values.openTelemetry.auditKafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name }}
+      prefix: kafka_audit_{{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
 {{- end }}
   ports:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
@@ -226,6 +254,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
 {{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
       kafka/traces:
         brokers:
@@ -247,6 +286,17 @@ spec:
           insecure: false
 {{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
           ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -322,9 +372,12 @@ spec:
                     - region
         resource:
           attributes:
-            k8s_cluster_name: ${cluster}
-            k8s_node_name: ${KUBE_NODE_NAME}
-            region: ${region}
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: k8s_node_name
+              value: ${KUBE_NODE_NAME}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
