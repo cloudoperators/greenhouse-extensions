@@ -102,6 +102,17 @@ transform/syslog_device_classification:
         - 'merge_maps(log.attributes, ExtractPatterns(log.body, "(?:Host|Mac)\\s+(?P<macaddress>[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})"), "upsert") where log.attributes["macaddress"] == nil and log.body != nil'
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
+        # Cisco ISE field extraction (only for ISE-classified logs).
+        - 'set(log.attributes["auditLogCategory"], ExtractPatterns(log.attributes["message"], "(?:^|\\s)(?P<v>CISE_\\S+)")["v"]) where log.attributes["auditLogCategory"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CISE_")'
+        - 'set(log.attributes["act"], ExtractPatterns(log.attributes["message"], "Action=(?P<v>[^,]+?\\S)(?:,|$)")["v"]) where log.attributes["act"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Action=")'
+        - 'set(log.attributes["eventMsg"], ExtractPatterns(log.attributes["message"], "\\d+ NOTICE (?P<v>[^,]+)")["v"]) where log.attributes["eventMsg"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NOTICE ")'
+        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Type=(?P<v>[^,]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Type=")'
+        - 'set(log.attributes["srcDnsDomain"], ExtractPatterns(log.attributes["message"], "NetworkDeviceName=(?P<v>[^,\\s#]+)")["v"]) where log.attributes["srcDnsDomain"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NetworkDeviceName=")'
+        - 'set(log.attributes["user"], ExtractPatterns(log.attributes["message"], "UserName=(?P<v>[^,]+)")["v"]) where log.attributes["user"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "UserName=")'
+        - 'set(log.attributes["remoteIP"], ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"]) where log.attributes["remoteIP"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Remote-Address=")'
+        - 'set(log.attributes["systemPort"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"]) where log.attributes["systemPort"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Port=")'
+        - 'set(log.attributes["cmdSet"], ExtractPatterns(log.attributes["message"], "CmdSet=\\[(?P<v>[^\\]]+)\\]")["v"]) where log.attributes["cmdSet"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CmdSet=")'
+        - 'set(log.attributes["failureReason"], ExtractPatterns(log.attributes["message"], "FailureReason=(?P<v>[^,]+)")["v"]) where log.attributes["failureReason"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "FailureReason=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "check-point"'
@@ -197,11 +208,17 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
         - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
+        # Native FortiOS key=value parsing (relay/rule/connection logs).
         - 'set(log.attributes["_fortios_kv"], ParseKeyValue(log.attributes["message"], " ", "=")) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|caddr=|saddr=)")'
         - 'set(log.attributes["subtype"], log.attributes["_fortios_kv"]["subtype"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["subtype"] != nil and log.attributes["subtype"] == nil'
         - 'set(log.attributes["event_type"], log.attributes["_fortios_kv"]["event_type"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["event_type"] != nil and log.attributes["event_type"] == nil'
         - 'set(log.attributes["sap.cc.device.product"], log.attributes["_fortios_kv"]["product"]) where log.attributes["_fortios_kv"] != nil and log.attributes["_fortios_kv"]["product"] != nil and log.attributes["sap.cc.device.product"] == nil'
         - 'delete_key(log.attributes, "_fortios_kv")'
+        # CEF format parsing (CEF:0|Fortinet|Fortigate|...).
+        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
+        - 'set(log.attributes["action_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["action_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
+        - 'set(log.attributes["proto"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])proto=(?P<v>\\S+)")["v"]) where log.attributes["proto"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])proto=")'
+        - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
