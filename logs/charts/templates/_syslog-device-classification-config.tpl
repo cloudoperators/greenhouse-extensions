@@ -78,7 +78,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[).*")'
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[kern_audit:|netapp\\.com/filer/admin).*")'
         # Cisco Nexus (MAC move / flap events).
@@ -206,8 +206,12 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
       statements:
-        # netbox.platform.slug can be f5os or f5-tmos
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
+        # NetBox: all F5 devices are Loadbalancer
+        - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
+        # NetBox platform "F5 TMOS"; default (no F5OS logs in fleet)
+        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
