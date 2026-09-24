@@ -105,7 +105,6 @@ transform/syslog_semconv_normalization:
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
-        # Transforms host.name from fqdn to short-name
         - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
