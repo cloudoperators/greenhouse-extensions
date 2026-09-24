@@ -67,6 +67,10 @@ transform/syslog_extract_appname_from_message:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^\\S+-pfl\\s+(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^\\S+-pfl\\s+")'
         - 'set(log.attributes["appname"], "had") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^had\\[\\d+\\]:")'
+        # Recover appname from "name[pid]:" when APP-NAME slot held a severity word (F5 relay)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+)\\[\\d+\\]:"), "upsert") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^[A-Za-z0-9_.-]+\\[\\d+\\]:") and (log.attributes["appname"] == nil or IsMatch(log.attributes["appname"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)$"))'
+        # Same, when message starts with a leading severity word: "warning tmm20[...]:"
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?:emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)\\s+(?P<appname>[A-Za-z0-9_.-]+)\\[\\d+\\]:"), "upsert") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)\\s+[A-Za-z0-9_.-]+\\[\\d+\\]:") and (log.attributes["appname"] == nil or IsMatch(log.attributes["appname"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)$"))'
 
 {{/*
   ============================================================================
