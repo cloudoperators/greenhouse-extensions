@@ -65,6 +65,8 @@ transform/syslog_extract_appname_from_message:
     - context: log
       statements:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^\\S+-pfl\\s+(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^\\S+-pfl\\s+")'
+        - 'set(log.attributes["appname"], "had") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^had\\[\\d+\\]:")'
 
 {{/*
   ============================================================================
@@ -368,7 +370,7 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
         # pf packet-filter BLOCK events are security-relevant.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+\\..*block.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+.*block.*")'
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
@@ -495,6 +497,17 @@ kafka/syslog_non_audit:
     insecure: false
 {{- if and (not (empty .Values.openTelemetry.kafka.tls.caSecret)) (not (empty .Values.openTelemetry.kafka.tls.caSecretKey)) }}
     ca_file: /etc/ssl/kafka/{{ .Values.openTelemetry.kafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.openTelemetry.kafka.users) }}
+{{- range $user := .Values.openTelemetry.kafka.users }}
+{{- if eq $user.name "write-all" }}
+  auth:
+    sasl:
+      username: {{ $user.name }}
+      password: ${{ "{" }}kafka_logs_{{ $user.name | replace "-" "_" }}_password}
+      mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

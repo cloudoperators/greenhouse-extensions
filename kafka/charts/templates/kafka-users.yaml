@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.kafka.enabled .Values.entityOperator.enabled .Values.entityOperator.userOperator.enabled }}
+{{- range $user := .Values.users }}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: {{ $user.name }}
+  labels:
+    {{- include "kafka.labels" $ | nindent 4 }}
+    strimzi.io/cluster: {{ $.Values.kafka.name }}
+spec:
+  authentication:
+    {{- toYaml $user.authentication | nindent 4 }}
+  {{- if dig "authorization" "enabled" false $user }}
+  {{- if empty $user.authorization.acls }}
+    {{- fail "user.authorization.acls is required if user.authorization.enabled is enabled!" }}
+  {{- end }}
+  authorization:
+    type: simple
+    acls:
+      {{- toYaml $user.authorization.acls | nindent 6 }}
+  {{- end }}
+{{- end }}
+{{- end }}
