@@ -232,8 +232,10 @@ spec:
                         - region
         resource:
           attributes:
-            k8s_cluster_name: ${cluster}
-            region: ${region}
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
         logs/{{ $name }}:

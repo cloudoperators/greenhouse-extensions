@@ -63,7 +63,6 @@ spec:
 {{- if eq .type "producer" }}{{- $producerExistForAuditKafka = true }}{{- end }}
 {{- end }}
 
-
 {{- if or (and .Values.openTelemetry.kafka.enabled $producerExistForLogsKafka) (and .Values.openTelemetry.auditKafka.enabled $producerExistForAuditKafka) }}
   envFrom:
     {{- range $user := .Values.openTelemetry.kafka.users }}
@@ -373,9 +372,12 @@ spec:
                     - region
         resource:
           attributes:
-            k8s_cluster_name: ${cluster}
-            k8s_node_name: ${KUBE_NODE_NAME}
-            region: ${region}
+            - name: k8s_cluster_name
+              value: ${cluster}
+            - name: k8s_node_name
+              value: ${KUBE_NODE_NAME}
+            - name: region
+              value: ${region}
 {{- end }}
       pipelines:
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
