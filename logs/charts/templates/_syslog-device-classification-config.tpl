@@ -49,7 +49,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        # Check Point (CEF) - contains "(Check Point)". Highest priority.
+        # Check Point (CEF) - contains "CEF:[0-9]+|Check Point|". Highest priority.
         - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CEF:[0-9]+\\|Check Point\\|.*")'
         # Cisco ISE - before Cisco Router (ISE hostnames may contain "-rt##").
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
