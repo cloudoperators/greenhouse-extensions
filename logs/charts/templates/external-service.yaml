@@ -8,6 +8,9 @@ metadata:
 {{- if and .Values.openTelemetry.externalCollector.externalIP .Values.openTelemetry.externalCollector.calicoLoadBalancerIP }}
     projectcalico.org/loadBalancerIPs: '["{{ .Values.openTelemetry.externalCollector.externalIP }}"]'
 {{- end }}
+{{- if .Values.openTelemetry.externalCollector.nodeSelector }}
+    loadbalancer.openstack.org/node-selector: {{ .Values.openTelemetry.externalCollector.nodeSelector | quote }}
+{{- end }}
 {{- with .Values.openTelemetry.externalCollector.serviceAnnotations }}
     {{- toYaml . | nindent 4 }}
 {{- end }}
