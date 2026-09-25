@@ -199,9 +199,40 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
       statements:
-        # - 'set(log.attributes["netbox.role.slug"], "policy_management") where log.attributes["netbox.role.slug"] == nil'
-        # "policy_management" is no official netbox role
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "Tufin") where log.attributes["hw.vendor"] == nil'
+
+        # event_type + product (mirror the three Logstash message-shape regex tests)
+        - 'set(log.attributes["event_type"], "Log") where log.attributes["event_type"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Tufin SecureTrack, .*")'
+        - 'set(log.attributes["event_type"], "TOS Notification") where log.attributes["event_type"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*TOS Monitoring Notification.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".* SecureTrack: .*")'
+        - 'set(log.attributes["event_type"], "Audit") where log.attributes["event_type"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".* SecureTrack: .*")'
+        - 'set(log.attributes["product"], "TOS Monitoring") where log.attributes["product"] == nil and log.attributes["event_type"] == "TOS Notification"'
+        - 'set(log.attributes["product"], "SecureTrack") where log.attributes["product"] == nil and log.attributes["event_type"] != nil'
+
+        # Audit fields (message, then body fallback)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "SecureTrack: (?P<event_reason>.+), Additional Info:(?P<eventMsg>.*) timestamp:(?P<rt>[0-9][0-9.]+ [0-9:]+) UTC"), "upsert") where log.attributes["event_type"] == "Audit" and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "SecureTrack: (?P<event_reason>.+), Additional Info:(?P<eventMsg>.*) timestamp:(?P<rt>[0-9][0-9.]+ [0-9:]+) UTC"), "upsert") where log.attributes["event_type"] == "Audit" and log.attributes["rt"] == nil and log.body != nil'
+
+        # Log fields: monitored-device variant, then server-only variant
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Tufin SecureTrack, Server (?P<dvchost>[^ (]+)\\((?P<server_fqdn>[^)]*)\\): (?P<monitoredDevice>\\S+) (?P<monitoredIP>[0-9.]+) \\((?P<monitoredID>[0-9]+)\\): (?P<event_reason>.+), Additional Info:(?P<eventMsg>[^,]*),? *timestamp: (?P<rt>[0-9-]+ [0-9:.]+)"), "upsert") where log.attributes["event_type"] == "Log" and log.attributes["rt"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "Tufin SecureTrack, Server (?P<dvchost>[^ (]+)\\((?P<server_fqdn>[^)]*)\\): (?P<monitoredDevice>\\S+) (?P<monitoredIP>[0-9.]+) \\((?P<monitoredID>[0-9]+)\\): (?P<event_reason>.+), Additional Info:(?P<eventMsg>[^,]*),? *timestamp: (?P<rt>[0-9-]+ [0-9:.]+)"), "upsert") where log.attributes["event_type"] == "Log" and log.attributes["rt"] == nil and log.body != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Tufin SecureTrack, Server (?P<dvchost>[^ (]+)\\((?P<server_fqdn>[^)]*)\\): (?P<event_reason>.+), Additional Info: ?(?P<eventMsg>.*)timestamp: (?P<rt>[0-9-]+ [0-9:.]+)"), "upsert") where log.attributes["event_type"] == "Log" and log.attributes["rt"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "Tufin SecureTrack, Server (?P<dvchost>[^ (]+)\\((?P<server_fqdn>[^)]*)\\): (?P<event_reason>.+), Additional Info: ?(?P<eventMsg>.*)timestamp: (?P<rt>[0-9-]+ [0-9:.]+)"), "upsert") where log.attributes["event_type"] == "Log" and log.attributes["rt"] == nil and log.body != nil'
+
+        # TOS Notification: header (message, then body), then variant sub-parse on ocb_temp
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Notification Name: (?P<event_name>[^#]+)#012Notification Metric: (?P<event_reason>[^#]+)#012Generated on: (?P<generatedTime>[^#]+)#012Time of Occurrence: (?P<rt>[^#]+)#012Cluster Name: (?P<cluster>[^#]+)#012Node Name: (?P<dvchost>[^#]+)#012(?P<ocb_temp>.*)"), "upsert") where log.attributes["event_type"] == "TOS Notification" and log.attributes["ocb_temp"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.body, "Notification Name: (?P<event_name>[^#]+)#012Notification Metric: (?P<event_reason>[^#]+)#012Generated on: (?P<generatedTime>[^#]+)#012Time of Occurrence: (?P<rt>[^#]+)#012Cluster Name: (?P<cluster>[^#]+)#012Node Name: (?P<dvchost>[^#]+)#012(?P<ocb_temp>.*)"), "upsert") where log.attributes["event_type"] == "TOS Notification" and log.attributes["ocb_temp"] == nil and log.body != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["ocb_temp"], "Partition Name: (?P<partitionName>[^#]+)#012Partition Filesystem Usage: (?P<partitionUsage>[^#]+)#012Notification Status: (?P<status>[^#]+)#012Notification Threshold: (?P<threshold>[^#]+)#012Notification Severity: (?P<severity>[^#]+)#012Notification Description: (?P<eventMsg>.*)"), "upsert") where log.attributes["ocb_temp"] != nil and IsMatch(log.attributes["ocb_temp"], "Partition Filesystem Usage:")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["ocb_temp"], "Node CPU Usage: (?P<event_metric>[^#]+)#012Notification Status: (?P<status>[^#]+)#012Notification Threshold: (?P<threshold>[^#]+)#012Notification Severity: (?P<severity>[^#]+)#012Notification Description: (?P<eventMsg>.*)"), "upsert") where log.attributes["ocb_temp"] != nil and log.attributes["status"] == nil and log.attributes["event_reason"] != nil and IsMatch(log.attributes["event_reason"], "Node CPU Usage")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["ocb_temp"], "Partition Name: (?P<partitionName>[^#]+)#012Notification Status: (?P<status>[^#]+)#012Notification Threshold: (?P<threshold>[^#]+)#012Notification Severity: (?P<severity>[^#]+)#012Notification Description: (?P<eventMsg>.*)"), "upsert") where log.attributes["ocb_temp"] != nil and log.attributes["status"] == nil'
+        - 'delete_key(log.attributes, "ocb_temp")'
+
+        # Rename onto existing FortLogs conventions (only fields with an existing home)
+        - 'set(log.attributes["server.address"], log.attributes["server_fqdn"]) where log.attributes["server.address"] == nil and log.attributes["server_fqdn"] != nil and log.attributes["server_fqdn"] != ""'
+        - 'set(log.attributes["server.address"], log.attributes["dvchost"]) where log.attributes["server.address"] == nil and log.attributes["dvchost"] != nil'
+        - 'delete_key(log.attributes, "server_fqdn")'
+        - 'delete_key(log.attributes, "dvchost")'
+
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
