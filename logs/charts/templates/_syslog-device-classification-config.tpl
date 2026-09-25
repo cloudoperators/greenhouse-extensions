@@ -200,6 +200,7 @@ transform/syslog_device_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
       statements:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "Tufin") where log.attributes["hw.vendor"] == nil'
 
         # event_type + product (mirror the three Logstash message-shape regex tests)
         - 'set(log.attributes["event_type"], "Log") where log.attributes["event_type"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Tufin SecureTrack, .*")'
@@ -225,6 +226,12 @@ transform/syslog_device_classification:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["ocb_temp"], "Node CPU Usage: (?P<event_metric>[^#]+)#012Notification Status: (?P<status>[^#]+)#012Notification Threshold: (?P<threshold>[^#]+)#012Notification Severity: (?P<severity>[^#]+)#012Notification Description: (?P<eventMsg>.*)"), "upsert") where log.attributes["ocb_temp"] != nil and log.attributes["status"] == nil and log.attributes["event_reason"] != nil and IsMatch(log.attributes["event_reason"], "Node CPU Usage")'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["ocb_temp"], "Partition Name: (?P<partitionName>[^#]+)#012Notification Status: (?P<status>[^#]+)#012Notification Threshold: (?P<threshold>[^#]+)#012Notification Severity: (?P<severity>[^#]+)#012Notification Description: (?P<eventMsg>.*)"), "upsert") where log.attributes["ocb_temp"] != nil and log.attributes["status"] == nil'
         - 'delete_key(log.attributes, "ocb_temp")'
+
+        # Rename onto existing FortLogs conventions (only fields with an existing home)
+        - 'set(log.attributes["server.address"], log.attributes["server_fqdn"]) where log.attributes["server.address"] == nil and log.attributes["server_fqdn"] != nil and log.attributes["server_fqdn"] != ""'
+        - 'set(log.attributes["server.address"], log.attributes["dvchost"]) where log.attributes["server.address"] == nil and log.attributes["dvchost"] != nil'
+        - 'delete_key(log.attributes, "server_fqdn")'
+        - 'delete_key(log.attributes, "dvchost")'
 
     - context: log
       conditions:
