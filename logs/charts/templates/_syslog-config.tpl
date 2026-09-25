@@ -796,6 +796,7 @@ logs/syslog_tcp:
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
+    - groupbyattrs/syslog_origin
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
@@ -817,6 +818,7 @@ logs/syslog_udp:
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
+    - groupbyattrs/syslog_origin
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
@@ -840,6 +842,7 @@ logs/syslog_tcp_tls:
     - transform/syslog_forwarded_by
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
+    - groupbyattrs/syslog_origin
     - transform/syslog_hostname_parsing
     - transform/syslog_nsxt
     - transform/syslog_esxi_vm_events
