@@ -24,10 +24,6 @@ spec:
   affinity:
     {{- toYaml . | nindent 4 }}
 {{- end }}
-{{- with .Values.openTelemetry.externalCollector.nodeSelector }}
-  nodeSelector:
-    {{- toYaml . | nindent 4 }}
-{{- end }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
 {{- if not .Values.openTelemetry.kafka.enabled }}
