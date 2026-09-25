@@ -33,7 +33,7 @@ opentelemetry-operator:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # @ignored renovate does not support generating new README.md
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.159.0
+      tag: v0.159.0@sha256:2ceb3b541295e399d5449890edc5f4c352a7c45483caf1940b243794fe3ed99a
     extraEnvs:
       - name: NAMESPACE
         valueFrom:
