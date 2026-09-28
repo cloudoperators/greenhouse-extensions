@@ -92,8 +92,6 @@ transform/syslog_semconv_normalization:
         - 'set(log.attributes["client.address"], log.attributes["net.peer.name"]) where log.attributes["client.address"] == nil and log.attributes["net.peer.name"] != nil'
         - 'set(log.attributes["client.port"], log.attributes["net.peer.port"]) where log.attributes["client.port"] == nil and log.attributes["net.peer.port"] != nil'
 
-        # Cloud fields
-        - 'set(log.attributes["cloud.region"], log.attributes["region"]) where log.attributes["cloud.region"] == nil and log.attributes["region"] != nil'
         # Process fields
         - 'set(log.attributes["process.pid"], Int(log.attributes["proc_id"])) where log.attributes["process.pid"] == nil and log.attributes["proc_id"] != nil'
 
@@ -137,8 +135,6 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "net.peer.name") where log.attributes["client.address"] != nil'
         - 'delete_key(log.attributes, "net.peer.port") where log.attributes["client.port"] != nil and log.attributes["network.peer.port"] != nil'
 
-        # Cloud fields
-        - 'delete_key(log.attributes, "region") where log.attributes["cloud.region"] != nil'
         # Process fields
         - 'delete_key(log.attributes, "proc_id") where log.attributes["process.pid"] != nil'
 
