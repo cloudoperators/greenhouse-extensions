@@ -196,11 +196,18 @@ kafka/external_http:
 {{- end }}
 {{- end }}
 
+{{- define "external_http.memory_limiter" }}
+memory_limiter/external_http:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+{{- end }}
+
 {{- define "external_http.pipeline" }}
 logs/external-http:
   receivers: [webhookevent/external-http]
   processors:
-    - memory_limiter
+    - memory_limiter/external_http
     - transform/external-http
     - transform/truncate_message
     - attributes/cluster

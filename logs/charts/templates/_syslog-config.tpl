@@ -824,6 +824,13 @@ tcp_log/syslog_tls:
     value: syslogtcptls
 {{- end }}
 
+{{- define "syslog.memory_limiter" }}
+memory_limiter/syslog_audit:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+{{- end }}
+
 {{- define "syslog.pipeline" }}
 {{- if .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled }}
 logs/syslog_http:
@@ -854,6 +861,7 @@ logs/syslog_http:
 logs/syslog_tcp:
   receivers: [tcp_log/syslog]
   processors:
+    - memory_limiter/syslog_audit
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
@@ -875,6 +883,7 @@ logs/syslog_tcp:
 logs/syslog_udp:
   receivers: [udp_log/syslog]
   processors:
+    - memory_limiter/syslog_audit
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
@@ -899,6 +908,7 @@ logs/syslog_udp:
 logs/syslog_tcp_tls:
   receivers: [tcp_log/syslog_tls]
   processors:
+    - memory_limiter/syslog_audit
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback

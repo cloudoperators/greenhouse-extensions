@@ -30,6 +30,17 @@ transform/external-deployments:
         - set(log.attributes["log.type"], "deployment")
 {{- end }}
 
+{{- define "external.memory_limiter" }}
+memory_limiter/external-alerts:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+memory_limiter/external-deployments:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+{{- end }}
+
 {{- define "external.exporter" }}
 {{- if not .Values.openTelemetry.kafka.enabled }}
 {{- range (list "alerts" "deployments") }}
@@ -98,7 +109,7 @@ logs/failover_b_external_{{ toString . }}:
 {{- end }}
 logs/external-alerts:
   receivers: [webhookevent/external-alerts]
-  processors: [transform/external-alerts, attributes/cluster, batch]
+  processors: [memory_limiter/external-alerts, transform/external-alerts, attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka]
 {{- else }}
@@ -107,7 +118,7 @@ logs/external-alerts:
 
 logs/external-deployments:
   receivers: [tcp_log/external-deployments]
-  processors: [transform/external-deployments, attributes/cluster, batch]
+  processors: [memory_limiter/external-deployments, transform/external-deployments, attributes/cluster, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka]
 {{- else }}

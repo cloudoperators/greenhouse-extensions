@@ -516,6 +516,13 @@ kafka/syslog_non_audit:
 {{- end }}
 {{- end }}
 
+{{- define "syslog_audit_filter.memory_limiter" }}
+memory_limiter/syslog_audit_filter:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+{{- end }}
+
 {{- define "syslog_audit_filter.pipeline" }}
 {{/*
   ============================================================================
@@ -549,7 +556,7 @@ logs/syslog_audit:
 # Non-audit syslog logs → logs index
 logs/syslog_non_audit:
   receivers: [routing/syslog_audit]
-  processors: [filter/syslog_drop_non_audit_processes, batch]
+  processors: [memory_limiter/syslog_audit_filter,filter/syslog_drop_non_audit_processes, batch]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka/syslog_non_audit]
 {{- else }}

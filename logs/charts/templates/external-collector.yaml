@@ -198,12 +198,15 @@ spec:
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.externalConfig.enabled }}
     {{- include "external.transform" . | nindent 6 -}}
+    {{- include "external.memory_limiter" . | nindent 6 -}}
 {{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled }}
     {{- include "syslog_audit_filter.transform" . | nindent 6 -}}
     {{- include "syslog_device_classification.transform" . | nindent 6 -}}
+    {{- include "syslog.memory_limiter" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+    {{- include "external_http.memory_limiter" . | nindent 6 -}}
     {{- include "external_http.transform" . | nindent 6 -}}
 {{- end }}
 {{- if .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled }}
@@ -212,11 +215,7 @@ spec:
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.processors" . | nindent 6 -}}
 {{- end }}
-      memory_limiter:
-        check_interval: 5s
-        limit_percentage: 80
-        spike_limit_percentage: 30
-{{- if or .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
       transform/truncate_message:
         error_mode: ignore
         log_statements:
