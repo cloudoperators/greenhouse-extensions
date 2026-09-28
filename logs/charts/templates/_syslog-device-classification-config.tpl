@@ -271,7 +271,7 @@ transform/syslog_device_classification:
         - 'log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T" or log.attributes["sap.cc.audit.source"] == "VCSA"'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["hw.type"], "compute") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.type"], "virtualization") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["hw.vendor"], "VMware") where log.attributes["hw.vendor"] == nil'
         # Platform by audit source. Slugs verified against NetBox manufacturer VMware (id 22):
         #   vmware-nsx-t and vmware-vcsa are confirmed valid NetBox platform slugs.
