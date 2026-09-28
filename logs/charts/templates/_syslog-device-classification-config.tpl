@@ -266,4 +266,18 @@ transform/syslog_device_classification:
         # there is no matching hw.type-value for these kind of logs, so a custom value "storage" is chosen
         - 'set(log.attributes["hw.type"], "storage") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["hw.vendor"], "NetApp") where log.attributes["hw.vendor"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T" or log.attributes["sap.cc.audit.source"] == "VCSA"'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
+        - 'set(log.attributes["hw.type"], "compute") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "VMware") where log.attributes["hw.vendor"] == nil'
+        # Platform by audit source. Slugs verified against NetBox manufacturer VMware (id 22):
+        #   vmware-nsx-t and vmware-vcsa are confirmed valid NetBox platform slugs.
+        #   "vmware-esxi" is NOT a NetBox platform (ESXi hosts are DCIM hypervisors),
+        #   but is retained to preserve existing downstream behavior (backward-compatible).
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "ESXi"'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "NSX-T"'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "VCSA"'
 {{- end }}
