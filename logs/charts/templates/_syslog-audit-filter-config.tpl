@@ -325,6 +325,8 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        # Mark VMware logs as audit-relevant from device classification outputs.
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] == "vmware"'
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant

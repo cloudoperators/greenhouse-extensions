@@ -47,10 +47,26 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["node_nodename"] != nil'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        # VMware audit sources should classify as VMware before generic heuristics run.
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T" or log.attributes["sap.cc.audit.source"] == "VCSA")'
         # Check Point (CEF) - contains "CEF:[0-9]+|Check Point|". Highest priority.
         - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CEF:[0-9]+\\|Check Point\\|.*")'
         # Cisco ISE - before Cisco Router (ISE hostnames may contain "-rt##").
@@ -212,13 +228,7 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["hw.type"], "virtualization") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["hw.vendor"], "VMware") where log.attributes["hw.vendor"] == nil'
-        # Platform by audit source. Slugs verified against NetBox manufacturer VMware (id 22):
-        #   vmware-nsx-t and vmware-vcsa are confirmed valid NetBox platform slugs.
-        #   "vmware-esxi" is NOT a NetBox platform (ESXi hosts are DCIM hypervisors),
-        #   but is retained to preserve existing downstream behavior (backward-compatible).
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "ESXi"'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "NSX-T"'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil and log.attributes["sap.cc.audit.source"] == "VCSA"'
+        # Platform is assigned during VMware detection. Keep the refinement block focused on common VMware attributes.
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
