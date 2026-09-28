@@ -95,7 +95,7 @@ transform/syslog_semconv_normalization:
         # Cloud fields
         - 'set(log.attributes["cloud.region"], log.attributes["region"]) where log.attributes["cloud.region"] == nil and log.attributes["region"] != nil'
         # Process fields
-        - 'set(log.attributes["process.pid"], log.attributes["proc_id"]) where log.attributes["process.pid"] == nil and log.attributes["proc_id"] != nil'
+        - 'set(log.attributes["process.pid"], Int(log.attributes["proc_id"])) where log.attributes["process.pid"] == nil and log.attributes["proc_id"] != nil'
 
         # Network vantage-point view
         - 'set(log.attributes["network.local.address"], log.attributes["net.host.ip"]) where log.attributes["network.local.address"] == nil and log.attributes["net.host.ip"] != nil'
