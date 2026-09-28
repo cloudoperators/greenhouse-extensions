@@ -405,8 +405,13 @@ spec:
             statements:
               - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
+              # Requests that carry credentials: drop both bodies whatever the audit policy logs,
+              # and mark the event so a policy that logs them can be found.
+              - set(attributes["sap.cc.audit.credential_body_removed"], true) where (attributes["requestObject"] != nil or attributes["responseObject"] != nil) and (IsMatch(attributes["objectRef"]["resource"], "^(secrets|tokenreviews|internalsecrets|bmcsecrets)$") or IsMatch(attributes["objectRef"]["subresource"], "^(token|adminkubeconfig|viewerkubeconfig)$"))
+              - delete_key(attributes, "requestObject") where attributes["sap.cc.audit.credential_body_removed"] == true
+              - delete_key(attributes, "responseObject") where attributes["sap.cc.audit.credential_body_removed"] == true
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
-              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
+              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["responseObject"]["data"] != nil
 {{- end }}
 
       attributes/cluster:
