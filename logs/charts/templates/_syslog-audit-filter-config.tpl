@@ -92,6 +92,11 @@ transform/syslog_semconv_normalization:
         - 'set(log.attributes["client.address"], log.attributes["net.peer.name"]) where log.attributes["client.address"] == nil and log.attributes["net.peer.name"] != nil'
         - 'set(log.attributes["client.port"], log.attributes["net.peer.port"]) where log.attributes["client.port"] == nil and log.attributes["net.peer.port"] != nil'
 
+        # Cloud fields
+        - 'set(log.attributes["cloud.region"], log.attributes["region"]) where log.attributes["cloud.region"] == nil and log.attributes["region"] != nil'
+        # Process fields
+        - 'set(log.attributes["process.pid"], log.attributes["proc_id"]) where log.attributes["process.pid"] == nil and log.attributes["proc_id"] != nil'
+
         # Network vantage-point view
         - 'set(log.attributes["network.local.address"], log.attributes["net.host.ip"]) where log.attributes["network.local.address"] == nil and log.attributes["net.host.ip"] != nil'
         - 'set(log.attributes["network.peer.address"], log.attributes["net.peer.ip"]) where log.attributes["network.peer.address"] == nil and log.attributes["net.peer.ip"] != nil'
@@ -106,6 +111,7 @@ transform/syslog_semconv_normalization:
         # Syslog fields
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
+        - 'set(log.attributes["syslog.priority"], log.attributes["priority"]) where log.attributes["syslog.priority"] == nil and log.attributes["priority"] != nil'
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
@@ -131,6 +137,11 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "net.peer.name") where log.attributes["client.address"] != nil'
         - 'delete_key(log.attributes, "net.peer.port") where log.attributes["client.port"] != nil and log.attributes["network.peer.port"] != nil'
 
+        # Cloud fields
+        - 'delete_key(log.attributes, "region") where log.attributes["cloud.region"] != nil'
+        # Process fields
+        - 'delete_key(log.attributes, "proc_id") where log.attributes["process.pid"] != nil'
+
         # Network vantage-point
         - 'delete_key(log.attributes, "net.host.ip") where log.attributes["network.local.address"] != nil'
         - 'delete_key(log.attributes, "net.peer.ip") where log.attributes["network.peer.address"] != nil'
@@ -139,6 +150,7 @@ transform/syslog_drop_legacy_fields:
         # Syslog fields
         - 'delete_key(log.attributes, "facility") where log.attributes["syslog.facility.code"] != nil'
         - 'delete_key(log.attributes, "facility_text") where log.attributes["syslog.facility.name"] != nil'
+        - 'delete_key(log.attributes, "priority") where log.attributes["syslog.priority"] != nil'
         # Drop raw syslog_timestamp only when a valid timestamp was parsed into time_unix_nano.
         # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
         # (strict_date_optional_time||epoch_millis). Keeping it when time_unix_nano == 0
