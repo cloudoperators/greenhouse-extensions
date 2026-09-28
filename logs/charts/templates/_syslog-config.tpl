@@ -805,7 +805,7 @@ logs/syslog_tcp:
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
-    - attributes/cluster
+    - resource/cluster
   exporters: [routing/syslog_audit]
 
 logs/syslog_udp:
@@ -826,7 +826,7 @@ logs/syslog_udp:
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
-    - attributes/cluster
+    - resource/cluster
   exporters: [routing/syslog_audit]
 {{- end }}
 
@@ -849,6 +849,6 @@ logs/syslog_tcp_tls:
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
-    - attributes/cluster
+    - resource/cluster
   exporters: [routing/syslog_audit]
 {{- end }}

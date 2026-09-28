@@ -168,13 +168,13 @@ spec:
         send_batch_max_size: 10000
         timeout: 5s
         send_batch_size: 5000
-      attributes/cluster:
+      resource/cluster:
         actions:
           - action: insert
             key: k8s.cluster.name
             value: ${cluster}
           - action: insert
-            key: region
+            key: cloud.region
             value: ${region}
 {{- if not .Values.openTelemetry.kafka.enabled }}
       attributes/failover_username_a:
