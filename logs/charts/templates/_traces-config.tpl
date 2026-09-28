@@ -59,7 +59,7 @@ failover/opensearch_traces:
 {{- define "traces.pipeline" }}
 traces/ingest:
   receivers: [otlp/traces]
-  processors: [memory_limiter, resource, batch, attributes/cluster]
+  processors: [memory_limiter, resource, batch, resource/cluster]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka/traces]
 {{- else }}

@@ -198,7 +198,7 @@ logs/external-http:
     - memory_limiter
     - transform/external-http
     - transform/truncate_message
-    - attributes/cluster
+    - resource/cluster
 {{- if .Values.openTelemetry.auditKafka.enabled }}
   exporters: [kafka/external_http]
 {{- else }}
