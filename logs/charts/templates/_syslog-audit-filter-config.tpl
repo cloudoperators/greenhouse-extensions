@@ -111,7 +111,7 @@ transform/syslog_semconv_normalization:
         # Syslog fields
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
-        - 'set(log.attributes["syslog.priority"], log.attributes["priority"]) where log.attributes["syslog.priority"] == nil and log.attributes["priority"] != nil'
+        - 'set(log.attributes["syslog.priority"], Int(log.attributes["priority"])) where log.attributes["syslog.priority"] == nil and log.attributes["priority"] != nil'
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
