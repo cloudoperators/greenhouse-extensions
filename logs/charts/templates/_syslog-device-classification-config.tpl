@@ -150,25 +150,24 @@ transform/syslog_device_classification:
         - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
 
         # Event action (security/firewall event)
-        - 'set(log.attributes["event.action"], log.attributes["_kv"]["rule_action"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_action"] != nil'
         - 'set(log.attributes["event.action"], String.toLowerCase(log.attributes["_kv"]["act"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["act"] != nil and log.attributes["event.action"] == nil'
 
         # Event category and type
         - 'set(log.attributes["event.category"], "network") where log.attributes["_kv"] != nil'
         - 'set(log.attributes["event.type"], "firewall") where log.attributes["_kv"] != nil'
 
-        # Timestamp (convert from milliseconds)
-        - 'set(log.attributes["event.created"], Timestamp(log.attributes["_kv"]["rt"], "ms")) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rt"] != nil'
+        # security_rule
+        - 'set(log.attributes["security_rule.name"], log.attributes["_kv"]["cs2"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cs2"] != nil'
+        - 'set(log.attributes["security_rule.uuid"], log.attributes["_kv"]["rule_uid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_uid"] != nil'
+        - 'set(log.attributes["security_rule.category"], log.attributes["_kv"]["rule_action"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_action"] != nil'
+        - 'set(log.attributes["security_rule.ruleset.name"], log.attributes["_kv"]["layer_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["layer_name"] != nil'
 
         # Organization/source device information
         - 'set(log.attributes["host.name"], log.attributes["_kv"]["originsicname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["originsicname"] != nil'
         - 'set(log.attributes["host.ip"], log.attributes["_kv"]["origin"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["origin"] != nil'
 
         # Security-related attributes (custom namespace for firewall-specific data)
-        - 'set(log.attributes["firewall.policy_name"], log.attributes["_kv"]["cs2"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cs2"] != nil'
         - 'set(log.attributes["firewall.policy_uuid"], log.attributes["_kv"]["Security layer_uuid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["Security layer_uuid"] != nil'
-        - 'set(log.attributes["firewall.layer_name"], log.attributes["_kv"]["layer_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["layer_name"] != nil'
-        - 'set(log.attributes["firewall.rule_uid"], log.attributes["_kv"]["rule_uid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_uid"] != nil'
         - 'set(log.attributes["firewall.zone.inbound"], log.attributes["_kv"]["inzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inzone"] != nil'
         - 'set(log.attributes["firewall.zone.outbound"], log.attributes["_kv"]["outzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["outzone"] != nil'
 
