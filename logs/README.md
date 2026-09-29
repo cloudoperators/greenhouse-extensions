@@ -152,6 +152,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint | string | `""` | OpenSearch endpoint for non-audit syslog logs |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.externalCollector.syslogHttpConfig | object | `{"enabled":false,"maxRequestBodySize":10485760,"path":"/syslog/external","port":1518,"tls":{"enabled":true}}` | HTTP receiver that ingests JSON-array syslog batches (webhookevent). Feeds the same audit / non-audit pipeline as tcp_log/syslog. |
+| openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
+| openTelemetry.externalCollector.syslogHttpConfig.path | string | `"/syslog/external"` | HTTP path the receiver serves. Sender must POST here. |
+| openTelemetry.externalCollector.syslogHttpConfig.port | int | `1518` | TCP port for the HTTP receiver. |
+| openTelemetry.externalCollector.syslogHttpConfig.tls | object | `{"enabled":true}` | TLS for the HTTP receiver. When enabled, the collector terminates TLS using the cert provisioned by syslogTLSConfig (secret logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName. |
 | openTelemetry.externalCollector.syslogTLSConfig | object | `{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
 | openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled | bool | `false` | Enable client CA verification (mTLS). Requires a ca.crt key in the TLS secret. |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
