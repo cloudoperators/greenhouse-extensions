@@ -128,7 +128,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         # Check Point CEF Log Parsing - OTEL Semantic Conventions Compliant
         # Extract the entire KV section (everything after the CEF header pipes)
-        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "\\s+act=.*$")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
+        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
         - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil'
         # Client address and port (source of connection - client side)
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
