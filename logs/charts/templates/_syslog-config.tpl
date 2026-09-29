@@ -31,10 +31,12 @@ transform/syslog_http_ingest:
         # tcp_log/syslog. Peer socket enrichment (net.peer.name/port) added by
         # the sender lands in attributes automatically.
         - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        # Promote the syslog line into log.body so exports match tcp_log/syslog
+        # shape. The attribute is kept so downstream syslog processors (which
+        # read attributes["message"]) still work.
+        - set(log.body, log.attributes["message"]) where log.attributes["message"] != nil
         # Flatten nested net.peer.* (from Logstash [net][peer][name]/[port])
         # into dotted attribute keys matching tcp_log/syslog `add_attributes`.
-        # - set(log.attributes["net.peer.name"], log.attributes["net"]["peer"]["name"]) where log.attributes["net"] != nil and log.attributes["net"]["peer"] != nil and log.attributes["net"]["peer"]["name"] != nil
-        # - set(log.attributes["net.peer.port"], log.attributes["net"]["peer"]["port"]) where log.attributes["net"] != nil and log.attributes["net"]["peer"] != nil and log.attributes["net"]["peer"]["port"] != nil
         - delete_key(log.attributes, "net") where log.attributes["net"] != nil
 {{- end }}
 
