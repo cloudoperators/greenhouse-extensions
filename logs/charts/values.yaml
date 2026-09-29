@@ -374,7 +374,7 @@ openTelemetry:
       # TLS using the cert provisioned by syslogTLSConfig (secret
       # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
       tls:
-        enabled: false
+        enabled: true
   # -- Kafka -> OpenSearch ingest collectors. One Deployment per entry.
   # @default -- see values.yaml
   ingesterCollector:
