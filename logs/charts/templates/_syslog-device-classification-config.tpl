@@ -224,11 +224,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
-      statements:
-        # Platform is assigned during VMware detection. Keep the refinement block focused on common VMware attributes.
-    - context: log
-      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
       statements:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
