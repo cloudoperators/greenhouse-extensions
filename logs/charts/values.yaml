@@ -111,25 +111,21 @@ openTelemetry:
       # - name: read-all # kafka user name
       #   type: consumer  # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
       #   secret:
-      #     generate: true # enable creation of k8s secret that contains the kafka user password
       #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
       #     password: vault+222 # kafka user password
       # - name: read-all2
       #   type: consumer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all2
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
 
@@ -184,25 +180,21 @@ openTelemetry:
       # - name: read-all # kafka user name
       #   type: consumer  # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
       #   secret:
-      #     generate: true # enable creation of k8s secret that contains the kafka user password
       #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
       #     password: vault+222 # kafka user password
       # - name: read-all2
       #   type: consumer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all2
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
   logsCollector:
@@ -267,8 +259,8 @@ openTelemetry:
     resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
-    # -- Node Selector rules for the external collector CR
-    nodeSelector: {}
+    # -- Node selector for the external collector LoadBalancer service, as an OpenStack `loadbalancer.openstack.org/node-selector`
+    nodeSelector: ""
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -365,6 +357,21 @@ openTelemetry:
       forwardedBy: external-http
       # -- TLS for the HTTP-JSON receiver. When enabled, the collector
       # terminates TLS using the cert provisioned by syslogTLSConfig (secret
+      # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
+      tls:
+        enabled: true
+    # -- HTTP receiver that ingests JSON-array syslog batches (webhookevent).
+    # Feeds the same audit / non-audit pipeline as tcp_log/syslog.
+    syslogHttpConfig:
+      enabled: false
+      # -- TCP port for the HTTP receiver.
+      port: 1518
+      # -- HTTP path the receiver serves. Sender must POST here.
+      path: /syslog/external
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
+      # -- TLS for the HTTP receiver. When enabled, the collector terminates
+      # TLS using the cert provisioned by syslogTLSConfig (secret
       # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
       tls:
         enabled: true
