@@ -154,9 +154,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["firewall.policy_uuid"], log.attributes["_kv"]["Security layer_uuid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["Security layer_uuid"] != nil'
         - 'set(log.attributes["firewall.zone.inbound"], log.attributes["_kv"]["inzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inzone"] != nil'
         - 'set(log.attributes["firewall.zone.outbound"], log.attributes["_kv"]["outzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["outzone"] != nil'
-        # Service name and identifier
-        - 'set(log.attributes["service.name"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
-        - 'set(log.attributes["service.instance.id"], log.attributes["_kv"]["service_id"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["service_id"] != nil'
         # Cleanup: Drop the temp maps so no unscoped raw KV leaks downstream
         - 'delete_key(log.attributes, "_kv")'
         - 'delete_key(log.attributes, "_kvraw")'
