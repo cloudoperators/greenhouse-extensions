@@ -85,6 +85,10 @@ transform/syslog_semconv_normalization:
   log_statements:
     - context: log
       statements:
+        # Event parsing
+        # We won't drop event_type for now, because certain SIEM rules and metrics rely on it.
+        - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event.type"] == nil and log.attributes["event_type"] != nil'
+        
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
         - 'set(log.attributes["server.address"], log.attributes["net.host.name"]) where log.attributes["server.address"] == nil and log.attributes["net.host.name"] != nil'
