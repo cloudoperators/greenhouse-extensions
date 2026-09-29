@@ -140,10 +140,8 @@ transform/syslog_device_classification:
         - 'set(log.attributes["network.protocol.name"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
         - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
         - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
-        # Event action (security/firewall event) + event category and type
-        - 'set(log.attributes["event.action"], String.toLowerCase(log.attributes["_kv"]["act"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["act"] != nil and log.attributes["event.action"] == nil'
-        - 'set(log.attributes["event.category"], "network") where log.attributes["_kv"] != nil'
-        - 'set(log.attributes["event.type"], "firewall") where log.attributes["_kv"] != nil'
+        # Legacy field event_type with value "Log"
+        - 'set(log.attributes["event_type"], "Log") where log.attributes["_kv"] != nil'
         # security_rule
         - 'set(log.attributes["security_rule.name"], log.attributes["_kv"]["cs2"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cs2"] != nil'
         - 'set(log.attributes["security_rule.uuid"], log.attributes["_kv"]["rule_uid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_uid"] != nil'
@@ -156,8 +154,9 @@ transform/syslog_device_classification:
         - 'set(log.attributes["firewall.policy_uuid"], log.attributes["_kv"]["Security layer_uuid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["Security layer_uuid"] != nil'
         - 'set(log.attributes["firewall.zone.inbound"], log.attributes["_kv"]["inzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inzone"] != nil'
         - 'set(log.attributes["firewall.zone.outbound"], log.attributes["_kv"]["outzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["outzone"] != nil'
-        # Service identifier
-        - 'set(log.attributes["service.name"], log.attributes["_kv"]["service_id"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["service_id"] != nil'
+        # Service name and identifier
+        - 'set(log.attributes["service.name"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
+        - 'set(log.attributes["service.instance.id"], log.attributes["_kv"]["service_id"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["service_id"] != nil'
         # Cleanup: Drop the temp maps so no unscoped raw KV leaks downstream
         - 'delete_key(log.attributes, "_kv")'
         - 'delete_key(log.attributes, "_kvraw")'
@@ -214,7 +213,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
         # Vendor-agnostic event fields.
         - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], Int(log.attributes["_kv"]["product"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
+        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
         # Drop the temp map so no unscoped raw KV leaks downstream.
         - 'delete_key(log.attributes, "_kv")'
         - 'delete_key(log.attributes, "_kvraw")'
