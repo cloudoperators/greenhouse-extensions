@@ -134,7 +134,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.externalCollector.maxMessageLength | int | `32000` | Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size. |
-| openTelemetry.externalCollector.nodeSelector | object | `{}` | Node Selector rules for the external collector CR |
+| openTelemetry.externalCollector.nodeSelector | string | `""` | Node selector for the external collector LoadBalancer service, as an OpenStack `loadbalancer.openstack.org/node-selector` |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
@@ -152,6 +152,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint | string | `""` | OpenSearch endpoint for non-audit syslog logs |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.externalCollector.syslogHttpConfig | object | `{"enabled":false,"maxRequestBodySize":10485760,"path":"/syslog/external","port":1518,"tls":{"enabled":true}}` | HTTP receiver that ingests JSON-array syslog batches (webhookevent). Feeds the same audit / non-audit pipeline as tcp_log/syslog. |
+| openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
+| openTelemetry.externalCollector.syslogHttpConfig.path | string | `"/syslog/external"` | HTTP path the receiver serves. Sender must POST here. |
+| openTelemetry.externalCollector.syslogHttpConfig.port | int | `1518` | TCP port for the HTTP receiver. |
+| openTelemetry.externalCollector.syslogHttpConfig.tls | object | `{"enabled":true}` | TLS for the HTTP receiver. When enabled, the collector terminates TLS using the cert provisioned by syslogTLSConfig (secret logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName. |
 | openTelemetry.externalCollector.syslogTLSConfig | object | `{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
 | openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled | bool | `false` | Enable client CA verification (mTLS). Requires a ca.crt key in the TLS secret. |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
