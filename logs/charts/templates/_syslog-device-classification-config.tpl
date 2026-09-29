@@ -47,6 +47,24 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["node_nodename"] != nil'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         # Check Point (CEF) - contains "CEF:[0-9]+|Check Point|". Highest priority.
