@@ -226,8 +226,6 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
       statements:
-        - 'set(log.attributes["hw.type"], "virtualization") where log.attributes["hw.type"] == nil'
-        - 'set(log.attributes["hw.vendor"], "VMware") where log.attributes["hw.vendor"] == nil'
         # Platform is assigned during VMware detection. Keep the refinement block focused on common VMware attributes.
     - context: log
       conditions:
