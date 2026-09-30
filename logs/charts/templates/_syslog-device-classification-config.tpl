@@ -65,6 +65,27 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-nsx-t"'
+      statements:
+        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
+        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        # Extract audit operation fields
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-esxi"'
+      statements:
+        # Parse VM reconfigure/error events
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-esxi" and log.attributes["appname"] == "sshd" and IsString(log.attributes["message"])'
+      statements:
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         # Check Point (CEF) - contains "CEF:[0-9]+|Check Point|". Highest priority.
