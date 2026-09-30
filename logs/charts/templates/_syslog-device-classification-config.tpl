@@ -144,6 +144,37 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "check-point-gaia") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
+        # Check Point CEF Log Parsing - OTEL Semantic Conventions Compliant
+        # Extract the entire KV section (everything after the CEF header pipes)
+        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
+        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil'
+        # Client address and port (source of connection - client side)
+        - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
+        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
+        # Server address and port (destination of connection - server side)
+        - 'set(log.attributes["server.address"], log.attributes["_kv"]["dst"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dst"] != nil'
+        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["dpt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dpt"] != nil'
+        # Network protocol and interface
+        - 'set(log.attributes["network.protocol.name"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
+        - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
+        - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
+        # Legacy field event_type with value "Log"
+        - 'set(log.attributes["event_type"], "Log") where log.attributes["_kv"] != nil'
+        # security_rule
+        - 'set(log.attributes["security_rule.name"], log.attributes["_kv"]["cs2"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cs2"] != nil'
+        - 'set(log.attributes["security_rule.uuid"], log.attributes["_kv"]["rule_uid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_uid"] != nil'
+        - 'set(log.attributes["security_rule.category"], log.attributes["_kv"]["rule_action"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_action"] != nil'
+        - 'set(log.attributes["security_rule.ruleset.name"], log.attributes["_kv"]["layer_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["layer_name"] != nil'
+        # Organization/source device information
+        - 'set(log.attributes["host.name"], log.attributes["_kv"]["originsicname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["originsicname"] != nil'
+        - 'set(log.attributes["host.ip"], log.attributes["_kv"]["origin"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["origin"] != nil'
+        # Security-related attributes (custom namespace for firewall-specific data)
+        - 'set(log.attributes["firewall.policy_uuid"], log.attributes["_kv"]["Security layer_uuid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["Security layer_uuid"] != nil'
+        - 'set(log.attributes["firewall.zone.inbound"], log.attributes["_kv"]["inzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inzone"] != nil'
+        - 'set(log.attributes["firewall.zone.outbound"], log.attributes["_kv"]["outzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["outzone"] != nil'
+        # Cleanup: Drop the temp maps so no unscoped raw KV leaks downstream
+        - 'delete_key(log.attributes, "_kv")'
+        - 'delete_key(log.attributes, "_kvraw")'
     # Trend Micro is no official Manufacturer, Platfrom or anything similar in Netbox. We will still handle it as such for transformation purposes.
     - context: log
       conditions:
@@ -197,7 +228,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
         # Vendor-agnostic event fields.
         - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], Int(log.attributes["_kv"]["product"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
+        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
         # Drop the temp map so no unscoped raw KV leaks downstream.
         - 'delete_key(log.attributes, "_kv")'
         - 'delete_key(log.attributes, "_kvraw")'
