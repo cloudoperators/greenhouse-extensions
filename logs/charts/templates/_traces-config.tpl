@@ -55,11 +55,17 @@ failover/opensearch_traces:
     sizer: requests
 {{- end }}
 {{- end }}
+{{- define "traces.memory_limiter" }}
+memory_limiter/traces:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
+{{- end }}
 
 {{- define "traces.pipeline" }}
 traces/ingest:
   receivers: [otlp/traces]
-  processors: [memory_limiter, resource, batch, attributes/cluster]
+  processors: [memory_limiter/traces, resource, batch, attributes/cluster]
 {{- if .Values.openTelemetry.kafka.enabled }}
   exporters: [kafka/traces]
 {{- else }}

@@ -825,6 +825,10 @@ tcp_log/syslog_tls:
 {{- end }}
 
 {{- define "syslog.memory_limiter" }}
+memory_limiter/syslog_http:
+  check_interval: 5s
+  limit_percentage: 80
+  spike_limit_percentage: 30
 memory_limiter/syslog_audit:
   check_interval: 5s
   limit_percentage: 80
@@ -836,7 +840,7 @@ memory_limiter/syslog_audit:
 logs/syslog_http:
   receivers: [webhookevent/syslog-http]
   processors:
-    - memory_limiter
+    - memory_limiter/syslog_http
     - transform/syslog_http_ingest
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose

@@ -215,6 +215,9 @@ spec:
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.processors" . | nindent 6 -}}
 {{- end }}
+{{- if .Values.openTelemetry.externalCollector.tracesConfig.enabled }}
+    {{- include "traces.memory_limiter" . | nindent 6 -}}
+{{- end }}
 {{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled }}
       transform/truncate_message:
         error_mode: ignore
