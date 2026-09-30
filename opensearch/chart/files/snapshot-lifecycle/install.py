@@ -130,7 +130,7 @@ def load(filename: str, substitutions: dict | None = None) -> dict:
 def install_repository(name: str) -> None:
     """Register a snapshot repository (or update its settings if it exists)."""
     repo = load(f"snapshot-repo-{name}.json")
-    put(f"/_snapshot/{repo.pop('name')}", repo)
+    put(f"/_snapshot/{repo.pop('name')}?verify=false", repo)
 
 
 def install_stream(stream: str) -> None:
