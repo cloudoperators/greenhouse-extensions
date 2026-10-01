@@ -59,9 +59,14 @@ transform/external-http:
         - set(log.attributes["sourceIPs_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
         - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs"] != nil
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
+        # Flatten nested event object into dotted event.* fields before stringifying.
+        - set(log.attributes["event.action"], log.attributes["event"]["action"]) where log.attributes["event.action"] == nil and log.attributes["event"] != nil and log.attributes["event"]["action"] != nil
+        - set(log.attributes["event.outcome"], log.attributes["event"]["outcome"]) where log.attributes["event.outcome"] == nil and log.attributes["event"] != nil and log.attributes["event"]["outcome"] != nil
+        # Collapse category to a single string field regardless of scalar or array.
+        - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
+        - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])
         - set(log.attributes["event_string"], String(log.attributes["event"])) where log.attributes["event"] != nil
         - delete_key(log.attributes, "event") where log.attributes["event"] != nil
-        - delete_matching_keys(log.attributes, "^event\\..*")
         - set(log.attributes["process_string"], String(log.attributes["process"])) where log.attributes["process"] != nil
         - delete_key(log.attributes, "process") where log.attributes["process"] != nil
         - delete_matching_keys(log.attributes, "^process\\..*")

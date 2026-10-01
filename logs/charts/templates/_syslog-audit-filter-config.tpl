@@ -85,6 +85,10 @@ transform/syslog_semconv_normalization:
   log_statements:
     - context: log
       statements:
+        # Event parsing
+        # We won't drop event_type for now, because certain SIEM rules and metrics rely on it.
+        - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event.type"] == nil and log.attributes["event_type"] != nil'
+        
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
         - 'set(log.attributes["server.address"], log.attributes["net.host.name"]) where log.attributes["server.address"] == nil and log.attributes["net.host.name"] != nil'
@@ -259,63 +263,6 @@ transform/syslog_hostname_parsing:
 
 {{/*
   ============================================================================
-  NSX-T FQDN extraction - extract NSX-T transport-node FQDN from message
-  ============================================================================
-*/}}
-transform/syslog_nsxt:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
-        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
-        # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
-        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
-        # Extract audit operation fields in a single pass
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
-  ESXi VM event parsing
-  ============================================================================
-*/}}
-transform/syslog_esxi_vm_events:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
-        # Parse VM reconfigure/error events
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
-  ESXi SSH login parsing
-  ============================================================================
-*/}}
-transform/syslog_esxi_sshd:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
-        - 'log.attributes["appname"] == "sshd"'
-        - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
   Adds an attribute to identify audit logs for routing.
   Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo
   Also marks any log with a known audit source (sap.cc.audit.source) as audit-relevant.
@@ -331,6 +278,8 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        # Mark VMware logs as audit-relevant from device classification outputs.
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] == "vmware"'
         # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
         # Mark network logs as audit-relevant
