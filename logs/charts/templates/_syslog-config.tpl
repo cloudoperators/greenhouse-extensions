@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 webhookevent/syslog-http:
   endpoint: "0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogHttpConfig.port }}"
   path: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.path | quote }}
+  read_timeout: 2s
+  write_timeout: 2s
   health_path: {{ printf "%s/health" .Values.openTelemetry.externalCollector.syslogHttpConfig.path | quote }}
   max_request_body_size: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int64 }}
   split_as_array: true
