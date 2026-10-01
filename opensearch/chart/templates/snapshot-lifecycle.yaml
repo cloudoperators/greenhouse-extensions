@@ -32,6 +32,8 @@ containers:
         value: {{ .repoNames | join " " | quote }}
       - name: REMOTE_PATTERNS
         value: {{ .remotePatterns | join " " | quote }}
+      - name: HTTP_TIMEOUT
+        value: {{ $cfg.httpTimeout | default 300 | quote }}
       - name: USERNAME
         valueFrom:
           secretKeyRef:

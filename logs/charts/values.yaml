@@ -33,12 +33,7 @@ opentelemetry-operator:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # @ignored renovate does not support generating new README.md
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.159.0
-    extraEnvs:
-      - name: NAMESPACE
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.namespace
+      tag: v0.160.0
     serviceMonitor:
     # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
@@ -357,6 +352,21 @@ openTelemetry:
       forwardedBy: external-http
       # -- TLS for the HTTP-JSON receiver. When enabled, the collector
       # terminates TLS using the cert provisioned by syslogTLSConfig (secret
+      # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
+      tls:
+        enabled: true
+    # -- HTTP receiver that ingests JSON-array syslog batches (webhookevent).
+    # Feeds the same audit / non-audit pipeline as tcp_log/syslog.
+    syslogHttpConfig:
+      enabled: false
+      # -- TCP port for the HTTP receiver.
+      port: 1518
+      # -- HTTP path the receiver serves. Sender must POST here.
+      path: /syslog/external
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
+      # -- TLS for the HTTP receiver. When enabled, the collector terminates
+      # TLS using the cert provisioned by syslogTLSConfig (secret
       # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
       tls:
         enabled: true

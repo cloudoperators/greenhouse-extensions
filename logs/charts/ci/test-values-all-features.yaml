@@ -102,6 +102,12 @@ openTelemetry:
       forwardedBy: external-http
       tls:
         enabled: true
+    syslogHttpConfig:
+      enabled: true
+      port: 1518
+      path: /syslog/external
+      tls:
+        enabled: false
   metricsCollector:
     enabled: false
   ingesterCollector:

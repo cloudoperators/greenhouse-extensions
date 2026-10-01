@@ -2,6 +2,44 @@
 SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
 SPDX-License-Identifier: Apache-2.0
 */}}
+
+{{- define "syslog_http.receiver" }}
+webhookevent/syslog-http:
+  endpoint: "0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogHttpConfig.port }}"
+  path: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.path | quote }}
+  health_path: {{ printf "%s/health" .Values.openTelemetry.externalCollector.syslogHttpConfig.path | quote }}
+  max_request_body_size: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int64 }}
+  split_as_array: true
+  split_logs_at_json_boundary: false
+  split_logs_at_newline: false
+{{- if .Values.openTelemetry.externalCollector.syslogHttpConfig.tls.enabled }}
+  tls:
+    cert_file: /etc/ssl/syslog-tls/tls.crt
+    key_file: /etc/ssl/syslog-tls/tls.key
+{{- end }}
+{{- end }}
+
+{{- define "syslog_http.transform" }}
+transform/syslog_http_ingest:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # Body arrives as the raw HTTP JSON payload string from the sender
+        # (Logstash json_batch -> split_as_array). Merge it into attributes so
+        # the downstream syslog pipeline can consume fields the same way as
+        # tcp_log/syslog. Peer socket enrichment (net.peer.name/port) added by
+        # the sender lands in attributes automatically.
+        - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        # Promote the syslog line into log.body so exports match tcp_log/syslog
+        # shape. The attribute is kept so downstream syslog processors (which
+        # read attributes["message"]) still work.
+        - set(log.body, log.attributes["message"]) where log.attributes["message"] != nil
+        # Flatten nested net.peer.* (from Logstash [net][peer][name]/[port])
+        # into dotted attribute keys matching tcp_log/syslog `add_attributes`.
+        - delete_key(log.attributes, "net") where log.attributes["net"] != nil
+{{- end }}
+
 {{- define "syslog.receiver" }}
 tcp_log/syslog:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.tcp_port }}
@@ -787,6 +825,29 @@ tcp_log/syslog_tls:
 {{- end }}
 
 {{- define "syslog.pipeline" }}
+{{- if .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled }}
+logs/syslog_http:
+  receivers: [webhookevent/syslog-http]
+  processors:
+    - memory_limiter
+    - transform/syslog_http_ingest
+    - filter/syslog_early_drop
+    - filter/syslog_drop_verbose
+    - transform/syslog_observed_timestamp_fallback
+    - transform/syslog_forwarded_by
+    - transform/syslog_extract_appname_from_message
+    - transform/syslog_user_extraction
+    - transform/syslog_hostname_parsing
+    - transform/syslog_device_classification
+    - transform/syslog_audit_classification
+    - transform/syslog_semconv_normalization
+    - transform/syslog_drop_legacy_fields
+    - transform/truncate_message
+    - attributes/cluster
+  exporters: [routing/syslog_audit]
+{{- end }}
+
+{{- if .Values.openTelemetry.externalCollector.syslogConfig.enabled }}
 logs/syslog_tcp:
   receivers: [tcp_log/syslog]
   processors:
@@ -797,9 +858,6 @@ logs/syslog_tcp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
-    - transform/syslog_nsxt
-    - transform/syslog_esxi_vm_events
-    - transform/syslog_esxi_sshd
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
@@ -818,9 +876,6 @@ logs/syslog_udp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
-    - transform/syslog_nsxt
-    - transform/syslog_esxi_vm_events
-    - transform/syslog_esxi_sshd
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
@@ -828,6 +883,7 @@ logs/syslog_udp:
     - transform/truncate_message
     - attributes/cluster
   exporters: [routing/syslog_audit]
+{{- end }}
 {{- end }}
 
 {{- define "syslog_tls.pipeline" }}
@@ -841,9 +897,6 @@ logs/syslog_tcp_tls:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
-    - transform/syslog_nsxt
-    - transform/syslog_esxi_vm_events
-    - transform/syslog_esxi_sshd
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
