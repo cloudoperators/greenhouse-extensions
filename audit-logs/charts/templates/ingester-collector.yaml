@@ -215,8 +215,15 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if $root.Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
