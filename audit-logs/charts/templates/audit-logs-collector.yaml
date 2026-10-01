@@ -172,6 +172,10 @@ spec:
   {{- include "auditpoller.receiver" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.receivers" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -405,8 +409,13 @@ spec:
             statements:
               - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
+              # Requests that carry credentials: drop both bodies whatever the audit policy logs,
+              # and mark the event so a policy that logs them can be found.
+              - set(attributes["sap.cc.audit.credential_body_removed"], true) where (attributes["requestObject"] != nil or attributes["responseObject"] != nil) and (IsMatch(attributes["objectRef"]["resource"], "^(secrets|tokenreviews|internalsecrets|bmcsecrets)$") or IsMatch(attributes["objectRef"]["subresource"], "^(token|adminkubeconfig|viewerkubeconfig)$"))
+              - delete_key(attributes, "requestObject") where attributes["sap.cc.audit.credential_body_removed"] == true
+              - delete_key(attributes, "responseObject") where attributes["sap.cc.audit.credential_body_removed"] == true
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
-              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
+              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["responseObject"]["data"] != nil
 {{- end }}
 
       attributes/cluster:
@@ -680,8 +689,18 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.telemetryOTLPExporter" . | nindent 10 -}}
+{{- end }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
@@ -724,6 +743,9 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.pipelines" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.pipelines" . | nindent 8 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
