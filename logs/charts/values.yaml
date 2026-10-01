@@ -51,7 +51,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "560cef5"
+    tag: "5340dd8"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
