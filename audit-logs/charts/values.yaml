@@ -64,6 +64,13 @@ auditLogs:
     journald:
         # -- Activates ingestion of systemd journal logs
       enabled: false
+    selflogging:
+      # -- Activates the ingestion of telemetry of the collector itself as well as other logs collectors.
+      enabled: false
+      # Paths to include from the filelog self-logging ingestion.
+      include: []
+      # Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging.
+      exclude: []
     # -- Kafka exporter configuration for buffering audit logs
     kafka:
       # -- Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.
