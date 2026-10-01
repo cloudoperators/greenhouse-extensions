@@ -38,6 +38,7 @@ transform/syslog_http_ingest:
         # Flatten nested net.peer.* (from Logstash [net][peer][name]/[port])
         # into dotted attribute keys matching tcp_log/syslog `add_attributes`.
         - delete_key(log.attributes, "net") where log.attributes["net"] != nil
+        - set(log.attributes["log.type"], "sysloghttp")
 {{- end }}
 
 {{- define "syslog.receiver" }}
