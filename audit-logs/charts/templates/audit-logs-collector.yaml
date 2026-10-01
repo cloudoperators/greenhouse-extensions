@@ -172,6 +172,10 @@ spec:
   {{- include "auditpoller.receiver" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.receivers" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -222,6 +226,10 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.processors" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.processors" . | nindent 6 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
@@ -685,8 +693,18 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.telemetryOTLPExporter" . | nindent 10 -}}
+{{- end }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
@@ -729,6 +747,9 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.pipelines" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.pipelines" . | nindent 8 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}

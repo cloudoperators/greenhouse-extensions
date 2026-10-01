@@ -361,8 +361,15 @@ spec:
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.serviceExtensions" . | nindent 8 -}}
 {{- end }}
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
