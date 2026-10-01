@@ -83,7 +83,24 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.platform.slug"] == "vmware-esxi" and log.attributes["appname"] == "sshd" and IsString(log.attributes["message"])'
       statements:
+        # Parse ESXi SSH auth events and align extracted fields to OTel semantic conventions
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
+        - 'set(log.attributes["user.name"], log.attributes["sshd_user"]) where log.attributes["sshd_user"] != nil'
+        - 'set(log.attributes["process.pid"], Int(log.attributes["sshd_process_id"])) where log.attributes["sshd_process_id"] != nil'
+        - 'set(log.attributes["client.address"], log.attributes["sshd_ip"]) where log.attributes["sshd_ip"] != nil'
+        - 'set(log.attributes["client.port"], Int(log.attributes["sshd_port"])) where log.attributes["sshd_port"] != nil'
+        - 'set(log.attributes["event.outcome"], "success") where log.attributes["sshd_status"] == "Accepted"'
+        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["sshd_status"] != nil and log.attributes["sshd_status"] != "Accepted"'
+        - 'set(log.attributes["network.protocol.name"], "ssh") where log.attributes["sshd_protocol"] != nil'
+        - 'set(log.attributes["network.protocol.version"], ExtractPatterns(log.attributes["sshd_protocol"], "ssh(?P<v>\\d+)")["v"]) where log.attributes["sshd_protocol"] != nil'
+        - 'set(log.attributes["event_type"], "Authentication") where log.attributes["event_type"] == nil'
+        - 'delete_key(log.attributes, "sshd_application")'
+        - 'delete_key(log.attributes, "sshd_user")'
+        - 'delete_key(log.attributes, "sshd_process_id")'
+        - 'delete_key(log.attributes, "sshd_ip")'
+        - 'delete_key(log.attributes, "sshd_port")'
+        - 'delete_key(log.attributes, "sshd_status")'
+        - 'delete_key(log.attributes, "sshd_protocol")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
