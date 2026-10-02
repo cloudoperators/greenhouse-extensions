@@ -93,7 +93,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event.outcome"], "failure") where log.attributes["sshd_status"] != nil and log.attributes["sshd_status"] != "Accepted"'
         - 'set(log.attributes["network.protocol.name"], "ssh") where log.attributes["sshd_protocol"] != nil'
         - 'set(log.attributes["network.protocol.version"], ExtractPatterns(log.attributes["sshd_protocol"], "ssh(?P<v>\\d+)")["v"]) where log.attributes["sshd_protocol"] != nil'
-        - 'set(log.attributes["event_type"], "Authentication") where log.attributes["event_type"] == nil'
+        - 'set(log.attributes["event_type"], "Authentication") where log.attributes["event_type"] == nil and log.attributes["sshd_status"] != nil'
         - 'delete_key(log.attributes, "sshd_application")'
         - 'delete_key(log.attributes, "sshd_user")'
         - 'delete_key(log.attributes, "sshd_process_id")'
