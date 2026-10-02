@@ -278,10 +278,8 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
-        # Mark VMware logs as audit-relevant from device classification outputs.
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] == "vmware"'
-        # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
+        # Mark stnpa logs as audit-relevant (stnpa has no netbox slug; identified only by audit source)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "stnpa"'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
@@ -326,6 +324,11 @@ transform/syslog_audit_classification:
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
