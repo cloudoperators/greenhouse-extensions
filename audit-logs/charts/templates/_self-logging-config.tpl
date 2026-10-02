@@ -40,8 +40,8 @@ processors:
   - batch:
       exporter:
         otlp:
-          protocol: grpc/protobuf
-          endpoint: localhost:4317
+          protocol: http/protobuf
+          endpoint: http://localhost:4317
 {{- end }}
 
 
