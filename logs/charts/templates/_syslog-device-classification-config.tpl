@@ -267,44 +267,36 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "pan-os") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
-        # Extract and parse KV pairs (everything after "CEF:0|Palo Alto Networks|...")
-        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "event_type=.*$")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "event_type=")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil'
         # Network - Client (Source)
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
+        - 'set(log.attributes["client.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
         # Network - Server (Destination)
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["dst"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dst"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["dpt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dpt"] != nil'
+        - 'set(log.attributes["server.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
+        - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )dpt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )dpt=")'
         # Network - Protocol
-        - 'set(log.attributes["network.protocol.name"], String.toLowerCase(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
-        - 'set(log.attributes["network.protocol.number"], "6") where log.attributes["_kv"] != nil and String.toLowerCase(log.attributes["_kv"]["proto"]) == "tcp"'
-        - 'set(log.attributes["network.protocol.number"], "17") where log.attributes["_kv"] != nil and String.toLowerCase(log.attributes["_kv"]["proto"]) == "udp"'
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
+        - 'set(log.attributes["network.protocol.number"], "6") where log.attributes["network.protocol.name"] == "tcp"'
+        - 'set(log.attributes["network.protocol.number"], "17") where log.attributes["network.protocol.name"] == "udp"'
         # Network - Interfaces
-        - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["inboundifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inboundifname"] != nil'
+        - 'set(log.attributes["network.interface.name"], ExtractPatterns(log.attributes["message"], "(?:^| )inboundifname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )inboundifname=")'
         # Event Attributes
-        - 'set(log.attributes["event.action"], String.toLowerCase(log.attributes["_kv"]["act"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["act"] != nil'
-        - 'set(log.attributes["event.category"], "network") where log.attributes["_kv"] != nil'
-        - 'set(log.attributes["event.type"], log.attributes["_kv"]["event_type"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["event_type"] != nil'
-        # Event - Timestamp (PAN-OS uses datetime string like "Sep 30 2026 07:36:23 GMT")
-        - 'set(log.attributes["event.created"], Timestamp(log.attributes["_kv"]["rt"], "MMM dd yyyy HH:mm:ss zzz")) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rt"] != nil'
+        - 'set(log.attributes["event.action"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )act=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )act=")'
+        - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        # Event - Timestamp (PAN-OS: "Sep 30 2026 07:36:23 GMT")
+        - 'set(log.attributes["event.created"], Timestamp(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "MMM dd yyyy HH:mm:ss zzz")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
         # Service and Host Attributes
-        - 'set(log.attributes["service.instance.id"], log.attributes["_kv"]["dvc"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dvc"] != nil'
-        - 'set(log.attributes["host.name"], log.attributes["_kv"]["dvc"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dvc"] != nil'
+        - 'set(log.attributes["service.instance.id"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
+        - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
         # Security Rule Attributes - Palo Alto Rule
-        - 'set(log.attributes["security_rule.name"], log.attributes["_kv"]["rule"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule"] != nil'
+        - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
         # Traffic Statistics - Network I/O bytes and packets
-        # Note: OTEL does not have official log attributes for bytes/packets; these are system metrics (system.network.io.bytes, packets)
-        # Storing in vendor-scoped attributes for correlation with metrics pipeline
-        - 'set(log.attributes["network.io.bytes.total"], Int(log.attributes["_kv"]["bytes"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["bytes"] != nil'
-        - 'set(log.attributes["network.io.bytes.received"], Int(log.attributes["_kv"]["bytes_in"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["bytes_in"] != nil'
-        - 'set(log.attributes["network.io.bytes.transmitted"], Int(log.attributes["_kv"]["bytes_out"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["bytes_out"] != nil'
-        - 'set(log.attributes["network.io.packets.total"], Int(log.attributes["_kv"]["packets"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["packets"] != nil'
-        - 'set(log.attributes["network.io.packets.received"], Int(log.attributes["_kv"]["packetsReceived"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["packetsReceived"] != nil'
-        - 'set(log.attributes["network.io.packets.transmitted"], Int(log.attributes["_kv"]["packetsSent"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["packetsSent"] != nil'
-        # Cleanup: Remove temporary attributes
-        - 'delete_key(log.attributes, "_kvraw")'
-        - 'delete_key(log.attributes, "_kv")'
+        - 'set(log.attributes["network.io.bytes.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes=")'
+        - 'set(log.attributes["network.io.bytes.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_in=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_in=")'
+        - 'set(log.attributes["network.io.bytes.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_out=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_out=")'
+        - 'set(log.attributes["network.io.packets.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packets=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packets=")'
+        - 'set(log.attributes["network.io.packets.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsReceived=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsReceived=")'
+        - 'set(log.attributes["network.io.packets.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsSent=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsSent=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
