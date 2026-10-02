@@ -36,10 +36,12 @@ file_log/self_logging:
 {{- end }}
 
 {{- define "selflogging.telemetryOTLPExporter" -}}
-exporters:
-  - otlp:
-      protocol: grpc/protobuf
-      endpoint: localhost:4317
+processors:
+  - batch:
+      exporter:
+        otlp:
+          protocol: grpc/protobuf
+          endpoint: localhost:4317
 {{- end }}
 
 
