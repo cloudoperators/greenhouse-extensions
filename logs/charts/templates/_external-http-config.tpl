@@ -6,6 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 webhookevent/external-http:
   endpoint: "0.0.0.0:{{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}"
   path: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.path | quote }}
+  read_timeout: 1s
+  write_timeout: 1s
   health_path: {{ printf "%s/health" .Values.openTelemetry.externalCollector.externalHttpConfig.path | quote }}
   max_request_body_size: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.maxRequestBodySize | int64 }}
   split_as_array: true
@@ -61,7 +63,7 @@ transform/external-http:
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
         # Flatten nested event object into dotted event.* fields before stringifying.
         - set(log.attributes["event.action"], log.attributes["event"]["action"]) where log.attributes["event.action"] == nil and log.attributes["event"] != nil and log.attributes["event"]["action"] != nil
-        - set(log.attributes["event.outcome"], log.attributes["event"]["outcome"]) where log.attributes["event.outcome"] == nil and log.attributes["event"] != nil and log.attributes["event"]["outcome"] != nil
+        - set(log.attributes["event.outcome"], log.attributes["event"]["outcome"]) where log.attributes["event.outcome"] == nil and log.attributes["event"] != nil and IsMap(log.attributes["event"]) and log.attributes["event"]["outcome"] != nil
         # Collapse category to a single string field regardless of scalar or array.
         - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
         - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])

@@ -11,6 +11,9 @@ Required env (read on import):
 Optional env:
   TLS_SKIP_VERIFY  "true" disables certificate verification
   CA_BUNDLE        path to a CA bundle used for verification
+  HTTP_TIMEOUT     per-request read timeout in seconds (default 300). Repo
+                   registration verifies the object store on every data node
+                   and can exceed 30s on large clusters.
 """
 import base64
 import json
@@ -25,6 +28,7 @@ _PASSWORD = os.environ["PASSWORD"]
 
 _SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
 _CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
+_DEFAULT_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT") or 300)
 
 if _SKIP_VERIFY:
     SSL_CTX = ssl.create_default_context()
@@ -74,8 +78,10 @@ class Response:
         return json.loads(self.body) if self.body else {}
 
 
-def http(method: str, path: str, body: dict | None = None, timeout: int = 30) -> Response:
-    """Issue an authenticated HTTP request against $CLUSTER_HOST."""
+def http(method: str, path: str, body: dict | None = None, timeout: int | None = None) -> Response:
+    """Issue an authenticated request. ``timeout`` defaults to $HTTP_TIMEOUT."""
+    if timeout is None:
+        timeout = _DEFAULT_TIMEOUT
     data = json.dumps(body).encode() if body is not None else None
     req = request.Request(f"{CLUSTER}{path}", data=data, method=method)
     req.add_header("Authorization", _AUTH_HEADER)

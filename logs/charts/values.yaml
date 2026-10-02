@@ -18,6 +18,13 @@ opentelemetry-operator:
   admissionWebhooks:
     # -- Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server.
     failurePolicy: 'Ignore'
+    pods:
+      # -- Workloads that need OpenTelemetry auto-instrumentation must label their namespace
+      namespaceSelector:
+        matchExpressions:
+          - key: opentelemetry.io/auto-instrumentation
+            operator: In
+            values: ["enabled"]
 
     # If cert-manager should be used, the CRDs for cert-manager needs to exists before OpenTelemetry installs cert-manager.
     # -- Activate to use the CertManager for generating self-signed certificates.
@@ -51,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "560cef5"
+    tag: "5340dd8"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
