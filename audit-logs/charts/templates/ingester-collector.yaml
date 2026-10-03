@@ -139,6 +139,11 @@ spec:
       {{ .name }}:
         {{- toYaml .config | nindent 8 }}
 {{- end }}
+      filter/drop_stress:
+        error_mode: ignore
+        logs:
+          log_record:
+            - attributes["msgid"] == "STRESSTEST"
     extensions:
       basicauth/failover_a:
         client_auth:
@@ -244,7 +249,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
+          processors: [memory_limiter, filter/drop_stress, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
