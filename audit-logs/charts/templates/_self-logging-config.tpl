@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 {{- define "selflogging.receivers" }}
 otlp/self_logging:
   protocols:
-    grpc:
+    http:
       endpoint: localhost:4317
 
 file_log/self_logging:
@@ -36,10 +36,12 @@ file_log/self_logging:
 {{- end }}
 
 {{- define "selflogging.telemetryOTLPExporter" -}}
-exporters:
-  - otlp:
-      protocol: grpc/protobuf
-      endpoint: localhost:4317
+processors:
+  - batch:
+      exporter:
+        otlp:
+          protocol: http/protobuf
+          endpoint: http://localhost:4317
 {{- end }}
 
 
