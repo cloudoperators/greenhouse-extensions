@@ -249,7 +249,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
         # Key value parsing (skip if _kvraw contains malformed tokens)
         - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<kv>(?:baddr=|caddr=|relay_name=|rule_name=|saddr=).*)$")["kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|baddr=|caddr=|saddr=)")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]+\\s*)+$")'
+        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
         # Client leg (client.* = logical client side of the proxied connection).
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["caddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["caddr"] != nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["cport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cport"] != nil'
