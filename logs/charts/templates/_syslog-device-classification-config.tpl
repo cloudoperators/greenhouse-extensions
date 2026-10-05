@@ -186,7 +186,7 @@ transform/syslog_device_classification:
         # Extract the entire KV section (everything after the CEF header pipes).
         # Skip ParseKeyValue if _kvraw contains malformed tokens (no "=" sign).
         - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]+\\s*)+$")'
+        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
         # Client address and port (source of connection - client side)
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
