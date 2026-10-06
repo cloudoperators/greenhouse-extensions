@@ -171,8 +171,8 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Type=(?P<v>[^,]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(^|[,\\s])Type=[^,]+")'
         - 'set(log.attributes["source.domain"], ExtractPatterns(log.attributes["message"], "NetworkDeviceName=(?P<v>[^,\\s#]+)")["v"]) where log.attributes["source.domain"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NetworkDeviceName=")'
         - 'set(log.attributes["user.name"], ExtractPatterns(log.attributes["message"], "UserName=(?P<v>[^,]+)")["v"]) where log.attributes["user.name"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "UserName=")'
-        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"]) where log.attributes["client.address"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Remote-Address=")'
-        - 'set(log.attributes["user.terminal"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"]) where log.attributes["user.terminal"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Port=")'
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"]) where log.attributes["client.address"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Remote-Address=") and ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"] != nil'
+        - 'set(log.attributes["user.terminal"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"]) where log.attributes["user.terminal"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Port=") and ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"] != nil'
         - 'set(log.attributes["process.command_args"], ExtractPatterns(log.attributes["message"], "CmdSet=\\[(?P<v>[^\\]]+)\\]")["v"]) where log.attributes["process.command_args"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CmdSet=")'
         - 'set(log.attributes["error.message"], ExtractPatterns(log.attributes["message"], "FailureReason=(?P<v>[^,]+)")["v"]) where log.attributes["error.message"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "FailureReason=")'
     - context: log
@@ -183,9 +183,10 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         # Check Point CEF Log Parsing - OTEL Semantic Conventions Compliant
-        # Extract the entire KV section (everything after the CEF header pipes)
+        # Extract the entire KV section (everything after the CEF header pipes).
+        # Skip ParseKeyValue if _kvraw contains malformed tokens (no "=" sign).
         - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil'
+        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
         # Client address and port (source of connection - client side)
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
@@ -246,9 +247,9 @@ transform/syslog_device_classification:
         # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
         # hostname). Do NOT guess.
         - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
-        # Key value parsing
+        # Key value parsing (skip if _kvraw contains malformed tokens)
         - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<kv>(?:baddr=|caddr=|relay_name=|rule_name=|saddr=).*)$")["kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|baddr=|caddr=|saddr=)")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil'
+        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
         # Client leg (client.* = logical client side of the proxied connection).
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["caddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["caddr"] != nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["cport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cport"] != nil'
