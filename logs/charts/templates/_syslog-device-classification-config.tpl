@@ -275,8 +275,8 @@ transform/syslog_device_classification:
         - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )dpt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )dpt=")'
         # Network - Protocol
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
-        - 'set(log.attributes["network.protocol.number"], "6") where log.attributes["network.protocol.name"] == "tcp"'
-        - 'set(log.attributes["network.protocol.number"], "17") where log.attributes["network.protocol.name"] == "udp"'
+        - 'set(log.attributes["network.protocol.number"], 6) where log.attributes["network.protocol.name"] == "tcp"'
+        - 'set(log.attributes["network.protocol.number"], 17) where log.attributes["network.protocol.name"] == "udp"'
         # Network - Interfaces
         - 'set(log.attributes["network.interface.name"], ExtractPatterns(log.attributes["message"], "(?:^| )inboundifname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )inboundifname=")'
         # Event Attributes
