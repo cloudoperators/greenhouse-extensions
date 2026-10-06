@@ -292,7 +292,7 @@ transform/syslog_device_classification:
 
         # --- event.outcome ---
         # CyberController: via auditStatus. DefensePro: no auditStatus -> use success categories.
-        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["auditStatus"] == "Failure"'
+        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["auditStatus"] == "Failure" and log.attributes["event.outcome"] == nil'
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditStatus"] == "Completed" or log.attributes["auditStatus"] == "Ended") and log.attributes["event.outcome"] == nil'
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditLogCategory"] == "LoginSuccess" or log.attributes["auditLogCategory"] == "AuthSuccess") and log.attributes["event.outcome"] == nil'
         # "Started"/in-progress states: leave event.outcome unset.

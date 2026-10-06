@@ -113,7 +113,7 @@ transform/syslog_semconv_normalization:
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
-        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and resource.attributes["host.name"] == nil'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
 {{/*
@@ -268,11 +268,11 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["host.partition"], log.attributes["virtDomain"]) where log.attributes["virtDomain"] != nil'
 
         # ===== NETWORK FLOW (ip-guarded) =====
-        - 'set(log.attributes["source.address"], log.attributes["src"]) where log.attributes["src"] != nil and IsMatch(log.attributes["src"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
-        - 'set(log.attributes["destination.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and IsMatch(log.attributes["dst"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["source.address"], log.attributes["src"]) where log.attributes["src"] != nil and IsMatch(log.attributes["src"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
+        - 'set(log.attributes["destination.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and IsMatch(log.attributes["dst"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
         - 'set(log.attributes["source.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil'
         - 'set(log.attributes["destination.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil'
-        - 'set(log.attributes["network.protocol.name"], log.attributes["proto"]) where log.attributes["proto"] != nil'
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil'
 
         # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
         - 'set(log.attributes["event.received"], log.attributes["rt"]) where log.attributes["rt"] != nil'
@@ -311,7 +311,7 @@ transform/octobus_to_fortlogs_normalization:
 
         # ===== TUFIN-SPECIFIC =====
         - 'set(log.attributes["monitored.host.name"], log.attributes["monitoredDevice"]) where log.attributes["monitoredDevice"] != nil'
-        - 'set(log.attributes["monitored.host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["monitored.host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
         - 'set(log.attributes["monitored.host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
