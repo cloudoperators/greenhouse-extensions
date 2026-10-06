@@ -310,9 +310,9 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["authentication.failure_reason"], log.attributes["failureReason"]) where log.attributes["failureReason"] != nil'
 
         # ===== TUFIN-SPECIFIC =====
-        - 'set(log.attributes["device.monitored_name"], log.attributes["monitoredDevice"]) where log.attributes["monitoredDevice"] != nil'
-        - 'set(log.attributes["host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
-        - 'set(log.attributes["host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
+        - 'set(log.attributes["monitored.host.name"], log.attributes["monitoredDevice"]) where log.attributes["monitoredDevice"] != nil'
+        - 'set(log.attributes["monitored.host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["monitored.host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
 
