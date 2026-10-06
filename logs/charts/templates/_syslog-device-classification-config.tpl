@@ -284,7 +284,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
 
         # --- user.name (empty for system events) ---
-        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != "" and log.attributes["user.name"] == nil'
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != "" and log.attributes["user.name"] == nil and (log.attributes["log.type"] == nil or log.attributes["log.type"] != "sysloghttp")'
 
         # --- event.action (= audit category) ---
         - 'set(log.attributes["event.action"], log.attributes["auditLogCategory"]) where log.attributes["auditLogCategory"] != nil and log.attributes["auditLogCategory"] != "" and log.attributes["event.action"] == nil'

@@ -230,6 +230,94 @@ transform/syslog_user_extraction:
 
 {{/*
   ============================================================================
+  Octobus to Fortlogs Field Normalization
+  Implements the full `fortlogs.maps_to` mapping declared in
+  attributes.octobus.yaml. Gated to the Octobus HTTP path (log.type=sysloghttp).
+
+  Runs after user extraction and before hostname parsing so the mapped fields
+  are available to downstream classification. resource.host.name is bridged
+  from log.syslog.hostname.
+
+  Overwrite policy: guarded on the SOURCE (Octobus field present), overwriting
+  the target; Logstash-parsed Octobus values are authoritative for these fields.
+  SAFETY: ip-typed targets only set on literal IPv4; integers via Int();
+  user.name skips empty strings.
+  ============================================================================
+*/}}
+transform/octobus_to_fortlogs_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'IsMatch(log.attributes["log.type"], "sysloghttp")'
+      statements:
+        # ===== SYSLOG METADATA =====
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.syslog.hostname"] != nil'
+        - 'set(log.attributes["syslog.facility.name"], log.attributes["syslog_facility"]) where log.attributes["syslog_facility"] != nil'
+        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["syslog_facility_code"])) where log.attributes["syslog_facility_code"] != nil'
+        - 'set(log.attributes["syslog.priority"], Int(log.attributes["syslog_pri"])) where log.attributes["syslog_pri"] != nil'
+        - 'set(log.attributes["severity.text"], log.attributes["syslog_severity"]) where log.attributes["syslog_severity"] != nil'
+        - 'set(log.attributes["severity.number"], Int(log.attributes["syslog_severity_code"])) where log.attributes["syslog_severity_code"] != nil'
+
+        # ===== DEVICE / HOST IDENTIFICATION =====
+        - 'set(log.attributes["host.name"], log.attributes["dvchost"]) where log.attributes["dvchost"] != nil'
+        - 'set(log.attributes["device.id"], log.attributes["deviceExternalId"]) where log.attributes["deviceExternalId"] != nil'
+        - 'set(log.attributes["hw.vendor"], log.attributes["vendor"]) where log.attributes["vendor"] != nil'
+        - 'set(log.attributes["device.model.name"], log.attributes["product"]) where log.attributes["product"] != nil'
+        - 'set(log.attributes["hw.firmware_version"], log.attributes["deviceVersion"]) where log.attributes["deviceVersion"] != nil'
+        - 'set(log.attributes["host.partition"], log.attributes["virtDomain"]) where log.attributes["virtDomain"] != nil'
+
+        # ===== NETWORK FLOW (ip-guarded) =====
+        - 'set(log.attributes["source.address"], log.attributes["src"]) where log.attributes["src"] != nil and IsMatch(log.attributes["src"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["destination.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and IsMatch(log.attributes["dst"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["source.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil'
+        - 'set(log.attributes["destination.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil'
+        - 'set(log.attributes["network.protocol.name"], log.attributes["proto"]) where log.attributes["proto"] != nil'
+
+        # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
+        - 'set(log.attributes["event.received"], log.attributes["rt"]) where log.attributes["rt"] != nil'
+        - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil'
+
+        # ===== EVENT CLASSIFICATION =====
+        - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event_type"] != nil'
+        - 'set(log.attributes["event.category"], log.attributes["event_SubType"]) where log.attributes["event_SubType"] != nil'
+        - 'set(log.attributes["event.action"], log.attributes["SimplifiedDeviceAction"]) where log.attributes["SimplifiedDeviceAction"] != nil'
+        - 'set(log.attributes["event.message"], log.attributes["msg"]) where log.attributes["msg"] != nil'
+        - 'set(log.attributes["event.reason"], log.attributes["event_reason"]) where log.attributes["event_reason"] != nil'
+        - 'set(log.attributes["event.name"], log.attributes["eventName"]) where log.attributes["eventName"] != nil'
+        - 'set(log.attributes["event.status"], log.attributes["status"]) where log.attributes["status"] != nil'
+        - 'set(log.attributes["event.category.id"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
+        - 'set(log.attributes["event.severity.text"], log.attributes["severityLevel"]) where log.attributes["severityLevel"] != nil'
+
+        # ===== SECURITY / POLICY =====
+        - 'set(log.attributes["security_rule.group.id"], log.attributes["policyID"]) where log.attributes["policyID"] != nil'
+        - 'set(log.attributes["security.threat.score"], Int(log.attributes["threatScore"])) where log.attributes["threatScore"] != nil'
+        - 'set(log.attributes["security.signature.severity.text"], log.attributes["signatureSeverity"]) where log.attributes["signatureSeverity"] != nil'
+
+        # ===== APPLICATION / SERVICE =====
+        - 'set(log.attributes["service.name"], log.attributes["app"]) where log.attributes["app"] != nil'
+        - 'set(log.attributes["service.namespace"], log.attributes["appCat"]) where log.attributes["appCat"] != nil'
+
+        # ===== SESSION / TRAFFIC METRICS =====
+        - 'set(log.attributes["session.id"], log.attributes["sessionID"]) where log.attributes["sessionID"] != nil'
+        - 'set(log.attributes["session.duration"], Int(log.attributes["dt"])) where log.attributes["dt"] != nil'
+        - 'set(log.attributes["network.bytes.out"], Int(log.attributes["out"])) where log.attributes["out"] != nil'
+        - 'set(log.attributes["network.bytes.in"], Int(log.attributes["in"])) where log.attributes["in"] != nil'
+
+        # ===== AUTHENTICATION =====
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != ""'
+        - 'set(log.attributes["authentication.method"], log.attributes["authentType"]) where log.attributes["authentType"] != nil'
+        - 'set(log.attributes["authentication.failure_reason"], log.attributes["failureReason"]) where log.attributes["failureReason"] != nil'
+
+        # ===== TUFIN-SPECIFIC =====
+        - 'set(log.attributes["device.monitored_name"], log.attributes["monitoredDevice"]) where log.attributes["monitoredDevice"] != nil'
+        - 'set(log.attributes["host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^\\d{1,3}(\\.\\d{1,3}){3}$")'
+        - 'set(log.attributes["host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
+        - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
+        - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
+
+{{/*
+  ============================================================================
   Hostname parsing - extract node name, audit source, building block
   ============================================================================
 */}}

@@ -841,6 +841,7 @@ logs/syslog_http:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/octobus_to_fortlogs_normalization
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_semconv_normalization
