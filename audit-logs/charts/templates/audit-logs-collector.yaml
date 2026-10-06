@@ -575,9 +575,9 @@ spec:
               from: pod
 {{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
 {{- range $key, $value := .Values.auditLogs.customLabels }}
-{{- if and $key $value }}
+{{- if and $key }}
             - tag_name: app.label.{{ $key | replace "." "-" | replace "/" "-" }}
-              key: {{ $key }}
+              key: {{ $key | quote }}
               from: pod
 {{- end }}
 {{- end }}

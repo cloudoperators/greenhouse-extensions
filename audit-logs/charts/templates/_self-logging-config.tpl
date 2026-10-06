@@ -53,8 +53,12 @@ attributes/self_logging:
 {{- end }}
 
 {{- define "selflogging.pipelines" }}
-logs/self_logging:
-  receivers: [file_log/self_logging,otlp/self_logging]
+logs/file_self_logging:
+  receivers: [file_log/self_logging]
+  processors: [k8s_attributes,attributes/self_logging,attributes/cluster,batch]
+  exporters: [routing]
+logs/otlp_self_logging:
+  receivers: [otlp/self_logging]
   processors: [resource/self_pod,k8s_attributes,attributes/self_logging,attributes/cluster,batch]
   exporters: [routing]
 {{- end }}
