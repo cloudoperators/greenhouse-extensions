@@ -261,9 +261,9 @@ transform/octobus_to_fortlogs_normalization:
 
         # ===== DEVICE / HOST IDENTIFICATION =====
         - 'set(log.attributes["host.name"], log.attributes["dvchost"]) where log.attributes["dvchost"] != nil'
-        - 'set(log.attributes["device.id"], log.attributes["deviceExternalId"]) where log.attributes["deviceExternalId"] != nil'
+        - 'set(log.attributes["hw.id"], log.attributes["deviceExternalId"]) where log.attributes["deviceExternalId"] != nil'
         - 'set(log.attributes["hw.vendor"], log.attributes["vendor"]) where log.attributes["vendor"] != nil'
-        - 'set(log.attributes["device.model.name"], log.attributes["product"]) where log.attributes["product"] != nil'
+        - 'set(log.attributes["hw.model"], log.attributes["product"]) where log.attributes["product"] != nil'
         - 'set(log.attributes["hw.firmware_version"], log.attributes["deviceVersion"]) where log.attributes["deviceVersion"] != nil'
         - 'set(log.attributes["host.partition"], log.attributes["virtDomain"]) where log.attributes["virtDomain"] != nil'
 
