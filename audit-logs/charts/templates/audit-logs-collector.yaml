@@ -283,8 +283,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - not IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and not IsMatch(log.body, "^\\{.*\\}$")
             statements:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{LOGLEVEL:severity_text} %{NOTSPACE:otel.scope.name} \\[%{NOTSPACE:openstack.request.id} %{NOTSPACE:openstack.global.request.id} usr %{NOTSPACE:user.id} prj %{NOTSPACE:openstack.project.id} dom %{NOTSPACE} usr-dom %{NOTSPACE} prj-dom %{NOTSPACE:openstack.domain.name}\\] %{GREEDYDATA:msg}", true), "upsert")
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{NOTSPACE:severity_text} %{NOTSPACE:otel.scope.name} \"%{NOTSPACE:openstack.global.request.id}\" %{NOTSPACE:client.address} - - \"%{NOTSPACE:http.request.method} %{NOTSPACE:url.path} %{NOTSPACE:httpversion}\" %{NUMBER:http.response.status_code} %{GREEDYDATA} \"%{GREEDYDATA}\" \"%{GREEDYDATA:user_agent.original}\"", true), "upsert")
@@ -313,8 +312,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and IsMatch(log.body, "^\\{.*\\}$")
             statements:
               # dogpile.cache hardcodes a 300-char key limit; truncation marker breaks ParseJSON
               - 'replace_pattern(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+", " [TRUNCATED] ") where IsMatch(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+")'

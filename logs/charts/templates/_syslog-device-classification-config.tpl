@@ -275,9 +275,36 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
       statements:
+        # Radware = DefensePro + CyberController (two schemas), tenant c0002, json_batch path.
+        # Logstash pre-parses CEF; we only map to OTel semconv here.
+        # Sentinels to skip: "", "N/A", "0.0.0.0", "255.255.255.255", port "65535".
+
+        # --- Classification (existing) ---
         - 'set(log.attributes["netbox.platform.slug"], "radwareos") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "ddos-security-appliance") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+
+        # --- user.name (empty for system events) ---
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != "" and log.attributes["user.name"] == nil and (log.attributes["log.type"] == nil or log.attributes["log.type"] != "sysloghttp")'
+
+        # --- event.action (= audit category) ---
+        - 'set(log.attributes["event.action"], log.attributes["auditLogCategory"]) where log.attributes["auditLogCategory"] != nil and log.attributes["auditLogCategory"] != "" and log.attributes["event.action"] == nil'
+
+        # --- event.outcome ---
+        # CyberController: via auditStatus. DefensePro: no auditStatus -> use success categories.
+        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["auditStatus"] == "Failure" and log.attributes["event.outcome"] == nil'
+        - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditStatus"] == "Completed" or log.attributes["auditStatus"] == "Ended") and log.attributes["event.outcome"] == nil'
+        - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditLogCategory"] == "LoginSuccess" or log.attributes["auditLogCategory"] == "AuthSuccess") and log.attributes["event.outcome"] == nil'
+        # "Started"/in-progress states: leave event.outcome unset.
+
+        # --- Network core (sentinel-guarded) ---
+        - 'set(log.attributes["client.address"], log.attributes["src"]) where log.attributes["src"] != nil and log.attributes["src"] != "" and log.attributes["src"] != "N/A" and log.attributes["src"] != "0.0.0.0" and log.attributes["src"] != "255.255.255.255" and log.attributes["client.address"] == nil'
+        - 'set(log.attributes["client.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil and log.attributes["spt"] != "" and log.attributes["spt"] != "N/A" and log.attributes["spt"] != "65535" and log.attributes["client.port"] == nil'
+        - 'set(log.attributes["server.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and log.attributes["dst"] != "" and log.attributes["dst"] != "N/A" and log.attributes["dst"] != "0.0.0.0" and log.attributes["dst"] != "255.255.255.255" and log.attributes["server.address"] == nil'
+        - 'set(log.attributes["server.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil and log.attributes["dpt"] != "" and log.attributes["dpt"] != "N/A" and log.attributes["dpt"] != "65535" and log.attributes["server.port"] == nil'
+
+        # --- network.protocol.name (lowercased; skip N/A) ---
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil and log.attributes["proto"] != "" and log.attributes["proto"] != "N/A" and log.attributes["network.protocol.name"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
