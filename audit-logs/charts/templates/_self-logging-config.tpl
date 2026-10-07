@@ -35,6 +35,14 @@ file_log/self_logging:
       value: "self-logging"
 {{- end }}
 
+{{- define "selflogging.processors" -}}
+filter/less-than-warn:
+  error_mode: propagate
+  logs:
+    log_record:
+      - severity_number < SEVERITY_NUMBER_WARN
+{{- end }}
+
 {{- define "selflogging.telemetryOTLPExporter" -}}
 processors:
   - batch:
@@ -59,6 +67,6 @@ logs/file_self_logging:
   exporters: [routing]
 logs/otlp_self_logging:
   receivers: [otlp/self_logging]
-  processors: [resource/self_pod,k8s_attributes,attributes/self_logging,attributes/cluster,batch]
+  processors: [filter/less-than-warn,resource/self_pod,k8s_attributes,attributes/self_logging,attributes/cluster,batch]
   exporters: [routing]
 {{- end }}

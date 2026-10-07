@@ -230,6 +230,7 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
   {{- include "selflogging.attributes" . | nindent 6 -}}
+  {{- include "selflogging.processors" . | nindent 6 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
