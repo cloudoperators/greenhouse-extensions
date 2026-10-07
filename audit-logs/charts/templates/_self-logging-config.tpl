@@ -36,6 +36,12 @@ file_log/self_logging:
 {{- end }}
 
 {{- define "selflogging.processors" -}}
+resource/self_pod:
+  attributes:
+  - action: insert
+    key: k8s.pod.ip
+    value: ${MY_POD_IP}
+   
 transform/opensearch_parse:
   error_mode: ignore
   log_statements:
@@ -91,31 +97,6 @@ transform/collector_parse:
         - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
         - set(attributes["level"], log.cache["level"]) where log.cache["level"] != nil
 
-filter/less-than-error:
-  error_mode: ignore
-  logs:
-    log_record:
-      - log.severity_number < SEVERITY_NUMBER_ERROR
-
-filter/empty-body:
-  error_mode: ignore
-  logs:
-    log_record:
-      - log.body == nil or log.body == ""
-
-transform/severity_mapping:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      statements:
-        - set(log.severity_text, ToLowerCase(attributes["level"])) where IsString(attributes["level"])
-        - set(log.severity_number, 1) where ToLowerCase(attributes["level"]) == "trace"
-        - set(log.severity_number, 5) where ToLowerCase(attributes["level"]) == "debug"
-        - set(log.severity_number, 9) where ToLowerCase(attributes["level"]) == "info"
-        - set(log.severity_number, 13) where ToLowerCase(attributes["level"]) == "warn"
-        - set(log.severity_number, 17) where ToLowerCase(attributes["level"]) == "error"
-        - set(log.severity_number, 21) where ToLowerCase(attributes["level"]) == "fatal"
-
 transform/kafka_parse:
   error_mode: ignore
   log_statements:
@@ -137,6 +118,31 @@ filter/kafka_drop_multiline:
   logs:
     log_record:
       - IsMatch(resource.attributes["k8s.pod.name"], "^kafka-") and not IsMatch(log.body, "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}")
+
+transform/severity_mapping:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - set(log.severity_text, ToLowerCase(attributes["level"])) where IsString(attributes["level"])
+        - set(log.severity_number, 1) where ToLowerCase(attributes["level"]) == "trace"
+        - set(log.severity_number, 5) where ToLowerCase(attributes["level"]) == "debug"
+        - set(log.severity_number, 9) where ToLowerCase(attributes["level"]) == "info"
+        - set(log.severity_number, 13) where ToLowerCase(attributes["level"]) == "warn"
+        - set(log.severity_number, 17) where ToLowerCase(attributes["level"]) == "error"
+        - set(log.severity_number, 21) where ToLowerCase(attributes["level"]) == "fatal"
+
+filter/empty-body:
+  error_mode: ignore
+  logs:
+    log_record:
+      - log.body == nil or log.body == ""
+
+filter/less-than-error:
+  error_mode: ignore
+  logs:
+    log_record:
+      - log.severity_number < SEVERITY_NUMBER_ERROR
 {{- end }}
 
 {{- define "selflogging.telemetryOTLPExporter" -}}
@@ -159,21 +165,24 @@ attributes/self_logging:
 {{- define "selflogging.pipelines" }}
 logs/file_self_logging:
   exporters:
-  - debug
+  - routing
   processors:
+  - filter/empty-body
   - k8s_attributes
   - attributes/self_logging
   - attributes/cluster
   - transform/collector_parse
-  - transform/severity_mapping
+  - filter/kafka_drop_multiline
+  - transform/kafka_parse
   - transform/opensearch_parse
+  - transform/severity_mapping
   - filter/less-than-error
   - batch
   receivers:
   - file_log/self_logging
 logs/otlp_self_logging:
-  receivers: 
-  - otlp/self_logging
+  exporters: 
+  - routing
   processors: 
   - resource/self_pod
   - k8s_attributes
@@ -181,6 +190,6 @@ logs/otlp_self_logging:
   - attributes/cluster
   - filter/less-than-error
   - batch
-  exporters: 
-  - routing
+  receivers: 
+  - otlp/self_logging
 {{- end }}
