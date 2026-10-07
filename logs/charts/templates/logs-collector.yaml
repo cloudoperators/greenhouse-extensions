@@ -461,8 +461,15 @@ spec:
         - file_storage/journald
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.openTelemetry.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
