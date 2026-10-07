@@ -36,40 +36,10 @@ file_log/self_logging:
 {{- end }}
 
 {{- define "selflogging.processors" -}}
-
 transform/opensearch_parse:
   error_mode: ignore
   log_statements:
-    - context: log
-      conditions:
-        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-")
-      statements:
-        - set(log.cache["raw"], log.body) where IsString(log.body)
-        - set(log.cache["parsed"], ExtractPatterns(log.cache["raw"], "^\\[(?P<timestamp>[^\\]]+)\\]\\[(?P<level>[^\\]\\s]+)\\s*\\]\\[(?P<logger>[^\\]]+?)\\s*\\]\\s*\\[(?P<node>[^\\]]+)\\]\\s*(?P<message>.*)$"))
-        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
-        - set(attributes["logger"], log.cache["parsed"]["logger"]) where log.cache["parsed"]["logger"] != nil
-        - set(attributes["node"], log.cache["parsed"]["node"]) where log.cache["parsed"]["node"] != nil
-        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
-        - set(log.time, Time(log.cache["parsed"]["timestamp"], "%Y-%m-%dT%H:%M:%S,%L")) where log.cache["parsed"]["timestamp"] != nil
-
-transform/opensearch_operator_parse:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-operator")
-      statements:
-        - set(log.cache["parsed"], ParseJSON(log.body)) where IsMatch(log.body, "^\\{")
-        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
-        - set(attributes["logger"], log.cache["parsed"]["controller"]) where log.cache["parsed"]["controller"] != nil
-        - set(attributes["reconcileID"], log.cache["parsed"]["reconcileID"]) where log.cache["parsed"]["reconcileID"] != nil
-        - set(attributes["namespace"], log.cache["parsed"]["namespace"]) where log.cache["parsed"]["namespace"] != nil
-        - set(log.body, log.cache["parsed"]["msg"]) where log.cache["parsed"]["msg"] != nil
-        - set(log.observed_time, Time(log.cache["parsed"]["ts"], "%Y-%m- %dT%H:%M:%S.%fZ")) where log.cache["parsed"]["ts"] != nil
-
-transform/opensearch_dashboards_parse:
-  error_mode: ignore
-  log_statements:
+    # --- Dashboards (JSON) ---
     - context: log
       conditions:
         - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-.*dashboards") and IsMatch(log.body, "^\\{")
@@ -81,12 +51,37 @@ transform/opensearch_dashboards_parse:
         - set(attributes["level"], "warn") where log.cache["parsed"]["statusCode"] != nil and log.cache["parsed"]["statusCode"] >= 400 and log.cache["parsed"]["statusCode"] < 500
         - set(attributes["level"], "error") where log.cache["parsed"]["statusCode"] != nil and log.cache["parsed"]["statusCode"] >= 500
         - set(attributes["method"], log.cache["parsed"]["method"]) where log.cache["parsed"]["method"] != nil
+        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
         - set(attributes["level"], "warn") where log.cache["parsed"]["type"] == "log" and IsMatch(log.body, "(?i)warn")
         - set(attributes["level"], "error") where log.cache["parsed"]["type"] == "log" and IsMatch(log.body, "(?i)(error|exception|fail)")
-        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
         - set(log.time, Time(log.cache["parsed"]["@timestamp"], "%Y-%m-%dT%H:%M:%SZ")) where log.cache["parsed"]["@timestamp"] != nil
 
-transform/collector_json_parse:
+    # --- Operator (JSON) ---
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-operator") and IsMatch(log.body, "^\\{")
+      statements:
+        - set(log.cache["parsed"], ParseJSON(log.body))
+        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
+        - set(attributes["logger"], log.cache["parsed"]["controller"]) where log.cache["parsed"]["controller"] != nil
+        - set(attributes["reconcileID"], log.cache["parsed"]["reconcileID"]) where log.cache["parsed"]["reconcileID"] != nil
+        - set(attributes["namespace"], log.cache["parsed"]["namespace"]) where log.cache["parsed"]["namespace"] != nil
+        - set(log.body, log.cache["parsed"]["msg"]) where log.cache["parsed"]["msg"] != nil
+        - set(log.time, Time(log.cache["parsed"]["ts"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["parsed"]["ts"] != nil
+
+    # --- Server (bracket format) ---
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-") and not IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-*(dashboards|operator)") and IsString(log.body) and IsMatch(log.body, "^\\[\\d{4}-\\d{2}-\\d{2}T")
+      statements:
+        - set(log.cache["parsed"], ExtractPatterns(log.body, "^\\[(?P<timestamp>[^\\]]+)\\]\\[(?P<level>[^\\]\\s]+)\\s*\\]\\[(?P<logger>[^\\]]+?)\\s*\\]\\s*\\[(?P<node>[^\\]]+)\\]\\s*(?P<message>.*)$"))
+        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
+        - set(attributes["logger"], log.cache["parsed"]["logger"]) where log.cache["parsed"]["logger"] != nil
+        - set(attributes["node"], log.cache["parsed"]["node"]) where log.cache["parsed"]["node"] != nil
+        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
+        - set(log.time, Time(log.cache["parsed"]["timestamp"], "%Y-%m-%dT%H:%M:%S,%L")) where log.cache["parsed"]["timestamp"] != nil
+
+transform/collector_parse:
   error_mode: ignore
   log_statements:
     - context: log
@@ -169,8 +164,9 @@ logs/file_self_logging:
   - k8s_attributes
   - attributes/self_logging
   - attributes/cluster
-  - transform/collector_json_parse
+  - transform/collector_parse
   - transform/severity_mapping
+  - transform/opensearch_parse
   - filter/less-than-error
   - batch
   receivers:
