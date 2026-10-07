@@ -38,6 +38,17 @@ SPDX-License-Identifier: Apache-2.0
 {{- define "syslog_audit_filter.transform" }}
 {{/*
   ============================================================================
+  QA TEST: split shared relay-connection resource into per-origin resources
+  so that resource.host.name writes land per-origin instead of collapsing
+  to the relay. Keys on the parsed origin hostname.
+  ============================================================================
+*/}}
+groupbyattrs/syslog_origin:
+  keys:
+    - hostname
+
+{{/*
+  ============================================================================
   Extract forwarded_by attribute from message body
   Logs forwarded via Logstash have "forwarded_by=octobus_logstash" appended
   to the message. This extracts it into a proper attribute and removes it
