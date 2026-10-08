@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: gardener-shoot-rules
+description: Packages Gardener upstream shoot PrometheusRules for prometheus-metrics-gardener evaluation.
+type: application
+# renovate: datasource=github-releases depName=gardener/gardener
+# Rules extracted from gardener/gardener v1.148.3
+version: 0.1.0
