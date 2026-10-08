@@ -325,7 +325,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
         - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
         # Event - Timestamp (PAN-OS: "Sep 30 2026 07:36:23 GMT")
-        - 'set(log.attributes["event.created"], Timestamp(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "MMM dd yyyy HH:mm:ss zzz")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
+        - 'set(log.attributes["event.created"], Time(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "%b %d %Y %H:%M:%S %Z")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
         # Host Attributes
         - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
         # Security Rule Attributes - Palo Alto Rule
