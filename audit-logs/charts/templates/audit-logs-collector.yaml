@@ -608,13 +608,6 @@ spec:
         - action: insert
           key: k8s.node.name
           value: ${KUBE_NODE_NAME}
-{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
-      resource/self_pod:
-        attributes:
-        - action: insert
-          key: k8s.pod.ip
-          value: ${MY_POD_IP}
-{{- end }}
 
     exporters:
       debug:

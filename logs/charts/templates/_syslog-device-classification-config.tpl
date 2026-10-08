@@ -115,6 +115,10 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
         # Radware (DefensePro / CyberController)
         - 'set(log.attributes["netbox.manufacturer.slug"], "radware") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Radware.*")'
+        # F5 ASM WAF - "ASM:unit_hostname".
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # F5 BIG-IP (TMOS/ASM/APM/LTM) - module tags, daemons, SSL logs.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and (IsMatch(log.body, "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)") or IsMatch(log.attributes["message"], "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)"))'        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         # Palo Alto Networks - CEF "Palo Alto Networks".
         - 'set(log.attributes["netbox.manufacturer.slug"], "palo-alto-networks") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Palo Alto Networks.*")'
         # Palo Alto Networks - "fw-idc-pan" hostname without literal "palo-alto-networks".
@@ -130,11 +134,7 @@ transform/syslog_device_classification:
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
-        # F5 ASM WAF - "ASM:unit_hostname".
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
-        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[).*")'
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[kern_audit:|netapp\\.com/filer/admin).*")'
         # Cisco Nexus (MAC move / flap events).
@@ -312,6 +312,31 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "pan-os") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        # Network - Source
+        - 'set(log.attributes["source.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
+        - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
+        # Network - Destination
+        - 'set(log.attributes["destination.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
+        - 'set(log.attributes["destination.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )dpt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )dpt=")'
+        # Network - Protocol
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
+        # Event Attributes
+        - 'set(log.attributes["event.action"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )act=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )act=")'
+        - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        # Event - Timestamp (PAN-OS: "Sep 30 2026 07:36:23 GMT")
+        - 'set(log.attributes["event.created"], Timestamp(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "MMM dd yyyy HH:mm:ss zzz")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
+        # Host Attributes
+        - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
+        # Security Rule Attributes - Palo Alto Rule
+        - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
+        # Traffic Statistics - Network I/O bytes and packets
+        - 'set(log.attributes["network.io.bytes.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes=")'
+        - 'set(log.attributes["network.io.bytes.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_in=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_in=")'
+        - 'set(log.attributes["network.io.bytes.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_out=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_out=")'
+        - 'set(log.attributes["network.io.packets.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packets=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packets=")'
+        - 'set(log.attributes["network.io.packets.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsReceived=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsReceived=")'
+        - 'set(log.attributes["network.io.packets.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsSent=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsSent=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin"'
