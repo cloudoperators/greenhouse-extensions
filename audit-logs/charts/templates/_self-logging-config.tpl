@@ -35,6 +35,116 @@ file_log/self_logging:
       value: "self-logging"
 {{- end }}
 
+{{- define "selflogging.processors" -}}
+resource/self_pod:
+  attributes:
+  - action: insert
+    key: k8s.pod.ip
+    value: ${MY_POD_IP}
+   
+transform/opensearch_parse:
+  error_mode: ignore
+  log_statements:
+    # --- Dashboards (JSON) ---
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-.*dashboards") and IsMatch(log.body, "^\\{")
+      statements:
+        - set(log.cache["parsed"], ParseJSON(log.body))
+        - set(attributes["level"], "info")
+        - set(attributes["level"], "error") where log.cache["parsed"]["type"] != nil and log.cache["parsed"]["type"] == "error"
+        - set(attributes["statusCode"], log.cache["parsed"]["statusCode"]) where log.cache["parsed"]["statusCode"] != nil
+        - set(attributes["level"], "warn") where log.cache["parsed"]["statusCode"] != nil and log.cache["parsed"]["statusCode"] >= 400 and log.cache["parsed"]["statusCode"] < 500
+        - set(attributes["level"], "error") where log.cache["parsed"]["statusCode"] != nil and log.cache["parsed"]["statusCode"] >= 500
+        - set(attributes["method"], log.cache["parsed"]["method"]) where log.cache["parsed"]["method"] != nil
+        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
+        - set(attributes["level"], "warn") where log.cache["parsed"]["type"] == "log" and IsMatch(log.body, "(?i)warn")
+        - set(attributes["level"], "error") where log.cache["parsed"]["type"] == "log" and IsMatch(log.body, "(?i)(error|exception|fail)")
+        - set(log.time, Time(log.cache["parsed"]["@timestamp"], "%Y-%m-%dT%H:%M:%SZ")) where log.cache["parsed"]["@timestamp"] != nil
+
+    # --- Operator (JSON) ---
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-operator") and IsMatch(log.body, "^\\{")
+      statements:
+        - set(log.cache["parsed"], ParseJSON(log.body))
+        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
+        - set(attributes["logger"], log.cache["parsed"]["controller"]) where log.cache["parsed"]["controller"] != nil
+        - set(attributes["reconcileID"], log.cache["parsed"]["reconcileID"]) where log.cache["parsed"]["reconcileID"] != nil
+        - set(attributes["namespace"], log.cache["parsed"]["namespace"]) where log.cache["parsed"]["namespace"] != nil
+        - set(log.body, log.cache["parsed"]["msg"]) where log.cache["parsed"]["msg"] != nil
+        - set(log.time, Time(log.cache["parsed"]["ts"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["parsed"]["ts"] != nil
+
+    # --- Server (bracket format) ---
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-") and not IsMatch(resource.attributes["k8s.pod.name"], "^opensearch-*(dashboards|operator)") and IsString(log.body) and IsMatch(log.body, "^\\[\\d{4}-\\d{2}-\\d{2}T")
+      statements:
+        - set(log.cache["parsed"], ExtractPatterns(log.body, "^\\[(?P<timestamp>[^\\]]+)\\]\\[(?P<level>[^\\]\\s]+)\\s*\\]\\[(?P<logger>[^\\]]+?)\\s*\\]\\s*\\[(?P<node>[^\\]]+)\\]\\s*(?P<message>.*)$"))
+        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
+        - set(attributes["logger"], log.cache["parsed"]["logger"]) where log.cache["parsed"]["logger"] != nil
+        - set(attributes["node"], log.cache["parsed"]["node"]) where log.cache["parsed"]["node"] != nil
+        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
+        - set(log.time, Time(log.cache["parsed"]["timestamp"], "%Y-%m-%dT%H:%M:%S,%L")) where log.cache["parsed"]["timestamp"] != nil
+
+transform/collector_parse:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], ".*collector.*")
+      statements:
+        - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        - set(attributes["level"], log.cache["level"]) where log.cache["level"] != nil
+
+transform/kafka_parse:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.pod.name"], "^kafka-")
+      statements:
+        # Extract from containerd JSON if present
+        - set(log.cache["raw"], log.body) where IsString(log.body)
+        # Then parse the raw message
+        - set(log.cache["parsed"], ExtractPatterns(log.cache["raw"], "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<level>\\w+)\\s+(?P<logger>[^:]+):(?P<line>\\d+)\\s+-\\s+(?P<message>.*)$"))
+        - set(attributes["level"], log.cache["parsed"]["level"]) where log.cache["parsed"]["level"] != nil
+        - set(attributes["logger"], log.cache["parsed"]["logger"]) where log.cache["parsed"]["logger"] != nil
+        - set(attributes["line"], log.cache["parsed"]["line"]) where log.cache["parsed"]["line"] != nil
+        - set(log.body, log.cache["parsed"]["message"]) where log.cache["parsed"]["message"] != nil
+
+filter/kafka_drop_multiline:
+  error_mode: ignore
+  logs:
+    log_record:
+      - IsMatch(resource.attributes["k8s.pod.name"], "^kafka-") and not IsMatch(log.body, "^\\d{4}-\\d{2}-\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}")
+
+transform/severity_mapping:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - set(log.severity_text, ToLowerCase(attributes["level"])) where IsString(attributes["level"])
+        - set(log.severity_number, 1) where ToLowerCase(attributes["level"]) == "trace"
+        - set(log.severity_number, 5) where ToLowerCase(attributes["level"]) == "debug"
+        - set(log.severity_number, 9) where ToLowerCase(attributes["level"]) == "info"
+        - set(log.severity_number, 13) where ToLowerCase(attributes["level"]) == "warn"
+        - set(log.severity_number, 17) where ToLowerCase(attributes["level"]) == "error"
+        - set(log.severity_number, 21) where ToLowerCase(attributes["level"]) == "fatal"
+
+filter/empty-body:
+  error_mode: ignore
+  logs:
+    log_record:
+      - log.body == nil or log.body == ""
+
+filter/less-than-error:
+  error_mode: ignore
+  logs:
+    log_record:
+      - log.severity_number < SEVERITY_NUMBER_ERROR
+{{- end }}
+
 {{- define "selflogging.telemetryOTLPExporter" -}}
 processors:
   - batch:
@@ -54,11 +164,32 @@ attributes/self_logging:
 
 {{- define "selflogging.pipelines" }}
 logs/file_self_logging:
-  receivers: [file_log/self_logging]
-  processors: [k8s_attributes,attributes/self_logging,attributes/cluster,batch]
-  exporters: [routing]
+  exporters:
+  - routing
+  processors:
+  - filter/empty-body
+  - k8s_attributes
+  - attributes/self_logging
+  - attributes/cluster
+  - transform/collector_parse
+  - filter/kafka_drop_multiline
+  - transform/kafka_parse
+  - transform/opensearch_parse
+  - transform/severity_mapping
+  - filter/less-than-error
+  - batch
+  receivers:
+  - file_log/self_logging
 logs/otlp_self_logging:
-  receivers: [otlp/self_logging]
-  processors: [resource/self_pod,k8s_attributes,attributes/self_logging,attributes/cluster,batch]
-  exporters: [routing]
+  exporters: 
+  - routing
+  processors: 
+  - resource/self_pod
+  - k8s_attributes
+  - attributes/self_logging
+  - attributes/cluster
+  - filter/less-than-error
+  - batch
+  receivers: 
+  - otlp/self_logging
 {{- end }}
