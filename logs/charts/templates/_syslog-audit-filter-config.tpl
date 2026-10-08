@@ -329,31 +329,44 @@ transform/cef_parsing:
       conditions:
         - 'IsMatch(log.attributes["log.type"], "sysloghttp")'
       statements:
-        # Network - Source
-        - 'set(log.attributes["source.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
-        - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
-        # Network - Destination
+        # Client
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )caddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )caddr=")'
+        - 'set(log.attributes["client.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )cport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )cport=")'
+        # Destination
         - 'set(log.attributes["destination.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
         - 'set(log.attributes["destination.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )dpt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )dpt=")'
-        # Network - Protocol
-        - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
         # Event Attributes
         - 'set(log.attributes["event.action"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )act=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )act=")'
         - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
-        - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
-        # Event - Timestamp (PAN-OS: "Sep 30 2026 07:36:23 GMT")
         - 'set(log.attributes["event.created"], Timestamp(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "MMM dd yyyy HH:mm:ss zzz")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
+        - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        # Hardware
+        - 'set(log.attributes["hw.model"], ExtractPatterns(log.attributes["message"], "(?:^| )product=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )product=")'
         # Host Attributes
         - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
-        # Security Rule Attributes - Palo Alto Rule
-        - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
-        # Traffic Statistics - Network I/O bytes and packets
+        # Network
         - 'set(log.attributes["network.io.bytes.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes=")'
         - 'set(log.attributes["network.io.bytes.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_in=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_in=")'
         - 'set(log.attributes["network.io.bytes.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_out=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_out=")'
         - 'set(log.attributes["network.io.packets.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packets=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packets=")'
         - 'set(log.attributes["network.io.packets.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsReceived=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsReceived=")'
         - 'set(log.attributes["network.io.packets.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsSent=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsSent=")'
+        - 'set(log.attributes["network.local.address"], ExtractPatterns(log.attributes["message"], "(?:^| )laddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )laddr=")'
+        - 'set(log.attributes["network.local.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )lport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )lport=")
+        - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
+        - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
+        - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
+        # Server
+        - 'set(log.attributes["server.address"], ExtractPatterns(log.attributes["message"], "(?:^| )saddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )saddr=")'
+        - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )sport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )sport=")'
+        # Security Rule Attributes
+        - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
+        # Source
+        - 'set(log.attributes["source.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
+        - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
+        # No standardized Name yet
+        - 'set(log.attributes["relay_name"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
 
 {{/*
   ============================================================================

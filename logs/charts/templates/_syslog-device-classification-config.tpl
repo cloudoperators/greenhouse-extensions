@@ -191,8 +191,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
         # Server address and port (destination of connection - server side)
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["dst"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dst"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["dpt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dpt"] != nil'
         # Network protocol and interface
         - 'set(log.attributes["network.protocol.name"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
         - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
@@ -247,30 +245,6 @@ transform/syslog_device_classification:
         # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
         # hostname). Do NOT guess.
         - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
-        # Key value parsing (skip if _kvraw contains malformed tokens)
-        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<kv>(?:baddr=|caddr=|relay_name=|rule_name=|saddr=).*)$")["kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|baddr=|caddr=|saddr=)")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
-        # Client leg (client.* = logical client side of the proxied connection).
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["caddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["caddr"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["cport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cport"] != nil'
-        # Server leg (server.* = logical upstream server).
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["saddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["saddr"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["sport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["sport"] != nil'
-        # Peer leg (network.peer.* = transport-layer peer of the relay's upstream socket; equals server in simple relays, may differ under NAT/chaining).
-        - 'set(log.attributes["network.peer.address"], log.attributes["_kv"]["paddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["paddr"] != nil'
-        - 'set(log.attributes["network.peer.port"], Int(log.attributes["_kv"]["pport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["pport"] != nil'
-        # Local leg (network.local.* = the relay's own local socket).
-        - 'set(log.attributes["network.local.address"], log.attributes["_kv"]["laddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["laddr"] != nil'
-        - 'set(log.attributes["network.local.port"], Int(log.attributes["_kv"]["lport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["lport"] != nil'
-        # Transport protocol (IP proto number -> semconv network.transport).
-        - 'set(log.attributes["network.transport"], "udp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "17"'
-        - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
-        # Vendor-agnostic event fields.
-        - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
-        # Drop the temp map so no unscoped raw KV leaks downstream.
-        - 'delete_key(log.attributes, "_kv")'
-        - 'delete_key(log.attributes, "_kvraw")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
