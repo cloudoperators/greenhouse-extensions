@@ -41,7 +41,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*: \\d{4} \\w{3}\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:.*"))'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
