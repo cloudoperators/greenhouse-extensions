@@ -188,8 +188,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
         - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
         # Client address and port (source of connection - client side)
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
         # Server address and port (destination of connection - server side)
         # Network protocol and interface
         - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
