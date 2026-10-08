@@ -356,7 +356,7 @@ transform/cef_parsing:
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
-        - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
+        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
         # Server
         - 'set(log.attributes["server.address"], ExtractPatterns(log.attributes["message"], "(?:^| )saddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )saddr=")'
         - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )sport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )sport=")'

@@ -192,8 +192,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
         # Server address and port (destination of connection - server side)
         # Network protocol and interface
-        - 'set(log.attributes["network.protocol.name"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
-        - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
         - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
         # Legacy field event_type with value "Log"
         - 'set(log.attributes["event_type"], "Log") where log.attributes["_kv"] != nil'
