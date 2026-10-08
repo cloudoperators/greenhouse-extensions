@@ -351,7 +351,7 @@ transform/cef_parsing:
         - 'set(log.attributes["network.io.packets.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsReceived=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsReceived=")'
         - 'set(log.attributes["network.io.packets.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsSent=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsSent=")'
         - 'set(log.attributes["network.local.address"], ExtractPatterns(log.attributes["message"], "(?:^| )laddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )laddr=")'
-        - 'set(log.attributes["network.local.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )lport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )lport=")
+        - 'set(log.attributes["network.local.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )lport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )lport=")'
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
