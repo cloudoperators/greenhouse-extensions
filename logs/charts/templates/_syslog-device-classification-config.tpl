@@ -240,15 +240,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditStatus"] == "Completed" or log.attributes["auditStatus"] == "Ended") and log.attributes["event.outcome"] == nil'
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditLogCategory"] == "LoginSuccess" or log.attributes["auditLogCategory"] == "AuthSuccess") and log.attributes["event.outcome"] == nil'
         # "Started"/in-progress states: leave event.outcome unset.
-
-        # --- Network core (sentinel-guarded) ---
-        - 'set(log.attributes["client.address"], log.attributes["src"]) where log.attributes["src"] != nil and log.attributes["src"] != "" and log.attributes["src"] != "N/A" and log.attributes["src"] != "0.0.0.0" and log.attributes["src"] != "255.255.255.255" and log.attributes["client.address"] == nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil and log.attributes["spt"] != "" and log.attributes["spt"] != "N/A" and log.attributes["spt"] != "65535" and log.attributes["client.port"] == nil'
-        - 'set(log.attributes["server.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and log.attributes["dst"] != "" and log.attributes["dst"] != "N/A" and log.attributes["dst"] != "0.0.0.0" and log.attributes["dst"] != "255.255.255.255" and log.attributes["server.address"] == nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil and log.attributes["dpt"] != "" and log.attributes["dpt"] != "N/A" and log.attributes["dpt"] != "65535" and log.attributes["server.port"] == nil'
-
-        # --- network.protocol.name (lowercased; skip N/A) ---
-        - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil and log.attributes["proto"] != "" and log.attributes["proto"] != "N/A" and log.attributes["network.protocol.name"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
@@ -288,7 +279,6 @@ transform/syslog_device_classification:
         # CEF format parsing (CEF:0|Fortinet|Fortigate|...).
         - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
         - 'set(log.attributes["event.action"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["event.action"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
-        - 'set(log.attributes["network.transport"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])proto=(?P<v>\\S+)")["v"]) where log.attributes["network.transport"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])proto=")'
         - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
@@ -300,8 +290,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["_src"], log.attributes["message"]) where log.attributes["_src"] == nil and IsMatch(log.attributes["message"], ".*\\[kern_audit:.*")'
         # Parse the "::"-delimited ONTAP audit line into a temp map.
         - 'set(log.attributes["_na"], ExtractPatterns(log.attributes["_src"], ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>Success|Pending|Error|Failure|Failed)\\b.*$")) where log.attributes["_src"] != nil'
-        - 'set(log.attributes["client.address"], log.attributes["_na"]["caddr"]) where log.attributes["_na"] != nil and log.attributes["_na"]["caddr"] != nil and log.attributes["client.address"] == nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_na"]["cport"])) where log.attributes["_na"] != nil and log.attributes["_na"]["cport"] != nil and log.attributes["client.port"] == nil'
         - 'set(log.attributes["user.name"], log.attributes["_na"]["user"]) where log.attributes["_na"] != nil and log.attributes["_na"]["user"] != nil and log.attributes["user.name"] == nil'
         - 'set(log.attributes["user.roles"], [log.attributes["_na"]["role"]]) where log.attributes["_na"] != nil and log.attributes["_na"]["role"] != nil and log.attributes["user.roles"] == nil'
         - 'set(log.attributes["_http"], ExtractPatterns(log.attributes["_na"]["op"], "^(?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (?P<target>\\S+)")) where log.attributes["_na"] != nil and log.attributes["_na"]["iface"] == "http" and log.attributes["_na"]["op"] != nil'
