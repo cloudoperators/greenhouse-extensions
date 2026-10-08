@@ -41,7 +41,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*: \\d{4} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:.*"))'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or (log.attributes["log.type"] == "sysloghttp" and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*: \\d{4} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:.*")))'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
         - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
