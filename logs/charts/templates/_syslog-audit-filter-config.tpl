@@ -343,6 +343,7 @@ transform/cef_parsing:
         # Host Attributes
         - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
         # Network
+        - 'set(log.attributes["network.interface.name"], ExtractPatterns(log.attributes["message"], "(?:^| )ifname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )ifname=")'
         - 'set(log.attributes["network.io.bytes.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes=")'
         - 'set(log.attributes["network.io.bytes.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_in=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_in=")'
         - 'set(log.attributes["network.io.bytes.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_out=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_out=")'
@@ -357,6 +358,9 @@ transform/cef_parsing:
         - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
         # Security Rule Attributes
         - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
+        - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
+        - 'set(log.attributes["security_rule.action"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_action=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_action=")'
+        - 'set(log.attributes["security_rule.ruleset.name"], ExtractPatterns(log.attributes["message"], "(?:^| )layer_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )layer_name=")'
         # Server
         - 'set(log.attributes["server.address"], ExtractPatterns(log.attributes["message"], "(?:^| )saddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )saddr=")'
         - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )sport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )sport=")'
@@ -364,9 +368,13 @@ transform/cef_parsing:
         - 'set(log.attributes["source.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
         - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
         # No standardized Name yet
-        - 'set(log.attributes["relay_name"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
+        - 'set(log.attributes["cef.relay_name"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
         - 'set(log.attributes["firewall.zone.inbound"], ExtractPatterns(log.attributes["message"], "(?:^| )inzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )inzone=")'
         - 'set(log.attributes["firewall.zone.outbound"], ExtractPatterns(log.attributes["message"], "(?:^| )outzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )outzone=")'
+        - 'set(log.attributes["cef.origin"], ExtractPatterns(log.attributes["message"], "(?:^| )origin=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )origin=")'
+        - 'set(log.attributes["cef.originsicname"], ExtractPatterns(log.attributes["message"], "(?:^| )originsicname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )originsicname=")'
+        - 'set(log.attributes["cef.security_layer_uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )layer_uuid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )Security layer_uuid=")'
+        - 'set(log.attributes["cef.cs2"], ExtractPatterns(log.attributes["message"], "(?:^| )cs2=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )cs2=")'
 
 {{/*
   ============================================================================
