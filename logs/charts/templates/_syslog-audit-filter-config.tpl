@@ -365,8 +365,8 @@ transform/cef_parsing:
         - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
         # No standardized Name yet
         - 'set(log.attributes["relay_name"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
-        - 'set(log.attributes["firewall.zone.inbound"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
-        - 'set(log.attributes["firewall.zone.outbound"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
+        - 'set(log.attributes["firewall.zone.inbound"], ExtractPatterns(log.attributes["message"], "(?:^| )inzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )inzone=")'
+        - 'set(log.attributes["firewall.zone.outbound"], ExtractPatterns(log.attributes["message"], "(?:^| )outzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )outzone=")'
 
 {{/*
   ============================================================================
