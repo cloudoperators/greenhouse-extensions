@@ -48,9 +48,13 @@ transform/external-http:
         - set(log.attributes["auditd.paths"], String(log.attributes["auditd"]["paths"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
         - delete_key(log.attributes["auditd"], "paths") where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
         - set(log.attributes["auditd.data"], String(log.attributes["auditd"]["data"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
+        - set(log.attributes["auditd.data.op"], log.attributes["auditd"]["data"]["op"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["op"] != nil
+        - set(log.attributes["auditd.data.acct"], log.attributes["auditd"]["data"]["acct"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["acct"] != nil
         - delete_key(log.attributes["auditd"], "data") where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - set(log.attributes["impersonatedUser_string"], String(log.attributes["impersonatedUser"])) where log.attributes["impersonatedUser"] != nil
         - delete_key(log.attributes, "impersonatedUser") where log.attributes["impersonatedUser"] != nil
+        - set(log.attributes["objectRef.apiGroup"], log.attributes["objectRef"]["apiGroup"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["apiGroup"] != nil
+        - set(log.attributes["objectRef.resource"], log.attributes["objectRef"]["resource"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["resource"] != nil
         - set(log.attributes["objectRef_string"], String(log.attributes["objectRef"])) where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
@@ -78,6 +82,8 @@ transform/external-http:
         - set(log.attributes["args_string"], String(log.attributes["args"])) where log.attributes["args"] != nil
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - delete_matching_keys(log.attributes, "^args\\..*")
+        - set(log.attributes["user.name"], log.attributes["user"]["username"]) where log.attributes["user"] != nil and log.attributes["user"]["username"] != nil
+        - set(log.attributes["user.name"], log.attributes["user"]["effective"]["name"]) where log.attributes["user"] != nil and log.attributes["user"]["effective"]["name"] != nil
         - set(log.attributes["user_string"], String(log.attributes["user"])) where log.attributes["user"] != nil
         - delete_key(log.attributes, "user") where log.attributes["user"] != nil
         - delete_matching_keys(log.attributes, "^user\\..*")
@@ -114,6 +120,7 @@ transform/external-http:
         - set(log.attributes["git_string"], String(log.attributes["git"])) where log.attributes["git"] != nil
         - delete_key(log.attributes, "git") where log.attributes["git"] != nil
         - delete_matching_keys(log.attributes, "^git\\..*")
+        - set(log.attributes["annotations.authorization.k8s.io/reason"], log.attributes["annotations"]["authorization.k8s.io/reason"]) where log.attributes["annotations"] != nil and log.attributes["annotations"]["authorization.k8s.io/reason"] != nil
         - set(log.attributes["annotations_string"], String(log.attributes["annotations"])) where log.attributes["annotations"] != nil
         - delete_key(log.attributes, "annotations") where log.attributes["annotations"] != nil
         - delete_matching_keys(log.attributes, "^annotations\\..*")
@@ -129,6 +136,8 @@ transform/external-http:
         - set(log.attributes["auth_string"], String(log.attributes["auth"])) where log.attributes["auth"] != nil
         - delete_key(log.attributes, "auth") where log.attributes["auth"] != nil
         - delete_matching_keys(log.attributes, "^auth\\..*")
+        - set(log.attributes["http.response.status_code"], log.attributes["responseStatus"]["code"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["code"] != nil
+        - set(log.attributes["http.response.message"], log.attributes["responseStatus"]["message"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["message"] != nil
         - set(log.attributes["response_status_string"], String(log.attributes["responseStatus"])) where log.attributes["responseStatus"] != nil
         - delete_key(log.attributes, "responseStatus") where log.attributes["responseStatus"] != nil
         - delete_matching_keys(log.attributes, "^responseStatus\\..*")
