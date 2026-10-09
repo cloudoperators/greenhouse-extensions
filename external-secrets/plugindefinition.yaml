@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: external-secrets
+spec:
+  version: 1.0.0
+  displayName: External Secrets
+  description: External secrets management for Kubernetes. Synchronizes secrets from external secret providers into Kubernetes Secrets.
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/external-secrets/README.md
+  icon: https://raw.githubusercontent.com/external-secrets/external-secrets/main/assets/eso-logo-large.png
+  helmChart:
+    # renovate depName=ghcr.io/external-secrets/charts/external-secrets
+    name: external-secrets
+    repository: oci://ghcr.io/external-secrets/charts
+    version: 2.10.0
+  options:
+    - name: installCRDs
+      description: If set, install and upgrade CRDs through the Helm chart
+      default: true
+      required: false
+      type: bool
+    - name: replicaCount
+      description: Number of replicas for the external-secrets controller
+      default: 1
+      required: false
+      type: int
+    - name: serviceMonitor.enabled
+      description: Whether to create a ServiceMonitor resource for collecting Prometheus metrics
+      default: false
+      required: false
+      type: bool
+    - name: webhook.certManager.enabled
+      description: Enable cert-manager support for the webhook certificate instead of the built-in secret
+      default: false
+      required: false
+      type: bool

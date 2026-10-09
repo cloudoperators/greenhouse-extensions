@@ -34,7 +34,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "a62a383"
+    tag: "5340dd8"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
@@ -64,6 +64,13 @@ auditLogs:
     journald:
         # -- Activates ingestion of systemd journal logs
       enabled: false
+    selflogging:
+      # -- Activates the ingestion of telemetry of the collector itself as well as other logs collectors.
+      enabled: false
+      # -- Paths to include from the filelog self-logging ingestion.
+      include: []
+      # -- Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging.
+      exclude: []
     # -- Kafka exporter configuration for buffering audit logs
     kafka:
       # -- Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.
@@ -74,7 +81,7 @@ auditLogs:
       topic: ""
       # -- Kafka protocol version (e.g., "3.9.0")
       protocol_version: ""
-      # -- Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding)
+      # -- Message encoding format (otlp_json, otlp_proto, raw)
       encoding: ""
       # -- Compression type (none, gzip, snappy, lz4, zstd)
       compression: ""
@@ -90,6 +97,29 @@ auditLogs:
         caSecret: ""
         # -- K8s secret key which holds the CA certificate. (e.g. ca.crt)
         caSecretKey: ""
+      # -- Users configuration for Kafka connections
+      # @default -- see values.yaml
+      users: []
+        # - name: read-all # kafka user name
+        #   type: consumer # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
+        #   secret:
+        #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
+        #     password: vault+222 # kafka user password
+        # - name: read-all2
+        #   type: consumer
+        #   secret:
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all
+        #   type: producer
+        #   secret:
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
+        # - name: write-all2
+        #   type: producer
+        #   secret:
+        #     name: existing-from-kafka-deployment
+        #     password: vault+222
     # -- Max characters for the log body in the truncate_message processor. Keep below the
     # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
     maxMessageLength: 32000

@@ -92,7 +92,11 @@ opensearch/failover_b_syslog_audit:
 {{- else }}
 kafka/syslog_audit:
   brokers:
-{{- range .Values.openTelemetry.auditKafka.brokers }}
+{{- $brokers := .Values.openTelemetry.externalCollector.syslogConfig.auditKafkaBrokers }}
+{{- if not $brokers }}
+  {{- $brokers = .Values.openTelemetry.auditKafka.brokers }}
+{{- end }}
+{{- range $brokers }}
     - {{ . }}
 {{- end }}
   protocol_version: {{ .Values.openTelemetry.auditKafka.protocol_version }}
@@ -113,6 +117,17 @@ kafka/syslog_audit:
     insecure: false
 {{- if and (not (empty .Values.openTelemetry.auditKafka.tls.caSecret)) (not (empty .Values.openTelemetry.auditKafka.tls.caSecretKey)) }}
     ca_file: /etc/ssl/audit-kafka/{{ .Values.openTelemetry.auditKafka.tls.caSecretKey }}
+{{- end }}
+{{- end }}
+{{- if not (empty .Values.openTelemetry.auditKafka.users) }}
+{{- range $user := .Values.openTelemetry.auditKafka.users }}
+{{- if eq $user.name "write-all" }}
+  auth:
+    sasl:
+      username: {{ $user.name }}
+      password: ${{ "{" }}kafka_audit_{{ $user.name | replace "-" "_" }}_password}
+      mechanism: SCRAM-SHA-512
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

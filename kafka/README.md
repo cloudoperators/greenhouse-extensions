@@ -64,6 +64,8 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | entityOperator.userOperator.enabled | bool | `false` | Enable User Operator |
 | entityOperator.userOperator.resources | object | requests: 128Mi memory, 100m CPU; limits: 256Mi memory, 200m CPU | User Operator resource configuration |
 | extraManifests | list | `[]` | Extra Kubernetes manifests to deploy alongside the chart. Each entry can be a raw YAML string or a map object. |
+| kafka.authorization.config | object | `{"superUsers":[],"type":"simple"}` | Authorization config |
+| kafka.authorization.enabled | bool | `false` | Enable authorization for kafka |
 | kafka.config | object | See values.yaml for production defaults | Kafka broker configuration |
 | kafka.enabled | bool | `true` | Enable or disable Kafka cluster deployment |
 | kafka.jvmOptions | object | xms: 1024m, xmx: 2048m | JVM heap settings for Kafka brokers. xms (initial heap) and xmx (max heap): Heap should be kept modest to preserve memory for OS page cache, which Kafka relies on heavily for performance. See: https://docs.confluent.io/platform/current/kafka/deployment.html |
@@ -114,3 +116,4 @@ If you discover bugs or want to add functionality to the plugin, feel free to cr
 | topics.logs.retention | int | `86400000` | Retention period (24 hours = 86400000 ms) |
 | topics.logs.segmentBytes | int | `1073741824` | Segment size (1 GB) |
 | topics.logs.useClusterPrefix | bool | `false` | Whether or not kafka cluster name (kafka.name) is added to KafkaTopic metadata.name (NOT the actual topic in kafka cluster!) |
+| users | list | See values.yaml | Kafka Users configuration |

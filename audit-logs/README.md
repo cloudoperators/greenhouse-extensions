@@ -70,7 +70,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.affinity | object | `{}` | Node affinity rules for the collector DaemonSet pods |
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"a62a383"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"5340dd8"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.elastic.enabled | bool | `false` | Activates the configuration for Elastic. |
 | auditLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
@@ -90,11 +90,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | auditLogs.logsCollector.journald.enabled | bool | `false` | Activates ingestion of systemd journal logs |
-| auditLogs.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false},"topic":""}` | Kafka exporter configuration for buffering audit logs |
+| auditLogs.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false},"topic":"","users":[]}` | Kafka exporter configuration for buffering audit logs |
 | auditLogs.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |
 | auditLogs.logsCollector.kafka.compression | string | `""` | Compression type (none, gzip, snappy, lz4, zstd) |
 | auditLogs.logsCollector.kafka.enabled | bool | `false` | Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch. |
-| auditLogs.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw, opensearch_log_encoding) |
+| auditLogs.logsCollector.kafka.encoding | string | `""` | Message encoding format (otlp_json, otlp_proto, raw) |
 | auditLogs.logsCollector.kafka.max_message_bytes | int | `1000000` | Max producer message size in bytes before compression (Kafka exporter default 1000000). Raise to match the Kafka topic/broker max.message.bytes. |
 | auditLogs.logsCollector.kafka.protocol_version | string | `""` | Kafka protocol version (e.g., "3.9.0") |
 | auditLogs.logsCollector.kafka.tls | object | `{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false}` | TLS settings for the Kafka exporter. Enable when the broker terminates TLS. |
@@ -103,8 +103,12 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.tls.enabled | bool | `false` | Enable TLS on the connection to Kafka. |
 | auditLogs.logsCollector.kafka.tls.insecure_skip_verify | bool | `false` | Skip server certificate verification. Leave false for production. |
 | auditLogs.logsCollector.kafka.topic | string | `""` | Kafka topic name for audit logs |
+| auditLogs.logsCollector.kafka.users | list | see values.yaml | Users configuration for Kafka connections |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
 | auditLogs.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
+| auditLogs.logsCollector.selflogging.enabled | bool | `false` | Activates the ingestion of telemetry of the collector itself as well as other logs collectors. |
+| auditLogs.logsCollector.selflogging.exclude | list | `[]` | Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging. |
+| auditLogs.logsCollector.selflogging.include | list | `[]` | Paths to include from the filelog self-logging ingestion. |
 | auditLogs.nodeSelector | object | `{}` |  |
 | auditLogs.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |
 | auditLogs.openSearchLogs.failover_password_a | string | `nil` | Password for OpenSearch endpoint |

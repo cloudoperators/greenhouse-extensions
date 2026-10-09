@@ -148,5 +148,3 @@ logs/kvm_pstore:
   processors: [attributes/cluster, transform/journal]
   exporters: [routing]
 {{- end }}
-
-

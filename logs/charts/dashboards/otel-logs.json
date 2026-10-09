@@ -167,7 +167,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records_total[15m]) > 0)",
+          "expr": " sum(kube_pod_status_phase{pod=~\"logs.*\", phase=\"Running\", namespace=\"otel\"})-count(rate(otelcol_exporter_sent_log_records[15m]) > 0)",
           "interval": "",
           "legendFormat": "Running",
           "queryType": "randomWalk",
@@ -744,7 +744,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_accepted_log_records${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_receiver_accepted_log${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
           "interval": "$minstep",
           "intervalFactor": 1,
           "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
@@ -844,7 +844,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_refused_log_records${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_receiver_refused_log${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
           "interval": "$minstep",
           "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
           "queryType": "randomWalk",
@@ -943,7 +943,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_accepted_metric_points${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_receiver_accepted_metric${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
           "interval": "$minstep",
           "legendFormat": "Accepted: {{receiver}} {{transport}} {{service_instance_id}}",
           "queryType": "randomWalk",
@@ -1042,7 +1042,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_receiver_refused_metric_points${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
+          "expr": "sum(${metric:value}(otelcol_receiver_refused_metric${suffix}{receiver=~\"$receiver\",job=\"$job\"}[$__rate_interval])) by (receiver $grouping)",
           "interval": "$minstep",
           "legendFormat": "Refused: {{receiver}} {{transport}} {{service_instance_id}}",
           "queryType": "randomWalk",
@@ -1155,7 +1155,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_processor_batch_batch_size_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
+          "expr": "sum(${metric:value}(otelcol_processor_batch_batch_size_trigger${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
           "interval": "$minstep",
           "legendFormat": "Batch sent due to a size trigger: {{processor}}",
           "queryType": "randomWalk",
@@ -1163,7 +1163,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_processor_batch_timeout_trigger_send${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
+          "expr": "sum(${metric:value}(otelcol_processor_batch_timeout_trigger${suffix}{processor=~\"$processor\",job=\"$job\"}[$__rate_interval])) by (processor $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Batch sent due to a timeout trigger: {{processor}} {{service_instance_id}}",
@@ -1262,7 +1262,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_sent_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_sent${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "interval": "$minstep",
           "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
           "queryType": "randomWalk",
@@ -1270,7 +1270,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
@@ -1278,7 +1278,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_send_failed_spans${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_send_failed${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
@@ -1393,7 +1393,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_sent_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_sent_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Sent: {{exporter}} {{service_instance_id}}",
@@ -1401,7 +1401,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Enqueue: {{exporter}} {{service_instance_id}}",
@@ -1409,7 +1409,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_send_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_send_failed_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
@@ -1510,7 +1510,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_send_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_send_failed_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Failed: {{exporter}} {{service_instance_id}}",
@@ -1518,7 +1518,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_sent_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_sent_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "instant": false,
           "interval": "$minstep",
@@ -1527,7 +1527,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed_metric_points${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
+          "expr": "sum(${metric:value}(otelcol_exporter_enqueue_failed_metric${suffix}{exporter=~\"$exporter\",job=\"$job\"}[$__rate_interval])) by (exporter $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "",
@@ -1640,7 +1640,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "max(otelcol_process_runtime_total_sys_memory{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Max Memory RSS {{service_instance_id}}",
@@ -1648,7 +1648,7 @@
         },
         {
           "exemplar": true,
-          "expr": "max(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "max(otelcol_process_runtime_total_sys_memory{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Avg Memory RSS {{service_instance_id}}",
@@ -1656,7 +1656,7 @@
         },
         {
           "exemplar": true,
-          "expr": "min(otelcol_process_runtime_total_sys_memory_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "min(otelcol_process_runtime_total_sys_memory{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Min Memory RSS {{service_instance_id}}",
@@ -1755,7 +1755,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "max(otelcol_process_runtime_heap_alloc{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Max Memory RSS {{service_instance_id}}",
@@ -1763,7 +1763,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "avg(otelcol_process_runtime_heap_alloc{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Avg Memory RSS {{service_instance_id}}",
@@ -1771,7 +1771,7 @@
         },
         {
           "exemplar": true,
-          "expr": "min(otelcol_process_runtime_heap_alloc_bytes{job=\"$job\"}) by (job $grouping)",
+          "expr": "min(otelcol_process_runtime_heap_alloc{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Min Memory RSS {{service_instance_id}}",
@@ -1870,7 +1870,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "max(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Max CPU usage {{service_instance_id}}",
@@ -1878,7 +1878,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "avg(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Avg CPU usage {{service_instance_id}}",
@@ -1886,7 +1886,7 @@
         },
         {
           "exemplar": true,
-          "expr": "min(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "min(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Min CPU usage {{service_instance_id}}",
@@ -1985,7 +1985,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "max(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Max CPU usage {{service_instance_id}}",
@@ -1993,7 +1993,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "avg(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Avg CPU usage {{service_instance_id}}",
@@ -2001,7 +2001,7 @@
         },
         {
           "exemplar": true,
-          "expr": "min(rate(otelcol_process_cpu_seconds${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
+          "expr": "min(rate(otelcol_process_cpu${suffix}{job=\"$job\"}[$__rate_interval])*100) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Min CPU usage {{service_instance_id}}",
@@ -2102,7 +2102,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "count(count(otelcol_process_cpu_seconds${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id))",
+          "expr": "count(count(otelcol_process_cpu${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id))",
           "hide": false,
           "interval": "",
           "legendFormat": "Service instance count",
@@ -2201,7 +2201,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(otelcol_process_uptime${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
+          "expr": "max(otelcol_process${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Service instance uptime: {{service_instance_id}}",
@@ -2294,7 +2294,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "max(otelcol_process_uptime${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
+          "expr": "max(otelcol_process${suffix}{service_instance_id=~\".*\",job=\"$job\"}) by (service_instance_id,service_name,service_version)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2386,7 +2386,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(otelcol_otelsvc_k8s_pod_deleted${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "sum(otelcol_otelsvc_k8s_pod${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Deleted: {{transport}} {{service_instance_id}}",
@@ -2394,7 +2394,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(otelcol_otelsvc_k8s_pod_updated${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "sum(otelcol_otelsvc_k8s_pod${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Updated: {{transport}} {{service_instance_id}}",
@@ -2402,7 +2402,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(otelcol_otelsvc_k8s_pod_added${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "sum(otelcol_otelsvc_k8s_pod${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Added: {{transport}} {{service_instance_id}}",
@@ -2503,7 +2503,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "avg(otelcol_otelsvc_k8s_namespace_updated${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "avg(otelcol_otelsvc_k8s_namespace${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "$minstep",
           "legendFormat": "Updated: {{transport}} {{service_instance_id}}",
@@ -2511,7 +2511,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(otelcol_otelsvc_k8s_namespace_added${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "avg(otelcol_otelsvc_k8s_namespace${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Added: {{transport}} {{service_instance_id}}",
@@ -2519,7 +2519,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(otelcol_otelsvc_k8s_pod_added${suffix}{job=\"$job\"}) by (job $grouping)",
+          "expr": "sum(otelcol_otelsvc_k8s_pod${suffix}{job=\"$job\"}) by (job $grouping)",
           "hide": false,
           "interval": "",
           "legendFormat": "Added: {{transport}} {{service_instance_id}}",
@@ -2832,7 +2832,7 @@
           "value": "_total"
         },
         "datasource": "${datasource}",
-        "definition": "query_result({__name__=~\"otelcol_process_uptime.+\",job=\"$job\"})",
+        "definition": "query_result({__name__=~\"otelcol_process.+\",job=\"$job\"})",
         "description": null,
         "error": null,
         "hide": 0,
@@ -2842,11 +2842,11 @@
         "name": "suffix",
         "options": [],
         "query": {
-          "query": "query_result({__name__=~\"otelcol_process_uptime.+\",job=\"$job\"})",
+          "query": "query_result({__name__=~\"otelcol_process.+\",job=\"$job\"})",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "/otelcol_process_uptime(.*){.*/",
+        "regex": "/otelcol_process(.*){.*/",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
