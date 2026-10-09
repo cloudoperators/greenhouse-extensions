@@ -83,6 +83,7 @@ transform/external-http:
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - delete_matching_keys(log.attributes, "^args\\..*")
         - set(log.attributes["user.name"], log.attributes["user"]["username"]) where log.attributes["user"] != nil and log.attributes["user"]["username"] != nil
+        - set(log.attributes["user.name"], log.attributes["user"]["effective"]["name"]) where log.attributes["user"] != nil and log.attributes["user"]["effective"]["name"] != nil
         - set(log.attributes["user_string"], String(log.attributes["user"])) where log.attributes["user"] != nil
         - delete_key(log.attributes, "user") where log.attributes["user"] != nil
         - delete_matching_keys(log.attributes, "^user\\..*")
