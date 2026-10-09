@@ -1,0 +1,136 @@
+#!/bin/bash
+
+set -e
+
+# Defaults
+BOOTSTRAP_PORT=9094
+TOPIC="audit"
+REPLICAS=1
+USERNAME=""
+PASSWORD=""
+DRY_RUN=false
+
+usage() {
+  echo "Usage: $0 --namespace <ns> --kafka-service <svc> --consumer-group <group> \\"
+  echo "          --consumer-otelcol <otelcol> --username <user> --password <pass> [options]"
+  echo ""
+  echo "Required:"
+  echo "  --namespace         Kubernetes namespace"
+  echo "  --kafka-service     Kafka service to connect to"
+  echo "  --consumer-group    Kafka consumer group to reset"
+  echo "  --consumer-otelcol  OpenTelemetry collector (consumer) to scale"
+  echo "  --username          SASL username"
+  echo "  --password          SASL password"
+  echo ""
+  echo "Optional:"
+  echo "  --bootstrap-port    Bootstrap port (default: 9094)"
+  echo "  --topic             Topic to reset (default: audit)"
+  echo "  --replicas          Replica count to scale back up (default: 1)"
+  echo "  --dry-run           Preview actions, make no changes"
+  echo "  --help              Show this help"
+  echo ""
+  echo "Example:"
+  echo "  $0 --namespace forlogs-audit --kafka-service kafka-audit-external-bootstrap \\"
+  echo "     --consumer-group audit-ingester-audit --consumer-otelcol audit-ingester-audit \\"
+  echo "     --username read-all --password secret --replicas 10"
+  exit 1
+}
+
+# Parse long flags
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --namespace)        NAMESPACE="$2"; shift 2 ;;
+    --kafka-service)    KAFKA_SERVICE="$2"; shift 2 ;;
+    --consumer-group)   CONSUMER_GROUP="$2"; shift 2 ;;
+    --consumer-otelcol) OTEL_COLECTOR="$2"; shift 2 ;;
+    --username)         USERNAME="$2"; shift 2 ;;
+    --password)         PASSWORD="$2"; shift 2 ;;
+    --bootstrap-port)   BOOTSTRAP_PORT="$2"; shift 2 ;;
+    --topic)            TOPIC="$2"; shift 2 ;;
+    --replicas)         REPLICAS="$2"; shift 2 ;;
+    --dry-run)          DRY_RUN=true; shift ;;
+    --help|-h)          usage ;;
+    *) echo "Unknown option: $1"; usage ;;
+  esac
+done
+
+# Validate required
+if [ -z "$NAMESPACE" ] || [ -z "$KAFKA_SERVICE" ] || [ -z "$CONSUMER_GROUP" ] || \
+   [ -z "$OTEL_COLECTOR" ] || [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+  usage
+fi
+
+if [ "$DRY_RUN" = true ]; then
+  echo -e "\e[33m=== DRY RUN - no changes will be made ===\e[0m"
+fi
+
+# Create client.properties
+cat > client.properties << EOF
+security.protocol=SASL_SSL
+sasl.mechanism=SCRAM-SHA-512
+sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="$USERNAME" password="$PASSWORD";
+ssl.endpoint.identification.algorithm=
+EOF
+
+echo "Port-forward manually in another terminal:"
+echo "  kubectl port-forward -n $NAMESPACE svc/$KAFKA_SERVICE $BOOTSTRAP_PORT:$BOOTSTRAP_PORT"
+echo ""
+
+echo "Checking otelcol consumer status..."
+kubectl get otelcol "$OTEL_COLECTOR" -n "$NAMESPACE"
+
+echo ""
+echo "Scaling down consumer: $OTEL_COLECTOR"
+kubectl scale otelcol "$OTEL_COLECTOR" -n "$NAMESPACE" --replicas=0
+
+sleep 5
+echo "Waiting for pod termination..."
+kubectl get otelcol "$OTEL_COLECTOR" -n "$NAMESPACE"
+
+echo ""
+echo "Current lag for group: $CONSUMER_GROUP"
+kafka-consumer-groups --bootstrap-server localhost:$BOOTSTRAP_PORT \
+    --group "$CONSUMER_GROUP" \
+    --describe \
+    --command-config client.properties
+
+if [ "$DRY_RUN" = true ]; then
+  echo ""
+  echo ""
+  echo -e "\e[33m=== DRY RUN - no changes will be made ===\e[0m"
+
+  echo "Would reset offsets: group=$CONSUMER_GROUP topic=$TOPIC to latest"
+  echo ""
+  echo "Dry-run reset preview (no changes committed):"
+  kafka-consumer-groups --bootstrap-server localhost:$BOOTSTRAP_PORT \
+    --group "$CONSUMER_GROUP" \
+    --reset-offsets \
+    --to-latest \
+    --dry-run \
+    --topic "$TOPIC" \
+    --command-config client.properties
+  echo "Done (dry-run)"
+else 
+
+  echo ""
+  echo "Resetting offsets for group: $CONSUMER_GROUP to latest on topic: $TOPIC"
+  kafka-consumer-groups --bootstrap-server localhost:$BOOTSTRAP_PORT \
+    --group "$CONSUMER_GROUP" \
+    --reset-offsets \
+    --to-latest \
+    --execute \
+    --topic "$TOPIC" \
+    --command-config client.properties
+
+  echo ""
+  echo "Verifying lag after reset..."
+  kafka-consumer-groups --bootstrap-server localhost:$BOOTSTRAP_PORT \
+    --group "$CONSUMER_GROUP" \
+    --describe \
+    --command-config client.properties
+fi
+echo ""
+echo "Scaling up consumer: $OTEL_COLECTOR to $REPLICAS replicas"
+kubectl scale otelcol "$OTEL_COLECTOR" -n "$NAMESPACE" --replicas="$REPLICAS"
+
+echo "Done"
