@@ -863,6 +863,7 @@ logs/syslog_tcp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_user_normalization
@@ -882,6 +883,7 @@ logs/syslog_udp:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_user_normalization
@@ -904,6 +906,7 @@ logs/syslog_tcp_tls:
     - transform/syslog_extract_appname_from_message
     - transform/syslog_user_extraction
     - transform/syslog_hostname_parsing
+    - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
     - transform/syslog_user_normalization

@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: agentgateway
 spec:
-  version: 1.4.1
+  version: 1.6.0
   displayName: AgentGateway
   description: >-
     AI-native reverse proxy for MCP and A2A protocols. Runs as a Kubernetes
@@ -17,7 +17,7 @@ spec:
   helmChart:
     name: agentgateway
     repository: oci://cr.agentgateway.dev/charts
-    version: v1.4.1
+    version: v1.6.0
   options:
     - name: image.registry
       description: >-

@@ -115,6 +115,10 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
         # Radware (DefensePro / CyberController)
         - 'set(log.attributes["netbox.manufacturer.slug"], "radware") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Radware.*")'
+        # F5 ASM WAF - "ASM:unit_hostname".
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # F5 BIG-IP (TMOS/ASM/APM/LTM) - module tags, daemons, SSL logs.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and (IsMatch(log.body, "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)") or IsMatch(log.attributes["message"], "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)"))'        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         # Palo Alto Networks - CEF "Palo Alto Networks".
         - 'set(log.attributes["netbox.manufacturer.slug"], "palo-alto-networks") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Palo Alto Networks.*")'
         # Palo Alto Networks - "fw-idc-pan" hostname without literal "palo-alto-networks".
@@ -130,11 +134,7 @@ transform/syslog_device_classification:
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
-        # F5 ASM WAF - "ASM:unit_hostname".
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
-        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[).*")'
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[kern_audit:|netapp\\.com/filer/admin).*")'
         # Cisco Nexus (MAC move / flap events).
@@ -182,38 +182,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "check-point-gaia") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
-        # Check Point CEF Log Parsing - OTEL Semantic Conventions Compliant
-        # Extract the entire KV section (everything after the CEF header pipes).
-        # Skip ParseKeyValue if _kvraw contains malformed tokens (no "=" sign).
-        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<_kv>act=.*$)")["_kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "act=")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
-        # Client address and port (source of connection - client side)
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["src"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["src"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["spt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["spt"] != nil'
-        # Server address and port (destination of connection - server side)
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["dst"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dst"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["dpt"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["dpt"] != nil'
-        # Network protocol and interface
-        - 'set(log.attributes["network.protocol.name"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
-        - 'set(log.attributes["network.protocol.number"], Int(log.attributes["_kv"]["proto"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] != nil'
-        - 'set(log.attributes["network.interface.name"], log.attributes["_kv"]["ifname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["ifname"] != nil'
-        # Legacy field event_type with value "Log"
-        - 'set(log.attributes["event_type"], "Log") where log.attributes["_kv"] != nil'
-        # security_rule
-        - 'set(log.attributes["security_rule.name"], log.attributes["_kv"]["cs2"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cs2"] != nil'
-        - 'set(log.attributes["security_rule.uuid"], log.attributes["_kv"]["rule_uid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_uid"] != nil'
-        - 'set(log.attributes["security_rule.category"], log.attributes["_kv"]["rule_action"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["rule_action"] != nil'
-        - 'set(log.attributes["security_rule.ruleset.name"], log.attributes["_kv"]["layer_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["layer_name"] != nil'
-        # Organization/source device information
-        - 'set(log.attributes["host.name"], log.attributes["_kv"]["originsicname"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["originsicname"] != nil'
-        - 'set(log.attributes["host.ip"], log.attributes["_kv"]["origin"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["origin"] != nil'
-        # Security-related attributes (custom namespace for firewall-specific data)
-        - 'set(log.attributes["firewall.policy_uuid"], log.attributes["_kv"]["Security layer_uuid"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["Security layer_uuid"] != nil'
-        - 'set(log.attributes["firewall.zone.inbound"], log.attributes["_kv"]["inzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["inzone"] != nil'
-        - 'set(log.attributes["firewall.zone.outbound"], log.attributes["_kv"]["outzone"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["outzone"] != nil'
-        # Cleanup: Drop the temp maps so no unscoped raw KV leaks downstream
-        - 'delete_key(log.attributes, "_kv")'
-        - 'delete_key(log.attributes, "_kvraw")'
     # Trend Micro is no official Manufacturer, Platfrom or anything similar in Netbox. We will still handle it as such for transformation purposes.
     - context: log
       conditions:
@@ -247,30 +215,6 @@ transform/syslog_device_classification:
         # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
         # hostname). Do NOT guess.
         - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
-        # Key value parsing (skip if _kvraw contains malformed tokens)
-        - 'set(log.attributes["_kvraw"], ExtractPatterns(log.attributes["message"], "(?P<kv>(?:baddr=|caddr=|relay_name=|rule_name=|saddr=).*)$")["kv"]) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|baddr=|caddr=|saddr=)")'
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["_kvraw"], " ", "=")) where log.attributes["_kvraw"] != nil and IsMatch(log.attributes["_kvraw"], "^([^\\s=]+=[^\\s]*\\s*)+$")'
-        # Client leg (client.* = logical client side of the proxied connection).
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["caddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["caddr"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["cport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cport"] != nil'
-        # Server leg (server.* = logical upstream server).
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["saddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["saddr"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["sport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["sport"] != nil'
-        # Peer leg (network.peer.* = transport-layer peer of the relay's upstream socket; equals server in simple relays, may differ under NAT/chaining).
-        - 'set(log.attributes["network.peer.address"], log.attributes["_kv"]["paddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["paddr"] != nil'
-        - 'set(log.attributes["network.peer.port"], Int(log.attributes["_kv"]["pport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["pport"] != nil'
-        # Local leg (network.local.* = the relay's own local socket).
-        - 'set(log.attributes["network.local.address"], log.attributes["_kv"]["laddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["laddr"] != nil'
-        - 'set(log.attributes["network.local.port"], Int(log.attributes["_kv"]["lport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["lport"] != nil'
-        # Transport protocol (IP proto number -> semconv network.transport).
-        - 'set(log.attributes["network.transport"], "udp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "17"'
-        - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
-        # Vendor-agnostic event fields.
-        - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], log.attributes["_kv"]["product"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
-        # Drop the temp map so no unscoped raw KV leaks downstream.
-        - 'delete_key(log.attributes, "_kv")'
-        - 'delete_key(log.attributes, "_kvraw")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
@@ -296,15 +240,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditStatus"] == "Completed" or log.attributes["auditStatus"] == "Ended") and log.attributes["event.outcome"] == nil'
         - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditLogCategory"] == "LoginSuccess" or log.attributes["auditLogCategory"] == "AuthSuccess") and log.attributes["event.outcome"] == nil'
         # "Started"/in-progress states: leave event.outcome unset.
-
-        # --- Network core (sentinel-guarded) ---
-        - 'set(log.attributes["client.address"], log.attributes["src"]) where log.attributes["src"] != nil and log.attributes["src"] != "" and log.attributes["src"] != "N/A" and log.attributes["src"] != "0.0.0.0" and log.attributes["src"] != "255.255.255.255" and log.attributes["client.address"] == nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil and log.attributes["spt"] != "" and log.attributes["spt"] != "N/A" and log.attributes["spt"] != "65535" and log.attributes["client.port"] == nil'
-        - 'set(log.attributes["server.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and log.attributes["dst"] != "" and log.attributes["dst"] != "N/A" and log.attributes["dst"] != "0.0.0.0" and log.attributes["dst"] != "255.255.255.255" and log.attributes["server.address"] == nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil and log.attributes["dpt"] != "" and log.attributes["dpt"] != "N/A" and log.attributes["dpt"] != "65535" and log.attributes["server.port"] == nil'
-
-        # --- network.protocol.name (lowercased; skip N/A) ---
-        - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil and log.attributes["proto"] != "" and log.attributes["proto"] != "N/A" and log.attributes["network.protocol.name"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
@@ -344,7 +279,6 @@ transform/syslog_device_classification:
         # CEF format parsing (CEF:0|Fortinet|Fortigate|...).
         - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
         - 'set(log.attributes["event.action"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["event.action"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
-        - 'set(log.attributes["network.transport"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])proto=(?P<v>\\S+)")["v"]) where log.attributes["network.transport"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])proto=")'
         - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
@@ -356,8 +290,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["_src"], log.attributes["message"]) where log.attributes["_src"] == nil and IsMatch(log.attributes["message"], ".*\\[kern_audit:.*")'
         # Parse the "::"-delimited ONTAP audit line into a temp map.
         - 'set(log.attributes["_na"], ExtractPatterns(log.attributes["_src"], ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>Success|Pending|Error|Failure|Failed)\\b.*$")) where log.attributes["_src"] != nil'
-        - 'set(log.attributes["client.address"], log.attributes["_na"]["caddr"]) where log.attributes["_na"] != nil and log.attributes["_na"]["caddr"] != nil and log.attributes["client.address"] == nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_na"]["cport"])) where log.attributes["_na"] != nil and log.attributes["_na"]["cport"] != nil and log.attributes["client.port"] == nil'
         - 'set(log.attributes["user.name"], log.attributes["_na"]["user"]) where log.attributes["_na"] != nil and log.attributes["_na"]["user"] != nil and log.attributes["user.name"] == nil'
         - 'set(log.attributes["user.roles"], [log.attributes["_na"]["role"]]) where log.attributes["_na"] != nil and log.attributes["_na"]["role"] != nil and log.attributes["user.roles"] == nil'
         - 'set(log.attributes["_http"], ExtractPatterns(log.attributes["_na"]["op"], "^(?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (?P<target>\\S+)")) where log.attributes["_na"] != nil and log.attributes["_na"]["iface"] == "http" and log.attributes["_na"]["op"] != nil'
