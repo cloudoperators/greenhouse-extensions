@@ -208,6 +208,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.kvmConfig | object | `{"enabled":false}` | Activates the configuration for KVM logs (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
 | openTelemetry.logsCollector.openstackConfig | object | `{"enabled":false}` | Activates the configuration for OpenStack logs (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.resources | object | `{}` | Pod resource requests/limits for the logs collector DaemonSet container. |
 | openTelemetry.metricsCollector | object | `{"affinity":{},"enabled":false}` | Activates the standard configuration for metrics. |
 | openTelemetry.metricsCollector.affinity | object | `{}` | Pod affinity rules for the metrics collector CR |
 | openTelemetry.openSearchLogs.endpoint | string | `nil` | Endpoint URL for OpenSearch |

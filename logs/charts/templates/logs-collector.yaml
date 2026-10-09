@@ -15,6 +15,10 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+{{- with .Values.openTelemetry.logsCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   tolerations:
   - operator: Exists
   podAnnotations:

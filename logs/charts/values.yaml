@@ -202,6 +202,8 @@ openTelemetry:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Pod resource requests/limits for the logs collector DaemonSet container.
+    resources: {}
     # -- Pod affinity rules for the logs collector CR
     # @default -- See values.yaml
     affinity:
