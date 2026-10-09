@@ -612,6 +612,13 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if and .Values.auditLogs.logsCollector.kubeApiAudit.enabled .Values.auditLogs.prometheus.podMonitor.enabled }}
+      # Counts the kube-apiserver audit events whose credential bodies transform/kube_audit
+      # removed, as otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"},
+      # for the KubeAuditCredentialBodyRemoved alert. Its info lines stay below the WARN log level.
+      debug/credential_body_removed:
+        verbosity: basic
+{{- end }}
 {{- if .Values.auditLogs.logsCollector.kafka.enabled }}
       kafka:
         brokers:
@@ -682,6 +689,16 @@ spec:
             - logs/default
 {{- if .Values.auditLogs.elastic.enabled }}
             - logs/es
+{{- end }}
+{{- if and .Values.auditLogs.logsCollector.kubeApiAudit.enabled .Values.auditLogs.prometheus.podMonitor.enabled }}
+      # Passes only the events marked by transform/kube_audit to the counting pipeline;
+      # all events still go through the routing connector above.
+      routing/credential_body_removed:
+        table:
+          - context: log
+            condition: attributes["sap.cc.audit.credential_body_removed"] == true
+            pipelines:
+            - logs/credential_body_removed
 {{- end }}
 {{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       failover:
@@ -764,7 +781,14 @@ spec:
         logs/kube_audit:
           receivers: [file_log/kube_audit]
           processors: [k8s_attributes,transform/kube_audit,attributes/cluster, batch]
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+          exporters: [routing, routing/credential_body_removed]
+        logs/credential_body_removed:
+          receivers: [routing/credential_body_removed]
+          exporters: [debug/credential_body_removed]
+{{- else }}
           exporters: [routing]
+{{- end }}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
