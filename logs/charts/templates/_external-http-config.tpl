@@ -135,8 +135,8 @@ transform/external-http:
         - set(log.attributes["auth_string"], String(log.attributes["auth"])) where log.attributes["auth"] != nil
         - delete_key(log.attributes, "auth") where log.attributes["auth"] != nil
         - delete_matching_keys(log.attributes, "^auth\\..*")
-        - set(log.attributes["responseStatus.code"], log.attributes["responseStatus"]["code"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["code"] != nil
-        - set(log.attributes["responseStatus.message"], log.attributes["responseStatus"]["message"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["message"] != nil
+        - set(log.attributes["http.response.status_code"], log.attributes["responseStatus"]["code"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["code"] != nil
+        - set(log.attributes["http.response.message"], log.attributes["responseStatus"]["message"]) where log.attributes["responseStatus"] != nil and log.attributes["responseStatus"]["message"] != nil
         - set(log.attributes["response_status_string"], String(log.attributes["responseStatus"])) where log.attributes["responseStatus"] != nil
         - delete_key(log.attributes, "responseStatus") where log.attributes["responseStatus"] != nil
         - delete_matching_keys(log.attributes, "^responseStatus\\..*")
