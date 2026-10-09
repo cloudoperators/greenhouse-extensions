@@ -30,6 +30,10 @@ spec:
       name: openTelemetry.logsCollector.enabled
       required: false
       type: bool
+    - description: Pod resources per ingest collector Deployment
+      name: openTelemetry.logsCollector.resources
+      required: false
+      type: map
     - default: false
       description: Activates the configuration for KVM logs (requires logsCollector enabled)
       name: openTelemetry.logsCollector.kvmConfig.enabled
