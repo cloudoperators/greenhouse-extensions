@@ -30,7 +30,7 @@ spec:
       name: openTelemetry.logsCollector.enabled
       required: false
       type: bool
-    - description: Pod resources per ingest collector Deployment
+    - description: Pod resources for the log Collector daemonset
       name: openTelemetry.logsCollector.resources
       required: false
       type: map
