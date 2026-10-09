@@ -65,7 +65,7 @@ openTelemetry:
         - topologyKey: topology.kubernetes.io/zone
           labelSelector:
             matchLabels:
-              app.kubernetes.io/name: external-collector
+              app.kubernetes.io/name: external-collector-static
     externalIP: 10.0.0.1
     kafkaTopic: "logs"
     kafkaTracesTopic: "traces"
@@ -102,6 +102,12 @@ openTelemetry:
       forwardedBy: external-http
       tls:
         enabled: true
+    syslogHttpConfig:
+      enabled: true
+      port: 1518
+      path: /syslog/external
+      tls:
+        enabled: false
   metricsCollector:
     enabled: false
   ingesterCollector:

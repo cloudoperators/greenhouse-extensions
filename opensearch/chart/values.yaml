@@ -279,7 +279,7 @@ cluster:
         monitoringUserSecret: ""
 
         # -- Custom URL for the monitoring plugin
-        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.7.0.0/prometheus-exporter-3.7.0.0.zip"
+        pluginUrl: "https://github.com/opensearch-project/opensearch-prometheus-exporter/releases/download/3.8.0.0/prometheus-exporter-3.8.0.0.zip"
 
         # -- How often to scrape metrics
         scrapeInterval: 30s
@@ -321,7 +321,7 @@ cluster:
       vendor: Opensearch
 
       # -- Opensearch version
-      version: 3.7.0
+      version: 3.8.0
 
     # OpenSearchCluster boostrap pod configuration
     bootstrap:
@@ -456,7 +456,7 @@ cluster:
       tolerations: []
 
       # -- dashboards version
-      version: 3.7.0
+      version: 3.8.0
 
     # initHelper configuration
     initHelper:
@@ -897,6 +897,10 @@ cluster:
       runAsUser: 1000
     # -- Job backoff limit.
     backoffLimit: 6
+    # -- Per-request HTTP read timeout (seconds) for the install Job. Repository
+    # registration verifies the object store on every data node, which can take
+    # minutes on large clusters. Raise if the Job times out on a `/_snapshot/*` PUT.
+    httpTimeout: 300
     # -- Seconds to keep finished install Job pods before they are garbage
     # collected. The Job name embeds a hash of all snapshotLifecycle inputs,
     # so each upgrade creates a new Job; old completed ones expire here.

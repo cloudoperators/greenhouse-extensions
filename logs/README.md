@@ -108,10 +108,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-audit-cluster-ca-cert) |
 | openTelemetry.auditKafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA certificate. (e.g. ca.crt) |
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
+| openTelemetry.auditKafka.users | list | See values.yaml | Users configuration for Audit Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"c97076f"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"5340dd8"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"c97076f"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"5340dd8"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
@@ -120,7 +121,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.externalConfig | object | `{"alertmanager_port":1515,"deployments_port":1516,"enabled":false}` | Activates the external alertmanager webhook and deployment event receivers. |
 | openTelemetry.externalCollector.externalConfig.alertmanager_port | int | `1515` | Port for alertmanager webhook events |
 | openTelemetry.externalCollector.externalConfig.deployments_port | int | `1516` | Port for deployment TCP log events |
-| openTelemetry.externalCollector.externalHttpConfig | object | `{"enabled":false,"forwardedBy":"external-http","kafkaTopic":"audit","maxRequestBodySize":10485760,"path":"/audit/external","port":1517,"tls":{"enabled":true}}` | HTTP-JSON receiver for Logstash/fluent-bit-style pushers. In Kafka mode records go to externalHttpConfig.kafkaTopic; in non-Kafka mode to the syslog audit OpenSearch failover (audit-datastream). |
+| openTelemetry.externalCollector.externalHttpConfig | object | `{"auditKafkaBrokers":[],"enabled":false,"forwardedBy":"external-http","kafkaTopic":"audit","maxRequestBodySize":10485760,"path":"/audit/external","port":1517,"tls":{"enabled":true}}` | HTTP-JSON receiver for Logstash/fluent-bit-style pushers. In Kafka mode records go to externalHttpConfig.kafkaTopic; in non-Kafka mode to the syslog audit OpenSearch failover (audit-datastream). |
+| openTelemetry.externalCollector.externalHttpConfig.auditKafkaBrokers | list | `[]` | Audit kafka brokers list used by external http kafka exporter. |
 | openTelemetry.externalCollector.externalHttpConfig.forwardedBy | string | `"external-http"` | Neutral catch-all forwarder identity written to log attribute `forwarded_by` ONLY when the sender did not set one. Senders (Logstash, logshipper fluent-bit, other devices) should set their own `forwarded_by` and it is preserved. Sender-provided sap.cc.audit.source values (ESXi, NSX-T, VCSA, remoteboard, hsm, ucsc) are also preserved. |
 | openTelemetry.externalCollector.externalHttpConfig.kafkaTopic | string | `"audit"` | Kafka topic for the HTTP records (Kafka mode only). Separate from syslog audit, which uses syslogConfig.auditKafkaTopic. |
 | openTelemetry.externalCollector.externalHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
@@ -132,12 +134,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.externalCollector.maxMessageLength | int | `32000` | Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size. |
-| openTelemetry.externalCollector.nodeSelector | object | `{}` | Node Selector rules for the external collector CR |
+| openTelemetry.externalCollector.nodeSelector | string | `""` | Node selector for the external collector LoadBalancer service, as an OpenStack `loadbalancer.openstack.org/node-selector` |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
 | openTelemetry.externalCollector.serviceType | string | `"LoadBalancer"` | Service type for the external collector service |
-| openTelemetry.externalCollector.syslogConfig | object | `{"auditKafkaTopic":"","enabled":false,"nonAuditKafkaTopic":"","openSearchLogs":{"auditEndpoint":"","audit_failover_password_a":"","audit_failover_password_b":"","audit_failover_username_a":"","audit_failover_username_b":"","nonAuditEndpoint":""},"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
+| openTelemetry.externalCollector.syslogConfig | object | `{"auditKafkaBrokers":[],"auditKafkaTopic":"","enabled":false,"nonAuditKafkaTopic":"","openSearchLogs":{"auditEndpoint":"","audit_failover_password_a":"","audit_failover_password_b":"","audit_failover_username_a":"","audit_failover_username_b":"","nonAuditEndpoint":""},"tcp_port":514,"udp_port":514}` | Activates syslog TCP/UDP ingestion (rfc5424/rfc3164). |
+| openTelemetry.externalCollector.syslogConfig.auditKafkaBrokers | list | `[]` | Audit kafka brokers list used by syslog kafka exporter. |
 | openTelemetry.externalCollector.syslogConfig.auditKafkaTopic | string | `""` | Kafka topic for audit-relevant syslog logs (only used when kafka is enabled) |
 | openTelemetry.externalCollector.syslogConfig.nonAuditKafkaTopic | string | `""` | Kafka topic for non-audit syslog logs (only used when kafka is enabled) |
 | openTelemetry.externalCollector.syslogConfig.openSearchLogs | object | `{"auditEndpoint":"","audit_failover_password_a":"","audit_failover_password_b":"","audit_failover_username_a":"","audit_failover_username_b":"","nonAuditEndpoint":""}` | OpenSearch configuration for syslog logs |
@@ -149,6 +152,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint | string | `""` | OpenSearch endpoint for non-audit syslog logs |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.externalCollector.syslogHttpConfig | object | `{"enabled":false,"maxRequestBodySize":10485760,"path":"/syslog/external","port":1518,"tls":{"enabled":true}}` | HTTP receiver that ingests JSON-array syslog batches (webhookevent). Feeds the same audit / non-audit pipeline as tcp_log/syslog. |
+| openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
+| openTelemetry.externalCollector.syslogHttpConfig.path | string | `"/syslog/external"` | HTTP path the receiver serves. Sender must POST here. |
+| openTelemetry.externalCollector.syslogHttpConfig.port | int | `1518` | TCP port for the HTTP receiver. |
+| openTelemetry.externalCollector.syslogHttpConfig.tls | object | `{"enabled":true}` | TLS for the HTTP receiver. When enabled, the collector terminates TLS using the cert provisioned by syslogTLSConfig (secret logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName. |
 | openTelemetry.externalCollector.syslogTLSConfig | object | `{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
 | openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled | bool | `false` | Enable client CA verification (mTLS). Requires a ca.crt key in the TLS secret. |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
@@ -184,6 +192,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.kafka.tls.caSecret | string | `""` | K8s secret name containing CA certificate that can be used to verify the identity of the Kafka brokers. (e.g. kafka-cluster-ca-cert) |
 | openTelemetry.kafka.tls.caSecretKey | string | `""` | K8s secret key which holds the CA certificate. (e.g. ca.crt) |
 | openTelemetry.kafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
+| openTelemetry.kafka.users | list | See values.yaml | Users configuration for Kafka connections |
 | openTelemetry.logsCollector.affinity | object | See values.yaml | Pod affinity rules for the logs collector CR |
 | openTelemetry.logsCollector.batch | object | `{"sendBatchMaxSize":5000,"sendBatchSize":100,"timeout":"30s"}` | Batch processor settings for the logs collector. |
 | openTelemetry.logsCollector.batch.sendBatchMaxSize | int | `5000` | Hard cap on records per batch. |
@@ -220,6 +229,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate | bool | `false` | Activate to recreate the cert after a defined period (certPeriodDays default is 365). |
 | opentelemetry-operator.admissionWebhooks.certManager | object | `{"enabled":false}` | Activate to use the CertManager for generating self-signed certificates. |
 | opentelemetry-operator.admissionWebhooks.failurePolicy | string | `"Ignore"` | Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server. |
+| opentelemetry-operator.admissionWebhooks.pods.namespaceSelector | object | `{"matchExpressions":[{"key":"opentelemetry.io/auto-instrumentation","operator":"In","values":["enabled"]}]}` | Workloads that need OpenTelemetry auto-instrumentation must label their namespace |
 | opentelemetry-operator.crds.create | bool | `false` | If you want to use the upstream CRDs, set this variable to `true``. |
 | opentelemetry-operator.enabled | bool | `true` | Set to true to enable the installation of the OpenTelemetry Operator. |
 | opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |

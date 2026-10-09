@@ -19,6 +19,7 @@ spec:
   template:
     metadata:
       labels:
+        {{- include "opensearch.labels" . | nindent 8 }}
         app.kubernetes.io/name: opensearch-query-exporter
       annotations:
         checksum/config: {{ include (print .Template.BasePath "/query-exporter-config.yaml") . | sha256sum }}

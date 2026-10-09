@@ -36,6 +36,7 @@ spec:
   {{- if .Values.auditLogs.podAnnotations }}
   podAnnotations:
     {{- toYaml .Values.auditLogs.podAnnotations | nindent 4 }}
+    secret.reloader.stakater.com/auto: "true"
   {{- end }}
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
@@ -68,6 +69,20 @@ spec:
   envFrom:
     - secretRef:
         name: audit-logs-basic-auth
+{{- end }}
+{{- $hasProducer := false }}
+{{- range .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq .type "producer" }}{{- $hasProducer = true }}{{- end }}
+{{- end }}
+{{- if and .Values.auditLogs.logsCollector.kafka.enabled $hasProducer }}
+  envFrom:
+    {{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+    {{- if eq $user.type "producer" }}
+    - secretRef:
+        name: {{ $user.secret.name | default (printf "kafka-audit-user-%s-password" $user.name) }}
+      prefix: {{ $user.name | replace "-" "_" }}_
+    {{- end }}
+    {{- end }}
 {{- end }}
 {{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
   ports:
@@ -157,6 +172,10 @@ spec:
   {{- include "auditpoller.receiver" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.receivers" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -207,6 +226,11 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.processors" . | nindent 6 -}}
+{{- end }}
+
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.attributes" . | nindent 6 -}}
+  {{- include "selflogging.processors" . | nindent 6 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
@@ -310,8 +334,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - not IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and not IsMatch(log.body, "^\\{.*\\}$")
             statements:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{LOGLEVEL:severity_text} %{NOTSPACE:otel.scope.name} \\[%{NOTSPACE:openstack.request.id} %{NOTSPACE:openstack.global.request.id} usr %{NOTSPACE:user.id} prj %{NOTSPACE:openstack.project.id} dom %{NOTSPACE} usr-dom %{NOTSPACE} prj-dom %{NOTSPACE:openstack.domain.name}\\] %{GREEDYDATA:msg}", true), "upsert")
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{NOTSPACE:severity_text} %{NOTSPACE:otel.scope.name} \"%{NOTSPACE:openstack.global.request.id}\" %{NOTSPACE:client.address} - - \"%{NOTSPACE:http.request.method} %{NOTSPACE:url.path} %{NOTSPACE:httpversion}\" %{NUMBER:http.response.status_code} %{GREEDYDATA} \"%{GREEDYDATA}\" \"%{GREEDYDATA:user_agent.original}\"", true), "upsert")
@@ -340,8 +363,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and IsMatch(log.body, "^\\{.*\\}$")
             statements:
               # dogpile.cache hardcodes a 300-char key limit; truncation marker breaks ParseJSON
               - 'replace_pattern(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+", " [TRUNCATED] ") where IsMatch(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+")'
@@ -440,8 +462,13 @@ spec:
             statements:
               - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
+              # Requests that carry credentials: drop both bodies whatever the audit policy logs,
+              # and mark the event so a policy that logs them can be found.
+              - set(attributes["sap.cc.audit.credential_body_removed"], true) where (attributes["requestObject"] != nil or attributes["responseObject"] != nil) and (IsMatch(attributes["objectRef"]["resource"], "^(secrets|tokenreviews|internalsecrets|bmcsecrets)$") or IsMatch(attributes["objectRef"]["subresource"], "^(token|adminkubeconfig|viewerkubeconfig)$"))
+              - delete_key(attributes, "requestObject") where attributes["sap.cc.audit.credential_body_removed"] == true
+              - delete_key(attributes, "responseObject") where attributes["sap.cc.audit.credential_body_removed"] == true
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
-              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
+              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["responseObject"]["data"] != nil
 {{- end }}
 
       attributes/cluster:
@@ -595,6 +622,15 @@ spec:
             - tag_name: app.label.pod-template-hash
               key: app.kubernetes.io/pod-template-hash
               from: pod
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+{{- range $key, $value := .Values.auditLogs.customLabels }}
+{{- if and $key }}
+            - tag_name: app.label.{{ $key | replace "." "-" | replace "/" "-" }}
+              key: {{ $key | quote }}
+              from: pod
+{{- end }}
+{{- end }}
+{{- end }}
         pod_association:
           - sources:
               - from: resource_attribute
@@ -641,6 +677,17 @@ spec:
           ca_file: /etc/ssl/kafka/{{ .Values.auditLogs.logsCollector.kafka.tls.caSecretKey }}
 {{- end }}
 {{- end }}
+{{- if not (empty .Values.auditLogs.logsCollector.kafka.users) }}
+{{- range $user := .Values.auditLogs.logsCollector.kafka.users }}
+{{- if eq $user.name "write-all" }}
+        auth:
+          sasl:
+            username: {{ $user.name }}
+            password: ${{ "{" }}{{ $user.name | replace "-" "_" }}_password}
+            mechanism: SCRAM-SHA-512
+{{- end }}
+{{- end }}
+{{- end }}
         logs:
           topic: {{ .Values.auditLogs.logsCollector.kafka.topic }}
           encoding: {{ .Values.auditLogs.logsCollector.kafka.encoding }}
@@ -654,6 +701,7 @@ spec:
             authenticator: basicauth/failover_a
           endpoint: {{ .Values.auditLogs.openSearchLogs.endpoint }}
         logs_index: ${index}-datastream
+        logs_index_on_error: ${index}-datastream-deadletter
         retry_on_failure:
           enabled: true
           max_elapsed_time: 0s
@@ -663,10 +711,8 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.exporters" . | nindent 6 -}}
 {{- end }}
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
     extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-      opensearch_log_encoding: {}
-{{- else }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -695,21 +741,28 @@ spec:
           queue_size: 100000
           num_consumers: 2
           block_on_overflow: true
-        max_retries: 0
         priority_levels:
           - [logs/failover_a]
           - [logs/failover_b]
 {{- end }}
     service:
+{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       extensions:
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
-        - opensearch_log_encoding
-{{- else }}
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.telemetryOTLPExporter" . | nindent 10 -}}
+{{- end }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
@@ -752,6 +805,9 @@ spec:
 
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.pipelines" . | nindent 8 -}}
+{{- end }}
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.pipelines" . | nindent 8 -}}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}

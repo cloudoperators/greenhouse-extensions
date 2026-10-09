@@ -166,7 +166,6 @@ filter/hermes_logstash:
     log_record:
       - 'IsMatch(body, ".*Authorization: Basic.*")'
 
-
 transform/swift_proxy:
   error_mode: ignore
   log_statements:
