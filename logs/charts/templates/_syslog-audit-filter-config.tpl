@@ -328,7 +328,7 @@ transform/cef_parsing:
     - context: log
       statements:
         # Client
-        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )caddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )caddr=")'
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )(?:caddr|Remote-Address)=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )(?:caddr|Remote-Address)=")'
         - 'set(log.attributes["client.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )cport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )cport=")'
         # Destination
         - 'set(log.attributes["destination.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
