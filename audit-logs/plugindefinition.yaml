@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.43
+    version: 0.2.44
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.43
+        version: 0.2.44
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -88,6 +88,10 @@ spec:
           description: Top-level toggle for the producer-side audit logs collector. Set to false in consumer-only PluginPresets to skip rendering the producer DaemonSet.
           required: false
           type: bool
+        - name: auditLogs.logsCollector.resources
+          description: Pod resource requests/limits for the audit-logs collector DaemonSet container.
+          required: false
+          type: map
         - name: auditLogs.logsCollector.auditd.enabled
           description: Enable auditd ingestion
           required: false

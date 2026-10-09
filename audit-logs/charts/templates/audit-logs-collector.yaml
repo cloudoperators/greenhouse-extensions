@@ -15,6 +15,10 @@ metadata:
   {{- end }}
 spec:
   mode: daemonset
+{{- with .Values.auditLogs.logsCollector.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
   {{- if .Values.auditLogs.nodeSelector }}
   nodeSelector:
     {{- toYaml .Values.auditLogs.nodeSelector | nindent 4 }}

@@ -106,6 +106,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.kafka.users | list | see values.yaml | Users configuration for Kafka connections |
 | auditLogs.logsCollector.kubeApiAudit.enabled | bool | `false` | Activates export for kube-apiserver audit logs |
 | auditLogs.logsCollector.maxMessageLength | int | `32000` | Max characters for the log body in the truncate_message processor. Keep below the Lucene 32766-byte term limit so OpenSearch never permanently rejects a document. |
+| auditLogs.logsCollector.resources | object | `{}` | Pod resource requests/limits for the audit-logs collector DaemonSet container. |
 | auditLogs.logsCollector.selflogging.enabled | bool | `false` | Activates the ingestion of telemetry of the collector itself as well as other logs collectors. |
 | auditLogs.logsCollector.selflogging.exclude | list | `[]` | Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging. |
 | auditLogs.logsCollector.selflogging.include | list | `[]` | Paths to include from the filelog self-logging ingestion. |

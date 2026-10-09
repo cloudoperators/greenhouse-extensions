@@ -45,6 +45,8 @@ auditLogs:
   logsCollector:
     # -- Activates the standard configuration for Logs.
     enabled: true
+    # -- Pod resource requests/limits for the audit-logs collector DaemonSet container.
+    resources: {}
     auditd:
       # -- Activates the ingestion of auditd logs.
       enabled: true
