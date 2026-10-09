@@ -498,6 +498,30 @@ transform/syslog_audit_classification:
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
 
+{{/*
+  ============================================================================
+  User field normalization
+  Consolidates all distinct user-typed attributes into attributes["user.name"].
+  Priority: syslog_user > sshd_user > user (flat)
+  Old keys are deleted only after user.name is confirmed set.
+  ============================================================================
+*/}}
+transform/syslog_user_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # syslog_user → user.name (ESXi + NSX-T, highest priority)
+        - 'set(log.attributes["user.name"], log.attributes["syslog_user"]) where log.attributes["syslog_user"] != nil and log.attributes["user.name"] == nil'
+        # sshd_user → user.name (ESXi sshd keyboard-interactive)
+        - 'set(log.attributes["user.name"], log.attributes["sshd_user"]) where log.attributes["sshd_user"] != nil and log.attributes["user.name"] == nil'
+        # user (flat) → user.name (Cisco ISE + raw forwarded logs, lowest priority)
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user.name"] == nil'
+        # Drop originals only when user.name was successfully populated from them
+        - 'delete_key(log.attributes, "syslog_user") where log.attributes["user.name"] != nil and log.attributes["syslog_user"] != nil'
+        - 'delete_key(log.attributes, "sshd_user") where log.attributes["user.name"] != nil and log.attributes["sshd_user"] != nil'
+        - 'delete_key(log.attributes, "user") where log.attributes["user.name"] != nil and log.attributes["user"] != nil'
+
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
 transform/syslog_observed_timestamp_fallback:

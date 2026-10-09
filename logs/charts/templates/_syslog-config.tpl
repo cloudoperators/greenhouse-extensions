@@ -844,6 +844,7 @@ logs/syslog_http:
     - transform/octobus_to_fortlogs_normalization
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
+    - transform/syslog_user_normalization
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
@@ -865,6 +866,7 @@ logs/syslog_tcp:
     - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
+    - transform/syslog_user_normalization
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
@@ -884,6 +886,7 @@ logs/syslog_udp:
     - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
+    - transform/syslog_user_normalization
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
@@ -906,6 +909,7 @@ logs/syslog_tcp_tls:
     - transform/cef_parsing
     - transform/syslog_device_classification
     - transform/syslog_audit_classification
+    - transform/syslog_user_normalization
     - transform/syslog_semconv_normalization
     - transform/syslog_drop_legacy_fields
     - transform/truncate_message
