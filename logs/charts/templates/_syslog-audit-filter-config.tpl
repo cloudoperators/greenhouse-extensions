@@ -355,7 +355,7 @@ transform/cef_parsing:
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
-        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
+        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
         # Security Rule Attributes
         - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
         - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
