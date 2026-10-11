@@ -355,7 +355,7 @@ transform/cef_parsing:
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
-        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
+        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
         # Security Rule Attributes
         - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
         - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
@@ -497,6 +497,30 @@ transform/syslog_audit_classification:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.manufacturer.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
+
+{{/*
+  ============================================================================
+  User field normalization
+  Consolidates all distinct user-typed attributes into attributes["user.name"].
+  Priority: syslog_user > sshd_user > user (flat)
+  Old keys are deleted only after user.name is confirmed set.
+  ============================================================================
+*/}}
+transform/syslog_user_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # syslog_user → user.name (ESXi + NSX-T, highest priority)
+        - 'set(log.attributes["user.name"], log.attributes["syslog_user"]) where log.attributes["syslog_user"] != nil and log.attributes["user.name"] == nil'
+        # sshd_user → user.name (ESXi sshd keyboard-interactive)
+        - 'set(log.attributes["user.name"], log.attributes["sshd_user"]) where log.attributes["sshd_user"] != nil and log.attributes["user.name"] == nil'
+        # user (flat) → user.name (Cisco ISE + raw forwarded logs, lowest priority)
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user.name"] == nil'
+        # Drop originals only when user.name was successfully populated from them
+        - 'delete_key(log.attributes, "syslog_user") where log.attributes["user.name"] != nil and log.attributes["syslog_user"] != nil'
+        - 'delete_key(log.attributes, "sshd_user") where log.attributes["user.name"] != nil and log.attributes["sshd_user"] != nil'
+        - 'delete_key(log.attributes, "user") where log.attributes["user.name"] != nil and log.attributes["user"] != nil'
 
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
