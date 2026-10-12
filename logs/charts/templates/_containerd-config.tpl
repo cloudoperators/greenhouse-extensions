@@ -17,7 +17,7 @@ file_log/containerd:
     - /var/log/pods/logs_fluent*/*/*.log
     - /var/log/pods/dns-recursor_unbound*/*/*.log
     - /var/log/pods/kube-system_wormhole*/*/*.log
-{{- range .Values.auditLogs.logsCollector.containerdConfig.exclude }}
+{{- range .Values.openTelemetry.logsCollector.containerdConfig.exclude }}
     - {{ . }}
 {{- end }}
   operators:
