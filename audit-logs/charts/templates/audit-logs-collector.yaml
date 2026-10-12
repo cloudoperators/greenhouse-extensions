@@ -41,7 +41,7 @@ spec:
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
   {{- end }}
-  updateStrategy:
+  daemonSetUpdateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: "10%"
