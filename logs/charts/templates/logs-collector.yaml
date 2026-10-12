@@ -30,7 +30,7 @@ spec:
     {{- toYaml . | nindent 4 }}
 {{- end }}
   terminationGracePeriodSeconds: 10
-  updateStrategy:
+  daemonSetUpdateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: "10%"
