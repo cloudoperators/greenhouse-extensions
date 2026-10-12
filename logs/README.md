@@ -199,7 +199,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.batch.sendBatchSize | int | `100` | Flush when this many records are buffered (raise for larger downstream batches). |
 | openTelemetry.logsCollector.batch.timeout | string | `"30s"` | Flush after this duration regardless of size. |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true,"exclude":[]}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.containerdConfig.exclude | list | `[]` | Paths to exclude from the containerd ingestion. |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
