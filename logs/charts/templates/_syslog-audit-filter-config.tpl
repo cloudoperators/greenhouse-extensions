@@ -386,6 +386,10 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
+        # Recover true device host from Logstash sysloghttp lines where the
+        # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
+        # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
+        - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
