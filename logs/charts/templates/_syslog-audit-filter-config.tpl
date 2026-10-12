@@ -287,7 +287,9 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["event.reason"], log.attributes["event_reason"]) where log.attributes["event_reason"] != nil'
         - 'set(log.attributes["event.name"], log.attributes["eventName"]) where log.attributes["eventName"] != nil'
         - 'set(log.attributes["event.status"], log.attributes["status"]) where log.attributes["status"] != nil'
-        - 'set(log.attributes["event.category.id"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
+        # Map logCatID to ECS event.code (not event.category.id, which collides
+        # with the event.category string -> mapper_parsing_exception).
+        - 'set(log.attributes["event.code"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
         - 'set(log.attributes["event.severity.text"], log.attributes["severityLevel"]) where log.attributes["severityLevel"] != nil'
 
         # ===== SECURITY / POLICY =====
@@ -307,6 +309,8 @@ transform/octobus_to_fortlogs_normalization:
 
         # ===== AUTHENTICATION =====
         - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != ""'
+        # Drop flat `user` once mapped to user.name to avoid user string-vs-object conflict.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
         - 'set(log.attributes["authentication.method"], log.attributes["authentType"]) where log.attributes["authentType"] != nil'
         - 'set(log.attributes["authentication.failure_reason"], log.attributes["failureReason"]) where log.attributes["failureReason"] != nil'
 
@@ -524,7 +528,8 @@ transform/syslog_user_normalization:
         # Drop originals only when user.name was successfully populated from them
         - 'delete_key(log.attributes, "syslog_user") where log.attributes["user.name"] != nil and log.attributes["syslog_user"] != nil'
         - 'delete_key(log.attributes, "sshd_user") where log.attributes["user.name"] != nil and log.attributes["sshd_user"] != nil'
-        - 'delete_key(log.attributes, "user") where log.attributes["user.name"] != nil and log.attributes["user"] != nil'
+        # Guard reads `user` directly; reading user.name off a string returns nil in OTTL.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
 
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
