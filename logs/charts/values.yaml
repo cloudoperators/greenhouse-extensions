@@ -18,6 +18,13 @@ opentelemetry-operator:
   admissionWebhooks:
     # -- Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server.
     failurePolicy: 'Ignore'
+    pods:
+      # -- Workloads that need OpenTelemetry auto-instrumentation must label their namespace
+      namespaceSelector:
+        matchExpressions:
+          - key: opentelemetry.io/auto-instrumentation
+            operator: In
+            values: ["enabled"]
 
     # If cert-manager should be used, the CRDs for cert-manager needs to exists before OpenTelemetry installs cert-manager.
     # -- Activate to use the CertManager for generating self-signed certificates.
@@ -33,12 +40,7 @@ opentelemetry-operator:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # @ignored renovate does not support generating new README.md
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.159.0
-    extraEnvs:
-      - name: NAMESPACE
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.namespace
+      tag: v0.160.0
     serviceMonitor:
     # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
@@ -56,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "560cef5"
+    tag: "5340dd8"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -111,25 +113,21 @@ openTelemetry:
       # - name: read-all # kafka user name
       #   type: consumer  # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
       #   secret:
-      #     generate: true # enable creation of k8s secret that contains the kafka user password
       #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
       #     password: vault+222 # kafka user password
       # - name: read-all2
       #   type: consumer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all2
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
 
@@ -184,25 +182,21 @@ openTelemetry:
       # - name: read-all # kafka user name
       #   type: consumer  # kafka user type can be consumer or producer, consumer is used for ingester collectors and producer for the rest of collectors
       #   secret:
-      #     generate: true # enable creation of k8s secret that contains the kafka user password
       #     name: existing-from-kafka-deployment # k8s secret name from which to read kafka user password
       #     password: vault+222 # kafka user password
       # - name: read-all2
       #   type: consumer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
       # - name: write-all2
       #   type: producer
       #   secret:
-      #     generate: true
       #     name: existing-from-kafka-deployment
       #     password: vault+222
   logsCollector:
@@ -247,6 +241,8 @@ openTelemetry:
     # -- Activates the containerd file log receiver (requires logsCollector to be enabled).
     containerdConfig:
       enabled: true
+      # -- Paths to exclude from the containerd ingestion.
+      exclude: []
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
       enabled: false
@@ -267,8 +263,8 @@ openTelemetry:
     resources: {}
     # -- Pod affinity rules for the external collector CR
     affinity: {}
-    # -- Node Selector rules for the external collector CR
-    nodeSelector: {}
+    # -- Node selector for the external collector LoadBalancer service, as an OpenStack `loadbalancer.openstack.org/node-selector`
+    nodeSelector: ""
     # -- External IP exposed on the service
     externalIP:
     # -- Enable Calico projectcalico.org/loadBalancerIPs annotation for the external IP
@@ -365,6 +361,21 @@ openTelemetry:
       forwardedBy: external-http
       # -- TLS for the HTTP-JSON receiver. When enabled, the collector
       # terminates TLS using the cert provisioned by syslogTLSConfig (secret
+      # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
+      tls:
+        enabled: true
+    # -- HTTP receiver that ingests JSON-array syslog batches (webhookevent).
+    # Feeds the same audit / non-audit pipeline as tcp_log/syslog.
+    syslogHttpConfig:
+      enabled: false
+      # -- TCP port for the HTTP receiver.
+      port: 1518
+      # -- HTTP path the receiver serves. Sender must POST here.
+      path: /syslog/external
+      # -- Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB.
+      maxRequestBodySize: 10485760
+      # -- TLS for the HTTP receiver. When enabled, the collector terminates
+      # TLS using the cert provisioned by syslogTLSConfig (secret
       # logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName.
       tls:
         enabled: true

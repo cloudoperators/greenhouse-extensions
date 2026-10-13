@@ -41,6 +41,10 @@ spec:
   {{- if hasKey .Values.auditLogs "terminationGracePeriodSeconds" }}
   terminationGracePeriodSeconds: {{ .Values.auditLogs.terminationGracePeriodSeconds }}
   {{- end }}
+  daemonSetUpdateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "10%"
   {{- if .Values.auditLogs.affinity }}
   affinity:
     {{- toYaml .Values.auditLogs.affinity | nindent 4 }}
@@ -172,6 +176,10 @@ spec:
   {{- include "auditpoller.receiver" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.receivers" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
       file_log/kube_audit:
         include: [ /var/log/kubernetes/audit/audit.log ]
@@ -224,6 +232,11 @@ spec:
   {{- include "auditpoller.processors" . | nindent 6 -}}
 {{- end }}
 
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.attributes" . | nindent 6 -}}
+  {{- include "selflogging.processors" . | nindent 6 -}}
+{{- end }}
+
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
       transform/keystone_attributes:
         error_mode: ignore
@@ -270,13 +283,62 @@ spec:
             statements:
               - set(log.attributes["sap.cc.audit.source"], "falco")
 
+      transform/falco:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "falco"
+              - IsMatch(log.body, "^\\{")
+            statements:
+              # proc.aname[N] keys contain brackets which OTTL cannot read from a parsed map;
+              # extract them from the raw JSON string before ParseJSON
+              - merge_maps(log.cache, ExtractGrokPatterns(log.body, "\"proc\\.aname\\[2\\]\"\\s*:\\s*\"(?P<aname2>[^\"]+)\"", true), "upsert")
+              - set(log.attributes["output_fields.proc.aname.2"], log.cache["aname2"]) where log.cache["aname2"] != nil
+              - merge_maps(log.cache, ExtractGrokPatterns(log.body, "\"proc\\.aname\\[3\\]\"\\s*:\\s*\"(?P<aname3>[^\"]+)\"", true), "upsert")
+              - set(log.attributes["output_fields.proc.aname.3"], log.cache["aname3"]) where log.cache["aname3"] != nil
+              - merge_maps(log.cache, ExtractGrokPatterns(log.body, "\"proc\\.aname\\[4\\]\"\\s*:\\s*\"(?P<aname4>[^\"]+)\"", true), "upsert")
+              - set(log.attributes["output_fields.proc.aname.4"], log.cache["aname4"]) where log.cache["aname4"] != nil
+              - merge_maps(log.cache, ParseJSON(log.body), "upsert")
+              # top-level fields
+              - set(log.attributes["output"], log.cache["output"])
+              - set(log.attributes["priority"], log.cache["priority"])
+              - set(log.attributes["rule"], log.cache["rule"])
+              - set(log.attributes["source"], log.cache["source"])
+              - set(log.attributes["tags"], log.cache["tags"])
+              - set(log.time, Time(log.cache["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["time"] != nil
+              # output_fields
+              - set(log.attributes["output_fields.container.id"], log.cache["output_fields"]["container.id"])
+              - set(log.attributes["output_fields.container.image.repository"], log.cache["output_fields"]["container.image.repository"])
+              - set(log.attributes["output_fields.container.image.tag"], log.cache["output_fields"]["container.image.tag"])
+              - set(log.attributes["output_fields.container.image.id"], log.cache["output_fields"]["container.image.id"])
+              - set(log.attributes["output_fields.container.name"], log.cache["output_fields"]["container.name"])
+              - set(log.attributes["output_fields.container.privileged"], log.cache["output_fields"]["container.privileged"])
+              - set(log.attributes["output_fields.evt.time"], log.cache["output_fields"]["evt.time"])
+              - set(log.attributes["output_fields.fd.name"], log.cache["output_fields"]["fd.name"])
+              - set(log.attributes["output_fields.k8s.ns.name"], log.cache["output_fields"]["k8s.ns.name"])
+              - set(log.attributes["output_fields.k8s.pod.id"], log.cache["output_fields"]["k8s.pod.id"])
+              - set(log.attributes["output_fields.k8s.pod.labels"], log.cache["output_fields"]["k8s.pod.labels"])
+              - set(log.attributes["output_fields.k8s.pod.name"], log.cache["output_fields"]["k8s.pod.name"])
+              - set(log.attributes["output_fields.proc.args"], log.cache["output_fields"]["proc.args"])
+              - set(log.attributes["output_fields.proc.cmdline"], log.cache["output_fields"]["proc.cmdline"])
+              - set(log.attributes["output_fields.proc.cwd"], log.cache["output_fields"]["proc.cwd"])
+              - set(log.attributes["output_fields.proc.loginshellid"], log.cache["output_fields"]["proc.loginshellid"])
+              - set(log.attributes["output_fields.proc.name"], log.cache["output_fields"]["proc.name"])
+              - set(log.attributes["output_fields.proc.pcmdline"], log.cache["output_fields"]["proc.pcmdline"])
+              - set(log.attributes["output_fields.proc.pid"], log.cache["output_fields"]["proc.pid"])
+              - set(log.attributes["output_fields.proc.pname"], log.cache["output_fields"]["proc.pname"])
+              - set(log.attributes["output_fields.proc.ppid"], log.cache["output_fields"]["proc.ppid"])
+              - set(log.attributes["output_fields.proc.sid"], log.cache["output_fields"]["proc.sid"])
+              - set(log.attributes["output_fields.user.loginuid"], log.cache["output_fields"]["user.loginuid"])
+              - set(log.attributes["output_fields.user.name"], log.cache["output_fields"]["user.name"])
+
       transform/keystone_api:
         error_mode: ignore
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - not IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and not IsMatch(log.body, "^\\{.*\\}$")
             statements:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{LOGLEVEL:severity_text} %{NOTSPACE:otel.scope.name} \\[%{NOTSPACE:openstack.request.id} %{NOTSPACE:openstack.global.request.id} usr %{NOTSPACE:user.id} prj %{NOTSPACE:openstack.project.id} dom %{NOTSPACE} usr-dom %{NOTSPACE} prj-dom %{NOTSPACE:openstack.domain.name}\\] %{GREEDYDATA:msg}", true), "upsert")
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{INT} %{NOTSPACE:severity_text} %{NOTSPACE:otel.scope.name} \"%{NOTSPACE:openstack.global.request.id}\" %{NOTSPACE:client.address} - - \"%{NOTSPACE:http.request.method} %{NOTSPACE:url.path} %{NOTSPACE:httpversion}\" %{NUMBER:http.response.status_code} %{GREEDYDATA} \"%{GREEDYDATA}\" \"%{GREEDYDATA:user_agent.original}\"", true), "upsert")
@@ -305,8 +367,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "keystone-api"
-              - IsMatch(log.body, "^\\{.*\\}$")
+              - resource.attributes["k8s.container.name"] == "keystone-api" and IsMatch(log.body, "^\\{.*\\}$")
             statements:
               # dogpile.cache hardcodes a 300-char key limit; truncation marker breaks ParseJSON
               - 'replace_pattern(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+", " [TRUNCATED] ") where IsMatch(log.body, "[ \t\n\r]+[.][.][.][ \t\n\r]+[(][0-9]+ characters truncated[)][ \t\n\r]+[.][.][.][ \t\n\r]+")'
@@ -405,8 +466,13 @@ spec:
             statements:
               - delete_matching_keys(attributes["annotations"], "^mutation\\.webhook\\.admission\\.k8s\\.io/round_\\d+_index_\\d+$")
               - delete_matching_keys(attributes["annotations"], "^patch\\.webhook\\.admission\\.k8s\\.io/")
+              # Requests that carry credentials: drop both bodies whatever the audit policy logs,
+              # and mark the event so a policy that logs them can be found.
+              - set(attributes["sap.cc.audit.credential_body_removed"], true) where (attributes["requestObject"] != nil or attributes["responseObject"] != nil) and (IsMatch(attributes["objectRef"]["resource"], "^(secrets|tokenreviews|internalsecrets|bmcsecrets)$") or IsMatch(attributes["objectRef"]["subresource"], "^(token|adminkubeconfig|viewerkubeconfig)$"))
+              - delete_key(attributes, "requestObject") where attributes["sap.cc.audit.credential_body_removed"] == true
+              - delete_key(attributes, "responseObject") where attributes["sap.cc.audit.credential_body_removed"] == true
               - delete_key(attributes["requestObject"], "data") where attributes["requestObject"] != nil and attributes["requestObject"]["data"] != nil
-              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["requestObject"]["data"] != nil
+              - delete_key(attributes["responseObject"], "data") where attributes["responseObject"] != nil and attributes["responseObject"]["data"] != nil
 {{- end }}
 
       attributes/cluster:
@@ -560,6 +626,15 @@ spec:
             - tag_name: app.label.pod-template-hash
               key: app.kubernetes.io/pod-template-hash
               from: pod
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+{{- range $key, $value := .Values.auditLogs.customLabels }}
+{{- if and $key }}
+            - tag_name: app.label.{{ $key | replace "." "-" | replace "/" "-" }}
+              key: {{ $key | quote }}
+              from: pod
+{{- end }}
+{{- end }}
+{{- end }}
         pod_association:
           - sources:
               - from: resource_attribute
@@ -591,6 +666,13 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if and .Values.auditLogs.logsCollector.kubeApiAudit.enabled .Values.auditLogs.prometheus.podMonitor.enabled }}
+      # Counts the kube-apiserver audit events whose credential bodies transform/kube_audit
+      # removed, as otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"},
+      # for the KubeAuditCredentialBodyRemoved alert. Its info lines stay below the WARN log level.
+      debug/credential_body_removed:
+        verbosity: basic
+{{- end }}
 {{- if .Values.auditLogs.logsCollector.kafka.enabled }}
       kafka:
         brokers:
@@ -662,6 +744,16 @@ spec:
 {{- if .Values.auditLogs.elastic.enabled }}
             - logs/es
 {{- end }}
+{{- if and .Values.auditLogs.logsCollector.kubeApiAudit.enabled .Values.auditLogs.prometheus.podMonitor.enabled }}
+      # Passes only the events marked by transform/kube_audit to the counting pipeline;
+      # all events still go through the routing connector above.
+      routing/credential_body_removed:
+        table:
+          - context: log
+            condition: attributes["sap.cc.audit.credential_body_removed"] == true
+            pipelines:
+            - logs/credential_body_removed
+{{- end }}
 {{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
       failover:
         retry_interval: 2m
@@ -680,8 +772,18 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
 {{- end }}
-{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.telemetryOTLPExporter" . | nindent 10 -}}
+{{- end }}
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
@@ -697,13 +799,9 @@ spec:
                     - k8s_cluster_name
                     - region
         resource:
-          attributes:
-            - name: k8s_cluster_name
-              value: ${cluster}
-            - name: k8s_node_name
-              value: ${KUBE_NODE_NAME}
-            - name: region
-              value: ${region}
+          k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
+          region: ${region}
 {{- end }}
       pipelines:
         logs/default:
@@ -729,18 +827,28 @@ spec:
 {{- if .Values.auditLogs.logsCollector.auditpoller.enabled }}
   {{- include "auditpoller.pipelines" . | nindent 8 -}}
 {{- end }}
+{{- if .Values.auditLogs.logsCollector.selflogging.enabled }}
+  {{- include "selflogging.pipelines" . | nindent 8 -}}
+{{- end }}
 
 {{- if .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
         logs/kube_audit:
           receivers: [file_log/kube_audit]
           processors: [k8s_attributes,transform/kube_audit,attributes/cluster, batch]
+{{- if .Values.auditLogs.prometheus.podMonitor.enabled }}
+          exporters: [routing, routing/credential_body_removed]
+        logs/credential_body_removed:
+          receivers: [routing/credential_body_removed]
+          exporters: [debug/credential_body_removed]
+{{- else }}
           exporters: [routing]
+{{- end }}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [file_log/containerd]
-          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/ingress,batch]
+          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/falco,transform/ingress,batch]
           exporters: [routing]
 {{- end }}
 

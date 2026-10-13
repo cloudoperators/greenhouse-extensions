@@ -79,7 +79,7 @@ spec:
     - from:
       - namespaceSelector:
           matchLabels:
-          kubernetes.io/metadata.name: {{ $.Release.Namespace }}
+            kubernetes.io/metadata.name: {{ $.Release.Namespace }}
       ports:
         - port: 9090
           protocol: TCP

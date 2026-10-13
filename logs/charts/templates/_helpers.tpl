@@ -13,7 +13,7 @@ receiver has its own kafka/external_http exporter and does not need these.
 Usage: {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
 */}}
 {{- define "externalCollector.auditEnabled" -}}
-{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled (not .Values.openTelemetry.auditKafka.enabled)) -}}
+{{- if or .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled (not .Values.openTelemetry.auditKafka.enabled)) -}}
 true
 {{- end -}}
 {{- end -}}
@@ -25,7 +25,7 @@ the same cert-manager Certificate.
 Usage: {{- if eq (include "externalCollector.tlsEnabled" .) "true" }}
 */}}
 {{- define "externalCollector.tlsEnabled" -}}
-{{- if or .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.tls.enabled) -}}
+{{- if or .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled (and .Values.openTelemetry.externalCollector.externalHttpConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.tls.enabled) (and .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled .Values.openTelemetry.externalCollector.syslogHttpConfig.tls.enabled) -}}
 true
 {{- end -}}
 {{- end -}}

@@ -116,20 +116,7 @@ kubectl create job --from=cronjob/<release>-content-sync \
 
 ## Clear the firing alert
 
-Once the underlying issue is fixed (and ideally a manual re-run has
-succeeded), the lingering failed Job must be deleted to resolve
-`PersesContentSyncJobFailed` alert.
-
-
-1. List content-sync Jobs (failed ones typically show `0/1` under
-   `COMPLETIONS`):
-
-   ```bash
-   kubectl get jobs -n <namespace> -l plugindefinition=perses | grep content-sync
-   ```
-
-2. Delete the failed Job (this also removes its pod):
-
-   ```bash
-   kubectl delete job <failed_job_name> -n <namespace>
-   ```
+The alert resolves on its own once a content-sync Job created after the
+failed one succeeds: the next scheduled run, or a manual re-run (see
+above). You do not need to delete the failed Job. Keep it for its logs;
+the CronJob replaces it when a newer Job fails (`failedJobsHistoryLimit: 1`).

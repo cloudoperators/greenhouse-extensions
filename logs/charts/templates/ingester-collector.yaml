@@ -210,8 +210,15 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
-{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
+{{- if $root.Values.openTelemetry.ingesterCollector.prometheus.podMonitor.enabled }}
         metrics:
           level: detailed
           readers:
@@ -227,13 +234,9 @@ spec:
                         - k8s_cluster_name
                         - region
         resource:
-          attributes:
-            - name: k8s_cluster_name
-              value: ${cluster}
-            - name: k8s_node_name
-              value: ${KUBE_NODE_NAME}
-            - name: region
-              value: ${region}
+          k8s_cluster_name: ${cluster}
+          k8s_node_name: ${KUBE_NODE_NAME}
+          region: ${region}
 {{- end }}
       pipelines:
         logs/{{ $name }}:

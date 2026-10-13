@@ -208,6 +208,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.snapshotLifecycle.configMapName | string | `""` | Override the ConfigMap name (default `opensearch-snapshot-lifecycle`). |
 | cluster.snapshotLifecycle.credentialsSecret | object | `{"name":"snapshot-lifecycle-credentials","passwordKey":"password","usernameKey":"username"}` | Credentials secret. Provide a dedicated user with snapshot+ISM permissions; using the cluster admin is discouraged. |
 | cluster.snapshotLifecycle.enabled | bool | `false` | Enable the snapshot lifecycle install Job. |
+| cluster.snapshotLifecycle.httpTimeout | int | `300` | Per-request HTTP read timeout (seconds) for the install Job. Repository registration verifies the object store on every data node, which can take minutes on large clusters. Raise if the Job times out on a `/_snapshot/*` PUT. |
 | cluster.snapshotLifecycle.image | object | `{"pullPolicy":"IfNotPresent","repository":"docker.io/library/python","tag":"3.12-slim"}` | Install Job image. Must include Python 3.11+ (the scripts use the standard library only, no `requests` dependency). |
 | cluster.snapshotLifecycle.jobName | string | `""` | Override the install Job's base name (default `opensearch-snapshot-lifecycle`). The rendered name is `<jobName>-<configHash>` so each upgrade produces a fresh Job (Job pod templates are immutable). |
 | cluster.snapshotLifecycle.nodeSelector | object | `{}` | Optional node selector for the install Job pod. |

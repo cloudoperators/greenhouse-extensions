@@ -55,6 +55,13 @@ spec:
           processors: [batch]
           exporters: [debug]
       telemetry:
+        logs:
+          level: WARN
+          encoding: json
+          disable_caller: false
+          disable_stacktrace: true
+          output_paths: ["stdout"]
+          error_output_paths: ["stdout"]
         metrics:
           level: detailed
           readers:

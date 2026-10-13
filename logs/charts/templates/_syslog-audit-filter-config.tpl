@@ -67,6 +67,10 @@ transform/syslog_extract_appname_from_message:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"])'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^\\S+-pfl\\s+(?P<appname>[A-Za-z0-9_.-]+):"), "upsert") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^\\S+-pfl\\s+")'
         - 'set(log.attributes["appname"], "had") where log.attributes["appname"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^had\\[\\d+\\]:")'
+        # Recover appname from "name[pid]:" when APP-NAME slot held a severity word (F5 relay)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?P<appname>[A-Za-z0-9_.-]+)\\[\\d+\\]:"), "upsert") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^[A-Za-z0-9_.-]+\\[\\d+\\]:") and (log.attributes["appname"] == nil or IsMatch(log.attributes["appname"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)$"))'
+        # Same, when message starts with a leading severity word: "warning tmm20[...]:"
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "^(?:emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)\\s+(?P<appname>[A-Za-z0-9_.-]+)\\[\\d+\\]:"), "upsert") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)\\s+[A-Za-z0-9_.-]+\\[\\d+\\]:") and (log.attributes["appname"] == nil or IsMatch(log.attributes["appname"], "^(emergency|alert|critical|error|err|warning|warn|notice|informational|info|debug)$"))'
 
 {{/*
   ============================================================================
@@ -81,6 +85,11 @@ transform/syslog_semconv_normalization:
   log_statements:
     - context: log
       statements:
+        # Event parsing
+        # We won't drop event_type for now, because certain SIEM rules and metrics rely on it.
+        - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event.type"] == nil and log.attributes["event_type"] != nil'
+        - 'set(log.attributes["event_type"], log.attributes["event.type"]) where log.attributes["event_type"] == nil and log.attributes["event.type"] != nil'
+
         # Role mapping (Collector = server, sender = client)
         # All statements are defensive: only populate semconv field if not already set.
         - 'set(log.attributes["server.address"], log.attributes["net.host.name"]) where log.attributes["server.address"] == nil and log.attributes["net.host.name"] != nil'
@@ -100,14 +109,12 @@ transform/syslog_semconv_normalization:
         - 'set(log.attributes["network.transport"], ConvertCase(log.attributes["net.transport"], "lower")) where log.attributes["network.transport"] == nil and log.attributes["net.transport"] != nil'
 
         # Syslog fields
-        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil'
+        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil and IsMatch(log.attributes["facility"], "^[0-9]+$")'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
-        # Transforms host.name from fqdn to short-name
-        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil'
-        - 'set(resource.attributes["host.name"], Split(resource.attributes["host.name"], ".")[0]) where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*\\..*") and IsMatch(resource.attributes["host.name"], ".*[A-Za-z].*")'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and resource.attributes["host.name"] == nil'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
 
 {{/*
@@ -144,7 +151,7 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
 
         # Resource-mapped: hostname → resource.host.name
-        - 'delete_key(log.attributes, "hostname") where resource.attributes["host.name"] != nil'
+        - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
 
 {{/*
   ============================================================================
@@ -224,6 +231,166 @@ transform/syslog_user_extraction:
 
 {{/*
   ============================================================================
+  Octobus to Fortlogs Field Normalization
+  Implements the full `fortlogs.maps_to` mapping declared in
+  attributes.octobus.yaml. Gated to the Octobus HTTP path (log.type=sysloghttp).
+
+  Runs after user extraction and before hostname parsing so the mapped fields
+  are available to downstream classification. resource.host.name is bridged
+  from log.syslog.hostname.
+
+  Overwrite policy: guarded on the SOURCE (Octobus field present), overwriting
+  the target; Logstash-parsed Octobus values are authoritative for these fields.
+  SAFETY: ip-typed targets only set on literal IPv4; integers via Int();
+  user.name skips empty strings.
+  ============================================================================
+*/}}
+transform/octobus_to_fortlogs_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - 'IsMatch(log.attributes["log.type"], "sysloghttp")'
+      statements:
+        # ===== SYSLOG METADATA =====
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.syslog.hostname"] != nil'
+        - 'set(log.attributes["syslog.facility.name"], log.attributes["syslog_facility"]) where log.attributes["syslog_facility"] != nil'
+        - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["syslog_facility_code"])) where log.attributes["syslog_facility_code"] != nil'
+        - 'set(log.attributes["syslog.priority"], Int(log.attributes["syslog_pri"])) where log.attributes["syslog_pri"] != nil'
+        - 'set(log.attributes["severity.text"], log.attributes["syslog_severity"]) where log.attributes["syslog_severity"] != nil'
+        - 'set(log.attributes["severity.number"], Int(log.attributes["syslog_severity_code"])) where log.attributes["syslog_severity_code"] != nil'
+
+        # ===== DEVICE / HOST IDENTIFICATION =====
+        - 'set(log.attributes["host.name"], log.attributes["dvchost"]) where log.attributes["dvchost"] != nil'
+        - 'set(log.attributes["hw.id"], log.attributes["deviceExternalId"]) where log.attributes["deviceExternalId"] != nil'
+        - 'set(log.attributes["hw.vendor"], log.attributes["vendor"]) where log.attributes["vendor"] != nil'
+        - 'set(log.attributes["hw.model"], log.attributes["product"]) where log.attributes["product"] != nil'
+        - 'set(log.attributes["hw.firmware_version"], log.attributes["deviceVersion"]) where log.attributes["deviceVersion"] != nil'
+        - 'set(log.attributes["host.partition"], log.attributes["virtDomain"]) where log.attributes["virtDomain"] != nil'
+
+        # ===== NETWORK FLOW (ip-guarded) =====
+        - 'set(log.attributes["source.address"], log.attributes["src"]) where log.attributes["src"] != nil and IsMatch(log.attributes["src"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
+        - 'set(log.attributes["destination.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and IsMatch(log.attributes["dst"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
+        - 'set(log.attributes["source.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil'
+        - 'set(log.attributes["destination.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil'
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil'
+
+        # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
+        - 'set(log.attributes["event.received"], log.attributes["rt"]) where log.attributes["rt"] != nil'
+        - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil'
+
+        # ===== EVENT CLASSIFICATION =====
+        - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event_type"] != nil'
+        - 'set(log.attributes["event.category"], log.attributes["event_SubType"]) where log.attributes["event_SubType"] != nil'
+        - 'set(log.attributes["event.action"], log.attributes["SimplifiedDeviceAction"]) where log.attributes["SimplifiedDeviceAction"] != nil'
+        - 'set(log.attributes["event.message"], log.attributes["msg"]) where log.attributes["msg"] != nil'
+        - 'set(log.attributes["event.reason"], log.attributes["event_reason"]) where log.attributes["event_reason"] != nil'
+        - 'set(log.attributes["event.name"], log.attributes["eventName"]) where log.attributes["eventName"] != nil'
+        - 'set(log.attributes["event.status"], log.attributes["status"]) where log.attributes["status"] != nil'
+        # Map logCatID to ECS event.code (not event.category.id, which collides
+        # with the event.category string -> mapper_parsing_exception).
+        - 'set(log.attributes["event.code"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
+        - 'set(log.attributes["event.severity.text"], log.attributes["severityLevel"]) where log.attributes["severityLevel"] != nil'
+
+        # ===== SECURITY / POLICY =====
+        - 'set(log.attributes["security_rule.group.id"], log.attributes["policyID"]) where log.attributes["policyID"] != nil'
+        - 'set(log.attributes["security.threat.score"], Int(log.attributes["threatScore"])) where log.attributes["threatScore"] != nil'
+        - 'set(log.attributes["security.signature.severity.text"], log.attributes["signatureSeverity"]) where log.attributes["signatureSeverity"] != nil'
+
+        # ===== APPLICATION / SERVICE =====
+        - 'set(log.attributes["service.name"], log.attributes["app"]) where log.attributes["app"] != nil'
+        - 'set(log.attributes["service.namespace"], log.attributes["appCat"]) where log.attributes["appCat"] != nil'
+
+        # ===== SESSION / TRAFFIC METRICS =====
+        - 'set(log.attributes["session.id"], log.attributes["sessionID"]) where log.attributes["sessionID"] != nil'
+        - 'set(log.attributes["session.duration"], Int(log.attributes["dt"])) where log.attributes["dt"] != nil'
+        - 'set(log.attributes["network.bytes.out"], Int(log.attributes["out"])) where log.attributes["out"] != nil'
+        - 'set(log.attributes["network.bytes.in"], Int(log.attributes["in"])) where log.attributes["in"] != nil'
+
+        # ===== AUTHENTICATION =====
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != ""'
+        # Drop flat `user` once mapped to user.name to avoid user string-vs-object conflict.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
+        - 'set(log.attributes["authentication.method"], log.attributes["authentType"]) where log.attributes["authentType"] != nil'
+        - 'set(log.attributes["authentication.failure_reason"], log.attributes["failureReason"]) where log.attributes["failureReason"] != nil'
+
+        # ===== TUFIN-SPECIFIC =====
+        - 'set(log.attributes["monitored.host.name"], log.attributes["monitoredDevice"]) where log.attributes["monitoredDevice"] != nil'
+        - 'set(log.attributes["monitored.host.ip"], log.attributes["monitoredIP"]) where log.attributes["monitoredIP"] != nil and IsMatch(log.attributes["monitoredIP"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
+        - 'set(log.attributes["monitored.host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
+        - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
+        - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
+
+        # ===== PREVENT SCALAR-VS-OBJECT MAPPING CONFLICTS (host, severity, server) =====
+        # Flat scalars collide with dotted ECS children on the same parent ->
+        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat scalar.
+        - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
+        - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
+        - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
+        - 'set(log.attributes["service.name"], log.attributes["server"]) where log.attributes["server"] != nil and log.attributes["service.name"] == nil'
+        - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
+
+{{/*
+  ============================================================================
+  CEF Parsing
+  ============================================================================
+*/}}
+transform/cef_parsing:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # Client
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )caddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )caddr=")'
+        - 'set(log.attributes["client.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )cport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )cport=")'
+        # Destination
+        - 'set(log.attributes["destination.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
+        - 'set(log.attributes["destination.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )dpt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )dpt=")'
+        # Event Attributes
+        - 'set(log.attributes["event.action"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )act=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )act=")'
+        - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        - 'set(log.attributes["event.created"], Time(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "%b %d %Y %H:%M:%S %Z")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
+        - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        # Hardware
+        - 'set(log.attributes["hw.model"], ExtractPatterns(log.attributes["message"], "(?:^| )product=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )product=")'
+        # Host Attributes
+        - 'set(log.attributes["host.name"], ExtractPatterns(log.attributes["message"], "(?:^| )dvc=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dvc=")'
+        # Network
+        - 'set(log.attributes["network.interface.name"], ExtractPatterns(log.attributes["message"], "(?:^| )ifname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )ifname=")'
+        - 'set(log.attributes["network.io.bytes.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes=")'
+        - 'set(log.attributes["network.io.bytes.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_in=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_in=")'
+        - 'set(log.attributes["network.io.bytes.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )bytes_out=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )bytes_out=")'
+        - 'set(log.attributes["network.io.packets.total"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packets=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packets=")'
+        - 'set(log.attributes["network.io.packets.received"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsReceived=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsReceived=")'
+        - 'set(log.attributes["network.io.packets.transmitted"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )packetsSent=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )packetsSent=")'
+        - 'set(log.attributes["network.local.address"], ExtractPatterns(log.attributes["message"], "(?:^| )laddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )laddr=")'
+        - 'set(log.attributes["network.local.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )lport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )lport=")'
+        - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
+        - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
+        - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
+        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
+        # Security Rule Attributes
+        - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
+        - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
+        - 'set(log.attributes["security_rule.action"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_action=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_action=")'
+        - 'set(log.attributes["security_rule.ruleset.name"], ExtractPatterns(log.attributes["message"], "(?:^| )layer_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )layer_name=")'
+        # Server
+        - 'set(log.attributes["server.address"], ExtractPatterns(log.attributes["message"], "(?:^| )saddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )saddr=")'
+        - 'set(log.attributes["server.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )sport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )sport=")'
+        # Source
+        - 'set(log.attributes["source.address"], ExtractPatterns(log.attributes["message"], "(?:^| )src=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )src=")'
+        - 'set(log.attributes["source.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )spt=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )spt=")'
+        # No standardized Name yet
+        - 'set(log.attributes["cef.relay_name"], ExtractPatterns(log.attributes["message"], "(?:^| )relay_name=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )relay_name=")'
+        - 'set(log.attributes["firewall.zone.inbound"], ExtractPatterns(log.attributes["message"], "(?:^| )inzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )inzone=")'
+        - 'set(log.attributes["firewall.zone.outbound"], ExtractPatterns(log.attributes["message"], "(?:^| )outzone=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )outzone=")'
+        - 'set(log.attributes["cef.origin"], ExtractPatterns(log.attributes["message"], "(?:^| )origin=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )origin=")'
+        - 'set(log.attributes["cef.originsicname"], ExtractPatterns(log.attributes["message"], "(?:^| )originsicname=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )originsicname=")'
+        - 'set(log.attributes["cef.security_layer_uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )layer_uuid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )Security layer_uuid=")'
+        - 'set(log.attributes["cef.cs2"], ExtractPatterns(log.attributes["message"], "(?:^| )cs2=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )cs2=")'
+
+{{/*
+  ============================================================================
   Hostname parsing - extract node name, audit source, building block
   ============================================================================
 */}}
@@ -232,9 +399,18 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
+        # Recover true device host from Logstash sysloghttp lines where the
+        # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
+        # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
+        - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
+        # Promote the Logstash-parsed device hostname over the relay/forwarder
+        # value that otherwise sits in resource.host.name (all sysloghttp records).
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["log.syslog.hostname"] != nil and log.attributes["log.syslog.hostname"] != ""'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
+        - 'set(log.attributes["syslog.host.name"], resource.attributes["host.name"]) where log.attributes["syslog.host.name"] == nil and log.attributes["hostname"] != nil and resource.attributes["host.name"] != nil and log.attributes["hostname"] != resource.attributes["host.name"]'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != ""'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
@@ -255,63 +431,6 @@ transform/syslog_hostname_parsing:
 
 {{/*
   ============================================================================
-  NSX-T FQDN extraction - extract NSX-T transport-node FQDN from message
-  ============================================================================
-*/}}
-transform/syslog_nsxt:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "NSX-T"'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
-        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>).
-        # Handles both message encodings: free-text "Transport node X (" and JSON "transport_node_name":"X".
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
-        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
-        # Extract audit operation fields in a single pass
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
-  ESXi VM event parsing
-  ============================================================================
-*/}}
-transform/syslog_esxi_vm_events:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
-        # Parse VM reconfigure/error events
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
-  ESXi SSH login parsing
-  ============================================================================
-*/}}
-transform/syslog_esxi_sshd:
-  error_mode: ignore
-  log_statements:
-    - context: log
-      conditions:
-        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
-        - 'log.attributes["appname"] == "sshd"'
-        - 'IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*Accepted keyboard-interactive/pam for root from.*")'
-      statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware") where log.attributes["netbox.manufacturer.slug"] == nil'
-        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
-
-{{/*
-  ============================================================================
   Adds an attribute to identify audit logs for routing.
   Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo
   Also marks any log with a known audit source (sap.cc.audit.source) as audit-relevant.
@@ -327,8 +446,8 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
-        # Mark as audit if the log has a known audit source (e.g. ESXi, NSX-T, VCSA)
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil'
+        # Mark stnpa logs as audit-relevant (stnpa has no netbox slug; identified only by audit source)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "stnpa"'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
@@ -375,6 +494,11 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
+      statements:
+        - 'set(log.attributes["audit_relevant"], "true")'
+    - context: log
+      conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
@@ -393,6 +517,31 @@ transform/syslog_audit_classification:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.manufacturer.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
+
+{{/*
+  ============================================================================
+  User field normalization
+  Consolidates all distinct user-typed attributes into attributes["user.name"].
+  Priority: syslog_user > sshd_user > user (flat)
+  Old keys are deleted only after user.name is confirmed set.
+  ============================================================================
+*/}}
+transform/syslog_user_normalization:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        # syslog_user → user.name (ESXi + NSX-T, highest priority)
+        - 'set(log.attributes["user.name"], log.attributes["syslog_user"]) where log.attributes["syslog_user"] != nil and log.attributes["user.name"] == nil'
+        # sshd_user → user.name (ESXi sshd keyboard-interactive)
+        - 'set(log.attributes["user.name"], log.attributes["sshd_user"]) where log.attributes["sshd_user"] != nil and log.attributes["user.name"] == nil'
+        # user (flat) → user.name (Cisco ISE + raw forwarded logs, lowest priority)
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user.name"] == nil'
+        # Drop originals only when user.name was successfully populated from them
+        - 'delete_key(log.attributes, "syslog_user") where log.attributes["user.name"] != nil and log.attributes["syslog_user"] != nil'
+        - 'delete_key(log.attributes, "sshd_user") where log.attributes["user.name"] != nil and log.attributes["sshd_user"] != nil'
+        # Guard reads `user` directly; reading user.name off a string returns nil in OTTL.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
 
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)

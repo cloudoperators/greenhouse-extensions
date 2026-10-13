@@ -31,6 +31,8 @@ auditLogs:
       enabled: true
     auditpoller:
       enabled: true
+    selflogging:
+      enabled: true
     kafka:
       enabled: false
       brokers:

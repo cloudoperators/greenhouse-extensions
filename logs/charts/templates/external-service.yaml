@@ -1,12 +1,15 @@
-{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled) }}
+{{- if and .Values.openTelemetry.externalCollector.enabled (or .Values.openTelemetry.externalCollector.externalConfig.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled .Values.openTelemetry.externalCollector.syslogTLSConfig.enabled .Values.openTelemetry.externalCollector.tracesConfig.enabled .Values.openTelemetry.externalCollector.externalHttpConfig.enabled) }}
 apiVersion: v1
 kind: Service
 
 metadata:
-  name: external-collector
+  name: external-collector-static
   annotations:
 {{- if and .Values.openTelemetry.externalCollector.externalIP .Values.openTelemetry.externalCollector.calicoLoadBalancerIP }}
     projectcalico.org/loadBalancerIPs: '["{{ .Values.openTelemetry.externalCollector.externalIP }}"]'
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.nodeSelector }}
+    loadbalancer.openstack.org/node-selector: {{ .Values.openTelemetry.externalCollector.nodeSelector | quote }}
 {{- end }}
 {{- with .Values.openTelemetry.externalCollector.serviceAnnotations }}
     {{- toYaml . | nindent 4 }}
@@ -68,5 +71,11 @@ spec:
       protocol: TCP
       port: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}
       targetPort: {{ .Values.openTelemetry.externalCollector.externalHttpConfig.port }}
+{{- end }}
+{{- if .Values.openTelemetry.externalCollector.syslogHttpConfig.enabled }}
+    - name: sysloghttp
+      protocol: TCP
+      port: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.port }}
+      targetPort: {{ .Values.openTelemetry.externalCollector.syslogHttpConfig.port }}
 {{- end }}
 {{- end }}

@@ -110,9 +110,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.auditKafka.users | list | See values.yaml | Users configuration for Audit Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"560cef5"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"5340dd8"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"560cef5"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"5340dd8"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
@@ -134,7 +134,7 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.kafkaTopic | string | `""` | Kafka topic name for external logs — alerts, deployments, syslog (e.g., "logs-external") |
 | openTelemetry.externalCollector.kafkaTracesTopic | string | `""` | Kafka topic name for traces (e.g., "traces") |
 | openTelemetry.externalCollector.maxMessageLength | int | `32000` | Max bytes for the log body on the external audit paths (truncate_message processor). Body is a text field so this can be large. Raise to match Kafka message/fetch size. |
-| openTelemetry.externalCollector.nodeSelector | object | `{}` | Node Selector rules for the external collector CR |
+| openTelemetry.externalCollector.nodeSelector | string | `""` | Node selector for the external collector LoadBalancer service, as an OpenStack `loadbalancer.openstack.org/node-selector` |
 | openTelemetry.externalCollector.replicas | int | `2` | Number of replicas for the external collector StatefulSet |
 | openTelemetry.externalCollector.resources | object | `{}` | Pod resource requests/limits for the external collector container. Empty = unbounded. |
 | openTelemetry.externalCollector.serviceAnnotations | object | `{}` | Additional annotations on the external Service |
@@ -152,6 +152,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.syslogConfig.openSearchLogs.nonAuditEndpoint | string | `""` | OpenSearch endpoint for non-audit syslog logs |
 | openTelemetry.externalCollector.syslogConfig.tcp_port | int | `514` | TCP port for syslog (rfc5424) |
 | openTelemetry.externalCollector.syslogConfig.udp_port | int | `514` | UDP port for syslog (rfc3164) |
+| openTelemetry.externalCollector.syslogHttpConfig | object | `{"enabled":false,"maxRequestBodySize":10485760,"path":"/syslog/external","port":1518,"tls":{"enabled":true}}` | HTTP receiver that ingests JSON-array syslog batches (webhookevent). Feeds the same audit / non-audit pipeline as tcp_log/syslog. |
+| openTelemetry.externalCollector.syslogHttpConfig.maxRequestBodySize | int | `10485760` | Max request body size in bytes. Requests larger than this get HTTP 400. Default 10 MiB. |
+| openTelemetry.externalCollector.syslogHttpConfig.path | string | `"/syslog/external"` | HTTP path the receiver serves. Sender must POST here. |
+| openTelemetry.externalCollector.syslogHttpConfig.port | int | `1518` | TCP port for the HTTP receiver. |
+| openTelemetry.externalCollector.syslogHttpConfig.tls | object | `{"enabled":true}` | TLS for the HTTP receiver. When enabled, the collector terminates TLS using the cert provisioned by syslogTLSConfig (secret logs-syslog-tls); requires syslogTLSConfig.dnsName / .issuerName. |
 | openTelemetry.externalCollector.syslogTLSConfig | object | `{"clientCAEnabled":false,"dnsName":null,"enabled":false,"issuerGroup":"cert-manager.io","issuerKind":"ClusterIssuer","issuerName":null,"tcp_port":6514}` | Activates syslog TCP with TLS ingestion (rfc5424). |
 | openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled | bool | `false` | Enable client CA verification (mTLS). Requires a ca.crt key in the TLS secret. |
 | openTelemetry.externalCollector.syslogTLSConfig.dnsName | string | `nil` | DNS name for the TLS certificate |
@@ -194,7 +199,8 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.batch.sendBatchSize | int | `100` | Flush when this many records are buffered (raise for larger downstream batches). |
 | openTelemetry.logsCollector.batch.timeout | string | `"30s"` | Flush after this duration regardless of size. |
 | openTelemetry.logsCollector.cephConfig | object | `{"enabled":false}` | Activates the configuration for Ceph logs (requires logsCollector to be enabled). |
-| openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true,"exclude":[]}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
+| openTelemetry.logsCollector.containerdConfig.exclude | list | `[]` | Paths to exclude from the containerd ingestion. |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
 | openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
@@ -224,10 +230,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | opentelemetry-operator.admissionWebhooks.autoGenerateCert.recreate | bool | `false` | Activate to recreate the cert after a defined period (certPeriodDays default is 365). |
 | opentelemetry-operator.admissionWebhooks.certManager | object | `{"enabled":false}` | Activate to use the CertManager for generating self-signed certificates. |
 | opentelemetry-operator.admissionWebhooks.failurePolicy | string | `"Ignore"` | Defines if the admission webhooks should `Ignore` errors or `Fail` on errors when communicating with the API server. |
+| opentelemetry-operator.admissionWebhooks.pods.namespaceSelector | object | `{"matchExpressions":[{"key":"opentelemetry.io/auto-instrumentation","operator":"In","values":["enabled"]}]}` | Workloads that need OpenTelemetry auto-instrumentation must label their namespace |
 | opentelemetry-operator.crds.create | bool | `false` | If you want to use the upstream CRDs, set this variable to `true``. |
 | opentelemetry-operator.enabled | bool | `true` | Set to true to enable the installation of the OpenTelemetry Operator. |
-| opentelemetry-operator.manager.extraEnvs[0].name | string | `"NAMESPACE"` |  |
-| opentelemetry-operator.manager.extraEnvs[0].valueFrom.fieldRef.fieldPath | string | `"metadata.namespace"` |  |
 | opentelemetry-operator.manager.image.repository | string | `"ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator"` | overrides the default image repository for the OpenTelemetry Operator image. |
 | opentelemetry-operator.manager.serviceMonitor.enabled | bool | `true` | Enable serviceMonitor for Prometheus metrics scrape |
 | opentelemetry-operator.manager.serviceMonitor.extraLabels | object | `{}` | Additional labels on the ServiceMonitor |

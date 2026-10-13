@@ -36,23 +36,89 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[|f5_hsllog:|web_application_name).*")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or (log.attributes["log.type"] == "sysloghttp" and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*: \\d{4} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco")'
+        - 'set(log.attributes["netbox.platform.slug"], "cisco-nx-os")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["node_nodename"] != nil'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-esxi") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-nsx-t") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")) or (log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")))'
+      statements:
+        - 'set(log.attributes["netbox.manufacturer.slug"], "vmware")'
+        - 'set(log.attributes["netbox.platform.slug"], "vmware-vcsa") where log.attributes["netbox.platform.slug"] == nil'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-nsx-t"'
+      statements:
+        # Extract NSX-T transport-node FQDN (shape: node###-bb###.<domain>)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(?P<fqdn>node\\d{3}-bb\\d{3}\\.\\S+?)(?:[\\s\\)\"]|$)"), "upsert") where log.attributes["fqdn"] == nil and IsString(log.attributes["message"])'
+        # Extract username: prefer Username= value inside LdapUserDetailsImpl wrapper
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "Username=(?P<syslog_user>[^@]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        # Extract audit operation fields
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "ModuleName=\"(?P<nsx_module>[^\"]+)\", Operation=\"(?P<nsx_operation>[^\"]+)\", Operation status=\"(?P<nsx_operation_status>[^\"]+)\""), "upsert") where log.attributes["nsx_module"] == nil and IsString(log.attributes["message"])'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-esxi"'
+      statements:
+        # Parse VM reconfigure/error events
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.platform.slug"] == "vmware-esxi" and log.attributes["appname"] == "sshd" and IsString(log.attributes["message"])'
+      statements:
+        # Parse ESXi SSH auth events and align extracted fields to OTel semantic conventions
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "%{WORD:sshd_application}\\[%{NUMBER:sshd_process_id}\\]: %{WORD:sshd_status} %{DATA:sshd_auth_method} for %{USERNAME:sshd_user} from %{IP:sshd_ip} port %{NUMBER:sshd_port} %{WORD:sshd_protocol}", true), "upsert") where IsString(log.attributes["message"])'
+        - 'set(log.attributes["user.name"], log.attributes["sshd_user"]) where log.attributes["sshd_user"] != nil'
+        - 'set(log.attributes["process.pid"], Int(log.attributes["sshd_process_id"])) where log.attributes["sshd_process_id"] != nil'
+        - 'set(log.attributes["client.address"], log.attributes["sshd_ip"]) where log.attributes["sshd_ip"] != nil'
+        - 'set(log.attributes["client.port"], Int(log.attributes["sshd_port"])) where log.attributes["sshd_port"] != nil'
+        - 'set(log.attributes["event.outcome"], "success") where log.attributes["sshd_status"] == "Accepted"'
+        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["sshd_status"] != nil and log.attributes["sshd_status"] != "Accepted"'
+        - 'set(log.attributes["network.protocol.name"], "ssh") where log.attributes["sshd_protocol"] != nil'
+        - 'set(log.attributes["network.protocol.version"], ExtractPatterns(log.attributes["sshd_protocol"], "ssh(?P<v>\\d+)")["v"]) where log.attributes["sshd_protocol"] != nil'
+        - 'set(log.attributes["event_type"], "Authentication") where log.attributes["event_type"] == nil and log.attributes["sshd_status"] != nil'
+        - 'delete_key(log.attributes, "sshd_application")'
+        - 'delete_key(log.attributes, "sshd_user")'
+        - 'delete_key(log.attributes, "sshd_process_id")'
+        - 'delete_key(log.attributes, "sshd_ip")'
+        - 'delete_key(log.attributes, "sshd_port")'
+        - 'delete_key(log.attributes, "sshd_status")'
+        - 'delete_key(log.attributes, "sshd_protocol")'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        # Check Point (CEF) - contains "(Check Point)". Highest priority.
-        - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\(Check Point\\).*")'
+        # Check Point (CEF) - contains "CEF:[0-9]+|Check Point|". Highest priority.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CEF:[0-9]+\\|Check Point\\|.*")'
         # Cisco ISE - before Cisco Router (ISE hostnames may contain "-rt##").
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ise-(?:saas|idc)|eu-de-2-gmp-prx-1[abc]).*")'
-        # Trend Micro - "TrendMicro" AND ("IPSevent"|"IPSaudit").
-        - 'set(log.attributes["netbox.manufacturer.slug"], "trend-micro") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*TrendMicro.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit).*")'
+        # Trend Micro - "TrendMicro"
+        - 'set(log.attributes["netbox.manufacturer.slug"], "trend-micro") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CEF:[0-9]+\\|TrendMicro\\|.*")'
         # Fortinet
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
         # Radware (DefensePro / CyberController)
         - 'set(log.attributes["netbox.manufacturer.slug"], "radware") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Radware.*")'
+        # F5 ASM WAF - "ASM:unit_hostname".
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # F5 BIG-IP (TMOS/ASM/APM/LTM) - module tags, daemons, SSL logs.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and (IsMatch(log.body, "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)") or IsMatch(log.attributes["message"], "(\\[ssl_acc\\]|\\[ssl_req\\]|\\bASM:|\\bAPM:|\\b(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd|pam-authenticator)\\[\\d+\\]:)"))'        # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         # Palo Alto Networks - CEF "Palo Alto Networks".
         - 'set(log.attributes["netbox.manufacturer.slug"], "palo-alto-networks") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Palo Alto Networks.*")'
         # Palo Alto Networks - "fw-idc-pan" hostname without literal "palo-alto-networks".
@@ -106,16 +172,16 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(rt-[a-zA-Z0-9.\\-]+|\\S+-rt[0-9]{2,}\\S+).*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CISE_Failed_Attempts.*")'
         - 'set(log.attributes["netbox.role.slug"], "router") where log.attributes["netbox.role.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), "<\\d+>rtb\\S+:")'
         # Cisco ISE field extraction (only for ISE-classified logs).
-        - 'set(log.attributes["auditLogCategory"], ExtractPatterns(log.attributes["message"], "(?:^|\\s)(?P<v>CISE_\\S+)")["v"]) where log.attributes["auditLogCategory"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CISE_")'
-        - 'set(log.attributes["act"], ExtractPatterns(log.attributes["message"], "Action=(?P<v>[^,]+?\\S)(?:,|$)")["v"]) where log.attributes["act"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Action=")'
-        - 'set(log.attributes["eventMsg"], ExtractPatterns(log.attributes["message"], "\\d+ NOTICE (?P<v>[^,]+)")["v"]) where log.attributes["eventMsg"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NOTICE ")'
-        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Type=(?P<v>[^,]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Type=")'
-        - 'set(log.attributes["srcDnsDomain"], ExtractPatterns(log.attributes["message"], "NetworkDeviceName=(?P<v>[^,\\s#]+)")["v"]) where log.attributes["srcDnsDomain"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NetworkDeviceName=")'
-        - 'set(log.attributes["user"], ExtractPatterns(log.attributes["message"], "UserName=(?P<v>[^,]+)")["v"]) where log.attributes["user"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "UserName=")'
-        - 'set(log.attributes["remoteIP"], ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"]) where log.attributes["remoteIP"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Remote-Address=")'
-        - 'set(log.attributes["systemPort"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"]) where log.attributes["systemPort"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Port=")'
-        - 'set(log.attributes["cmdSet"], ExtractPatterns(log.attributes["message"], "CmdSet=\\[(?P<v>[^\\]]+)\\]")["v"]) where log.attributes["cmdSet"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CmdSet=")'
-        - 'set(log.attributes["failureReason"], ExtractPatterns(log.attributes["message"], "FailureReason=(?P<v>[^,]+)")["v"]) where log.attributes["failureReason"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "FailureReason=")'
+        - 'set(log.attributes["event.category"], ExtractPatterns(log.attributes["message"], "(?:^|\\s)(?P<v>CISE_\\S+)")["v"]) where log.attributes["event.category"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CISE_")'
+        - 'set(log.attributes["event.action"], ExtractPatterns(log.attributes["message"], "Action=(?P<v>[^,]+?\\S)(?:,|$)")["v"]) where log.attributes["event.action"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Action=")'
+        - 'set(log.attributes["event.description"], ExtractPatterns(log.attributes["message"], "\\d+ NOTICE (?P<v>[^,]+)")["v"]) where log.attributes["event.description"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NOTICE ")'
+        - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Type=(?P<v>[^,]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(^|[,\\s])Type=[^,]+")'
+        - 'set(log.attributes["source.domain"], ExtractPatterns(log.attributes["message"], "NetworkDeviceName=(?P<v>[^,\\s#]+)")["v"]) where log.attributes["source.domain"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "NetworkDeviceName=")'
+        - 'set(log.attributes["user.name"], ExtractPatterns(log.attributes["message"], "UserName=(?P<v>[^,]+)")["v"]) where log.attributes["user.name"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "UserName=")'
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"]) where log.attributes["client.address"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Remote-Address=") and ExtractPatterns(log.attributes["message"], "Remote-Address=(?P<v>[^,]+)")["v"] != nil'
+        - 'set(log.attributes["user.terminal"], ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"]) where log.attributes["user.terminal"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "Port=") and ExtractPatterns(log.attributes["message"], "(?:^|[,\\s])Port=(?P<v>[^,]+)")["v"] != nil'
+        - 'set(log.attributes["process.command_args"], ExtractPatterns(log.attributes["message"], "CmdSet=\\[(?P<v>[^\\]]+)\\]")["v"]) where log.attributes["process.command_args"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CmdSet=")'
+        - 'set(log.attributes["error.message"], ExtractPatterns(log.attributes["message"], "FailureReason=(?P<v>[^,]+)")["v"]) where log.attributes["error.message"] == nil and log.attributes["netbox.platform.slug"] == "cisco-ise" and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "FailureReason=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "check-point"'
@@ -156,35 +222,31 @@ transform/syslog_device_classification:
         # ambiguous -> leave platform UNSET (NetBox resolves authoritatively by
         # hostname). Do NOT guess.
         - 'set(log.attributes["netbox.platform.slug"], "genugate-os") where log.attributes["netbox.platform.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^\\S*relay$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG).*") )'
-        # Key value parsing
-        - 'set(log.attributes["_kv"], ParseKeyValue(log.attributes["message"], " ", "=")) where log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(relay_name=|rule_name=|caddr=|saddr=)")'
-        # Client leg (client.* = logical client side of the proxied connection).
-        - 'set(log.attributes["client.address"], log.attributes["_kv"]["caddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["caddr"] != nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_kv"]["cport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["cport"] != nil'
-        # Server leg (server.* = logical upstream server).
-        - 'set(log.attributes["server.address"], log.attributes["_kv"]["saddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["saddr"] != nil'
-        - 'set(log.attributes["server.port"], Int(log.attributes["_kv"]["sport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["sport"] != nil'
-        # Peer leg (network.peer.* = transport-layer peer of the relay's upstream socket; equals server in simple relays, may differ under NAT/chaining).
-        - 'set(log.attributes["network.peer.address"], log.attributes["_kv"]["paddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["paddr"] != nil'
-        - 'set(log.attributes["network.peer.port"], Int(log.attributes["_kv"]["pport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["pport"] != nil'
-        # Local leg (network.local.* = the relay's own local socket).
-        - 'set(log.attributes["network.local.address"], log.attributes["_kv"]["laddr"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["laddr"] != nil'
-        - 'set(log.attributes["network.local.port"], Int(log.attributes["_kv"]["lport"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["lport"] != nil'
-        # Transport protocol (IP proto number -> semconv network.transport).
-        - 'set(log.attributes["network.transport"], "udp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "17"'
-        - 'set(log.attributes["network.transport"], "tcp") where log.attributes["_kv"] != nil and log.attributes["_kv"]["proto"] == "6"'
-        # Vendor-agnostic event fields.
-        - 'set(log.attributes["event_type"], log.attributes["_kv"]["relay_name"]) where log.attributes["_kv"] != nil and log.attributes["_kv"]["relay_name"] != nil and log.attributes["event_type"] == nil'
-        - 'set(log.attributes["sap.cc.device.product"], Int(log.attributes["_kv"]["product"])) where log.attributes["_kv"] != nil and log.attributes["_kv"]["product"] != nil'
-        # Drop the temp map so no unscoped raw KV leaks downstream.
-        - 'delete_key(log.attributes, "_kv")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware"'
       statements:
+        # Radware = DefensePro + CyberController (two schemas), tenant c0002, json_batch path.
+        # Logstash pre-parses CEF; we only map to OTel semconv here.
+        # Sentinels to skip: "", "N/A", "0.0.0.0", "255.255.255.255", port "65535".
+
+        # --- Classification (existing) ---
         - 'set(log.attributes["netbox.platform.slug"], "radwareos") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "ddos-security-appliance") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+
+        # --- user.name (empty for system events) ---
+        - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != "" and log.attributes["user.name"] == nil and (log.attributes["log.type"] == nil or log.attributes["log.type"] != "sysloghttp")'
+
+        # --- event.action (= audit category) ---
+        - 'set(log.attributes["event.action"], log.attributes["auditLogCategory"]) where log.attributes["auditLogCategory"] != nil and log.attributes["auditLogCategory"] != "" and log.attributes["event.action"] == nil'
+
+        # --- event.outcome ---
+        # CyberController: via auditStatus. DefensePro: no auditStatus -> use success categories.
+        - 'set(log.attributes["event.outcome"], "failure") where log.attributes["auditStatus"] == "Failure" and log.attributes["event.outcome"] == nil'
+        - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditStatus"] == "Completed" or log.attributes["auditStatus"] == "Ended") and log.attributes["event.outcome"] == nil'
+        - 'set(log.attributes["event.outcome"], "success") where (log.attributes["auditLogCategory"] == "LoginSuccess" or log.attributes["auditLogCategory"] == "AuthSuccess") and log.attributes["event.outcome"] == nil'
+        # "Started"/in-progress states: leave event.outcome unset.
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
@@ -205,8 +267,9 @@ transform/syslog_device_classification:
       statements:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
-        # All F5 devices are NetBox role "loadbalancer"; platform is always f5-tmos.
+        # NetBox: all F5 devices are Loadbalancer
         - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
+        # NetBox platform "F5 TMOS"; default (no F5OS logs in fleet)
         - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
@@ -222,17 +285,18 @@ transform/syslog_device_classification:
         - 'delete_key(log.attributes, "_fortios_kv")'
         # CEF format parsing (CEF:0|Fortinet|Fortigate|...).
         - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
-        - 'set(log.attributes["action_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["action_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
-        - 'set(log.attributes["proto"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])proto=(?P<v>\\S+)")["v"]) where log.attributes["proto"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])proto=")'
+        - 'set(log.attributes["event.action"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["event.action"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
         - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
       statements:
+        # Pick a single source to avoid the duplicated message/body double-match.
+        # Prefer log.body; fall back to message.
+        - 'set(log.attributes["_src"], log.body) where IsMatch(log.body, ".*\\[kern_audit:.*")'
+        - 'set(log.attributes["_src"], log.attributes["message"]) where log.attributes["_src"] == nil and IsMatch(log.attributes["message"], ".*\\[kern_audit:.*")'
         # Parse the "::"-delimited ONTAP audit line into a temp map.
-        - 'set(log.attributes["_na"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>.+?):?$")) where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\[kern_audit:.*")'
-        - 'set(log.attributes["client.address"], log.attributes["_na"]["caddr"]) where log.attributes["_na"] != nil and log.attributes["_na"]["caddr"] != nil and log.attributes["client.address"] == nil'
-        - 'set(log.attributes["client.port"], Int(log.attributes["_na"]["cport"])) where log.attributes["_na"] != nil and log.attributes["_na"]["cport"] != nil and log.attributes["client.port"] == nil'
+        - 'set(log.attributes["_na"], ExtractPatterns(log.attributes["_src"], ":: (?P<node>[^:]+):(?P<iface>ontapi|http) :: (?P<caddr>[0-9a-fA-F.:]+):(?P<cport>\\d+) :: [^:]+:(?P<user>[^:]+?)(?::(?P<role>[^ ]+))? :: (?P<op>.*?) :: (?P<state>Success|Pending|Error|Failure|Failed)\\b.*$")) where log.attributes["_src"] != nil'
         - 'set(log.attributes["user.name"], log.attributes["_na"]["user"]) where log.attributes["_na"] != nil and log.attributes["_na"]["user"] != nil and log.attributes["user.name"] == nil'
         - 'set(log.attributes["user.roles"], [log.attributes["_na"]["role"]]) where log.attributes["_na"] != nil and log.attributes["_na"]["role"] != nil and log.attributes["user.roles"] == nil'
         - 'set(log.attributes["_http"], ExtractPatterns(log.attributes["_na"]["op"], "^(?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) (?P<target>\\S+)")) where log.attributes["_na"] != nil and log.attributes["_na"]["iface"] == "http" and log.attributes["_na"]["op"] != nil'
@@ -249,6 +313,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], log.attributes["_na"]["state"]) where log.attributes["_na"] != nil and log.attributes["_na"]["state"] != nil and log.attributes["event_type"] == nil'
         - 'delete_key(log.attributes, "_http")'
         - 'delete_key(log.attributes, "_na")'
+        - 'delete_key(log.attributes, "_src")'
         # Classification
         - 'set(log.attributes["netbox.platform.slug"], "netapp-cdot") where log.attributes["netbox.platform.slug"] == nil'
         - 'set(log.attributes["netbox.role.slug"], "filer") where log.attributes["netbox.role.slug"] == nil'
