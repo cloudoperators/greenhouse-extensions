@@ -15,8 +15,10 @@ spec:
     rules:
     # transform/kube_audit removes credential-bearing bodies, so a policy that logs them stores
     # nothing harmful and goes unnoticed. Alert on every removal instead.
+    # The ServiceMonitor and PodMonitor can scrape each collector more than once, so count
+    # each node once before summing.
     - alert: KubeAuditCredentialBodyRemoved
-      expr: sum by (k8s_cluster_name) (increase(otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"}[30m])) > 0
+      expr: sum by (k8s_cluster_name) (max by (k8s_cluster_name, k8s_node_name) (increase(otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"}[30m]))) > 0
       labels:
         severity: warning
         {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
