@@ -5,7 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 {{- define "containerd.receiver" }}
 file_log/containerd:
   include_file_path: true
-  include: [ /var/log/pods/*/*/*.log ]
+  include: 
+    - /var/log/pods/*/*/*.log
   exclude:
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     - /var/log/pods/kvm-monitoring_*/monitoring/*.log
@@ -16,6 +17,9 @@ file_log/containerd:
     - /var/log/pods/logs_fluent*/*/*.log
     - /var/log/pods/dns-recursor_unbound*/*/*.log
     - /var/log/pods/kube-system_wormhole*/*/*.log
+{{- range .Values.openTelemetry.logsCollector.containerdConfig.exclude }}
+    - {{ . }}
+{{- end }}
   operators:
     - id: container-parser
       type: container
