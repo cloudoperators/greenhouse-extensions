@@ -287,7 +287,9 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["event.reason"], log.attributes["event_reason"]) where log.attributes["event_reason"] != nil'
         - 'set(log.attributes["event.name"], log.attributes["eventName"]) where log.attributes["eventName"] != nil'
         - 'set(log.attributes["event.status"], log.attributes["status"]) where log.attributes["status"] != nil'
-        - 'set(log.attributes["event.category.id"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
+        # Map logCatID to ECS event.code (not event.category.id, which collides
+        # with the event.category string -> mapper_parsing_exception).
+        - 'set(log.attributes["event.code"], log.attributes["logCatID"]) where log.attributes["logCatID"] != nil'
         - 'set(log.attributes["event.severity.text"], log.attributes["severityLevel"]) where log.attributes["severityLevel"] != nil'
 
         # ===== SECURITY / POLICY =====
@@ -307,6 +309,8 @@ transform/octobus_to_fortlogs_normalization:
 
         # ===== AUTHENTICATION =====
         - 'set(log.attributes["user.name"], log.attributes["user"]) where log.attributes["user"] != nil and log.attributes["user"] != ""'
+        # Drop flat `user` once mapped to user.name to avoid user string-vs-object conflict.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
         - 'set(log.attributes["authentication.method"], log.attributes["authentType"]) where log.attributes["authentType"] != nil'
         - 'set(log.attributes["authentication.failure_reason"], log.attributes["failureReason"]) where log.attributes["failureReason"] != nil'
 
@@ -316,6 +320,15 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["monitored.host.id"], log.attributes["monitoredID"]) where log.attributes["monitoredID"] != nil'
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
+
+        # ===== PREVENT SCALAR-VS-OBJECT MAPPING CONFLICTS (host, severity, server) =====
+        # Flat scalars collide with dotted ECS children on the same parent ->
+        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat scalar.
+        - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
+        - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
+        - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
+        - 'set(log.attributes["service.name"], log.attributes["server"]) where log.attributes["server"] != nil and log.attributes["service.name"] == nil'
+        - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
 
 {{/*
   ============================================================================
@@ -390,6 +403,9 @@ transform/syslog_hostname_parsing:
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
         - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
+        # Promote the Logstash-parsed device hostname over the relay/forwarder
+        # value that otherwise sits in resource.host.name (all sysloghttp records).
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["log.syslog.hostname"] != nil and log.attributes["log.syslog.hostname"] != ""'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
@@ -524,7 +540,8 @@ transform/syslog_user_normalization:
         # Drop originals only when user.name was successfully populated from them
         - 'delete_key(log.attributes, "syslog_user") where log.attributes["user.name"] != nil and log.attributes["syslog_user"] != nil'
         - 'delete_key(log.attributes, "sshd_user") where log.attributes["user.name"] != nil and log.attributes["sshd_user"] != nil'
-        - 'delete_key(log.attributes, "user") where log.attributes["user.name"] != nil and log.attributes["user"] != nil'
+        # Guard reads `user` directly; reading user.name off a string returns nil in OTTL.
+        - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
 
 # Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
 # (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
