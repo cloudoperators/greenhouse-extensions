@@ -270,7 +270,7 @@ transform/syslog_device_classification:
         # NetBox: all F5 devices are Loadbalancer
         - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
         # NetBox platform "F5 TMOS"; default (no F5OS logs in fleet)
-        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
