@@ -321,6 +321,15 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
 
+        # ===== PREVENT SCALAR-VS-OBJECT MAPPING CONFLICTS (host, severity, server) =====
+        # Flat scalars collide with dotted ECS children on the same parent ->
+        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat scalar.
+        - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
+        - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
+        - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
+        - 'set(log.attributes["service.name"], log.attributes["server"]) where log.attributes["server"] != nil and log.attributes["service.name"] == nil'
+        - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
+
 {{/*
   ============================================================================
   CEF Parsing
