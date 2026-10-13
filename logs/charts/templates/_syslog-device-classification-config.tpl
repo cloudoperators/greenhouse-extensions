@@ -38,7 +38,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed" or log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed")'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[).*")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[|f5_hsllog:|web_application_name).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
@@ -70,9 +70,12 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
+        # F5 HSL / LTM access logs - the "f5_hsllog" tag may be absorbed by the
+        # RFC3164 parser into `appname` (the message then no longer carries it).
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^f5_hsllog")'
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|f5_hsllog:|web_application_name|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[kern_audit:|netapp\\.com/filer/admin).*")'
         # Cisco Nexus (MAC move / flap events).
@@ -200,8 +203,11 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "f5"'
       statements:
-        # netbox.platform.slug can be f5os or f5-tmos
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
+        # All F5 devices are NetBox role "loadbalancer"; platform is always f5-tmos.
+        - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
+        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
