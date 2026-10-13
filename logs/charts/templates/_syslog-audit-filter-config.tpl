@@ -403,6 +403,9 @@ transform/syslog_hostname_parsing:
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
         - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
+        # Promote the Logstash-parsed device hostname over the relay/forwarder
+        # value that otherwise sits in resource.host.name (all sysloghttp records).
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["log.syslog.hostname"] != nil and log.attributes["log.syslog.hostname"] != ""'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
