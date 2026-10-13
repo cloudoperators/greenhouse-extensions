@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.podMonitor.enabled .Values.auditLogs.logsCollector.kubeApiAudit.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: audit-logs-kube-audit
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+spec:
+  groups:
+  - name: audit-logs-kube-audit.alerts
+    rules:
+    # transform/kube_audit removes credential-bearing bodies, so a policy that logs them stores
+    # nothing harmful and goes unnoticed. Alert on every removal instead.
+    - alert: KubeAuditCredentialBodyRemoved
+      expr: sum by (k8s_cluster_name) (increase(otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"}[30m])) > 0
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: A kube-apiserver audit policy logs credential bodies
+        description: 'The audit-logs collector removed credential-bearing request or response bodies from {{`{{ $value | humanize }}`}} audit events of `{{`{{ $labels.k8s_cluster_name }}`}}` in the last 30 minutes, so its audit policy logs Secret, token or kubeconfig bodies. Find the events with `sap.cc.audit.credential_body_removed: true` in the audit index and fix the cluster''s audit policy.'
+{{- end }}
