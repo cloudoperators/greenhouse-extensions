@@ -269,7 +269,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
         # NetBox: all F5 devices are Loadbalancer
         - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
-        # NetBox platform "F5 TMOS"; default (no F5OS logs in fleet)
+        # NetBox platform "F5 TMOS" or "F5OS" logs in fleet
         - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
