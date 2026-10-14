@@ -407,9 +407,14 @@ transform/syslog_hostname_parsing:
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
         - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
-        # Promote the Logstash-parsed device hostname over the relay/forwarder
-        # value that otherwise sits in resource.host.name (all sysloghttp records).
-        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["log.syslog.hostname"] != nil and log.attributes["log.syslog.hostname"] != ""'
+        # Resolve device host (sysloghttp): in-body dvchost= > log.syslog.hostname > dvchost.
+        # Never fqdn (unreliable: relay or wrong device). First match wins; else leave as-is.
+        - 'delete_key(log.attributes, "log.syslog.hostname") where log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
+        - 'set(log.attributes["_dev_host"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=[A-Za-z0-9]")'
+        - 'set(log.attributes["_dev_host"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^[A-Za-z0-9][A-Za-z0-9._-]+$")'
+        - 'set(log.attributes["_dev_host"], log.attributes["dvchost"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]+$") and not IsMatch(log.attributes["dvchost"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$")'
+        - 'set(resource.attributes["host.name"], log.attributes["_dev_host"]) where log.attributes["_dev_host"] != nil'
+        - 'delete_key(log.attributes, "_dev_host") where log.attributes["_dev_host"] != nil'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'

@@ -113,6 +113,8 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "trend-micro") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*CEF:[0-9]+\\|TrendMicro\\|.*")'
         # Fortinet
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Fortinet.*")'
+        # Fortinet by serial: devid="F..." (KV) or deviceExternalId=F... (CEF). FG/FMG/FAZ/FWB/FSA.
+        - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(devid=\"?|deviceExternalId=)F(MG|AZ|WB|SA|G)[0-9A-Z]+.*")'
         # Radware (DefensePro / CyberController)
         - 'set(log.attributes["netbox.manufacturer.slug"], "radware") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*Radware.*")'
         # F5 ASM WAF - "ASM:unit_hostname".
@@ -193,10 +195,14 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
-        # netbox.platform.slug could be "fortimanager" or "fortios"
-        # netbox.role.slug could be "firewall" or "firewall-management"; because logstash always sets "firewall", we will do the same here for now
+        # FMG serial => FortiManager platform/role; else default FortiGate (fortios/firewall).
+        - 'set(log.attributes["_forti_prefix"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), "(?:devid=\"?|deviceExternalId=)(?P<p>F(?:MG|AZ|WB|SA|G))")["p"]) where log.attributes["_forti_prefix"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(devid=\"?|deviceExternalId=)F(MG|AZ|WB|SA|G).*")'
+        - 'set(log.attributes["netbox.platform.slug"], "fortimanager") where log.attributes["netbox.platform.slug"] == nil and log.attributes["_forti_prefix"] == "FMG"'
+        - 'set(log.attributes["netbox.platform.slug"], "fortios") where log.attributes["netbox.platform.slug"] == nil'
+        - 'set(log.attributes["netbox.role.slug"], "firewall-management") where log.attributes["netbox.role.slug"] == nil and log.attributes["_forti_prefix"] == "FMG"'
         - 'set(log.attributes["netbox.role.slug"], "firewall") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
+        - 'delete_key(log.attributes, "_forti_prefix") where log.attributes["_forti_prefix"] != nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
