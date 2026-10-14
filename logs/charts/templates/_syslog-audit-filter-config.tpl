@@ -271,8 +271,8 @@ transform/octobus_to_fortlogs_normalization:
         # ===== NETWORK FLOW (ip-guarded) =====
         - 'set(log.attributes["source.address"], log.attributes["src"]) where log.attributes["src"] != nil and IsMatch(log.attributes["src"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
         - 'set(log.attributes["destination.address"], log.attributes["dst"]) where log.attributes["dst"] != nil and IsMatch(log.attributes["dst"], "^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}$")'
-        - 'set(log.attributes["source.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil'
-        - 'set(log.attributes["destination.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil'
+        - 'set(log.attributes["source.port"], Int(log.attributes["spt"])) where log.attributes["spt"] != nil and IsMatch(log.attributes["spt"], "^[0-9]+$")'
+        - 'set(log.attributes["destination.port"], Int(log.attributes["dpt"])) where log.attributes["dpt"] != nil and IsMatch(log.attributes["dpt"], "^[0-9]+$")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(log.attributes["proto"], "lower")) where log.attributes["proto"] != nil'
 
         # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
@@ -372,7 +372,7 @@ transform/cef_parsing:
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
-        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
+        - 'set(log.attributes["network.protocol.number"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )proto=[0-9]")'
         # Security Rule Attributes
         - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
         - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
