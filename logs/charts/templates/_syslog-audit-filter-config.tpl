@@ -278,6 +278,8 @@ transform/octobus_to_fortlogs_normalization:
         # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
         - 'set(log.attributes["event.received"], log.attributes["rt"]) where log.attributes["rt"] != nil'
         - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil'
+        # Drop raw rt (mixed epoch/ISO -> long parse failures; value kept in event.received).
+        - 'delete_key(log.attributes, "rt") where log.attributes["rt"] != nil'
 
         # ===== EVENT CLASSIFICATION =====
         - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event_type"] != nil'
@@ -327,8 +329,9 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
         - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
         - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
-        - 'set(log.attributes["service.name"], log.attributes["server"]) where log.attributes["server"] != nil and log.attributes["service.name"] == nil'
         - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
+        # Drop flat `service` (collides with service.name/service.namespace).
+        - 'delete_key(log.attributes, "service")  where log.attributes["service"] != nil'
 
 {{/*
   ============================================================================
