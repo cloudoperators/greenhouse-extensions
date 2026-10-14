@@ -280,6 +280,7 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil'
         # Drop raw rt (mixed epoch/ISO -> long parse failures; value kept in event.received).
         - 'delete_key(log.attributes, "rt") where log.attributes["rt"] != nil'
+        - 'delete_key(log.attributes, "event.received") where log.attributes["event.received"] != nil'
 
         # ===== EVENT CLASSIFICATION =====
         - 'set(log.attributes["event.type"], log.attributes["event_type"]) where log.attributes["event_type"] != nil'
