@@ -6,6 +6,36 @@
 {{- if .Values.certExporter.enabled }}
 {{- range $i, $namespace := .Values.certExporter.namespaces }}
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: trust-manager-cert-exporter
+subjects:
+- kind: ServiceAccount
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,9 +63,11 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      serviceAccountName: trust-manager-cert-exporter
       containers:
       - args:
         - --configmaps-label-selector=trust.cert-manager.io/bundle
+        - --configmaps-namespaces={{ $namespace }}
         - --logtostderr
         command:
         - ./app
