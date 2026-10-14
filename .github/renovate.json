@@ -327,6 +327,13 @@
           "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
         }
       ]
+    },
+    {
+      "description": "Auto-merge absent-metrics-operator only",
+      "matchPackageNames": ["/absent-metrics-operator/"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     }
   ],
   "separateMinorPatch": true,
