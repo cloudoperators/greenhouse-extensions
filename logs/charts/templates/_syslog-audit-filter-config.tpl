@@ -181,6 +181,8 @@ filter/syslog_early_drop:
       - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], ".*vc\\S+\\s(sps|rsyslogd).*")'
       # Drop warning sub=VigorStatsProvider messages (severity_number 13 = WARN in OTel)
       - 'severity_number == SEVERITY_NUMBER_WARN and IsMatch(attributes["message"], ".*sub=VigorStatsProvider.*")'
+      # Drop NSX-T upgrade-coordinator INFO noise (match message+body; all msg types)
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(Concat([attributes["message"], body], " "), ".*subcomp=\"upgrade-coordinator\".*")'
 
 {{/*
   ============================================================================
@@ -214,8 +216,8 @@ transform/syslog_user_extraction:
   log_statements:
     - context: log
       statements:
-        # Extract "user=xyz]" pattern
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert") where IsString(log.attributes["message"])'
+        # Bound username charset/length so embedded code (user="dcui",...) isn't captured
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=\"?(?P<syslog_user>[A-Za-z0-9._@\\\\-]{1,64})\"?"), "upsert") where IsString(log.attributes["message"])'
         # Extract "for user xyz from" pattern (fallback if user not already found)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
     # Failed/Cannot login parsing - only for Hostd, vobd, vpxd processes
@@ -305,6 +307,8 @@ transform/octobus_to_fortlogs_normalization:
         # ===== APPLICATION / SERVICE =====
         - 'set(log.attributes["service.name"], log.attributes["app"]) where log.attributes["app"] != nil'
         - 'set(log.attributes["service.namespace"], log.attributes["appCat"]) where log.attributes["appCat"] != nil'
+        # Bridge syslog_process -> appname so audit whitelist works on sysloghttp path
+        - 'set(log.attributes["appname"], log.attributes["syslog_process"]) where log.attributes["appname"] == nil and log.attributes["syslog_process"] != nil and log.attributes["syslog_process"] != ""'
 
         # ===== SESSION / TRAFFIC METRICS =====
         - 'set(log.attributes["session.id"], log.attributes["sessionID"]) where log.attributes["sessionID"] != nil'
@@ -459,9 +463,11 @@ transform/syslog_audit_classification:
         # Default: mark as non-audit (most logs are non-audit)
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo|vcsa-audit):?$")'
         # Mark stnpa logs as audit-relevant (stnpa has no netbox slug; identified only by audit source)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "stnpa"'
+        # VCSA audit by source (covers auditd type=PATH/SYSCALL; VCSA-only)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "VCSA"'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
