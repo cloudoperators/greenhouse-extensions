@@ -241,6 +241,8 @@ openTelemetry:
     # -- Activates the containerd file log receiver (requires logsCollector to be enabled).
     containerdConfig:
       enabled: true
+      # -- Paths to exclude from the containerd ingestion.
+      exclude: []
     # -- Activates the configuration for KVM logs (requires logsCollector to be enabled).
     kvmConfig:
       enabled: false
