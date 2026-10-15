@@ -216,21 +216,23 @@ transform/syslog_user_extraction:
   log_statements:
     - context: log
       statements:
-        # Bound username charset/length so embedded code (user="dcui",...) isn't captured
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=\"?(?P<syslog_user>[A-Za-z0-9._@\\\\-]{1,64})\"?"), "upsert") where IsString(log.attributes["message"])'
+        # Bound username charset/length so embedded code (user="dcui",...) isn't captured.
+        # Cheap IsMatch("user=") guard runs first — most logs have no "user=" at all,
+        # so skipping the expensive ExtractPatterns is a big win on the hot path.
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=\"?(?P<syslog_user>[A-Za-z0-9._@\\\\-]{1,64})\"?"), "upsert") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "user=")'
         # Extract "for user xyz from" pattern (fallback if user not already found)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "for user ")'
     # Failed/Cannot login parsing - only for Hostd, vobd, vpxd processes
     - context: log
       conditions:
         - 'IsMatch(log.attributes["appname"], "(?i)^(Hostd|vobd|vpxd):?$")'
       statements:
         # Match userid in format <userid>@<domain>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?P<syslog_user>[a-zA-Z0-9._-]+)@"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "(Failed|Cannot) login")'
         # Match userid in format <domain>\<userid>
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?(?:\\S+)\\\\(?P<syslog_user>\\S+)"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "(Failed|Cannot) login")'
         # Match simple userid (fallback)
-        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "(Failed|Cannot) login (user )?%{USERNAME:syslog_user}", true), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "(Failed|Cannot) login")'
 
 {{/*
   ============================================================================
