@@ -14,7 +14,6 @@ on:
       - blackbox-exporter/charts/**
       - cert-manager/charts/**
       - doop-api/charts/**
-      - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
       - gatekeeper/charts/**
       - gatekeeper-config/charts/**
@@ -27,11 +26,9 @@ on:
       - opensearch/chart/**
       - logs/charts/**
       - perses/charts/**
-      - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
       - trust-manager/charts/**
-      - repo-guard/charts/**
       - oidc-discovery-access/**
       - netapp-monitoring/charts/**
       - k8s-gateway-api/charts/**
@@ -105,16 +102,6 @@ jobs:
     with:
       chart-dir: doop-api/charts
       chart-name: doop-api
-      allow-existing: true
-
-  helm-release-exposed-services-v1:
-    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@main
-    permissions:
-      contents: read
-      packages: write
-    with:
-      chart-dir: exposed-services/charts/v1.0.0/exposed-service
-      chart-name: exposed-services
       allow-existing: true
 
   helm-release-exposed-services-v2:
@@ -227,16 +214,6 @@ jobs:
       chart-name: perses
       allow-existing: true
 
-  helm-release-plutono:
-    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@main
-    permissions:
-      contents: read
-      packages: write
-    with:
-      chart-dir: plutono/charts
-      chart-name: plutono
-      allow-existing: true
-
   helm-release-service-proxy:
     uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@main
     permissions:
@@ -265,16 +242,6 @@ jobs:
     with:
       chart-dir: trust-manager/charts
       chart-name: trust-manager
-      allow-existing: true
-
-  helm-release-repo-guard:
-    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@main
-    permissions:
-      contents: read
-      packages: write
-    with:
-      chart-dir: repo-guard/charts
-      chart-name: repo-guard
       allow-existing: true
 
   helm-release-oidc-discovery-access:
