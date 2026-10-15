@@ -55,8 +55,8 @@ transform/external-http:
         - delete_key(log.attributes["auditd"], "data") where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - set(log.attributes["impersonatedUser_string"], String(log.attributes["impersonatedUser"])) where log.attributes["impersonatedUser"] != nil
         - delete_key(log.attributes, "impersonatedUser") where log.attributes["impersonatedUser"] != nil
-        - set(log.attributes["objectRef.apiGroup"], log.attributes["objectRef"]["apiGroup"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["apiGroup"] != nil
-        - set(log.attributes["objectRef.resource"], log.attributes["objectRef"]["resource"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["resource"] != nil
+        - set(log.attributes["k8s.object_Ref.apiGroup"], log.attributes["objectRef"]["apiGroup"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["apiGroup"] != nil
+        - set(log.attributes["k8s.object_Ref.resource"], log.attributes["objectRef"]["resource"]) where log.attributes["objectRef"] != nil and log.attributes["objectRef"]["resource"] != nil
         - set(log.attributes["objectRef_string"], String(log.attributes["objectRef"])) where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "objectRef") where log.attributes["objectRef"] != nil
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
@@ -130,7 +130,7 @@ transform/external-http:
         - set(log.attributes["git_string"], String(log.attributes["git"])) where log.attributes["git"] != nil
         - delete_key(log.attributes, "git") where log.attributes["git"] != nil
         - delete_matching_keys(log.attributes, "^git\\..*")
-        - set(log.attributes["annotations.authorization.k8s.io/reason"], log.attributes["annotations"]["authorization.k8s.io/reason"]) where log.attributes["annotations"] != nil and log.attributes["annotations"]["authorization.k8s.io/reason"] != nil
+        - set(log.attributes["k8s.authorization.reason"], log.attributes["annotations"]["authorization.k8s.io/reason"]) where log.attributes["annotations"] != nil and log.attributes["annotations"]["authorization.k8s.io/reason"] != nil
         - set(log.attributes["annotations_string"], String(log.attributes["annotations"])) where log.attributes["annotations"] != nil
         - delete_key(log.attributes, "annotations") where log.attributes["annotations"] != nil
         - delete_matching_keys(log.attributes, "^annotations\\..*")
