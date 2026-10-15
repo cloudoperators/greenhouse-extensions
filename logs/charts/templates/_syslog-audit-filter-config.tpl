@@ -49,8 +49,8 @@ transform/syslog_forwarded_by:
   log_statements:
     - context: log
       statements:
-        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], ".*forwarded_by=octobus_logstash.*")'
-        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] == nil and log.body != nil and IsMatch(log.body, ".*forwarded_by=octobus_logstash.*")'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where IsString(log.attributes["message"]) and IsMatch(log.attributes["message"], "forwarded_by=octobus_logstash")'
+        - 'set(log.attributes["forwarded_by"], "octobus_logstash") where log.attributes["message"] == nil and log.body != nil and IsMatch(log.body, "forwarded_by=octobus_logstash")'
         - 'replace_pattern(log.attributes["message"], " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and IsString(log.attributes["message"])'
         - 'replace_pattern(log.body, " forwarded_by=octobus_logstash", "") where log.attributes["forwarded_by"] == "octobus_logstash" and log.body != nil'
 
@@ -115,7 +115,7 @@ transform/syslog_semconv_normalization:
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
         - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and resource.attributes["host.name"] == nil'
-        - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ".*:.*")'
+        - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ":")'
 
 {{/*
   ============================================================================
@@ -164,23 +164,23 @@ filter/syslog_early_drop:
   logs:
     log_record:
       # Drop messages containing "ProtocolEndpoint::GetPEInfo"
-      - 'IsMatch(attributes["message"], ".*ProtocolEndpoint::GetPEInfo.*")'
+      - 'IsMatch(attributes["message"], "ProtocolEndpoint::GetPEInfo")'
       # Drop messages containing "--> SCSI PE, ID"
-      - 'IsMatch(attributes["message"], ".*--> SCSI PE, ID.*")'
+      - 'IsMatch(attributes["message"], "--> SCSI PE, ID")'
       # Drop whitespace-only messages
       - 'attributes["message"] == " "'
       # Drop single bracket messages
       - 'attributes["message"] == "]"'
       # Drop _vmx_log[digits]: pattern
-      - 'IsMatch(attributes["message"], ".*_vmx_log\\[\\d+\\]:.*")'
+      - 'IsMatch(attributes["message"], "_vmx_log\\[\\d+\\]:")'
       # Drop informational VVold messages (severity_number 9 = INFO2 in OTel)
-      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], ".*VVold:.*")'
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], "VVold:")'
       # Drop informational Hostd VVOLLIB messages
-      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], ".*Hostd:.*VVOLLIB.*")'
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], "Hostd:.*VVOLLIB")'
       # Drop informational vc* sps|rsyslogd messages
-      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], ".*vc\\S+\\s(sps|rsyslogd).*")'
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], "vc\\S+\\s(sps|rsyslogd)")'
       # Drop warning sub=VigorStatsProvider messages (severity_number 13 = WARN in OTel)
-      - 'severity_number == SEVERITY_NUMBER_WARN and IsMatch(attributes["message"], ".*sub=VigorStatsProvider.*")'
+      - 'severity_number == SEVERITY_NUMBER_WARN and IsMatch(attributes["message"], "sub=VigorStatsProvider")'
       # Drop NSX-T upgrade-coordinator INFO noise (match message+body; all msg types)
       - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(Concat([attributes["message"], body], " "), ".*subcomp=\"upgrade-coordinator\".*")'
 
@@ -193,7 +193,7 @@ filter/syslog_drop_verbose:
   error_mode: ignore
   logs:
     log_record:
-      - 'IsMatch(attributes["message"], ".*: verbose .*")'
+      - 'IsMatch(attributes["message"], ": verbose ")'
 
 {{/*
   ============================================================================
@@ -438,11 +438,11 @@ transform/syslog_hostname_parsing:
         # Set audit source to ESXi if node name was extracted
         - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
         # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl")'
         # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-")'
         # STNPA source detection from appname prefix (do not overwrite an existing source)
         - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi and NSX-T)
@@ -480,8 +480,8 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "THREAT"'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*THREAT.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.cache["mb"], ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "THREAT")'
+        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.cache["mb"], "(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms)")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware" and log.attributes["event_type"] != nil'
@@ -497,25 +497,25 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
         # Explicit blocks/denials/drops.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*\\b(action=\"?(deny|drop|block)\"?|act=deny).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "\\b(action=\"?(deny|drop|block)\"?|act=deny)")'
         # Threat / security subsystems: IPS, UTM, virus, webfilter, DNS filter,
         # app-control, and client-reputation scoring (crscore/crlevel present).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?.*")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*\\bcrscore=\\d+.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "\\bcrscore=\\d+")'
         # Authentication / admin events.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*user.*") and IsMatch(log.cache["mb"], "(?i).*auth.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)user") and IsMatch(log.cache["mb"], "(?i)auth")'
         # Keep existing IPS catch-all.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*ips.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)ips")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
         # pf packet-filter BLOCK events are security-relevant.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*pf: rule \\d+.*block.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "pf: rule \\d+.*block")'
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*rule_name=\\S+.*") and not IsMatch(log.cache["mb"], ".*status=(OK|EPIPE).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "rule_name=\\S+") and not IsMatch(log.cache["mb"], "status=(OK|EPIPE)")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
@@ -530,7 +530,7 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*attacker.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "attacker")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.platform.slug"] != nil'
