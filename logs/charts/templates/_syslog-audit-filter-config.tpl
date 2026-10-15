@@ -152,6 +152,7 @@ transform/syslog_drop_legacy_fields:
 
         # Resource-mapped: hostname → resource.host.name
         - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
+        - 'delete_key(log.attributes, "_host_resolved") where log.attributes["_host_resolved"] != nil'
 
 {{/*
   ============================================================================
@@ -180,6 +181,8 @@ filter/syslog_early_drop:
       - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(attributes["message"], ".*vc\\S+\\s(sps|rsyslogd).*")'
       # Drop warning sub=VigorStatsProvider messages (severity_number 13 = WARN in OTel)
       - 'severity_number == SEVERITY_NUMBER_WARN and IsMatch(attributes["message"], ".*sub=VigorStatsProvider.*")'
+      # Drop NSX-T upgrade-coordinator INFO noise (match message+body; all msg types)
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(Concat([attributes["message"], body], " "), ".*subcomp=\"upgrade-coordinator\".*")'
 
 {{/*
   ============================================================================
@@ -213,8 +216,8 @@ transform/syslog_user_extraction:
   log_statements:
     - context: log
       statements:
-        # Extract "user=xyz]" pattern
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=(?P<syslog_user>[^\\]]+)\\]"), "upsert") where IsString(log.attributes["message"])'
+        # Bound username charset/length so embedded code (user="dcui",...) isn't captured
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "user=\"?(?P<syslog_user>[A-Za-z0-9._@\\\\-]{1,64})\"?"), "upsert") where IsString(log.attributes["message"])'
         # Extract "for user xyz from" pattern (fallback if user not already found)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["message"], "for user (?P<syslog_user>.*?) from"), "upsert") where log.attributes["syslog_user"] == nil and IsString(log.attributes["message"])'
     # Failed/Cannot login parsing - only for Hostd, vobd, vpxd processes
@@ -253,7 +256,8 @@ transform/octobus_to_fortlogs_normalization:
         - 'IsMatch(log.attributes["log.type"], "sysloghttp")'
       statements:
         # ===== SYSLOG METADATA =====
-        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.syslog.hostname"] != nil'
+        # Do not overwrite resource.host.name if syslog_hostname_parsing already resolved it.
+        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.syslog.hostname"] != nil and log.attributes["_host_resolved"] != "true"'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["syslog_facility"]) where log.attributes["syslog_facility"] != nil'
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["syslog_facility_code"])) where log.attributes["syslog_facility_code"] != nil'
         - 'set(log.attributes["syslog.priority"], Int(log.attributes["syslog_pri"])) where log.attributes["syslog_pri"] != nil'
@@ -303,6 +307,8 @@ transform/octobus_to_fortlogs_normalization:
         # ===== APPLICATION / SERVICE =====
         - 'set(log.attributes["service.name"], log.attributes["app"]) where log.attributes["app"] != nil'
         - 'set(log.attributes["service.namespace"], log.attributes["appCat"]) where log.attributes["appCat"] != nil'
+        # Bridge syslog_process -> appname so audit whitelist works on sysloghttp path
+        - 'set(log.attributes["appname"], log.attributes["syslog_process"]) where log.attributes["appname"] == nil and log.attributes["syslog_process"] != nil and log.attributes["syslog_process"] != ""'
 
         # ===== SESSION / TRAFFIC METRICS =====
         - 'set(log.attributes["session.id"], log.attributes["sessionID"]) where log.attributes["sessionID"] != nil'
@@ -345,7 +351,7 @@ transform/cef_parsing:
     - context: log
       statements:
         # Client
-        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )caddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )caddr=")'
+        - 'set(log.attributes["client.address"], ExtractPatterns(log.attributes["message"], "(?:^| )(?:caddr|Remote-Address)=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )(?:caddr|Remote-Address)=")'
         - 'set(log.attributes["client.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )cport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )cport=")'
         # Destination
         - 'set(log.attributes["destination.address"], ExtractPatterns(log.attributes["message"], "(?:^| )dst=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )dst=")'
@@ -355,6 +361,7 @@ transform/cef_parsing:
         - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
         - 'set(log.attributes["event.created"], Time(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "%b %d %Y %H:%M:%S %Z")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
         - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
+        - 'set(log.attributes["event.description"], ExtractPatterns(log.attributes["message"], "(?:^| )subject=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )subject=")'
         # Hardware
         - 'set(log.attributes["hw.model"], ExtractPatterns(log.attributes["message"], "(?:^| )product=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )product=")'
         # Host Attributes
@@ -372,7 +379,6 @@ transform/cef_parsing:
         - 'set(log.attributes["network.peer.address"], ExtractPatterns(log.attributes["message"], "(?:^| )paddr=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )paddr=")'
         - 'set(log.attributes["network.peer.port"], Int(ExtractPatterns(log.attributes["message"], "(?:^| )pport=(?P<v>[0-9]+)")["v"])) where IsMatch(log.attributes["message"], "(?:^| )pport=")'
         - 'set(log.attributes["network.protocol.name"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )protocol=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )protocol=")'
-        - 'set(log.attributes["network.protocol.version"], ExtractPatterns(log.attributes["message"], "(?:^| )proto=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )proto=")'
         # Security Rule Attributes
         - 'set(log.attributes["security_rule.name"], ExtractPatterns(log.attributes["message"], "(?:^| )rule=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule=")'
         - 'set(log.attributes["security_rule.uuid"], ExtractPatterns(log.attributes["message"], "(?:^| )rule_uid=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )rule_uid=")'
@@ -407,9 +413,17 @@ transform/syslog_hostname_parsing:
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
         - 'set(log.attributes["log.syslog.hostname"], ExtractPatterns(log.body, "^<\\d+>\\s*\\d+:\\s+(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+):\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")["h"]) where log.body != nil and IsMatch(log.body, "^<\\d+>\\s*\\d+:\\s+\\S+:\\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s")'
-        # Promote the Logstash-parsed device hostname over the relay/forwarder
-        # value that otherwise sits in resource.host.name (all sysloghttp records).
-        - 'set(resource.attributes["host.name"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["log.syslog.hostname"] != nil and log.attributes["log.syslog.hostname"] != ""'
+        # Resolve device host (sysloghttp): in-body dvchost= > log.syslog.hostname > dvchost.
+        # Never fqdn (unreliable: relay or wrong device). First match wins; else leave as-is.
+        # Full invalid-token denylist applied to ALL sources.
+        - 'delete_key(log.attributes, "log.syslog.hostname") where log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
+        - 'set(log.attributes["_dev_host"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=[A-Za-z0-9]")'
+        - 'delete_key(log.attributes, "_dev_host") where log.attributes["_dev_host"] != nil and IsMatch(log.attributes["_dev_host"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
+        - 'set(log.attributes["_dev_host"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^[A-Za-z0-9][A-Za-z0-9._-]+$")'
+        - 'set(log.attributes["_dev_host"], log.attributes["dvchost"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]+$") and not IsMatch(log.attributes["dvchost"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
+        - 'set(resource.attributes["host.name"], log.attributes["_dev_host"]) where log.attributes["_dev_host"] != nil'
+        - 'set(log.attributes["_host_resolved"], "true") where log.attributes["_dev_host"] != nil'
+        - 'delete_key(log.attributes, "_dev_host") where log.attributes["_dev_host"] != nil'
         # handle double header / relay host name
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
@@ -449,9 +463,11 @@ transform/syslog_audit_classification:
         # Default: mark as non-audit (most logs are non-audit)
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo):?$")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo|vcsa-audit):?$")'
         # Mark stnpa logs as audit-relevant (stnpa has no netbox slug; identified only by audit source)
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "stnpa"'
+        # VCSA audit by source (covers auditd type=PATH/SYSCALL; VCSA-only)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "VCSA"'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
