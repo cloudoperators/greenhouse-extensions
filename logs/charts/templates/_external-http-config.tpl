@@ -50,6 +50,8 @@ transform/external-http:
         - set(log.attributes["auditd.data"], String(log.attributes["auditd"]["data"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - set(log.attributes["auditd.data.op"], log.attributes["auditd"]["data"]["op"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["op"] != nil
         - set(log.attributes["auditd.data.acct"], log.attributes["auditd"]["data"]["acct"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["acct"] != nil
+        - set(log.attributes["auditd.log.key"], ExtractPatterns(log.attributes["message"], "key=(?P<v>\\S+)")["v"]) where log.attributes["auditd.log.key"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "key=") #Jumpserver
+        - set(log.attributes["auditd.log.op"], ExtractPatterns(log.attributes["message"], "msg=''op=(?P<v>[^ ]+)")["v"]) where log.attributes["auditd.log.op"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "msg=''op=") #Jumpserver
         - delete_key(log.attributes["auditd"], "data") where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - set(log.attributes["impersonatedUser_string"], String(log.attributes["impersonatedUser"])) where log.attributes["impersonatedUser"] != nil
         - delete_key(log.attributes, "impersonatedUser") where log.attributes["impersonatedUser"] != nil
@@ -60,12 +62,14 @@ transform/external-http:
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
         # Stringify with delete_matching_keys to remove all nested/flattened subfields
         - set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil
+        - set(resource.attributes["host.name"], log.attributes["host"]["name"]) where resource.attributes["host.name"] == nil and log.attributes["host"] != nil and log.attributes["host"]["name"] != nil #Jumpserver
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
         - set(log.attributes["sourceIPs_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
         - delete_key(log.attributes, "sourceIPs") where log.attributes["sourceIPs"] != nil
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
         # Flatten nested event object into dotted event.* fields before stringifying.
+        - set(log.attributes["event.outcome"], ExtractPatterns(log.attributes["message"], "res=(?P<v>success|failed)")["v"]) where log.attributes["event.outcome"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "res=") #Jumpserver
         - set(log.attributes["event.action"], log.attributes["event"]["action"]) where log.attributes["event.action"] == nil and log.attributes["event"] != nil and log.attributes["event"]["action"] != nil
         - set(log.attributes["event.outcome"], log.attributes["event"]["outcome"]) where log.attributes["event.outcome"] == nil and log.attributes["event"] != nil and IsMap(log.attributes["event"]) and log.attributes["event"]["outcome"] != nil
         # Collapse category to a single string field regardless of scalar or array.
@@ -76,12 +80,18 @@ transform/external-http:
         - set(log.attributes["process_string"], String(log.attributes["process"])) where log.attributes["process"] != nil
         - delete_key(log.attributes, "process") where log.attributes["process"] != nil
         - delete_matching_keys(log.attributes, "^process\\..*")
+        # Process
+        - set(log.attributes["process.executable.path"], ExtractPatterns(log.attributes["message"], "exe=\"(?P<v>[^\"]+)\"")["v"]) where log.attributes["process.executable.path"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "exe=") #Jumpserver
+        # User
+        - set(log.attributes["user.id"], ExtractPatterns(log.attributes["message"], "[^a-zA-Z]uid=(?P<v>[^ ']+)")["v"]) where log.attributes["user.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "uid=") #Jumpserver
+        - set(log.attributes["user.audit.id"], ExtractPatterns(log.attributes["message"], "auid=(?P<v>[^ ']+)")["v"]) where log.attributes["user.audit.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "auid=") #Jumpserver
         - set(log.attributes["prometheus_string"], String(log.attributes["prometheus"])) where log.attributes["prometheus"] != nil
         - delete_key(log.attributes, "prometheus") where log.attributes["prometheus"] != nil
         - delete_matching_keys(log.attributes, "^prometheus\\..*")
         - set(log.attributes["args_string"], String(log.attributes["args"])) where log.attributes["args"] != nil
         - delete_key(log.attributes, "args") where log.attributes["args"] != nil
         - delete_matching_keys(log.attributes, "^args\\..*")
+        - set(log.attributes["user.name"], ExtractPatterns(log.attributes["message"], "acct=\"(?P<v>[^\"]+)\"")["v"]) where log.attributes["user.name"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "acct=") #Jumpserver
         - set(log.attributes["user.name"], log.attributes["user"]["username"]) where log.attributes["user"] != nil and log.attributes["user"]["username"] != nil
         - set(log.attributes["user.name"], log.attributes["user"]["effective"]["name"]) where log.attributes["user"] != nil and log.attributes["user"]["effective"]["name"] != nil
         - set(log.attributes["user_string"], String(log.attributes["user"])) where log.attributes["user"] != nil
