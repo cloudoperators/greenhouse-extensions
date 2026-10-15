@@ -409,6 +409,8 @@ transform/syslog_hostname_parsing:
   log_statements:
     - context: log
       statements:
+        # Materialize message+body once per log for reuse by downstream statements.
+        - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
         # Recover true device host from Logstash sysloghttp lines where the
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
@@ -417,7 +419,7 @@ transform/syslog_hostname_parsing:
         # Never fqdn (unreliable: relay or wrong device). First match wins; else leave as-is.
         # Full invalid-token denylist applied to ALL sources.
         - 'delete_key(log.attributes, "log.syslog.hostname") where log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
-        - 'set(log.attributes["_dev_host"], ExtractPatterns(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?:^| )dvchost=[A-Za-z0-9]")'
+        - 'set(log.attributes["_dev_host"], ExtractPatterns(log.cache["mb"], "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(log.cache["mb"], "(?:^| )dvchost=[A-Za-z0-9]")'
         - 'delete_key(log.attributes, "_dev_host") where log.attributes["_dev_host"] != nil and IsMatch(log.attributes["_dev_host"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
         - 'set(log.attributes["_dev_host"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^[A-Za-z0-9][A-Za-z0-9._-]+$")'
         - 'set(log.attributes["_dev_host"], log.attributes["dvchost"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]+$") and not IsMatch(log.attributes["dvchost"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
@@ -460,6 +462,8 @@ transform/syslog_audit_classification:
   log_statements:
     - context: log
       statements:
+        # Materialize message+body once per log for reuse by downstream statements.
+        - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
         # Default: mark as non-audit (most logs are non-audit)
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
@@ -476,8 +480,8 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "THREAT"'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*THREAT.*")'
-        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*THREAT.*")'
+        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.cache["mb"], ".*(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware" and log.attributes["event_type"] != nil'
@@ -493,25 +497,25 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
         # Explicit blocks/denials/drops.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\b(action=\"?(deny|drop|block)\"?|act=deny).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*\\b(action=\"?(deny|drop|block)\"?|act=deny).*")'
         # Threat / security subsystems: IPS, UTM, virus, webfilter, DNS filter,
         # app-control, and client-reputation scoring (crscore/crlevel present).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?.*")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*\\bcrscore=\\d+.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*\\bcrscore=\\d+.*")'
         # Authentication / admin events.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*user.*") and IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*auth.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*user.*") and IsMatch(log.cache["mb"], "(?i).*auth.*")'
         # Keep existing IPS catch-all.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), "(?i).*ips.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i).*ips.*")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
         # pf packet-filter BLOCK events are security-relevant.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*pf: rule \\d+.*block.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*pf: rule \\d+.*block.*")'
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*rule_name=\\S+.*") and not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*status=(OK|EPIPE).*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*rule_name=\\S+.*") and not IsMatch(log.cache["mb"], ".*status=(OK|EPIPE).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
@@ -526,7 +530,7 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(Concat([log.attributes["message"], log.body], " "), ".*attacker.*")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], ".*attacker.*")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.platform.slug"] != nil'
