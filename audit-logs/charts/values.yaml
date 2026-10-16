@@ -182,6 +182,8 @@ auditLogs:
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
     #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       timeout: 60s                         # optional; per-bulk request timeout to OpenSearch
+    #       retry: { maxElapsedTime: 30s }       # optional; how long a failed bulk is retried
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
