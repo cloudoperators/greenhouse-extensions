@@ -182,7 +182,7 @@ filter/syslog_early_drop:
       # Drop warning sub=VigorStatsProvider messages (severity_number 13 = WARN in OTel)
       - 'severity_number == SEVERITY_NUMBER_WARN and IsMatch(attributes["message"], "sub=VigorStatsProvider")'
       # Drop NSX-T upgrade-coordinator INFO noise (match message+body; all msg types)
-      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(Concat([attributes["message"], body], " "), ".*subcomp=\"upgrade-coordinator\".*")'
+      - 'severity_number == SEVERITY_NUMBER_INFO and IsMatch(Concat([attributes["message"], body], " "), "subcomp=\"upgrade-coordinator\"")'
 
 {{/*
   ============================================================================
