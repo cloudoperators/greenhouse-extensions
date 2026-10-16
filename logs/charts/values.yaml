@@ -40,7 +40,7 @@ opentelemetry-operator:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # @ignored renovate does not support generating new README.md
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.160.0
+      tag: v0.160.0@sha256:5323a0df9508bca24be1e7f4e7305a293bb790f460baf6287515274e664211f1
     serviceMonitor:
     # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
