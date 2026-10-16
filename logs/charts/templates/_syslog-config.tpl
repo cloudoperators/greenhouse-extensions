@@ -856,6 +856,7 @@ logs/syslog_http:
 logs/syslog_tcp:
   receivers: [tcp_log/syslog]
   processors:
+    - memory_limiter
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
@@ -876,6 +877,7 @@ logs/syslog_tcp:
 logs/syslog_udp:
   receivers: [udp_log/syslog]
   processors:
+    - memory_limiter
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
@@ -899,6 +901,7 @@ logs/syslog_udp:
 logs/syslog_tcp_tls:
   receivers: [tcp_log/syslog_tls]
   processors:
+    - memory_limiter
     - filter/syslog_early_drop
     - filter/syslog_drop_verbose
     - transform/syslog_observed_timestamp_fallback
