@@ -10,7 +10,7 @@ RUN chmod +x ./ocb
 COPY otel-collector-builder-config.yaml builder-config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./ocb --config builder-config.yaml
 
-FROM ubuntu@sha256:786a8b558f7be160c6c8c4a54f9a57274f3b4fb1491cf65146521ae77ff1dc54
+FROM ubuntu@sha256:c098726dd9b9733f3e885f8de0ef375206a311b0a317eadc40d347b1115fb944
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends systemd wget ca-certificates && \
