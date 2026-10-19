@@ -86,9 +86,11 @@ openTelemetry:
       enabled:
         - FilelogRefusedLogs
         - ReconcileErrors
-        - FilelogRefusedLogs
-        - LogsOTelLogsMissing
-        - LogsExportingFailed
+        - OTelLogsMissing
+        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsExportFailureRatioHigh
+        - OTelExternalLogsDropped
 
 testFramework:
   enabled: true

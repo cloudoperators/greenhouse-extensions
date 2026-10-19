@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Enables every alert rule for test-alerts.sh, on top of logs/charts/ci/test-values.yaml.
+openTelemetry:
+  prometheus:
+    rules:
+      enabled:
+        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
+        - ReceiverRefusedMetric
+        - OTelLogsMissing
+        - ReconcileErrors
+        - WorkqueueDepth
+        - OTelLogsIncreasing
+        - OTelLogsDecreasing
+        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsSLOBurnRateWarning
+        - OTelLogsExportFailureRatioHigh
+        - OTelExternalLogsDropped
+        - OTelExporterQueueFilling
+        - OTelExporterQueueFull
+        - OTelLogsVolumeSpike
+        - OTelLogsVolumeDropFast
