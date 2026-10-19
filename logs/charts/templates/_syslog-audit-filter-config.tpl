@@ -334,10 +334,21 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
 
-        # ===== PREVENT SCALAR-VS-OBJECT MAPPING CONFLICTS (host, severity, server) =====
-        # Flat scalars collide with dotted ECS children on the same parent ->
-        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat scalar.
-        - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
+        # ===== PREVENT MAPPING CONFLICTS ON FLAT KEYS (host, severity, server) =====
+        # A flat key collides with dotted ECS children on the same parent ->
+        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat key.
+        # host.name is text and must end up a string. An object gives its non-empty name,
+        # else its non-empty hostname; a number becomes a string; anything else is dropped.
+        - 'set(log.attributes["host.name"], log.attributes["host.name"]["name"]) where IsMap(log.attributes["host.name"]) and IsString(log.attributes["host.name"]["name"]) and log.attributes["host.name"]["name"] != ""'
+        - 'set(log.attributes["host.name"], log.attributes["host.name"]["hostname"]) where IsMap(log.attributes["host.name"]) and IsString(log.attributes["host.name"]["hostname"]) and log.attributes["host.name"]["hostname"] != ""'
+        - 'set(log.attributes["host.name"], String(log.attributes["host.name"])) where IsInt(log.attributes["host.name"]) or IsDouble(log.attributes["host.name"])'
+        - 'delete_key(log.attributes, "host.name") where log.attributes["host.name"] != nil and not IsString(log.attributes["host.name"])'
+        # If host.name is still unset, take it from host the same way. A host that is not a
+        # string or number is also kept as JSON in host_string.
+        - 'set(log.attributes["host.name"], String(log.attributes["host"])) where log.attributes["host.name"] == nil and (IsString(log.attributes["host"]) or IsInt(log.attributes["host"]) or IsDouble(log.attributes["host"]))'
+        - 'set(log.attributes["host.name"], log.attributes["host"]["name"]) where log.attributes["host.name"] == nil and IsMap(log.attributes["host"]) and IsString(log.attributes["host"]["name"]) and log.attributes["host"]["name"] != ""'
+        - 'set(log.attributes["host.name"], log.attributes["host"]["hostname"]) where log.attributes["host.name"] == nil and IsMap(log.attributes["host"]) and IsString(log.attributes["host"]["hostname"]) and log.attributes["host"]["hostname"] != ""'
+        - 'set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil and not IsString(log.attributes["host"]) and not IsInt(log.attributes["host"]) and not IsDouble(log.attributes["host"])'
         - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
         - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
         - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
