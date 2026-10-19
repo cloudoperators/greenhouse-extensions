@@ -82,6 +82,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
 | auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
 | auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
+| auditLogs.ingesterCollector.prometheus.rules.enabled | bool | `true` | Render the ingest collector alerts (consumer lag age, offset behind log start, failing exports, undecodable messages). Needs auditLogs.prometheus.rules.create and the Kafka exporter metrics. |
+| auditLogs.ingesterCollector.prometheus.rules.kafkaRetentionSeconds | int | `86400` | Retention of the ingested Kafka topics in seconds; the lag-age alert is critical at half of it. |
+| auditLogs.ingesterCollector.prometheus.rules.lagAgeWarningSeconds | int | `7200` | Consumer lag age in seconds that raises a warning. |
 | auditLogs.ingesterCollector.replicas | int | `3` | Replica count per ingest collector Deployment. |
 | auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
