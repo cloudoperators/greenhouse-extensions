@@ -1,0 +1,38 @@
+name: logs collector config validate
+
+on:
+  pull_request:
+    paths:
+      - logs/**
+      - .github/workflows/logs-collector-config-validate.yaml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  otelcol-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: "v3.19.5"
+
+      - name: Install PyYAML
+        run: python3 -c 'import yaml' || pip install --break-system-packages pyyaml==6.0.3
+
+      - name: Validate collector configs (OpenSearch mode)
+        run: logs/tests/validate-collector-configs.sh "external logs metrics" -f logs/tests/values-test.yaml
+
+      - name: Validate collector configs (Kafka mode with ingester)
+        if: '!cancelled()'
+        run: logs/tests/validate-collector-configs.sh "external logs logs-ingester-syslog metrics" -f logs/tests/values-test.yaml -f logs/tests/values-test-kafka.yaml
