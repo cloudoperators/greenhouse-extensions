@@ -21,6 +21,13 @@ spec:
       path: /metrics
       scheme: http
       port: prometheus
+{{- if and .Values.openTelemetry.externalCollector.udpStatsExporter.enabled .Values.openTelemetry.externalCollector.syslogConfig.enabled }}
+    - interval: 60s
+      scrapeTimeout: 50s
+      path: /metrics
+      scheme: http
+      port: udp-stats
+{{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/component: opentelemetry-collector
