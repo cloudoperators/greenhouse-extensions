@@ -154,7 +154,9 @@ spec:
           - /var/log/pods/vault_vault-tec-*/vault-tec*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-scaleout-falco*/*/*.log
-        max_log_size: 16384
+        # max_log_size is left at the 1 MiB default: it limits each physical line, and containerd writes long lines
+        # as 16 KiB chunks plus a timestamp prefix, so 16384 cut every chunk. The container operator rebuilds the
+        # full line up to its own 1 MiB max_log_size.
         operators:
           - id: container-parser
             type: container
@@ -218,7 +220,7 @@ spec:
             statements:
               - "truncate_all(log.attributes, 32000)"
               - "truncate_all(resource.attributes, 32000)"
-              - 'set(log.body, Substring(log.body, 0, {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }})) where log.body != nil and Len(log.body) > {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }}'
+              - 'set(log.body, Substring(log.body, 0, {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }}, true)) where log.body != nil and Len(log.body) > {{ .Values.auditLogs.logsCollector.maxMessageLength | int64 }}'
 
 {{- if .Values.auditLogs.elastic.enabled }}
     {{- include "es.labels" . | nindent 6 -}}
@@ -288,8 +290,7 @@ spec:
         log_statements:
           - context: log
             conditions:
-              - resource.attributes["k8s.container.name"] == "falco"
-              - IsMatch(log.body, "^\\{")
+              - resource.attributes["k8s.container.name"] == "falco" and IsMatch(log.body, "^\\{")
             statements:
               # proc.aname[N] keys contain brackets which OTTL cannot read from a parsed map;
               # extract them from the raw JSON string before ParseJSON
@@ -301,37 +302,37 @@ spec:
               - set(log.attributes["output_fields.proc.aname.4"], log.cache["aname4"]) where log.cache["aname4"] != nil
               - merge_maps(log.cache, ParseJSON(log.body), "upsert")
               # top-level fields
-              - set(log.attributes["output"], log.cache["output"])
-              - set(log.attributes["priority"], log.cache["priority"])
-              - set(log.attributes["rule"], log.cache["rule"])
-              - set(log.attributes["source"], log.cache["source"])
-              - set(log.attributes["tags"], log.cache["tags"])
+              - set(log.attributes["output"], log.cache["output"]) where log.cache["output"] != nil
+              - set(log.attributes["priority"], log.cache["priority"]) where log.cache["priority"] != nil
+              - set(log.attributes["rule"], log.cache["rule"]) where log.cache["rule"] != nil
+              - set(log.attributes["source"], log.cache["source"]) where log.cache["source"] != nil
+              - set(log.attributes["tags"], log.cache["tags"]) where log.cache["tags"] != nil
               - set(log.time, Time(log.cache["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["time"] != nil
               # output_fields
-              - set(log.attributes["output_fields.container.id"], log.cache["output_fields"]["container.id"])
-              - set(log.attributes["output_fields.container.image.repository"], log.cache["output_fields"]["container.image.repository"])
-              - set(log.attributes["output_fields.container.image.tag"], log.cache["output_fields"]["container.image.tag"])
-              - set(log.attributes["output_fields.container.image.id"], log.cache["output_fields"]["container.image.id"])
-              - set(log.attributes["output_fields.container.name"], log.cache["output_fields"]["container.name"])
-              - set(log.attributes["output_fields.container.privileged"], log.cache["output_fields"]["container.privileged"])
-              - set(log.attributes["output_fields.evt.time"], log.cache["output_fields"]["evt.time"])
-              - set(log.attributes["output_fields.fd.name"], log.cache["output_fields"]["fd.name"])
-              - set(log.attributes["output_fields.k8s.ns.name"], log.cache["output_fields"]["k8s.ns.name"])
-              - set(log.attributes["output_fields.k8s.pod.id"], log.cache["output_fields"]["k8s.pod.id"])
-              - set(log.attributes["output_fields.k8s.pod.labels"], log.cache["output_fields"]["k8s.pod.labels"])
-              - set(log.attributes["output_fields.k8s.pod.name"], log.cache["output_fields"]["k8s.pod.name"])
-              - set(log.attributes["output_fields.proc.args"], log.cache["output_fields"]["proc.args"])
-              - set(log.attributes["output_fields.proc.cmdline"], log.cache["output_fields"]["proc.cmdline"])
-              - set(log.attributes["output_fields.proc.cwd"], log.cache["output_fields"]["proc.cwd"])
-              - set(log.attributes["output_fields.proc.loginshellid"], log.cache["output_fields"]["proc.loginshellid"])
-              - set(log.attributes["output_fields.proc.name"], log.cache["output_fields"]["proc.name"])
-              - set(log.attributes["output_fields.proc.pcmdline"], log.cache["output_fields"]["proc.pcmdline"])
-              - set(log.attributes["output_fields.proc.pid"], log.cache["output_fields"]["proc.pid"])
-              - set(log.attributes["output_fields.proc.pname"], log.cache["output_fields"]["proc.pname"])
-              - set(log.attributes["output_fields.proc.ppid"], log.cache["output_fields"]["proc.ppid"])
-              - set(log.attributes["output_fields.proc.sid"], log.cache["output_fields"]["proc.sid"])
-              - set(log.attributes["output_fields.user.loginuid"], log.cache["output_fields"]["user.loginuid"])
-              - set(log.attributes["output_fields.user.name"], log.cache["output_fields"]["user.name"])
+              - set(log.attributes["output_fields.container.id"], log.cache["output_fields"]["container.id"]) where log.cache["output_fields"]["container.id"] != nil
+              - set(log.attributes["output_fields.container.image.repository"], log.cache["output_fields"]["container.image.repository"]) where log.cache["output_fields"]["container.image.repository"] != nil
+              - set(log.attributes["output_fields.container.image.tag"], log.cache["output_fields"]["container.image.tag"]) where log.cache["output_fields"]["container.image.tag"] != nil
+              - set(log.attributes["output_fields.container.image.id"], log.cache["output_fields"]["container.image.id"]) where log.cache["output_fields"]["container.image.id"] != nil
+              - set(log.attributes["output_fields.container.name"], log.cache["output_fields"]["container.name"]) where log.cache["output_fields"]["container.name"] != nil
+              - set(log.attributes["output_fields.container.privileged"], log.cache["output_fields"]["container.privileged"]) where log.cache["output_fields"]["container.privileged"] != nil
+              - set(log.attributes["output_fields.evt.time"], log.cache["output_fields"]["evt.time"]) where log.cache["output_fields"]["evt.time"] != nil
+              - set(log.attributes["output_fields.fd.name"], log.cache["output_fields"]["fd.name"]) where log.cache["output_fields"]["fd.name"] != nil
+              - set(log.attributes["output_fields.k8s.ns.name"], log.cache["output_fields"]["k8s.ns.name"]) where log.cache["output_fields"]["k8s.ns.name"] != nil
+              - set(log.attributes["output_fields.k8s.pod.id"], log.cache["output_fields"]["k8s.pod.id"]) where log.cache["output_fields"]["k8s.pod.id"] != nil
+              - set(log.attributes["output_fields.k8s.pod.labels"], log.cache["output_fields"]["k8s.pod.labels"]) where log.cache["output_fields"]["k8s.pod.labels"] != nil
+              - set(log.attributes["output_fields.k8s.pod.name"], log.cache["output_fields"]["k8s.pod.name"]) where log.cache["output_fields"]["k8s.pod.name"] != nil
+              - set(log.attributes["output_fields.proc.args"], log.cache["output_fields"]["proc.args"]) where log.cache["output_fields"]["proc.args"] != nil
+              - set(log.attributes["output_fields.proc.cmdline"], log.cache["output_fields"]["proc.cmdline"]) where log.cache["output_fields"]["proc.cmdline"] != nil
+              - set(log.attributes["output_fields.proc.cwd"], log.cache["output_fields"]["proc.cwd"]) where log.cache["output_fields"]["proc.cwd"] != nil
+              - set(log.attributes["output_fields.proc.loginshellid"], log.cache["output_fields"]["proc.loginshellid"]) where log.cache["output_fields"]["proc.loginshellid"] != nil
+              - set(log.attributes["output_fields.proc.name"], log.cache["output_fields"]["proc.name"]) where log.cache["output_fields"]["proc.name"] != nil
+              - set(log.attributes["output_fields.proc.pcmdline"], log.cache["output_fields"]["proc.pcmdline"]) where log.cache["output_fields"]["proc.pcmdline"] != nil
+              - set(log.attributes["output_fields.proc.pid"], log.cache["output_fields"]["proc.pid"]) where log.cache["output_fields"]["proc.pid"] != nil
+              - set(log.attributes["output_fields.proc.pname"], log.cache["output_fields"]["proc.pname"]) where log.cache["output_fields"]["proc.pname"] != nil
+              - set(log.attributes["output_fields.proc.ppid"], log.cache["output_fields"]["proc.ppid"]) where log.cache["output_fields"]["proc.ppid"] != nil
+              - set(log.attributes["output_fields.proc.sid"], log.cache["output_fields"]["proc.sid"]) where log.cache["output_fields"]["proc.sid"] != nil
+              - set(log.attributes["output_fields.user.loginuid"], log.cache["output_fields"]["user.loginuid"]) where log.cache["output_fields"]["user.loginuid"] != nil
+              - set(log.attributes["output_fields.user.name"], log.cache["output_fields"]["user.name"]) where log.cache["output_fields"]["user.name"] != nil
 
       transform/keystone_api:
         error_mode: ignore
@@ -412,48 +413,51 @@ spec:
               - set(log.body, nil)
 
       transform/vault:
-        error_mode: propagate
+        # ignore: a failing statement must not drop the whole receiver batch (filelog does not retry)
+        error_mode: ignore
         log_statements:
           - context: log
             conditions:
               - resource.attributes["k8s.namespace.name"] == "vault"
             statements:
               - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
-              - set(log.attributes["time"], log.cache["time"])
-              - set(log.attributes["type"], log.cache["type"])
-              - set(log.attributes["auth.accessor"], log.cache["auth"]["accessor"])
-              - set(log.attributes["auth.client_token"], log.cache["auth"]["client_token"])
-              - set(log.attributes["auth.display_name"], log.cache["auth"]["display_name"])
-              - set(log.attributes["auth.entity_id"], log.cache["auth"]["entity_id"])
-              - set(log.attributes["auth.metadata"], log.cache["auth"]["metadata"])
-              - set(log.attributes["auth.policy_results"], log.cache["auth"]["policy_results"])
-              - set(log.attributes["auth.metadata.role_name"], log.cache["auth"]["metadata"]["role_name"])
-              - set(log.attributes["auth.policies"], log.cache["auth"]["policies"])
-              - set(log.attributes["auth.policies"], log.cache["auth"]["identity_policies"]) where log.cache["identity_policies"] != nil and log.attributes["auth.policies"] == nil
-              - set(log.attributes["auth.policy_results.allowed"], log.cache["auth"]["policy_results"]["allowed"])
-              - set(log.attributes["auth.policy_results.granting_policies"], log.cache["auth"]["policy_results"]["granting_policies"])
-              - set(log.attributes["auth.token_policies"], log.cache["auth"]["token_policies"])
-              - set(log.attributes["auth.token_issue_time"], log.cache["auth"]["token_issue_time"])
-              - set(log.attributes["auth.token_ttl"], log.cache["auth"]["token_ttl"])
-              - set(log.attributes["auth.token_type"], log.cache["auth"]["token_type"])
-              - set(log.attributes["auth.request.client_id"], log.cache["auth"]["client_id"])
-              - set(log.attributes["auth.request.client_token"], log.cache["auth"]["client_token"])
-              - set(log.attributes["auth.request.client_token_accessor"], log.cache["auth"]["client_token_accessor"])
-              - set(log.attributes["auth.request.headers.user-agent"], log.cache["auth"]["headers"][".user-agent"])
-              - set(log.attributes["auth.mount_class"], log.cache["auth"]["mount_class"])
-              - set(log.attributes["auth.mount_point"], log.cache["auth"]["mount_point"])
-              - set(log.attributes["auth.mount_running_version"], log.cache["auth"]["mount_running_version"])
-              - set(log.attributes["auth.mount_type"], log.cache["auth"]["mount_type"])
-              - set(log.attributes["auth.mount_type"], log.cache["request"]["mount_type"]) where log.cache["request"]["mount_type"] != nil and log.attributes["auth.mount_type"] == nil
-              - set(log.attributes["auth.namespace.id"], log.cache["auth"]["namespace"]["id"])
-              - set(log.attributes["auth.operation"], log.cache["auth"]["operation"])
-              - set(log.attributes["auth.operation"], log.cache["request"]["operation"]) where log.cache["request"]["operation"] != nil and log.attributes["auth.operation"] == nil
-              - set(log.attributes["auth.path"], log.cache["auth"]["path"])
-              - set(log.attributes["auth.path"], log.cache["request"]["path"]) where log.cache["request"]["path"] != nil and log.attributes["auth.path"] == nil
-              - set(log.attributes["auth.remote_address"], log.cache["auth"]["remote_address"])
-              - set(log.attributes["auth.remote_port"], log.cache["auth"]["remote_port"])
-              - set(log.attributes["auth.request_uri"], log.cache["auth"]["request_uri"])
-              - set(log.attributes["auth.error"], log.cache["error"])
+              # audit lines that are not valid JSON keep their body (capped by transform/truncate_message) and are flagged
+              - set(log.attributes["sap.cc.audit.parse_error"], "invalid_json") where resource.attributes["k8s.container.name"] == "audit" and Len(log.cache) == 0
+              - set(log.attributes["time"], log.cache["time"]) where log.cache["time"] != nil and log.cache["type"] != nil
+              - set(log.attributes["type"], log.cache["type"]) where log.cache["type"] != nil
+              - set(log.attributes["auth.accessor"], log.cache["auth"]["accessor"]) where log.cache["auth"]["accessor"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.client_token"], log.cache["auth"]["client_token"]) where log.cache["auth"]["client_token"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.display_name"], log.cache["auth"]["display_name"]) where log.cache["auth"]["display_name"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.entity_id"], log.cache["auth"]["entity_id"]) where log.cache["auth"]["entity_id"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.metadata"], log.cache["auth"]["metadata"]) where log.cache["auth"]["metadata"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.policy_results"], log.cache["auth"]["policy_results"]) where log.cache["auth"]["policy_results"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.metadata.role_name"], log.cache["auth"]["metadata"]["role_name"]) where log.cache["auth"]["metadata"]["role_name"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.policies"], log.cache["auth"]["policies"]) where log.cache["auth"]["policies"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.policies"], log.cache["auth"]["identity_policies"]) where log.cache["auth"]["identity_policies"] != nil and log.attributes["auth.policies"] == nil and log.cache["type"] != nil
+              - set(log.attributes["auth.policy_results.allowed"], log.cache["auth"]["policy_results"]["allowed"]) where log.cache["auth"]["policy_results"]["allowed"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.policy_results.granting_policies"], log.cache["auth"]["policy_results"]["granting_policies"]) where log.cache["auth"]["policy_results"]["granting_policies"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.token_policies"], log.cache["auth"]["token_policies"]) where log.cache["auth"]["token_policies"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.token_issue_time"], log.cache["auth"]["token_issue_time"]) where log.cache["auth"]["token_issue_time"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.token_ttl"], log.cache["auth"]["token_ttl"]) where log.cache["auth"]["token_ttl"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.token_type"], log.cache["auth"]["token_type"]) where log.cache["auth"]["token_type"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.request.client_id"], log.cache["auth"]["client_id"]) where log.cache["auth"]["client_id"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.request.client_token"], log.cache["auth"]["client_token"]) where log.cache["auth"]["client_token"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.request.client_token_accessor"], log.cache["auth"]["client_token_accessor"]) where log.cache["auth"]["client_token_accessor"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.request.headers.user-agent"], log.cache["auth"]["headers"][".user-agent"]) where log.cache["auth"]["headers"][".user-agent"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.mount_class"], log.cache["auth"]["mount_class"]) where log.cache["auth"]["mount_class"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.mount_point"], log.cache["auth"]["mount_point"]) where log.cache["auth"]["mount_point"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.mount_running_version"], log.cache["auth"]["mount_running_version"]) where log.cache["auth"]["mount_running_version"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.mount_type"], log.cache["auth"]["mount_type"]) where log.cache["auth"]["mount_type"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.mount_type"], log.cache["request"]["mount_type"]) where log.cache["request"]["mount_type"] != nil and log.attributes["auth.mount_type"] == nil and log.cache["type"] != nil
+              - set(log.attributes["auth.namespace.id"], log.cache["auth"]["namespace"]["id"]) where log.cache["auth"]["namespace"]["id"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.operation"], log.cache["auth"]["operation"]) where log.cache["auth"]["operation"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.operation"], log.cache["request"]["operation"]) where log.cache["request"]["operation"] != nil and log.attributes["auth.operation"] == nil and log.cache["type"] != nil
+              - set(log.attributes["auth.path"], log.cache["auth"]["path"]) where log.cache["auth"]["path"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.path"], log.cache["request"]["path"]) where log.cache["request"]["path"] != nil and log.attributes["auth.path"] == nil and log.cache["type"] != nil
+              - set(log.attributes["auth.remote_address"], log.cache["auth"]["remote_address"]) where log.cache["auth"]["remote_address"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.remote_port"], log.cache["auth"]["remote_port"]) where log.cache["auth"]["remote_port"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.request_uri"], log.cache["auth"]["request_uri"]) where log.cache["auth"]["request_uri"] != nil and log.cache["type"] != nil
+              - set(log.attributes["auth.error"], log.cache["error"]) where log.cache["error"] != nil and log.cache["type"] != nil
               - set(log.body, "") where log.attributes["type"] != nil
 {{- end }}
 
