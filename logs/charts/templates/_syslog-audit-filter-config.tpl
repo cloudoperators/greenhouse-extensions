@@ -463,6 +463,7 @@ transform/syslog_audit_classification:
   error_mode: ignore
   log_statements:
     - context: log
+      shared_cache: true
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
         - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
@@ -478,6 +479,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
@@ -495,6 +497,7 @@ transform/syslog_audit_classification:
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Audit|Log|TOS Notification)$")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
@@ -510,6 +513,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)ips")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
@@ -529,6 +533,7 @@ transform/syslog_audit_classification:
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:

@@ -32,19 +32,23 @@ transform/syslog_device_classification:
     # Materialize message+body once per log so downstream IsMatch/ExtractPatterns
     # calls reuse the same string instead of re-concatenating on every statement.
     - context: log
+      shared_cache: true
       statements:
         - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed")'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(log.cache["mb"], "(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[|f5_hsllog:|web_application_name)")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or (log.attributes["log.type"] == "sysloghttp" and IsMatch(log.cache["mb"], ": \\d{4} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:")))'
       statements:
@@ -107,6 +111,7 @@ transform/syslog_device_classification:
         - 'delete_key(log.attributes, "sshd_status")'
         - 'delete_key(log.attributes, "sshd_protocol")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
@@ -158,6 +163,7 @@ transform/syslog_device_classification:
         # Cisco Router - "rtb" hostname e.g. "<123>rtb...:".
         - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.cache["mb"], "<\\d+>rtb\\S+:")'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "cisco"'
       statements:
@@ -209,6 +215,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.role.slug"], "ips-ids") where log.attributes["netbox.role.slug"] == nil'
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
@@ -221,6 +228,7 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.type"], "network") where log.attributes["hw.type"] == nil'
         - 'delete_key(log.attributes, "_forti_prefix") where log.attributes["_forti_prefix"] != nil'
     - context: log
+      shared_cache: true
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
