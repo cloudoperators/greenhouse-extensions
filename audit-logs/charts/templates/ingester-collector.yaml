@@ -90,15 +90,22 @@ spec:
         autocommit:
           enable: true
           interval: 1s
+        # At-least-once: an offset is marked only after the whole pipeline returned, so no
+        # async stage (batch processor, wait_for_result: false) may sit in front of the exporters.
+        # Export errors come back through the failover connector as retryable, so they are
+        # retried, never skipped; on_permanent_error only skips messages that cannot be
+        # decoded (counted in otelcol_kafka_receiver_unmarshal_failed_log_records_total).
         message_marking:
           after: true
           on_error: false
-          on_permanent_error: false
+          on_permanent_error: true
         error_backoff:
           enabled: true
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
+          multiplier: 1.5
+          randomization_factor: 0.5
 {{- if (dig "tls" "enabled" false $kafka) }}
         tls:
           insecure: false
@@ -123,10 +130,6 @@ spec:
         check_interval: 5s
         limit_percentage: 80
         spike_limit_percentage: 30
-      batch/audit:
-        timeout: 5s
-        send_batch_size: 100
-        send_batch_max_size: 500
       attributes/cluster:
         actions:
           - action: insert
@@ -168,7 +171,8 @@ spec:
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          # must stay true: the kafka offset is committed when this exporter returns
+          wait_for_result: true
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
@@ -194,7 +198,8 @@ spec:
         sending_queue:
           enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
+          # must stay true: the kafka offset is committed when this exporter returns
+          wait_for_result: true
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
         retry_on_failure:
@@ -244,7 +249,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
+          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]

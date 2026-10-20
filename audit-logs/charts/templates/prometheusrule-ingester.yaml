@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- $ing := .Values.auditLogs.ingesterCollector }}
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.prometheus.rules.create $ing.enabled $ing.prometheus.podMonitor.enabled (dig "rules" "enabled" true $ing.prometheus) }}
+{{- $ns := .Release.Namespace }}
+{{- $retention := dig "rules" "kafkaRetentionSeconds" 86400 $ing.prometheus | int }}
+{{- $warn := dig "rules" "lagAgeWarningSeconds" 7200 $ing.prometheus | int }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: audit-logs-ingester
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+spec:
+  groups:
+  - name: audit-logs-ingester.alerts
+    rules:
+    # The ingesters commit a Kafka offset only after OpenSearch accepted the message, so a slow or
+    # failing OpenSearch shows up as consumer lag. Lag in messages divided by the topic's produce rate
+    # is how far behind the group is in seconds; data past the topic retention is gone.
+    - alert: AuditIngesterLagAgeHigh
+      expr: (sum by (namespace, consumergroup, topic) (kafka_consumergroup_lag{consumergroup=~"audit-ingester-.*"}) / on (namespace, topic) group_left sum by (namespace, topic) (rate(kafka_topic_partition_current_offset[30m]))) > {{ $warn }}
+      for: 15m
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: Audit ingester is behind its Kafka topic
+        description: 'Consumer group `{{`{{ $labels.consumergroup }}`}}` is about {{`{{ $value | humanizeDuration }}`}} behind topic `{{`{{ $labels.topic }}`}}`. Retention is {{ $retention }}s; check OpenSearch bulk latency and the ingester logs.'
+    - alert: AuditIngesterLagAgeCritical
+      expr: (sum by (namespace, consumergroup, topic) (kafka_consumergroup_lag{consumergroup=~"audit-ingester-.*"}) / on (namespace, topic) group_left sum by (namespace, topic) (rate(kafka_topic_partition_current_offset[30m]))) > {{ div $retention 2 }}
+      for: 15m
+      labels:
+        severity: critical
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: Audit ingester lag is past half of the Kafka retention
+        description: 'Consumer group `{{`{{ $labels.consumergroup }}`}}` is about {{`{{ $value | humanizeDuration }}`}} behind topic `{{`{{ $labels.topic }}`}}` with {{ $retention }}s retention. Records older than the retention are deleted before they are indexed.'
+    # A committed offset below the log start means records were deleted by retention before the
+    # group read them. -1 (no commit yet) is ignored.
+    - alert: AuditIngesterOffsetBehindLogStart
+      expr: count by (namespace, consumergroup, topic) ((kafka_consumergroup_current_offset{consumergroup=~"audit-ingester-.*"} >= 0) < on (namespace, topic, partition) group_left kafka_topic_partition_oldest_offset) > 0
+      for: 5m
+      labels:
+        severity: critical
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: Audit ingester lost records to Kafka retention
+        description: 'Consumer group `{{`{{ $labels.consumergroup }}`}}` has {{`{{ $value }}`}} partitions of `{{`{{ $labels.topic }}`}}` whose committed offset is older than the oldest record in the topic, so records were deleted unread.'
+    # Both failover levels failed for a message. It is retried from Kafka, but while this fires the
+    # failover state of the pod sends every partition into back-off.
+    - alert: AuditIngesterExportFailing
+      expr: sum by (job) (increase(otelcol_exporter_send_failed_log_records_total{job=~"{{ $ns }}/opentelemetry-collector-audit-ingester-.*",exporter=~"opensearch/.*_failover_b"}[15m])) > 0
+      for: 15m
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: Audit ingester exports to OpenSearch fail on both failover users
+        description: '`{{`{{ $labels.job }}`}}` failed to export {{`{{ $value | humanize }}`}} records on both failover levels in the last 15 minutes. The messages stay in Kafka and are retried; check OpenSearch health, bulk errors and both ingester users.'
+    # Messages that cannot be decoded are skipped (on_permanent_error) and counted here.
+    - alert: AuditIngesterUndecodableMessages
+      expr: sum by (job) (increase(otelcol_kafka_receiver_unmarshal_failed_log_records_total{job=~"{{ $ns }}/opentelemetry-collector-audit-ingester-.*"}[1h])) > 0
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: Audit ingester skipped Kafka messages it could not decode
+        description: '`{{`{{ $labels.job }}`}}` skipped {{`{{ $value | humanize }}`}} Kafka messages in the last hour because they are not in the configured encoding. Check the producers of the topic.'
+{{- end }}

@@ -168,6 +168,13 @@ auditLogs:
       podMonitor:
         # -- Render a PodMonitor per enabled ingest collector.
         enabled: true
+      rules:
+        # -- Render the ingest collector alerts (consumer lag age, offset behind log start, failing exports, undecodable messages). Needs auditLogs.prometheus.rules.create and the Kafka exporter metrics.
+        enabled: true
+        # -- Retention of the ingested Kafka topics in seconds; the lag-age alert is critical at half of it.
+        kafkaRetentionSeconds: 86400
+        # -- Consumer lag age in seconds that raises a warning.
+        lagAgeWarningSeconds: 7200
     # Entry shape:
     #   <name>:
     #     enabled: bool                         # render this collector
@@ -181,7 +188,7 @@ auditLogs:
     #       tls: { caSecret, caSecretKey, insecure }
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
-    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       sendingQueue: { enabled, numConsumers, queueSize }  # optional; default disabled. wait_for_result is always true (at-least-once)
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
