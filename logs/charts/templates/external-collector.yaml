@@ -121,6 +121,51 @@ spec:
       port: 8888
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
+{{- with .Values.openTelemetry.externalCollector.udpStatsExporter }}
+{{- if and .enabled $.Values.openTelemetry.externalCollector.syslogConfig.enabled $.Values.openTelemetry.prometheus.podMonitor.enabled ($.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") }}
+  # Same network namespace as the collector, so /proc/net/snmp shows the kernel drops on the syslog UDP socket.
+  # Pod readiness includes this container: if its image cannot be pulled, it crash-loops or is OOM-killed,
+  # the collector pod goes NotReady and leaves the Service. A native sidecar (init container with
+  # restartPolicy Always) is worse here, because a failed image pull also keeps the collector from starting.
+  # Hence image.repository should point at a mirror the cluster can always pull from (the default is Docker Hub),
+  # resources well above use (about 7 MiB measured), and only a lenient liveness probe:
+  # every restart makes the pod NotReady for a moment, and with externalTrafficPolicy Local its node leaves
+  # the load balancer, which can also move senders that were on other pods (for example with ECMP routing).
+  additionalContainers:
+    - name: udp-stats
+      image: {{ .image.repository }}:{{ .image.tag }}
+      args:
+        - --collector.disable-defaults
+        - --collector.netstat
+        - --collector.netstat.fields=^Udp6?_(InDatagrams|InErrors|RcvbufErrors|NoPorts)$
+        - --collector.udp_queues
+        - --collector.sysctl
+        - --collector.sysctl.include=net.core.rmem_default
+        - --collector.sysctl.include=net.core.rmem_max
+        - --web.listen-address=:{{ .port }}
+        - --web.disable-exporter-metrics
+      ports:
+        - name: udp-stats
+          containerPort: {{ .port }}
+          protocol: TCP
+      livenessProbe:
+        httpGet:
+          path: /
+          port: udp-stats
+        periodSeconds: 30
+        timeoutSeconds: 5
+        failureThreshold: 10
+      resources:
+        {{- toYaml .resources | nindent 8 }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+{{- end }}
+{{- end }}
 {{- if eq (include "externalCollector.tlsEnabled" .) "true" }}
   volumeMounts:
   - mountPath: /etc/ssl/syslog-tls
