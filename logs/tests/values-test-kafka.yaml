@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Kafka mode for tests/validate-collector-configs.sh: collectors export to Kafka and ingester collectors read from it.
+# Layered on top of values-test.yaml.
+openTelemetry:
+  kafka:
+    enabled: true
+    brokers:
+      - kafka.example:9093
+    encoding: otlp_proto
+    compression: gzip
+    protocol_version: 3.9.0
+    tls:
+      enabled: true
+      caSecret: kafka-ca
+      caSecretKey: ca.crt
+    users:
+      - name: write-all
+        type: producer
+        secret:
+          name: kafka-user-write-all
+          password: test
+      - name: read-all
+        type: consumer
+        secret:
+          name: kafka-user-read-all
+          password: test
+  auditKafka:
+    enabled: true
+    brokers:
+      - kafka-audit.example:9093
+    encoding: otlp_proto
+    compression: gzip
+    protocol_version: 3.9.0
+    tls:
+      enabled: true
+    users:
+      - name: write-all
+        type: producer
+        secret:
+          name: kafka-audit-user-write-all
+          password: test
+  logsCollector:
+    kafkaTopic: logs
+    kafkaStorageTopic: storage
+  externalCollector:
+    kafkaTopic: logs
+    kafkaTracesTopic: traces
+    externalHttpConfig:
+      kafkaTopic: audit
+    syslogConfig:
+      auditKafkaBrokers:
+        - kafka-audit.example:9094
+      auditKafkaTopic: syslog-audit
+      nonAuditKafkaTopic: syslog
+  ingesterCollector:
+    enabled: true
+    collectors:
+      syslog:
+        enabled: true
+        topic: syslog
+        replicas: 1
+        opensearch:
+          endpoint: https://opensearch.example:9200
+          failover_username_a: test
+          failover_password_a: test
+          failover_username_b: test
+          failover_password_b: test
+          tls:
+            caSecret: opensearch-ca
+            caSecretKey: ca.crt
+            insecure: false
