@@ -304,7 +304,7 @@ spec:
               - set(log.attributes["output"], log.cache["output"])
               - set(log.attributes["priority"], log.cache["priority"])
               - set(log.attributes["rule"], log.cache["rule"])
-              - set(log.attributes["source.address"], log.cache["source"])
+              - set(log.attributes["falco.source"], log.cache["source"])
               - set(log.attributes["tags"], log.cache["tags"])
               - set(log.time, Time(log.cache["time"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["time"] != nil
               # output_fields
