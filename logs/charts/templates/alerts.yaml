@@ -13,13 +13,32 @@ metadata:
   annotations:
 {{ toYaml $.Values.openTelemetry.prometheus.rules.annotations | indent 4 }}
 {{- end }}
+{{- /* Scope every rule to this install's own collectors: one Prometheus can hold several logs installs. */}}
+{{- $job := printf "%s/opentelemetry-collector-logs" .Release.Namespace }}
+{{- /* The export failure rules also cover the external collector (syslog and HTTP receivers). */}}
+{{- $exportJobs := printf "%s/opentelemetry-collector-(logs|external)" .Release.Namespace }}
+{{- $extJob := printf "%s/opentelemetry-collector-external" .Release.Namespace }}
+{{- /* Count each record once, where it is finally delivered or dropped, without depending on component names:
+       - failures count at components that have a sending_queue (an otelcol_exporter_queue_capacity series exists for
+         them). A queued component drops what it cannot deliver after its retries, so its send_failed is lost data.
+         An exporter without a queue returns its error to the caller: behind a failover connector the connector tries
+         the next level, and only the connector's own send_failed (both levels failed) is lost. A failover connector only
+         reports exporter metrics when it has a sending_queue, so it always counts here.
+       - delivered records count at exporters, not at failover connectors, which only hand records on to their levels.
+       last_over_time on the queue series keeps failures of pods that have already gone (rollout, crash) in the window.
+       rate() leaves out the first value of a send_failed series (it appears with the first failure), so the ratio rules
+       miss one-off failures; OTelExternalLogsDropped covers those for the external collector. */}}
+{{- $failedTpl := printf `rate(otelcol_exporter_send_failed_log_records_total{job=~"%s", exporter!="debug"}[__W__]) and on (job, pod, exporter) last_over_time(otelcol_exporter_queue_capacity{job=~"%s"}[__W__])` $exportJobs $exportJobs }}
+{{- $sentQueuedTpl := printf `rate(otelcol_exporter_sent_log_records_total{job=~"%s", exporter!="debug"}[__W__]) and on (job, pod, exporter) last_over_time(otelcol_exporter_queue_capacity{job=~"%s"}[__W__])` $exportJobs $exportJobs }}
+{{- $deliveredTpl := printf `rate(otelcol_exporter_sent_log_records_total{job=~"%s", exporter!~"debug|failover/.+"}[__W__])` $exportJobs }}
+{{- $logsDelivered := printf `otelcol_exporter_sent_log_records_total{job="%s", exporter!~"debug|failover/.+"}` $job }}
 spec:
   groups:
   - name: logs-plugin-alerts
     rules:
   {{- if (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: FilelogRefusedLogs
-        expr: sum(rate(otelcol_receiver_refused_log_records{receiver=~"filelog"}[1m])) > 0
+        expr: sum by (k8s_cluster_name) (rate(otelcol_receiver_refused_log_records_total{job="{{ $job }}", receiver=~"file_?log.*"}[5m])) > 0
         for: 5m
         labels:
           severity: warning
@@ -33,7 +52,7 @@ spec:
 
   {{- if (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: ReceiverRefusedLogs
-        expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records{job=~".*/opentelemetry-collector-logs"}[1m])) > 0
+        expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records_total{job="{{ $job }}"}[5m])) > 0
         for: 5m
         labels:
           context: logshipping
@@ -48,7 +67,7 @@ spec:
 
   {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: ReceiverRefusedMetric
-        expr: sum(rate(otelcol_receiver_refused_metric_points{}[1m])) > 0
+        expr: sum(rate(otelcol_receiver_refused_metric_points_total{job="metrics-collector-monitoring", namespace="{{ .Release.Namespace }}"}[5m])) > 0
         for: 5m
         labels:
           severity: warning
@@ -62,7 +81,7 @@ spec:
 
   {{- if (has "OTelLogsMissing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsMissing
-        expr: sum by (region, k8s_node_name, pod) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter !~"debug"}[60m])) == 0
+        expr: sum by (region, k8s_node_name, pod) (rate(otelcol_exporter_sent_log_records_total{job="{{ $job }}", exporter!~"debug"}[60m])) == 0
         for: 120m
         labels:
           context: logshipping
@@ -77,7 +96,7 @@ spec:
 
   {{- if and (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
       - alert: ReconcileErrors
-        expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
+        expr: sum by (namespace) (rate(controller_runtime_reconcile_total{namespace="{{ .Release.Namespace }}", controller="opentelemetrycollector", result="error"}[5m])) > 0
         for: 5m
         labels:
           severity: warning
@@ -90,21 +109,25 @@ spec:
 
   {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
       - alert: WorkqueueDepth
-        expr: rate(workqueue_depth{controller="opentelemetrycollector"}[5m]) > 0
+        # workqueue_depth is a gauge that is normally 0 and spikes for a minute or two after a change. A queue that has
+        # not been empty once in 15m means reconciles are stuck.
+        expr: max by (namespace) (min_over_time(workqueue_depth{namespace="{{ .Release.Namespace }}", name="opentelemetrycollector"}[15m])) > 0
         for: 5m
         labels:
           severity: warning
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          summary: WorkqueueDepth is increasing
-          description: Check OTel manager logs for reasons why this might happen
+          summary: OpenTelemetryCollector reconcile queue is not draining
+          description: The operator's opentelemetrycollector work queue has not been empty for 20 minutes. Check OTel manager logs for reasons why this might happen
   {{- end }}
 
   {{- if (has "OTelLogsIncreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsIncreasing
-        expr: sum(increase(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) / sum(increase(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name) > 4
-        for: 6h
+        # The condition can only hold while the last hour is new and the hour 2h ago is not yet, about 80m for a 5x step,
+        # so "for" has to stay well below that.
+        expr: sum by (k8s_cluster_name) (increase({{ $logsDelivered }}[1h])) / sum by (k8s_cluster_name) (increase({{ $logsDelivered }}[1h] offset 2h)) > 4
+        for: 30m
         labels:
           context: logshipping
           severity: info
@@ -112,14 +135,14 @@ spec:
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times more logs in the last 6h. Please check.'
+          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} sent more than 4 times as many logs in the last hour as in the same hour 2h earlier. Please check.'
           summary: OTel log volume is increasing, check log volume.
   {{- end }}
 
   {{- if (has "OTelLogsDecreasing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsDecreasing
-        expr: sum(rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h]offset 2h)) by (k8s_cluster_name)/sum(rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) > 4
-        for: 2h
+        expr: sum by (k8s_cluster_name) (rate({{ $logsDelivered }}[1h] offset 2h)) / sum by (k8s_cluster_name) (rate({{ $logsDelivered }}[1h])) > 4
+        for: 30m
         labels:
           context: logshipping
           severity: warning
@@ -127,13 +150,19 @@ spec:
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times fewer logs in the last 2h. Please check.'
+          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} sent less than a quarter of the logs in the last hour that they sent in the same hour 2h earlier. Please check.'
           summary: OTel log volume is decreasing, check log volume.
   {{- end }}
 
   {{- if (has "OTelLogsExportingFailed" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsExportingFailed
-        expr: sum(increase(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name)/ sum(increase(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs"}[1h]) + increase(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs"}[1h])) by (k8s_cluster_name) < 0.9
+        expr: |
+          sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "1h" }})
+          /
+          (
+            sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "1h" }})
+            + sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "1h" }})
+          ) < 0.9
         for: 1h
         labels:
           context: logshipping
@@ -142,7 +171,7 @@ spec:
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
+          description: 'OTel Collectors ({{`{{ $labels.job }}`}}) on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
           summary: OTel log exporting is failing. Check logs and exporter connectivity.
   {{- end }}
 
@@ -150,52 +179,52 @@ spec:
       - alert: OTelLogsSLOBurnRateCritical
         expr: |
           (
-            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+            sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "1h" }})
             /
             (
-              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
-              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[1h]))
+              sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "1h" }})
+              + sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "1h" }})
             )
           ) > (14 * 0.005)
-          and on(k8s_cluster_name)
+          and on (k8s_cluster_name, job)
           (
-            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+            sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "5m" }})
             /
             (
-              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
-              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[5m]))
+              sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "5m" }})
+              + sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "5m" }})
             )
           ) > (14 * 0.005)
         for: 2m
         labels:
           context: logshipping
-          severity: info
+          severity: warning
           no_alert_on_absence: "true"
           playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate critical (14x)
-          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+          description: 'OTel Collectors ({{`{{ $labels.job }}`}}) on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
   {{- end }}
 
   {{- if (has "OTelLogsSLOBurnRateWarning" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsSLOBurnRateWarning
         expr: |
           (
-            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+            sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "6h" }})
             /
             (
-              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
-              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[6h]))
+              sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "6h" }})
+              + sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "6h" }})
             )
           ) > (6 * 0.005)
-          and on(k8s_cluster_name)
+          and on (k8s_cluster_name, job)
           (
-            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+            sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "30m" }})
             /
             (
-              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
-              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}[30m]))
+              sum by (k8s_cluster_name, job) ({{ $deliveredTpl | replace "__W__" "30m" }})
+              + sum by (k8s_cluster_name, job) ({{ $failedTpl | replace "__W__" "30m" }})
             )
           ) > (6 * 0.005)
         for: 15m
@@ -207,33 +236,18 @@ spec:
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate elevated (6x)
-          description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+          description: 'OTel Collectors ({{`{{ $labels.job }}`}}) on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
   {{- end }}
 
   {{- if (has "OTelLogsExportFailureRatioHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsExportFailureRatioHigh
+        # Per component that counts failures (see above), against what that component itself sent.
         expr: |
-          sum by (k8s_cluster_name, exporter) (
-            rate(otelcol_exporter_send_failed_log_records{
-              job=~".*/opentelemetry-collector-logs",
-              exporter!~"debug"
-            }[10m])
-          )
+          sum by (k8s_cluster_name, job, exporter) ({{ $failedTpl | replace "__W__" "10m" }})
           /
           (
-            sum by (k8s_cluster_name, exporter) (
-              rate(otelcol_exporter_sent_log_records{
-                job=~".*/opentelemetry-collector-logs",
-                exporter!~"debug"
-              }[10m])
-            )
-            +
-            sum by (k8s_cluster_name, exporter) (
-              rate(otelcol_exporter_send_failed_log_records{
-                job=~".*/opentelemetry-collector-logs",
-                exporter!~"debug"
-              }[10m])
-            )
+            sum by (k8s_cluster_name, job, exporter) ({{ $sentQueuedTpl | replace "__W__" "10m" }})
+            + sum by (k8s_cluster_name, job, exporter) ({{ $failedTpl | replace "__W__" "10m" }})
           ) > 0.1
         for: 5m
         labels:
@@ -244,19 +258,59 @@ spec:
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel export failure ratio above 10% for exporter {{`{{ $labels.exporter }}`}}'
-          description: 'OTel collector on {{`{{ $labels.k8s_cluster_name }}`}} has >10% export failures on exporter {{`{{ $labels.exporter }}`}} for 5+ minutes. Current failure ratio: {{`{{ $value | humanizePercentage }}`}}.'
+          description: 'OTel collector ({{`{{ $labels.job }}`}}) on {{`{{ $labels.k8s_cluster_name }}`}} has >10% export failures on exporter {{`{{ $labels.exporter }}`}} for 5+ minutes. Current failure ratio: {{`{{ $value | humanizePercentage }}`}}.'
+  {{- end }}
+
+  {{- if (has "OTelExternalLogsDropped" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelExternalLogsDropped
+        # The external collector ships billions of records a day, so a burst that drops tens of thousands of records stays
+        # far below the ratio thresholds above. Records it drops after its queue are lost for good (syslog and HTTP senders
+        # do not resend what was accepted), so alert on any. A send_failed series only appears with the first failure, and
+        # a pod in a crash loop can be gone after one or two scrapes, so a series seen for the first time in the window
+        # counts as well, but only on a pod that was scraped in the hour before or whose process is younger than 30m: after
+        # a long scrape gap or on an empty TSDB an old, flat counter must not look new.
+        expr: |
+          sum by (k8s_cluster_name, exporter) (
+            increase(otelcol_exporter_send_failed_log_records_total{job="{{ $extJob }}", exporter!="debug"}[15m])
+            and on (job, pod, exporter) last_over_time(otelcol_exporter_queue_capacity{job="{{ $extJob }}"}[15m])
+          ) > 0
+          or
+          sum by (k8s_cluster_name, exporter) (
+            (
+              last_over_time(otelcol_exporter_send_failed_log_records_total{job="{{ $extJob }}", exporter!="debug"}[15m])
+              unless
+              last_over_time(otelcol_exporter_send_failed_log_records_total{job="{{ $extJob }}", exporter!="debug"}[1h] offset 15m)
+            )
+            and on (job, pod)
+            (
+              group by (job, pod) (last_over_time(otelcol_process_uptime_seconds_total{job="{{ $extJob }}"}[1h] offset 15m))
+              or
+              group by (job, pod) (min_over_time(otelcol_process_uptime_seconds_total{job="{{ $extJob }}"}[15m]) < 900)
+            )
+            and on (job, pod, exporter) last_over_time(otelcol_exporter_queue_capacity{job="{{ $extJob }}"}[15m])
+          ) > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'External collector dropped log records on exporter {{`{{ $labels.exporter }}`}}'
+          description: 'The external collector on {{`{{ $labels.k8s_cluster_name }}`}} could not export log records on {{`{{ $labels.exporter }}`}} and dropped them in the last 15 minutes. These records are lost.'
   {{- end }}
 
   {{- if (has "OTelExporterQueueFilling" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelExporterQueueFilling
         expr: |
           (
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_size{job="{{ $job }}", exporter!="debug"}
             /
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_capacity{job="{{ $job }}", exporter!="debug"}
           ) > 0.8
           and
-          otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
+          otelcol_exporter_queue_capacity{job="{{ $job }}", exporter!="debug"} > 0
         for: 5m
         labels:
           context: logshipping
@@ -273,12 +327,12 @@ spec:
       - alert: OTelExporterQueueFull
         expr: |
           (
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_size{job="{{ $job }}", exporter!="debug"}
             /
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_capacity{job="{{ $job }}", exporter!="debug"}
           ) >= 1.0
           and
-          otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
+          otelcol_exporter_queue_capacity{job="{{ $job }}", exporter!="debug"} > 0
         for: 2m
         labels:
           context: logshipping
@@ -296,21 +350,21 @@ spec:
         expr: |
           (
             sum by (k8s_cluster_name) (
-              rate(otelcol_receiver_accepted_log_records{
-                job=~".*/opentelemetry-collector-logs"
+              rate(otelcol_receiver_accepted_log_records_total{
+                job="{{ $job }}"
               }[5m])
             )
             /
             sum by (k8s_cluster_name) (
-              rate(otelcol_receiver_accepted_log_records{
-                job=~".*/opentelemetry-collector-logs"
+              rate(otelcol_receiver_accepted_log_records_total{
+                job="{{ $job }}"
               }[1h] offset 1h)
             )
           ) > 5
           and on(k8s_cluster_name)
           sum by (k8s_cluster_name) (
-            rate(otelcol_receiver_accepted_log_records{
-              job=~".*/opentelemetry-collector-logs"
+            rate(otelcol_receiver_accepted_log_records_total{
+              job="{{ $job }}"
             }[1h] offset 1h)
           ) > 0
         for: 5m
@@ -330,25 +384,16 @@ spec:
         expr: |
           (
             sum by (k8s_cluster_name) (
-              rate(otelcol_exporter_sent_log_records{
-                job=~".*/opentelemetry-collector-logs",
-                exporter!~"debug"
-              }[10m])
+              rate({{ $logsDelivered }}[10m])
             )
             /
             sum by (k8s_cluster_name) (
-              rate(otelcol_exporter_sent_log_records{
-                job=~".*/opentelemetry-collector-logs",
-                exporter!~"debug"
-              }[1h] offset 1h)
+              rate({{ $logsDelivered }}[1h] offset 1h)
             )
           ) < 0.2
           and on(k8s_cluster_name)
           sum by (k8s_cluster_name) (
-            rate(otelcol_exporter_sent_log_records{
-              job=~".*/opentelemetry-collector-logs",
-              exporter!~"debug"
-            }[1h] offset 1h)
+            rate({{ $logsDelivered }}[1h] offset 1h)
           ) > 0
         for: 10m
         labels:

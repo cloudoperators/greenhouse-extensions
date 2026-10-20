@@ -1,0 +1,2060 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# promtool unit tests for templates/alerts.yaml, run by test-alerts.sh against the rules rendered for namespace "logs".
+# The series use the label sets the collectors export: send_failed carries error_type/error_permanent, a failover
+# connector reports next to its per-level exporters, and only components with a sending_queue have queue_capacity.
+# Every alert is checked in every case, so a case also proves that the other rules stay silent.
+
+rule_files:
+  - rules.yaml
+evaluation_interval: 1m
+tests:
+  # loss behind a failover connector whose levels have no queue: Both levels skipped: the connector drops 19% (send_failed); the levels only see the failures that triggered failover. Counted once, at the connector.
+  - name: 'loss behind a failover connector whose levels have no queue'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+4980x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",error_type="_OTHER",error_permanent="false"}'
+        values: '0+1176x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+4980x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '0+5x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_b",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '0+1x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'failover/opensearch'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter failover/opensearch for 5+ minutes. Current failure ratio: 19.1%.'
+              summary: 'OTel export failure ratio above 10% for exporter failover/opensearch'
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # level a fails, level b delivers: No queue on the levels: the connector hands every record to level b, nothing is lost and nothing may fire.
+  - name: 'level a fails, level b delivers'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_b"}'
+        values: '0+5000x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # loss after the queue of queued per-level exporters: Levels with a sending_queue: the connector only sees "queued", 20% is dropped after level a's queue.
+  - name: 'loss after the queue of queued per-level exporters'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+4000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '0+1000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_b",data_type="logs"}'
+        values: '1000x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'opensearch/failover_a'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter opensearch/failover_a for 5+ minutes. Current failure ratio: 20%.'
+              summary: 'OTel export failure ratio above 10% for exporter opensearch/failover_a'
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # storage path with queued levels: Same shape on the storage path: loss at storage_failover_a fires there.
+  - name: 'storage path with queued levels'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch_storage",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch_storage"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a"}'
+        values: '0+4000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '0+1000x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'opensearch/storage_failover_a'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter opensearch/storage_failover_a for 5+ minutes. Current failure ratio: 20%.'
+              summary: 'OTel export failure ratio above 10% for exporter opensearch/storage_failover_a'
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # healthy paths are not double counted: Connector and queued level both report sent; delivered counts only at the level, so nothing fires.
+  - name: 'healthy paths are not double counted'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch_storage",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch_storage"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+800x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+800x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+2000x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # kafka exporter failing: Kafka exporters have a queue and count directly.
+  - name: 'kafka exporter failing'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+100x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",error_type="Unavailable",error_permanent="false"}'
+        values: '0+100x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'kafka'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter kafka for 5+ minutes. Current failure ratio: 50%.'
+              summary: 'OTel export failure ratio above 10% for exporter kafka'
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # another install in the same Prometheus: Rules of the install in namespace "logs" ignore failures and operator errors of the install in "other-logs".
+  - name: 'another install in the same Prometheus'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="other-logs/opentelemetry-collector-logs",namespace="other-logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="other-logs/opentelemetry-collector-logs",namespace="other-logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+1000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="other-logs/opentelemetry-collector-logs",namespace="other-logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",error_type="_OTHER",error_permanent="false"}'
+        values: '0+1000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="other-logs/opentelemetry-collector-logs",namespace="other-logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+1000x420'
+      - series: 'controller_runtime_reconcile_total{job="other-logs-opentelemetry-operator",namespace="other-logs",controller="opentelemetrycollector",result="error"}'
+        values: '0+10x420'
+      - series: 'workqueue_depth{job="other-logs-opentelemetry-operator",namespace="other-logs",name="opentelemetrycollector",controller="opentelemetrycollector"}'
+        values: '5x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # rollout: a pod is replaced: logs-collector-a goes away at 200m with 20% loss on its connector until then, logs-collector-b starts healthy. The failures of the gone pod still count while they are in the window, and the replacement does not look like a volume change.
+  - name: 'rollout: a pod is replaced'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x200'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+800x200'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",error_type="_OTHER",error_permanent="false"}'
+        values: '0+200x200'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+800x200'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '_x200 1000x220'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '_x200 0+1000x220'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '_x200 0+1000x220'
+    alert_rule_test:
+      - eval_time: 203m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 203m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 203m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 203m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'failover/opensearch'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter failover/opensearch for 5+ minutes. Current failure ratio: 14.29%.'
+              summary: 'OTel export failure ratio above 10% for exporter failover/opensearch'
+      - eval_time: 203m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # rollout: an hour after the replacement: Same series at 420m: the old pod's failures are only left in the 6h window, so nothing fires.
+  - name: 'rollout: an hour after the replacement'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x200'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+800x200'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",error_type="_OTHER",error_permanent="false"}'
+        values: '0+200x200'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+800x200'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '_x200 1000x220'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '_x200 0+1000x220'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-b",k8s_cluster_name="cluster-a",k8s_node_name="node-b",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '_x200 0+1000x220'
+    alert_rule_test:
+      - eval_time: 420m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector drops records in a crash loop: Pods restart, each send_failed series lives for one or two scrapes. Far below any ratio threshold, but the records are lost.
+  - name: 'external collector drops records in a crash loop'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",data_type="logs"}'
+        values: '1000x101'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit"}'
+        values: '0+3000000x100 300003000'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib"}'
+        values: '_x95 0+60x6'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '_x100 0+60x320'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '_x99 5091 22293'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit"}'
+        values: '0+3000000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '_x109 23140'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-2",k8s_cluster_name="cluster-a",k8s_node_name="node-2",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-2",k8s_cluster_name="cluster-a",k8s_node_name="node-2",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000000x420'
+    alert_rule_test:
+      - eval_time: 108m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelExternalLogsDropped
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'kafka/syslog_non_audit'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'The external collector on cluster-a could not export log records on kafka/syslog_non_audit and dropped them in the last 15 minutes. These records are lost.'
+              summary: 'External collector dropped log records on exporter kafka/syslog_non_audit'
+      - eval_time: 108m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector crash loop: the pod seen once: Same series at 116m: pod-0 is out of the window, only pod-1's single sample (a young process) is left.
+  - name: 'external collector crash loop: the pod seen once'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",data_type="logs"}'
+        values: '1000x101'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit"}'
+        values: '0+3000000x100 300003000'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib"}'
+        values: '_x95 0+60x6'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '_x100 0+60x320'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '_x99 5091 22293'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit"}'
+        values: '0+3000000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_non_audit",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '_x109 23140'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-2",k8s_cluster_name="cluster-a",k8s_node_name="node-2",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-2",k8s_cluster_name="cluster-a",k8s_node_name="node-2",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000000x420'
+    alert_rule_test:
+      - eval_time: 116m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelExternalLogsDropped
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'kafka/syslog_non_audit'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'The external collector on cluster-a could not export log records on kafka/syslog_non_audit and dropped them in the last 15 minutes. These records are lost.'
+              summary: 'External collector dropped log records on exporter kafka/syslog_non_audit'
+      - eval_time: 116m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector: a single first failure: One failed batch on a healthy pod creates the send_failed series; its first value counts.
+  - name: 'external collector: a single first failure'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000x420'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '86400+60x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '_x100 500x100'
+    alert_rule_test:
+      - eval_time: 106m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelExternalLogsDropped
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'kafka/syslog_audit'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'The external collector on cluster-a could not export log records on kafka/syslog_audit and dropped them in the last 15 minutes. These records are lost.'
+              summary: 'External collector dropped log records on exporter kafka/syslog_audit'
+      - eval_time: 106m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector: old failures and a scrape gap: A send_failed counter from an old failure stays flat; a scrape outage (stale, then 8m without samples) must not make it look new.
+  - name: 'external collector: old failures and a scrape gap'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000x100 stale _x8 110000+1000x100'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '86400+60x100 stale _x8 93000+60x100'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '500x100 stale _x8 500x100'
+    alert_rule_test:
+      - eval_time: 123m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector: old failures and a long scrape gap: An 80m outage: the flat counter of an old failure is not seen in the hour before, but neither is the pod, and its process is old.
+  - name: 'external collector: old failures and a long scrape gap'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000x100 stale _x79 181000+1000x100'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '86400+60x100 stale _x79 97260+60x100'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '500x100 stale _x79 500x100'
+    alert_rule_test:
+      - eval_time: 190m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector: empty TSDB: A Prometheus that starts with no history sees an old, flat failure counter on a long-running pod for the first time.
+  - name: 'external collector: empty TSDB'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000x420'
+      - series: 'otelcol_process_uptime_seconds_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '86400+60x60'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib",exporter="kafka/syslog_audit",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '500x60'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # external collector of another install: Drops at the external collector in namespace "other-logs" do not fire for the install in "logs".
+  - name: 'external collector of another install'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+1000x420'
+      - series: 'otelcol_process_uptime_seconds_total{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib"}'
+        values: '0+60x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_audit",error_type="Deadline_Exceeded",error_permanent="true"}'
+        values: '_x100 500+500x100'
+    alert_rule_test:
+      - eval_time: 110m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # operator reconcile errors and a stuck work queue: Scoped to the operator in this install's namespace.
+  - name: 'operator reconcile errors and a stuck work queue'
+    interval: 1m
+    input_series:
+      - series: 'controller_runtime_reconcile_total{job="logs-opentelemetry-operator",namespace="logs",controller="opentelemetrycollector",result="error"}'
+        values: '0+10x60'
+      - series: 'workqueue_depth{job="logs-opentelemetry-operator",namespace="logs",name="opentelemetrycollector",controller="opentelemetrycollector"}'
+        values: '3x60'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReconcileErrors
+        exp_alerts:
+          - exp_labels:
+              namespace: 'logs'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'Reconciliation errors for OTel are increasing'
+              summary: 'OpenTelemetryCollector Reconciliation'
+      - eval_time: 30m
+        alertname: WorkqueueDepth
+        exp_alerts:
+          - exp_labels:
+              namespace: 'logs'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'The operator''s opentelemetrycollector work queue has not been empty for 20 minutes. Check OTel manager logs for reasons why this might happen'
+              summary: 'OpenTelemetryCollector reconcile queue is not draining'
+      - eval_time: 30m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # operator work queue spikes: A queue that fills for a minute or two after a change and drains again is normal.
+  - name: 'operator work queue spikes'
+    interval: 1m
+    input_series:
+      - series: 'workqueue_depth{job="logs-opentelemetry-operator",namespace="logs",name="opentelemetrycollector",controller="opentelemetrycollector"}'
+        values: '0x10 2 1 0x10 3 0x20 1 1 0x20'
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # volume steps up 5x: The condition holds for about 80m after a 5x step; "for" is 30m.
+  - name: 'volume steps up 5x'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x400'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+1000x199 200000+5000x199'
+    alert_rule_test:
+      - eval_time: 300m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsIncreasing
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors on cluster-a sent more than 4 times as many logs in the last hour as in the same hour 2h earlier. Please check.'
+              summary: 'OTel log volume is increasing, check log volume.'
+      - eval_time: 300m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # volume drops 5x
+  - name: 'volume drops 5x'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x400'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+5000x199 1000000+1000x199'
+    alert_rule_test:
+      - eval_time: 300m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsDecreasing
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors on cluster-a sent less than a quarter of the logs in the last hour that they sent in the same hour 2h earlier. Please check.'
+              summary: 'OTel log volume is decreasing, check log volume.'
+      - eval_time: 300m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # volume bump of 40 minutes: A 6x bump for 40m holds the condition from about 236m to 264m, under 30m like the runs seen live (up to 25m), so it is still pending at 262m.
+  - name: 'volume bump of 40 minutes'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x400'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+1000x199 200000+6000x39 440000+1000x159'
+    alert_rule_test:
+      - eval_time: 262m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # receivers refuse records
+  - name: 'receivers refuse records'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_receiver_refused_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",receiver="file_log/containerd"}'
+        values: '0+100x60'
+      - series: 'otelcol_receiver_refused_metric_points_total{job="metrics-collector-monitoring",namespace="logs",receiver="prometheus"}'
+        values: '0+100x60'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FilelogRefusedLogs
+        exp_alerts:
+          - exp_labels:
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'Filelog receiver is increasingly rejecting logs'
+              summary: 'Logs are not successfully pushed into the filelog-receiver'
+      - eval_time: 30m
+        alertname: ReceiverRefusedLogs
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedLogs.md'
+              receiver: 'file_log/containerd'
+              severity: 'info'
+            exp_annotations:
+              description: 'The file_log/containerd receiver on cluster-a is rejecting log records. Check the receiver configuration and the log source on affected nodes.'
+              summary: 'OTel receiver file_log/containerd is refusing log records on cluster-a'
+      - eval_time: 30m
+        alertname: ReceiverRefusedMetric
+        exp_alerts:
+          - exp_labels:
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'The OTel Collector has refused metric points for over 5 minutes. This may indicate malformed metrics. Review configuration and incoming traffic for issues.'
+              summary: 'OTel is refusing metric points'
+      - eval_time: 30m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # a pod stops shipping
+  - name: 'a pod stops shipping'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '1000x260'
+    alert_rule_test:
+      - eval_time: 250m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsMissing
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_node_name: 'node-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md'
+              pod: 'logs-collector-a'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors on node-a in  are not shipping logs. Please check.'
+              summary: 'OTel is not shipping logs'
+      - eval_time: 250m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # exporter queue full
+  - name: 'exporter queue full'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_size{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x60'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x60'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFilling
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              data_type: 'logs'
+              exporter: 'kafka'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              k8s_node_name: 'node-a'
+              namespace: 'logs'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md'
+              pod: 'logs-collector-a'
+              service_name: 'otelcol-contrib'
+              severity: 'info'
+            exp_annotations:
+              description: 'Queue for exporter kafka on node-a is at 100% capacity. If this reaches 100% with block_on_overflow=true, the collector will stall.'
+              summary: 'OTel exporter queue kafka is above 80% capacity'
+      - eval_time: 30m
+        alertname: OTelExporterQueueFull
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              data_type: 'logs'
+              exporter: 'kafka'
+              job: 'logs/opentelemetry-collector-logs'
+              k8s_cluster_name: 'cluster-a'
+              k8s_node_name: 'node-a'
+              namespace: 'logs'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md'
+              pod: 'logs-collector-a'
+              service_name: 'otelcol-contrib'
+              severity: 'info'
+            exp_annotations:
+              description: 'Exporter queue kafka on node-a is 100% full. New log records are blocked. Immediate action required.'
+              summary: 'OTel exporter queue kafka is full — pipeline stalled'
+      - eval_time: 30m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+  # volume spike and fast drop
+  - name: 'volume spike and fast drop'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_receiver_accepted_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",receiver="file_log/containerd"}'
+        values: '0+10x150 1500+1000x30'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+1000x150 150000+1x30'
+    alert_rule_test:
+      - eval_time: 175m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'Cluster cluster-a is receiving logs at 5x the hourly baseline rate. This may indicate a logging misconfiguration, a noisy application, or a log injection attempt.'
+              summary: 'Log volume on cluster-a is 5x above baseline'
+      - eval_time: 175m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel on cluster-a is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
+              summary: 'Log volume dropped >80% vs 1h baseline on cluster-a'
+  # healthy install: Steady traffic on every path, no failures: nothing fires.
+  - name: 'healthy install'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="failover/opensearch"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="opensearch/failover_a"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+3000x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_audit",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib",exporter="kafka/syslog_audit"}'
+        values: '0+30000x420'
+      - series: 'otelcol_receiver_accepted_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",receiver="file_log/containerd"}'
+        values: '0+8000x420'
+      - series: 'workqueue_depth{job="logs-opentelemetry-operator",namespace="logs",name="opentelemetrycollector",controller="opentelemetrycollector"}'
+        values: '0x420'
+      - series: 'controller_runtime_reconcile_total{job="logs-opentelemetry-operator",namespace="logs",controller="opentelemetrycollector",result="error"}'
+        values: '7x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
