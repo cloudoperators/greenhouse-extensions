@@ -436,6 +436,8 @@ transform/syslog_hostname_parsing:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
         # Set audit source to ESXi if node name was extracted
         - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
+        # Set audit source to remoteboard for node names matching nodeNNNr-...
+        - 'set(log.attributes["sap.cc.audit.source"], "remoteboard") where log.attributes["node_nodename"] != nil and IsMatch(log.attributes["node_nodename"], "^node[0-9]{3,5}r-.*$")'
         # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
         - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl.*")'
         - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl.*")'
