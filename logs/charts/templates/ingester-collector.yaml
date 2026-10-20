@@ -129,6 +129,10 @@ spec:
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
+          # the kafka receiver has no defaults for these: multiplier 0 makes every retry after the first one
+          # immediate, randomization_factor 0 only removes the jitter
+          multiplier: 1.5
+          randomization_factor: 0.5
     processors:
       memory_limiter:
         check_interval: 5s
