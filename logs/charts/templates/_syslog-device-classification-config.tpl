@@ -305,6 +305,16 @@ transform/syslog_device_classification:
         - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and IsMatch(log.attributes["_mb"], "CEF:[0-9]+\\|Fortinet\\|")'
+      statements:
+        - 'set(log.attributes["_forti_host"], ExtractPatterns(log.attributes["_mb"], "(?:^|[|\\s])dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]*)(?:\\s|$)")["h"]) where IsMatch(log.attributes["_mb"], "(?:^|[|\\s])dvchost=[A-Za-z0-9]")'
+        - 'set(log.attributes["_forti_host"], log.attributes["dvchost"]) where log.attributes["_forti_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]*$")'
+        - 'set(log.attributes["_forti_host"], ExtractPatterns(log.body, "<\\d+>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2} (?P<h>[A-Za-z0-9][A-Za-z0-9._-]+) CEF:")["h"]) where log.attributes["_forti_host"] == nil and log.body != nil and IsMatch(log.body, "<\\d+>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2} \\S+ CEF:")'
+        - 'set(resource.attributes["host.name"], log.attributes["_forti_host"]) where log.attributes["_forti_host"] != nil and log.attributes["_forti_host"] != ""'
+        - 'set(log.attributes["_host_resolved"], "true") where log.attributes["_forti_host"] != nil'
+        - 'delete_key(log.attributes, "_forti_host") where log.attributes["_forti_host"] != nil'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
       statements:
         # Pick a single source to avoid the duplicated message/body double-match.

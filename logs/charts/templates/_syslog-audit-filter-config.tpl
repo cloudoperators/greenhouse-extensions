@@ -111,11 +111,13 @@ transform/syslog_semconv_normalization:
         # Syslog fields
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil and IsMatch(log.attributes["facility"], "^[0-9]+$")'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
+        - 'replace_pattern(attributes["syslog.host.name"], "\\..*", "") where attributes["syslog.host.name"] != nil and IsString(attributes["syslog.host.name"]) and IsMatch(attributes["syslog.host.name"], "\\.")'
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
         - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and resource.attributes["host.name"] == nil'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ":")'
+        - 'replace_pattern(resource.attributes["host.name"], "\\..*", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], "\\.")'
 
 {{/*
   ============================================================================
@@ -438,7 +440,7 @@ transform/syslog_hostname_parsing:
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
         - 'set(log.attributes["syslog.host.name"], resource.attributes["host.name"]) where log.attributes["syslog.host.name"] == nil and log.attributes["hostname"] != nil and resource.attributes["host.name"] != nil and log.attributes["hostname"] != resource.attributes["host.name"]'
-        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != ""'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != "" and log.attributes["_host_resolved"] != "true"'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
