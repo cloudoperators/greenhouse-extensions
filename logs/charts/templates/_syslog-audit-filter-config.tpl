@@ -146,11 +146,12 @@ transform/syslog_drop_legacy_fields:
         # Syslog fields
         - 'delete_key(log.attributes, "facility") where log.attributes["syslog.facility.code"] != nil'
         - 'delete_key(log.attributes, "facility_text") where log.attributes["syslog.facility.name"] != nil'
-        # Drop raw syslog_timestamp only when a valid timestamp was parsed into time_unix_nano.
+        # Drop raw syslog_timestamp once time_unix_nano is set (parsed or observed fallback).
         # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
-        # (strict_date_optional_time||epoch_millis). Keeping it when time_unix_nano == 0
-        # preserves the only timing info available for that log.
-        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
+        # (strict_date_optional_time||epoch_millis). Kept when the parsed time was out of bounds and
+        # replaced (_time_replaced, see transform/syslog_observed_timestamp_fallback).
+        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0 and log.attributes["_time_replaced"] == nil'
+        - 'delete_key(log.attributes, "_time_replaced") where log.attributes["_time_replaced"] != nil'
 
         # Resource-mapped: hostname → resource.host.name
         - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
@@ -285,7 +286,7 @@ transform/octobus_to_fortlogs_normalization:
 
         # ===== TIMESTAMPS (string pass-through; formats vary per vendor) =====
         - 'set(log.attributes["event.received"], log.attributes["rt"]) where log.attributes["rt"] != nil'
-        - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil'
+        - 'set(log.attributes["event.created"], log.attributes["gt"]) where log.attributes["gt"] != nil and log.attributes["event.created"] == nil'
         # Drop raw rt (mixed epoch/ISO -> long parse failures; value kept in event.received).
         - 'delete_key(log.attributes, "rt") where log.attributes["rt"] != nil'
         - 'delete_key(log.attributes, "event.received") where log.attributes["event.received"] != nil'
@@ -363,7 +364,7 @@ transform/cef_parsing:
         # Event Attributes
         - 'set(log.attributes["event.action"], ConvertCase(ExtractPatterns(log.attributes["message"], "(?:^| )act=(?P<v>[^ ]+)")["v"], "lower")) where IsMatch(log.attributes["message"], "(?:^| )act=")'
         - 'set(log.attributes["event.category"], "network") where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
-        - 'set(log.attributes["event.created"], Time(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "%b %d %Y %H:%M:%S %Z")) where IsMatch(log.attributes["message"], "(?:^| )rt=")'
+        - 'set(log.attributes["event.created"], Time(ExtractPatterns(log.attributes["message"], "(?:^| )rt=(?P<v>[A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} [A-Za-z]+)")["v"], "%b %d %Y %H:%M:%S %Z")) where IsMatch(log.attributes["message"], "(?:^| )rt=") and log.attributes["event.created"] == nil'
         - 'set(log.attributes["event.type"], ExtractPatterns(log.attributes["message"], "(?:^| )event_type=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )event_type=")'
         - 'set(log.attributes["event.description"], ExtractPatterns(log.attributes["message"], "(?:^| )subject=(?P<v>[^ ]+)")["v"]) where IsMatch(log.attributes["message"], "(?:^| )subject=")'
         # Hardware
@@ -590,8 +591,21 @@ transform/syslog_user_normalization:
         # Guard reads `user` directly; reading user.name off a string returns nil in OTTL.
         - 'delete_key(log.attributes, "user") where log.attributes["user"] != nil'
 
-# Uses observedTimestamp as fallback when no timestamp could be parsed from the log body
-# (e.g. unknown format logs that end up with @timestamp = 1970-01-01T00:00:00Z)
+# Timestamp fallback against observed_time (set by this collector's receiver, so Kafka and
+# downstream lag do not count):
+# - time 0 (nothing parsed): use observed_time.
+# - time outside syslogConfig.timestampBounds (default 15m ahead, 168h behind): copy it to
+#   event.created unless already set, then use observed_time; the time is only replaced once
+#   event.created is set. Seen with corrupted header years (they wrap around int64 ns, so
+#   event.created holds the wrapped date; the raw header stays in the body), local-time headers
+#   ahead of UTC, and events replayed later than maxPast.
+# Replaced records have log.time equal to observed_time; out-of-bounds ones also have event.created.
+{{- $bounds := .Values.openTelemetry.externalCollector.syslogConfig.timestampBounds | default dict }}
+{{- range $k := list "maxFuture" "maxPast" }}
+{{- if not (regexMatch "^[0-9]{1,6}(\\.[0-9]+)?(h|m|s)$" (toString (index $bounds $k))) }}
+{{- fail (printf "openTelemetry.externalCollector.syslogConfig.timestampBounds.%s must be one number of at most 6 digits with unit h, m or s, such as 15m or 168h, got %v" $k (index $bounds $k)) }}
+{{- end }}
+{{- end }}
 transform/syslog_observed_timestamp_fallback:
   error_mode: ignore
   log_statements:
@@ -600,6 +614,13 @@ transform/syslog_observed_timestamp_fallback:
         - 'log.time_unix_nano == 0'
       statements:
         - 'set(log.time_unix_nano, log.observed_time_unix_nano)'
+    - context: log
+      conditions:
+        - 'log.observed_time_unix_nano > 0 and (log.time > log.observed_time + Duration("{{ $bounds.maxFuture }}") or log.time < log.observed_time - Duration("{{ $bounds.maxPast }}"))'
+      statements:
+        - 'set(log.attributes["event.created"], FormatTime(log.time, "%Y-%m-%dT%H:%M:%S.%fZ")) where log.attributes["event.created"] == nil'
+        - 'set(log.attributes["_time_replaced"], "true") where log.attributes["event.created"] != nil'
+        - 'set(log.time_unix_nano, log.observed_time_unix_nano) where log.attributes["_time_replaced"] == "true"'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}
