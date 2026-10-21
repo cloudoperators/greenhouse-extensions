@@ -111,11 +111,13 @@ transform/syslog_semconv_normalization:
         # Syslog fields
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["facility"])) where log.attributes["syslog.facility.code"] == nil and log.attributes["facility"] != nil and IsMatch(log.attributes["facility"], "^[0-9]+$")'
         - 'set(log.attributes["syslog.facility.name"], log.attributes["facility_text"]) where log.attributes["syslog.facility.name"] == nil and log.attributes["facility_text"] != nil'
+        - 'replace_pattern(attributes["syslog.host.name"], "\\..*", "") where attributes["syslog.host.name"] != nil and IsString(attributes["syslog.host.name"]) and IsMatch(attributes["syslog.host.name"], "\\.")'
 
         # Resource: host identity
         # Overwrites previously set syslog_host_name by inner hostname
         - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and resource.attributes["host.name"] == nil'
         - 'replace_pattern(resource.attributes["host.name"], ":", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], ":")'
+        - 'replace_pattern(resource.attributes["host.name"], "\\..*", "") where resource.attributes["host.name"] != nil and IsString(resource.attributes["host.name"]) and IsMatch(resource.attributes["host.name"], "\\.")'
 
 {{/*
   ============================================================================
@@ -412,7 +414,13 @@ transform/syslog_hostname_parsing:
     - context: log
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
-        - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
+        - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
+        # ===== AUDIT SOURCE FLATTENING =====
+        # Flatten nested sap.cc.audit.source from Logstash JSON payload BEFORE any hostname-based
+        # inference so the sender's explicit source always wins. Delete the nested value afterwards
+        # to avoid scalar-vs-object mapping conflicts in OpenSearch.
+        - 'set(log.attributes["sap.cc.audit.source"], log.attributes["sap"]["cc"]["audit"]["source"]) where log.attributes["sap.cc.audit.source"] == nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil'
+        - 'delete_key(log.attributes["sap"]["cc"]["audit"], "source") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil'
         # Recover true device host from Logstash sysloghttp lines where the
         # timezone (e.g. EDT) was wrongly parsed into log.syslog.hostname.
         # Shape: "<pri> SEQ:  HOST:  Mmm DD HH:MM:SS TZ %FAC-SEV: ..."
@@ -421,7 +429,7 @@ transform/syslog_hostname_parsing:
         # Never fqdn (unreliable: relay or wrong device). First match wins; else leave as-is.
         # Full invalid-token denylist applied to ALL sources.
         - 'delete_key(log.attributes, "log.syslog.hostname") where log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
-        - 'set(log.attributes["_dev_host"], ExtractPatterns(log.cache["mb"], "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(log.cache["mb"], "(?:^| )dvchost=[A-Za-z0-9]")'
+        - 'set(log.attributes["_dev_host"], ExtractPatterns(log.attributes["_mb"], "(?:^| )dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]+)")["h"]) where log.attributes["log.type"] == "sysloghttp" and IsMatch(log.attributes["_mb"], "(?:^| )dvchost=[A-Za-z0-9]")'
         - 'delete_key(log.attributes, "_dev_host") where log.attributes["_dev_host"] != nil and IsMatch(log.attributes["_dev_host"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
         - 'set(log.attributes["_dev_host"], log.attributes["log.syslog.hostname"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "^[A-Za-z0-9][A-Za-z0-9._-]+$")'
         - 'set(log.attributes["_dev_host"], log.attributes["dvchost"]) where log.attributes["log.type"] == "sysloghttp" and log.attributes["_dev_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]+$") and not IsMatch(log.attributes["dvchost"], "^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|dvchost|host|Automatic|Tufin)$")'
@@ -432,30 +440,39 @@ transform/syslog_hostname_parsing:
         - 'set(log.attributes["syslog.host.name"], log.attributes["syslog_host_name"]) where log.attributes["syslog_host_name"] != nil'
         - 'delete_key(log.attributes, "syslog_host_name") where log.attributes["syslog_host_name"] != nil'
         - 'set(log.attributes["syslog.host.name"], resource.attributes["host.name"]) where log.attributes["syslog.host.name"] == nil and log.attributes["hostname"] != nil and resource.attributes["host.name"] != nil and log.attributes["hostname"] != resource.attributes["host.name"]'
-        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != ""'
+        - 'set(resource.attributes["host.name"], log.attributes["hostname"]) where log.attributes["hostname"] != nil and log.attributes["hostname"] != "" and log.attributes["_host_resolved"] != "true"'
         # Extract ESXi node name pattern: node### or nodeswift## followed by more hostname chars
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] != nil'
         # Fallback: try net.peer.name if hostname attribute is not set (common for RFC3164)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
-        # Set audit source to ESXi if node name was extracted
-        - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["node_nodename"] != nil'
-        # NSX-T hostname detection (nsx-ctl*) - check both hostname and net.peer.name
-        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl")'
-        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl")'
-        # VCSA hostname detection (vc-*) - check both hostname and net.peer.name
-        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-")'
-        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-")'
+        # Fallback: try log.syslog.hostname (sysloghttp/webhook path, where hostname and net.peer.name are not populated)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil'
+        # Set audit source to ESXi if node name was extracted (fallback only, do not overwrite explicit sender source)
+        - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["node_nodename"] != nil'
+        # NSX-T hostname detection (nsx-ctl*) - fallback only; check hostname, net.peer.name, and log.syslog.hostname
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "nsx-ctl")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "nsx-ctl")'
+        - 'set(log.attributes["sap.cc.audit.source"], "NSX-T") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "nsx-ctl")'
+        # VCSA hostname detection (vc-*) - fallback only; check hostname, net.peer.name, and log.syslog.hostname
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] != nil and IsMatch(log.attributes["hostname"], "vc-")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and IsMatch(log.attributes["net.peer.name"], "vc-")'
+        - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "vc-")'
         # STNPA source detection from appname prefix (do not overwrite an existing source)
         - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi and NSX-T)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+    - context: log
+      statements:
+        - 'delete_key(log.attributes, "_mb")'
 
 {{/*
   ============================================================================
   Adds an attribute to identify audit logs for routing.
-  Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo
-  Also marks any log with a known audit source (sap.cc.audit.source) as audit-relevant.
+  Audit-relevant processes: Hostd, NSX, procstate, shell, sshd, ssoAudit, vpxd, ssoadminserver, sudo, vcsa-audit
+  Also marks any log with a non-empty sap.cc.audit.source as audit-relevant
+  (ESXi, VCSA, NSX-T, stnpa, hsm, Palo Alto ips-ids, etc.).
   Everything else is non-audit (and goes to logs-datastream).
   ============================================================================
 */}}
@@ -465,15 +482,11 @@ transform/syslog_audit_classification:
     - context: log
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
-        - 'set(log.cache["mb"], Concat([log.attributes["message"], log.body], " "))'
+        - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
         # Default: mark as non-audit (most logs are non-audit)
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo|vcsa-audit):?$")'
-        # Mark stnpa logs as audit-relevant (stnpa has no netbox slug; identified only by audit source)
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "stnpa"'
-        # VCSA audit by source (covers auditd type=PATH/SYSCALL; VCSA-only)
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] == "VCSA"'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
@@ -482,8 +495,13 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "palo-alto-networks"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "THREAT"'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "THREAT")'
-        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.cache["mb"], "(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms)")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "THREAT")'
+        - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.attributes["_mb"], "(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms)")'
+    - context: log
+      statements:
+        # Any log with a known audit source is audit-relevant (covers ESXi, VCSA, NSX-T, stnpa, hsm, Palo Alto ips-ids, etc.).
+        # Placed after Palo Alto block so late source assignments (ips-ids) are also classified as audit.
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap.cc.audit.source"] != ""'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware" and log.attributes["event_type"] != nil'
@@ -499,25 +517,25 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
         # Explicit blocks/denials/drops.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "\\b(action=\"?(deny|drop|block)\"?|act=deny)")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "\\b(action=\"?(deny|drop|block)\"?|act=deny)")'
         # Threat / security subsystems: IPS, UTM, virus, webfilter, DNS filter,
         # app-control, and client-reputation scoring (crscore/crlevel present).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "\\bcrscore=\\d+")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "\\bcrscore=\\d+")'
         # Authentication / admin events.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)user") and IsMatch(log.cache["mb"], "(?i)auth")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)user") and IsMatch(log.attributes["_mb"], "(?i)auth")'
         # Keep existing IPS catch-all.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "(?i)ips")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)ips")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
       statements:
         # pf packet-filter BLOCK events are security-relevant.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "pf: rule \\d+.*block")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "pf: rule \\d+.*block")'
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "rule_name=\\S+") and not IsMatch(log.cache["mb"], "status=(OK|EPIPE)")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "rule_name=\\S+") and not IsMatch(log.attributes["_mb"], "status=(OK|EPIPE)")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
@@ -532,7 +550,7 @@ transform/syslog_audit_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.cache["mb"], "attacker")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "attacker")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.platform.slug"] != nil'
@@ -543,6 +561,9 @@ transform/syslog_audit_classification:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.manufacturer.slug"] != nil'
       statements:
         - 'set(log.attributes["sap.cc.audit.source"], log.attributes["netbox.manufacturer.slug"])'
+    - context: log
+      statements:
+        - 'delete_key(log.attributes, "_mb")'
 
 {{/*
   ============================================================================
