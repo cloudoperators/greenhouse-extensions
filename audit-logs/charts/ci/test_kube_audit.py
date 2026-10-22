@@ -17,7 +17,7 @@ mutation.webhook annotations, removes .data from bodies it keeps, never marks fo
 patch annotations alone, and (since #2166) flattens any kept requestObject/responseObject
 to a JSON string attribute requestObject_string/responseObject_string.
 
-Usage: test_kube_audit.py <rendered OpenTelemetryCollector as JSON> <work dir> [--expect-fail]
+Usage: test_kube_audit.py <rendered OpenTelemetryCollector as JSON> <work dir>
 """
 
 import copy
@@ -211,7 +211,8 @@ def metric(text, name, **labels):
 
 
 def main():
-    rendered, work = sys.argv[1], Path(sys.argv[2])
+    # docker -v takes a relative path for a volume name, so mount the absolute one.
+    rendered, work = sys.argv[1], Path(sys.argv[2]).resolve()
     manifest = json.loads(Path(rendered).read_text())
     image = manifest["spec"]["image"]
     config = manifest["spec"]["config"]
@@ -284,12 +285,13 @@ def main():
     accepted = metric(metrics, "otelcol_receiver_accepted_log_records_total", receiver="file_log/kube_audit")
     if counted != expected_count:
         failures.append(f"counter debug/credential_body_removed = {counted}, expected {expected_count}")
+    # A statement that fails on some body (like the .data strip on a JSON-patch array) is only
+    # logged and the event still passes, so any collector warning or error fails the test.
     warns = [l for l in logs.stderr.splitlines() if "warn" in l.lower() or "error" in l.lower()]
+    failures.extend(f"collector: {w}" for w in warns)
     print(f"events: {len(cases)}, received: {accepted}, main route sent: {main_route}, "
           f"counted as removed: {counted} (expected {expected_count})")
     print(f"collector warnings/errors: {len(warns)}")
-    for w in warns:
-        print("   ", w[:300])
     if failures:
         print(f"FAILED: {len(failures)} check(s)")
         for f in failures:

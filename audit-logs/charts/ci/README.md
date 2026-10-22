@@ -46,13 +46,11 @@ suite plus runtime extras) through `file_log/kube_audit` →
 - **The credential-removal counter** behind the `KubeAuditCredentialBodyRemoved` alert
   (`otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"}`)
   equals the number of marked events.
+- **The collector logs no warning or error.** An OTTL statement that fails on some
+  body is only logged (`failed to execute statement`) and the event still passes, so
+  the event checks alone miss it. For example, without the `IsMap` guard the
+  `delete_key(..., "data")` statements fail on a JSON-patch array body
+  (`unable to resolve an integer index in slice`), which the `rbac-json-patch`
+  fixture triggers.
 
-It exits non-zero and lists the failing events if any check fails.
-
-## Note on OTTL warnings
-
-The collector logs one `failed to execute statement` warning for the
-`delete_key(..., "data")` statements when a request body is a JSON-patch array
-(`unable to resolve an integer index in slice`). This is a logged warning only — the
-event is still processed and no credential leaks — and the test tolerates it. See the
-`transform/kube_audit` statements in `templates/audit-logs-collector.yaml`.
+It exits non-zero and lists the failures if any check fails.
