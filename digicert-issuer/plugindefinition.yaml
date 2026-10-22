@@ -40,6 +40,14 @@ spec:
       description: Cache sync timeout for the provisioner
       required: false
       type: string
+    - name: metrics.podMonitorSelector
+      description: Labels used to select this PodMonitor by a Prometheus instance.
+      required: false
+      type: map
+    - name: alerts.ruleSelector
+      description: Labels used to select this PrometheusRule by a Prometheus instance.
+      required: false
+      type: map
     - name: certManager.serviceAccount.name
       description: Name of the service account used by the cert-manager
       required: false
