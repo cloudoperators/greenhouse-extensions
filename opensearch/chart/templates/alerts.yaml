@@ -66,3 +66,20 @@ spec:
 {{ tpl (printf "%s" $bytes) $root | indent 2 }}
 {{- end }}
 {{- end }}
+{{- if .Values.cluster.cluster.general.monitoring.enable }}
+{{- range $rule := .Values.cluster.prometheusRules }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $rule.name | trunc 63 }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" $ | nindent 4 }}
+    {{- if $.Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
+spec:
+{{ tpl $rule.spec $root | indent 2 }}
+{{- end }}
+{{- end }}
