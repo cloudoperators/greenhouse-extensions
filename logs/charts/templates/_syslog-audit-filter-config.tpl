@@ -447,6 +447,8 @@ transform/syslog_hostname_parsing:
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil'
         # Fallback: try log.syslog.hostname (sysloghttp/webhook path, where hostname and net.peer.name are not populated)
         - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_nodename>node(\\d{3}|swift\\d{2})[a-zA-Z0-9.-]+)"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil'
+        # Set audit source to remoteboard for node names matching nodeNNNr-...
+        - 'set(log.attributes["sap.cc.audit.source"], "remoteboard") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["node_nodename"] != nil and IsMatch(log.attributes["node_nodename"], "^node[0-9]{3,5}r-.*$")'
         # Set audit source to ESXi if node name was extracted (fallback only, do not overwrite explicit sender source)
         - 'set(log.attributes["sap.cc.audit.source"], "ESXi") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["node_nodename"] != nil'
         # NSX-T hostname detection (nsx-ctl*) - fallback only; check hostname, net.peer.name, and log.syslog.hostname
@@ -459,10 +461,10 @@ transform/syslog_hostname_parsing:
         - 'set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and IsMatch(log.attributes["log.syslog.hostname"], "vc-")'
         # STNPA source detection from appname prefix (do not overwrite an existing source)
         - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
-        # Extract building block from hostname (for ESXi and NSX-T)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and (log.attributes["sap.cc.audit.source"] == "ESXi" or log.attributes["sap.cc.audit.source"] == "NSX-T")'
+        # Extract building block from hostname (for ESXi, NSX-T and remoteboard)
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
     - context: log
       statements:
         - 'delete_key(log.attributes, "_mb")'
