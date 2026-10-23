@@ -1,0 +1,84 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.prometheus.rules.create .Values.auditLogs.ingesterCollector.enabled .Values.auditLogs.ingesterCollector.prometheus.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: audit-logs-ingester
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+spec:
+  groups:
+  - name: audit-logs-ingester.alerts
+    rules:
+    # Items rejected before entering the sending queue. Triggers on any ingester-collector exporter
+    # whose enqueue is failing (disk full, memory_limiter refusing, storage write errors, etc.).
+    # When this fires along with growing Kafka lag it almost always indicates the backing storage
+    # is full or the collector pod is wedged.
+    - alert: AuditIngesterEnqueueFailures
+      expr: |
+        sum by (k8s_cluster_name, exporter) (
+          rate(otelcol_exporter_enqueue_failed_log_records_total{exporter=~"opensearch/.*"}[5m])
+        ) > 0
+      for: 5m
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: 'Audit ingester {{`{{ $labels.exporter }}`}} is refusing items on `{{`{{ $labels.k8s_cluster_name }}`}}`'
+        description: |
+          The audit ingester exporter `{{`{{ $labels.exporter }}`}}` on `{{`{{ $labels.k8s_cluster_name }}`}}`
+          has been rejecting records at {{`{{ $value | printf "%.1f" }}`}} per second for the last 5 minutes.
+          Common causes: persistent queue PV is full, memory_limiter is refusing data, or storage
+          write errors. Check `AuditIngesterQueueDiskHigh`, pod memory, and `otel-queue` PVC usage.
+
+{{- if (include "auditLogs.ingesterPersistentQueueEnabled" .) }}
+    # Persistent queue PV running out of space. If this hits 100% the pod stops accepting new items
+    # and the queue cannot drain properly to OpenSearch. We alert at 70% warning / 90% critical to
+    # give time to resize before the pod wedges.
+    - alert: AuditIngesterQueueDiskHigh
+      expr: |
+        100 * (
+          1 - (
+            kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
+            / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
+          )
+        ) > 70
+      for: 10m
+      labels:
+        severity: warning
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: 'Audit ingester queue PV {{`{{ $labels.persistentvolumeclaim }}`}} is {{`{{ $value | printf "%.0f" }}`}}% full'
+        description: |
+          The persistent queue volume `{{`{{ $labels.persistentvolumeclaim }}`}}` for the audit log
+          ingester is {{`{{ $value | printf "%.0f" }}`}}% full. bbolt files never shrink after they
+          grow, so if this reaches 100% the pod stops accepting new items and cannot complete
+          delete-acks either, leaving the queue wedged. Consider expanding the PVC
+          (`persistentQueue.size` value) or investigating why the bbolt file grows beyond the
+          configured `queue_size`.
+
+    - alert: AuditIngesterQueueDiskCritical
+      expr: |
+        100 * (
+          1 - (
+            kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
+            / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
+          )
+        ) > 90
+      for: 2m
+      labels:
+        severity: critical
+        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
+      annotations:
+        summary: 'Audit ingester queue PV {{`{{ $labels.persistentvolumeclaim }}`}} is {{`{{ $value | printf "%.0f" }}`}}% full - delivery at risk'
+        description: |
+          The persistent queue volume `{{`{{ $labels.persistentvolumeclaim }}`}}` is at
+          {{`{{ $value | printf "%.0f" }}`}}% capacity. When it reaches 100% the pod will stop
+          accepting new items and the Kafka lag will start to grow. Expand the PVC immediately or
+          restart the pod to reset bbolt file fragmentation (loses in-flight queued data; Kafka
+          will re-deliver).
+{{- end }}
+{{- end }}

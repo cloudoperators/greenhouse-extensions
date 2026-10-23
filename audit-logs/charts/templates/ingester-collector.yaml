@@ -18,12 +18,19 @@ metadata:
   {{ toYaml $root.Values.auditLogs.customLabels | nindent 4 }}
   {{- end }}
 spec:
-  mode: deployment
+  mode: {{ if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}statefulset{{ else }}deployment{{ end }}
   replicas: {{ dig "replicas" $root.Values.auditLogs.ingesterCollector.replicas $cfg }}
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/auto: "true"
   terminationGracePeriodSeconds: 30
+{{- if $cfg.affinity }}
+  affinity:
+    {{- toYaml $cfg.affinity | nindent 4 }}
+{{- else if $root.Values.auditLogs.ingesterCollector.affinity }}
+  affinity:
+    {{- toYaml $root.Values.auditLogs.ingesterCollector.affinity | nindent 4 }}
+{{- end }}
   {{- with $root.Values.auditLogs.ingesterCollector.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
@@ -64,6 +71,10 @@ spec:
       mountPath: /etc/ssl/kafka
       readOnly: true
 {{- end }}
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+    - name: otel-queue
+      mountPath: /var/lib/otel-queue
+{{- end }}
   volumes:
     - name: opensearch-ca
       secret:
@@ -72,6 +83,20 @@ spec:
     - name: kafka-ca
       secret:
         secretName: {{ dig "tls" "caSecret" "" $kafka | quote }}
+{{- end }}
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: otel-queue
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ dig "persistentQueue" "size" "2Gi" $cfg.opensearch }}
+{{- with (dig "persistentQueue" "storageClassName" "" $cfg.opensearch) }}
+        storageClassName: {{ . | quote }}
+{{- end }}
 {{- end }}
   config:
     receivers:
@@ -148,6 +173,11 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+      file_storage/otelqueue:
+        directory: /var/lib/otel-queue
+        timeout: {{ dig "persistentQueue" "timeout" "10s" $cfg.opensearch }}
+{{- end }}
     exporters:
       debug:
         verbosity: basic
@@ -159,6 +189,9 @@ spec:
             ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
+{{- with (dig "flushBytes" nil $cfg.opensearch) }}
+        flush_bytes: {{ . }}
+{{- end }}
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
 {{- with $cfg.opensearch.mapping }}
@@ -171,6 +204,16 @@ spec:
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+{{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
+          sizer: {{ . }}
+{{- end }}
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+          storage: file_storage/otelqueue
+{{- end }}
+{{- with (dig "sendingQueue" "batch" nil $cfg.opensearch) }}
+          batch:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -185,6 +228,9 @@ spec:
             ca_file: /etc/ssl/opensearch/{{ $cfg.opensearch.tls.caSecretKey }}
             insecure: {{ $cfg.opensearch.tls.insecure }}
           endpoint: {{ $cfg.opensearch.endpoint | quote }}
+{{- with (dig "flushBytes" nil $cfg.opensearch) }}
+        flush_bytes: {{ . }}
+{{- end }}
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
 {{- with $cfg.opensearch.mapping }}
@@ -197,6 +243,16 @@ spec:
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+{{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
+          sizer: {{ . }}
+{{- end }}
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+          storage: file_storage/otelqueue
+{{- end }}
+{{- with (dig "sendingQueue" "batch" nil $cfg.opensearch) }}
+          batch:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -215,6 +271,9 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
+        - file_storage/otelqueue
+{{- end }}
       telemetry:
         logs:
           level: WARN
