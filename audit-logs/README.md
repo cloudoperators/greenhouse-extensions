@@ -77,14 +77,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
 | auditLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
 | auditLogs.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors for audit logs. One Deployment/StatefulSet per entry. |
-| auditLogs.ingesterCollector.affinity | object | `{}` | Node affinity rules for all ingest collector pods (can be overridden per-collector in collectors.\<name\>.affinity). |
+| auditLogs.ingesterCollector.affinity | object | `{}` | Node affinity rules for all ingest collector pods (can be overridden per-collector in collectors.<name>.affinity). |
 | auditLogs.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
 | auditLogs.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
 | auditLogs.ingesterCollector.image.tag | string | `""` | Image tag override; falls back to auditLogs.collectorImage.tag. |
 | auditLogs.ingesterCollector.prometheus.podMonitor.enabled | bool | `true` | Render a PodMonitor per enabled ingest collector. |
-| auditLogs.ingesterCollector.replicas | int | `3` | Replica count per ingest collector Deployment/StatefulSet. |
-| auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment/StatefulSet. |
+| auditLogs.ingesterCollector.replicas | int | `3` | Replica count per ingest collector Deployment. |
+| auditLogs.ingesterCollector.resources | object | `{}` | Pod resources per ingest collector Deployment. |
 | auditLogs.logsCollector.auditd.enabled | bool | `true` | Activates the ingestion of auditd logs. |
 | auditLogs.logsCollector.auditd.initImage | object | `{"repository":"alpine","tag":"latest"}` | Init container image used to stop the host auditd service. |
 | auditLogs.logsCollector.auditpoller.enabled | bool | `false` | Activates the receiver for ingesting audit-poller logs |
