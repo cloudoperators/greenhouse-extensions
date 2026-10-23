@@ -971,6 +971,28 @@ cluster:
     opensearchWarmTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
     opensearchOperatorDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md"
 
+  # -- Custom Prometheus Rules to create.
+  # @default -- See values.yaml
+  prometheusRules: []
+    # - name: test-rule
+    #   spec: |
+    #     groups:
+    #       - name: opensearch-cluster
+    #         interval: 30s
+    #         rules:
+    #           - alert: OpenSearchClusterRed
+    #             expr: |
+    #               max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
+    #               == 2
+    #             for: 5m
+    #             labels:
+    #               severity: critical
+    #               component: opensearch
+    #               playbook: "{{ .Values.cluster.playbooksUrls.opensearchClusterRed }}"
+    #             annotations:
+    #               summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
+    #               description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
+
   # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
   # dashboards, visualizations). Runs as a post-install/upgrade Helm
   # hook Job that POSTs to the Dashboards API.
