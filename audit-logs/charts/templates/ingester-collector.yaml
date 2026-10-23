@@ -204,8 +204,15 @@ spec:
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+{{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
+          sizer: {{ . }}
+{{- end }}
 {{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
           storage: file_storage/otelqueue
+{{- end }}
+{{- with (dig "sendingQueue" "batch" nil $cfg.opensearch) }}
+          batch:
+            {{- toYaml . | nindent 12 }}
 {{- end }}
         retry_on_failure:
           enabled: true
@@ -236,8 +243,15 @@ spec:
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+{{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
+          sizer: {{ . }}
+{{- end }}
 {{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
           storage: file_storage/otelqueue
+{{- end }}
+{{- with (dig "sendingQueue" "batch" nil $cfg.opensearch) }}
+          batch:
+            {{- toYaml . | nindent 12 }}
 {{- end }}
         retry_on_failure:
           enabled: true

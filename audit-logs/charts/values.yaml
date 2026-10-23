@@ -184,7 +184,17 @@ auditLogs:
     #       tls: { caSecret, caSecretKey, insecure }
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       flushBytes: 10000000                # optional; flush threshold in bytes for the opensearch bulk API
-    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       sendingQueue:                       # optional; default disabled
+    #         enabled: false                    # render the queue
+    #         waitForResult: true               # true = at-most-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
+    #         numConsumers: 1                   # concurrent consumers draining the queue
+    #         queueSize: 10                     # capacity in units defined by sizer (requests/items/bytes)
+    #         sizer: requests                   # optional; one of requests (default), items, bytes
+    #         batch:                            # optional; coalesce incoming pushes into bigger batches before dispatch
+    #           sizer: bytes                    # requests | items | bytes
+    #           min_size: 5000000               # minimum batch size before flushing
+    #           max_size: 10000000              # upper cap for a single batch
+    #           flush_timeout: 1s               # flush even if min_size not reached after this duration
     #       persistentQueue:                    # optional; enables file-backed persistent queue (switches mode to statefulset)
     #         enabled: false
     #         size: 2Gi                         # PVC size for the queue volume
