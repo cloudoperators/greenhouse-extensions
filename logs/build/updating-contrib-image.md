@@ -155,17 +155,6 @@ openTelemetry:
 
 Also update `logs/plugindefinition.yaml` if the default image tag is referenced there, and bump the chart/plugin versions as appropriate.
 
-Check that the `transform.flatten.logs` feature gate still exists in the new image (`docker run --rm <image> featuregate | grep transform.flatten.logs`): the external and logs collectors pass it, and the collector does not start if the gate is gone. The same applies to any `collectorImage.tag` override: use a tag that passes the check below. The `logs collector config validate` workflow runs it on every logs PR against the pinned image; to try another tag locally (needs helm, docker, python3 with PyYAML and openssl):
-
-```bash
-# OpenSearch mode
-logs/tests/validate-collector-configs.sh "external logs metrics" \
-  -f logs/tests/values-test.yaml --set openTelemetry.collectorImage.tag=<tag>
-# Kafka mode, with the syslog ingester
-logs/tests/validate-collector-configs.sh "external logs logs-ingester-syslog metrics" \
-  -f logs/tests/values-test.yaml -f logs/tests/values-test-kafka.yaml --set openTelemetry.collectorImage.tag=<tag>
-```
-
 ### 6. Update the Audit-Logs Plugin (if applicable)
 
 The `audit-logs/` plugin uses the same image. Update `audit-logs/charts/values.yaml` and `audit-logs/plugindefinition.yaml` with the same new tag.
