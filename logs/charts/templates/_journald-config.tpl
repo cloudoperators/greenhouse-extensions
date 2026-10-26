@@ -17,6 +17,8 @@ journald:
 {{- define "journald.transform" }}
 transform/journal:
   error_mode: ignore
+  # Sets resource attributes from per-log data: give every log its own resource copy (needs transform.flatten.logs).
+  flatten_data: true
   log_statements:
     - context: log
       statements:
