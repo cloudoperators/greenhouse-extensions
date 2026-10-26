@@ -479,9 +479,9 @@ transform/syslog_hostname_parsing:
         # STNPA source detection from appname prefix (do not overwrite an existing source)
         - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi, NSX-T and remoteboard)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
     - context: log
       statements:
         - 'delete_key(log.attributes, "_mb")'
