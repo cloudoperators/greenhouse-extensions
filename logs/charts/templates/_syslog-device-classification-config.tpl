@@ -303,6 +303,32 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event_type"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])cat=(?P<v>[^:\\s]+)")["v"]) where log.attributes["event_type"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])cat=")'
         - 'set(log.attributes["event.action"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])act=(?P<v>\\S+)")["v"]) where log.attributes["event.action"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])act=")'
         - 'set(log.attributes["msg"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])msg=(?P<v>.*?)(?:\\s+\\S+=|$)")["v"]) where log.attributes["msg"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[|\\s])msg=")'
+        # FortiGate CEF extension keys. Same target fields as the relay normalization (octobus_to_fortlogs_normalization),
+        # but the source keys differ: the relay gets named keys (logCatID, virtDomain, ...), direct CEF has FTNTFGT* keys
+        # (deviceExternalId is the same on both). Only CEF lines, so native FortiOS logs (key="value", where these keys can
+        # appear inside a quoted msg) stay unchanged, as on the relay path. Each guard matches what its extraction needs.
+        - 'set(log.attributes["hw.id"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])deviceExternalId=(?P<v>\\S+)")["v"]) where log.attributes["hw.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])deviceExternalId=\\S")'
+        - 'set(log.attributes["host.partition"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTvd=(?P<v>\\S+)")["v"]) where log.attributes["host.partition"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTvd=\\S")'
+        - 'set(log.attributes["event.category"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTsubtype=(?P<v>\\S+)")["v"]) where log.attributes["event.category"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTsubtype=\\S")'
+        # logid also without the FTNTFGT prefix: some FortiGate models send unprefixed keys, and for those the relay only
+        # fills hw.id and event.code, so the other keys stay prefixed-only.
+        - 'set(log.attributes["event.code"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])(?:FTNTFGT)?logid=(?P<v>[0-9]+)(?:\\s|$)")["v"]) where log.attributes["event.code"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])(?:FTNTFGT)?logid=[0-9]+(?:\\s|$)")'
+        - 'set(log.attributes["event.severity.text"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTlevel=(?P<v>\\S+)")["v"]) where log.attributes["event.severity.text"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTlevel=\\S")'
+        # Only a crscore of 1-9 digits is converted, so Int() never sees a value it can not parse.
+        - 'set(log.attributes["security.threat.score"], Int(ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTcrscore=(?P<v>[0-9]{1,9})(?:\\s|$)")["v"])) where log.attributes["security.threat.score"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTcrscore=[0-9]{1,9}(?:\\s|$)")'
+        # No signature severity on IPS logs: the relay path leaves it unset for subtype=ips, so do the same here.
+        - 'set(log.attributes["security.signature.severity.text"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTcrlevel=(?P<v>\\S+)")["v"]) where log.attributes["security.signature.severity.text"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTcrlevel=\\S") and not IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTsubtype=ips(?:\\s|$)")'
+        - 'set(log.attributes["security_rule.group.id"], ExtractPatterns(log.attributes["message"], "(?:^|[|\\s])FTNTFGTpolicyid=(?P<v>\\S+)")["v"]) where log.attributes["security_rule.group.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "CEF:[0-9]+\\|") and IsMatch(log.attributes["message"], "(?:^|[|\\s])FTNTFGTpolicyid=\\S")'
+    - context: log
+      conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and IsMatch(log.attributes["_mb"], "CEF:[0-9]+\\|Fortinet\\|")'
+      statements:
+        - 'set(log.attributes["_forti_host"], ExtractPatterns(log.attributes["_mb"], "(?:^|[|\\s])dvchost=(?P<h>[A-Za-z0-9][A-Za-z0-9._-]*)(?:\\s|$)")["h"]) where IsMatch(log.attributes["_mb"], "(?:^|[|\\s])dvchost=[A-Za-z0-9]")'
+        - 'set(log.attributes["_forti_host"], log.attributes["dvchost"]) where log.attributes["_forti_host"] == nil and log.attributes["dvchost"] != nil and IsMatch(log.attributes["dvchost"], "^[A-Za-z0-9][A-Za-z0-9._-]*$")'
+        - 'set(log.attributes["_forti_host"], ExtractPatterns(log.body, "<\\d+>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2} (?P<h>[A-Za-z0-9][A-Za-z0-9._-]+) CEF:")["h"]) where log.attributes["_forti_host"] == nil and log.body != nil and IsMatch(log.body, "<\\d+>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2} \\S+ CEF:")'
+        - 'set(resource.attributes["host.name"], log.attributes["_forti_host"]) where log.attributes["_forti_host"] != nil and log.attributes["_forti_host"] != ""'
+        - 'set(log.attributes["_host_resolved"], "true") where log.attributes["_forti_host"] != nil'
+        - 'delete_key(log.attributes, "_forti_host") where log.attributes["_forti_host"] != nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "netapp"'
