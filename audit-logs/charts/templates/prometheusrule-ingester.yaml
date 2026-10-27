@@ -59,26 +59,5 @@ spec:
           delete-acks either, leaving the queue wedged. Consider expanding the PVC
           (`persistentQueue.size` value) or investigating why the bbolt file grows beyond the
           configured `queue_size`.
-
-    - alert: AuditIngesterQueueDiskCritical
-      expr: |
-        100 * (
-          1 - (
-            kubelet_volume_stats_available_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
-            / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"otel-queue-audit-ingester-.*"}
-          )
-        ) > 90
-      for: 2m
-      labels:
-        severity: critical
-        {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
-      annotations:
-        summary: 'Audit ingester queue PV {{`{{ $labels.persistentvolumeclaim }}`}} is {{`{{ $value | printf "%.0f" }}`}}% full - delivery at risk'
-        description: |
-          The persistent queue volume `{{`{{ $labels.persistentvolumeclaim }}`}}` is at
-          {{`{{ $value | printf "%.0f" }}`}}% capacity. When it reaches 100% the pod will stop
-          accepting new items and the Kafka lag will start to grow. Expand the PVC immediately or
-          restart the pod to reset bbolt file fragmentation (loses in-flight queued data; Kafka
-          will re-deliver).
 {{- end }}
 {{- end }}
