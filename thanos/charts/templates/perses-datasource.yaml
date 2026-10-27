@@ -1,4 +1,4 @@
-{{- if and .Values.thanos.query.enabled .Values.thanos.query.persesDatasource.create }}
+{{- if and (or .Values.thanos.query.enabled .Values.thanosCommunity.query.enabled) .Values.thanos.query.persesDatasource.create }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
