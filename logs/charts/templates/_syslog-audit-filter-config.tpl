@@ -588,31 +588,17 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$")'
         - 'set(log.attributes["audit_relevant"], "false") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "GET \\S+ 2[0-9]{2} ")'
         # ----------------------------------------------------------------
-        # localcli — write/change operations → audit; read-only → logs
-        # Step 1: all localcli → audit (catches all write/change operations)
+        # localcli — runtime output → logs; all else → audit (safe default)
+        # Step 1: all localcli → audit
         # ----------------------------------------------------------------
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] == "localcli"'
 
-        # Pattern 1: general read-only commands → logs cluster
-        # Compliance exceptions retained:
-        #   syslog.config (A6), firewall.* (B3), vib.list/acceptance.get (A12/B4),
-        #   settings.encryption/kernel (B4), coredump.get (F3),
-        #   storage.nfs.list, storage.vmfs.snapshot.list, secpolicy.level.get (borderline)
-        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)\\.(get|getdefault|list|info|query|show|stats|status)(\\s|$)") and not IsMatch(log.attributes["message"], "(?i)(syslog\\.config|firewall\\.(get|ruleset)|software\\.(vib\\.list|acceptance\\.get)|settings\\.(encryption|kernel)|coredump\\.get|storage\\.nfs\\.list|storage\\.vmfs\\.snapshot\\.list|secpolicy\\.level\\.get)")'
-
-        # Pattern 3: hardware health polling → logs cluster
-        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)hardware\\..+\\.(get|list|info|stats|read)(\\s|$)")'
-
-        # Pattern 4: storage observational → logs cluster
-        # nfs and vmfs excluded — retained per compliance review
-        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)storage\\.(core|filesystem|nmp|san)\\.(list|get|stats)")'
-
-        # Pattern 5: network observational → logs cluster
-        # firewall excluded — B3 pre-change state must be retained
-        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)network\\.(ip|nic|vswitch|diag)\\.(list|get|stats|ping)")'
-
-        # Pattern 7: internal library/plugin messages — not command executions
-        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh)")'
+        # Pattern 7: known runtime output → logs cluster
+        # The localcli message field contains only runtime output (lib/ssl, OBJLIB,
+        # vSAN, elxima, ConfigStore, etc.) — never esxcli command strings.
+        # Command-based patterns P1/P3/P4/P5 matched zero docs across 7 days
+        # of live data and have been removed.
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh|lib/ssl:|Using VMware ESXi syslog APIs|GetTypedFileSystems:|Log for VMware ESXi version=|VsanIscsiTargetImpl:|elxima-|info \\[ConfigStore:|VsanInfo|VVOLLIB )")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
