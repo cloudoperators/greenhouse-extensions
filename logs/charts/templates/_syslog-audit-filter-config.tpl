@@ -570,13 +570,50 @@ transform/syslog_audit_classification:
         # High — authentication, firewall, security enforcement
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(sshd|sshd-session|vmauthd|esxtokend|lwsmd|kmxa|FIREWALL-PKTLOG|dfwpktlogs|nsx-idps|secpolicytools|hostprofile|vobd|vmkwarning:?):?$")'
         # Medium — admin activity, config changes, management-plane
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(ConfigStore|configStoreBackup|settingsd|Hostd|hostd-probe|hostdCgiServer|Vpxa|Rhttpproxy|apiForwarder|crond|esxupdate|sut|watchdog|backup-ssh):?$")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(ConfigStore|configStoreBackup|settingsd|Hostd|hostd-probe|hostdCgiServer|Vpxa|Rhttpproxy|apiForwarder|crond|esxupdate|sut|watchdog|backup-ssh|backup-check|ntpq|etcd|cfgAgent|Fdm|sandboxd):?$")'
+        # Medium — backup scripts (A12 · SecNumCloud 12.5.b)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(backup\\.sh|auto-backup\\.sh):?$")'
+        # Medium — vmkernel: WARNING and above only (syslog severity.number <= 4)
+        # INFO (6) and DEBUG (7) go to logs cluster
+        # Compliance basis: D1 (system exceptions) D2 (system failures) · PCI 10.2.1
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^vmkernel:?:?$") and log.attributes["severity.number"] != nil and log.attributes["severity.number"] <= 4'
+        # Medium-Low — device events (B2), service startup (D3)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(smartd|vmkdevmgr|jumpstart|Jumper2|usbarb):?$")'
+        # Medium-Low — vSAN mgmt startup (D3), BMC NIC config (B4 · A10)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(\\.etc\\.init\\.d\\.vsanmgmtd|configBmcNic\\.sh):?$")'
         # envoy / envoy-access — errors and auth failures only (4xx/5xx)
         # Successful routine calls (2xx) go to logs cluster
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) \\S+ (4[0-9]{2}|5[0-9]{2}) ")'
+        # ----------------------------------------------------------------
+        # localcli — write/change operations → audit; read-only → logs
+        # Step 1: all localcli → audit (catches all write/change operations)
+        # ----------------------------------------------------------------
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] == "localcli"'
+
+        # Pattern 1: general read-only commands → logs cluster
+        # Compliance exceptions retained:
+        #   syslog.config (A6), firewall.* (B3), vib.list/acceptance.get (A12/B4),
+        #   settings.encryption/kernel (B4), coredump.get (F3),
+        #   storage.nfs.list, storage.vmfs.snapshot.list, secpolicy.level.get (borderline)
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)\\.(get|getdefault|list|info|query|show|stats|status)(\\s|$)") and not IsMatch(log.attributes["message"], "(?i)(syslog\\.config|firewall\\.(get|ruleset)|software\\.(vib\\.list|acceptance\\.get)|settings\\.(encryption|kernel)|coredump\\.get|storage\\.nfs\\.list|storage\\.vmfs\\.snapshot\\.list|secpolicy\\.level\\.get)")'
+
+        # Pattern 3: hardware health polling → logs cluster
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)hardware\\..+\\.(get|list|info|stats|read)(\\s|$)")'
+
+        # Pattern 4: storage observational → logs cluster
+        # nfs and vmfs excluded — retained per compliance review
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)storage\\.(core|filesystem|nmp|san)\\.(list|get|stats)")'
+
+        # Pattern 5: network observational → logs cluster
+        # firewall excluded — B3 pre-change state must be retained
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)network\\.(ip|nic|vswitch|diag)\\.(list|get|stats|ping)")'
+
+        # Pattern 7: internal library/plugin messages — not command executions
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh)")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
+        - 'log.attributes["appname"] != "localcli"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
