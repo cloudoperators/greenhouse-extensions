@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: kube-monitoring
 spec:
-  version: 17.0.1
+  version: 17.0.2
   displayName: Kubernetes monitoring
   description: Native deployment and management of Prometheus along with Kubernetes cluster monitoring components.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/kube-monitoring/README.md
@@ -143,8 +143,3 @@ spec:
         key: config.yaml
       required: false
       type: map
-    - name: kubeMonitoring.prometheus.prometheusSpec.disableCompaction
-      description: Whether to disable local TSDB compaction on Prometheus.
-      default: true
-      required: false
-      type: bool
