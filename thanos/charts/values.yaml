@@ -21,6 +21,8 @@ thanosCommunity:
     enabled: false
   query:
     enabled: false
+    service:
+      httpPort: 10902
   receive:
     enabled: false
   storegateway:
