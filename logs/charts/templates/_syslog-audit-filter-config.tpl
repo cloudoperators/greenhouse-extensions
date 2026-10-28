@@ -581,9 +581,12 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(smartd|vmkdevmgr|jumpstart|Jumper2|usbarb):?$")'
         # Medium-Low — vSAN mgmt startup (D3), BMC NIC config (B4 · A10)
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(\\.etc\\.init\\.d\\.vsanmgmtd|configBmcNic\\.sh):?$")'
-        # envoy / envoy-access — errors and auth failures only (4xx/5xx)
-        # Successful routine calls (2xx) go to logs cluster
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) \\S+ (4[0-9]{2}|5[0-9]{2}) ")'
+        # envoy / envoy-access — audit by default
+        # All errors (4xx/5xx), write operations (POST/PUT/PATCH/DELETE), and
+        # non-GET responses go to audit cluster.
+        # Only successful GET requests (read-only polls) go to logs cluster.
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$")'
+        - 'set(log.attributes["audit_relevant"], "false") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "GET \\S+ 2[0-9]{2} ")'
         # ----------------------------------------------------------------
         # localcli — write/change operations → audit; read-only → logs
         # Step 1: all localcli → audit (catches all write/change operations)
