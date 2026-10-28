@@ -973,7 +973,39 @@ cluster:
 
   # -- Custom Prometheus Rules to create.
   # @default -- See values.yaml
-  prometheusRules: []
+  prometheusRules:
+    - name: opensearch-query-source-silent
+      spec: |
+        groups:
+          - name: opensearch-query-source
+            interval: 30s
+            rules:
+              - alert: OpenSearchQuerySourceSilent
+                expr: |
+                  opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"} == 0
+                for: 60m
+                labels:
+                  severity: warning
+                  component: opensearch-query-exporter
+                  support_group: cyberdefense
+                annotations:
+                  summary: "No audit queries from source {{`{{ $labels.by_source }}`}}"
+                  description: "Source {{`{{ $labels.by_source }}`}} reported 0 audit queries for 60 minutes in namespace {{`{{ $labels.namespace }}`}}"
+              - alert: OpenSearchQuerySourceDrop
+                expr: |
+                  (
+                    avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h])
+                    /
+                    avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d)
+                  ) < 0.75
+                for: 15m
+                labels:
+                  severity: warning
+                  component: opensearch-query-exporter
+                  support_group: cyberdefense
+                annotations:
+                  summary: "Audit query volume from source {{`{{ $labels.by_source }}`}} dropped >25%"
+                  description: "Source {{`{{ $labels.by_source }}`}} is at {{`{{ $value | humanizePercentage }}`}} of the same hour yesterday in namespace {{`{{ $labels.namespace }}`}}"
     # - name: test-rule
     #   spec: |
     #     groups:
