@@ -573,7 +573,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(ConfigStore|configStoreBackup|settingsd|Hostd|hostd-probe|hostdCgiServer|Vpxa|Rhttpproxy|apiForwarder|crond|esxupdate|sut|watchdog|backup-ssh):?$")'
         # envoy / envoy-access — errors and auth failures only (4xx/5xx)
         # Successful routine calls (2xx) go to logs cluster
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], " (4[0-9]{2}|5[0-9]{2}) ")'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) \\S+ (4[0-9]{2}|5[0-9]{2}) ")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
