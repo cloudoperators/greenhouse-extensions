@@ -593,11 +593,10 @@ transform/syslog_audit_classification:
         # ----------------------------------------------------------------
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] == "localcli"'
 
-        # Pattern 7: known runtime output → logs cluster
-        # The localcli message field contains only runtime output (lib/ssl, OBJLIB,
-        # vSAN, elxima, ConfigStore, etc.) — never esxcli command strings.
-        # Command-based patterns P1/P3/P4/P5 matched zero docs across 7 days
-        # of live data and have been removed.
+        # Known runtime output → logs cluster
+        # Verified against 7 days of live data: the localcli message field
+        # contains only runtime output, never esxcli command strings.
+        # All other localcli logs remain in audit via the Step 1 default above.
         - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh|lib/ssl:|Using VMware ESXi syslog APIs|GetTypedFileSystems:|Log for VMware ESXi version=|VsanIscsiTargetImpl:|elxima-|info \\[ConfigStore:|VsanInfo|VVOLLIB )")'
     - context: log
       conditions:
