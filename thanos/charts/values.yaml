@@ -83,7 +83,7 @@ thanos:
     #   team: infra
 
     # -- Create configmaps containing Perses dashboards
-    dashboards: true
+    dashboards: false
 
   # @ignored
   # Init container to set permissions
