@@ -204,6 +204,12 @@ operator:
 # -- Additional labels for PrometheusRule alerts
 additionalRuleLabels: {}
 
+# -- Additional labels for the SIEM / query-source PrometheusRule alerts
+# (cluster.prometheusRules). Applied on top of each alert's own labels so the
+# owning support group and service can be set per deployment for Alertmanager
+# routing. Empty by default; set per deployment (e.g. support_group, service).
+additionalSiemRuleLabels: {}
+
 # -- Labels for the PrometheusRule holding alerts that use kube-side metrics (kubelet/kube-state/node-exporter), so it is picked up by the Prometheus that scrapes kubelet. Set per deployment (e.g. prometheus: kubernetes).
 kubernetesPrometheusRuleLabels: {}
 
@@ -985,9 +991,9 @@ cluster:
                   opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"} == 0
                 for: 60m
                 labels:
-                  severity: warning
+                  severity: critical
                   component: opensearch-query-exporter
-                  support_group: cyberdefense
+                  {{- with .Values.additionalSiemRuleLabels }}{{ toYaml . | nindent 10 }}{{ end }}
                 annotations:
                   summary: "No audit queries from source {{`{{ $labels.by_source }}`}}"
                   description: "Source {{`{{ $labels.by_source }}`}} reported 0 audit queries for 60 minutes in namespace {{`{{ $labels.namespace }}`}}"
@@ -1002,7 +1008,7 @@ cluster:
                 labels:
                   severity: warning
                   component: opensearch-query-exporter
-                  support_group: cyberdefense
+                  {{- with .Values.additionalSiemRuleLabels }}{{ toYaml . | nindent 10 }}{{ end }}
                 annotations:
                   summary: "Audit query volume from source {{`{{ $labels.by_source }}`}} dropped >25%"
                   description: "Source {{`{{ $labels.by_source }}`}} is at {{`{{ $value | humanizePercentage }}`}} of the same hour yesterday in namespace {{`{{ $labels.namespace }}`}}"
