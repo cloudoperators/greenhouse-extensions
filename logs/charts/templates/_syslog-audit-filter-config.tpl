@@ -82,6 +82,8 @@ transform/syslog_extract_appname_from_message:
 */}}
 transform/syslog_semconv_normalization:
   error_mode: ignore
+  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
+  flatten_data: true
   log_statements:
     - context: log
       statements:
@@ -242,8 +244,8 @@ transform/syslog_user_extraction:
   Implements the full `fortlogs.maps_to` mapping declared in
   attributes.octobus.yaml. Gated to the Octobus HTTP path (log.type=sysloghttp).
 
-  Runs after user extraction and before hostname parsing so the mapped fields
-  are available to downstream classification. resource.host.name is bridged
+  Runs after hostname parsing and before device classification so the mapped
+  fields are available to downstream classification. resource.host.name is bridged
   from log.syslog.hostname.
 
   Overwrite policy: guarded on the SOURCE (Octobus field present), overwriting
@@ -254,6 +256,8 @@ transform/syslog_user_extraction:
 */}}
 transform/octobus_to_fortlogs_normalization:
   error_mode: ignore
+  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
+  flatten_data: true
   log_statements:
     - context: log
       conditions:
@@ -334,10 +338,21 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["cluster.name"], log.attributes["cluster"]) where log.attributes["cluster"] != nil'
         - 'set(log.attributes["threshold.value"], Int(log.attributes["threshold"])) where log.attributes["threshold"] != nil'
 
-        # ===== PREVENT SCALAR-VS-OBJECT MAPPING CONFLICTS (host, severity, server) =====
-        # Flat scalars collide with dotted ECS children on the same parent ->
-        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat scalar.
-        - 'set(log.attributes["host.name"], log.attributes["host"]) where log.attributes["host"] != nil and log.attributes["host.name"] == nil'
+        # ===== PREVENT MAPPING CONFLICTS ON FLAT KEYS (host, severity, server) =====
+        # A flat key collides with dotted ECS children on the same parent ->
+        # mapper_parsing_exception -> dead-letter. Remap values where useful, then drop the flat key.
+        # host.name is text and must end up a string. An object gives its non-empty name,
+        # else its non-empty hostname; a number becomes a string; anything else is dropped.
+        - 'set(log.attributes["host.name"], log.attributes["host.name"]["name"]) where IsMap(log.attributes["host.name"]) and IsString(log.attributes["host.name"]["name"]) and log.attributes["host.name"]["name"] != ""'
+        - 'set(log.attributes["host.name"], log.attributes["host.name"]["hostname"]) where IsMap(log.attributes["host.name"]) and IsString(log.attributes["host.name"]["hostname"]) and log.attributes["host.name"]["hostname"] != ""'
+        - 'set(log.attributes["host.name"], String(log.attributes["host.name"])) where IsInt(log.attributes["host.name"]) or IsDouble(log.attributes["host.name"])'
+        - 'delete_key(log.attributes, "host.name") where log.attributes["host.name"] != nil and not IsString(log.attributes["host.name"])'
+        # If host.name is still unset, take it from host the same way. A host that is not a
+        # string or number is also kept as JSON in host_string.
+        - 'set(log.attributes["host.name"], String(log.attributes["host"])) where log.attributes["host.name"] == nil and (IsString(log.attributes["host"]) or IsInt(log.attributes["host"]) or IsDouble(log.attributes["host"]))'
+        - 'set(log.attributes["host.name"], log.attributes["host"]["name"]) where log.attributes["host.name"] == nil and IsMap(log.attributes["host"]) and IsString(log.attributes["host"]["name"]) and log.attributes["host"]["name"] != ""'
+        - 'set(log.attributes["host.name"], log.attributes["host"]["hostname"]) where log.attributes["host.name"] == nil and IsMap(log.attributes["host"]) and IsString(log.attributes["host"]["hostname"]) and log.attributes["host"]["hostname"] != ""'
+        - 'set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil and not IsString(log.attributes["host"]) and not IsInt(log.attributes["host"]) and not IsDouble(log.attributes["host"])'
         - 'delete_key(log.attributes, "host")     where log.attributes["host"] != nil'
         - 'delete_key(log.attributes, "severity") where log.attributes["severity"] != nil'
         - 'delete_key(log.attributes, "server")   where log.attributes["server"] != nil'
@@ -410,6 +425,8 @@ transform/cef_parsing:
 */}}
 transform/syslog_hostname_parsing:
   error_mode: ignore
+  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
+  flatten_data: true
   log_statements:
     - context: log
       statements:
@@ -462,9 +479,9 @@ transform/syslog_hostname_parsing:
         # STNPA source detection from appname prefix (do not overwrite an existing source)
         - 'set(log.attributes["sap.cc.audit.source"], "stnpa") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^stnpa")'
         # Extract building block from hostname (for ESXi, NSX-T and remoteboard)
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
-        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and log.attributes["sap.cc.audit.source"] in ["ESXi", "NSX-T", "remoteboard"]'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["net.peer.name"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["log.syslog.hostname"], "(?P<node_building_block>bb\\d{3})"), "upsert") where log.attributes["hostname"] == nil and log.attributes["net.peer.name"] == nil and log.attributes["log.syslog.hostname"] != nil and ContainsValue(["ESXi", "NSX-T", "remoteboard"], log.attributes["sap.cc.audit.source"])'
     - context: log
       statements:
         - 'delete_key(log.attributes, "_mb")'
@@ -689,6 +706,17 @@ kafka/syslog_non_audit:
     enabled: {{ .Values.openTelemetry.kafka.sendingQueue.enabled }}
     num_consumers: {{ .Values.openTelemetry.kafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.kafka.sendingQueue.queueSize | int64 }}
+{{- if .Values.openTelemetry.kafka.sendingQueue.enabled }}
+    # Each request becomes one Kafka message, and one bigger than max_message_bytes is dropped. Split by size
+    # instead, keeping 10% for the producer's record overhead with otlp_proto (flatten_data gives records from
+    # different hosts their own resource, which makes requests bigger). A record over max_size can not be split:
+    # it and the rest of its request are dropped with a "Failed to split request" warning, not counted in send_failed.
+    batch:
+      flush_timeout: 200ms
+      sizer: bytes
+      min_size: 0
+      max_size: {{ div (mul (.Values.openTelemetry.kafka.max_message_bytes | int64) 9) 10 }}
+{{- end }}
 {{- if .Values.openTelemetry.kafka.tls.enabled }}
   tls:
     insecure: false

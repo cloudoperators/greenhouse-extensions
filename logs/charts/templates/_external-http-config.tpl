@@ -23,6 +23,8 @@ webhookevent/external-http:
 {{- define "external_http.transform" }}
 transform/external-http:
   error_mode: ignore
+  # Sets resource attributes from per-log data: give every log its own resource copy (needs transform.flatten.logs).
+  flatten_data: true
   log_statements:
     - context: log
       statements:
@@ -62,7 +64,7 @@ transform/external-http:
         - delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0
         # Stringify with delete_matching_keys to remove all nested/flattened subfields
         - set(log.attributes["host_string"], String(log.attributes["host"])) where log.attributes["host"] != nil
-        - set(resource.attributes["host.name"], log.attributes["host"]["name"]) where resource.attributes["host.name"] == nil and log.attributes["host"] != nil and log.attributes["host"]["name"] != nil #Jumpserver
+        - set(resource.attributes["host.name"], log.attributes["host"]["name"]) where resource.attributes["host.name"] == nil and IsMap(log.attributes["host"]) and log.attributes["host"]["name"] != nil #Jumpserver
         - delete_key(log.attributes, "host") where log.attributes["host"] != nil
         - delete_matching_keys(log.attributes, "^host\\..*")
         - set(log.attributes["sourceIPs_string"], String(log.attributes["sourceIPs"])) where log.attributes["sourceIPs"] != nil
@@ -70,11 +72,11 @@ transform/external-http:
         - delete_matching_keys(log.attributes, "^sourceIPs\\..*")
         # Flatten nested event object into dotted event.* fields before stringifying.
         - set(log.attributes["event.outcome"], ExtractPatterns(log.attributes["message"], "res=(?P<v>success|failed)")["v"]) where log.attributes["event.outcome"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "res=") #Jumpserver
-        - set(log.attributes["event.action"], log.attributes["event"]["action"]) where log.attributes["event.action"] == nil and log.attributes["event"] != nil and log.attributes["event"]["action"] != nil
+        - set(log.attributes["event.action"], log.attributes["event"]["action"]) where log.attributes["event.action"] == nil and IsMap(log.attributes["event"]) and log.attributes["event"]["action"] != nil
         - set(log.attributes["event.outcome"], log.attributes["event"]["outcome"]) where log.attributes["event.outcome"] == nil and log.attributes["event"] != nil and IsMap(log.attributes["event"]) and log.attributes["event"]["outcome"] != nil
         # Collapse category to a single string field regardless of scalar or array.
-        - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
-        - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and log.attributes["event"] != nil and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])
+        - set(log.attributes["event.category"], log.attributes["event"]["category"]) where log.attributes["event.category"] == nil and IsMap(log.attributes["event"]) and log.attributes["event"]["category"] != nil and IsString(log.attributes["event"]["category"])
+        - set(log.attributes["event.category"], String(log.attributes["event"]["category"])) where log.attributes["event.category"] == nil and IsMap(log.attributes["event"]) and log.attributes["event"]["category"] != nil and not IsString(log.attributes["event"]["category"])
         - set(log.attributes["event_string"], String(log.attributes["event"])) where log.attributes["event"] != nil
         - delete_key(log.attributes, "event") where log.attributes["event"] != nil
         - set(log.attributes["process_string"], String(log.attributes["process"])) where log.attributes["process"] != nil
@@ -83,7 +85,7 @@ transform/external-http:
         # Process
         - set(log.attributes["process.executable.path"], ExtractPatterns(log.attributes["message"], "exe=\"(?P<v>[^\"]+)\"")["v"]) where log.attributes["process.executable.path"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "exe=") #Jumpserver
         # User
-        - set(log.attributes["user.id"], ExtractPatterns(log.attributes["message"], "[^a-zA-Z]uid=(?P<v>[^ ']+)")["v"]) where log.attributes["user.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "uid=") #Jumpserver
+        - set(log.attributes["user.id"], ExtractPatterns(log.attributes["message"], "(?:^|[^a-zA-Z])uid=(?P<v>[^ ']+)")["v"]) where log.attributes["user.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "(?:^|[^a-zA-Z])uid=") #Jumpserver
         - set(log.attributes["user.audit.id"], ExtractPatterns(log.attributes["message"], "auid=(?P<v>[^ ']+)")["v"]) where log.attributes["user.audit.id"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "auid=") #Jumpserver
         - set(log.attributes["prometheus_string"], String(log.attributes["prometheus"])) where log.attributes["prometheus"] != nil
         - delete_key(log.attributes, "prometheus") where log.attributes["prometheus"] != nil
@@ -196,6 +198,17 @@ kafka/external_http:
     enabled: {{ .Values.openTelemetry.auditKafka.sendingQueue.enabled }}
     num_consumers: {{ .Values.openTelemetry.auditKafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.auditKafka.sendingQueue.queueSize | int64 }}
+{{- if .Values.openTelemetry.auditKafka.sendingQueue.enabled }}
+    # Each request becomes one Kafka message, and one bigger than max_message_bytes is dropped. Split by size
+    # instead, keeping 10% for the producer's record overhead with otlp_proto (flatten_data gives records from
+    # different hosts their own resource, which makes requests bigger). A record over max_size can not be split:
+    # it and the rest of its request are dropped with a "Failed to split request" warning, not counted in send_failed.
+    batch:
+      flush_timeout: 200ms
+      sizer: bytes
+      min_size: 0
+      max_size: {{ div (mul (.Values.openTelemetry.auditKafka.max_message_bytes | int64) 9) 10 }}
+{{- end }}
 {{- if .Values.openTelemetry.auditKafka.tls.enabled }}
   tls:
     insecure: false
