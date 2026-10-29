@@ -29,3 +29,18 @@ plugindefinition: audit-logs
 {{- tpl (toYaml .Values.auditLogs.prometheus.rules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Returns "true" if at least one ingester collector enables the persistent queue.
+Used to gate PVC-backed-queue alerts and avoid rendering disk-usage rules when
+no PVC is created by the chart.
+*/}}
+{{- define "auditLogs.ingesterPersistentQueueEnabled" -}}
+{{- $enabled := false -}}
+{{- range $name, $cfg := .Values.auditLogs.ingesterCollector.collectors -}}
+{{- if and $cfg.enabled (dig "opensearch" "persistentQueue" "enabled" false $cfg) -}}
+{{- $enabled = true -}}
+{{- end -}}
+{{- end -}}
+{{- if $enabled -}}true{{- end -}}
+{{- end }}
