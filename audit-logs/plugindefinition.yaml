@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.52
+    version: 0.2.53
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.52
+        version: 0.2.53
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -79,7 +79,7 @@ spec:
           required: false
           type: string
         - name: auditLogs.collectorImage.tag
-          default: "842266d"
+          default: "45a549e"
           description: Collector image tag
           required: false
           type: string
@@ -147,11 +147,15 @@ spec:
           type: bool
         - name: auditLogs.ingesterCollector.replicas
           default: 3
-          description: Replica count per ingest collector Deployment
+          description: Replica count per ingest collector Deployment/StatefulSet
           required: false
           type: int
         - name: auditLogs.ingesterCollector.resources
           description: Pod resources per ingest collector Deployment
+          required: false
+          type: map
+        - name: auditLogs.ingesterCollector.affinity
+          description: Node affinity rules for all ingest collector pods (can be overridden per-collector)
           required: false
           type: map
         - name: auditLogs.ingesterCollector.prometheus.podMonitor.enabled
@@ -160,7 +164,7 @@ spec:
           required: false
           type: bool
         - name: auditLogs.ingesterCollector.collectors
-          description: Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `audit-ingester-<name>` consuming a single Kafka topic and writing to OpenSearch index `<name>`. See chart values.yaml for the entry schema.
+          description: "Map of ingest collectors keyed by name. Each entry renders one OpenTelemetryCollector named `audit-ingester-<name>` consuming a single Kafka topic and writing to OpenSearch index `<name>`. Supports per-collector affinity, flushBytes, and persistentQueue (PVC-backed file_storage sending queue, switches mode to StatefulSet). See chart values.yaml for the entry schema."
           required: false
           type: map
         - name: auditLogs.logsCollector.auditpoller.enabled

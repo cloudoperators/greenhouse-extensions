@@ -34,7 +34,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "842266d"
+    tag: "45a549e"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
@@ -150,7 +150,7 @@ auditLogs:
     # -- Labels to be added to Elastic logs
     labels: []
 
-  # -- Kafka -> OpenSearch ingest collectors for audit logs. One Deployment per entry.
+  # -- Kafka -> OpenSearch ingest collectors for audit logs. One Deployment/StatefulSet per entry.
   # @default -- see values.yaml
   ingesterCollector:
     # -- Enable the ingest collectors block.
@@ -164,6 +164,8 @@ auditLogs:
       tag: ""
     # -- Pod resources per ingest collector Deployment.
     resources: {}
+    # -- Node affinity rules for all ingest collector pods (can be overridden per-collector in collectors.<name>.affinity).
+    affinity: {}
     prometheus:
       podMonitor:
         # -- Render a PodMonitor per enabled ingest collector.
@@ -174,16 +176,34 @@ auditLogs:
     #     topic: <kafka-topic>                  # single Kafka topic consumed by this collector
     #     initialOffset: latest | earliest      # optional, defaults to latest
     #     replicas: <int>                        # optional; per-collector replica count, falls back to ingesterCollector.replicas
+    #     affinity: {}                           # optional; per-collector node/pod affinity overriding ingesterCollector.affinity
     #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
     #     kafka: { brokers, protocol_version, encoding, tls }  # optional override of auditLogs.logsCollector.kafka (only applied when kafka.brokers is non-empty)
     #     opensearch:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
-    #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
-    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       flushBytes: 10000000                # optional; flush threshold in bytes for the opensearch bulk API
+    #       sendingQueue:                       # optional; default disabled
+    #         enabled: false                    # render the queue
+    #         waitForResult: true               # true = at-most-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
+    #         numConsumers: 1                   # concurrent consumers draining the queue
+    #         queueSize: 10                     # capacity in units defined by sizer (requests/items/bytes)
+    #         sizer: requests                   # optional; one of requests (default), items, bytes
+    #         batch:                            # optional; coalesce incoming pushes into bigger batches before dispatch
+    #           sizer: bytes                    # requests | items | bytes
+    #           min_size: 5000000               # minimum batch size before flushing
+    #           max_size: 10000000              # upper cap for a single batch
+    #           flush_timeout: 1s               # flush even if min_size not reached after this duration
+    #       persistentQueue:                    # optional; enables file-backed persistent queue (switches mode to statefulset)
+    #         enabled: false
+    #         size: 2Gi                         # PVC size for the queue volume
+    #         storageClassName: ""              # optional; storage class for the PVC (e.g. cinder-premium)
+    #         timeout: 10s                      # optional; file_storage extension timeout
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
+    # When persistentQueue is enabled the collector runs as a StatefulSet with a PVC-backed
+    # file_storage extension referenced by both failover sending queues.
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
     collectors: {}
 

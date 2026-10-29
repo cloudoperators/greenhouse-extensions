@@ -70,13 +70,14 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.affinity | object | `{}` | Node affinity rules for the collector DaemonSet pods |
 | auditLogs.cluster | string | `nil` | Cluster label for Logging |
 | auditLogs.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | overrides the default image repository for the OpenTelemetry Collector image. |
-| auditLogs.collectorImage.tag | string | `"842266d"` | overrides the default image tag for the OpenTelemetry Collector image. |
+| auditLogs.collectorImage.tag | string | `"45a549e"` | overrides the default image tag for the OpenTelemetry Collector image. |
 | auditLogs.customLabels | string | `nil` | Custom labels to apply to all OpenTelemetry related resources |
 | auditLogs.elastic.enabled | bool | `false` | Activates the configuration for Elastic. |
 | auditLogs.elastic.endpoint | string | `nil` | Endpoint URL for Elastic |
 | auditLogs.elastic.labels | list | `[]` | Labels to be added to Elastic logs |
 | auditLogs.elastic.tls | object | `{"crt":null,"key":null}` | TLS certificate for Elastic |
-| auditLogs.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors for audit logs. One Deployment per entry. |
+| auditLogs.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors for audit logs. One Deployment/StatefulSet per entry. |
+| auditLogs.ingesterCollector.affinity | object | `{}` | Node affinity rules for all ingest collector pods (can be overridden per-collector in collectors.<name>.affinity). |
 | auditLogs.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
 | auditLogs.ingesterCollector.enabled | bool | `false` | Enable the ingest collectors block. |
 | auditLogs.ingesterCollector.image.repository | string | `""` | Image repository override; falls back to auditLogs.collectorImage.repository. |
