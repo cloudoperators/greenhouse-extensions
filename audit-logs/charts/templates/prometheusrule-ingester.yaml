@@ -13,24 +13,47 @@ spec:
   groups:
   - name: audit-logs-ingester.alerts
     rules:
-    # Items rejected before entering the sending queue. Triggers on any ingester-collector exporter
-    # whose enqueue is failing (disk full, memory_limiter refusing, storage write errors, etc.).
-    # When this fires along with growing Kafka lag it almost always indicates the backing storage
-    # is full or the collector pod is wedged.
+    # Ratio of enqueue failures to total attempts (sent + failed). Fires when more than 0.5% of
+    # records are rejected before entering the sending queue. Common causes: persistent queue PV
+    # full, memory_limiter refusing data, or storage write errors.
     - alert: AuditIngesterEnqueueFailures
       expr: |
-        sum by (k8s_cluster_name, exporter) (
-          rate(otelcol_exporter_enqueue_failed_log_records_total{exporter=~"opensearch/.*"}[5m])
-        ) > 0
+        (
+          sum by (k8s_cluster_name, exporter) (
+            rate(otelcol_exporter_enqueue_failed_log_records_total{
+              namespace="{{ .Release.Namespace }}",
+              pod=~"audit-ingester-.*",
+              exporter=~"opensearch/.*"
+            }[5m])
+          )
+          /
+          (
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_sent_log_records_total{
+                namespace="{{ .Release.Namespace }}",
+                pod=~"audit-ingester-.*",
+                exporter=~"opensearch/.*"
+              }[5m])
+            )
+            +
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_enqueue_failed_log_records_total{
+                namespace="{{ .Release.Namespace }}",
+                pod=~"audit-ingester-.*",
+                exporter=~"opensearch/.*"
+              }[5m])
+            )
+          )
+        ) * 100 > 0.5
       for: 5m
       labels:
         severity: warning
         {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
       annotations:
-        summary: 'Audit ingester {{`{{ $labels.exporter }}`}} is refusing items on `{{`{{ $labels.k8s_cluster_name }}`}}`'
+        summary: 'Audit ingester {{`{{ $labels.exporter }}`}} enqueue failure rate is {{`{{ $value | printf "%.2f" }}`}}% on `{{`{{ $labels.k8s_cluster_name }}`}}`'
         description: |
           The audit ingester exporter `{{`{{ $labels.exporter }}`}}` on `{{`{{ $labels.k8s_cluster_name }}`}}`
-          has been rejecting records at {{`{{ $value | printf "%.1f" }}`}} per second for the last 5 minutes.
+          is failing to enqueue {{`{{ $value | printf "%.2f" }}`}}% of records over the last 5 minutes.
           Common causes: persistent queue PV is full, memory_limiter is refusing data, or storage
           write errors. Check `AuditIngesterQueueDiskHigh`, pod memory, and `otel-queue` PVC usage.
 
