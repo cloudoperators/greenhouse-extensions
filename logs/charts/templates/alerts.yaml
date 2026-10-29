@@ -251,12 +251,12 @@ spec:
       - alert: OTelExporterQueueFilling
         expr: |
           (
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
             /
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_capacity{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
           ) > 0.8
           and
-          otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
+          otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
         for: 5m
         labels:
           context: logshipping
@@ -273,12 +273,12 @@ spec:
       - alert: OTelExporterQueueFull
         expr: |
           (
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
             /
-            otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
+            otelcol_exporter_queue_capacity{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
           ) >= 1.0
           and
-          otelcol_exporter_queue{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
+          otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"} > 0
         for: 2m
         labels:
           context: logshipping

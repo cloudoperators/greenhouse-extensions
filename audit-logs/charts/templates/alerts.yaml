@@ -1,0 +1,299 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") .Values.auditLogs.prometheus.rules.create .Values.auditLogs.prometheus.rules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ printf "%s-alerts" $.Release.Name | trunc 63 }}
+  labels:
+    {{- include "plugin.labels" . | nindent 4 }}
+    {{- include "plugin.prometheusLabels" . | nindent 4 }}
+{{- if $.Values.auditLogs.prometheus.rules.labels }}
+{{ toYaml $.Values.auditLogs.prometheus.rules.labels | indent 4 }}
+{{- end }}
+spec:
+  groups:
+  - name: audit-logs-plugin-alerts
+    rules:
+  {{- if (has "FilelogRefusedLogs" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditFilelogRefusedLogs
+        expr: sum(rate(otelcol_receiver_refused_log_records{job=~".*/audit-collector-logs", receiver=~"filelog"}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/FilelogRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Audit logs are not successfully pushed into the filelog-receiver
+          description: Audit filelog receiver is increasingly rejecting logs
+  {{- end }}
+
+  {{- if (has "ReceiverRefusedLogs" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditReceiverRefusedLogs
+        expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records{job=~".*/audit-collector-logs"}[1m])) > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/ReceiverRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit OTel receiver {{`{{ $labels.receiver }}`}} is refusing log records on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'The {{`{{ $labels.receiver }}`}} receiver on {{`{{ $labels.k8s_cluster_name }}`}} is rejecting audit log records. Check the receiver configuration and the audit source on affected nodes.'
+  {{- end }}
+
+  {{- if (has "ReceiverRefusedMetric" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditReceiverRefusedMetric
+        expr: sum(rate(otelcol_receiver_refused_metric_points{job=~".*/audit-collector-logs"}[1m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/ReceiverRefusedMetric.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Audit OTel is refusing metric points
+          description: The audit OTel Collector has refused metric points for over 5 minutes. This may indicate malformed metrics. Review configuration and incoming traffic for issues.
+  {{- end }}
+
+  {{- if (has "OTelLogsMissing" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsMissing
+        expr: sum by (region, k8s_node_name, pod) (rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter !~"debug.*"}[60m])) == 0
+        for: 120m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsMissing.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          description: 'Audit OTel Collectors on {{`{{ $labels.k8s_node_name }}`}} in {{`{{ $labels.region }}`}} are not shipping audit logs. Please check.'
+          summary: Audit OTel is not shipping logs
+  {{- end }}
+
+  {{- if (has "OTelLogsIncreasing" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsIncreasing
+        expr: sum(increase(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs"}[1h])) by (k8s_cluster_name) / sum(increase(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs"}[1h] offset 2h)) by (k8s_cluster_name) > 4
+        for: 6h
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          description: 'Audit OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times more logs in the last 6h. Please check.'
+          summary: Audit OTel log volume is increasing, check log volume.
+  {{- end }}
+
+  {{- if (has "OTelLogsDecreasing" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsDecreasing
+        expr: sum(rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs"}[1h] offset 2h)) by (k8s_cluster_name) / sum(rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs"}[1h])) by (k8s_cluster_name) > 4
+        for: 2h
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          description: 'Audit OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times fewer logs in the last 2h. Please check.'
+          summary: Audit OTel log volume is decreasing, check log volume.
+  {{- end }}
+
+  {{- if (has "OTelLogsSLOBurnRateCritical" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsSLOBurnRateCritical
+        expr: |
+          (
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[1h]))
+            /
+            (
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[1h]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[1h]))
+            )
+          ) > (14 * 0.005)
+          and on(k8s_cluster_name)
+          (
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[5m]))
+            /
+            (
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[5m]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[5m]))
+            )
+          ) > (14 * 0.005)
+        for: 2m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsSLOBurnRate.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Audit OTel log export SLO burn rate critical (14x)
+          description: 'Audit OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+  {{- end }}
+
+  {{- if (has "OTelLogsSLOBurnRateWarning" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsSLOBurnRateWarning
+        expr: |
+          (
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[6h]))
+            /
+            (
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[6h]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[6h]))
+            )
+          ) > (6 * 0.005)
+          and on(k8s_cluster_name)
+          (
+            sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[30m]))
+            /
+            (
+              sum by (k8s_cluster_name) (rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[30m]))
+              + sum by (k8s_cluster_name) (rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[30m]))
+            )
+          ) > (6 * 0.005)
+        for: 15m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsSLOBurnRate.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: Audit OTel log export SLO burn rate elevated (6x)
+          description: 'Audit OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+  {{- end }}
+
+  {{- if (has "OTelLogsExportFailureRatioHigh" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsExportFailureRatioHigh
+        expr: |
+          sum by (k8s_cluster_name, exporter) (
+            rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[10m])
+          )
+          /
+          (
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[10m])
+            )
+            +
+            sum by (k8s_cluster_name, exporter) (
+              rate(otelcol_exporter_send_failed_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[10m])
+            )
+          ) > 0.1
+        for: 5m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsExportFailureRatioHigh.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit OTel export failure ratio above 10% for exporter {{`{{ $labels.exporter }}`}}'
+          description: 'Audit OTel collector on {{`{{ $labels.k8s_cluster_name }}`}} has >10% export failures on exporter {{`{{ $labels.exporter }}`}} for 5+ minutes. Current failure ratio: {{`{{ $value | humanizePercentage }}`}}.'
+  {{- end }}
+
+  {{- if (has "OTelExporterQueueFilling" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelExporterQueueFilling
+        expr: |
+          (
+            otelcol_exporter_queue_size{job=~".*/audit-collector-logs", exporter!~"debug.*"}
+            /
+            otelcol_exporter_queue_capacity{job=~".*/audit-collector-logs", exporter!~"debug.*"}
+          ) > 0.8
+          and
+          otelcol_exporter_queue_size{job=~".*/audit-collector-logs", exporter!~"debug.*"} > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelExporterQueueFilling.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit OTel exporter queue {{`{{ $labels.exporter }}`}} is above 80% capacity'
+          description: 'Queue for exporter {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is at {{`{{ $value | humanizePercentage }}`}} capacity. If this reaches 100% with block_on_overflow=true, the collector will stall.'
+  {{- end }}
+
+  {{- if (has "OTelExporterQueueFull" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelExporterQueueFull
+        expr: |
+          (
+            otelcol_exporter_queue_size{job=~".*/audit-collector-logs", exporter!~"debug.*"}
+            /
+            otelcol_exporter_queue_capacity{job=~".*/audit-collector-logs", exporter!~"debug.*"}
+          ) >= 1.0
+          and
+          otelcol_exporter_queue_size{job=~".*/audit-collector-logs", exporter!~"debug.*"} > 0
+        for: 2m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelExporterQueueFilling.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit OTel exporter queue {{`{{ $labels.exporter }}`}} is full — pipeline stalled'
+          description: 'Exporter queue {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is 100% full. New audit log records are blocked. Immediate action required.'
+  {{- end }}
+
+  {{- if (has "OTelLogsVolumeSpike" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsVolumeSpike
+        expr: |
+          (
+            sum by (k8s_cluster_name) (
+              rate(otelcol_receiver_accepted_log_records{job=~".*/audit-collector-logs"}[5m])
+            )
+            /
+            sum by (k8s_cluster_name) (
+              rate(otelcol_receiver_accepted_log_records{job=~".*/audit-collector-logs"}[1h] offset 1h)
+            )
+          ) > 5
+          and on(k8s_cluster_name)
+          sum by (k8s_cluster_name) (
+            rate(otelcol_receiver_accepted_log_records{job=~".*/audit-collector-logs"}[1h] offset 1h)
+          ) > 0
+        for: 5m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit log volume on {{`{{ $labels.k8s_cluster_name }}`}} is 5x above baseline'
+          description: 'Cluster {{`{{ $labels.k8s_cluster_name }}`}} is receiving audit logs at 5x the hourly baseline rate. This may indicate a logging misconfiguration, a noisy source, or an injection attempt.'
+  {{- end }}
+
+  {{- if (has "OTelLogsVolumeDropFast" .Values.auditLogs.prometheus.rules.enabled) }}
+      - alert: AuditOTelLogsVolumeDropFast
+        expr: |
+          (
+            sum by (k8s_cluster_name) (
+              rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[10m])
+            )
+            /
+            sum by (k8s_cluster_name) (
+              rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[1h] offset 1h)
+            )
+          ) < 0.2
+          and on(k8s_cluster_name)
+          sum by (k8s_cluster_name) (
+            rate(otelcol_exporter_sent_log_records{job=~".*/audit-collector-logs", exporter!~"debug.*"}[1h] offset 1h)
+          ) > 0
+        for: 10m
+        labels:
+          context: logshipping
+          severity: info
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/OTelLogsVolumeAnomaly.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Audit log volume dropped >80% vs 1h baseline on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'Audit OTel on {{`{{ $labels.k8s_cluster_name }}`}} is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
+  {{- end }}
+
+{{- end }}

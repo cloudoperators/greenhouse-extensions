@@ -21,6 +21,7 @@ spec:
       expr: sum by (k8s_cluster_name) (max by (k8s_cluster_name, k8s_node_name) (increase(otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"}[30m]))) > 0
       labels:
         severity: warning
+        playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/audit-logs/playbooks/KubeAuditCredentialBodyRemoved.md
         {{- include "plugin.additionalRuleLabels" . | nindent 8 }}
       annotations:
         summary: A kube-apiserver audit policy logs credential bodies

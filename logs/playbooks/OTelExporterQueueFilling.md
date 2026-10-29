@@ -17,4 +17,11 @@ At 80%: log records are accumulating and the pipeline is under pressure. At 100%
 
 ## Diagnosis
 
+1. Check queue size vs capacity: `otelcol_exporter_queue_size` / `otelcol_exporter_queue_capacity` by exporter.
+1. Correlate with `OTelLogsExportFailureRatioHigh` on the same `exporter` label.
+
 ## Resolution Steps
+
+1. Resolve the underlying export failure (sink reachability, credentials, backend health).
+1. If both failover routes are healthy, raise `sending_queue.queue_size` or add replicas.
+1. Restart collector if the queue is stuck despite recovery.

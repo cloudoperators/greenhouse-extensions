@@ -15,4 +15,8 @@ Log records from the affected receiver are not being collected and shipped to th
 
 ## Diagnosis
 
+Check collector logs on the affected cluster: `kubectl logs ds/logs-collector -n <ns> | grep -i refused`. Correlate the `receiver` label with recent config or source changes.
+
 ## Resolution Steps
+
+Fix the receiver config or the upstream sender (format, rate, auth). Restart the collector if the issue is config-driven: `kubectl rollout restart ds/logs-collector -n <ns>`.

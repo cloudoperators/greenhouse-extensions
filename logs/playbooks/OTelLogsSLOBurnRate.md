@@ -15,4 +15,11 @@ Log records are being dropped or failing to reach the sink (OpenSearch or Kafka)
 
 ## Diagnosis
 
+1. Find which exporter is failing via `OTelLogsExportFailureRatioHigh`.
+1. Check sink availability, auth, and recent config/credential changes.
+1. Review collector logs for the dominant error class.
+
 ## Resolution Steps
+
+1. Treat the underlying export failure as the root cause and follow `OTelLogsExportFailureRatioHigh`.
+1. Critical burn rate warrants paging the sink owner; warning can wait for business hours unless it escalates.
