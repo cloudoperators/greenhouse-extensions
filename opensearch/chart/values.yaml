@@ -994,9 +994,9 @@ cluster:
               - alert: OpenSearchQuerySourceDrop
                 expr: |
                   (
-                    avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h])
+                    avg without (pod, instance) (avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h]))
                     /
-                    avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d)
+                    avg without (pod, instance) (avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d))
                   ) < 0.75
                 for: 15m
                 labels:
