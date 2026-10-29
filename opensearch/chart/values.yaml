@@ -994,9 +994,9 @@ cluster:
               - alert: OpenSearchQuerySourceDrop
                 expr: |
                   (
-                    avg without (pod, instance) (avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h]))
+                    avg without (pod, instance) (quantile_over_time(0.5, opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h]))
                     /
-                    avg without (pod, instance) (avg_over_time(opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d))
+                    avg without (pod, instance) (quantile_over_time(0.5, opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d))
                   ) < 0.75
                 for: 15m
                 labels:
@@ -1006,24 +1006,6 @@ cluster:
                 annotations:
                   summary: "Audit query volume from source {{`{{ $labels.by_source }}`}} dropped >25%"
                   description: "Source {{`{{ $labels.by_source }}`}} is at {{`{{ $value | humanizePercentage }}`}} of the same hour yesterday in namespace {{`{{ $labels.namespace }}`}}"
-    # - name: test-rule
-    #   spec: |
-    #     groups:
-    #       - name: opensearch-cluster
-    #         interval: 30s
-    #         rules:
-    #           - alert: OpenSearchClusterRed
-    #             expr: |
-    #               max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
-    #               == 2
-    #             for: 5m
-    #             labels:
-    #               severity: critical
-    #               component: opensearch
-    #               playbook: "{{ .Values.cluster.playbooksUrls.opensearchClusterRed }}"
-    #             annotations:
-    #               summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
-    #               description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
 
   # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
   # dashboards, visualizations). Runs as a post-install/upgrade Helm
