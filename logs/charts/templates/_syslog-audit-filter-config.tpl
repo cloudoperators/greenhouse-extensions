@@ -505,7 +505,7 @@ transform/syslog_audit_classification:
         # Default: mark as non-audit (most logs are non-audit)
         - 'set(log.attributes["audit_relevant"], "false")'
         # Mark as audit if process IS in the audit-relevant whitelist
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo|vcsa-audit):?$")'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != "ESXi" and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "(?i)^(Hostd|NSX|procstate|shell|sshd|ssoAudit|vpxd|ssoadminserver|sudo|vcsa-audit):?$")'
         # Mark network logs as audit-relevant
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.manufacturer.slug"] != nil and IsMatch(log.attributes["netbox.manufacturer.slug"], "(check-point|trend-micro|tufin|radware|f5)")'
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["netbox.platform.slug"] != nil and IsMatch(log.attributes["netbox.platform.slug"], "(cisco-ise|cisco-asa)")'
@@ -518,9 +518,10 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["sap.cc.audit.source"], "ips-ids") where log.attributes["sap.cc.audit.source"] == nil and IsMatch(log.attributes["_mb"], "(IPSevent|IPSaudit|IPSsystem|SMSsystem|SMSaudit|m-ips-sms)")'
     - context: log
       statements:
-        # Any log with a known audit source is audit-relevant (covers ESXi, VCSA, NSX-T, stnpa, hsm, Palo Alto ips-ids, etc.).
+        # Any log with a known audit source is audit-relevant (covers VCSA, NSX-T, stnpa, hsm, Palo Alto ips-ids, etc.).
+        # ESXi is excluded here — it has its own appname-based classification block below.
         # Placed after Palo Alto block so late source assignments (ips-ids) are also classified as audit.
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap.cc.audit.source"] != ""'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap.cc.audit.source"] != "" and log.attributes["sap.cc.audit.source"] != "ESXi"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware" and log.attributes["event_type"] != nil'
@@ -555,14 +556,52 @@ transform/syslog_audit_classification:
         # ALG relay connections EXCEPT routine successful/reset completions (volume
         # control - genua relay accounting is high-volume; status=OK/EPIPE are benign).
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "rule_name=\\S+") and not IsMatch(log.attributes["_mb"], "status=(OK|EPIPE)")'
+    # =========================================================================
+    # ESXi — appname-based audit classification
+    # Replaces the broad VMware manufacturer catch-all.
+    # Only High/Medium tier processes are forwarded to the audit cluster.
+    # All other ESXi logs (vaainasd, vmkernel, localcli, nsx-sha, healthd, etc.)
+    # go to the logs cluster — nothing is dropped.
+    # =========================================================================
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == "vmware"'
+        - 'log.attributes["sap.cc.audit.source"] == "ESXi"'
       statements:
-        - 'set(log.attributes["audit_relevant"], "true")'
+        # High — authentication, firewall, security enforcement
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(sshd|sshd-session|vmauthd|esxtokend|lwsmd|kmxa|FIREWALL-PKTLOG|dfwpktlogs|nsx-idps|secpolicytools|hostprofile|vobd|vmkwarning:?):?$")'
+        # Medium — admin activity, config changes, management-plane
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(ConfigStore|configStoreBackup|settingsd|Hostd|hostd-probe|hostdCgiServer|Vpxa|Rhttpproxy|apiForwarder|crond|esxupdate|sut|watchdog|backup-ssh|backup-check|ntpq|etcd|cfgAgent|Fdm|sandboxd):?$")'
+        # Medium — backup scripts (A12 · SecNumCloud 12.5.b)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(backup\\.sh|auto-backup\\.sh):?$")'
+        # Medium — vmkernel: WARNING and above only (syslog severity.number <= 4)
+        # INFO (6) and DEBUG (7) go to logs cluster
+        # Compliance basis: D1 (system exceptions) D2 (system failures) · PCI 10.2.1
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^vmkernel:?:?$") and log.attributes["severity.number"] != nil and log.attributes["severity.number"] <= 4'
+        # Medium-Low — device events (B2), service startup (D3)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(smartd|vmkdevmgr|jumpstart|Jumper2|usbarb):?$")'
+        # Medium-Low — vSAN mgmt startup (D3), BMC NIC config (B4 · A10)
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(\\.etc\\.init\\.d\\.vsanmgmtd|configBmcNic\\.sh):?$")'
+        # envoy / envoy-access — audit by default
+        # All errors (4xx/5xx), write operations (POST/PUT/PATCH/DELETE), and
+        # non-GET responses go to audit cluster.
+        # Only successful GET requests (read-only polls) go to logs cluster.
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$")'
+        - 'set(log.attributes["audit_relevant"], "false") where IsMatch(log.attributes["appname"], "(?i)^(envoy|envoy-access):?$") and IsMatch(log.attributes["message"], "GET \\S+ 2[0-9]{2} ")'
+        # ----------------------------------------------------------------
+        # localcli — runtime output → logs; all else → audit (safe default)
+        # Step 1: all localcli → audit
+        # ----------------------------------------------------------------
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["appname"] == "localcli"'
+
+        # Known runtime output → logs cluster
+        # Verified against 7 days of live data: the localcli message field
+        # contains only runtime output, never esxcli command strings.
+        # All other localcli logs remain in audit via the Step 1 default above.
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh|lib/ssl:|Using VMware ESXi syslog APIs|GetTypedFileSystems:|Log for VMware ESXi version=|VsanIscsiTargetImpl:|elxima-|info \\[ConfigStore:|VsanInfo|VVOLLIB )")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
+        - 'log.attributes["appname"] != "localcli"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
