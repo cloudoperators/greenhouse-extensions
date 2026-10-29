@@ -17,43 +17,43 @@ spec:
   groups:
   - name: logs-plugin-alerts
     rules:
-  {{- if (has "FilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
-      - alert: FilelogRefusedLogs
+  {{- if (has "OTelLogsFilelogRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsFilelogRefusedLogs
         expr: sum(rate(otelcol_receiver_refused_log_records{receiver=~"filelog"}[1m])) > 0
         for: 5m
         labels:
           severity: warning
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsFilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
           description: Filelog receiver is increasingly rejecting logs
   {{- end }}
 
-  {{- if (has "ReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
-      - alert: ReceiverRefusedLogs
+  {{- if (has "OTelLogsReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsReceiverRefusedLogs
         expr: sum by (k8s_cluster_name, receiver) (rate(otelcol_receiver_refused_log_records{job=~".*/opentelemetry-collector-logs"}[1m])) > 0
         for: 5m
         labels:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedLogs.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel receiver {{`{{ $labels.receiver }}`}} is refusing log records on {{`{{ $labels.k8s_cluster_name }}`}}'
           description: 'The {{`{{ $labels.receiver }}`}} receiver on {{`{{ $labels.k8s_cluster_name }}`}} is rejecting log records. Check the receiver configuration and the log source on affected nodes.'
   {{- end }}
 
-  {{- if (has "ReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
-      - alert: ReceiverRefusedMetric
+  {{- if (has "OTelLogsReceiverRefusedMetric" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsReceiverRefusedMetric
         expr: sum(rate(otelcol_receiver_refused_metric_points{}[1m])) > 0
         for: 5m
         labels:
           severity: warning
           no_alert_on_absence: "true" # OTel will not expose the metric if null
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel is refusing metric points
@@ -75,26 +75,26 @@ spec:
           summary: OTel is not shipping logs
   {{- end }}
 
-  {{- if and (has "ReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
-      - alert: ReconcileErrors
+  {{- if and (has "OTelOperatorReconcileErrors" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
+      - alert: OTelOperatorReconcileErrors
         expr: rate(controller_runtime_reconcile_total{controller="opentelemetrycollector",result="error"}[5m]) > 0
         for: 5m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorReconcileErrors.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OpenTelemetryCollector Reconciliation
           description: Reconciliation errors for OTel are increasing
   {{- end }}
 
-  {{- if and (has "WorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
-      - alert: WorkqueueDepth
+  {{- if and (has "OTelOperatorWorkqueueDepth" .Values.openTelemetry.prometheus.rules.enabled) (index .Values "opentelemetry-operator" "enabled") }}
+      - alert: OTelOperatorWorkqueueDepth
         expr: rate(workqueue_depth{controller="opentelemetrycollector"}[5m]) > 0
         for: 5m
         labels:
           severity: warning
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorWorkqueueDepth.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: WorkqueueDepth is increasing
@@ -109,7 +109,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsIncreasing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times more logs in the last 6h. Please check.'
@@ -124,7 +124,7 @@ spec:
           context: logshipping
           severity: warning
           no_alert_on_absence: "true"
-          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDecreasing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times fewer logs in the last 2h. Please check.'
@@ -139,7 +139,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
@@ -171,7 +171,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate critical (14x)
@@ -203,7 +203,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate elevated (6x)
@@ -247,8 +247,8 @@ spec:
           description: 'OTel collector on {{`{{ $labels.k8s_cluster_name }}`}} has >10% export failures on exporter {{`{{ $labels.exporter }}`}} for 5+ minutes. Current failure ratio: {{`{{ $value | humanizePercentage }}`}}.'
   {{- end }}
 
-  {{- if (has "OTelExporterQueueFilling" .Values.openTelemetry.prometheus.rules.enabled) }}
-      - alert: OTelExporterQueueFilling
+  {{- if (has "OTelLogsExporterQueueFilling" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsExporterQueueFilling
         expr: |
           (
             otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
@@ -262,15 +262,15 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is above 80% capacity'
           description: 'Queue for exporter {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is at {{`{{ $value | humanizePercentage }}`}} capacity. If this reaches 100% with block_on_overflow=true, the collector will stall.'
   {{- end }}
 
-  {{- if (has "OTelExporterQueueFull" .Values.openTelemetry.prometheus.rules.enabled) }}
-      - alert: OTelExporterQueueFull
+  {{- if (has "OTelLogsExporterQueueFull" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelLogsExporterQueueFull
         expr: |
           (
             otelcol_exporter_queue_size{job=~".*/opentelemetry-collector-logs", exporter!~"debug"}
@@ -284,7 +284,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is full — pipeline stalled'
@@ -318,7 +318,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'Log volume on {{`{{ $labels.k8s_cluster_name }}`}} is 5x above baseline'
@@ -355,7 +355,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeDropFast.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'Log volume dropped >80% vs 1h baseline on {{`{{ $labels.k8s_cluster_name }}`}}'

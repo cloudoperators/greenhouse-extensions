@@ -84,11 +84,10 @@ openTelemetry:
       key2: value2
     rules:
       enabled:
-        - FilelogRefusedLogs
-        - ReconcileErrors
-        - FilelogRefusedLogs
-        - LogsOTelLogsMissing
-        - LogsExportingFailed
+        - OTelLogsFilelogRefusedLogs
+        - OTelOperatorReconcileErrors
+        - OTelLogsMissing
+        - OTelLogsExportingFailed
 
 testFramework:
   enabled: true

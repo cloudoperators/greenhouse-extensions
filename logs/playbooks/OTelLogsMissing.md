@@ -1,45 +1,55 @@
 ---
-title: Logs are Missing
-weight: 20
+title: "Logs are missing"
+description: "Alert: OTelLogsMissing"
+weight: 110
 ---
 
-## Root Cause Analysis
+**Alert:** `OTelLogsMissing`
 
-Determine if the lack of sent logs is expected:
-- Check if the Plugin is up and running via the Greenhouse Dashboard.
-- Check if there are other alerts that would indicate a lack of sent logs (`CrashLoopBackoff`, `ErrImagePull`).
-- Check operational logs for the Pods (requests failing, incorrect credentials for logshipping).
-- Check that the defined backend (e.g. OpenSearch) is ready to receive logs e.g. by checking if pods of the backend are in `RUNNING` state:
-    ```
-    kubectl  k get pods -n <backend-namespace> -o wide
-    ```
+## Problem
 
-## Solution
+A collector pod has not exported a single log record in the last 60 minutes. The alert fires per `region`, `k8s_node_name`, `pod`. Scope is **a single collector instance**, not the whole pipeline.
 
-### 1. In Case of Expected Downtime
-Mute the alert temporarily via Greenhouse until the plugin is healthy again and notify the responsible service owner.
+Possible causes (collector-local):
+- Pod is in `CrashLoopBackoff` or `Error` state.
+- Collector config references a secret/configmap that failed to mount.
+- The pod has no sources on that node (no pods matching filelog `include` pattern).
+- Pipeline deadlock from `block_on_overflow: true` combined with a stuck exporter queue.
 
-### 2. In Case of an Unexpected Downtime
+## Impact
 
-#### 2.1 Are other Pods (not 'logs-collector' ones) working?
-If yes, it could be a connection error. Investigate it by checking the errors of the 'logs-collector' Pods in the designated namespace:
-```
-# Retrieves all pods, find the failing pod.
-kubectl get pods -n <namespace> -o wide | grep -e 'collector'
-```
+Logs from the affected node (or ingester shard) are not reaching the sink. Depending on the collector, this means a blind spot for everything on that node.
 
-#### 2.2 If you find a problematic Pod, errors in the log outputs, or other issues. You should also check the logs of a particular _container_ of the problematic Pod for errors, by running:
-```
-kubectl logs <failing-logs-collector> -c otc-container -n <namespace>
-```
+## Diagnosis
 
-#### 2.3 Delete the affected OpenTelemetry Pods in the namespace of the controlplane.
-```
-# Delete a specific pod
-kubectl delete pod <failing-logs-collector> -n <namespace>
-```
-### 3. Ensure that the Pods has been recreated by the operator after some time
+1. Note `k8s_node_name` and `pod` from the alert.
+1. Find the pod from the alert's `pod` label (or by node):
+   ```sh
+   POD=<pod-from-alert>
+   # or by node:
+   POD=$(kubectl get pods -n fortlogs-logs -l app.kubernetes.io/instance=fortlogs-logs.logs -o jsonpath='{.items[0].metadata.name}')
+   ```
+1. Check pod state:
+   ```sh
+   kubectl get pod "$POD" -n fortlogs-logs -o wide
+   kubectl describe pod "$POD" -n fortlogs-logs | tail -30
+   ```
+1. Check for restarts and OOMKilled containers.
+1. Tail logs for a config load failure or receiver init error:
+   ```sh
+   kubectl logs "$POD" -n fortlogs-logs -c otc-container --tail=200
+   kubectl logs "$POD" -n fortlogs-logs -c otc-container --previous --tail=200
+   ```
+1. Verify the node has log sources (if filelog receiver: `kubectl debug node/<node> ... ls /var/log/pods/`).
+1. Check the [`OTelLogsExportFailureRatioHigh`]({{< relref "/docs/operations/playbooks/logs/otellogsexportfailureratiohigh.md" >}}) alert for the same cluster — queue could be stuck causing receiver backpressure.
 
-### 4. Observe the logs for the Pod to ensure that the problem has been resolved.
+## Resolution Steps
 
-### 5. Done.
+1. If pod is crashlooping, resolve the cause (fix secret mount, config error, resource limits) and let the operator restart.
+1. If pod healthy but no sources exist on the node, verify by `kubectl get pods --field-selector spec.nodeName=<node>`. No action needed if node genuinely has no workloads.
+1. If export queue is full, follow [`OTelLogsExporterQueueFilling`]({{< relref "/docs/operations/playbooks/logs/otellogsexporterqueuefilling.md" >}}) first.
+1. If stuck but no obvious cause, delete the pod — operator recreates it:
+   ```sh
+   kubectl delete pod "$POD" -n fortlogs-logs
+   ```
+1. Verify export resumes: `rate(otelcol_exporter_sent_log_records{pod="$POD"}[5m]) > 0`.

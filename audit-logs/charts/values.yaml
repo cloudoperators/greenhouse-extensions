@@ -208,15 +208,15 @@ auditLogs:
 
       # -- PrometheusRules to enable. Mirrors the logs plugin alert set, scoped to the audit-logs collector.
       enabled:
-        - ReceiverRefusedLogs
-        - ReceiverRefusedMetric
-        - OTelLogsMissing
-        - OTelLogsIncreasing
-        - OTelLogsDecreasing
-        - OTelLogsSLOBurnRateCritical
-        - OTelLogsSLOBurnRateWarning
-        - OTelLogsExportFailureRatioHigh
-        - OTelExporterQueueFull
+        - OTelAuditLogsReceiverRefusedLogs
+        - OTelAuditLogsReceiverRefusedMetric
+        - OTelAuditLogsMissing
+        - OTelAuditLogsIncreasing
+        - OTelAuditLogsDecreasing
+        - OTelAuditLogsSLOBurnRateCritical
+        - OTelAuditLogsSLOBurnRateWarning
+        - OTelAuditLogsExportFailureRatioHigh
+        - OTelAuditLogsExporterQueueFull
       # Opt-in alerts (not enabled by default):
       #   - FilelogRefusedLogs: fires on filelog receiver refusals; noisy on nodes with transient parse errors.
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity (OTelExporterQueueFull covers 100%).
