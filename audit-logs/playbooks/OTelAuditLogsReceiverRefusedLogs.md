@@ -15,8 +15,12 @@ Audit records from the affected receiver are not collected and shipped. Dependin
 
 ## Diagnosis
 
-Check collector logs on the affected cluster: `kubectl logs ds/audit-logs-collector -n <ns> | grep -i refused`. Correlate the `receiver` label with recent config or source changes.
+1. Check collector logs: `kubectl logs ds/audit-logs-collector -n <ns> -c otc-container | grep -i refused`.
+1. Note the `receiver` label from the alert.
+1. Correlate with recent config changes or upstream audit source changes.
 
 ## Resolution Steps
 
-Fix the receiver config or the upstream sender (format, rate, auth). Restart the collector if the issue is config-driven: `kubectl rollout restart ds/audit-logs-collector -n <ns>`.
+1. Fix the receiver config or adjust the upstream sender (format, rate, auth).
+1. Apply: `kubectl rollout restart ds/audit-logs-collector -n <ns>`.
+1. Verify refusal rate drops within 5 minutes.

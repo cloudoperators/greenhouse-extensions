@@ -15,11 +15,13 @@ High log volume may saturate the sending queue, increase storage cost in OpenSea
 
 ## Diagnosis
 
-1. Identify top sources via OpenSearch
-1. or `otelcol_receiver_accepted_log_records` by `receiver` / namespace / pod.
+1. Identify top sources:
+   - Query OpenSearch for top namespaces/pods by log count in the last 6 hours, OR
+   - Use Prometheus: `topk(10, sum by (namespace, pod) (increase(otelcol_receiver_accepted_log_records[6h])))`.
 1. Correlate the spike with recent deploys or config rollouts on the cluster.
 
 ## Resolution Steps
 
-1. Silence the noisy source at the application (log level, verbosity flag) or filter it in the collector.
-1. If the spike is legitimate, raise the queue size and notify the backend owner so capacity can be adjusted.
+1. Silence the noisy source at the application (lower log level, verbosity flag) or add a filter processor in the collector.
+1. Notify the source owner.
+1. If the spike is legitimate (e.g., increased traffic), raise the queue size in collector config and notify the backend owner to adjust capacity.

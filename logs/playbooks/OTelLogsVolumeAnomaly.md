@@ -17,11 +17,19 @@ Volume spikes may cause queue saturation and increased cost. Volume drops mean l
 
 ## Diagnosis
 
-1. Identify top sources by namespace/pod via OpenSearch, or
-1. `otelcol_receiver_accepted_log_records` by receiver.
-1. For drops, check Daemonset pod health, recent deploys, and sink availability.
+1. Identify top sources:
+   - Query OpenSearch for top namespaces/pods by log volume in the last hour, OR
+   - Use Prometheus: `topk(10, sum by (namespace, pod) (rate(otelcol_receiver_accepted_log_records[10m])))`.
+1. For spikes: correlate with recent deploys or config rollouts.
+1. For drops: check DaemonSet pod health (`kubectl get pods -n <ns> -l app.kubernetes.io/name=opentelemetry-collector`), recent rollouts, and sink availability.
 
 ## Resolution Steps
 
-1. For spikes: silence the noisy source (log level, filter in collector) and notify the owner.
-1. For drops: restart affected collector pods, verify sink, and follow `OTelLogsMissing` if nodes are silent.
+1. For spikes:
+   1. Silence the noisy source (lower log level in app, add filter processor in collector).
+   1. Notify the source owner.
+   1. If volume remains high, raise queue size or add filtering rules.
+1. For drops:
+   1. Restart affected collector pods: `kubectl delete pod <pod> -n <ns>`.
+   1. Verify sink is accepting traffic (check backend health).
+   1. If nodes remain silent, follow `OTelLogsMissing`.

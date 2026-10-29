@@ -15,8 +15,12 @@ Log records from the affected receiver are not being collected and shipped to th
 
 ## Diagnosis
 
-Check collector logs on the affected cluster: `kubectl logs ds/logs-collector -n <ns> | grep -i refused`. Correlate the `receiver` label with recent config or source changes.
+1. Check collector logs on the affected cluster: `kubectl logs ds/logs-collector -n <ns> -c otc-container | grep -i refused`.
+1. Note the `receiver` label from the alert.
+1. Correlate with recent config changes or upstream source changes.
 
 ## Resolution Steps
 
-Fix the receiver config or the upstream sender (format, rate, auth). Restart the collector if the issue is config-driven: `kubectl rollout restart ds/logs-collector -n <ns>`.
+1. Fix the receiver config (operator syntax, multiline rules, rate limits) or adjust the upstream sender (format, rate, auth).
+1. Apply config: `kubectl rollout restart ds/logs-collector -n <ns>`.
+1. Verify refusal rate drops: check alert clears within 5 minutes.

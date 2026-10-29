@@ -7,18 +7,19 @@ weight: 20
 
 ## Problem
 
-The audit-logs collector removed credential-bearing request/response bodies from kube-apiserver audit events. The cluster's audit policy logs Secrets, tokens, or kubeconfig bodies at `RequestResponse`/`Request` level.
+Audit-logs collector removed credential-bearing request/response bodies from kube-apiserver audit events. Cluster's audit policy logs Secrets, tokens, or kubeconfig bodies at `RequestResponse`/`Request` level.
 
 ## Impact
 
-Without the collector's scrubber the index would store plaintext credentials. The alert indicates an audit policy misconfiguration that must be corrected at the source.
+Without collector scrubber, plaintext credentials would be stored in audit index. Alert indicates audit policy misconfiguration that must be fixed at the source.
 
 ## Diagnosis
 
-1. Find the offending events: query the audit index for `sap.cc.audit.credential_body_removed: true` on the affected cluster.
-1. The event resource/verb identifies the policy rule to tighten.
+1. Query audit index: `sap.cc.audit.credential_body_removed: true` on affected cluster.
+1. Note resource/verb to identify which audit policy rule logs credentials.
 
 ## Resolution Steps
 
-1. Fix the cluster's kube-apiserver audit policy to log Secret/token/kubeconfig access at `Metadata` level only.
-1. Roll the control plane and verify the alert clears.
+1. Fix kube-apiserver audit policy to log Secret/token/kubeconfig at `Metadata` level only (not body).
+1. Roll the control plane.
+1. Verify alert clears.
