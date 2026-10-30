@@ -63,7 +63,6 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalRuleLabels | object | `{}` | Additional labels for PrometheusRule alerts |
-| additionalSiemRuleLabels | object | `{}` | Additional labels for the SIEM query-source alerts, for Alertmanager routing (e.g. support_group, service). |
 | auth.oidc.caPath | string | `""` | Path to CA certificate for OIDC provider verification (relative to OpenSearch config dir) Leave empty to use system CA bundle |
 | auth.oidc.dashboards.baseRedirectUrl | string | `""` | Base redirect URL for OIDC callback (your dashboards URL, e.g., https://dashboards.example.com/) |
 | auth.oidc.dashboards.clientId | string | `""` | OIDC client ID for OpenSearch Dashboards (required when auth.oidc.enabled is true) |
