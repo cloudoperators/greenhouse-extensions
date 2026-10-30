@@ -362,4 +362,21 @@ spec:
           description: 'OTel on {{`{{ $labels.k8s_cluster_name }}`}} is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
   {{- end }}
 
+  {{- if (has "ExternalCollectorMemoryHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: ExternalCollectorMemoryHigh
+        expr: |
+          otelcol_process_memory_rss_bytes{job=~".*/opentelemetry-collector-external"}
+          > 8589934592
+        for: 5m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ExternalCollectorMemoryHigh.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'External collector memory high on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'External collector pod on {{`{{ $labels.k8s_node_name }}`}} in {{`{{ $labels.k8s_cluster_name }}`}} is using more than 8 GiB RSS. This typically indicates a Kafka exporter connection failure causing unbounded queue growth. Check kafka export errors and exporter queue sizes.'
+  {{- end }}
+
 {{- end }}
