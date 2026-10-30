@@ -1,113 +1,66 @@
 ---
-title: OTelLogsDeadletterIndexGrowing
-weight: 20
+title: "Logs routed to deadletter index"
+description: "Alert: OTelLogsDeadletterIndexGrowing"
+weight: 45
 ---
 
-# OTelLogsDeadletterIndexGrowing
+**Alert:** `OTelLogsDeadletterIndexGrowing`
 
 ## Problem
 
-Documents are being routed to the OpenSearch deadletter (on-error) index (datastream) due to permanent indexing failures. This means logs are not reaching their intended destination indices and are accumulating in the fallback, deadletter index.
+The OpenSearch exporter is routing documents to the deadletter (on-error) index because of **permanent** indexing failures. The documents are safely captured in the fallback, but they are not reaching the intended index.
+
+Common causes:
+- `mapper_parsing_exception`: document fields conflict with the index mapping (new field with wrong type, or type drift).
+- 400: malformed document (bad JSON, unexpected structure).
+- `index_not_found_exception`: target datastream deleted or ILM-rolled-away before indexing.
+- 401/403: credentials for the exporter are wrong/revoked.
 
 ## Impact
 
-- Logs are effectively "lost" from their intended indices and queryable only from the deadletter index
-- Root indexing issue is preventing normal log processing
-- Deadletter index storage will grow unbounded if the issue persists
+Logs are queryable only from the deadletter index, not their intended destination. Deadletter growth is unbounded until the root cause is fixed.
 
 ## Diagnosis
 
-### 1. Check the Rate and Volume
-
-Query Prometheus to see how many documents are hitting the deadletter index:
-
-```promql
-rate(opensearch_exporter_on_error_docs_total{k8s_cluster_name="<cluster>"}[5m])
-```
-
-Check which error types are most common:
-
-```promql
-sum by (error_class, error_type, status) (
-  increase(opensearch_exporter_on_error_docs_total{k8s_cluster_name="<cluster>"}[1h])
-)
-```
-
-### 2. Check for Permanent Errors
-
-Inspect the permanent error metric to understand what's causing indexing failures:
-
-```promql
-sum by (error_class, error_type, index, status) (
-  rate(opensearch_exporter_permanent_errors_total{k8s_cluster_name="<cluster>"}[5m])
-)
-```
-
-Common permanent error causes:
-- **400 errors**: Malformed documents, schema mismatches, or field type conflicts
-- **403/401 errors**: Authentication or authorization failures
-- **index_not_found_exception**: Target index (datastream) doesn't exist or was deleted
-- **mapper_parsing_exception**: Document structure doesn't match index mapping
-
-### 3. Examine Collector Logs
-
-Check the OpenTelemetry Collector logs for detailed error messages:
-
-```bash
-kubectl logs -n <namespace> -l app.kubernetes.io/name=opentelemetry-collector --tail=500 | grep -i "error\|failed"
-```
-
-Look for patterns indicating:
-- Mapping conflicts
-- Rejected documents
-- OpenSearch API error responses
+1. Identify affected `k8s_cluster_name` and `index` from alert labels.
+1. Classify the error:
+   ```promql
+   sum by (error_class, error_type, status) (
+     increase(opensearch_exporter_on_error_docs_total{k8s_cluster_name="<cluster>"}[1h])
+   )
+   ```
+1. Confirm with permanent-error metric to see per-index detail:
+   ```promql
+   sum by (error_class, error_type, index, status) (
+     rate(opensearch_exporter_permanent_errors_total{k8s_cluster_name="<cluster>"}[5m])
+   )
+   ```
+1. Tail ingester logs for the OpenSearch error body:
+   ```sh
+   kubectl logs -l app.kubernetes.io/managed-by=opentelemetry-operator -n fortlogs-logs -c otc-container --tail=500 | grep -iE "error|rejected|mapper_parsing"
+   ```
 
 ## Resolution Steps
 
-### For Schema/Mapping Issues (400 errors)
+1. **Mapping conflict (400 / `mapper_parsing_exception`)**: either update the OpenSearch index template to accept the field, or add a transform processor to drop/stringify the field in `openTelemetry.ingesterCollector` config. Example:
+   ```yaml
+   processors:
+     transform:
+       log_statements:
+         - context: log
+           statements:
+             - set(log.attributes["bad_field_string"], String(log.attributes["bad_field"])) where log.attributes["bad_field"] != nil
+             - delete_key(log.attributes, "bad_field") where log.attributes["bad_field"] != nil
+   ```
+1. **401/403**: rotate the credentials in `otel-basic-auth`; secret-reloader restarts collectors.
+1. **`index_not_found_exception`**: verify the datastream exists and the ILM policy is correct; recreate the datastream if deleted.
+1. After fix, verify no new documents land in the deadletter:
+   ```promql
+   rate(opensearch_exporter_on_error_docs_total[5m])
+   ```
+1. Optionally reprocess documents from the deadletter index back to the target index once mappings allow it.
 
-1. **Identify the problematic field(s)** from the error logs
-2. **Update the OpenSearch index (datastream) mapping** to accommodate the field types, or
-3. **Add a transform processor** in the OTel Collector config to fix/drop the problematic fields before export
+## Related
 
-Example processor to drop or "stringify+drop" a problematic field:
-
-```yaml
-processors:
-  transform:
-    log_statements:
-      - context: log
-        statements:
-          # optional: stringify complex types so that data is not lost, instead put into a string type field.
-          - set(log.attributes["problematic_field_string"], String(log.attributes["problematic_field"])) where log.attributes["problematic_field"] != nil
-          # drop the field completely
-          - delete_key(log.attributes, "problematic_field") where log.attributes["problematic_field"] != nil
-          # drop more complex data types
-          - delete_matching_keys(log.attributes, "^problematic_field\\..*")
-```
-
-### For Authentication/Authorization Issues (401/403 errors)
-
-1. Verify the OpenSearch credentials secret is correct.
-2. Check that the service account or user has the necessary permissions in OpenSearch
-3. Rotate credentials if they've expired or been revoked
-
-### For Missing Index (datastream) Issues
-
-1. Verify the target index (datastream) exists in OpenSearch
-2. Check index (datastream) lifecycle policies that may have deleted the index (datastream)
-3. Create the missing index (datastream) with appropriate mappings if needed
-
-### After Resolution
-
-Once the root cause is fixed:
-
-1. Monitor that new documents stop flowing to the deadletter index (datastream)
-2. Decide whether to reprocess documents from the deadletter index (datastream)
-3. Consider adding validation/transformation in the pipeline to prevent recurrence
-
-## Related Alerts
-
-- `OTelLogsDeadletterFlushFailing` - The deadletter index (datastream) itself is failing to write
-- `OTelLogsExportFailureRatioHigh` - High export failure rate
-- `OTelLogsExportingFailed` - General export failures
+- [`OTelLogsDeadletterFlushFailing`]({{< relref "/docs/operations/playbooks/logs/otellogsdeadletterflushfailing.md" >}}) — the deadletter itself is failing (worse).
+- [`OTelLogsExportFailureRatioHigh`]({{< relref "/docs/operations/playbooks/logs/otellogsexportfailureratiohigh.md" >}}) — general export failures.
