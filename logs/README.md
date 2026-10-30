@@ -110,9 +110,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.auditKafka.users | list | See values.yaml | Users configuration for Audit Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"45a549e"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"9b2f381"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"45a549e"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"9b2f381"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
@@ -218,11 +218,11 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.openSearchLogs.failover_username_b | string | `nil` | Second Username (as a failover) for OpenSearch endpoint |
 | openTelemetry.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | openTelemetry.prometheus.podMonitor | object | `{"enabled":true}` | Activates the pod-monitoring for the Logs Collector. |
-| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["ReceiverRefusedLogs","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsSLOBurnRateCritical","OTelLogsSLOBurnRateWarning","OTelLogsExportFailureRatioHigh","OTelExporterQueueFull","ExternalCollectorMemoryHigh"],"labels":{},"playbookBasePath":"https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks"}` | Default rules for monitoring the opentelemetry components. |
+| openTelemetry.prometheus.rules | object | `{"additionalRuleLabels":null,"annotations":{},"create":true,"enabled":["ReceiverRefusedLogs","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsSLOBurnRateCritical","OTelLogsSLOBurnRateWarning","OTelLogsExportFailureRatioHigh","OTelExporterQueueFull","ExternalCollectorMemoryHigh","OTelLogsDeadletterFlushFailing","OTelLogsDeadletterIndexGrowing"],"labels":{},"playbookBasePath":"https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks"}` | Default rules for monitoring the opentelemetry components. |
 | openTelemetry.prometheus.rules.additionalRuleLabels | string | `nil` | Additional labels for PrometheusRule alerts. |
 | openTelemetry.prometheus.rules.annotations | object | `{}` | Annotations for PrometheusRules. |
 | openTelemetry.prometheus.rules.create | bool | `true` | Enables PrometheusRule resources to be created. |
-| openTelemetry.prometheus.rules.enabled | list | `["ReceiverRefusedLogs","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsSLOBurnRateCritical","OTelLogsSLOBurnRateWarning","OTelLogsExportFailureRatioHigh","OTelExporterQueueFull","ExternalCollectorMemoryHigh"]` | PrometheusRules to enable. |
+| openTelemetry.prometheus.rules.enabled | list | `["ReceiverRefusedLogs","ReconcileErrors","ReceiverRefusedMetric","WorkqueueDepth","OTelLogsMissing","OTelLogsIncreasing","OTelLogsDecreasing","OTelLogsSLOBurnRateCritical","OTelLogsSLOBurnRateWarning","OTelLogsExportFailureRatioHigh","OTelExporterQueueFull","ExternalCollectorMemoryHigh","OTelLogsDeadletterFlushFailing","OTelLogsDeadletterIndexGrowing"]` | PrometheusRules to enable. |
 | openTelemetry.prometheus.rules.labels | object | `{}` | Labels for PrometheusRules. |
 | openTelemetry.prometheus.rules.playbookBasePath | string | `"https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks"` | Base URL for playbook links in alert annotations. |
 | openTelemetry.prometheus.serviceMonitor | object | `{"enabled":true}` | Activates the service-monitoring for the Logs Collector. |

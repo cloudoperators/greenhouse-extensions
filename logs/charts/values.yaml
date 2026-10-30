@@ -58,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "45a549e"
+    tag: "9b2f381"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -451,6 +451,8 @@ openTelemetry:
         - OTelLogsExportFailureRatioHigh
         - OTelExporterQueueFull
         - ExternalCollectorMemoryHigh
+        - OTelLogsDeadletterFlushFailing
+        - OTelLogsDeadletterIndexGrowing
       # Opt-in alerts (not enabled by default):
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
       #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
