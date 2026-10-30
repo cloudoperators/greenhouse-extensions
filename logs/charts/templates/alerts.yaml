@@ -383,8 +383,8 @@ spec:
       - alert: OTelLogsDeadletterIndexGrowing
         expr: |
           sum by (k8s_cluster_name, index) (
-            increase(opensearch_exporter_on_error_docs_total{
-              job=~".*/opentelemetry-collector-logs.*"
+            increase(otelcol_opensearch_exporter_on_error_docs_total{
+              job=~".*ingester.*"
             }[30m])
           ) > 0
         for: 1h
@@ -403,8 +403,10 @@ spec:
       - alert: OTelLogsDeadletterFlushFailing
         expr: |
           sum by (k8s_cluster_name, index) (
-            increase(opensearch_exporter_on_error_flush_failures_total{
-              job=~".*/opentelemetry-collector-logs.*"
+            increase(otelcol_opensearch_exporter_on_error_flush_failures_total{
+              job=~".*ingester.*"
+            }[5m])
+          ) > 0
         for: 5m
         labels:
           context: logshipping
