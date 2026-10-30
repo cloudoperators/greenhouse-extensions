@@ -49,7 +49,6 @@ transform/external-http:
         - delete_key(log.attributes, "user_agent") where log.attributes["user_agent"] != nil
         - set(log.attributes["auditd.paths"], String(log.attributes["auditd"]["paths"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
         - delete_key(log.attributes["auditd"], "paths") where log.attributes["auditd"] != nil and log.attributes["auditd"]["paths"] != nil
-        - set(log.attributes["auditd.data"], String(log.attributes["auditd"]["data"])) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil
         - set(log.attributes["auditd.data.op"], log.attributes["auditd"]["data"]["op"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["op"] != nil
         - set(log.attributes["auditd.data.acct"], log.attributes["auditd"]["data"]["acct"]) where log.attributes["auditd"] != nil and log.attributes["auditd"]["data"] != nil and log.attributes["auditd"]["data"]["acct"] != nil
         - set(log.attributes["auditd.log.key"], ExtractPatterns(log.attributes["message"], "key=(?P<v>\\S+)")["v"]) where log.attributes["auditd.log.key"] == nil and log.attributes["message"] != nil and IsMatch(log.attributes["message"], "key=") #Jumpserver
