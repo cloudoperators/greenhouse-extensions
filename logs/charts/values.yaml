@@ -476,6 +476,9 @@ openTelemetry:
         # support_group: support
         # service: my-service
 
+      # -- Base URL for playbook links in alert annotations.
+      playbookBasePath: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks
+
 testFramework:
   # -- Activates the Helm chart testing framework.
   enabled: true
