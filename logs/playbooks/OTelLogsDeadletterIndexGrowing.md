@@ -26,13 +26,13 @@ Logs are queryable only from the deadletter index, not their intended destinatio
 1. Classify the error:
    ```promql
    sum by (error_class, error_type, status) (
-     increase(opensearch_exporter_on_error_docs_total{k8s_cluster_name="<cluster>"}[1h])
+     increase(otelcol_opensearch_exporter_on_error_docs_total{k8s_cluster_name="<cluster>"}[1h])
    )
    ```
 1. Confirm with permanent-error metric to see per-index detail:
    ```promql
    sum by (error_class, error_type, index, status) (
-     rate(opensearch_exporter_permanent_errors_total{k8s_cluster_name="<cluster>"}[5m])
+     rate(otelcol_opensearch_exporter_permanent_errors_total{k8s_cluster_name="<cluster>"}[5m])
    )
    ```
 1. Tail ingester logs for the OpenSearch error body:
@@ -56,7 +56,7 @@ Logs are queryable only from the deadletter index, not their intended destinatio
 1. **`index_not_found_exception`**: verify the datastream exists and the ILM policy is correct; recreate the datastream if deleted.
 1. After fix, verify no new documents land in the deadletter:
    ```promql
-   rate(opensearch_exporter_on_error_docs_total[5m])
+   rate(otelcol_opensearch_exporter_on_error_docs_total[5m])
    ```
 1. Optionally reprocess documents from the deadletter index back to the target index once mappings allow it.
 
