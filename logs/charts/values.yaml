@@ -450,6 +450,7 @@ openTelemetry:
         - OTelLogsSLOBurnRateWarning
         - OTelLogsExportFailureRatioHigh
         - OTelExporterQueueFull
+        - ExternalCollectorMemoryHigh
       # Opt-in alerts (not enabled by default):
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
       #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
@@ -474,6 +475,9 @@ openTelemetry:
       additionalRuleLabels:
         # support_group: support
         # service: my-service
+
+      # -- Base URL for playbook links in alert annotations.
+      playbookBasePath: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks
 
 testFramework:
   # -- Activates the Helm chart testing framework.
