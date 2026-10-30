@@ -18,12 +18,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 {{- end -}}
 
-{{- define "opensearch-siem-alert-labels" -}}
-{{- with .Values.additionalSiemRuleLabels -}}
-{{ toYaml . }}
-{{- end -}}
-{{- end -}}
-
 {{- define "opensearch.guardianEnabled" -}}
 {{- range .Values.cluster.cluster.general.pluginsList -}}
   {{- if contains "guardian" . -}}

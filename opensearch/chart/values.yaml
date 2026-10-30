@@ -204,10 +204,7 @@ operator:
 # -- Additional labels for PrometheusRule alerts
 additionalRuleLabels: {}
 
-# -- Additional labels for the SIEM / query-source PrometheusRule alerts
-# (cluster.prometheusRules). Applied on top of each alert's own labels so the
-# owning support group and service can be set per deployment for Alertmanager
-# routing. Empty by default; set per deployment (e.g. support_group, service).
+# -- Additional labels for the SIEM query-source alerts, for Alertmanager routing (e.g. support_group, service).
 additionalSiemRuleLabels: {}
 
 # -- Labels for the PrometheusRule holding alerts that use kube-side metrics (kubelet/kube-state/node-exporter), so it is picked up by the Prometheus that scrapes kubelet. Set per deployment (e.g. prometheus: kubernetes).
