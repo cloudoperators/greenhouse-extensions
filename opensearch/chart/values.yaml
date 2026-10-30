@@ -204,6 +204,9 @@ operator:
 # -- Additional labels for PrometheusRule alerts
 additionalRuleLabels: {}
 
+# -- Additional labels for the SIEM query-source alerts, for Alertmanager routing (e.g. support_group, service).
+additionalSiemRuleLabels: {}
+
 # -- Labels for the PrometheusRule holding alerts that use kube-side metrics (kubelet/kube-state/node-exporter), so it is picked up by the Prometheus that scrapes kubelet. Set per deployment (e.g. prometheus: kubernetes).
 kubernetesPrometheusRuleLabels: {}
 
@@ -973,25 +976,39 @@ cluster:
 
   # -- Custom Prometheus Rules to create.
   # @default -- See values.yaml
-  prometheusRules: []
-    # - name: test-rule
-    #   spec: |
-    #     groups:
-    #       - name: opensearch-cluster
-    #         interval: 30s
-    #         rules:
-    #           - alert: OpenSearchClusterRed
-    #             expr: |
-    #               max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
-    #               == 2
-    #             for: 5m
-    #             labels:
-    #               severity: critical
-    #               component: opensearch
-    #               playbook: "{{ .Values.cluster.playbooksUrls.opensearchClusterRed }}"
-    #             annotations:
-    #               summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
-    #               description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
+  prometheusRules:
+    - name: opensearch-query-source-silent
+      spec: |
+        groups:
+          - name: opensearch-query-source
+            interval: 30s
+            rules:
+              - alert: OpenSearchQuerySourceSilent
+                expr: |
+                  opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"} == 0
+                for: 60m
+                labels:
+                  severity: critical
+                  component: opensearch-query-exporter
+                  {{- with .Values.additionalSiemRuleLabels }}{{ toYaml . | nindent 10 }}{{ end }}
+                annotations:
+                  summary: "No audit queries from source {{`{{ $labels.by_source }}`}}"
+                  description: "Source {{`{{ $labels.by_source }}`}} reported 0 audit queries for 60 minutes in namespace {{`{{ $labels.namespace }}`}}"
+              - alert: OpenSearchQuerySourceDrop
+                expr: |
+                  (
+                    avg without (pod, instance) (quantile_over_time(0.5, opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h]))
+                    /
+                    avg without (pod, instance) (quantile_over_time(0.5, opensearch_query_source_distribution_audit_15m_by_source_doc_count{namespace="{{ .Release.Namespace }}"}[1h] offset 1d))
+                  ) < 0.75
+                for: 15m
+                labels:
+                  severity: warning
+                  component: opensearch-query-exporter
+                  {{- with .Values.additionalSiemRuleLabels }}{{ toYaml . | nindent 10 }}{{ end }}
+                annotations:
+                  summary: "Audit query volume from source {{`{{ $labels.by_source }}`}} dropped >25%"
+                  description: "Source {{`{{ $labels.by_source }}`}} is at {{`{{ $value | humanizePercentage }}`}} of the same hour yesterday in namespace {{`{{ $labels.namespace }}`}}"
 
   # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
   # dashboards, visualizations). Runs as a post-install/upgrade Helm
