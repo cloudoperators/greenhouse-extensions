@@ -24,7 +24,7 @@ spec:
         labels:
           severity: warning
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/FilelogRefusedLogs.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsFilelogRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: Logs are not successfully pushed into the filelog-receiver
@@ -39,7 +39,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/ReceiverRefusedLogs.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsReceiverRefusedLogs.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel receiver {{`{{ $labels.receiver }}`}} is refusing log records on {{`{{ $labels.k8s_cluster_name }}`}}'
@@ -53,7 +53,7 @@ spec:
         labels:
           severity: warning
           no_alert_on_absence: "true" # OTel will not expose the metric if null
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/ReceiverRefusedMetric.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsReceiverRefusedMetric.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel is refusing metric points
@@ -68,7 +68,7 @@ spec:
           context: logshipping
           severity: warning
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsMissing.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/otellogsmissing.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_node_name }}`}} in {{`{{ $labels.region }}`}} are not shipping logs. Please check.'
@@ -81,7 +81,7 @@ spec:
         for: 5m
         labels:
           severity: warning
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/ReconcileErrors.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelOperatorReconcileErrors.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OpenTelemetryCollector Reconciliation
@@ -94,7 +94,7 @@ spec:
         for: 5m
         labels:
           severity: warning
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/WorkqueueDepth.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelOperatorWorkqueueDepth.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: WorkqueueDepth is increasing
@@ -109,7 +109,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/LogsOTelLogsIncreasing.md'
+          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsIncreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times more logs in the last 6h. Please check.'
@@ -124,7 +124,7 @@ spec:
           context: logshipping
           severity: warning
           no_alert_on_absence: "true"
-          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/LogsOTelLogsDecreasing.md'
+          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsDecreasing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are sending 4 times fewer logs in the last 2h. Please check.'
@@ -139,7 +139,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/LogsExportingFailed.md'
+          playbook: '{{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsExportingFailed.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           description: 'OTel Collectors on {{`{{ $labels.k8s_cluster_name }}`}} are exporting logs below 90%. Please check.'
@@ -171,7 +171,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsSLOBurnRate.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsSLOBurnRateCritical.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate critical (14x)
@@ -203,7 +203,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsSLOBurnRate.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsSLOBurnRateWarning.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: OTel log export SLO burn rate elevated (6x)
@@ -240,7 +240,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsExportFailureRatioHigh.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/otellogsexportfailureratiohigh.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel export failure ratio above 10% for exporter {{`{{ $labels.exporter }}`}}'
@@ -262,7 +262,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelExporterQueueFilling.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsExporterQueueFilling.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is above 80% capacity'
@@ -284,7 +284,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelExporterQueueFilling.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsExporterQueueFilling.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'OTel exporter queue {{`{{ $labels.exporter }}`}} is full — pipeline stalled'
@@ -318,7 +318,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsVolumeAnomaly.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsVolumeSpike.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'Log volume on {{`{{ $labels.k8s_cluster_name }}`}} is 5x above baseline'
@@ -355,7 +355,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsVolumeAnomaly.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbookBasePath }}/OTelLogsVolumeDropFast.md
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'Log volume dropped >80% vs 1h baseline on {{`{{ $labels.k8s_cluster_name }}`}}'
