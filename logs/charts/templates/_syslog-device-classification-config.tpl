@@ -289,9 +289,11 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
-        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and IsString(log.attributes["message"]) and not IsMatch(log.attributes["message"], "CEF:[0-9]+\\|")'
       statements:
-        - 'set(log.attributes["_fortios_native"], ParseKeyValue(log.attributes["message"])) where IsString(log.attributes["message"])'
+        # Native (non-CEF) FortiOS logid/policyid -> event.code / security_rule.group.id.
+        # Relays wrap native payloads in standard syslog formats, so do not gate on syslog.format.
+        - 'set(log.attributes["_fortios_native"], ParseKeyValue(log.attributes["message"])) where (log.attributes["event.code"] == nil or log.attributes["security_rule.group.id"] == nil) and IsMatch(log.attributes["message"], "(?:^|\\s)(logid|policyid)=")'
         - 'set(log.attributes["event.code"], log.attributes["_fortios_native"]["logid"]) where log.attributes["event.code"] == nil and IsString(log.attributes["_fortios_native"]["logid"]) and IsMatch(log.attributes["_fortios_native"]["logid"], "^[0-9]+$")'
         - 'set(log.attributes["security_rule.group.id"], log.attributes["_fortios_native"]["policyid"]) where log.attributes["security_rule.group.id"] == nil and IsString(log.attributes["_fortios_native"]["policyid"]) and IsMatch(log.attributes["_fortios_native"]["policyid"], "^[0-9]+$")'
         - 'delete_key(log.attributes, "_fortios_native")'
