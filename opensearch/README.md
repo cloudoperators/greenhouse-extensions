@@ -182,6 +182,7 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | cluster.ismPolicies | list | See values.yaml | List of OpenSearchISMPolicy. Includes 7-day retention policy for logs* indices. |
 | cluster.nameOverride | string | `""` |  |
 | cluster.playbooksUrls | object | See values.yaml | Playbook URLs for alerts. Override to point to custom runbooks. |
+| cluster.prometheusRules | list | See values.yaml | Custom Prometheus Rules to create. |
 | cluster.roles | list | See values.yaml | List of OpensearchRole. Includes read and write roles for logs* indices. |
 | cluster.savedObjects | object | disabled | Bootstrap OpenSearch Dashboards saved objects (index patterns, dashboards, visualizations). Runs as a post-install/upgrade Helm hook Job that POSTs to the Dashboards API. |
 | cluster.savedObjects.backoffLimit | int | `6` | Job backoff limit. |

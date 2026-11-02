@@ -23,6 +23,8 @@ attributes/k8sevents:
 
 transform/consolidate_label:
   # consolidates the k8s labels coming from resource and attributes into a single label
+  # No flatten_data needed: the k8s_events receiver gives every event its own resource, so setting resource
+  # attributes here from the event's own attributes cannot change another event.
   error_mode: ignore
   log_statements:
     - context: log
