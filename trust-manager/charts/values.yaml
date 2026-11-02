@@ -14,7 +14,7 @@ trust-manager:
       memory: 128Mi
   defaultPackageImage:
     registry: quay.io
-    repository: jetstack/trust-pkg-debian-bookworm
+    repository: jetstack/trust-pkg-debian-trixie
 
 # Bundle configuration
 bundle:
@@ -56,3 +56,5 @@ certExporter:
     tag: v2.19.0
   # List of namespaces to deploy cert-exporter into
   namespaces: []
+  # Additional annotations to add to the cert-exporter pods
+  additionalPodAnnotations: {}
