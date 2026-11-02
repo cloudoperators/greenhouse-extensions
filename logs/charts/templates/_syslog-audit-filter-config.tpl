@@ -519,9 +519,8 @@ transform/syslog_audit_classification:
     - context: log
       statements:
         # Any log with a known audit source is audit-relevant (covers VCSA, NSX-T, stnpa, hsm, Palo Alto ips-ids, etc.).
-        # ESXi is excluded here — it has its own appname-based classification block below.
-        # Placed after Palo Alto block so late source assignments (ips-ids) are also classified as audit.
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap.cc.audit.source"] != "" and log.attributes["sap.cc.audit.source"] != "ESXi"'
+        # ESXi excluded (own appname block below). FortiOS excluded (own logCatID block below).
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap.cc.audit.source"] != "" and log.attributes["sap.cc.audit.source"] != "ESXi" and log.attributes["sap.cc.audit.source"] != "fortios"'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "radware" and log.attributes["event_type"] != nil'
@@ -532,21 +531,67 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == "tufin" and log.attributes["event_type"] != nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Audit|Log|TOS Notification)$")'
+    # =========================================================================
+    # FortiOS — logCatID / policyID / msg-based audit routing.
+    # Replaces the old broad-regex Fortinet block.
+    # RESETS audit_relevant to "false" first, then promotes selectively — so it
+    # is independent of any upstream block that may have set "true"
+    # (e.g. the sap.cc.audit.source catch-all).
+    # Uses _mb (message+body) set at the top of this processor.
+    # Depends on event.code (logCatID) + security_rule.group.id (policyID) from
+    # transform/syslog_device_classification, which runs earlier in the pipeline.
+    # All classifications verified by direct OpenSearch sampling.
+    # =========================================================================
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
-        # Explicit blocks/denials/drops.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "\\b(action=\"?(deny|drop|block)\"?|act=deny)")'
-        # Threat / security subsystems: IPS, UTM, virus, webfilter, DNS filter,
-        # app-control, and client-reputation scoring (crscore/crlevel present).
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)\\b(type=\"?(utm|ips|virus|webfilter|dns|app-ctrl|anomaly|waf|emailfilter))\"?")'
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "\\bcrscore=\\d+")'
-        # Authentication / admin events.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)user") and IsMatch(log.attributes["_mb"], "(?i)auth")'
-        # Keep existing IPS catch-all.
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?i)ips")'
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event_type"] == "event"'
+        # ---- Reset: neutralise any upstream "true" (source catch-all, appname whitelist) ----
+        - 'set(log.attributes["audit_relevant"], "false")'
+
+        # ---- policyID: prefer parsed field, else recover from raw CEF line in _mb ----
+        #      (rot2/wdf4 CEF-unparsed logs carry policyid= in body but not as a field)
+        - 'set(log.attributes["_fpid"], log.attributes["security_rule.group.id"]) where log.attributes["security_rule.group.id"] != nil'
+        - 'set(log.attributes["_fpid"], ExtractPatterns(log.attributes["_mb"], "(?:^|[|\\s])policyid=(?P<p>[0-9]+)")["p"]) where log.attributes["_fpid"] == nil and log.attributes["event.code"] == "0000000013" and IsMatch(log.attributes["_mb"], "(?:^|[|\\s])policyid=[0-9]")'
+
+        # ===== PATH A — logCatID present (event.code) =====
+
+        # HIGH — admin auth, VDOM, config change, CLI, named-policy+user, IPS, update-failed
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] != nil and IsMatch(log.attributes["event.code"], "^(0100032001|0100032002|0100032003|0100032006|0100032007|0100044547|0100044548|0000000020|0419016384|0100041001)$")'
+
+        # MEDIUM — local-plane deny/accept, named accept, UTM SSL, log infra, BGP adjacency,
+        #            SNMP, VPN lifecycle, voltage anomaly, HA sync status, security rating
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] != nil and IsMatch(log.attributes["event.code"], "^(0001000014|0000000005|0001000007|1700062307|0001000006|0100032011|0100032029|0103020300|0100029021|0101037128|0101037124|0101037120|0101037127|0101037129|0101037122|0100022107|0108037903|0110052000)$")'
+
+        # MEDIUM-LOW — IPsec tunnel stats, IPsec SA install
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] != nil and IsMatch(log.attributes["event.code"], "^(0101037141|0101037133)$")'
+
+        # HIGH — 0000000013 with named policy (policyid >= 1, user-attributed)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] == "0000000013" and log.attributes["_fpid"] != nil and log.attributes["_fpid"] != "0" and IsMatch(log.attributes["_fpid"], "^[0-9]+$")'
+
+        # 0000000013 policyid=0 -> Logs (DECISION: Not Audit Relevant, reversible)
+        # To RETAIN in Audit instead, change "false" -> "true" on the next line only.
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["event.code"] == "0000000013" and log.attributes["_fpid"] == "0"'
+
+        # SAFETY NET — 0000000013 with policyID neither parsed nor recoverable (near-zero; fail-safe)
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] == "0000000013" and log.attributes["_fpid"] == nil'
+
+        # NOT RELEVANT by logCatID — default deny, DNS, ICMP deny, OSPFv3 + BGP keepalive noise,
+        #    HA heartbeat, perf stats, DHCP stats, voltage-normal telemetry
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["event.code"] != nil and IsMatch(log.attributes["event.code"], "^(0000000007|0000000011|0000000006|0103020304|0103020301|0108035018|0100040704|0100026003|0100022150)$")'
+
+        # ===== PATH B — NOT_PARSED (event.code absent): decide on _mb content =====
+        # Hostname fields unreliable on these logs; msg content is self-classifying.
+
+        # RETAIN — IPS detections, SSL/SNI mismatch, TCP anomalies
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] == nil and IsMatch(log.attributes["_mb"], "(Nmap\\.Script\\.Scanner|Generic\\.Path\\.Traversal\\.Detection|Apache\\.Log4j\\.Error\\.Log\\.Remote\\.Code\\.Execution|Censys\\.io\\.Scanner|Server certificate and SNI mismatched|syned but no ack|replay packet)")'
+
+        # NOT RELEVANT — deny / DNS / connection noise (covers raw sin9/rot2/wdf4 devices too)
+        - 'set(log.attributes["audit_relevant"], "false") where log.attributes["event.code"] == nil and IsMatch(log.attributes["_mb"], "(Denied by forward policy check|no session matched|blocked by forwarding policy|Connection Failed|no protocol tuple found|reverse path check fail|traffic allowed\\.)")'
+
+        # ---- cleanup local (_mb is deleted by the processor's final statement) ----
+        - 'delete_key(log.attributes, "_fpid") where log.attributes["_fpid"] != nil'
+    # ========================= end FortiOS block =============================
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "genua"'
@@ -600,8 +645,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh|lib/ssl:|Using VMware ESXi syslog APIs|GetTypedFileSystems:|Log for VMware ESXi version=|VsanIscsiTargetImpl:|elxima-|info \\[ConfigStore:|VsanInfo|VVOLLIB )")'
     - context: log
       conditions:
-        - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
-        - 'log.attributes["appname"] != "localcli"'
+        - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil and log.attributes["appname"] != "localcli" and log.attributes["netbox.manufacturer.slug"] != "fortinet"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
