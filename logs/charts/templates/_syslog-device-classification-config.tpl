@@ -289,6 +289,14 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
+        - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
+      statements:
+        - 'set(log.attributes["_fortios_native"], ParseKeyValue(log.attributes["message"])) where IsString(log.attributes["message"])'
+        - 'set(log.attributes["event.code"], log.attributes["_fortios_native"]["logid"]) where log.attributes["event.code"] == nil and IsString(log.attributes["_fortios_native"]["logid"]) and IsMatch(log.attributes["_fortios_native"]["logid"], "^[0-9]+$")'
+        - 'set(log.attributes["security_rule.group.id"], log.attributes["_fortios_native"]["policyid"]) where log.attributes["security_rule.group.id"] == nil and IsString(log.attributes["_fortios_native"]["policyid"]) and IsMatch(log.attributes["_fortios_native"]["policyid"], "^[0-9]+$")'
+        - 'delete_key(log.attributes, "_fortios_native")'
+    - context: log
+      conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
       statements:
         - 'set(log.attributes["netbox.manufacturer.slug"], "fortinet")'
