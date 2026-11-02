@@ -645,9 +645,7 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "false") where log.attributes["appname"] == "localcli" and IsMatch(log.attributes["message"], "(?i)(OBJLIB-|DISKLIB-|PluginLdr_|SlowRefresh|lib/ssl:|Using VMware ESXi syslog APIs|GetTypedFileSystems:|Log for VMware ESXi version=|VsanIscsiTargetImpl:|elxima-|info \\[ConfigStore:|VsanInfo|VVOLLIB )")'
     - context: log
       conditions:
-        - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil'
-        - 'log.attributes["appname"] != "localcli"'
-        - 'log.attributes["netbox.manufacturer.slug"] != "fortinet"'
+        - 'log.attributes["audit_relevant"] != "true" and log.attributes["event_type"] != nil and log.attributes["appname"] != "localcli" and log.attributes["netbox.manufacturer.slug"] != "fortinet"'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["event_type"], "^(Authorization|Authentication|IPSaudit|SMSaudit|utm)$")'
     - context: log
