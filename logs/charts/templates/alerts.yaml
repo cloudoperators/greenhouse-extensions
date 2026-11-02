@@ -402,7 +402,7 @@ spec:
   {{- if (has "OTelLogsDeadletterFlushFailing" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsDeadletterFlushFailing
         expr: |
-          sum by (k8s_cluster_name, index) (
+          sum by (k8s_cluster_name, index, failure_stage) (
             increase(otelcol_opensearch_exporter_on_error_flush_failures_total{
               job=~".*ingester.*"
             }[5m])
@@ -415,7 +415,7 @@ spec:
           playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md'
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          summary: 'Deadletter index flush failing on {{`{{ $labels.index }}`}}, {{`{{ $labels.k8s_cluster_name }}`}}'
-          description: 'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
+          summary: 'Deadletter index flush failing on {{`{{ $labels.index }}`}} ({{`{{ $labels.failure_stage }}`}}), {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} at stage {{`{{ $labels.failure_stage }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
   {{- end }}
 {{- end }}
