@@ -581,9 +581,9 @@ tcp_log/syslog_tls:
   tls:
     cert_file: /etc/ssl/syslog-tls/tls.crt
     key_file: /etc/ssl/syslog-tls/tls.key
+      min_version: "1.3"
     {{- if .Values.openTelemetry.externalCollector.syslogTLSConfig.clientCAEnabled }}
     ca_file: /etc/ssl/syslog-tls/ca.crt
-    min_version: "1.3"
     {{- end }}
   operators:
   - type: regex_parser
