@@ -294,7 +294,7 @@ openTelemetry:
       auditKafkaTopic: ""
       # -- Kafka topic for non-audit syslog logs (only used when kafka is enabled)
       nonAuditKafkaTopic: ""
-      # -- Plausibility bounds for parsed syslog timestamps (TCP, UDP and TLS receivers, also used by syslogTLSConfig), each one number with unit h, m or s (no d).
+      # -- Plausibility bounds for parsed syslog timestamps, used by the syslog TCP/UDP receivers and by syslogTLSConfig. Each is one number with unit h, m or s (no d).
       # A record whose parsed time is more than maxFuture ahead of, or maxPast behind, the collector's receive time gets the receive time;
       # the parsed time goes to attribute event.created if that is not set yet.
       timestampBounds:

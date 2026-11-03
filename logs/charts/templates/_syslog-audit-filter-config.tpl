@@ -153,7 +153,6 @@ transform/syslog_drop_legacy_fields:
         # (strict_date_optional_time||epoch_millis), also when the parsed time was replaced;
         # the raw header stays in the body.
         - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
-        - 'delete_key(log.attributes, "_time_replaced") where log.attributes["_time_replaced"] != nil'
 
         # Resource-mapped: hostname → resource.host.name
         - 'delete_key(log.attributes, "hostname") where log.attributes["hostname"] != nil and resource.attributes["host.name"] == log.attributes["hostname"]'
@@ -726,8 +725,7 @@ transform/syslog_observed_timestamp_fallback:
         - 'log.observed_time_unix_nano > 0 and (log.time > log.observed_time + Duration("{{ $bounds.maxFuture }}") or log.time < log.observed_time - Duration("{{ $bounds.maxPast }}"))'
       statements:
         - 'set(log.attributes["event.created"], FormatTime(log.time, "%Y-%m-%dT%H:%M:%S.%fZ")) where log.attributes["event.created"] == nil'
-        - 'set(log.attributes["_time_replaced"], "true") where log.attributes["event.created"] != nil'
-        - 'set(log.time_unix_nano, log.observed_time_unix_nano) where log.attributes["_time_replaced"] == "true"'
+        - 'set(log.time_unix_nano, log.observed_time_unix_nano) where log.attributes["event.created"] != nil'
 {{- end }}
 
 {{- define "syslog_audit_filter.connectors" }}
