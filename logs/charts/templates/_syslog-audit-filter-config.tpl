@@ -270,7 +270,23 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["syslog_facility_code"])) where log.attributes["syslog_facility_code"] != nil'
         - 'set(log.attributes["syslog.priority"], Int(log.attributes["syslog_pri"])) where log.attributes["syslog_pri"] != nil'
         - 'set(log.attributes["severity.text"], log.attributes["syslog_severity"]) where log.attributes["syslog_severity"] != nil'
-        - 'set(log.attributes["severity.number"], Int(log.attributes["syslog_severity_code"])) where log.attributes["syslog_severity_code"] != nil'
+        # map RFC priorities (severity codes) to  OTEL severity see https://codi.eu-nl-1.cloud.sap/_link?url=https%3A%2F%2Fopentelemetry.io%2Fdocs%2Fspecs%2Fotel%2Flogs%2Fdata-model%2F%23severity-fields
+        #  RFC OTEL  text   RFC-description
+        #   0   21   fatal  Emergency: system is unusable
+        #   1   21   fatal  Alert: action must be taken immediately
+        #   2   17   error  Critical: critical conditions
+        #   3   17   error  Error: error conditions
+        #   4   13   warn   Warning: warning conditions
+        #   5    9   info   Notice: normal but significant condition
+        #   6    9   info   Informational: informational messages
+        #   7    5   debug  Debug: debug-level messages
+        - 'set(log.attributes["severity.number"], 21) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (0, 1)'
+        - 'set(log.attributes["severity.number"], 17) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (2, 3)'
+        - 'set(log.attributes["severity.number"], 13) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (4)'
+        - 'set(log.attributes["severity.number"], 9) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (5, 6)'
+        - 'set(log.attributes["severity.number"], 5) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (7)'
+        - 'set(log.severity_text, log.attributes["severity.text"]) where log.attributes["severity.text"] != nil
+        - 'set(log.severity_number, log.attributes["severity.number"]) where log.attributes["severity.number"] != nil
 
         # ===== DEVICE / HOST IDENTIFICATION =====
         - 'set(log.attributes["host.name"], log.attributes["dvchost"]) where log.attributes["dvchost"] != nil'
@@ -499,6 +515,42 @@ transform/syslog_audit_classification:
   error_mode: ignore
   log_statements:
     - context: log
+      conditions:
+        - '(log.attributes["log.type"] == "sysloghttp" or (log.attributes["syslog.format"] != nil and log.attributes["syslog.format"] != "unknown")) and IsString(log.body) and IsMatch(log.body, "^<\\d+>")'
+      statements:
+        # map RFC priorities (severity codes) to  OTEL severity see https://opentelemetry.io/docs/specs/otel/logs/data-model/#severity-fields
+        #  RFC OTEL  text   RFC-description
+        #   0   21   fatal  Emergency: system is unusable
+        #   1   21   fatal  Alert: action must be taken immediately
+        #   2   17   error  Critical: critical conditions
+        #   3   17   error  Error: error conditions
+        #   4   13   warn   Warning: warning conditions
+        #   5    9   info   Notice: normal but significant condition
+        #   6    9   info   Informational: informational messages
+        #   7    5   debug  Debug: debug-level messages
+        # calculation of the severity for a syslog message starting with e.g. "<134>":
+        #   Facility = 134 / 8 = 16 (local0)
+        #   Severity = 134 % 8 = 6 (Informational)
+        - 'set(log.cache["syslog_pri_original"], Int(ExtractPatterns(log.body, "^<(?P<pri>\\d+)>")["pri"]))'
+        - 'set(log.cache["syslog_severity_code"], log.cache["syslog_pri_original"] - (log.cache["syslog_pri_original"] / 8 * 8))'
+        - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 0'
+        - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 1'
+        - 'set(log.attributes["severity.number"], 21) where log.cache["syslog_severity_code"] in (0, 1)'
+        - 'set(log.attributes["severity.text"], "error") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 2'
+        - 'set(log.attributes["severity.text"], "error") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 3'
+        - 'set(log.attributes["severity.number"], 17) where log.cache["syslog_severity_code"] in (2, 3)'
+        - 'set(log.attributes["severity.text"], "warn") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 4'
+        - 'set(log.attributes["severity.number"], 13) where log.cache["syslog_severity_code"] in (4)'
+        - 'set(log.attributes["severity.text"], "info") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 5'
+        - 'set(log.attributes["severity.text"], "info") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 6'
+        - 'set(log.attributes["severity.number"], 9) where log.cache["syslog_severity_code"] in (5, 6)'
+        - 'set(log.attributes["severity.text"], "debug") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 7'
+        - 'set(log.attributes["severity.number"], 5) where log.cache["syslog_severity_code"] in (7)'
+        - 'set(log.severity_text, log.attributes["severity.text"]) where log.attributes["severity.text"] != nil'
+        - 'set(log.severity_number, log.attributes["severity.number"]) where log.attributes["severity.number"] != nil'
+        - 'delete_key(log.cache, "syslog_severity_code")'
+        - 'delete_key(log.cache, "syslog_pri_original")'
+  - context: log
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
         - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
@@ -623,10 +675,10 @@ transform/syslog_audit_classification:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(ConfigStore|configStoreBackup|settingsd|Hostd|hostd-probe|hostdCgiServer|Vpxa|Rhttpproxy|apiForwarder|crond|esxupdate|sut|watchdog|backup-ssh|backup-check|ntpq|etcd|cfgAgent|Fdm|sandboxd):?$")'
         # Medium — backup scripts (A12 · SecNumCloud 12.5.b)
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(backup\\.sh|auto-backup\\.sh):?$")'
-        # Medium — vmkernel: WARNING and above only (syslog severity.number <= 4)
-        # INFO (6) and DEBUG (7) go to logs cluster
+        # Medium — vmkernel: WARNING and above only (OTel severity number >= 13)
+        # INFO (9) and DEBUG (5) go to logs cluster
         # Compliance basis: D1 (system exceptions) D2 (system failures) · PCI 10.2.1
-        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^vmkernel:?:?$") and log.attributes["severity.number"] != nil and log.attributes["severity.number"] <= 4'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^vmkernel:?:?$") and log.severity_number >= 13'
         # Medium-Low — device events (B2), service startup (D3)
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["appname"], "(?i)^(smartd|vmkdevmgr|jumpstart|Jumper2|usbarb):?$")'
         # Medium-Low — vSAN mgmt startup (D3), BMC NIC config (B4 · A10)
