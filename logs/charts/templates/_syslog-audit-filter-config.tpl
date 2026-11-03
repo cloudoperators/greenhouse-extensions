@@ -150,9 +150,9 @@ transform/syslog_drop_legacy_fields:
         - 'delete_key(log.attributes, "facility_text") where log.attributes["syslog.facility.name"] != nil'
         # Drop raw syslog_timestamp once time_unix_nano is set (parsed or observed fallback).
         # RFC 3164 "Mmm DD HH:MM:SS" has no year and fails OpenSearch date mapping
-        # (strict_date_optional_time||epoch_millis). Kept when the parsed time was out of bounds and
-        # replaced (_time_replaced, see transform/syslog_observed_timestamp_fallback).
-        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0 and log.attributes["_time_replaced"] == nil'
+        # (strict_date_optional_time||epoch_millis), also when the parsed time was replaced;
+        # the raw header stays in the body.
+        - 'delete_key(log.attributes, "syslog_timestamp") where log.attributes["syslog_timestamp"] != nil and log.time_unix_nano != 0'
         - 'delete_key(log.attributes, "_time_replaced") where log.attributes["_time_replaced"] != nil'
 
         # Resource-mapped: hostname → resource.host.name
