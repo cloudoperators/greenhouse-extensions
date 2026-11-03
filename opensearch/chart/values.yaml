@@ -967,6 +967,8 @@ cluster:
     opensearchGuardianEmpty: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md"
     opensearchGuardianErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md"
     opensearchGuardianStatusStale: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md"
+    opensearchEndpointDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchEndpointDown.md"
+    opensearchCertificateExpiringSoon: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchCertificateExpiringSoon.md"
     opensearchHotTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
     opensearchWarmTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
     opensearchOperatorDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md"
@@ -1041,6 +1043,30 @@ cluster:
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.
 extraManifests: []
+
+# Blackbox Probes - synthetic reachability checks for OpenSearch endpoints.
+probes:
+  # -- Enable rendering of the Probe CRs defined in `probes.targets`
+  enabled: false
+  # -- Blackbox exporter endpoint, e.g. prober.scaleout.eu-de-1.cloud.sap
+  prober: ""
+  # -- Default scrape interval (overridable per probe)
+  interval: 60s
+  # -- Default scrape timeout (overridable per probe)
+  scrapeTimeout: 30s
+  # -- List of probes. Each entry: `name`, `module` (must exist in the blackbox
+  #    config), `targets` (list of static URLs to probe), and optionally `labels`
+  #    (extra metadata labels on the Probe), `staticLabels` (labels attached to the
+  #    probed targets), `interval`, and `scrapeTimeout`.
+  targets: []
+  #  - name: opensearch-dashboards
+  #    module: https_2xx
+  #    targets:
+  #      - https://logs.example.cloud.sap/
+  #  - name: opensearch-api
+  #    module: https_403
+  #    targets:
+  #      - https://logs-api.example.cloud.sap/
 
 # Query Exporter - Prometheus exporter for custom OpenSearch queries
 queryExporter:
