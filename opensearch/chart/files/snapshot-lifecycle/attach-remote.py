@@ -46,14 +46,16 @@ def attach_stream(stream: str) -> int:
         return 1
 
     # explain returns 400 when the pattern matches nothing, so list first.
-    # expand_wildcards=all: indexes converted before ignore_index_settings was
-    # set kept index.hidden=true, and a default wildcard list skips them.
+    # Remote indexes restored without ignore_index_settings: index.hidden keep
+    # index.hidden=true, and a default wildcard GET skips hidden indexes.
+    # Closed indexes are left out: ISM cannot attach a policy to them.
     quoted = parse.quote(pattern, safe="*")
-    r = http("GET", f"/{quoted}?filter_path=*.settings.index.provided_name&expand_wildcards=all")
+    r = http("GET", f"/{quoted}?filter_path=*.settings.index.provided_name&expand_wildcards=open,hidden")
     if not r.ok:
         log("error", "list indexes failed", stream=stream, status=r.status, body=r.text)
         return 1
-    if not r.json():
+    listed = r.json()
+    if not listed:
         log("info", "no remote indexes", stream=stream)
         return 0
 
@@ -61,7 +63,8 @@ def attach_stream(stream: str) -> int:
     if not r.ok:
         log("error", "explain failed", stream=stream, status=r.status, body=r.text)
         return 1
-    indexes = {k: v for k, v in r.json().items() if isinstance(v, dict)}
+    # explain also returns closed indexes, so keep only the listed ones.
+    indexes = {k: v for k, v in r.json().items() if isinstance(v, dict) and k in listed}
 
     attached = failed = 0
     for idx, info in sorted(indexes.items()):
@@ -74,8 +77,8 @@ def attach_stream(stream: str) -> int:
             attached += 1
         elif r.ok and body.get("failed_indices") and all(
                 "already has a policy" in f.get("reason", "") for f in body["failed_indices"]):
-            # explain lags a few seconds behind add, so a quick Job retry can
-            # see an index it just attached as unmanaged.
+            # The index got a policy between explain and add (explain reads the
+            # ISM config index, which refreshes every 1s), e.g. from an overlapping run.
             log("info", "already has a policy", index=idx)
         else:
             log("error", "attach failed", index=idx, status=r.status, body=r.text)
