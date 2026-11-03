@@ -500,7 +500,7 @@ transform/syslog_audit_classification:
   log_statements:
     - context: log
       conditions:
-        - 'log.attributes["log.type"] != "sysloghttp" and log.attributes["syslog.format"] != nil and log.attributes["syslog.format"] != "unknown" and log.body != nil and IsMatch(log.body, "^<\\d+>")'
+        - '(log.attributes["log.type"] == "sysloghttp" or (log.attributes["syslog.format"] != nil and log.attributes["syslog.format"] != "unknown")) and IsString(log.body) and IsMatch(log.body, "^<\\d+>")'
       statements:
         # for OTEL severity/priority see https://codi.eu-nl-1.cloud.sap/_link?url=https%3A%2F%2Fopentelemetry.io%2Fdocs%2Fspecs%2Fotel%2Flogs%2Fdata-model%2F%23severity-fields
         # octobus translation in audit-logs\charts\templates\_self-logging-config.tpl transform/severity_mapping:
