@@ -143,6 +143,7 @@ spec:
 
       k8s_events:
         auth_type: serviceAccount
+        k8s_leader_elector: k8s_leader_elector
 
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
       file_log/containerd:
@@ -743,6 +744,16 @@ spec:
           username: ${failover_username_a}
           password: ${failover_password_a}
   {{- include "failover.extension" . | nindent 6 }}
+      k8s_leader_elector:
+        auth_type: serviceAccount
+        lease_name: audit-logs-k8s-events
+        lease_namespace: {{ .Release.Namespace }}
+{{- else }}
+    extensions:
+      k8s_leader_elector:
+        auth_type: serviceAccount
+        lease_name: audit-logs-k8s-events
+        lease_namespace: {{ .Release.Namespace }}
 {{- end }}
     connectors:
       routing:
@@ -785,6 +796,10 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
+        - k8s_leader_elector
+{{- else }}
+      extensions:
+        - k8s_leader_elector
 {{- end }}
       telemetry:
         logs:
