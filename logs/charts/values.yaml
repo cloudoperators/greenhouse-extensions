@@ -432,6 +432,14 @@ openTelemetry:
     enabled: false
     # -- Pod affinity rules for the metrics collector CR
     affinity: {}
+  # -- Go runtime pprof extension; exposes `/debug/pprof/*` for heap, goroutine,
+  # CPU, and trace profiling via `kubectl port-forward`. Intended for ad-hoc
+  # debugging only; leave disabled in production unless actively investigating.
+  pprof:
+    # -- Enable pprof extension on all collectors in this chart.
+    enabled: false
+    # -- TCP port the pprof extension listens on inside each collector pod.
+    port: 1777
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:
