@@ -272,6 +272,11 @@ This guide provides a quick and straightforward way to use **OpenSearch** as a G
 | operator.useRoleBindings | bool | `false` |  |
 | operator.webhook.enabled | bool | `true` |  |
 | operator.webhook.failurePolicy | string | `"Ignore"` |  |
+| probes.enabled | bool | `false` | Enable rendering of the Probe CRs defined in `probes.targets` |
+| probes.interval | string | `"60s"` | Default scrape interval (overridable per probe) |
+| probes.prober | string | `""` | Blackbox exporter endpoint, e.g. prober.scaleout.eu-de-1.cloud.sap |
+| probes.scrapeTimeout | string | `"30s"` | Default scrape timeout (overridable per probe) |
+| probes.targets | list | `[]` | List of probes. Each entry: `name`, `module` (must exist in the blackbox    config), `targets` (list of static URLs to probe), and optionally `labels`    (extra metadata labels on the Probe), `staticLabels` (labels attached to the    probed targets), `interval`, and `scrapeTimeout`. |
 | queryExporter.additionalCredentialsRefs | list | `[]` | Additional credential keys for failover (optional). Listed keys are tried in order after credentialsRef. |
 | queryExporter.credentialsRef | string | `"logs"` | Credentials key from cluster.usersCredentials to use for OpenSearch access. The referenced key must exist under cluster.usersCredentials and will be mounted from the corresponding <key>-credentials Secret. |
 | queryExporter.enabled | bool | `false` | Enable the OpenSearch query exporter |
