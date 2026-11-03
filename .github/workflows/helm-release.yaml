@@ -4,7 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-        - main
+      - main
     paths:
       - .github/workflows/helm-release.yaml
       - external-dns/charts/**
@@ -14,7 +14,6 @@ on:
       - blackbox-exporter/charts/**
       - cert-manager/charts/**
       - doop-api/charts/**
-      - exposed-services/charts/v1.0.0/exposed-service/**
       - exposed-services/charts/v2.0.0/exposed-service/**
       - gatekeeper/charts/**
       - gatekeeper-config/charts/**
@@ -27,150 +26,250 @@ on:
       - opensearch/chart/**
       - logs/charts/**
       - perses/charts/**
-      - plutono/charts/**
       - service-proxy/charts/1.0.0/service-proxy/**
       - thanos/charts/**
       - trust-manager/charts/**
-      - repo-guard/charts/**
       - oidc-discovery-access/**
       - netapp-monitoring/charts/**
       - k8s-gateway-api/charts/**
 
-
-permissions:
-  contents: write
-  packages: write
-
-env:
-  REGISTRY: ghcr.io
-  ACTIONS_RUNNER_DEBUG: false
-
 jobs:
-  helm-release:
-    runs-on: [ ubuntu-latest ]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - chartDir: external-dns/charts
-            chartName: external-dns
-          - chartDir: absent-metrics-operator/charts
-            chartName: absent-metrics-operator
-          - chartDir: alerts/charts
-            chartName: alerts
-          - chartDir: audit-logs/charts
-            chartName: audit-logs
-          - chartDir: blackbox-exporter/charts
-            chartName: blackbox-exporter
-          - chartDir: cert-manager/charts
-            chartName: cert-manager
-          - chartDir: doop-api/charts
-            chartName: doop-api
-          - chartDir: exposed-services/charts/v1.0.0/exposed-service
-            chartName: exposed-services
-          - chartDir: exposed-services/charts/v2.0.0/exposed-service
-            chartName: exposed-services
-          - chartDir: gatekeeper/charts
-            chartName: gatekeeper
-          - chartDir: gatekeeper-config/charts
-            chartName: gatekeeper-config
-          - chartDir: gatekeeper-doop/charts
-            chartName: gatekeeper-doop
-          - chartDir: kafka/charts
-            chartName: kafka
-          - chartDir: kube-monitoring/charts
-            chartName: kube-monitoring
-          - chartDir: kubeconfig-generator/chart
-            chartName: kubeconfig-generator
-          - chartDir: logshipper/chart
-            chartName: logshipper
-          - chartDir: opensearch/chart
-            chartName: opensearch
-          - chartDir: logs/charts
-            chartName: logs
-          - chartDir: perses/charts
-            chartName: perses
-          - chartDir: plutono/charts
-            chartName: plutono
-          - chartDir: service-proxy/charts/1.0.0/service-proxy
-            chartName: service-proxy
-          - chartDir: thanos/charts
-            chartName: thanos
-          - chartDir: trust-manager/charts
-            chartName: trust-manager
-          - chartDir: repo-guard/charts
-            chartName: repo-guard
-          - chartDir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
-            chartName: oidc-discovery-access
-          - chartDir: netapp-monitoring/charts
-            chartName: netapp-monitoring
-          - chartDir: k8s-gateway-api/charts
-            chartName: k8s-gateway-api
+  helm-release-external-dns:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: external-dns/charts
+      chart-name: external-dns
+      allow-existing: true
 
+  helm-release-absent-metrics-operator:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: absent-metrics-operator/charts
+      chart-name: absent-metrics-operator
+      allow-existing: true
 
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-            fetch-depth: 0
-            token: ${{ secrets.GITHUB_TOKEN }}
+  helm-release-alerts:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: alerts/charts
+      chart-name: alerts
+      allow-existing: true
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+  helm-release-audit-logs:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: audit-logs/charts
+      chart-name: audit-logs
+      allow-existing: true
 
-      - name: Set up Helm
-        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
-        with:
-          version: "v3.19.5"
+  helm-release-blackbox-exporter:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: blackbox-exporter/charts
+      chart-name: blackbox-exporter
+      allow-existing: true
 
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        with:
-            python-version: '3.x'
-            check-latest: true
-            token: ${{ secrets.GITHUB_TOKEN }}
+  helm-release-cert-manager:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: cert-manager/charts
+      chart-name: cert-manager
+      allow-existing: true
 
-      - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
-        with:
-            registry: ${{ env.REGISTRY }}
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+  helm-release-doop-api:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: doop-api/charts
+      chart-name: doop-api
+      allow-existing: true
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
-        with:
-          files: |
-            ${{ matrix.chartDir }}/**
+  helm-release-exposed-services-v2:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: exposed-services/charts/v2.0.0/exposed-service
+      chart-name: exposed-services
+      allow-existing: true
 
-      - name: Check if Helm chart with same version already exists
-        id: check-chart
-        if: steps.changed-files.outputs.all_changed_files != ''
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          # List all changed
-          echo "All changed files: $ALL_CHANGED_FILES"
-          chartName=$(yq .name "${{ matrix.chartDir }}/Chart.yaml")
-          chartVersion=$(yq .version "${{ matrix.chartDir }}/Chart.yaml")
-          echo "chart_version=${chartVersion}" >> "$GITHUB_OUTPUT"
-          if $(helm pull "oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/${{ matrix.chartName }}" --version $chartVersion); then
-            echo "bump=true" >> "$GITHUB_OUTPUT"
-          fi
+  helm-release-gatekeeper:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: gatekeeper/charts
+      chart-name: gatekeeper
+      allow-existing: true
 
-      - name: Chart needs version bump
-        if: steps.check-chart.outputs.bump == 'true'
-        env:
-          CHART_VERSION: ${{ steps.check-chart.outputs.chart_version }}
-        run: |
-          echo "Chart ${{ matrix.chartDir }}:${{ env.CHART_VERSION }} already exists in OCI registry. Skipping upload. Please increment the chart version."
-          exit 1
+  helm-release-gatekeeper-config:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: gatekeeper-config/charts
+      chart-name: gatekeeper-config
+      allow-existing: true
 
-      - name: Push Charts to GHCR
-        if: steps.changed-files.outputs.all_changed_files != '' && steps.check-chart.outputs.bump != 'true'
-        run: |
-          helm package ${{ matrix.chartDir }} -d ${{ matrix.chartDir }}
-          PKG_NAME=`ls ${{ matrix.chartDir }}/*.tgz`
-          helm push ${PKG_NAME} oci://${{ env.REGISTRY }}/${{ github.repository }}/charts/
+  helm-release-gatekeeper-doop:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: gatekeeper-doop/charts
+      chart-name: gatekeeper-doop
+      allow-existing: true
+
+  helm-release-kafka:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: kafka/charts
+      chart-name: kafka
+      allow-existing: true
+
+  helm-release-kube-monitoring:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: kube-monitoring/charts
+      chart-name: kube-monitoring
+      allow-existing: true
+
+  helm-release-kubeconfig-generator:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: kubeconfig-generator/chart
+      chart-name: kubeconfig-generator
+      allow-existing: true
+
+  helm-release-logshipper:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: logshipper/chart
+      chart-name: logshipper
+      allow-existing: true
+
+  helm-release-opensearch:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: opensearch/chart
+      chart-name: opensearch
+      allow-existing: true
+
+  helm-release-logs:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: logs/charts
+      chart-name: logs
+      allow-existing: true
+
+  helm-release-perses:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: perses/charts
+      chart-name: perses
+      allow-existing: true
+
+  helm-release-service-proxy:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: service-proxy/charts/1.0.0/service-proxy
+      chart-name: service-proxy
+      allow-existing: true
+
+  helm-release-thanos:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: thanos/charts
+      chart-name: thanos
+      allow-existing: true
+
+  helm-release-trust-manager:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: trust-manager/charts
+      chart-name: trust-manager
+      allow-existing: true
+
+  helm-release-oidc-discovery-access:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: oidc-discovery-access/charts/1.0.0/oidc-discovery-access
+      chart-name: oidc-discovery-access
+      allow-existing: true
+
+  helm-release-netapp-monitoring:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: netapp-monitoring/charts
+      chart-name: netapp-monitoring
+      allow-existing: true
+
+  helm-release-k8s-gateway-api:
+    uses: cloudoperators/common/.github/workflows/shared-helm-release.yaml@4a36aa4e13e96d49b6d17f29da005f6cdb42b15b
+    permissions:
+      contents: read
+      packages: write
+    with:
+      chart-dir: k8s-gateway-api/charts
+      chart-name: k8s-gateway-api
+      allow-existing: true
