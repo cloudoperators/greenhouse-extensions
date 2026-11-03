@@ -522,7 +522,7 @@ transform/syslog_audit_classification:
         # calculation of the severity for a syslog message starting with e.g. "<134>":
         #   Facility = 134 / 8 = 16 (local0)
         #   Severity = 134 % 8 = 6 (Informational)
-        - 'set(log.cache["syslog_pri_original"], Int(ExtractPatterns(log.body, "^<(?P<pri>\\d+)>\")["pri"]))'
+        - 'set(log.cache["syslog_pri_original"], Int(ExtractPatterns(log.body, "^<(?P<pri>\\d+)>")["pri"]))'
         - 'set(log.cache["syslog_severity_code"], log.cache["syslog_pri_original"] - (log.cache["syslog_pri_original"] / 8 * 8))'
         - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 0'
         - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 1'
