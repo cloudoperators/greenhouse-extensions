@@ -49,9 +49,9 @@ OpenTelemetry Operator Helm chart for Kubernetes
 | openTelemetry.auditKafka.tls.enabled | bool | `false` | Enable TLS for Kafka connections |
 | openTelemetry.auditKafka.users | list | See values.yaml | Users configuration for Audit Kafka connections |
 | openTelemetry.cluster | string | `nil` | Cluster label for Logging |
-| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"6073fa3"}` | OpenTelemetry Collector image configuration |
+| openTelemetry.collectorImage | object | `{"repository":"ghcr.io/cloudoperators/opentelemetry-collector-contrib","tag":"e094ff2"}` | OpenTelemetry Collector image configuration |
 | openTelemetry.collectorImage.repository | string | `"ghcr.io/cloudoperators/opentelemetry-collector-contrib"` | Image repository for OpenTelemetry Collector |
-| openTelemetry.collectorImage.tag | string | `"6073fa3"` | Image tag for OpenTelemetry Collector |
+| openTelemetry.collectorImage.tag | string | `"e094ff2"` | Image tag for OpenTelemetry Collector |
 | openTelemetry.customLabels | object | `{}` | custom Labels applied to servicemonitor, secrets and collectors |
 | openTelemetry.externalCollector | object | See values.yaml | Standalone external OTel Collector as StatefulSet. |
 | openTelemetry.externalCollector.affinity | object | `{}` | Pod affinity rules for the external collector CR |
