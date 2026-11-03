@@ -17,6 +17,7 @@ webhookevent/external-http:
   tls:
     cert_file: /etc/ssl/syslog-tls/tls.crt
     key_file: /etc/ssl/syslog-tls/tls.key
+    min_version: "1.3"
 {{- end }}
 {{- end }}
 
