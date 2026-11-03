@@ -499,6 +499,47 @@ transform/syslog_audit_classification:
   error_mode: ignore
   log_statements:
     - context: log
+      conditions:
+        - 'log.attributes["log.type"] != "sysloghttp" and log.attributes["syslog.format"] != nil and log.attributes["syslog.format"] != "unknown" and log.body != nil and IsMatch(log.body, "^<\\d+>")'
+      statements:
+        # for OTEL severity/priority see https://codi.eu-nl-1.cloud.sap/_link?url=https%3A%2F%2Fopentelemetry.io%2Fdocs%2Fspecs%2Fotel%2Flogs%2Fdata-model%2F%23severity-fields
+        # octobus translation in audit-logs\charts\templates\_self-logging-config.tpl transform/severity_mapping:
+        # - set(log.severity_number, 1) where ToLowerCase(attributes["level"]) == "trace"
+        # - set(log.severity_number, 5) where ToLowerCase(attributes["level"]) == "debug"
+        # - set(log.severity_number, 9) where ToLowerCase(attributes["level"]) == "info"
+        # - set(log.severity_number, 13) where ToLowerCase(attributes["level"]) == "warn"
+        # - set(log.severity_number, 17) where ToLowerCase(attributes["level"]) == "error"
+        # - set(log.severity_number, 21) where ToLowerCase(attributes["level"]) == "fatal"
+        # RFC priorities (severity codes):
+        #   0 Emergency: system is unusable
+        #   1 Alert: action must be taken immediately
+        #   2 Critical: critical conditions
+        #   3 Error: error conditions
+        #   4 Warning: warning conditions
+        #   5 Notice: normal but significant condition
+        #   6 Informational: informational messages
+        #   7 Debug: debug-level messages
+        # calculation of the severity for a syslog message starting with e.g. "<134>":
+        #   Facility = 134 / 8 = 16 (local0)
+        #   Severity = 134 % 8 = 6 (Informational)
+        - 'set(log.cache["syslog_pri_original"], Int(ExtractPatterns(log.body, "^<(?P<pri>\\d+)>\")["pri"]))'
+        - 'set(log.cache["syslog_severity_code"], log.cache["syslog_pri_original"] - (log.cache["syslog_pri_original"] / 8 * 8))'
+        - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 0'
+        - 'set(log.attributes["severity.text"], "fatal") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 1'
+        - 'set(log.attributes["severity.number"], 21) where log.attributes["severity.number"] == nil and log.cache["syslog_severity_code"] in (0, 1)'
+        - 'set(log.attributes["severity.text"], "error") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 2'
+        - 'set(log.attributes["severity.text"], "error") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 3'
+        - 'set(log.attributes["severity.number"], 17) where log.attributes["severity.number"] == nil and log.cache["syslog_severity_code"] in (2, 3)'
+        - 'set(log.attributes["severity.text"], "warn") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 4'
+        - 'set(log.attributes["severity.number"], 13) where log.attributes["severity.number"] == nil and log.cache["syslog_severity_code"] in (4)'
+        - 'set(log.attributes["severity.text"], "info") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 5'
+        - 'set(log.attributes["severity.text"], "info") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 6'
+        - 'set(log.attributes["severity.number"], 9) where log.attributes["severity.number"] == nil and log.cache["syslog_severity_code"] in (5, 6)'
+        - 'set(log.attributes["severity.text"], "debug") where log.attributes["severity.text"] == nil and log.cache["syslog_severity_code"] == 7'
+        - 'set(log.attributes["severity.number"], 5) where log.attributes["severity.number"] == nil and log.cache["syslog_severity_code"] in (7)'
+        - 'delete_key(log.cache, "syslog_severity_code")'
+        - 'delete_key(log.cache, "syslog_pri_original")'
+    - context: log
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
         - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
