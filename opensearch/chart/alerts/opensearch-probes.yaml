@@ -1,0 +1,29 @@
+groups:
+  - name: opensearch-probes
+    interval: 30s
+    rules:
+      - alert: OpenSearchEndpointDown
+        expr: |
+          probe_success{job=~"opensearch-.*", namespace="{{ .Release.Namespace }}"} == 0
+        for: 10m
+        labels:
+          severity: critical
+          component: opensearch
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchEndpointDown }}
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "OpenSearch endpoint {{`{{ $labels.instance }}`}} is unreachable"
+          description: "Blackbox probe {{`{{ $labels.job }}`}} for {{`{{ $labels.instance }}`}} has been failing for more than 10 minutes."
+
+      - alert: OpenSearchCertificateExpiringSoon
+        expr: |
+          (probe_ssl_earliest_cert_expiry{job=~"opensearch-.*", namespace="{{ .Release.Namespace }}"} - time()) / 86400 < 14
+        for: 10m
+        labels:
+          severity: warning
+          component: opensearch
+          playbook: {{ .Values.cluster.playbooksUrls.opensearchCertificateExpiringSoon }}
+          {{- include "opensearch-alert-labels" . | nindent 10 }}
+        annotations:
+          summary: "TLS certificate for {{`{{ $labels.instance }}`}} is expiring soon"
+          description: "The TLS certificate served by {{`{{ $labels.instance }}`}} (probe {{`{{ $labels.job }}`}}) expires in less than 14 days."
