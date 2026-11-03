@@ -119,6 +119,9 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.openSearchLogs.index | string | `nil` | Name for OpenSearch index |
 | auditLogs.openSearchLogs.timeout | string | `"30s"` | Timeout for OpenSearch requests |
 | auditLogs.podAnnotations | object | `{}` | Annotations to add to collector pods |
+| auditLogs.pprof | object | `{"enabled":false,"port":1777}` | Go runtime pprof extension; exposes `/debug/pprof/*` for heap, goroutine, CPU, and trace profiling via `kubectl port-forward`. Intended for ad-hoc debugging only; leave disabled in production unless actively investigating. |
+| auditLogs.pprof.enabled | bool | `false` | Enable pprof extension on all collectors in this chart. |
+| auditLogs.pprof.port | int | `1777` | TCP port the pprof extension listens on inside each collector pod. |
 | auditLogs.prometheus.additionalLabels | object | `{}` | Label selectors for the Prometheus resources to be picked up by prometheus-operator. |
 | auditLogs.prometheus.podMonitor | object | `{"enabled":false}` | Activates the service-monitoring for the Logs Collector. |
 | auditLogs.prometheus.rules | object | `{"additionalRuleLabels":null,"create":true,"labels":{}}` | Default rules for monitoring the opentelemetry components. |

@@ -92,6 +92,12 @@ spec:
   ports:
     - name: prometheus
       port: 8888
+{{- if (dig "pprof" "enabled" false .Values.auditLogs) }}
+    {{- include "pprof.containerPort" . | nindent 4 }}
+{{- end }}
+{{- else if (dig "pprof" "enabled" false .Values.auditLogs) }}
+  ports:
+    {{- include "pprof.containerPort" . | nindent 4 }}
 {{- end }}
 
 {{- if .Values.auditLogs.logsCollector.auditd.enabled }}
@@ -749,6 +755,9 @@ spec:
           password: ${failover_password_a}
   {{- include "failover.extension" . | nindent 6 }}
 {{- end }}
+{{- if (dig "pprof" "enabled" false .Values.auditLogs) }}
+      {{- include "pprof.extension" . | nindent 6 }}
+{{- end }}
     connectors:
       routing:
         default_pipelines:
@@ -791,9 +800,15 @@ spec:
         - basicauth/failover_a
         - basicauth/failover_b
         - k8s_leader_elector
+{{- if (dig "pprof" "enabled" false .Values.auditLogs) }}
+        - pprof
+{{- end }}
 {{- else }}
       extensions:
         - k8s_leader_elector
+{{- if (dig "pprof" "enabled" false .Values.auditLogs) }}
+        - pprof
+{{- end }}
 {{- end }}
       telemetry:
         logs:
