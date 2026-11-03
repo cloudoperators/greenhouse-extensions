@@ -184,6 +184,11 @@ auditLogs:
     #       tls: { caSecret, caSecretKey, insecure }
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       flushBytes: 10000000                # optional; flush threshold in bytes for the opensearch bulk API
+    #       timeout: 30s                        # optional; default 30s. Limit for one bulk request to OpenSearch, per failover exporter (a, then b).
+    #                                           # Not the same setting as persistentQueue.timeout below.
+    #       retry: { maxElapsedTime: 30s }      # optional; default 30s. Retry budget per failover exporter for retryable errors (bulk timeouts,
+    #                                           # 429/5xx, connection errors). No new attempt starts after it, so with the defaults a request
+    #                                           # that times out goes to exporter b instead of being retried on a.
     #       sendingQueue:                       # optional; default disabled
     #         enabled: false                    # render the queue
     #         waitForResult: true               # true = at-most-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
@@ -199,7 +204,7 @@ auditLogs:
     #         enabled: false
     #         size: 2Gi                         # PVC size for the queue volume
     #         storageClassName: ""              # optional; storage class for the PVC (e.g. cinder-premium)
-    #         timeout: 10s                      # optional; file_storage extension timeout
+    #         timeout: 10s                      # optional; file_storage extension timeout for queue file operations, not the OpenSearch request timeout
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # When persistentQueue is enabled the collector runs as a StatefulSet with a PVC-backed
