@@ -46,8 +46,10 @@ def attach_stream(stream: str) -> int:
         return 1
 
     # explain returns 400 when the pattern matches nothing, so list first.
+    # expand_wildcards=all: indexes converted before ignore_index_settings was
+    # set kept index.hidden=true, and a default wildcard list skips them.
     quoted = parse.quote(pattern, safe="*")
-    r = http("GET", f"/{quoted}?filter_path=*.settings.index.provided_name")
+    r = http("GET", f"/{quoted}?filter_path=*.settings.index.provided_name&expand_wildcards=all")
     if not r.ok:
         log("error", "list indexes failed", stream=stream, status=r.status, body=r.text)
         return 1
@@ -66,9 +68,15 @@ def attach_stream(stream: str) -> int:
         if info.get("index.plugins.index_state_management.policy_id") or info.get("policy_id"):
             continue
         r = http("POST", f"/_plugins/_ism/add/{parse.quote(idx, safe='')}", {"policy_id": policy_id})
-        if r.ok and not r.json().get("failures"):
+        body = r.json() if r.ok else {}
+        if r.ok and not body.get("failures"):
             log("info", "attached", index=idx, policy=policy_id)
             attached += 1
+        elif r.ok and body.get("failed_indices") and all(
+                "already has a policy" in f.get("reason", "") for f in body["failed_indices"]):
+            # explain lags a few seconds behind add, so a quick Job retry can
+            # see an index it just attached as unmanaged.
+            log("info", "already has a policy", index=idx)
         else:
             log("error", "attach failed", index=idx, status=r.status, body=r.text)
             failed += 1
