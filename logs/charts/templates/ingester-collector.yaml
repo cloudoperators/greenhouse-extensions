@@ -7,6 +7,25 @@ SPDX-License-Identifier: Apache-2.0
 {{- $root := . -}}
 {{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
 {{- if and $cfg.enabled $cfg.topic }}
+{{- $timeout := dig "timeout" "60s" $cfg.opensearch }}
+{{- $retry := dig "retry" (dict) $cfg.opensearch }}
+{{- if not (kindIs "map" $retry) }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.retry: must be a map like { maxElapsedTime: 30s }, got %v" $name $retry) }}
+{{- end }}
+{{- with (omit $retry "maxElapsedTime") }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.retry: unknown keys %v, only maxElapsedTime is supported" $name (keys . | sortAlpha)) }}
+{{- end }}
+{{- if hasKey $cfg.opensearch "terminationGracePeriodSeconds" }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.terminationGracePeriodSeconds: set it on the collector, not under opensearch" $name) }}
+{{- end }}
+{{- $maxElapsed := dig "maxElapsedTime" "30s" $retry }}
+{{- $timeoutSeconds := include "ingesterCollector.durationSeconds" (dict "collector" $name "key" "timeout" "value" $timeout) | int64 }}
+{{- $maxElapsedSeconds := include "ingesterCollector.durationSeconds" (dict "collector" $name "key" "retry.maxElapsedTime" "value" $maxElapsed) | int64 }}
+{{- /* One pass through the failover (exporter a, then b) takes up to 2 x (timeout + maxElapsedTime). The receiver cancels in-flight exports at shutdown, so this is a margin, not a bound. */}}
+{{- $grace := dig "terminationGracePeriodSeconds" (add (mul 2 (add $timeoutSeconds $maxElapsedSeconds)) 15) $cfg }}
+{{- if not (regexMatch "^[0-9]+$" (toString $grace)) }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.terminationGracePeriodSeconds: must be a whole number of seconds, got %v" $name $grace) }}
+{{- end }}
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -27,7 +46,7 @@ spec:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/auto: "true"
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: {{ $grace }}
   {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
@@ -174,8 +193,8 @@ spec:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
+          max_elapsed_time: {{ $maxElapsed | quote }}
+        timeout: {{ $timeout | quote }}
       opensearch/{{ $name }}_failover_b:
         http:
           auth:
@@ -196,8 +215,8 @@ spec:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
+          max_elapsed_time: {{ $maxElapsed | quote }}
+        timeout: {{ $timeout | quote }}
     connectors:
       failover/opensearch_{{ $name }}:
         priority_levels:
