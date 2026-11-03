@@ -192,10 +192,10 @@ auditLogs:
     #                                           # Synchronous (sendingQueue off, or waitForResult: true): with the defaults a request that times out
     #                                           # is not retried on a and goes to exporter b.
     #                                           # Async (waitForResult: false, required with persistentQueue): there is no failover to b and the
-    #                                           # batch is dropped once the window runs out, so set maxElapsedTime above timeout to get a retry.
+    #                                           # batch is dropped once the window runs out, so set maxElapsedTime well above timeout (e.g. 2x) to get a retry.
     #       sendingQueue:                       # optional; default disabled
     #         enabled: false                    # render the queue
-    #         waitForResult: true               # true = at-most-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
+    #         waitForResult: true               # true = at-least-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
     #         numConsumers: 1                   # concurrent consumers draining the queue
     #         queueSize: 10                     # capacity in units defined by sizer (requests/items/bytes)
     #         sizer: requests                   # optional; one of requests (default), items, bytes
