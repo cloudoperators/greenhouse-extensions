@@ -79,7 +79,7 @@ spec:
           required: false
           type: string
         - name: auditLogs.collectorImage.tag
-          default: "6073fa3"
+          default: "e094ff2"
           description: Collector image tag
           required: false
           type: string
