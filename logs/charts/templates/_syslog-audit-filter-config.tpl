@@ -285,8 +285,8 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["severity.number"], 13) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (4)'
         - 'set(log.attributes["severity.number"], 9) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (5, 6)'
         - 'set(log.attributes["severity.number"], 5) where log.attributes["syslog_severity_code"] != nil and Int(log.attributes["syslog_severity_code"]) in (7)'
-        - 'set(log.severity_text, log.attributes["severity.text"]) where log.attributes["severity.text"] != nil
-        - 'set(log.severity_number, log.attributes["severity.number"]) where log.attributes["severity.number"] != nil
+        - 'set(log.severity_text, log.attributes["severity.text"]) where log.attributes["severity.text"] != nil'
+        - 'set(log.severity_number, log.attributes["severity.number"]) where log.attributes["severity.number"] != nil'
 
         # ===== DEVICE / HOST IDENTIFICATION =====
         - 'set(log.attributes["host.name"], log.attributes["dvchost"]) where log.attributes["dvchost"] != nil'
@@ -550,7 +550,7 @@ transform/syslog_audit_classification:
         - 'set(log.severity_number, log.attributes["severity.number"]) where log.attributes["severity.number"] != nil'
         - 'delete_key(log.cache, "syslog_severity_code")'
         - 'delete_key(log.cache, "syslog_pri_original")'
-  - context: log
+    - context: log
       statements:
         # Materialize message+body once per log for reuse by downstream statements.
         - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
