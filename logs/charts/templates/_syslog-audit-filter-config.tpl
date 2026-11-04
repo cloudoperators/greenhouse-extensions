@@ -566,9 +566,6 @@ transform/syslog_audit_classification:
         # MEDIUM-LOW — IPsec tunnel stats, IPsec SA install
         - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] != nil and IsMatch(log.attributes["event.code"], "^(0101037141|0101037133)$")'
 
-        # HIGH — 0000000013 with named policy (policyid >= 1, user-attributed)
-        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.code"] == "0000000013" and log.attributes["_fpid"] != nil and log.attributes["_fpid"] != "0" and IsMatch(log.attributes["_fpid"], "^[0-9]+$")'
-
         # 0000000013 policyid=0 -> Logs (DECISION: Not Audit Relevant, reversible)
         # To RETAIN in Audit instead, change "false" -> "true" on the next line only.
         - 'set(log.attributes["audit_relevant"], "false") where log.attributes["event.code"] == "0000000013" and log.attributes["_fpid"] == "0"'
@@ -588,6 +585,14 @@ transform/syslog_audit_classification:
 
         # NOT RELEVANT — deny / DNS / connection noise (covers raw sin9/rot2/wdf4 devices too)
         - 'set(log.attributes["audit_relevant"], "false") where log.attributes["event.code"] == nil and IsMatch(log.attributes["_mb"], "(Denied by forward policy check|no session matched|blocked by forwarding policy|Connection Failed|no protocol tuple found|reverse path check fail|traffic allowed\\.)")'
+
+        # ===== SAFETY NET — Finding 3 =====
+        # All FortiOS IPS subtype events are audit relevant.
+        # Covers relay/CEF path (event.category), native KV path (subtype),
+        # and raw unparsed fallback (_mb content).
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["event.category"] == "ips"'
+        - 'set(log.attributes["audit_relevant"], "true") where log.attributes["subtype"] == "ips"'
+        - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "(?:^|[|\\s])(?:FTNTFGT)?subtype=\"?ips\"?(?:[|\\s]|$)")'
 
         # ---- cleanup local (_mb is deleted by the processor's final statement) ----
         - 'delete_key(log.attributes, "_fpid") where log.attributes["_fpid"] != nil'
