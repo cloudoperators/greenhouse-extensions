@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: agentgateway-crds
 spec:
-  version: 1.4.1
+  version: 1.7.0
   displayName: AgentGateway CRDs
   description: >-
     Installs the agentgateway Custom Resource Definitions (AgentgatewayBackend,
@@ -16,4 +16,4 @@ spec:
   helmChart:
     name: agentgateway-crds
     repository: oci://cr.agentgateway.dev/charts
-    version: v1.4.1
+    version: v1.7.0
