@@ -56,6 +56,12 @@ spec:
   ports:
     - name: prometheus
       port: 8888
+{{- if (dig "pprof" "enabled" false $root.Values.auditLogs) }}
+    {{- include "pprof.containerPort" $root | nindent 4 }}
+{{- end }}
+{{- else if (dig "pprof" "enabled" false $root.Values.auditLogs) }}
+  ports:
+    {{- include "pprof.containerPort" $root | nindent 4 }}
 {{- end }}
 {{- $kafka := $root.Values.auditLogs.logsCollector.kafka -}}
 {{- if and $cfg.kafka (gt (len (default (list) $cfg.kafka.brokers)) 0) -}}
@@ -173,6 +179,9 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "pprof" "enabled" false $root.Values.auditLogs) }}
+      {{- include "pprof.extension" $root | nindent 6 }}
+{{- end }}
 {{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
       file_storage/otelqueue:
         directory: /var/lib/otel-queue
@@ -273,6 +282,9 @@ spec:
         - basicauth/failover_b
 {{- if (dig "persistentQueue" "enabled" false $cfg.opensearch) }}
         - file_storage/otelqueue
+{{- end }}
+{{- if (dig "pprof" "enabled" false $root.Values.auditLogs) }}
+        - pprof
 {{- end }}
       telemetry:
         logs:

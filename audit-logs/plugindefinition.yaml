@@ -56,6 +56,16 @@ spec:
           description: auditLogs.prometheus.podMonitor.enabled
           required: false
           type: bool
+        - name: auditLogs.pprof.enabled
+          default: false
+          description: Enable the Go pprof extension on all collectors for ad-hoc memory and CPU profiling via kubectl port-forward. Intended for debugging only.
+          required: false
+          type: bool
+        - name: auditLogs.pprof.port
+          default: 1777
+          description: TCP port the pprof extension listens on inside each collector pod.
+          required: false
+          type: int
         - name: auditLogs.prometheus.serviceMonitor.enabled
           default: false
           description: auditLogs.prometheus.serviceMonitor.enabled
