@@ -40,7 +40,7 @@ opentelemetry-operator:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
     # @ignored renovate does not support generating new README.md
     # -- overrides the default tag repository for the OpenTelemetry Operator image.
-      tag: v0.160.0
+      tag: v0.162.0
     serviceMonitor:
     # -- Enable serviceMonitor for Prometheus metrics scrape
       enabled: true
@@ -58,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "842266d"
+    tag: "78a44dd"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -411,6 +411,18 @@ openTelemetry:
     #       tls: { caSecret, caSecretKey, insecure }
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
     #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       timeout: 60s                         # optional; default 60s (10s before chart 0.16.24). Limit for one export attempt of a kafka message, per failover exporter
+    #       retry: { maxElapsedTime: 30s }       # optional; default 30s. Retry budget per failover exporter for retryable errors (timeouts, 429/5xx, connection errors)
+    #       # Both take <n>ms, <n>s or <n>m (n is 1 to 9999999, no leading zero); anything else fails the render.
+    #       # No new attempt starts after maxElapsedTime, so with the defaults a timed-out export is not retried on
+    #       # the same exporter and goes to b.
+    #       # One pass through the failover (exporter a, then b) takes up to 2 x (timeout + maxElapsedTime); after that
+    #       # the message goes back to the kafka receiver, which retries it with its own error_backoff.
+    #     terminationGracePeriodSeconds: <int>   # optional; default 2 x (timeout + maxElapsedTime) + 15, so 195 with the defaults.
+    #                                            # On shutdown the kafka receiver cancels an in-flight export and the message is redelivered.
+    #                                            # With sendingQueue.waitForResult false the offsets are already committed and the queue drains
+    #                                            # on shutdown, and anything not sent before the grace period ends is lost, so raise this to
+    #                                            # cover queueSize / numConsumers x timeout.
     # Each entry renders one OpenTelemetryCollector named "logs-ingester-<name>" with
     # group_id "logs-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # -- Map of ingest collectors keyed by name. Configured via PluginPreset.
@@ -450,6 +462,9 @@ openTelemetry:
         - OTelLogsSLOBurnRateWarning
         - OTelLogsExportFailureRatioHigh
         - OTelExporterQueueFull
+        - ExternalCollectorMemoryHigh
+        - OTelLogsDeadletterFlushFailing
+        - OTelLogsDeadletterIndexGrowing
       # Opt-in alerts (not enabled by default):
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
       #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
@@ -474,6 +489,9 @@ openTelemetry:
       additionalRuleLabels:
         # support_group: support
         # service: my-service
+
+      # -- Base URL for playbook links in alert annotations.
+      playbookBasePath: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks
 
 testFramework:
   # -- Activates the Helm chart testing framework.

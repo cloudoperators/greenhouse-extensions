@@ -15,6 +15,9 @@ metadata:
   {{- end }}
 spec:
   mode: statefulset
+  args:
+    # Required by flatten_data in the syslog and external-http transforms; without it the collector does not start.
+    feature-gates: transform.flatten.logs
   replicas: {{ .Values.openTelemetry.externalCollector.replicas }}
 {{- with .Values.openTelemetry.externalCollector.resources }}
   resources:
