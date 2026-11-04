@@ -60,8 +60,10 @@ spec:
         app.kubernetes.io/name: cert-exporter
         app.kubernetes.io/component: cert-exporter-{{ $namespace }}
         cert-exporter.io/type: deployment
+      {{- with $.Values.certExporter.additionalPodAnnotations }}
       annotations:
-        prometheus.io/scrape: "true"
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: trust-manager-cert-exporter
       containers:
