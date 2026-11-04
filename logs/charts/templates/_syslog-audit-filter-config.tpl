@@ -270,7 +270,7 @@ transform/octobus_to_fortlogs_normalization:
         - 'set(log.attributes["syslog.facility.code"], Int(log.attributes["syslog_facility_code"])) where log.attributes["syslog_facility_code"] != nil'
         - 'set(log.attributes["syslog.priority"], Int(log.attributes["syslog_pri"])) where log.attributes["syslog_pri"] != nil'
         - 'set(log.attributes["severity.text"], log.attributes["syslog_severity"]) where log.attributes["syslog_severity"] != nil'
-        # map RFC priorities (severity codes) to  OTEL severity see https://codi.eu-nl-1.cloud.sap/_link?url=https%3A%2F%2Fopentelemetry.io%2Fdocs%2Fspecs%2Fotel%2Flogs%2Fdata-model%2F%23severity-fields
+        # map RFC priorities (severity codes) to  OTEL severity see https://opentelemetry.io/docs/specs/otel/logs/data-model/#field-severitynumber
         #  RFC OTEL  text   RFC-description
         #   0   21   fatal  Emergency: system is unusable
         #   1   21   fatal  Alert: action must be taken immediately
