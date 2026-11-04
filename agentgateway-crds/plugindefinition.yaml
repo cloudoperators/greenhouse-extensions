@@ -14,6 +14,7 @@ spec:
     the agentgateway controller. Install this before the agentgateway plugin.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/agentgateway-crds/README.md
   helmChart:
+    # renovate depName=cr.agentgateway.dev/charts/agentgateway-crds
     name: agentgateway-crds
     repository: oci://cr.agentgateway.dev/charts
     version: v1.7.0

@@ -15,6 +15,7 @@ spec:
     Requires the agentgateway-crds and k8s-gateway-api plugins to be installed first.
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/agentgateway/README.md
   helmChart:
+    # renovate depName=cr.agentgateway.dev/charts/agentgateway
     name: agentgateway
     repository: oci://cr.agentgateway.dev/charts
     version: v1.7.0
