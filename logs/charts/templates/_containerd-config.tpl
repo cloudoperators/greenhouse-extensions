@@ -64,11 +64,18 @@ transform/perses:
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "time=%{QUOTEDSTRING} level=%{WORD:log.level} msg=%{GREEDYDATA:msg}", true),"upsert")
         - set(log.attributes["config.parsed"], "perses")
+
+transform/kvm_cluster_source:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'set(log.attributes["sap.cc.audit.source"], "kvm") where IsMatch(resource.attributes["k8s.cluster.name"], "^(cc|rt)-")'
 {{ end }}
 
 {{- define "containerd.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses, transform/kvm_cluster_source]
   exporters: [routing]
 {{- end }}
