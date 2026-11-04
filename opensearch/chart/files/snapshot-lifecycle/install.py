@@ -56,12 +56,9 @@ def wait_for_cluster(timeout_s: int = 240) -> None:
     sys.exit(1)
 
 
-_PUT_TIMEOUT = 300  # snapshot repo registration verifies every data node; can be slow
-
-
 def put(path: str, body: dict) -> None:
     log("info", "creating resource", method="PUT", path=path)
-    r = http("PUT", path, body, timeout=_PUT_TIMEOUT)
+    r = http("PUT", path, body)
     if not r.ok:
         log("error", "request failed", method="PUT", path=path, status=r.status, body=r.text)
         sys.exit(1)
@@ -85,7 +82,7 @@ def put_policy(path: str, body: dict) -> None:
     primary_term = existing.get("_primary_term")
     qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
     log("info", "updating resource", method="PUT", path=path, seq_no=seq_no, primary_term=primary_term)
-    r = http("PUT", f"{path}{qs}", body, timeout=_PUT_TIMEOUT)
+    r = http("PUT", f"{path}{qs}", body)
     if not r.ok:
         log("error", "request failed", method="PUT", path=path, status=r.status, body=r.text)
         sys.exit(1)
@@ -115,7 +112,7 @@ def put_sm_policy(path: str, body: dict) -> None:
     primary_term = existing.get("_primary_term")
     qs = f"?if_seq_no={seq_no}&if_primary_term={primary_term}"
     log("info", "updating resource", method="PUT", path=path, seq_no=seq_no, primary_term=primary_term)
-    r = http("PUT", f"{path}{qs}", body, timeout=_PUT_TIMEOUT)
+    r = http("PUT", f"{path}{qs}", body)
     if not r.ok:
         log("error", "request failed", method="PUT", path=path, status=r.status, body=r.text)
         sys.exit(1)

@@ -28,7 +28,7 @@ _PASSWORD = os.environ["PASSWORD"]
 
 _SKIP_VERIFY = os.environ.get("TLS_SKIP_VERIFY", "").lower() in ("1", "true", "yes")
 _CA_BUNDLE = os.environ.get("CA_BUNDLE") or None
-_DEFAULT_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT") or 300)
+_DEFAULT_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT") or 600)
 
 if _SKIP_VERIFY:
     SSL_CTX = ssl.create_default_context()
