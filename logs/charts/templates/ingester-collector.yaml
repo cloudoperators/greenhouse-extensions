@@ -188,11 +188,11 @@ spec:
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
-          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          enabled: {{ dig "sendingQueue" "enabled" true $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
-          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 5 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 1000 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
@@ -210,11 +210,11 @@ spec:
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
-          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          enabled: {{ dig "sendingQueue" "enabled" true $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
-          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 5 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 1000 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
