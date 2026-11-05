@@ -967,9 +967,33 @@ cluster:
     opensearchGuardianEmpty: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianEmpty.md"
     opensearchGuardianErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianErrors.md"
     opensearchGuardianStatusStale: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchGuardianStatusStale.md"
+    opensearchEndpointDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchEndpointDown.md"
+    opensearchCertificateExpiringSoon: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchCertificateExpiringSoon.md"
     opensearchHotTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
     opensearchWarmTierDiskFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchHighDiskUsage.md"
     opensearchOperatorDown: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/opensearch/playbooks/OpenSearchOperatorDown.md"
+
+  # -- Custom Prometheus Rules to create.
+  # @default -- See values.yaml
+  prometheusRules: []
+    # - name: test-rule
+    #   spec: |
+    #     groups:
+    #       - name: opensearch-cluster
+    #         interval: 30s
+    #         rules:
+    #           - alert: OpenSearchClusterRed
+    #             expr: |
+    #               max by (opensearch_org_opensearch_cluster) (opensearch_cluster_status{namespace="{{ .Release.Namespace }}"})
+    #               == 2
+    #             for: 5m
+    #             labels:
+    #               severity: critical
+    #               component: opensearch
+    #               playbook: "{{ .Values.cluster.playbooksUrls.opensearchClusterRed }}"
+    #             annotations:
+    #               summary: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is RED"
+    #               description: "OpenSearch cluster {{`{{ $labels.opensearch_org_opensearch_cluster }}`}} is in RED status for more than 5 minutes"
 
   # -- Bootstrap OpenSearch Dashboards saved objects (index patterns,
   # dashboards, visualizations). Runs as a post-install/upgrade Helm
@@ -1019,6 +1043,30 @@ cluster:
 # -- Extra Kubernetes manifests to deploy alongside the chart.
 # Each entry can be a raw YAML string or a map object.
 extraManifests: []
+
+# Blackbox Probes - synthetic reachability checks for OpenSearch endpoints.
+probes:
+  # -- Enable rendering of the Probe CRs defined in `probes.targets`
+  enabled: false
+  # -- Blackbox exporter endpoint, e.g. prober.scaleout.eu-de-1.cloud.sap
+  prober: ""
+  # -- Default scrape interval (overridable per probe)
+  interval: 60s
+  # -- Default scrape timeout (overridable per probe)
+  scrapeTimeout: 30s
+  # -- List of probes. Each entry: `name`, `module` (must exist in the blackbox
+  #    config), `targets` (list of static URLs to probe), and optionally `labels`
+  #    (extra metadata labels on the Probe), `staticLabels` (labels attached to the
+  #    probed targets), `interval`, and `scrapeTimeout`.
+  targets: []
+  #  - name: opensearch-dashboards
+  #    module: https_2xx
+  #    targets:
+  #      - https://logs.example.cloud.sap/
+  #  - name: opensearch-api
+  #    module: https_403
+  #    targets:
+  #      - https://logs-api.example.cloud.sap/
 
 # Query Exporter - Prometheus exporter for custom OpenSearch queries
 queryExporter:

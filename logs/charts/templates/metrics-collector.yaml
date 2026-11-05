@@ -21,6 +21,10 @@ spec:
 {{- end }}
   podAnnotations:
     prometheus.io/scrape: "false"
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+  ports:
+    {{- include "pprof.containerPort" . | nindent 4 }}
+{{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   config:
     receivers:
@@ -42,7 +46,15 @@ spec:
         endpoint: "0.0.0.0:9000"
         send_timestamps: true
 
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+    extensions:
+      {{- include "pprof.extension" . | nindent 6 }}
+{{- end }}
     service:
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+      extensions:
+        - pprof
+{{- end }}
       pipelines:
         #traces:
           #receivers: [otlp]

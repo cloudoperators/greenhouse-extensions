@@ -7,6 +7,25 @@ SPDX-License-Identifier: Apache-2.0
 {{- $root := . -}}
 {{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors -}}
 {{- if and $cfg.enabled $cfg.topic }}
+{{- $timeout := dig "timeout" "60s" $cfg.opensearch }}
+{{- $retry := dig "retry" (dict) $cfg.opensearch }}
+{{- if not (kindIs "map" $retry) }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.retry: must be a map like { maxElapsedTime: 30s }, got %v" $name $retry) }}
+{{- end }}
+{{- with (omit $retry "maxElapsedTime") }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.retry: unknown keys %v, only maxElapsedTime is supported" $name (keys . | sortAlpha)) }}
+{{- end }}
+{{- if hasKey $cfg.opensearch "terminationGracePeriodSeconds" }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.terminationGracePeriodSeconds: set it on the collector, not under opensearch" $name) }}
+{{- end }}
+{{- $maxElapsed := dig "maxElapsedTime" "30s" $retry }}
+{{- $timeoutSeconds := include "ingesterCollector.durationSeconds" (dict "collector" $name "key" "timeout" "value" $timeout) | int64 }}
+{{- $maxElapsedSeconds := include "ingesterCollector.durationSeconds" (dict "collector" $name "key" "retry.maxElapsedTime" "value" $maxElapsed) | int64 }}
+{{- /* One pass through the failover (exporter a, then b) takes up to 2 x (timeout + maxElapsedTime). The receiver cancels in-flight exports at shutdown, so this is a margin, not a bound. */}}
+{{- $grace := dig "terminationGracePeriodSeconds" (add (mul 2 (add $timeoutSeconds $maxElapsedSeconds)) 15) $cfg }}
+{{- if not (regexMatch "^[0-9]+$" (toString $grace)) }}
+{{- fail (printf "openTelemetry.ingesterCollector.collectors.%s.terminationGracePeriodSeconds: must be a whole number of seconds, got %v" $name $grace) }}
+{{- end }}
 ---
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -27,7 +46,7 @@ spec:
   podAnnotations:
     kubectl.kubernetes.io/default-container: "otc-container"
     secret.reloader.stakater.com/auto: "true"
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: {{ $grace }}
   {{- with $root.Values.openTelemetry.ingesterCollector.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
@@ -57,6 +76,12 @@ spec:
   ports:
     - name: prometheus
       port: 8888
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+    {{- include "pprof.containerPort" $root | nindent 4 }}
+{{- end }}
+{{- else if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+  ports:
+    {{- include "pprof.containerPort" $root | nindent 4 }}
 {{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
 {{- $kafka := $root.Values.openTelemetry.kafka }}
@@ -129,6 +154,10 @@ spec:
           initial_interval: 1s
           max_interval: 30s
           max_elapsed_time: 3m
+          # the kafka receiver has no defaults for these: multiplier 0 makes every retry after the first one
+          # immediate, randomization_factor 0 only removes the jitter
+          multiplier: 1.5
+          randomization_factor: 0.5
     processors:
       memory_limiter:
         check_interval: 5s
@@ -151,6 +180,9 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+      {{- include "pprof.extension" $root | nindent 6 }}
+{{- end }}
     exporters:
       debug:
         verbosity: basic
@@ -165,17 +197,17 @@ spec:
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
-          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          enabled: {{ dig "sendingQueue" "enabled" true $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
-          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 5 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 50 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
+          max_elapsed_time: {{ $maxElapsed | quote }}
+        timeout: {{ $timeout | quote }}
       opensearch/{{ $name }}_failover_b:
         http:
           auth:
@@ -187,17 +219,17 @@ spec:
         logs_index: {{ $name | quote }}
         logs_index_on_error: {{ printf "%s-deadletter" $name | quote }}
         sending_queue:
-          enabled: {{ dig "sendingQueue" "enabled" false $cfg.opensearch }}
+          enabled: {{ dig "sendingQueue" "enabled" true $cfg.opensearch }}
           block_on_overflow: true
-          wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
-          num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          wait_for_result: {{ dig "sendingQueue" "waitForResult" false $cfg.opensearch }}
+          num_consumers: {{ dig "sendingQueue" "numConsumers" 5 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 50 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
           max_interval: 5s
-          max_elapsed_time: 30s
-        timeout: 10s
+          max_elapsed_time: {{ $maxElapsed | quote }}
+        timeout: {{ $timeout | quote }}
     connectors:
       failover/opensearch_{{ $name }}:
         priority_levels:
@@ -210,6 +242,9 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+        - pprof
+{{- end }}
       telemetry:
         logs:
           level: WARN
