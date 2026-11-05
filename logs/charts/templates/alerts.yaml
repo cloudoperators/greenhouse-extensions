@@ -410,12 +410,16 @@ spec:
         for: 5m
         labels:
           context: logshipping
-          severity: critical
+          severity: {{ if eq (include "plugin.kafkaEnabled" .) "true" }}warning{{ else }}critical{{ end }}
           no_alert_on_absence: "true"
           playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.otelLogsDeadletterFlushFailing }}
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'Deadletter index flush failing on {{`{{ $labels.index }}`}} ({{`{{ $labels.failure_stage }}`}}), {{`{{ $labels.k8s_cluster_name }}`}}'
-          description: 'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} at stage {{`{{ $labels.failure_stage }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
+          description: {{ if eq (include "plugin.kafkaEnabled" .) "true" -}}
+            'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} at stage {{`{{ $labels.failure_stage }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Messages remain buffered in Kafka — no immediate loss, but resolve before topic retention expires.'
+          {{- else -}}
+            'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} at stage {{`{{ $labels.failure_stage }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
+          {{- end }}
   {{- end }}
 {{- end }}
