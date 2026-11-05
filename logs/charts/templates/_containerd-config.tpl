@@ -70,7 +70,7 @@ transform/kvm_cluster_source:
   log_statements:
     - context: log
       statements:
-        - 'set(log.attributes["sap.cc.audit.source"], "kvm") where IsMatch(resource.attributes["k8s.cluster.name"], "^(cc|rt)-")'
+        - 'set(log.attributes["sap.cc.audit.source"], "kvm") where IsMatch(log.attributes["k8s.cluster.name"], "^(cc|rt)-")'
 {{ end }}
 
 {{- define "containerd.pipeline" }}
