@@ -3,7 +3,7 @@
 
 apiVersion: v2
 name: opensearch
-version: 0.2.28
+version: 0.2.29
 description: A Helm chart for the OpenSearch operator and cluster
 type: application
 maintainers:
@@ -23,4 +23,4 @@ dependencies:
   - name: opensearch-cluster
     alias: cluster
     repository: https://opensearch-project.github.io/opensearch-k8s-operator/
-    version: 3.3.0
+    version: 3.3.5
