@@ -76,6 +76,12 @@ spec:
   ports:
     - name: prometheus
       port: 8888
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+    {{- include "pprof.containerPort" $root | nindent 4 }}
+{{- end }}
+{{- else if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+  ports:
+    {{- include "pprof.containerPort" $root | nindent 4 }}
 {{- end }}
   image: {{ (default (dict) $cfg.image).repository | default $root.Values.openTelemetry.ingesterCollector.image.repository | default $root.Values.openTelemetry.collectorImage.repository }}:{{ (default (dict) $cfg.image).tag | default $root.Values.openTelemetry.ingesterCollector.image.tag | default $root.Values.openTelemetry.collectorImage.tag }}
 {{- $kafka := $root.Values.openTelemetry.kafka }}
@@ -174,6 +180,9 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+      {{- include "pprof.extension" $root | nindent 6 }}
+{{- end }}
     exporters:
       debug:
         verbosity: basic
@@ -233,6 +242,9 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
+        - pprof
+{{- end }}
       telemetry:
         logs:
           level: WARN
