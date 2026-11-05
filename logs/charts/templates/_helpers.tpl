@@ -1,4 +1,17 @@
 {{/*
+True when either general-logs or audit Kafka buffering is enabled. When true,
+ingester-side failures to OpenSearch are recoverable (messages stay in Kafka
+until retention expires); when false, there is no buffer and failures mean
+immediate data loss. Used to downgrade alert severity on buffered pipelines.
+Usage: {{- if eq (include "plugin.kafkaEnabled" .) "true" }}
+*/}}
+{{- define "plugin.kafkaEnabled" -}}
+{{- if or (dig "kafka" "enabled" false .Values.openTelemetry) (dig "auditKafka" "enabled" false .Values.openTelemetry) -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Generic plugin name
 */}}
 {{- define "release.name" -}}
