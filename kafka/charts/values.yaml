@@ -191,6 +191,7 @@ monitoring:
   # @default -- See values.yaml
   playbooksUrls:
     kafkaConsumerLagTooHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagTooHigh.md"
+    kafkaConsumerLagRetentionRisk: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaConsumerLagRetentionRisk.md"
     kafkaUnderReplicatedPartitions: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaUnderReplicatedPartitions.md"
     kafkaNoBrokersOnline: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/kafka/playbooks/KafkaNoBrokersOnline.md"
 

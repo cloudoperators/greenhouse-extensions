@@ -24,6 +24,35 @@ spec:
           annotations:
             summary: Kafka consumer lag is too high.
             description: 'Consumer group {{`{{ $labels.consumergroup }}`}} on topic {{`{{ $labels.topic }}`}} has a lag of {{`{{ printf "%.0f" $value }}`}} messages.'
+{{- range $name, $topic := .Values.topics }}
+{{- if and $topic.enabled $topic.retention }}
+{{- $retentionMs := int64 $topic.retention }}
+{{- $thresholdSeconds := div $retentionMs 2000 }}
+        # One alert per enabled topic with `retention` set. Alert threshold = 50% of retention time and that lag is increasing.
+        - alert: KafkaConsumerLagRetentionRisk
+          expr: |-
+            (
+              sum by (topic, consumergroup) (kafka_consumergroup_lag{namespace="{{ $.Release.Namespace }}", topic="{{ $name }}", consumergroup!=""})
+              /
+              on(topic) group_left()
+              clamp_min(
+                sum by (topic) (rate(kafka_topic_partition_current_offset{namespace="{{ $.Release.Namespace }}", topic="{{ $name }}"}[1h])),
+                1
+              )
+            ) > {{ $thresholdSeconds }}
+            and
+            sum by (topic, consumergroup) (deriv(kafka_consumergroup_lag{namespace="{{ $.Release.Namespace }}", topic="{{ $name }}", consumergroup!=""}[30m])) > 0
+          for: 30m
+          labels:
+            severity: critical
+            topic: {{ $name }}
+            playbook: {{ $.Values.monitoring.playbooksUrls.kafkaConsumerLagRetentionRisk }}
+            {{- include "kafka.alert-labels" $ | nindent 12 }}
+          annotations:
+            summary: 'Consumer {{`{{ $labels.consumergroup }}`}} at risk of data loss on {{ $name }}'
+            description: 'Consumer group {{`{{ $labels.consumergroup }}`}} on topic {{ $name }} is falling behind. At current produce rate, projected drain time is {{`{{ printf "%.0f" $value }}`}}s — more than half of the configured {{ div $retentionMs 1000 }}s retention. Messages may expire before being consumed.'
+{{- end }}
+{{- end }}
         - alert: KafkaUnderReplicatedPartitions
           expr: sum by (topic) (kafka_topic_partition_under_replicated_partition{namespace="{{ .Release.Namespace }}"}) > 0
           for: 15m
