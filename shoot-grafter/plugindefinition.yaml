@@ -9,6 +9,7 @@ spec:
   description: Automatic onboarding of Gardener Shoots to Greenhouse
   version: 0.6.2
   helmChart:
+    # renovate depName=ghcr.io/cloudoperators/shoot-grafter/charts/shoot-grafter
     name: shoot-grafter
     repository: oci://ghcr.io/cloudoperators/shoot-grafter/charts
     version: 0.6.2

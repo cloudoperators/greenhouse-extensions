@@ -33,6 +33,18 @@
     },
     {
       "customType": "regex",
+      "description": "Bump shoot-grafter chart version in the plugindefinition",
+      "managerFilePatterns": [
+        "/^shoot-grafter/plugindefinition\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*:\\s*(?<currentValue>(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
       "description": "Bump kustomize version in the Makefile",
       "managerFilePatterns": [
         "/^Makefile$/"
@@ -315,7 +327,8 @@
       "description": "Automatically bump spec.version in plugindefinition.yaml when helmChart.version is updated by custom regex managers. The bumpType is determined by the update type (patch/minor/major) of the helmChart.version.",
       "matchFileNames": [
         "ingress-nginx/plugindefinition.yaml",
-        "reloader/plugindefinition.yaml"
+        "reloader/plugindefinition.yaml",
+        "shoot-grafter/plugindefinition.yaml"
       ],
       "matchManagers": [
         "custom.regex"
