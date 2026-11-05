@@ -140,26 +140,15 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(fw|FW-)") and IsMatch(log.attributes["_mb"], "(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:)")'
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
-<<<<<<< HEAD
         - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
         # F5 ASM WAF - "ASM:unit_hostname".
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
-=======
-        - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin)")'
-        # F5 ASM WAF - "ASM:unit_hostname".
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "ASM:unit_hostname")'
->>>>>>> origin/main
         # F5 HSL / LTM access logs - the "f5_hsllog" tag may be absorbed by the
         # RFC3164 parser into `appname` (the message then no longer carries it).
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^f5_hsllog")'
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
-<<<<<<< HEAD
         - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|f5_hsllog:|web_application_name|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
-=======
-        - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(log.attributes["_mb"], "(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+)") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|f5_hsllog:|web_application_name|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[)")'
->>>>>>> origin/main
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(\\[kern_audit:|netapp\\.com/filer/admin)")'
         # Cisco Nexus (MAC move / flap events).
@@ -296,7 +285,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
         # NetBox: all F5 devices are Loadbalancer
         - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
-<<<<<<< HEAD
         # NetBox platform "f5-tmos"; no F5OS in fleet
         - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
         # ---- Select the F5 payload source: raw body, message, or tag-reconstructed message ----
@@ -380,9 +368,6 @@ transform/syslog_device_classification:
         - 'delete_key(log.attributes, "url_path")'
         - 'delete_key(log.attributes, "url_query")'
         - 'delete_key(log.attributes, "_f5src")'
-=======
-        # NetBox platform "F5 TMOS" or "F5OS" logs in fleet
-        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and IsString(log.attributes["message"]) and not IsMatch(log.attributes["message"], "CEF:[0-9]+\\|")'
@@ -393,7 +378,6 @@ transform/syslog_device_classification:
         - 'set(log.attributes["event.code"], log.attributes["_fortios_native"]["logid"]) where log.attributes["event.code"] == nil and IsString(log.attributes["_fortios_native"]["logid"]) and IsMatch(log.attributes["_fortios_native"]["logid"], "^[0-9]+$")'
         - 'set(log.attributes["security_rule.group.id"], log.attributes["_fortios_native"]["policyid"]) where log.attributes["security_rule.group.id"] == nil and IsString(log.attributes["_fortios_native"]["policyid"]) and IsMatch(log.attributes["_fortios_native"]["policyid"], "^[0-9]+$")'
         - 'delete_key(log.attributes, "_fortios_native")'
->>>>>>> origin/main
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet"'
