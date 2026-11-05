@@ -78,6 +78,12 @@ spec:
   ports:
     - name: prometheus
       port: 8888
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+    {{- include "pprof.containerPort" . | nindent 4 }}
+{{- end }}
+{{- else if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+  ports:
+    {{- include "pprof.containerPort" . | nindent 4 }}
 {{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
   volumeMounts:
@@ -409,6 +415,9 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+      {{- include "pprof.extension" . | nindent 6 }}
+{{- end }}
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
       k8s_leader_elector:
         auth_type: serviceAccount
@@ -477,6 +486,9 @@ spec:
         - basicauth/failover_b
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
         - k8s_leader_elector
+{{- end }}
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+        - pprof
 {{- end }}
       telemetry:
         logs:
