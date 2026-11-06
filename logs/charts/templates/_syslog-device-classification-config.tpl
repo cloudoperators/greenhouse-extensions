@@ -43,7 +43,7 @@ transform/syslog_device_classification:
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_ios" or log.attributes["syslog.format"] == "cisco_ios_failed")'
       statements:
-        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(log.attributes["_mb"], "(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[|f5_hsllog:|web_application_name)")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "cisco") where not IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(ASM:unit_hostname|securityd|dcos_sshd|clish\\[|tmm\\[|mcpd\\[|f5_hsllog:|web_application_name).*")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "cisco_nxos_year" or log.attributes["syslog.format"] == "cisco_nxos_year_failed" or (log.attributes["log.type"] == "sysloghttp" and IsMatch(log.attributes["_mb"], ": \\d{4} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}.*%[A-Za-z0-9_]+-[0-7]-[A-Za-z0-9_]+:")))'
@@ -140,15 +140,15 @@ transform/syslog_device_classification:
         - 'set(log.attributes["netbox.manufacturer.slug"], "check-point") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(fw|FW-)") and IsMatch(log.attributes["_mb"], "(last message|clish\\[|xpand\\[|sshd\\[|agetty\\[|auditd\\[|crond\\[|routed\\[|pm\\[|snmpd:|sudo:|kernel:|frontstage:|logger:|spike_detective:|cpviewd:)")'
         # Tufin SecureTrack / TOS Monitoring.
         # Tufin is no official manufacturer in Netbox, but we will handle it like that for now
-        - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin)")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "tufin") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*( SecureTrack: |Tufin SecureTrack, |TOS Monitoring Notification|Tufin).*")'
         # F5 ASM WAF - "ASM:unit_hostname".
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "ASM:unit_hostname")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*ASM:unit_hostname.*")'
         # F5 HSL / LTM access logs - the "f5_hsllog" tag may be absorbed by the
         # RFC3164 parser into `appname` (the message then no longer carries it).
         - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^f5_hsllog")'
         # Genua genugate/genuscreen firewall - "pf:" or "pf: rule"
-        - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(log.attributes["_mb"], "(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+)") )'
-        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|f5_hsllog:|web_application_name|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[)")'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "genua") where log.attributes["netbox.manufacturer.slug"] == nil and ((log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^(pf|had|\\S*relay)$")) or IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(relay_name=\\S+ rnum=|rule_name=\\S+[_-]ALG|pf: rule \\d+.*(block|pass) (in|out) on \\S+).*") )'
+        - 'set(log.attributes["netbox.manufacturer.slug"], "f5") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(Concat([log.attributes["message"], log.body], " "), ".*(\\[ssl_acc\\]|\\[ssl_req\\]|/mgmt/tm/(ltm|sys|net|cm|auth)/|/mgmt/shared/|\\bASM:|\\bAPM:|f5_hsllog:|web_application_name|(tmm\\d*|mcpd|bigd|chmand|sod|alertd|mprov|apmd)\\[).*")'
         # NetApp
         - 'set(log.attributes["netbox.manufacturer.slug"], "netapp") where log.attributes["netbox.manufacturer.slug"] == nil and IsMatch(log.attributes["_mb"], "(\\[kern_audit:|netapp\\.com/filer/admin)")'
         # Cisco Nexus (MAC move / flap events).
@@ -285,8 +285,89 @@ transform/syslog_device_classification:
         - 'set(log.attributes["hw.vendor"], "F5") where log.attributes["hw.vendor"] == nil'
         # NetBox: all F5 devices are Loadbalancer
         - 'set(log.attributes["netbox.role.slug"], "loadbalancer") where log.attributes["netbox.role.slug"] == nil'
-        # NetBox platform "F5 TMOS" or "F5OS" logs in fleet
-        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos/f5os") where log.attributes["netbox.platform.slug"] == nil'
+        # NetBox platform "f5-tmos"; no F5OS in fleet
+        - 'set(log.attributes["netbox.platform.slug"], "f5-tmos") where log.attributes["netbox.platform.slug"] == nil'
+        # ---- Select the F5 payload source: raw body, message, or tag-reconstructed message ----
+        - 'set(log.attributes["_f5src"], log.body) where log.body != nil and (IsMatch(log.body, "f5_hsllog:") or IsMatch(log.body, "web_application_name"))'
+        - 'set(log.attributes["_f5src"], log.attributes["message"]) where log.attributes["_f5src"] == nil and log.attributes["message"] != nil and (IsMatch(log.attributes["message"], "f5_hsllog:") or IsMatch(log.attributes["message"], "web_application_name"))'
+        - 'set(log.attributes["_f5src"], Concat(["f5_hsllog: ", log.attributes["message"]], "")) where log.attributes["_f5src"] == nil and log.attributes["message"] != nil and log.attributes["appname"] != nil and IsMatch(log.attributes["appname"], "^f5_hsllog")'
+
+        # ================= F5 HSL / LTM access logs =================
+        # variant A: backend with explicit _1080
+        - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["_f5src"], "f5_hsllog: %{IP:client_ip} %{DATA:x_forwarded_for} %{DATA:location} %{IP:vip_ip} %{POSINT:vip_port} %{HOSTNAME:virtualHost} /Common/%{HOSTNAME:backend}_1080 %{IPORNUMBER:backend_rserver} %{WORD:method} %{NUMBER:http_status} (?:%{GREEDYDATA:path})? (?:%{NOTSPACE:query})? %{NUMBER:httpversion} (?:%{URI:referer})? %{QS:agent} %{NUMBER:req_bytes:int} %{NUMBER:response:int} %{NUMBER:elapsed:int}", true, ["IPORNUMBER=(?:%{NUMBER}|%{IP})"]), "upsert") where IsMatch(log.attributes["_f5src"], "f5_hsllog:") and log.attributes["client_ip"] == nil'
+        # variant B: generic backend, single-quoted agent (block scalar because the pattern contains a single quote)
+        - |-
+          merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["_f5src"], "f5_hsllog: %{IP:client_ip} %{DATA:x_forwarded_for} %{DATA:location} %{IP:vip_ip} %{POSINT:vip_port} %{HOSTNAME:virtualHost} /Common/(?:%{HOSTNAME:backend_hostname}|%{GREEDYDATA:backend_greedy}) %{IPORNUMBER:backend_rserver} %{WORD:method} %{NUMBER:http_status} (?:%{NOTSPACE:path})? (?:%{NOTSPACE:query})? %{NUMBER:httpversion} (?:%{GREEDYDATA:referer})? '%{GREEDYDATA:agent}' %{NUMBER:req_bytes:int} %{NUMBER:response:int} %{NUMBER:elapsed:int}", true, ["IPORNUMBER=(?:%{NUMBER}|%{IP})"]), "upsert") where IsMatch(log.attributes["_f5src"], "f5_hsllog:") and log.attributes["client_ip"] == nil
+        - 'set(log.attributes["backend"], Coalesce([log.attributes["backend_hostname"], log.attributes["backend_greedy"]])) where log.attributes["backend_hostname"] != nil or log.attributes["backend_greedy"] != nil'
+        - 'delete_key(log.attributes, "backend_hostname") where log.attributes["backend_hostname"] != nil'
+        - 'delete_key(log.attributes, "backend_greedy") where log.attributes["backend_greedy"] != nil'
+
+        # HSL -> semconv renames (only existing FortLogs conventions; the rest stays verbatim)
+        - 'set(log.attributes["client.address"], log.attributes["client_ip"]) where log.attributes["client_ip"] != nil and log.attributes["client.address"] == nil'
+        - 'set(log.attributes["server.address"], log.attributes["vip_ip"]) where log.attributes["vip_ip"] != nil and log.attributes["server.address"] == nil'
+        - 'set(log.attributes["server.port"], Int(log.attributes["vip_port"])) where log.attributes["vip_port"] != nil and log.attributes["server.port"] == nil'
+        - 'set(log.attributes["http.request.method"], log.attributes["method"]) where log.attributes["method"] != nil and log.attributes["http.request.method"] == nil'
+        - 'set(log.attributes["http.response.status_code"], Int(log.attributes["http_status"])) where log.attributes["http_status"] != nil and log.attributes["http.response.status_code"] == nil'
+        - 'set(log.attributes["url.path"], log.attributes["path"]) where log.attributes["path"] != nil and log.attributes["url.path"] == nil'
+        - 'set(log.attributes["url.query"], log.attributes["query"]) where log.attributes["query"] != nil and log.attributes["url.query"] == nil'
+        - 'set(log.attributes["network.protocol.version"], log.attributes["httpversion"]) where log.attributes["httpversion"] != nil and log.attributes["network.protocol.version"] == nil'
+        - 'set(log.attributes["user_agent.original"], log.attributes["agent"]) where log.attributes["agent"] != nil and log.attributes["user_agent.original"] == nil'
+        - 'set(log.attributes["http.request.body.size"], Int(log.attributes["req_bytes"])) where log.attributes["req_bytes"] != nil and log.attributes["http.request.body.size"] == nil'
+        - 'set(log.attributes["http.response.body.size"], Int(log.attributes["response"])) where log.attributes["response"] != nil and log.attributes["http.response.body.size"] == nil'
+
+        # HTTP headers
+        - 'set(log.attributes["referer"], nil) where log.attributes["referer"] == "-"'
+        - 'replace_pattern(log.attributes["x_forwarded_for"], "[ \\t]", "") where log.attributes["x_forwarded_for"] != nil'
+        - 'set(log.attributes["http.request.header.x-forwarded-for"], Split(log.attributes["x_forwarded_for"], ",")) where log.attributes["x_forwarded_for"] != nil and IsMatch(log.attributes["x_forwarded_for"], ",")'
+        - 'set(log.attributes["http.request.header.x-forwarded-for"], [log.attributes["x_forwarded_for"]]) where log.attributes["x_forwarded_for"] != nil and log.attributes["http.request.header.x-forwarded-for"] == nil'
+        - 'set(log.attributes["http.request.header.referer"], Split(log.attributes["referer"], ",")) where log.attributes["referer"] != nil and IsMatch(log.attributes["referer"], ",")'
+        - 'set(log.attributes["http.request.header.referer"], [log.attributes["referer"]]) where log.attributes["referer"] != nil and log.attributes["http.request.header.referer"] == nil'
+        - 'set(log.attributes["http.request.header.location"], log.attributes["location"]) where log.attributes["location"] != nil and IsMatch(log.attributes["location"], "^http") and log.attributes["http.request.header.location"] == nil'
+        - 'set(log.attributes["http.response.header.location"], log.attributes["location"]) where log.attributes["location"] != nil and IsMatch(log.attributes["location"], "^http") and log.attributes["http.request.header.location"] == nil and log.attributes["http.response.header.location"] == nil'
+        
+        # ================= F5 ASM / WAF HTTP logs =================
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*dest_ip=\"(?P<_f5asm_dest_ip>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*dest_port=\"(?P<_f5asm_dest_port>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*method=\"(?P<_f5asm_method>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*response_code=\"(?P<_f5asm_response_code>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*uri=\"(?P<_f5asm_uri>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?:^|,)\\s*x_forwarded_for_header_value=\"(?P<_f5asm_xff>[^\"]*)\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5src"], "(?s)(?:^|,)\\s*request=\"(?P<_f5asm_request>.*)\",response=\""), "upsert") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+
+        # The ASM "request" value carries literal backslash sequences ("\r\n"), not real
+        # CR/LF, so parse the headers directly from the raw string: header values contain
+        # no backslash, so [^\\] captures each value up to the next literal "\r".
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5asm_request"], "^(?P<_f5asm_req_method>[A-Z]+) +(?P<_f5asm_req_target>\\S+) +HTTP/(?P<_f5asm_req_version>\\d+(?:\\.\\d+)?)"), "upsert") where log.attributes["_f5asm_request"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5asm_request"], "(?i)Host:[ \\t]*(?P<_f5asm_host>[^\\\\]+)"), "upsert") where log.attributes["_f5asm_request"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5asm_request"], "(?i)User-Agent:[ \\t]*(?P<_f5asm_user_agent>[^\\\\]+)"), "upsert") where log.attributes["_f5asm_request"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5asm_request"], "(?i)X-Forwarded-For:[ \\t]*(?P<_f5asm_xff_hdr>[^,\\\\]+)"), "upsert") where log.attributes["_f5asm_request"] != nil'
+        - 'merge_maps(log.attributes, ExtractPatterns(log.attributes["_f5asm_host"], "^(?P<_f5asm_hostname>\\[[^\\]]+\\]|[^:]+)"), "upsert") where log.attributes["_f5asm_host"] != nil'
+
+        - 'delete_key(log.attributes, "client.address") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'delete_key(log.attributes, "server.address") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'delete_key(log.attributes, "http.response.status_code") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'delete_key(log.attributes, "network.protocol.name") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+        - 'delete_key(log.attributes, "network.protocol.version") where IsMatch(log.attributes["_f5src"], "web_application_name")'
+
+        - 'set(log.attributes["client.address"], Trim(Split(log.attributes["_f5asm_xff"], ",")[0], " \t")) where log.attributes["_f5asm_xff"] != nil and log.attributes["_f5asm_xff"] != "" and log.attributes["_f5asm_xff"] != "N/A" and log.attributes["_f5asm_xff"] != "-"'
+        - 'set(log.attributes["client.address"], Trim(Split(log.attributes["_f5asm_xff_hdr"], ",")[0], " \t")) where log.attributes["client.address"] == nil and log.attributes["_f5asm_xff_hdr"] != nil and log.attributes["_f5asm_xff_hdr"] != "" and log.attributes["_f5asm_xff_hdr"] != "N/A" and log.attributes["_f5asm_xff_hdr"] != "-"'
+        - 'set(log.attributes["server.address"], log.attributes["_f5asm_hostname"]) where log.attributes["_f5asm_hostname"] != nil and log.attributes["_f5asm_hostname"] != "" and log.attributes["_f5asm_hostname"] != "N/A" and log.attributes["_f5asm_hostname"] != "-"'
+        - 'set(log.attributes["server.address"], log.attributes["_f5asm_dest_ip"]) where log.attributes["server.address"] == nil and log.attributes["_f5asm_dest_ip"] != nil and log.attributes["_f5asm_dest_ip"] != "" and log.attributes["_f5asm_dest_ip"] != "N/A" and log.attributes["_f5asm_dest_ip"] != "-"'
+        - 'set(log.attributes["server.port"], Int(log.attributes["_f5asm_dest_port"])) where log.attributes["_f5asm_dest_port"] != nil and IsMatch(log.attributes["_f5asm_dest_port"], "^\\d+$")'
+        - 'set(log.attributes["http.request.method"], log.attributes["_f5asm_method"]) where log.attributes["_f5asm_method"] != nil and log.attributes["_f5asm_method"] != "" and log.attributes["_f5asm_method"] != "N/A"'
+        - 'set(log.attributes["http.request.method"], log.attributes["_f5asm_req_method"]) where (log.attributes["_f5asm_method"] == nil or log.attributes["_f5asm_method"] == "" or log.attributes["_f5asm_method"] == "N/A") and log.attributes["_f5asm_req_method"] != nil'
+        - 'set(log.attributes["url.path"], Split(log.attributes["_f5asm_uri"], "?")[0]) where log.attributes["_f5asm_uri"] != nil and log.attributes["_f5asm_uri"] != "" and log.attributes["_f5asm_uri"] != "N/A"'
+        - 'set(log.attributes["url.path"], Split(log.attributes["_f5asm_req_target"], "?")[0]) where (log.attributes["_f5asm_uri"] == nil or log.attributes["_f5asm_uri"] == "" or log.attributes["_f5asm_uri"] == "N/A") and log.attributes["_f5asm_req_target"] != nil'
+        - 'set(log.attributes["user_agent.original"], log.attributes["_f5asm_user_agent"]) where log.attributes["_f5asm_user_agent"] != nil and log.attributes["_f5asm_user_agent"] != "" and log.attributes["_f5asm_user_agent"] != "N/A"'
+        - 'set(log.attributes["network.protocol.name"], "http") where log.attributes["_f5asm_req_version"] != nil'
+        - 'set(log.attributes["network.protocol.version"], log.attributes["_f5asm_req_version"]) where log.attributes["_f5asm_req_version"] != nil'
+        - 'set(log.attributes["http.response.status_code"], Int(log.attributes["_f5asm_response_code"])) where log.attributes["_f5asm_response_code"] != nil and IsMatch(log.attributes["_f5asm_response_code"], "^[1-5][0-9]{2}$")'
+        - 'delete_matching_keys(log.attributes, "^_f5asm_")'
+
+        # Delete temporal variables
+        - 'delete_key(log.attributes, "url_path")'
+        - 'delete_key(log.attributes, "url_query")'
+        - 'delete_key(log.attributes, "_f5src")'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == "fortinet" and IsString(log.attributes["message"]) and not IsMatch(log.attributes["message"], "CEF:[0-9]+\\|")'
