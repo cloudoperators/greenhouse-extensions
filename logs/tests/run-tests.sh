@@ -18,6 +18,8 @@
 #   tests/run-tests.sh openstack             # only files matching *openstack*
 #   CONTAINER_ENGINE=docker tests/run-tests.sh
 #   SKIP_VALIDATE=1 tests/run-tests.sh       # lint + render + extract only
+#   FEATURE_GATES=transform.flatten.logs tests/run-tests.sh
+#                                            # override the collector feature gates
 
 set -euo pipefail
 
@@ -33,6 +35,10 @@ HELM_RELEASE="${HELM_RELEASE:-logs}"
 CONTAINER_ENGINE="${CONTAINER_ENGINE:-podman}"
 OTEL_IMAGE="${OTEL_IMAGE:-ghcr.io/cloudoperators/opentelemetry-collector-contrib:main}"
 SKIP_VALIDATE="${SKIP_VALIDATE:-0}"
+# The chart sets spec.args.feature-gates on the logs/external collectors, which
+# the operator turns into --feature-gates for the running collector. Standalone
+# runs must pass it explicitly, or transforms using flatten_data fail.
+FEATURE_GATES="${FEATURE_GATES:-transform.flatten.logs}"
 
 FILTER="${1:-}"
 
@@ -149,6 +155,7 @@ for values in "${values_files[@]}"; do
         $(tls_mounts) \
         -v "${cfg}":/etc/otel-config.yaml:ro,Z \
         "${OTEL_IMAGE}" validate --config=/etc/otel-config.yaml \
+        ${FEATURE_GATES:+--feature-gates=${FEATURE_GATES}} \
         >"${RENDERS_DIR}/${name}.${cname}.validate.log" 2>&1; then
       green "    validate: ok   ${cname}"
     else

@@ -9,6 +9,8 @@ EXTERNAL_CONFIG ?= $(RENDERS)/external-config.yaml
 CONTAINER_ENGINE ?= podman
 OTEL_IMAGE       ?= ghcr.io/cloudoperators/opentelemetry-collector-contrib:main
 OTEL_ENV_FILE    ?= scripts/external-collector.env
+# Feature gates the chart sets via spec.args (required by flatten_data transforms).
+FEATURE_GATES    ?= transform.flatten.logs
 
 # All-pipelines local testing harness (tests/)
 TESTS_DIR        ?= ./tests
@@ -33,7 +35,8 @@ lint-external-config: extract-external-config
 	$(CONTAINER_ENGINE) run --rm \
 		--env-file $(OTEL_ENV_FILE) \
 		-v "$(abspath $(EXTERNAL_CONFIG))":/etc/otel-config.yaml:ro,Z \
-		$(OTEL_IMAGE) validate --config=/etc/otel-config.yaml
+		$(OTEL_IMAGE) validate --config=/etc/otel-config.yaml \
+		--feature-gates=$(FEATURE_GATES)
 
 # Run the extracted config in a local OpenTelemetry Collector container.
 run-external-collector: lint-external-config
@@ -42,7 +45,8 @@ run-external-collector: lint-external-config
 		--env-file $(OTEL_ENV_FILE) \
 		-v "$(CURDIR)/$(EXTERNAL_CONFIG)":/etc/otel-config.yaml \
 		$(OTEL_IMAGE) \
-		--config=/etc/otel-config.yaml
+		--config=/etc/otel-config.yaml \
+		--feature-gates=$(FEATURE_GATES)
 
 clean:
 	rm -r -f $(RENDERED) $(EXTERNAL_CONFIG) 

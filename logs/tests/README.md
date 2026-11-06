@@ -101,8 +101,14 @@ podman run --rm \
   -v "$(pwd)/tests/renders/certs":/etc/ssl/syslog-tls:ro,Z \
   -v "$(pwd)/tests/renders/external.yaml":/etc/otel-config.yaml:ro,Z \
   ghcr.io/cloudoperators/opentelemetry-collector-contrib:main \
-  --config=/etc/otel-config.yaml
+  --config=/etc/otel-config.yaml \
+  --feature-gates=transform.flatten.logs
 ```
+
+> The `logs` and `external` collectors use transforms with `flatten_data: true`,
+> which require the `transform.flatten.logs` feature gate. In-cluster the
+> operator supplies it from the CR's `spec.args.feature-gates`; for a standalone
+> run you must pass `--feature-gates=transform.flatten.logs` yourself.
 
 > The values in `env/collector.env` and the generated certs are placeholders for
 > local testing only — not real secrets.
