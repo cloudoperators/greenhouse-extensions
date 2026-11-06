@@ -1,0 +1,4 @@
+# Development-only files not intended for the packaged chart
+ci/
+renders/
+.helmignore

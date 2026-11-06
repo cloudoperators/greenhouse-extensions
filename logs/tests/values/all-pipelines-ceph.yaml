@@ -1,0 +1,209 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# All-pipelines values for LOCAL collector testing (Kafka backend).
+#
+# This file is the "ceph flavor": it enables cephConfig, which renders the
+# logs/ceph pipeline. Because enabling cephConfig suppresses the
+# logs/containerd (OpenStack/containerd) pipeline at render time
+# (charts/templates/logs-collector.yaml), openstackConfig is left OFF here.
+# For the OpenStack-enriched logs/containerd pipeline use
+# all-pipelines-openstack.yaml.
+#
+# Everything else (Kafka backend, external collector sub-features, metrics,
+# ingester, prometheus) is identical to all-pipelines-openstack.yaml.
+
+opentelemetry-operator:
+  enabled: true
+  crds:
+    create: false
+  admissionWebhooks:
+    failurePolicy: 'Ignore'
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      enabled: true
+      recreate: false
+  manager:
+    serviceMonitor:
+      enabled: false
+
+customCRDs:
+  enabled: true
+
+openTelemetry:
+  collectorImage:
+    repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
+    tag: main
+  cluster: test-cluster
+  region: test-region
+
+  openSearchLogs:
+    endpoint: https://opensearch.test.svc.cluster.local:9200
+    failover_username_a: test
+    failover_password_a: test
+    failover_username_b: test
+    failover_password_b: test
+
+  kafka:
+    enabled: true
+    brokers:
+      - kafka-bootstrap.kafka.svc.cluster.local:9092
+    protocol_version: "3.9.0"
+    encoding: otlp_json
+    compression: gzip
+    max_message_bytes: 1048576
+    sendingQueue:
+      enabled: true
+      queueSize: 1000
+      numConsumers: 1
+    producer:
+      flushMaxMessages: 10000
+      linger: 10ms
+    tls:
+      enabled: true
+      caSecret: kafka-cluster-ca-cert
+      caSecretKey: ca.crt
+    users:
+      - name: write-all
+        type: producer
+        secret:
+          name: kafka-user-write-all-password
+          password: dummy-producer-password
+      - name: read-all
+        type: consumer
+        secret:
+          name: kafka-user-read-all-password
+          password: dummy-consumer-password
+
+  auditKafka:
+    enabled: true
+    brokers:
+      - kafka-audit-bootstrap.kafka.svc.cluster.local:9092
+    protocol_version: "3.9.0"
+    encoding: otlp_json
+    compression: gzip
+    max_message_bytes: 1048576
+    sendingQueue:
+      enabled: true
+      queueSize: 1000
+      numConsumers: 1
+    producer:
+      flushMaxMessages: 10000
+      linger: 10ms
+    tls:
+      enabled: true
+      caSecret: kafka-audit-cluster-ca-cert
+      caSecretKey: ca.crt
+    users:
+      - name: write-all
+        type: producer
+        secret:
+          name: kafka-audit-user-write-all-password
+          password: dummy-audit-producer-password
+
+  logsCollector:
+    enabled: true
+    kafkaTopic: "logs"
+    kafkaStorageTopic: "logs-storage"
+    maxMessageLength: 32000
+    journaldConfig:
+      enabled: true
+    k8seventsConfig:
+      enabled: true
+    containerdConfig:
+      enabled: true
+    kvmConfig:
+      enabled: true
+    # ceph flavor: ceph ON (renders logs/ceph), openstack OFF.
+    cephConfig:
+      enabled: true
+    openstackConfig:
+      enabled: false
+
+  externalCollector:
+    enabled: true
+    replicas: 1
+    externalIP: 10.0.0.1
+    kafkaTopic: "logs-external"
+    kafkaTracesTopic: "traces"
+    maxMessageLength: 32000
+    externalConfig:
+      enabled: true
+      alertmanager_port: 1515
+      deployments_port: 1516
+    syslogConfig:
+      enabled: true
+      tcp_port: 514
+      udp_port: 514
+      auditKafkaTopic: syslog-audit
+      nonAuditKafkaTopic: syslog
+    syslogTLSConfig:
+      enabled: true
+      tcp_port: 6514
+      issuerName: digicert-issuer
+      issuerKind: ClusterIssuer
+      issuerGroup: cert-manager.io
+      dnsName: logs-collector-syslog.test.cloud.sap
+      clientCAEnabled: true
+    tracesConfig:
+      enabled: true
+      otlp_grpc_port: 4317
+      otlp_http_port: 4318
+    externalHttpConfig:
+      enabled: true
+      port: 1517
+      path: /audit/external
+      kafkaTopic: audit
+      forwardedBy: external-http
+      tls:
+        enabled: true
+    syslogHttpConfig:
+      enabled: true
+      port: 1518
+      path: /syslog/external
+      tls:
+        enabled: true
+
+  metricsCollector:
+    enabled: true
+
+  ingesterCollector:
+    enabled: true
+    replicas: 1
+    prometheus:
+      podMonitor:
+        enabled: true
+    collectors:
+      logs:
+        enabled: true
+        topic: logs
+        initialOffset: latest
+        opensearch:
+          endpoint: https://opensearch.test.svc.cluster.local:9200
+          tls:
+            caSecret: opensearch-ca
+            caSecretKey: ca.crt
+            insecure: true
+          failover_username_a: test
+          failover_password_a: test
+          failover_username_b: test
+          failover_password_b: test
+
+  prometheus:
+    serviceMonitor:
+      enabled: true
+    podMonitor:
+      enabled: true
+    additionalLabels:
+      plugin: kube-monitoring
+    rules:
+      create: true
+
+testFramework:
+  enabled: true
+  image:
+    registry: ghcr.io
+    repository: cloudoperators/greenhouse-extensions-integration-test
+    tag: main
+  imagePullPolicy: IfNotPresent
