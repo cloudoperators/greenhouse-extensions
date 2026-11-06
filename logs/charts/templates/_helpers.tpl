@@ -54,3 +54,56 @@ plugindefinition: logs
 {{- tpl (toYaml .Values.openTelemetry.prometheus.rules.additionalRuleLabels) . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Validate an ingester opensearch duration override (timeout, retry.maxElapsedTime) and return it
+in whole seconds, rounded up. Only <n>ms, <n>s or <n>m with n from 1 to 9999999 are accepted: the
+collector reads a bare number as nanoseconds, and a retry budget of 0 never stops retrying.
+Usage: {{ include "ingesterCollector.durationSeconds" (dict "collector" $name "key" "timeout" "value" $v) }}
+*/}}
+{{- define "ingesterCollector.durationSeconds" -}}
+{{- $v := toString .value -}}
+{{- $path := printf "openTelemetry.ingesterCollector.collectors.%s.opensearch.%s" .collector .key -}}
+{{- if regexMatch "^0+(ms|s|m)?$" $v -}}
+{{- fail (printf "%s: must be greater than 0, got %q" $path $v) -}}
+{{- end -}}
+{{- if not (regexMatch "^[1-9][0-9]{0,6}(ms|s|m)$" $v) -}}
+{{- fail (printf "%s: %q is not a supported duration, use 1 to 9999999 followed by ms, s or m, e.g. 60s" $path $v) -}}
+{{- end -}}
+{{- $n := regexFind "^[0-9]+" $v | atoi -}}
+{{- $unit := regexFind "(ms|s|m)$" $v -}}
+{{- if eq $unit "ms" -}}
+{{- div (add $n 999) 1000 -}}
+{{- else if eq $unit "m" -}}
+{{- mul $n 60 -}}
+{{- else -}}
+{{- $n -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pprof extension port (default 1777). Used by all collectors when
+openTelemetry.pprof.enabled is true.
+*/}}
+{{- define "pprof.port" -}}
+{{- default 1777 (dig "pprof" "port" nil .Values.openTelemetry) -}}
+{{- end -}}
+
+{{/*
+pprof extension config block. Rendered inside a collector's `extensions:`
+map. Call with `nindent 6`.
+*/}}
+{{- define "pprof.extension" -}}
+pprof:
+  endpoint: 0.0.0.0:{{ include "pprof.port" . }}
+{{- end -}}
+
+{{/*
+pprof container port entry. Rendered inside a collector's `ports:` list.
+Call with `nindent 4`.
+*/}}
+{{- define "pprof.containerPort" -}}
+- name: pprof
+  port: {{ include "pprof.port" . }}
+  protocol: TCP
+{{- end -}}
