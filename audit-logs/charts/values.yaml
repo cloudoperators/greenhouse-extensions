@@ -34,7 +34,7 @@ auditLogs:
     # -- overrides the default image repository for the OpenTelemetry Collector image.
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- overrides the default image tag for the OpenTelemetry Collector image.
-    tag: "e094ff2"
+    tag: "d1139fa"
 
   # -- Custom labels to apply to all OpenTelemetry related resources
   customLabels:
@@ -184,9 +184,18 @@ auditLogs:
     #       tls: { caSecret, caSecretKey, insecure }
     #       mapping: { mode: bodymap }          # optional, opensearchexporter mapping block (e.g. bodymap to write the parsed body as the document root)
     #       flushBytes: 10000000                # optional; flush threshold in bytes for the opensearch bulk API
+    #       timeout: 30s                        # optional; default 30s. Limit for one export attempt (all bulk requests for one batch, including
+    #                                           # the dead-letter flush), per failover exporter. Not the same setting as persistentQueue.timeout below.
+    #       retry: { maxElapsedTime: 30s }      # optional; default 30s. Retry window per failover exporter for retryable errors (bulk timeouts,
+    #                                           # 429/500/502/503/504, connection errors). No new attempt starts after it, but one already running
+    #                                           # can take the full timeout, so one exporter takes up to timeout + maxElapsedTime.
+    #                                           # Synchronous (sendingQueue off, or waitForResult: true): with the defaults a request that times out
+    #                                           # is not retried on a and goes to exporter b.
+    #                                           # Async (waitForResult: false, required with persistentQueue): there is no failover to b and the
+    #                                           # batch is dropped once the window runs out, so set maxElapsedTime well above timeout (e.g. 2x) to get a retry.
     #       sendingQueue:                       # optional; default disabled
     #         enabled: false                    # render the queue
-    #         waitForResult: true               # true = at-most-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
+    #         waitForResult: true               # true = at-least-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
     #         numConsumers: 1                   # concurrent consumers draining the queue
     #         queueSize: 10                     # capacity in units defined by sizer (requests/items/bytes)
     #         sizer: requests                   # optional; one of requests (default), items, bytes
@@ -199,7 +208,7 @@ auditLogs:
     #         enabled: false
     #         size: 2Gi                         # PVC size for the queue volume
     #         storageClassName: ""              # optional; storage class for the PVC (e.g. cinder-premium)
-    #         timeout: 10s                      # optional; file_storage extension timeout
+    #         timeout: 10s                      # optional; file_storage extension timeout for queue file operations, not the OpenSearch request timeout
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # When persistentQueue is enabled the collector runs as a StatefulSet with a PVC-backed

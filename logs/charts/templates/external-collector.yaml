@@ -123,6 +123,9 @@ spec:
     - name: prometheus
       port: 8888
 {{- end }}
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+    {{- include "pprof.containerPort" . | nindent 4 }}
+{{- end }}
   image: {{ index .Values "openTelemetry" "collectorImage" "repository" }}:{{ index .Values "openTelemetry" "collectorImage" "tag" }}
 {{- if eq (include "externalCollector.tlsEnabled" .) "true" }}
   volumeMounts:
@@ -335,6 +338,9 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+      {{- include "pprof.extension" . | nindent 6 }}
+{{- end }}
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.extensions" . | nindent 6 -}}
 {{- end }}
@@ -361,6 +367,9 @@ spec:
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
+{{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
+        - pprof
+{{- end }}
 {{- if eq (include "externalCollector.auditEnabled" .) "true" }}
     {{- include "external_audit_only.serviceExtensions" . | nindent 8 -}}
 {{- end }}
