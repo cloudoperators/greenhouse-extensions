@@ -224,6 +224,8 @@ spec:
           wait_for_result: {{ dig "sendingQueue" "waitForResult" false $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 5 $cfg.opensearch }}
           queue_size: {{ dig "sendingQueue" "queueSize" 50 $cfg.opensearch }}
+        on_error_flush:
+          timeout: {{ dig "onErrorFlush" "timeout" 0 $cfg.opensearch }}
         retry_on_failure:
           enabled: true
           initial_interval: 1s
