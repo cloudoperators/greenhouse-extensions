@@ -34,7 +34,8 @@ transform/syslog_device_classification:
     - context: log
       statements:
         - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
-    - context: log
+      # Extra space here
+      - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
       statements:
@@ -84,7 +85,8 @@ transform/syslog_device_classification:
       statements:
         # Parse VM reconfigure/error events
         - 'merge_maps(log.attributes, ExtractGrokPatterns(log.attributes["message"], "Event %{NONNEGINT:event_id} : (?:Reconfigured|Error message on) %{DATA:cloud_instance_name} \\(%{UUID:cloud_instance_id}\\)%{GREEDYDATA}", true), "upsert") where IsString(log.attributes["message"])'
-    - context: log
+  # Wrong scope here
+  - context: log
       conditions:
         - 'log.attributes["netbox.platform.slug"] == "vmware-esxi" and log.attributes["appname"] == "sshd" and IsString(log.attributes["message"])'
       statements:
