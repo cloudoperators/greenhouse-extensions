@@ -5,6 +5,10 @@ RENDERS         ?= ./build
 RENDERED        ?= $(RENDERS)/rendered-template.yaml
 EXTERNAL_CONFIG ?= $(RENDERS)/external-config.yaml
 
+# YAML tool used to extract collector configs from rendered templates.
+# Requires mikefarah yq v4 (https://github.com/mikefarah/yq).
+YQ               ?= yq
+
 # Local collector run settings
 CONTAINER_ENGINE ?= podman
 OTEL_IMAGE       ?= ghcr.io/cloudoperators/opentelemetry-collector-contrib:main
@@ -25,9 +29,8 @@ ci-template:
 # OpenTelemetryCollector into a standalone collector config file.
 extract-external-config:
 	helm template $(HELM_RELEASE) -f $(HELM_VALUES) $(CHART_DIR) > $(RENDERED)
-	python3 scripts/extract_collector_config.py --input $(RENDERED) \
-		--kind OpenTelemetryCollector --name external \
-		--path spec.config --output $(EXTERNAL_CONFIG)
+	$(YQ) -e 'select(.kind == "OpenTelemetryCollector" and .metadata.name == "external") | .spec.config' \
+		$(RENDERED) > $(EXTERNAL_CONFIG)
 
 # Validate the extracted config with the collector itself. The env file is
 # required because the config uses ${...} substitutions for credentials.

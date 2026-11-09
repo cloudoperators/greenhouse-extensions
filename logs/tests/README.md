@@ -53,7 +53,7 @@ Each values file produces four `OpenTelemetryCollector` resources:
 
 ## Running
 
-Requires `helm`, `python3` (+ PyYAML), `openssl`, and a container engine
+Requires `helm`, `yq` (mikefarah yq v4), `openssl`, and a container engine
 (`podman` or `docker`). The chart dependency (`opentelemetry-operator`) is
 already vendored under `charts/charts/`.
 
@@ -75,7 +75,7 @@ The harness:
 1. `helm lint` each values file,
 2. `helm template` it into `tests/renders/<file>.yaml`,
 3. extracts every collector's `spec.config` into `tests/renders/<file>/<name>.yaml`
-   via `scripts/extract_collector_config.py --all`,
+   via `yq`,
 4. runs `otelcol validate --config` on each extracted config inside a container.
 
 `validate` builds the pipelines, so TLS-enabled receivers load cert files from
@@ -90,10 +90,8 @@ disk. The harness generates a dummy self-signed cert/key/CA in
 # Render + extract (e.g. the external collector of the openstack flavor):
 helm template logs ./charts -f tests/values/all-pipelines-openstack.yaml \
   > tests/renders/all-pipelines-openstack.yaml
-python3 scripts/extract_collector_config.py \
-  --input tests/renders/all-pipelines-openstack.yaml \
-  --name external --path spec.config \
-  --output tests/renders/external.yaml
+yq -e 'select(.kind == "OpenTelemetryCollector" and .metadata.name == "external") | .spec.config' \
+  tests/renders/all-pipelines-openstack.yaml > tests/renders/external.yaml
 
 # Run it locally (ports/certs/env as needed):
 podman run --rm \

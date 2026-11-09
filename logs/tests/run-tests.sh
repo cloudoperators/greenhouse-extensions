@@ -29,7 +29,6 @@ CHART_DIR="$(cd "${SCRIPT_DIR}/../charts" && pwd)"
 VALUES_DIR="${VALUES_DIR:-${SCRIPT_DIR}/values}"
 ENV_FILE="${ENV_FILE:-${SCRIPT_DIR}/env/collector.env}"
 RENDERS_DIR="${RENDERS_DIR:-${SCRIPT_DIR}/renders}"
-EXTRACT="${SCRIPT_DIR}/../scripts/extract_collector_config.py"
 
 HELM_RELEASE="${HELM_RELEASE:-logs}"
 CONTAINER_ENGINE="${CONTAINER_ENGINE:-podman}"
@@ -50,6 +49,7 @@ fail_count=0
 pass_count=0
 
 command -v helm >/dev/null 2>&1 || { red "helm not found in PATH"; exit 127; }
+command -v yq   >/dev/null 2>&1 || { red "yq not found in PATH (mikefarah yq v4 required)"; exit 127; }
 
 mkdir -p "${RENDERS_DIR}"
 
@@ -123,9 +123,29 @@ for values in "${values_files[@]}"; do
   # 3. extract every collector config
   outdir="${RENDERS_DIR}/${name}"
   rm -rf "${outdir}"
-  if ! python3 "${EXTRACT}" --input "${render}" --kind OpenTelemetryCollector \
-        --path spec.config --all "${outdir}" 2>"${RENDERS_DIR}/${name}.extract.log"; then
-    red "    extract: FAILED"
+  mkdir -p "${outdir}"
+
+  mapfile -t collector_names < <(
+    yq -N 'select(.kind == "OpenTelemetryCollector" and .metadata.name) | .metadata.name' "${render}"
+  )
+  if [[ ${#collector_names[@]} -eq 0 ]]; then
+    red "    extract: FAILED (no OpenTelemetryCollector resources found)"
+    fail_count=$((fail_count + 1))
+    continue
+  fi
+
+  extract_failed=0
+  : >"${RENDERS_DIR}/${name}.extract.log"
+  for cname in "${collector_names[@]}"; do
+    if ! CNAME="${cname}" yq -e '
+          select(.kind == "OpenTelemetryCollector" and .metadata.name == strenv(CNAME))
+          | .spec.config
+        ' "${render}" >"${outdir}/${cname}.yaml" 2>>"${RENDERS_DIR}/${name}.extract.log"; then
+      red "    extract: FAILED (${cname})"
+      extract_failed=1
+    fi
+  done
+  if [[ ${extract_failed} -ne 0 ]]; then
     cat "${RENDERS_DIR}/${name}.extract.log"
     fail_count=$((fail_count + 1))
     continue
