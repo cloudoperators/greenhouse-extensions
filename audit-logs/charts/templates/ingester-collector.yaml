@@ -203,7 +203,7 @@ spec:
           block_on_overflow: true
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 300 $cfg.opensearch }}
 {{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
           sizer: {{ . }}
 {{- end }}
@@ -242,7 +242,7 @@ spec:
           block_on_overflow: true
           wait_for_result: {{ dig "sendingQueue" "waitForResult" true $cfg.opensearch }}
           num_consumers: {{ dig "sendingQueue" "numConsumers" 1 $cfg.opensearch }}
-          queue_size: {{ dig "sendingQueue" "queueSize" 10 $cfg.opensearch }}
+          queue_size: {{ dig "sendingQueue" "queueSize" 300 $cfg.opensearch }}
 {{- with (dig "sendingQueue" "sizer" "" $cfg.opensearch) }}
           sizer: {{ . }}
 {{- end }}
