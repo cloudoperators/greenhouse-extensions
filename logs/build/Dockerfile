@@ -1,7 +1,7 @@
 # golang@1.27.3 sha256:6928d94d1142af58816fed5a62338d605a266ccd53a0deaab6b1096f19059261
 FROM golang@sha256:6928d94d1142af58816fed5a62338d605a266ccd53a0deaab6b1096f19059261 AS build
 
-ARG OTEL_VERSION=0.163.0
+ARG OTEL_VERSION=0.165.0
 
 RUN wget "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd/builder/v${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64" && \
     mv "ocb_${OTEL_VERSION}_linux_amd64" ocb
