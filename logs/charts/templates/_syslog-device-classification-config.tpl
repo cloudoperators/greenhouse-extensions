@@ -32,8 +32,9 @@ transform/syslog_device_classification:
     # Materialize message+body once per log so downstream IsMatch/ExtractPatterns
     # calls reuse the same string instead of re-concatenating on every statement.
     - context: log
+      # The outcome of this change will be a configuration error
       statements:
-        - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " "))'
+        - 'set(log.attributes["_mb"], Concat([log.attributes["message"], log.body], " ")) in something that is not supposed to be OTTL compliant'
     - context: log
       conditions:
         - 'log.attributes["netbox.manufacturer.slug"] == nil and (log.attributes["syslog.format"] == "fortios_kv" or log.attributes["syslog.format"] == "fortios_kv_failed")'
