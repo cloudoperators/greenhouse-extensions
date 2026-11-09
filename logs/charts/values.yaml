@@ -58,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "78a44dd"
+    tag: "d1139fa"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -432,6 +432,14 @@ openTelemetry:
     enabled: false
     # -- Pod affinity rules for the metrics collector CR
     affinity: {}
+  # -- Go runtime pprof extension; exposes `/debug/pprof/*` for heap, goroutine,
+  # CPU, and trace profiling via `kubectl port-forward`. Intended for ad-hoc
+  # debugging only; leave disabled in production unless actively investigating.
+  pprof:
+    # -- Enable pprof extension on all collectors in this chart.
+    enabled: false
+    # -- TCP port the pprof extension listens on inside each collector pod.
+    port: 1777
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:
@@ -490,8 +498,28 @@ openTelemetry:
         # support_group: support
         # service: my-service
 
-      # -- Base URL for playbook links in alert annotations.
-      playbookBasePath: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks
+      # -- Playbook URLs for alerts. Override to point to custom runbooks.
+      # @default -- See values.yaml
+      playbooksUrls:
+        filelogRefusedLogs: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsFilelogRefusedLogs.md"
+        receiverRefusedLogs: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedLogs.md"
+        receiverRefusedMetric: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedMetric.md"
+        otelLogsMissing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsmissing.md"
+        reconcileErrors: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorReconcileErrors.md"
+        workqueueDepth: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorWorkqueueDepth.md"
+        otelLogsIncreasing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsIncreasing.md"
+        otelLogsDecreasing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDecreasing.md"
+        otelLogsExportingFailed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md"
+        otelLogsSLOBurnRateCritical: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md"
+        otelLogsSLOBurnRateWarning: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md"
+        otelLogsExportFailureRatioHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md"
+        otelExporterQueueFilling: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md"
+        otelExporterQueueFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md"
+        otelLogsVolumeSpike: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md"
+        otelLogsVolumeDropFast: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeDropFast.md"
+        externalCollectorMemoryHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ExternalCollectorMemoryHigh.md"
+        otelLogsDeadletterIndexGrowing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterIndexGrowing.md"
+        otelLogsDeadletterFlushFailing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md"
 
 testFramework:
   # -- Activates the Helm chart testing framework.
