@@ -457,8 +457,8 @@ spec:
           playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.otelLogsDeadletterIndexGrowing }}
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
-          summary: 'Logs routed to deadletter index on {{`{{ $labels.index }}`}}, {{`{{ $labels.k8s_cluster_name }}`}}'
-          description: 'OpenSearch deadletter index {{`{{ $labels.index }}`}} on {{`{{ $labels.k8s_cluster_name }}`}} is receiving documents due to permanent indexing failures. Logs have been routed to the error index for at least 2 hours.'
+          summary: 'Documents rejected by {{`{{ $labels.index }}`}} go to the deadletter index, {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'OpenSearch on {{`{{ $labels.k8s_cluster_name }}`}} has been rejecting documents for index {{`{{ $labels.index }}`}} permanently for about an hour, and the exporter writes them to the deadletter index instead.'
   {{- end }}
 
   {{- if (has "OTelLogsDeadletterFlushFailing" .Values.openTelemetry.prometheus.rules.enabled) }}

@@ -7,7 +7,7 @@ weight: 20
 
 ## Problem
 
-Documents that OpenSearch rejected permanently could not be written to the deadletter index either. The `failure_stage` label says where it failed: `enqueue`, `item_transport` or `item_indexing` (the deadletter write itself), `indexer_create`, `envelope_marshal` or `drain_timeout` (at shutdown).
+Documents that OpenSearch rejected permanently could not be written to the deadletter index either. The `failure_stage` label says where it failed: `enqueue`, `item_transport` or `item_indexing` (the deadletter write itself), `indexer_create`, `envelope_marshal`, or `drain_timeout`: the deadletter bulk write did not finish within `on_error_flush.timeout` (30s by default) plus 2s, usually because OpenSearch is slow to write the deadletter index.
 
 ## Impact
 
@@ -22,7 +22,7 @@ These documents are dropped. They are neither in their regular index nor in the 
     ```
 
 2. Check the deadletter index in OpenSearch: does it exist, is it writable (not read-only, not over its shard or disk limits), and may the exporter's user write to it.
-3. For `item_transport`, check OpenSearch for timeouts or rejections at the same time; `OTelLogsDeadletterIndexGrowing` and the export failure alerts usually fire as well.
+3. For `item_transport` or `drain_timeout`, check OpenSearch for timeouts, rejections or write latency on the deadletter index at the same time; `OTelLogsDeadletterIndexGrowing` and the export failure alerts usually fire as well.
 
 ## Resolution Steps
 

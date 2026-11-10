@@ -7,7 +7,7 @@ weight: 20
 
 ## Problem
 
-OpenSearch rejects documents permanently (for example a mapping conflict or a field limit), and the exporter writes them to the deadletter index (`logs_index_on_error`) instead. The `index` label is the index OpenSearch rejected them for, usually a backing index of a data stream like `.ds-logs-000431`. The alert fires when this goes on for an hour.
+OpenSearch rejects documents permanently (for example a mapping conflict or a field limit), and the exporter writes them to the deadletter index (`logs_index_on_error`) instead. The `index` label is the index OpenSearch rejected them for, usually a backing index of a data stream, like `.ds-logs-000431` for an ingester named `logs` or `.ds-logs-datastream-000431` for the node log agents. The alert fires when this goes on for about an hour.
 
 ## Impact
 
@@ -21,7 +21,7 @@ The records are not in their regular index, so searches and dashboards there mis
     sum by (job, index, error_type, status) (increase(otelcol_opensearch_exporter_on_error_docs_total{job=~"<namespace>/.*"}[1h]))
     ```
 
-2. Open the deadletter index (`<name>-deadletter` for an ingester, `<index>-datastream-deadletter` otherwise) in OpenSearch Dashboards. Each document has an `error` object with the `type`, `reason` and `status` OpenSearch returned, next to the original record.
+2. Open the deadletter index in OpenSearch Dashboards. Its name is the exporter's `logs_index` plus `-deadletter`: `<name>-deadletter` for an ingester, `logs-datastream-deadletter`, `cronus-datastream-deadletter` or `storage-datastream-deadletter` for the node log agents, `alerts-datastream-deadletter` or `deployments-datastream-deadletter` for the external collector. Each document has an `error` object with the `type`, `reason` and `status` OpenSearch returned, next to the original record.
 
 ## Resolution Steps
 
