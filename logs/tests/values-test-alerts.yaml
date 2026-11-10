@@ -23,3 +23,6 @@ openTelemetry:
         - OTelExporterQueueFull
         - OTelLogsVolumeSpike
         - OTelLogsVolumeDropFast
+        - ExternalCollectorMemoryHigh
+        - OTelLogsDeadletterIndexGrowing
+        - OTelLogsDeadletterFlushFailing

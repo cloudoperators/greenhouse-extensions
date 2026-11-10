@@ -18,6 +18,8 @@ metadata:
 {{- /* The export failure rules also cover the external collector (syslog and HTTP receivers). */}}
 {{- $exportJobs := printf "%s/opentelemetry-collector-(logs|external)" .Release.Namespace }}
 {{- $extJob := printf "%s/opentelemetry-collector-external" .Release.Namespace }}
+{{- /* Every collector of this install that can write to an OpenSearch deadletter index, including the ingesters. */}}
+{{- $deadletterJobs := printf "%s/opentelemetry-collector-(logs|external|logs-ingester-.+)" .Release.Namespace }}
 {{- /* Count each record once, where it is finally delivered or dropped, without depending on component names:
        - failures count at components that have a sending_queue (an otelcol_exporter_queue_capacity series exists for
          them). A queued component drops what it cannot deliver after its retries, so its send_failed is lost data.
@@ -410,7 +412,7 @@ spec:
   {{- if and .Values.openTelemetry.externalCollector.enabled (has "ExternalCollectorMemoryHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: ExternalCollectorMemoryHigh
         expr: |
-          otelcol_process_memory_rss_bytes{job=~".*/opentelemetry-collector-external"}
+          otelcol_process_memory_rss_bytes{job="{{ $extJob }}"}
           > 8589934592
         for: 5m
         labels:
@@ -429,7 +431,7 @@ spec:
         expr: |
           sum by (k8s_cluster_name, index) (
             increase(otelcol_opensearch_exporter_on_error_docs_total{
-              job=~".*ingester.*"
+              job=~"{{ $deadletterJobs }}"
             }[30m])
           ) > 0
         for: 1h
@@ -449,7 +451,7 @@ spec:
         expr: |
           sum by (k8s_cluster_name, index, failure_stage) (
             increase(otelcol_opensearch_exporter_on_error_flush_failures_total{
-              job=~".*ingester.*"
+              job=~"{{ $deadletterJobs }}"
             }[5m])
           ) > 0
         for: 5m

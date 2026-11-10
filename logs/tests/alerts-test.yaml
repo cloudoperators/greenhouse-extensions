@@ -119,6 +119,15 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # level a fails, level b delivers: No queue on the levels: the connector hands every record to level b, nothing is lost and nothing may fire.
   - name: 'level a fails, level b delivers'
     interval: 1m
@@ -182,6 +191,15 @@ tests:
         exp_alerts: []
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # loss after the queue of queued per-level exporters: Levels with a sending_queue: the connector only sees "queued", 20% is dropped after level a's queue.
   - name: 'loss after the queue of queued per-level exporters'
@@ -292,6 +310,15 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # storage path with queued levels: Same shape on the storage path: loss at storage_failover_a fires there.
   - name: 'storage path with queued levels'
     interval: 1m
@@ -399,6 +426,15 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # healthy paths are not double counted: Connector and queued level both report sent; delivered counts only at the level, so nothing fires.
   - name: 'healthy paths are not double counted'
     interval: 1m
@@ -472,6 +508,15 @@ tests:
         exp_alerts: []
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # kafka exporter failing: Kafka exporters have a queue and count directly.
   - name: 'kafka exporter failing'
@@ -576,7 +621,16 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
-  # another install in the same Prometheus: Rules of the install in namespace "logs" ignore failures and operator errors of the install in "other-logs".
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
+  # another install in the same Prometheus: Rules of the install in namespace "logs" ignore failures, operator errors, external collector memory and deadletter writes of the install in "other-logs".
   - name: 'another install in the same Prometheus'
     interval: 1m
     input_series:
@@ -594,6 +648,12 @@ tests:
         values: '0+10x420'
       - series: 'workqueue_depth{job="other-logs-opentelemetry-operator",namespace="other-logs",name="opentelemetrycollector",controller="opentelemetrycollector"}'
         values: '5x420'
+      - series: 'otelcol_process_memory_rss_bytes{job="other-logs/opentelemetry-collector-external",namespace="other-logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib"}'
+        values: '10000000000x420'
+      - series: 'otelcol_opensearch_exporter_on_error_docs_total{job="other-logs/opentelemetry-collector-logs-ingester-syslog",namespace="other-logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index=".ds-syslog-000001",error_type="mapper_parsing_exception",error_class="mapping",status="400"}'
+        values: '0+10x420'
+      - series: 'otelcol_opensearch_exporter_on_error_flush_failures_total{job="other-logs/opentelemetry-collector-logs-ingester-syslog",namespace="other-logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index="syslog-deadletter",failure_stage="item_transport"}'
+        values: '0+10x420'
     alert_rule_test:
       - eval_time: 400m
         alertname: FilelogRefusedLogs
@@ -645,6 +705,15 @@ tests:
         exp_alerts: []
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # rollout: a pod is replaced: logs-collector-a goes away at 200m with 20% loss on its connector until then, logs-collector-b starts healthy. The failures of the gone pod still count while they are in the window, and the replacement does not look like a volume change.
   - name: 'rollout: a pod is replaced'
@@ -757,6 +826,15 @@ tests:
       - eval_time: 203m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 203m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 203m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # rollout: an hour after the replacement: Same series at 420m: the old pod's failures are only left in the 6h window, so nothing fires.
   - name: 'rollout: an hour after the replacement'
     interval: 1m
@@ -826,6 +904,15 @@ tests:
         exp_alerts: []
       - eval_time: 420m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # external collector drops records in a crash loop: Pods restart, each send_failed series lives for one or two scrapes. Far below any ratio threshold, but the records are lost.
   - name: 'external collector drops records in a crash loop'
@@ -913,6 +1000,15 @@ tests:
       - eval_time: 108m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 108m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 108m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # external collector crash loop: the pod seen once: Same series at 116m: pod-0 is out of the window, only pod-1's single sample (a young process) is left.
   - name: 'external collector crash loop: the pod seen once'
     interval: 1m
@@ -999,6 +1095,15 @@ tests:
       - eval_time: 116m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 116m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 116m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # external collector: a single first failure: One failed batch on a healthy pod creates the send_failed series; its first value counts.
   - name: 'external collector: a single first failure'
     interval: 1m
@@ -1073,6 +1178,15 @@ tests:
       - eval_time: 106m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 106m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 106m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # external collector: old failures and a scrape gap: A send_failed counter from an old failure stays flat; a scrape outage (stale, then 8m without samples) must not make it look new.
   - name: 'external collector: old failures and a scrape gap'
     interval: 1m
@@ -1136,6 +1250,15 @@ tests:
         exp_alerts: []
       - eval_time: 123m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 123m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # external collector: old failures and a long scrape gap: An 80m outage: the flat counter of an old failure is not seen in the hour before, but neither is the pod, and its process is old.
   - name: 'external collector: old failures and a long scrape gap'
@@ -1201,6 +1324,15 @@ tests:
       - eval_time: 190m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 190m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 190m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # external collector: empty TSDB: A Prometheus that starts with no history sees an old, flat failure counter on a long-running pod for the first time.
   - name: 'external collector: empty TSDB'
     interval: 1m
@@ -1265,6 +1397,15 @@ tests:
       - eval_time: 10m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 10m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # external collector of another install: Drops at the external collector in namespace "other-logs" do not fire for the install in "logs".
   - name: 'external collector of another install'
     interval: 1m
@@ -1328,6 +1469,15 @@ tests:
         exp_alerts: []
       - eval_time: 110m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 110m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # operator reconcile errors and a stuck work queue: Scoped to the operator in this install's namespace.
   - name: 'operator reconcile errors and a stuck work queue'
@@ -1403,6 +1553,15 @@ tests:
       - eval_time: 30m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 30m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # operator work queue spikes: A queue that fills for a minute or two after a change and drains again is normal.
   - name: 'operator work queue spikes'
     interval: 1m
@@ -1460,6 +1619,15 @@ tests:
         exp_alerts: []
       - eval_time: 60m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # volume steps up 5x: The condition holds for about 80m after a 5x step; "for" is 30m.
   - name: 'volume steps up 5x'
@@ -1530,6 +1698,15 @@ tests:
       - eval_time: 300m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 300m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # volume drops 5x
   - name: 'volume drops 5x'
     interval: 1m
@@ -1599,6 +1776,15 @@ tests:
       - eval_time: 300m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 300m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 300m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # volume bump of 40 minutes: A 6x bump for 40m holds the condition from about 236m to 264m, under 30m like the runs seen live (up to 25m), so it is still pending at 262m.
   - name: 'volume bump of 40 minutes'
     interval: 1m
@@ -1658,6 +1844,15 @@ tests:
         exp_alerts: []
       - eval_time: 262m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 262m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # receivers refuse records
   - name: 'receivers refuse records'
@@ -1744,6 +1939,15 @@ tests:
       - eval_time: 30m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 30m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # a pod stops shipping
   - name: 'a pod stops shipping'
     interval: 1m
@@ -1811,6 +2015,15 @@ tests:
         exp_alerts: []
       - eval_time: 250m
         alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 250m
+        alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
   # exporter queue full
   - name: 'exporter queue full'
@@ -1904,6 +2117,15 @@ tests:
       - eval_time: 30m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 30m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # volume spike and fast drop
   - name: 'volume spike and fast drop'
     interval: 1m
@@ -1982,6 +2204,15 @@ tests:
             exp_annotations:
               description: 'OTel on cluster-a is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'
               summary: 'Log volume dropped >80% vs 1h baseline on cluster-a'
+      - eval_time: 175m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 175m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
   # healthy install: Steady traffic on every path, no failures: nothing fires.
   - name: 'healthy install'
     interval: 1m
@@ -2058,3 +2289,191 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsVolumeDropFast
         exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
+  # external collector memory high: An external collector pod above 8 GiB RSS fires per pod; a node log agent of the same install with as much memory does not.
+  - name: 'external collector memory high'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_process_memory_rss_bytes{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-0",k8s_cluster_name="cluster-a",k8s_node_name="node-0",service_name="otelcol-contrib"}'
+        values: '1000000000x10 9000000000x30'
+      - series: 'otelcol_process_memory_rss_bytes{job="logs/opentelemetry-collector-external",namespace="logs",pod="external-collector-1",k8s_cluster_name="cluster-a",k8s_node_name="node-1",service_name="otelcol-contrib"}'
+        values: '1000000000x40'
+      - series: 'otelcol_process_memory_rss_bytes{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib"}'
+        values: '9000000000x40'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-external'
+              k8s_cluster_name: 'cluster-a'
+              k8s_node_name: 'node-0'
+              namespace: 'logs'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ExternalCollectorMemoryHigh.md'
+              pod: 'external-collector-0'
+              service_name: 'otelcol-contrib'
+              severity: 'warning'
+            exp_annotations:
+              description: 'External collector pod on node-0 in cluster-a is using more than 8 GiB RSS. This typically indicates a Kafka exporter connection failure causing unbounded queue growth. Check kafka export errors and exporter queue sizes.'
+              summary: 'External collector memory high on cluster-a'
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
+  # deadletter writes of this install: Rejected documents written to the deadletter index by an ingester and the node log agents of this install fire, so does a failing deadletter write. The audit-logs ingesters, whose job names also contain "ingester", are left to their own plugin.
+  - name: 'deadletter writes of this install'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_opensearch_exporter_on_error_docs_total{job="logs/opentelemetry-collector-logs-ingester-syslog",namespace="logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index=".ds-syslog-000001",error_type="mapper_parsing_exception",error_class="mapping",status="400"}'
+        values: '0+10x120'
+      - series: 'otelcol_opensearch_exporter_on_error_flush_failures_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index="logs-datastream-deadletter",failure_stage="item_indexing"}'
+        values: '0x100 0+5x20'
+      - series: 'otelcol_opensearch_exporter_on_error_docs_total{job="audit-logs/opentelemetry-collector-audit-ingester-audit",namespace="audit-logs",pod="audit-ingester-audit-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index=".ds-audit-000001",error_type="mapper_parsing_exception",error_class="mapping",status="400"}'
+        values: '0+10x120'
+      - series: 'otelcol_opensearch_exporter_on_error_flush_failures_total{job="audit-logs/opentelemetry-collector-audit-ingester-audit",namespace="audit-logs",pod="audit-ingester-audit-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",index="audit-deadletter",failure_stage="item_transport"}'
+        values: '0+5x120'
+    alert_rule_test:
+      - eval_time: 120m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              index: '.ds-syslog-000001'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterIndexGrowing.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OpenSearch deadletter index .ds-syslog-000001 on cluster-a is receiving documents due to permanent indexing failures. Logs have been routed to the error index for at least 2 hours.'
+              summary: 'Logs routed to deadletter index on .ds-syslog-000001, cluster-a'
+      - eval_time: 120m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              failure_stage: 'item_indexing'
+              index: 'logs-datastream-deadletter'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md'
+              severity: 'critical'
+            exp_annotations:
+              description: 'Failed to flush documents to the OpenSearch deadletter index logs-datastream-deadletter at stage item_indexing on cluster-a. Documents are being dropped entirely — the error fallback itself is failing.'
+              summary: 'Deadletter index flush failing on logs-datastream-deadletter (item_indexing), cluster-a'
