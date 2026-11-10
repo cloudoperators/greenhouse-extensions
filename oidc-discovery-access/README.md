@@ -1,6 +1,6 @@
-<!-- SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
-
+---
+title: OIDC Discovery Access
+---
 # OIDC Discovery Access
 
 This plugin grants anonymous access to OIDC discovery endpoints on target clusters by creating a ClusterRoleBinding that binds the `system:anonymous` user to the built-in `system:service-account-issuer-discovery` ClusterRole.

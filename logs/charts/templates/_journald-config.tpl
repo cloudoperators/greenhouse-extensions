@@ -17,6 +17,8 @@ journald:
 {{- define "journald.transform" }}
 transform/journal:
   error_mode: ignore
+  flatten:
+    log: true
   log_statements:
     - context: log
       statements:
