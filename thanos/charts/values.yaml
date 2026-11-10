@@ -142,6 +142,9 @@ thanos:
     # -- Thanos Query store endpoints
     stores: []
 
+    # -- Thanos Query endpoints populated by CEL
+    sdEndpoints: []
+
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
     ingress:
