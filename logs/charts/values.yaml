@@ -412,6 +412,8 @@ openTelemetry:
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
     #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
     #       timeout: 60s                         # optional; default 60s (10s before chart 0.16.24). Limit for one export attempt of a kafka message, per failover exporter
+    #       onErrorFlush:                        # optional; default 30s. Specifies a dedicated timeout for the on-error routing
+    #         timeout: 0s                       # if timeout=0 the on-error routing will share time-budget with main the routing context.
     #       retry: { maxElapsedTime: 30s }       # optional; default 30s. Retry budget per failover exporter for retryable errors (timeouts, 429/5xx, connection errors)
     #       # Both take <n>ms, <n>s or <n>m (n is 1 to 9999999, no leading zero); anything else fails the render.
     #       # No new attempt starts after maxElapsedTime, so with the defaults a timed-out export is not retried on
