@@ -59,7 +59,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
@@ -72,7 +72,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
@@ -85,7 +85,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -99,7 +99,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter failover/opensearch for 5+ minutes. Current failure ratio: 19.1%.'
@@ -232,7 +232,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
@@ -245,7 +245,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
@@ -258,7 +258,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -272,7 +272,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter opensearch/failover_a for 5+ minutes. Current failure ratio: 20%.'
@@ -339,7 +339,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
@@ -352,7 +352,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
@@ -365,7 +365,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -379,7 +379,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter opensearch/storage_failover_a for 5+ minutes. Current failure ratio: 20%.'
@@ -516,7 +516,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
@@ -529,7 +529,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
@@ -542,7 +542,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -556,7 +556,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter kafka for 5+ minutes. Current failure ratio: 50%.'
@@ -697,7 +697,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsExportingFailed.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are exporting logs below 90%. Please check.'
@@ -710,7 +710,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
@@ -723,7 +723,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRate.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -737,7 +737,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportFailureRatioHigh.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel collector (logs/opentelemetry-collector-logs) on cluster-a has >10% export failures on exporter failover/opensearch for 5+ minutes. Current failure ratio: 14.29%.'
@@ -1355,7 +1355,7 @@ tests:
         exp_alerts:
           - exp_labels:
               namespace: 'logs'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReconcileErrors.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorReconcileErrors.md'
               severity: 'warning'
             exp_annotations:
               description: 'Reconciliation errors for OTel are increasing'
@@ -1365,7 +1365,7 @@ tests:
         exp_alerts:
           - exp_labels:
               namespace: 'logs'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/WorkqueueDepth.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelOperatorWorkqueueDepth.md'
               severity: 'warning'
             exp_annotations:
               description: 'The operator''s opentelemetrycollector work queue has not been empty for 20 minutes. Check OTel manager logs for reasons why this might happen'
@@ -1495,7 +1495,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsIncreasing.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsIncreasing.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors on cluster-a sent more than 4 times as many logs in the last hour as in the same hour 2h earlier. Please check.'
@@ -1567,7 +1567,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/LogsOTelLogsDecreasing.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDecreasing.md'
               severity: 'warning'
             exp_annotations:
               description: 'OTel Collectors on cluster-a sent less than a quarter of the logs in the last hour that they sent in the same hour 2h earlier. Please check.'
@@ -1674,7 +1674,7 @@ tests:
           - exp_labels:
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FilelogRefusedLogs.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsFilelogRefusedLogs.md'
               severity: 'warning'
             exp_annotations:
               description: 'Filelog receiver is increasingly rejecting logs'
@@ -1686,7 +1686,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedLogs.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedLogs.md'
               receiver: 'file_log/containerd'
               severity: 'info'
             exp_annotations:
@@ -1697,7 +1697,7 @@ tests:
         exp_alerts:
           - exp_labels:
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ReceiverRefusedMetric.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsReceiverRefusedMetric.md'
               severity: 'warning'
             exp_annotations:
               description: 'The OTel Collector has refused metric points for over 5 minutes. This may indicate malformed metrics. Review configuration and incoming traffic for issues.'
@@ -1767,7 +1767,7 @@ tests:
               context: 'logshipping'
               k8s_node_name: 'node-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsMissing.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsmissing.md'
               pod: 'logs-collector-a'
               severity: 'warning'
             exp_annotations:
@@ -1872,7 +1872,7 @@ tests:
               k8s_node_name: 'node-a'
               namespace: 'logs'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md'
               pod: 'logs-collector-a'
               service_name: 'otelcol-contrib'
               severity: 'info'
@@ -1891,7 +1891,7 @@ tests:
               k8s_node_name: 'node-a'
               namespace: 'logs'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExporterQueueFilling.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md'
               pod: 'logs-collector-a'
               service_name: 'otelcol-contrib'
               severity: 'info'
@@ -1965,7 +1965,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md'
               severity: 'info'
             exp_annotations:
               description: 'Cluster cluster-a is receiving logs at 5x the hourly baseline rate. This may indicate a logging misconfiguration, a noisy application, or a log injection attempt.'
@@ -1977,7 +1977,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeAnomaly.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeDropFast.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel on cluster-a is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'

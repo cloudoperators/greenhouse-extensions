@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.16.32
+  version: 0.16.60
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.16.32
+    version: 0.16.60
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -142,6 +142,16 @@ spec:
       required: false
       type: bool
     - default: false
+      description: Enable the Go pprof extension on all collectors for ad-hoc memory and CPU profiling via kubectl port-forward. Intended for debugging only.
+      name: openTelemetry.pprof.enabled
+      required: false
+      type: bool
+    - default: 1777
+      description: TCP port the pprof extension listens on inside each collector pod.
+      name: openTelemetry.pprof.port
+      required: false
+      type: int
+    - default: false
       description: Activates the service-monitoring for the Logs Collector
       name: openTelemetry.prometheus.serviceMonitor.enabled
       required: false
@@ -161,6 +171,10 @@ spec:
       type: bool
     - description: Additional labels for PrometheusRule alerts
       name: openTelemetry.prometheus.rules.additionalRuleLabels
+      required: false
+      type: map
+    - description: Map of alert name to playbook URL used in alert annotations
+      name: openTelemetry.prometheus.rules.playbooksUrls
       required: false
       type: map
     - default: false
