@@ -1,4 +1,4 @@
-{{- if .Values.thanos.query.enabled }}
+{{- if or .Values.thanos.query.enabled .Values.thanosCommunity.query.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
