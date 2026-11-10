@@ -302,9 +302,10 @@ spec:
               - log.attributes["sap.cc.audit.source"] == "barbican-api"
             statements:
               - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{NOTSPACE} %{NOTSPACE:_severity_text} %{NOTSPACE:otel.scope.name} (\\[)?(req-)%{NOTSPACE:openstack.request.id} ?(g%{NOTSPACE:openstack.global.request.id}) ?%{NOTSPACE:user.id} ?%{NOTSPACE:openstack.project.id} ?%{NOTSPACE:openstack.domain.id} ?%{NOTSPACE:user.domain.id} ?%{NOTSPACE:openstack.project.domain.id} %{NOTSPACE}\\] ?%{GREEDYDATA:message}", true), "upsert")
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601} %{NOTSPACE} %{NOTSPACE} %{INT} %{NOTSPACE:_severity_text} %{NOTSPACE:otel.scope.name} %{GREEDYDATA:message}", true), "upsert") where not IsMatch(log.body, "\\[req-")
+              - merge_maps(log.attributes, ExtractPatterns(log.body, "(?P<timestamp_date>\\d{4}-\\d{2}-\\d{2}) (?P<timestamp_time>\\d{2}:\\d{2}:\\d{2})\\.(?P<microseconds>\\d+)"), "upsert")
               - set(log.severity_text, log.attributes["_severity_text"]) where log.attributes["_severity_text"] != nil
-              - set(log.attributes["barbican_timestamp"], Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"], ".", log.attributes["microseconds"]], "")) where log.attributes["timestamp_date"] != nil
-              - set(log.time, Time(Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"], ".", log.attributes["microseconds"]], ""), "%Y-%m-%d %H:%M:%S.%f")) where log.attributes["timestamp_date"] != nil
+              - set(log.time_unix_nano, UnixNano(Time(Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"]], " "), "%Y-%m-%d %H:%M:%S")) + Int(log.attributes["microseconds"]) * 1000) where log.attributes["timestamp_date"] != nil
               - delete_key(log.attributes, "_severity_text")
               - delete_key(log.attributes, "timestamp_date")
               - delete_key(log.attributes, "timestamp_time")
