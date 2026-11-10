@@ -10,9 +10,35 @@ metadata:
   name: {{ include "release.name" . }}-blackbox-exporter-probes
 spec:
   endpoints:
-{{- if (empty .Values.thanos.query.stores) }}
-{{- fail "WARNING Blackbox exporter requires store endpoints to probe. Specify thanos.query.stores or disable blackbox-exporter" -}}
+{{- if and (empty .Values.thanos.query.sdEndpoints) (empty .Values.thanos.query.stores) }}
+{{- fail "WARNING Blackbox exporter requires endpoints to probe. Specify thanos.query.sdEndpoints or thanos.query.stores or disable blackbox-exporter" -}}
 {{- end }}
+{{- if not (empty .Values.thanos.query.sdEndpoints) }}
+{{- range .Values.thanos.query.sdEndpoints }}
+  - honorTimestamps: true
+    interval: 60s
+    scrapeTimeout: 60s
+    metricRelabelings:
+    - action: replace
+      replacement: {{ . }}
+      sourceLabels:
+      - instance
+      targetLabel: instance
+    - action: replace
+      replacement: {{ . }}
+      sourceLabels:
+      - target
+      targetLabel: target
+    params:
+      module:
+      - grpc-prober
+      target:
+      - "{{ . }}"
+    path: /probe
+    port: http
+    scheme: http
+{{- end }}
+{{- else }}
 {{- range .Values.thanos.query.stores }}
   - honorTimestamps: true
     interval: 60s
@@ -36,6 +62,7 @@ spec:
     path: /probe
     port: http
     scheme: http
+{{- end }}
 {{- end }}
   jobLabel: {{ include "release.name" . }}
   selector:
