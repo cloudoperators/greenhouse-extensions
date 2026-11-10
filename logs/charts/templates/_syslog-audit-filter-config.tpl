@@ -82,8 +82,8 @@ transform/syslog_extract_appname_from_message:
 */}}
 transform/syslog_semconv_normalization:
   error_mode: ignore
-  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
-  flatten_data: true
+  flatten:
+    log: true
   log_statements:
     - context: log
       statements:
@@ -256,8 +256,8 @@ transform/syslog_user_extraction:
 */}}
 transform/octobus_to_fortlogs_normalization:
   error_mode: ignore
-  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
-  flatten_data: true
+  flatten:
+    log: true
   log_statements:
     - context: log
       conditions:
@@ -441,8 +441,8 @@ transform/cef_parsing:
 */}}
 transform/syslog_hostname_parsing:
   error_mode: ignore
-  # Sets resource host.name from per-log data: give every log its own resource copy (needs transform.flatten.logs).
-  flatten_data: true
+  flatten:
+    log: true
   log_statements:
     - context: log
       statements:
