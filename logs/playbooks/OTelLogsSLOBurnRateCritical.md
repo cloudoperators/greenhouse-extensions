@@ -15,7 +15,7 @@ Log records are being dropped and do not reach the sink (OpenSearch or Kafka). F
 
 ## Diagnosis
 
-1. The `job` label says which collector: `<namespace>/opentelemetry-collector-logs` (node log agents) or `<namespace>/opentelemetry-collector-external` (syslog and HTTP receivers).
+1. The `job` label says which collector: `<namespace>/opentelemetry-collector-logs` (node log agents), `<namespace>/opentelemetry-collector-external` (syslog and HTTP receivers) or `<namespace>/opentelemetry-collector-logs-ingester-<name>` (an ingester, Kafka to OpenSearch). With Kafka, the agents and the external collector count their writes to Kafka and the ingesters their writes to OpenSearch, each on its own.
 2. Find the failing component and the error type:
 
     ```promql

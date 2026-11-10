@@ -15,11 +15,12 @@ metadata:
 {{- end }}
 {{- /* Scope every rule to this install's own collectors: one Prometheus can hold several logs installs. */}}
 {{- $job := printf "%s/opentelemetry-collector-logs" .Release.Namespace }}
-{{- /* The export failure rules also cover the external collector (syslog and HTTP receivers). */}}
-{{- $exportJobs := printf "%s/opentelemetry-collector-(logs|external)" .Release.Namespace }}
+{{- /* The export failure rules also cover the external collector (syslog and HTTP receivers) and the ingesters (Kafka to
+       OpenSearch). With Kafka, agents and ingesters handle the same records on two hops, so these rules always group by
+       job and each hop's ratio stands alone. Every one of these collectors can also write to a deadletter index. */}}
+{{- $exportJobs := printf "%s/opentelemetry-collector-(logs|external|logs-ingester-.+)" .Release.Namespace }}
 {{- $extJob := printf "%s/opentelemetry-collector-external" .Release.Namespace }}
-{{- /* Every collector of this install that can write to an OpenSearch deadletter index, including the ingesters. */}}
-{{- $deadletterJobs := printf "%s/opentelemetry-collector-(logs|external|logs-ingester-.+)" .Release.Namespace }}
+{{- $deadletterJobs := $exportJobs }}
 {{- /* Count each record once, where it is finally delivered or dropped, without depending on component names:
        - failures count at components that have a sending_queue (an otelcol_exporter_queue_capacity series exists for
          them). A queued component drops what it cannot deliver after its retries, so its send_failed is lost data.
