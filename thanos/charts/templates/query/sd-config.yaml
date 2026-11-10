@@ -13,7 +13,11 @@ data:
   endpoint-targets.yaml: |-
     endpoints:
 {{- /* Technically it is possible to add stores and have the default stores all together.*/}}
-{{- if not (empty .Values.thanos.query.stores) }}
+{{- if not (empty .Values.thanos.query.sdEndpoints) }}
+{{- range .Values.thanos.query.sdEndpoints }}
+      - address: "{{ . }}"
+{{- end -}}
+{{- else if not (empty .Values.thanos.query.stores) }}
 {{- range .Values.thanos.query.stores }}
       - address: "{{ . }}"
 {{- end -}}
