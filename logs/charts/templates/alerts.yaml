@@ -17,10 +17,24 @@ metadata:
 {{- $job := printf "%s/opentelemetry-collector-logs" .Release.Namespace }}
 {{- /* The export failure rules also cover the external collector (syslog and HTTP receivers) and the ingesters (Kafka to
        OpenSearch). With Kafka, agents and ingesters handle the same records on two hops, so these rules always group by
-       job and each hop's ratio stands alone. Every one of these collectors can also write to a deadletter index. */}}
-{{- $exportJobs := printf "%s/opentelemetry-collector-(logs|external|logs-ingester-.+)" .Release.Namespace }}
+       job and each hop's ratio stands alone.
+       An ingester only counts with sendingQueue.waitForResult false (the default): then its queued OpenSearch levels
+       take every record, the Kafka offsets are committed, and what level a drops after its retries is lost. With
+       waitForResult true the queue hands the error back to the failover connector, which tries level b, and a message
+       both levels fail goes back to the Kafka receiver, which retries it and does not mark it. Level a would then count
+       as failed what level b delivered, so such an ingester is left out. */}}
+{{- $exportComponents := list "logs" "external" }}
+{{- if .Values.openTelemetry.ingesterCollector.enabled }}
+{{- range $name, $cfg := .Values.openTelemetry.ingesterCollector.collectors }}
+{{- if and $cfg.enabled $cfg.topic (not (dig "sendingQueue" "waitForResult" false (default (dict) $cfg.opensearch))) }}
+{{- $exportComponents = append $exportComponents (printf "logs-ingester-%s" (regexQuoteMeta $name)) }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- $exportJobs := printf "%s/opentelemetry-collector-(%s)" .Release.Namespace (join "|" $exportComponents) }}
 {{- $extJob := printf "%s/opentelemetry-collector-external" .Release.Namespace }}
-{{- $deadletterJobs := $exportJobs }}
+{{- /* Every collector of this install that can write to an OpenSearch deadletter index, including all ingesters. */}}
+{{- $deadletterJobs := printf "%s/opentelemetry-collector-(logs|external|logs-ingester-.+)" .Release.Namespace }}
 {{- /* Count each record once, where it is finally delivered or dropped, without depending on component names:
        - failures count at components that have a sending_queue (an otelcol_exporter_queue_capacity series exists for
          them). A queued component drops what it cannot deliver after its retries, so its send_failed is lost data.

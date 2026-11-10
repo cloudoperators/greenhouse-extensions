@@ -2808,3 +2808,216 @@ tests:
       - eval_time: 400m
         alertname: OTelLogsDeadletterFlushFailing
         exp_alerts: []
+  # two ingesters of one install stay apart: A low-volume syslog ingester drops 20% after its queue while a high-volume logs ingester delivers everything: fires for the syslog ingester only, the healthy one does not dilute it.
+  - name: 'two ingesters of one install stay apart'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_queue_size{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",error_type="_OTHER",error_permanent="false"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-logs",namespace="logs",pod="logs-ingester-logs-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/logs_failover_a",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-logs",namespace="logs",pod="logs-ingester-logs-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/logs_failover_b",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs-ingester-logs",namespace="logs",pod="logs-ingester-logs-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/logs_failover_a"}'
+        values: '0+40000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs-ingester-logs",namespace="logs",pod="logs-ingester-logs-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/logs_failover_a",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-syslog",namespace="logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/syslog_failover_a",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-syslog",namespace="logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/syslog_failover_b",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs-ingester-syslog",namespace="logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/syslog_failover_a"}'
+        values: '0+400x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs-ingester-syslog",namespace="logs",pod="logs-ingester-syslog-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/syslog_failover_a",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '0+100x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs-ingester-syslog'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs-ingester-syslog) on cluster-a are exporting logs below 90%. Please check.'
+              summary: 'OTel log exporting is failing. Check logs and exporter connectivity.'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs-ingester-syslog'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
+              severity: 'warning'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs-ingester-syslog) on cluster-a are burning the export error budget at 14x rate. Budget will be exhausted in ~2 days.'
+              summary: 'OTel log export SLO burn rate critical (14x)'
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              job: 'logs/opentelemetry-collector-logs-ingester-syslog'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel Collectors (logs/opentelemetry-collector-logs-ingester-syslog) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
+              summary: 'OTel log export SLO burn rate elevated (6x)'
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts:
+          - exp_labels:
+              context: 'logshipping'
+              exporter: 'opensearch/syslog_failover_a'
+              job: 'logs/opentelemetry-collector-logs-ingester-syslog'
+              k8s_cluster_name: 'cluster-a'
+              no_alert_on_absence: 'true'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md'
+              severity: 'info'
+            exp_annotations:
+              description: 'OTel collector (logs/opentelemetry-collector-logs-ingester-syslog) on cluster-a has >10% export failures on exporter opensearch/syslog_failover_a for 5+ minutes. Current failure ratio: 20%.'
+              summary: 'OTel export failure ratio above 10% for exporter opensearch/syslog_failover_a'
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
+  # ingester with waitForResult true: The storage ingester waits for the result (sendingQueue.waitForResult true): level a fails every record, the failover connector hands them to level b, which delivers them. Nothing is lost, the ingester is left out of the export rules and nothing fires.
+  - name: 'ingester with waitForResult true'
+    interval: 1m
+    input_series:
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '1000x420'
+      - series: 'otelcol_exporter_queue_size{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",data_type="logs"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka"}'
+        values: '0+5000x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs",namespace="logs",pod="logs-collector-a",k8s_cluster_name="cluster-a",k8s_node_name="node-a",service_name="otelcol-contrib",exporter="kafka",error_type="_OTHER",error_permanent="false"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-storage",namespace="logs",pod="logs-ingester-storage-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_queue_capacity{job="logs/opentelemetry-collector-logs-ingester-storage",namespace="logs",pod="logs-ingester-storage-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/storage_failover_b",data_type="logs"}'
+        values: '50x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs-ingester-storage",namespace="logs",pod="logs-ingester-storage-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a"}'
+        values: '0x420'
+      - series: 'otelcol_exporter_send_failed_log_records_total{job="logs/opentelemetry-collector-logs-ingester-storage",namespace="logs",pod="logs-ingester-storage-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/storage_failover_a",error_type="Deadline_Exceeded",error_permanent="false"}'
+        values: '0+1000x420'
+      - series: 'otelcol_exporter_sent_log_records_total{job="logs/opentelemetry-collector-logs-ingester-storage",namespace="logs",pod="logs-ingester-storage-a",k8s_cluster_name="cluster-a",k8s_node_name="node-i",service_name="otelcol-contrib",exporter="opensearch/storage_failover_b"}'
+        values: '0+1000x420'
+    alert_rule_test:
+      - eval_time: 400m
+        alertname: FilelogRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedLogs
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReceiverRefusedMetric
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsMissing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ReconcileErrors
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: WorkqueueDepth
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsIncreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDecreasing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportingFailed
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateCritical
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsSLOBurnRateWarning
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsExportFailureRatioHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExternalLogsDropped
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFilling
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelExporterQueueFull
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeSpike
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsVolumeDropFast
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: ExternalCollectorMemoryHigh
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterIndexGrowing
+        exp_alerts: []
+      - eval_time: 400m
+        alertname: OTelLogsDeadletterFlushFailing
+        exp_alerts: []
