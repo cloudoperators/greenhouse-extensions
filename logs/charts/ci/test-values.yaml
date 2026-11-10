@@ -59,6 +59,8 @@ openTelemetry:
     enabled: true
     replicas: 2
     externalIP: 10.0.0.1
+    udpStatsExporter:
+      enabled: true
     externalConfig:
       enabled: false
       alertmanager_port: 1515
@@ -89,6 +91,10 @@ openTelemetry:
         - FilelogRefusedLogs
         - LogsOTelLogsMissing
         - LogsExportingFailed
+        - OTelUDPReceiveDrops
+        - OTelUDPReceiveDropRatioHigh
+        - OTelUDPStatsExporterDown
+        - OTelExternalReceiverRefusedLogs
 
 testFramework:
   enabled: true
