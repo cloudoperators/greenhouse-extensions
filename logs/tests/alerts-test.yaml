@@ -85,7 +85,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -258,7 +258,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -365,7 +365,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -542,7 +542,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -723,7 +723,7 @@ tests:
               job: 'logs/opentelemetry-collector-logs'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel Collectors (logs/opentelemetry-collector-logs) on cluster-a are burning the export error budget at 6x rate. Budget will be exhausted in ~4.5 days.'
@@ -1977,7 +1977,7 @@ tests:
               context: 'logshipping'
               k8s_cluster_name: 'cluster-a'
               no_alert_on_absence: 'true'
-              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeDropFast.md'
+              playbook: 'https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md'
               severity: 'info'
             exp_annotations:
               description: 'OTel on cluster-a is exporting less than 20% of its 1-hour baseline volume. Detected within 10 minutes vs the previous 4-hour detection time.'

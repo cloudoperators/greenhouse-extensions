@@ -294,7 +294,7 @@ spec:
           context: logshipping
           severity: info
           no_alert_on_absence: "true"
-          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.otelExternalLogsDropped }}
           {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
         annotations:
           summary: 'External collector dropped log records on exporter {{`{{ $labels.exporter }}`}}'
