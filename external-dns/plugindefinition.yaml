@@ -37,6 +37,10 @@ spec:
       description: The OpenStack project ID
       required: false
       type: string
+    - name: openstack.projectName
+      description: The OpenStack project name; one of projectID or projectName is required when openstack.enabled is true
+      required: false
+      type: string
     - name: openstack.regionName
       description: The OpenStack region name
       required: false

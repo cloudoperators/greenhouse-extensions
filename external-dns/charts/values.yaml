@@ -7,5 +7,8 @@ openstack:
   username: ""
   password: ""
   userDomainName: ""
+  # one of projectID or projectName is required when openstack.enabled is true
+  # use projectName if you don't have the project ID
   projectID: ""
+  projectName: ""
   regionName: ""
