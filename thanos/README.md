@@ -386,6 +386,7 @@ If Blackbox-exporter is enabled and store endpoints are provided, this Thanos de
 | thanos.query.replicaLabel | string | `"prometheus_replica"` | Set Thanos Query replica-label for Prometheus replicas |
 | thanos.query.replicas | int | `1` | Number of Thanos Query replicas to deploy |
 | thanos.query.resources | object | `{}` | Resource requests and limits for the Thanos Query container. |
+| thanos.query.sdEndpoints | list | `[]` | Thanos Query endpoints populated by CEL |
 | thanos.query.serviceAnnotations | object | `{}` | Service specific annotations to add to the Thanos Query service in addition to its already configured annotations. |
 | thanos.query.serviceLabels | object | `{}` | Labels to add to the Thanos Query service |
 | thanos.query.stores | list | `[]` | Thanos Query store endpoints |
