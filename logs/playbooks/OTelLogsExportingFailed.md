@@ -5,6 +5,8 @@ weight: 20
 
 ## Root Cause Analysis
 
+The `job` label says which collector is affected: `<namespace>/opentelemetry-collector-logs` (the `logs-collector` daemonset), `<namespace>/opentelemetry-collector-external` (the `external-collector` with the syslog and HTTP receivers) or `<namespace>/opentelemetry-collector-logs-ingester-<name>` (an ingester, Kafka to OpenSearch). The commands below use the daemonset; for the external collector use `statefulset/external-collector`, for an ingester `deployment/logs-ingester-<name>-collector` instead.
+
 Determine if the lack of sent logs is expected:
 - Check if the Plugin is up and running via the Greenhouse Dashboard.
 - Check if there are other alerts that would indicate a lack of sent logs (`CrashLoopBackoff`, `ErrImagePull`).

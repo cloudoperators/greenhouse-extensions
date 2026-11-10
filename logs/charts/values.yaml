@@ -410,7 +410,9 @@ openTelemetry:
     #       endpoint: <url>
     #       tls: { caSecret, caSecretKey, insecure }
     #       failover_username_a / failover_password_a / failover_username_b / failover_password_b
-    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; default disabled. waitForResult defaults true (at-least-once)
+    #       sendingQueue: { enabled, waitForResult, numConsumers, queueSize }  # optional; defaults enabled true, waitForResult false, numConsumers 5, queueSize 50.
+    #                                            # waitForResult true waits for OpenSearch before committing the Kafka offset (at-least-once);
+    #                                            # the export failure alerts then leave that ingester out, see templates/alerts.yaml.
     #       timeout: 60s                         # optional; default 60s (10s before chart 0.16.24). Limit for one export attempt of a kafka message, per failover exporter
     #       retry: { maxElapsedTime: 30s }       # optional; default 30s. Retry budget per failover exporter for retryable errors (timeouts, 429/5xx, connection errors)
     #       # Both take <n>ms, <n>s or <n>m (n is 1 to 9999999, no leading zero); anything else fails the render.
@@ -469,6 +471,7 @@ openTelemetry:
         - OTelLogsSLOBurnRateCritical
         - OTelLogsSLOBurnRateWarning
         - OTelLogsExportFailureRatioHigh
+        - OTelExternalLogsDropped
         - OTelExporterQueueFull
         - ExternalCollectorMemoryHigh
         - OTelLogsDeadletterFlushFailing
@@ -511,12 +514,13 @@ openTelemetry:
         otelLogsDecreasing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDecreasing.md"
         otelLogsExportingFailed: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExportingFailed.md"
         otelLogsSLOBurnRateCritical: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md"
-        otelLogsSLOBurnRateWarning: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateWarning.md"
+        otelLogsSLOBurnRateWarning: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsSLOBurnRateCritical.md"
         otelLogsExportFailureRatioHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/otellogsexportfailureratiohigh.md"
+        otelExternalLogsDropped: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalLogsDropped.md"
         otelExporterQueueFilling: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md"
         otelExporterQueueFull: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsExporterQueueFilling.md"
         otelLogsVolumeSpike: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md"
-        otelLogsVolumeDropFast: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeDropFast.md"
+        otelLogsVolumeDropFast: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsVolumeSpike.md"
         externalCollectorMemoryHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ExternalCollectorMemoryHigh.md"
         otelLogsDeadletterIndexGrowing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterIndexGrowing.md"
         otelLogsDeadletterFlushFailing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md"
