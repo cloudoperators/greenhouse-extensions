@@ -38,7 +38,11 @@ spec:
       required: false
       type: string
     - name: openstack.projectName
-      description: The OpenStack project name; one of projectID or projectName is required when openstack.enabled is true
+      description: The OpenStack project name; must be set together with projectDomainName; one of projectID or the projectName+projectDomainName pair is required when openstack.enabled is true
+      required: false
+      type: string
+    - name: openstack.projectDomainName
+      description: The OpenStack project domain name; must be set together with projectName
       required: false
       type: string
     - name: openstack.regionName
