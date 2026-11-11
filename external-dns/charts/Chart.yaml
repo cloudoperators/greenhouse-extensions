@@ -8,7 +8,7 @@ icon: https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/extern
 keywords:
   - external-dns
   - dns
-version: 1.21.1
+version: 1.21.2
 appVersion: 0.21.0
 maintainers:
   - name: abhijith-darshan
