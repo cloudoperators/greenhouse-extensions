@@ -220,6 +220,8 @@ spec:
           max_interval: 5s
           max_elapsed_time: {{ dig "retry" "maxElapsedTime" "30s" $cfg.opensearch }}
         timeout: {{ dig "timeout" "30s" $cfg.opensearch }}
+        on_error_flush:
+          timeout: {{ dig "onErrorFlush" "timeout" 0 $cfg.opensearch }}
       opensearch/{{ $name }}_failover_b:
         http:
           auth:
@@ -259,6 +261,8 @@ spec:
           max_interval: 5s
           max_elapsed_time: {{ dig "retry" "maxElapsedTime" "30s" $cfg.opensearch }}
         timeout: {{ dig "timeout" "30s" $cfg.opensearch }}
+        on_error_flush:
+          timeout: {{ dig "onErrorFlush" "timeout" 0 $cfg.opensearch }}
     connectors:
       failover/opensearch_{{ $name }}:
         priority_levels:

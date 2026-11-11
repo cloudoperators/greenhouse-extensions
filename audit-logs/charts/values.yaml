@@ -209,6 +209,8 @@ auditLogs:
     #         size: 2Gi                         # PVC size for the queue volume
     #         storageClassName: ""              # optional; storage class for the PVC (e.g. cinder-premium)
     #         timeout: 10s                      # optional; file_storage extension timeout for queue file operations, not the OpenSearch request timeout
+    #       onErrorFlush:                       # optional; default 30s. Specifies a dedicated timeout for the on-error routing
+    #         timeout: 0s                       # if timeout=0 the on-error routing will share time-budget with main the routing context.
     # Each entry renders one OpenTelemetryCollector named "audit-ingester-<name>" with
     # group_id "audit-ingester-<name>" and indexes documents into OpenSearch index "<name>".
     # When persistentQueue is enabled the collector runs as a StatefulSet with a PVC-backed
