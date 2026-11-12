@@ -1,0 +1,94 @@
+{{/*
+SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rootstock.fullname" . }}
+  namespace: {{ include "rootstock.namespace" . }}
+  labels:
+    {{- include "rootstock.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rootstock.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "rootstock.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "rootstock.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "rootstock.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - run
+          # NOTE: the Redfish password is NEVER passed as an environment
+          # variable. It is read exclusively from the mounted file below.
+          ports:
+            - name: http
+              containerPort: {{ default 9220 .Values.rootstock.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: dynamic-config
+              mountPath: {{ .Values.rootstock.config.folder }}/.rootstock.yaml
+              subPath: .rootstock.yaml
+              readOnly: true
+            - name: redfish-pdu-access
+              mountPath: {{ .Values.rootstock.config.folder }}/redfish_pdus.yaml
+              subPath: redfish_pdus.yaml
+              readOnly: true
+
+      volumes:
+        - name: dynamic-config
+          configMap:
+            name: dynamic-config
+            defaultMode: 0400
+            items:
+              - key: .rootstock.yaml
+                path: .rootstock.yaml
+        - name: redfish-pdu-access
+          secret:
+            secretName: {{ include "rootstock.redfishSecretName" . }}
+            defaultMode: 0400
+            items:
+              - key: redfish_pdus.yaml
+                path: redfish_pdus.yaml
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

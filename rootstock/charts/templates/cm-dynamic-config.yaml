@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dynamic-config
+  namespace: {{ include "rootstock.namespace" . }}
+  labels:
+    {{- include "rootstock.labels" . | nindent 4 }}
+data:
+  .rootstock.yaml: |
+    rootstock:
+    {{- .Values.rootstock | toYaml | nindent 6 }}

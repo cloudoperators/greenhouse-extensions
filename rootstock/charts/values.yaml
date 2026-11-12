@@ -1,0 +1,201 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+namespace: ""
+
+releaseName: ""
+replicaCount: 1
+image:
+  # Container image repository for rootstock.
+  repository: ghcr.io/cloudoperators/rootstock
+  # Image tag. Defaults to the chart appVersion when left empty.
+  tag: ""
+  # Image digest. Takes precedence over tag when set (e.g. sha256:...).
+  digest: ""
+  pullPolicy: IfNotPresent
+
+rootstock:
+  log:
+    level: debug
+    format: text
+    trace: false
+  redfish:
+    username: redfish
+    # The password is ALWAYS consumed from a mounted file, never an environment
+    # variable. There are two mutually exclusive ways to supply it:
+    #
+    # 1. existingSecret: reference a pre-created, externally-managed Kubernetes
+    #    Secret (recommended when the Secret is managed outside the chart). The
+    #    secret content must have the format
+    #
+    #     redfish_pdus.yaml: |
+    #       pdu1:
+    #         password: password_value
+    #         username: user_value
+    #
+    # 2. password: provide the value inline and let the chart render a Secret.
+    #    Used for self-contained / local (kind) deployments AND by Greenhouse:
+    #    a Plugin's redfish.password (valueFrom.secret) feeds this value.
+    #
+    # In both cases the Secret is projected into the pod as a read-only file.
+    existingSecret: ""
+    access:
+      pdu1: {username: redfish, password: password}
+  config:
+    folder: /config
+  port: 9220
+  # Timeout for scraping upstream Redfish APIs. Maps to --scrape-timeout.
+  scrape:
+    timeout: 30s
+
+# Image used by the Helm test hook (templates/tests/test-connection.yaml) that
+# curls the /healthz and /ready endpoints. Parameterized so environments that
+# cannot pull from Docker Hub (e.g. a Greenhouse dev-env whose registry mirror
+# rejects Docker-format manifests) can point it at a reachable registry/tag.
+testConnection:
+  image:
+    repository: curlimages/curl
+    tag: "8.11.1"
+    pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  # Annotations to add to the service account.
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 9220
+  # Extra annotations for the Service (e.g. greenhouse.sap/expose: "true").
+  annotations: {}
+
+# Prometheus Operator ServiceMonitor. Disabled by default; the Service is still
+# scrapeable directly. rootstock uses a multi-target probe pattern, so a plain
+# ServiceMonitor scraping /metrics only exposes the exporter's own metrics.
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  path: /metrics
+  honorLabels: true
+  # Extra labels to attach so the Prometheus Operator selects this monitor.
+  labels: {}
+
+# Pod-level annotations and labels.
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65531
+  runAsGroup: 65531
+  fsGroup: 65531
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# Liveness/readiness probe tuning. Endpoints are served by rootstock itself.
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 15
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Greenhouse injects a global.greenhouse.* block into every plugin's values.
+# Declared here so chart rendering does not fail when it is absent.
+global:
+  greenhouse: {}
+
+# SNMP Exporter configuration (sidecar container)
+# This is an optional component. When enabled, it deploys the Prometheus SNMP
+# exporter as a sidecar container alongside rootstock for monitoring network devices via SNMP.
+snmpExporter:
+  # Enable/disable the SNMP exporter sidecar container
+  enabled: false
+  
+  # Service configuration
+  service:
+    port: 9116
+  
+  # Image configuration
+  image:
+    repository: quay.io/prometheus/snmp-exporter
+    tag: v0.26.0
+    pullPolicy: IfNotPresent
+  
+  # Resources for the sidecar container
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  
+  # Security context for the sidecar container
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 65534
+    capabilities:
+      drop:
+        - ALL
+  
+  # SNMP exporter configuration
+  # Option 1: Use a local file (recommended for complex configs)
+  # Uncomment to use files/snmp.yml instead of inline config
+  # configFile: "files/snmp.yml"
+  
+  # Option 2: Inline configuration (default)
+  # The default config includes common MIBs (if_mib, etc.)
+  # Override this with your custom snmp.yml configuration
+  # See: https://github.com/prometheus/snmp_exporter/tree/main/generator
+  config:
+    # Example minimal config - customize as needed
+    # Note: This must follow snmp.yml format with 'modules' at top level
+    modules:
+      if_mib:
+        walk:
+          - 1.3.6.1.2.1.2
+          - 1.3.6.1.2.1.31.1.1
+        metrics:
+          - name: sysUpTime
+            oid: 1.3.6.1.2.1.1.3
+            type: gauge
+            help: The time since the network management portion of the system was last re-initialized.
+          - name: ifNumber
+            oid: 1.3.6.1.2.1.2.1
+            type: gauge
+            help: The number of network interfaces present on this system.
