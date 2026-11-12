@@ -145,6 +145,14 @@ thanos:
     # -- Thanos Query endpoints populated by CEL
     sdEndpoints: []
 
+    # -- TLS configuration for sd-config endpoint discovery
+    sdConfig:
+      tls:
+        enabled: false
+        certFile: /etc/tls/server/tls.crt
+        keyFile: /etc/tls/server/tls.key
+        caFile: /etc/tls/client/ca.crt
+
     # Configure the ingress resource that allows you to access Thanos Query
     # ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
     ingress:
