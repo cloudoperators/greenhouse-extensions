@@ -52,12 +52,12 @@ spec:
       type: int
     - name: cert-manager.config.enableGatewayAPI
       description: Whether to enable Gateway API support in cert-manager
-      default: true
+      default: false
       required: false
       type: bool
     - name: cert-manager.config.enableGatewayAPIListenerSet
       description: Whether to enable Gateway API ListenerSet support in cert-manager
-      default: true
+      default: false
       required: false
       type: bool
     - name: cert-manager.config.featureGates.ListenerSets
