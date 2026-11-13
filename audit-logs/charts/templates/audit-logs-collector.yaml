@@ -155,6 +155,7 @@ spec:
           - /var/log/pods/vault_vault-tec-*/vault-tec*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-metal-falco*/*/*.log
           - /var/log/pods/kube-monitoring_kube-monitoring-scaleout-falco*/*/*.log
+          - /var/log/pods/*/barbican-api/*.log
         max_log_size: 16384
         operators:
           - id: container-parser
@@ -283,6 +284,43 @@ spec:
               - resource.attributes["k8s.container.name"] == "falco"
             statements:
               - set(log.attributes["sap.cc.audit.source"], "falco")
+
+      transform/barbican_attributes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - resource.attributes["k8s.container.name"] == "barbican-api"
+            statements:
+            - set(log.attributes["sap.cc.audit.source"], "barbican-api")
+
+      transform/barbican-api:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - log.attributes["sap.cc.audit.source"] == "barbican-api"
+            statements:
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?<timestamp_date>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}) (?<timestamp_time>%{HOUR}:%{MINUTE}:%{SECOND})\\.(?<microseconds>%{INT}) %{NOTSPACE} %{NOTSPACE:_severity_text} %{NOTSPACE:otel.scope.name} (\\[)?(req-)%{NOTSPACE:openstack.request.id} ?(g%{NOTSPACE:openstack.global.request.id}) ?%{NOTSPACE:user.id} ?%{NOTSPACE:openstack.project.id} ?%{NOTSPACE:openstack.domain.id} ?%{NOTSPACE:user.domain.id} ?%{NOTSPACE:openstack.project.domain.id} %{NOTSPACE}\\] ?%{GREEDYDATA:message}", true), "upsert")
+              - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601} %{NOTSPACE} %{NOTSPACE} %{INT} %{NOTSPACE:_severity_text} %{NOTSPACE:otel.scope.name} %{GREEDYDATA:message}", true), "upsert") where not IsMatch(log.body, "\\[req-")
+              - merge_maps(log.attributes, ExtractPatterns(log.body, "(?P<timestamp_date>\\d{4}-\\d{2}-\\d{2}) (?P<timestamp_time>\\d{2}:\\d{2}:\\d{2})\\.(?P<microseconds>\\d+)"), "upsert")
+              - set(log.severity_text, log.attributes["_severity_text"]) where log.attributes["_severity_text"] != nil
+              - set(log.time_unix_nano, UnixNano(Time(Concat([log.attributes["timestamp_date"], " ", log.attributes["timestamp_time"]], " "), "%Y-%m-%d %H:%M:%S")) + Int(log.attributes["microseconds"]) * 1000) where log.attributes["timestamp_date"] != nil
+              - delete_key(log.attributes, "_severity_text")
+              - delete_key(log.attributes, "timestamp_date")
+              - delete_key(log.attributes, "timestamp_time")
+              - delete_key(log.attributes, "microseconds")
+
+      filter/barbican_drop:
+        error_mode: ignore
+        logs:
+          log_record:
+            - |
+              resource.attributes["k8s.container.name"] == "barbican-api" and (
+                IsMatch(body, ".* INFO apache .*") or
+                IsMatch(body, ".* INFO barbican\\.api\\.middleware\\.context .*") or
+                IsMatch(body, ".* INFO barbican\\.api\\.controllers\\.secrets .*")
+              )
 
       transform/falco:
         error_mode: ignore
@@ -871,7 +909,7 @@ spec:
 {{- if .Values.auditLogs.logsCollector.containerd.enabled }}
         logs/containerd:
           receivers: [file_log/containerd]
-          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/falco,transform/ingress,batch]
+          processors: [k8s_attributes,attributes/cluster,transform/keystone_api,transform/keystone_api_json,transform/keystone_attributes,transform/keystone_global_attributes,transform/vault,transform/vault_attributes,transform/vault-tec_attributes,transform/falco_attributes,transform/falco,transform/barbican_attributes,transform/barbican-api,filter/barbican_drop,transform/ingress,batch]
           exporters: [routing]
 {{- end }}
 
