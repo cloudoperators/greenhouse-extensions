@@ -149,6 +149,9 @@ thanos:
     sdConfig:
       tls:
         enabled: false
+        # Requires extraVolumeMounts:
+        #   /etc/tls/server from TLS certificate secret (cert + key)
+        #   /etc/tls/client from CA secret (ca cert)
         certFile: /etc/tls/server/tls.crt
         keyFile: /etc/tls/server/tls.key
         caFile: /etc/tls/client/ca.crt
