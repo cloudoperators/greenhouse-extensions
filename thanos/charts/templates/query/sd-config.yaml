@@ -1,4 +1,4 @@
-{{- if .Values.thanos.query.enabled }}
+{{- if or .Values.thanos.query.enabled .Values.thanosCommunity.query.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,9 +11,21 @@ metadata:
     {{- end }}
 data:
   endpoint-targets.yaml: |-
+{{- if .Values.thanos.query.sdConfig.tls.enabled }}
+    default_client_config:
+      tls_config:
+        enabled: true
+        cert_file: {{ .Values.thanos.query.sdConfig.tls.certFile }}
+        key_file:  {{ .Values.thanos.query.sdConfig.tls.keyFile }}
+        ca_file:   {{ .Values.thanos.query.sdConfig.tls.caFile }}
+{{- end }}
     endpoints:
 {{- /* Technically it is possible to add stores and have the default stores all together.*/}}
-{{- if not (empty .Values.thanos.query.stores) }}
+{{- if not (empty .Values.thanos.query.sdEndpoints) }}
+{{- range .Values.thanos.query.sdEndpoints }}
+      - address: "{{ . }}"
+{{- end -}}
+{{- else if not (empty .Values.thanos.query.stores) }}
 {{- range .Values.thanos.query.stores }}
       - address: "{{ . }}"
 {{- end -}}
