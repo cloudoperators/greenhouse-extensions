@@ -19,7 +19,6 @@ rootstock:
     format: text
     trace: false
   redfish:
-    username: redfish
     # The password is ALWAYS consumed from a mounted file, never an environment
     # variable. There are two mutually exclusive ways to supply it:
     #
@@ -38,11 +37,14 @@ rootstock:
     #
     # In both cases the Secret is projected into the pod as a read-only file.
     existingSecret: ""
-    access:
-      pdu1: {username: redfish, password: password}
   config:
     folder: /config
   port: 9220
+
+redfish:
+  access:
+    pdu1: {username: redfish, password: changeThis}
+  
   # Timeout for scraping upstream Redfish APIs. Maps to --scrape-timeout.
   scrape:
     timeout: 30s
@@ -76,9 +78,6 @@ service:
   # Extra annotations for the Service (e.g. greenhouse.sap/expose: "true").
   annotations: {}
 
-# Prometheus Operator ServiceMonitor. Disabled by default; the Service is still
-# scrapeable directly. rootstock uses a multi-target probe pattern, so a plain
-# ServiceMonitor scraping /metrics only exposes the exporter's own metrics.
 serviceMonitor:
   enabled: false
   interval: 30s

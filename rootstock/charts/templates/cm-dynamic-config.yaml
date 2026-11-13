@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dynamic-config
+  name: {{ include "rootstock.fullname" . }}-config
   namespace: {{ include "rootstock.namespace" . }}
   labels:
     {{- include "rootstock.labels" . | nindent 4 }}

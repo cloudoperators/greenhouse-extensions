@@ -27,15 +27,23 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "rootstock.fullname" -}}
+{{- $maxLen := 33 -}}
+{{- $full := "" -}}
 {{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+  {{- $full = .Values.fullnameOverride | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name (include "rootstock.releaseName" .) }}
-{{- include "rootstock.releaseName" . | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" (include "rootstock.releaseName" .) $name | trunc 63 | trimSuffix "-" }}
+  {{- $name := default .Chart.Name .Values.nameOverride }}
+  {{- if contains $name (include "rootstock.releaseName" .) }}
+    {{- $full = include "rootstock.releaseName" . | trimSuffix "-" }}
+  {{- else }}
+    {{- $full = printf "%s-%s" (include "rootstock.releaseName" .) $name | trimSuffix "-" }}
+  {{- end }}
 {{- end }}
+{{- if le (len $full) $maxLen }}
+  {{- $full }}
+{{- else }}
+  {{- $hash := $full | sha256sum | trunc 5 }}
+  {{- printf "%s-%s" ($full | trunc (int (sub $maxLen 6))) $hash | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
@@ -96,16 +104,4 @@ the Helm release namespace (.Release.Namespace).
 */}}
 {{- define "rootstock.namespace" -}}
 {{- default .Release.Namespace .Values.namespace }}
-{{- end }}
-
-{{/*
-Name of the Secret that holds the Redfish password.
-When redfish.existingSecret is set, use it; otherwise use the chart-rendered Secret.
-*/}}
-{{- define "rootstock.redfishSecretName" -}}
-{{- if .Values.rootstock.redfish.existingSecret }}
-{{- .Values.rootstock.redfish.existingSecret }}
-{{- else }}
-{{- "redfish-pdu-access" }}
-{{- end }}
 {{- end }}

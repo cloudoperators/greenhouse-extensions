@@ -30,12 +30,6 @@ spec:
       type: string
       required: false
       default: IfNotPresent
-    - name: rootstock.redfish.username
-      displayName: Redfish username
-      description: Username used for Redfish session authentication.
-      type: string
-      required: true
-      default: "redfish"
     - name: rootstock.redfish.password
       displayName: Redfish password
       description: >-

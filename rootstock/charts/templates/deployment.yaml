@@ -55,7 +55,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: dynamic-config
+            - name: {{ include "rootstock.fullname" . }}-config
               mountPath: {{ .Values.rootstock.config.folder }}/.rootstock.yaml
               subPath: .rootstock.yaml
               readOnly: true
@@ -65,16 +65,13 @@ spec:
               readOnly: true
 
       volumes:
-        - name: dynamic-config
+        - name: {{ include "rootstock.fullname" . }}-config
           configMap:
-            name: dynamic-config
-            defaultMode: 0400
-            items:
-              - key: .rootstock.yaml
-                path: .rootstock.yaml
+            name: {{ include "rootstock.fullname" . }}-config
+
         - name: redfish-pdu-access
           secret:
-            secretName: {{ include "rootstock.redfishSecretName" . }}
+            secretName: {{ .Values.rootstock.redfish.existingSecret | default (printf "%s-redfish" (include "rootstock.fullname" .)) }}
             defaultMode: 0400
             items:
               - key: redfish_pdus.yaml
