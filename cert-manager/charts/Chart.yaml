@@ -8,7 +8,7 @@ keywords:
   - letsencrypt
   - tls
 version: 1.21.0
-appVersion: 1.18.2
+appVersion: v1.21.3
 maintainers:
   - name: ivogoman
   - name: kengou
