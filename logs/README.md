@@ -81,6 +81,12 @@ Based on the backend selection the telemetry data will be exporter to the backen
 
 Greenhouse regularly performs integration tests that are bundled with the **Logs** Plugin. These provide feedback on whether all the necessary resources are installed and continuously up and running. You will find messages about this in the Plugin status and also in the Greenhouse dashboard.
 
+## Network metrics log levels
+
+The node log collector fills missing `log.level` attributes for namespaces beginning with `network-metrics`, including `network-metrics-sci`. It extracts explicit levels from container logfmt fields, timestamped Python logs and top-level JSON `level` fields, and maps Kubernetes event Normal/Warning severities to `info`/`warn`. Newly extracted levels are lowercase; existing levels are preserved. Lines without an explicit severity remain unset.
+
+The shared `transform/network_metrics_log_level` processor runs after application parsing in the container and Kubernetes-event pipelines, before routing to OpenSearch or Kafka. This configuration is applied by deploying the Logs chart to the source cluster. OpenSearch exposes the resulting field as `attributes.log.level`.
+
 ## Failover Connector
 
 The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/failoverconnector) for OpenSearch for two users. The connector will periodically try to establish a stable connection for the prefered user (`failover_username_a`) and in case of a failed try, the connector will try to establish a connection with the fallback user (`failover_username_b`). This feature can be used to secure the shipping of logs in case of expiring credentials or password rotation.
