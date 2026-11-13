@@ -12,8 +12,9 @@ transform/network_metrics_log_level:
         - IsString(resource.attributes["k8s.namespace.name"]) and IsMatch(resource.attributes["k8s.namespace.name"], "^network-metrics") and log.attributes["log.type"] == "containerd" and log.attributes["log.level"] == nil and IsString(log.body)
       statements:
         # Match complete logfmt fields so level= inside a quoted message is ignored.
-        - set(log.cache["network_metrics_logfmt"], ExtractPatterns(log.body, "^(?:[^ =\"\\s]+=(?:\"(?:[^\"\\\\]|\\\\.)*\"|[^\\s\"]*)\\s+)*level=\"?(?P<level>(?i:TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL|CRITICAL|PANIC))\"?(?:\\s|$)"))
-        - set(log.attributes["log.level"], ConvertCase(log.cache["network_metrics_logfmt"]["level"], "lower")) where IsString(log.cache["network_metrics_logfmt"]["level"])
+        - set(log.cache["network_metrics_logfmt"], ExtractPatterns(log.body, "^(?:[^ =\"\\s]+=(?:\"(?:[^\"\\\\]|\\\\.)*\"|[^\\s\"]*)\\s+)*level=(?:(?P<level>(?i:TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL|CRITICAL|PANIC))|\"(?P<quoted_level>(?i:TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL|CRITICAL|PANIC))\")(?:\\s|$)"))
+        - set(log.attributes["log.level"], ConvertCase(log.cache["network_metrics_logfmt"]["level"], "lower")) where IsString(log.cache["network_metrics_logfmt"]["level"]) and log.cache["network_metrics_logfmt"]["level"] != ""
+        - set(log.attributes["log.level"], ConvertCase(log.cache["network_metrics_logfmt"]["quoted_level"], "lower")) where log.attributes["log.level"] == nil and IsString(log.cache["network_metrics_logfmt"]["quoted_level"]) and log.cache["network_metrics_logfmt"]["quoted_level"] != ""
         - set(log.cache["network_metrics_python"], ExtractPatterns(log.body, "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}[,.]\\d+\\s+(?P<level>(?i:TRACE|DEBUG|INFO|WARN|WARNING|ERROR|FATAL|CRITICAL|PANIC))(?:\\s|$)")) where log.attributes["log.level"] == nil
         - set(log.attributes["log.level"], ConvertCase(log.cache["network_metrics_python"]["level"], "lower")) where log.attributes["log.level"] == nil and IsString(log.cache["network_metrics_python"]["level"])
         - set(log.cache["network_metrics_json"], ParseJSON(log.body)) where log.attributes["log.level"] == nil and IsMatch(log.body, "^\\s*\\{")
