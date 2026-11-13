@@ -30,13 +30,11 @@ spec:
       type: string
       required: false
       default: IfNotPresent
-    - name: rootstock.redfish.password
-      displayName: Redfish password
-      description: >-
-        Password for Redfish authentication. Supply via valueFrom.secret so it
-        is mounted into the pod as a file (never set as an environment variable).
-      type: secret
-      required: true
+    - name: rootstock.redfish.existingSecret
+      description: Name of an existing Kubernetes Secret containing Redfish credentials in redfish_pdus.yaml format.
+      type: string
+      required: false
+      default: ""
     - name: serviceMonitor.enabled
       displayName: Enable ServiceMonitor
       description: Create a Prometheus Operator ServiceMonitor for /metrics.
