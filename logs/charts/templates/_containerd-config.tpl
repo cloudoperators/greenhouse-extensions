@@ -69,6 +69,6 @@ transform/perses:
 {{- define "containerd.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses, transform/network_metrics_log_level]
   exporters: [routing]
 {{- end }}
