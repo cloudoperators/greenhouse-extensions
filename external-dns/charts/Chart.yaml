@@ -8,12 +8,12 @@ icon: https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/extern
 keywords:
   - external-dns
   - dns
-version: 1.21.1
-appVersion: 0.21.0
+version: 1.23.0
+appVersion: 0.23.0
 maintainers:
   - name: abhijith-darshan
 dependencies:
   - name: external-dns
     repository: https://kubernetes-sigs.github.io/external-dns
-    version: 1.21.1
+    version: 1.23.0
     alias: externaldns
