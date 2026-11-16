@@ -181,6 +181,7 @@ spec:
 {{- if .Values.openTelemetry.logsCollector.kvmConfig.enabled }}
     {{- include "kvm.transform" . | nindent 6 -}}
 {{- end }}
+    {{- include "network_metrics.transform" . | nindent 6 }}
       k8s_attributes:
         auth_type: "serviceAccount"
         passthrough: false

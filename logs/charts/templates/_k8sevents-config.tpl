@@ -39,6 +39,6 @@ transform/consolidate_label:
 {{- define "k8sevents.pipeline" }}
 logs/k8sevents:
   receivers: [k8s_events]
-  processors: [attributes/k8sevents, transform/consolidate_label]
+  processors: [attributes/k8sevents, transform/consolidate_label, transform/network_metrics_log_level]
   exporters: [routing]
 {{- end }}
