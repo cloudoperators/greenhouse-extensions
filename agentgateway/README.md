@@ -1,8 +1,6 @@
-<!--
-SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
-SPDX-License-Identifier: Apache-2.0
--->
-
+---
+title: AgentGateway
+---
 # agentgateway
 
 Deploys the [agentgateway](https://agentgateway.dev/) controller — an AI-native reverse proxy for MCP (Model Context Protocol) and A2A protocols. It runs as a Kubernetes controller using the Kubernetes Gateway API.

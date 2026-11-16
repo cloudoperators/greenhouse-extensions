@@ -33,6 +33,19 @@
     },
     {
       "customType": "regex",
+      "description": "Bump agentgateway versions in the plugindefinitions",
+      "managerFilePatterns": [
+        "/^agentgateway\\/plugindefinition\\.yaml$/",
+        "/^agentgateway-crds\\/plugindefinition\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate depName=(?<packageName>.*)\\s*name:\\s*.*\\s*repository:\\s*.*\\s*version\\s*\\:\\s*(?<currentValue>v?(?:\\d+\\.){0,2}\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "helm"
+    },
+    {
+      "customType": "regex",
       "description": "Bump kustomize version in the Makefile",
       "managerFilePatterns": [
         "/^Makefile$/"
@@ -320,6 +333,24 @@
       "matchManagers": [
         "custom.regex"
       ],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{packageFileDir}}/plugindefinition.yaml"],
+          "matchStrings": ["spec:\\s*\\n\\s+version:\\s*(?<version>\\d+\\.\\d+\\.\\d+)"],
+          "bumpType": "{{#if isPatch}}patch{{else if isMajor}}major{{else}}minor{{/if}}"
+        }
+      ]
+    },
+    {
+      "description": "Group AgentGateway chart updates and bump PluginDefinition versions",
+      "matchPackageNames": [
+        "cr.agentgateway.dev/charts/agentgateway",
+        "cr.agentgateway.dev/charts/agentgateway-crds"
+      ],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "groupName": "agentgateway",
       "bumpVersions": [
         {
           "filePatterns": ["{{packageFileDir}}/plugindefinition.yaml"],
