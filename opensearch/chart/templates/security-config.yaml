@@ -116,3 +116,42 @@ stringData:
     _meta:
       type: "tenants"
       config_version: 2
+
+  audit.yml: |-
+    _meta:
+      type: "audit"
+      config_version: 2
+    config:
+      enabled: {{ .Values.cluster.cluster.security.audit.enabled }}
+      audit:
+        enable_rest: true
+        enable_transport: true
+        resolve_bulk_requests: false
+        log_request_body: true
+        resolve_indices: true
+        exclude_sensitive_headers: true
+        ignore_users:
+          - kibanaserver
+        ignore_requests: []
+        disabled_rest_categories:
+          - AUTHENTICATED
+          - GRANTED_PRIVILEGES
+        disabled_transport_categories:
+          - AUTHENTICATED
+          - GRANTED_PRIVILEGES
+      compliance:
+        enabled: true
+        internal_config: true
+        external_config: false
+        read_metadata_only: true
+        read_ignore_users:
+          - kibanaserver
+        read_watched_fields: {}
+        # Index patterns whose document writes (create/update/delete) are audited.
+        # Empty by default (no document-write auditing); set per cluster in values.
+        write_watched_indices:
+          {{- toYaml .Values.cluster.cluster.security.audit.writeWatchedIndices | nindent 10 }}
+        write_metadata_only: {{ .Values.cluster.cluster.security.audit.writeMetadataOnly }}
+        write_log_diffs: {{ .Values.cluster.cluster.security.audit.writeLogDiffs }}
+        write_ignore_users:
+          {{- toYaml .Values.cluster.cluster.security.audit.writeIgnoreUsers | nindent 10 }}
