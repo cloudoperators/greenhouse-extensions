@@ -1,0 +1,267 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# promtool tests for the external collector UDP and refusal alerts. Run with ./run.sh.
+# Series use the label sets the external PodMonitor produces: the collector on endpoint "prometheus",
+# the udp-stats sidecar on endpoint "udp-stats". The chart is rendered into namespace "logs".
+rule_files:
+  - rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # One sender burst: 300 datagrams dropped between two scrapes, nothing before or after.
+  - name: udp burst fires the drop alert once
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x20 300x40'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+30000x60'
+    alert_rule_test:
+      - eval_time: 23m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-0 is dropping UDP syslog datagrams', description: 'The kernel counted 300 UDP receive errors (InErrors, mostly a full socket buffer) in 15m on external-collector-0, so the syslog receiver never read those datagrams. These records are lost and appear in no collector counter.'}
+      - eval_time: 23m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+      - eval_time: 40m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts: []
+
+  # The sidecar misses 5 scrapes while 3000 datagrams are dropped; the 15m window still sees the jump.
+  - name: udp drops during a scrape gap still fire
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x20 _x5 3000x20'
+    alert_rule_test:
+      - eval_time: 28m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-0 is dropping UDP syslog datagrams', description: 'The kernel counted 3k UDP receive errors (InErrors, mostly a full socket buffer) in 15m on external-collector-0, so the syslog receiver never read those datagrams. These records are lost and appear in no collector counter.'}
+
+  # 5 a minute: 75 in 15m and 0.017% of the intake, under both thresholds.
+  - name: udp steady loss below the count threshold stays silent
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+5x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+30000x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+
+  # 0.2% on one pod, none on a busier pod: the ratio is per pod, so the quiet pod does not dilute it.
+  - name: udp ratio fires per pod
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+61x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+30000x90'
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-1", container="udp-stats", endpoint="udp-stats", instance="10.0.0.11:9100"}'
+        values: '0x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-1", container="udp-stats", endpoint="udp-stats", instance="10.0.0.11:9100"}'
+        values: '0+300000x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-0 loses more than 0.1% of UDP syslog', description: '0.2029% of the UDP datagrams that reached external-collector-0 in the last hour were dropped by the kernel (UDP InErrors, mostly a full socket buffer).'}
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-0 is dropping UDP syslog datagrams', description: 'The kernel counted 915 UDP receive errors (InErrors, mostly a full socket buffer) in 15m on external-collector-0, so the syslog receiver never read those datagrams. These records are lost and appear in no collector counter.'}
+
+  # A busy sender losing 31% on one pod: 770 datagrams/s arrive, 238/s are dropped.
+  - name: udp heavy loss on one pod fires both alerts
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-1", container="udp-stats", endpoint="udp-stats", instance="10.0.0.11:9100"}'
+        values: '0+14280x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-1", container="udp-stats", endpoint="udp-stats", instance="10.0.0.11:9100"}'
+        values: '0+31920x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-1, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-1 loses more than 0.1% of UDP syslog', description: '30.91% of the UDP datagrams that reached external-collector-1 in the last hour were dropped by the kernel (UDP InErrors, mostly a full socket buffer).'}
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-1, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-1 is dropping UDP syslog datagrams', description: 'The kernel counted 214.2k UDP receive errors (InErrors, mostly a full socket buffer) in 15m on external-collector-1, so the syslog receiver never read those datagrams. These records are lost and appear in no collector counter.'}
+
+  # Drops start at 62m: the ratio is over 0.1% from then on, pending for 15m, firing from 77m.
+  - name: udp ratio waits 15 minutes before firing
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x60 0+3000x60'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0+30000x120'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md}
+            exp_annotations: {summary: 'External collector external-collector-0 loses more than 0.1% of UDP syslog', description: '3.069% of the UDP datagrams that reached external-collector-0 in the last hour were dropped by the kernel (UDP InErrors, mostly a full socket buffer).'}
+
+  # The pod is replaced: the new pod's counters start at 0. increase() treats that as a reset, not as drops.
+  - name: udp counter reset on pod restart stays silent
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '7200x60 0x60'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '9000000+30000x60 0+30000x60'
+    alert_rule_test:
+      - eval_time: 63m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts: []
+      - eval_time: 63m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+      - eval_time: 100m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+
+  - name: udp series of another install are ignored
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="other/opentelemetry-collector-external", namespace="other", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.1.10:9100"}'
+        values: '0+600x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="other/opentelemetry-collector-external", namespace="other", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.1.10:9100"}'
+        values: '0+6000x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts: []
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+
+  - name: udp no traffic stays silent
+    interval: 1m
+    input_series:
+      - series: 'node_netstat_Udp_InErrors{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x90'
+      - series: 'node_netstat_Udp_InDatagrams{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: OTelUDPReceiveDropRatioHigh
+        exp_alerts: []
+
+  # Image pull failure: the sidecar never answers. The collector itself is scraped fine.
+  - name: sidecar image pull failure fires exporter down
+    interval: 1m
+    input_series:
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x30'
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.0.10:8888"}'
+        values: '1x30'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPStatsExporterDown.md}
+            exp_annotations: {summary: 'UDP drop counter sidecar on external-collector-0 is down', description: 'Prometheus cannot scrape the udp-stats sidecar on external-collector-0, so the UDP drop alerts are blind for this pod. If the container is not running (image pull failure, crash loop), the collector pod is also NotReady and receives no syslog.'}
+      - eval_time: 15m
+        alertname: OTelUDPReceiveDrops
+        exp_alerts: []
+
+  # Crash loop: the sidecar answers one scrape out of five.
+  - name: sidecar crash loop fires exporter down
+    interval: 1m
+    input_series:
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '0x3 1 0x3 1 0x3 1 0x3 1 0x3 1 0x3 1 0x3 1'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPStatsExporterDown.md}
+            exp_annotations: {summary: 'UDP drop counter sidecar on external-collector-0 is down', description: 'Prometheus cannot scrape the udp-stats sidecar on external-collector-0, so the UDP drop alerts are blind for this pod. If the container is not running (image pull failure, crash loop), the collector pod is also NotReady and receives no syslog.'}
+
+  # Pod replaced: one failed scrape, then the target is gone.
+  - name: sidecar target gone after pod replacement stays silent
+    interval: 1m
+    input_series:
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '1x30 0 _x30'
+    alert_rule_test:
+      - eval_time: 34m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+
+  # One failed scrape is not a down sidecar.
+  - name: sidecar single failed scrape stays silent
+    interval: 1m
+    input_series:
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '1x20 0 1x20'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+      - eval_time: 35m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+
+  - name: sidecar healthy stays silent
+    interval: 1m
+    input_series:
+      - series: 'up{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="udp-stats", endpoint="udp-stats", instance="10.0.0.10:9100"}'
+        values: '1x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: OTelUDPStatsExporterDown
+        exp_alerts: []
+
+  # memory_limiter refuses one batch of 500 UDP records. The counter exists at 0 from start, as on a live collector.
+  # Refusals on an HTTP receiver (the sender gets an error), on the deployment events receiver and in another
+  # install are ignored.
+  - name: refused records on the external collector fire
+    interval: 1m
+    input_series:
+      - series: 'otelcol_receiver_refused_log_records_total{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.0.10:8888", receiver="udp_log/syslog", transport="udp"}'
+        values: '0x20 500x20'
+      - series: 'otelcol_receiver_refused_log_records_total{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.0.10:8888", receiver="tcp_log/syslog", transport="tcp"}'
+        values: '0x40'
+      - series: 'otelcol_receiver_refused_log_records_total{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.0.10:8888", receiver="webhookevent/syslog-http"}'
+        values: '0+100x40'
+      - series: 'otelcol_receiver_refused_log_records_total{job="logs/opentelemetry-collector-external", namespace="logs", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.0.10:8888", receiver="tcp_log/external-deployments", transport="tcp"}'
+        values: '0+100x40'
+      - series: 'otelcol_receiver_refused_log_records_total{job="other/opentelemetry-collector-external", namespace="other", pod="external-collector-0", container="otc-container", endpoint="prometheus", instance="10.0.1.10:8888", receiver="udp_log/syslog", transport="udp"}'
+        values: '0+100x40'
+    alert_rule_test:
+      - eval_time: 23m
+        alertname: OTelExternalReceiverRefusedLogs
+        exp_alerts:
+          - exp_labels: {severity: warning, context: logshipping, no_alert_on_absence: "true", namespace: logs, pod: external-collector-0, receiver: udp_log/syslog, playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalReceiverRefusedLogs.md}
+            exp_annotations: {summary: 'External collector external-collector-0 refuses records on udp_log/syslog', description: 'udp_log/syslog on external-collector-0 refused 500 log records in 5m. The pipeline did not take them, usually because the memory_limiter is over its limit, and they are lost.'}
+      - eval_time: 30m
+        alertname: OTelExternalReceiverRefusedLogs
+        exp_alerts: []

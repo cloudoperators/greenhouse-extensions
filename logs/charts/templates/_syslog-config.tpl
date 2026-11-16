@@ -344,7 +344,10 @@ tcp_log/syslog:
 udp_log/syslog:
   listen_address: 0.0.0.0:{{ .Values.openTelemetry.externalCollector.syslogConfig.udp_port }}
   add_attributes: true
-  async: {}
+  async:
+    readers: {{ .Values.openTelemetry.externalCollector.syslogConfig.udpAsync.readers | int }}
+    processors: {{ .Values.openTelemetry.externalCollector.syslogConfig.udpAsync.processors | int }}
+    max_queue_length: {{ .Values.openTelemetry.externalCollector.syslogConfig.udpAsync.maxQueueLength | int }}
   operators:
   # Double-header deframing (UDP). See tcp_log/syslog for full explanation.
   - type: regex_parser

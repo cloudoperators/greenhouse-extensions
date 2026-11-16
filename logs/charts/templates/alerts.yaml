@@ -291,6 +291,85 @@ spec:
           description: 'Exporter queue {{`{{ $labels.exporter }}`}} on {{`{{ $labels.k8s_node_name }}`}} is 100% full. New log records are blocked. Immediate action required.'
   {{- end }}
 
+  {{- $ext := .Values.openTelemetry.externalCollector }}
+  {{- $extScraped := and $ext.enabled .Values.openTelemetry.prometheus.podMonitor.enabled }}
+  {{- $udpStats := and $extScraped $ext.syslogConfig.enabled $ext.udpStatsExporter.enabled }}
+  {{- $extJob := printf "%s/opentelemetry-collector-external" .Release.Namespace }}
+  {{- if and $udpStats (has "OTelUDPReceiveDrops" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelUDPReceiveDrops
+        # Udp_InErrors (mostly RcvbufErrors) from the external collector's udp-stats sidecar. The kernel counts drops
+        # of IPv4 senders here, also on the dual-stack socket Go opens for 0.0.0.0. Drops of IPv6 senders would be
+        # counted in Udp6_InErrors, which this rule does not read. No `for`: one sender burst over the threshold is
+        # enough to fire. The 15m window also sees drops that happened while a scrape or two failed.
+        expr: sum by (namespace, pod) (increase(node_netstat_Udp_InErrors{job="{{ $extJob }}", container="udp-stats"}[15m])) > 100
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'External collector {{`{{ $labels.pod }}`}} is dropping UDP syslog datagrams'
+          description: 'The kernel counted {{`{{ $value | humanize }}`}} UDP receive errors (InErrors, mostly a full socket buffer) in 15m on {{`{{ $labels.pod }}`}}, so the syslog receiver never read those datagrams. These records are lost and appear in no collector counter.'
+  {{- end }}
+
+  {{- if and $udpStats (has "OTelUDPReceiveDropRatioHigh" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelUDPReceiveDropRatioHigh
+        # Per pod, because a sender with one source port always lands on the same pod.
+        # InDatagrams counts the datagrams the socket delivered, InErrors the ones it could not take.
+        expr: |
+          sum by (namespace, pod) (increase(node_netstat_Udp_InErrors{job="{{ $extJob }}", container="udp-stats"}[1h]))
+          /
+          (
+            sum by (namespace, pod) (increase(node_netstat_Udp_InErrors{job="{{ $extJob }}", container="udp-stats"}[1h]))
+            +
+            sum by (namespace, pod) (increase(node_netstat_Udp_InDatagrams{job="{{ $extJob }}", container="udp-stats"}[1h]))
+          ) > 0.001
+        for: 15m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPReceiveDrops.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'External collector {{`{{ $labels.pod }}`}} loses more than 0.1% of UDP syslog'
+          description: '{{`{{ $value | humanizePercentage }}`}} of the UDP datagrams that reached {{`{{ $labels.pod }}`}} in the last hour were dropped by the kernel (UDP InErrors, mostly a full socket buffer).'
+  {{- end }}
+
+  {{- if and $udpStats (has "OTelUDPStatsExporterDown" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelUDPStatsExporterDown
+        # min_over_time also catches a crash loop that answers a scrape now and then.
+        expr: min by (namespace, pod) (min_over_time(up{job="{{ $extJob }}", container="udp-stats"}[5m])) == 0
+        for: 10m
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelUDPStatsExporterDown.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'UDP drop counter sidecar on {{`{{ $labels.pod }}`}} is down'
+          description: 'Prometheus cannot scrape the udp-stats sidecar on {{`{{ $labels.pod }}`}}, so the UDP drop alerts are blind for this pod. If the container is not running (image pull failure, crash loop), the collector pod is also NotReady and receives no syslog.'
+  {{- end }}
+
+  {{- if and $extScraped $ext.syslogConfig.enabled (has "OTelExternalReceiverRefusedLogs" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: OTelExternalReceiverRefusedLogs
+        # Records a syslog UDP, TCP or TLS receiver of the external collector took from the network but its pipeline refused
+        # (memory_limiter). Those senders get no error and do not resend; HTTP senders get one, so they are left out.
+        # No `for`, same as OTelUDPReceiveDrops. The external collector exports counters with the _total suffix.
+        expr: sum by (namespace, pod, receiver) (increase(otelcol_receiver_refused_log_records_total{job="{{ $extJob }}", receiver=~"(udp|tcp)_log/syslog.*"}[5m])) > 0
+        labels:
+          context: logshipping
+          severity: warning
+          no_alert_on_absence: "true"
+          playbook: https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelExternalReceiverRefusedLogs.md
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'External collector {{`{{ $labels.pod }}`}} refuses records on {{`{{ $labels.receiver }}`}}'
+          description: '{{`{{ $labels.receiver }}`}} on {{`{{ $labels.pod }}`}} refused {{`{{ $value | humanize }}`}} log records in 5m. The pipeline did not take them, usually because the memory_limiter is over its limit, and they are lost.'
+  {{- end }}
+
   {{- if (has "OTelLogsVolumeSpike" .Values.openTelemetry.prometheus.rules.enabled) }}
       - alert: OTelLogsVolumeSpike
         expr: |
