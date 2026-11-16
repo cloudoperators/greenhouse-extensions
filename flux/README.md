@@ -19,8 +19,9 @@ kind: Plugin
 metadata:
   name: flux
 spec:
-  pluginDefinition: flux
-  optionValues:
+  pluginDefinitionRef: 
+    name: flux
+  values:
     - name: kustomizeController.container.additionalArgs
       value:
         - --feature-gates=ExternalArtifact=true,ObjectLevelWorkloadIdentity=true
