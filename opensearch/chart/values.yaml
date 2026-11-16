@@ -912,10 +912,10 @@ cluster:
     # -- Override the ConfigMap name (default `opensearch-snapshot-lifecycle`).
     configMapName: ""
     # -- CronJob that attaches the `remote-{name}-ism` policy to converted
-    # remote searchable indexes. ISM templates do not auto-attach to indexes
-    # created by `convert_index_to_remote`
-    # (opensearch-project/index-management#1389), so this job covers the gap
-    # and is a no-op when policies are already attached.
+    # remote searchable indexes. `convert_index_to_remote` keeps the original
+    # creation date and ISM templates only match indexes created after the
+    # policy was last updated, so older indexes stay unmanaged. The job covers
+    # that gap and leaves indexes that already have a policy untouched.
     attachRemote:
       enabled: true
       name: ""
