@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: cert-manager
 spec:
-  version: 1.20.1
+  version: 1.20.2
   displayName: Certificate manager
   description: Automated TLS certificate management
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/cert-manager/README.md
@@ -50,3 +50,18 @@ spec:
       default: 15
       required: false
       type: int
+    - name: cert-manager.config.enableGatewayAPI
+      description: Whether to enable Gateway API support in cert-manager
+      default: false
+      required: false
+      type: bool
+    - name: cert-manager.config.enableGatewayAPIListenerSet
+      description: Whether to enable Gateway API ListenerSet support in cert-manager
+      default: false
+      required: false
+      type: bool
+    - name: cert-manager.config.featureGates.ListenerSets
+      description: Whether to enable the ListenerSets feature gate in cert-manager
+      default: true
+      required: false
+      type: bool
