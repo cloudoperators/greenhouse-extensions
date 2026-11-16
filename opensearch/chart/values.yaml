@@ -530,26 +530,17 @@ cluster:
         securityConfigSecret:
           name: "opensearch-security-config"
 
-      # Security audit log (compliance) configuration. Controls the OpenSearch
-      # security plugin audit trail rendered into audit.yml of the securityconfig
-      # secret. Defaults below keep the prior behaviour (no document-write auditing).
+      # Security plugin audit config (audit.yml).
       audit:
         # -- Enable the security audit log.
         enabled: true
-        # -- Index patterns whose document writes (create/update/delete) are audited,
-        # i.e. the audit trail of who modified which documents. Empty = no document
-        # write auditing (default). Patterns match concrete index names, so for data
-        # streams watch the backing indices. Example: [".ds-audit-*", ".ds-syslog-audit-*"].
+        # -- Index patterns whose document writes are audited (for data streams, the backing indices).
         writeWatchedIndices: []
-        # -- Users whose writes to watched indices are not audited. When watching
-        # log indices, set this to the ingestion users so that appending new log
-        # data does not produce audit events, while writes by any other user
-        # (including admins) are still recorded.
+        # -- Users whose writes to watched indices are not audited, e.g. ingestion users.
         writeIgnoreUsers: []
-        # -- Log only metadata (who/when/which index) for watched writes, not the
-        # document content. Recommended for high-throughput indices.
+        # -- Log only metadata of watched writes, not the document.
         writeMetadataOnly: true
-        # -- Log the before/after document diff for watched writes. High volume.
+        # -- Log the before/after diff of watched writes.
         writeLogDiffs: false
 
       # Configure tls usage for transport and http interface

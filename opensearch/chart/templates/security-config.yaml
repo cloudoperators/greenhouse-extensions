@@ -147,8 +147,6 @@ stringData:
         read_ignore_users:
           - kibanaserver
         read_watched_fields: {}
-        # Index patterns whose document writes (create/update/delete) are audited.
-        # Empty by default (no document-write auditing); set per cluster in values.
         write_watched_indices:
           {{- toYaml .Values.cluster.cluster.security.audit.writeWatchedIndices | nindent 10 }}
         write_metadata_only: {{ .Values.cluster.cluster.security.audit.writeMetadataOnly }}
