@@ -544,10 +544,8 @@ cluster:
         # -- Users whose writes to watched indices are not audited. When watching
         # log indices, set this to the ingestion users so that appending new log
         # data does not produce audit events, while writes by any other user
-        # (including admins) are still recorded. The default `kibanaserver` is the
-        # OpenSearch Dashboards server user, kept for backward compatibility.
-        writeIgnoreUsers:
-          - kibanaserver
+        # (including admins) are still recorded.
+        writeIgnoreUsers: []
         # -- Log only metadata (who/when/which index) for watched writes, not the
         # document content. Recommended for high-throughput indices.
         writeMetadataOnly: true
