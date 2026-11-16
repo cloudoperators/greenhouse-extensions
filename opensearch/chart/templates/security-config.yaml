@@ -130,7 +130,7 @@ stringData:
         log_request_body: true
         resolve_indices: true
         exclude_sensitive_headers: true
-        ignore_users: {{ with .Values.cluster.usersCredentials.dashboards.username }}[{{ . | quote }}]{{ else }}[]{{ end }}
+        ignore_users: []
         ignore_requests: []
         disabled_rest_categories:
           - AUTHENTICATED
@@ -143,7 +143,7 @@ stringData:
         internal_config: true
         external_config: false
         read_metadata_only: true
-        read_ignore_users: {{ with .Values.cluster.usersCredentials.dashboards.username }}[{{ . | quote }}]{{ else }}[]{{ end }}
+        read_ignore_users: []
         read_watched_fields: {}
         write_watched_indices:
           {{- toYaml .Values.cluster.cluster.security.audit.writeWatchedIndices | nindent 10 }}
