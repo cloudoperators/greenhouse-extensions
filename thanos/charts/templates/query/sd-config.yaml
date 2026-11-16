@@ -1,4 +1,4 @@
-{{- if .Values.thanos.query.enabled }}
+{{- if or .Values.thanos.query.enabled (and .Values.thanosCommunity.query.enabled (not (empty .Values.thanos.query.stores))) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,6 +11,14 @@ metadata:
     {{- end }}
 data:
   endpoint-targets.yaml: |-
+{{- if .Values.thanosCommunity.query.enabled }}
+    default_client_config:
+      tls_config:
+        enabled: true
+        cert_file: /etc/tls/server/tls.crt
+        key_file:  /etc/tls/server/tls.key
+        ca_file:   /etc/tls/client/ca.crt
+{{- end }}
     endpoints:
 {{- /* Technically it is possible to add stores and have the default stores all together.*/}}
 {{- if not (empty .Values.thanos.query.stores) }}
