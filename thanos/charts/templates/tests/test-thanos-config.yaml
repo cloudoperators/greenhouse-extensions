@@ -18,6 +18,7 @@ data:
 
     DETIK_CLIENT_NAME="kubectl"
 
+    {{ if and .Values.thanos.query.enabled }}
     @test "Verify {{ .Release.Name }} Query" {
       verify "there is 1 deployment named '{{ .Release.Name }}-query'"
       verify "there is 1 service named '{{ .Release.Name }}-query'"
@@ -37,6 +38,7 @@ data:
         [ "$status" -eq "0" ]
       done
     }
+    {{ end }}
 
     {{ if and .Values.thanos.store.enabled }}
     @test "Verify {{ .Release.Name }} Store" {
