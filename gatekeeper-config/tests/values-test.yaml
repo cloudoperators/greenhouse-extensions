@@ -46,5 +46,9 @@ policies:
   prometheusScrapeAnnotations:
     enabled: true
 
+  oliLabelsRequired:
+    enabled: true
+    helmManifestParserURL: http://127.0.0.1:8080
+
 tests:
   enabled: true
