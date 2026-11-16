@@ -541,9 +541,11 @@ cluster:
         # write auditing (default). Patterns match concrete index names, so for data
         # streams watch the backing indices. Example: [".ds-audit-*", ".ds-syslog-audit-*"].
         writeWatchedIndices: []
-        # -- Users whose writes to watched indices are not audited. Add the ingestion
-        # users here so that appending new log data does not produce audit events,
-        # while writes by any other user (including admins) are still recorded.
+        # -- Users whose writes to watched indices are not audited. When watching
+        # log indices, set this to the ingestion users so that appending new log
+        # data does not produce audit events, while writes by any other user
+        # (including admins) are still recorded. The default `kibanaserver` is the
+        # OpenSearch Dashboards server user, kept for backward compatibility.
         writeIgnoreUsers:
           - kibanaserver
         # -- Log only metadata (who/when/which index) for watched writes, not the
