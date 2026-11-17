@@ -186,13 +186,17 @@ auditLogs:
     #       flushBytes: 10000000                # optional; flush threshold in bytes for the opensearch bulk API
     #       timeout: 30s                        # optional; default 30s. Limit for one export attempt (all bulk requests for one batch, including
     #                                           # the dead-letter flush), per failover exporter. Not the same setting as persistentQueue.timeout below.
-    #       retry: { maxElapsedTime: 30s }      # optional; default 30s. Retry window per failover exporter for retryable errors (bulk timeouts,
-    #                                           # 429/500/502/503/504, connection errors). No new attempt starts after it, but one already running
-    #                                           # can take the full timeout, so one exporter takes up to timeout + maxElapsedTime.
+    #       retry: { maxElapsedTime: 30s, maxElapsedTimeB: 0s }
+    #                                           # maxElapsedTime: optional; default 30s. Retry window for exporter a for retryable errors (bulk
+    #                                           # timeouts, 429/500/502/503/504, connection errors). No new attempt starts after it, but one already
+    #                                           # running can take the full timeout, so exporter a takes up to timeout + maxElapsedTime.
     #                                           # Synchronous (sendingQueue off, or waitForResult: true): with the defaults a request that times out
     #                                           # is not retried on a and goes to exporter b.
     #                                           # Async (waitForResult: false, required with persistentQueue): there is no failover to b and the
     #                                           # batch is dropped once the window runs out, so set maxElapsedTime well above timeout (e.g. 2x) to get a retry.
+    #                                           # maxElapsedTimeB: optional; default 0s (retry forever). Retry window for exporter b. Since b is the
+    #                                           # last resort with no further failover, 0s ensures logs are never dropped at the cost of indefinite
+    #                                           # retries (spaced up to max_interval apart) if b is persistently unhealthy.
     #       sendingQueue:                       # optional; default disabled
     #         enabled: false                    # render the queue
     #         waitForResult: true               # true = at-least-once synchronous; false = async parallel delivery (requires persistentQueue for durability)
