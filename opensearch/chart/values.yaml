@@ -530,6 +530,19 @@ cluster:
         securityConfigSecret:
           name: "opensearch-security-config"
 
+      # Security plugin audit config (audit.yml).
+      audit:
+        # -- Enable the security audit log.
+        enabled: true
+        # -- Index patterns whose document writes are audited (for data streams, the backing indices).
+        writeWatchedIndices: []
+        # -- Users whose writes to watched indices are not audited, e.g. ingestion users.
+        writeIgnoreUsers: []
+        # -- Log only metadata of watched writes, not the document.
+        writeMetadataOnly: true
+        # -- Log the before/after diff of watched writes.
+        writeLogDiffs: false
+
       # Configure tls usage for transport and http interface
       tls:
         http:

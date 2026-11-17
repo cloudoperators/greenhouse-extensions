@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: greenhouse.sap/v1alpha1
+kind: PluginDefinition
+metadata:
+  name: flux
+spec:
+  version: 2.20.0
+  displayName: Flux
+  description: Flux GitOps toolkit controllers deployed via the fluxcd-community flux2 chart
+  docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/flux/README.md
+  icon: https://raw.githubusercontent.com/fluxcd/website/main/assets/icons/logo.svg
+  helmChart:
+    # renovate depName=ghcr.io/fluxcd-community/charts/flux2
+    name: flux2
+    repository: oci://ghcr.io/fluxcd-community/charts
+    version: 2.20.0
+  options:
+    - name: imageAutomationController.create
+      description: Whether to deploy the image-automation-controller.
+      default: false
+      required: false
+      type: bool
+    - name: imageReflectionController.create
+      description: Whether to deploy the image-reflector-controller.
+      default: false
+      required: false
+      type: bool
+    - name: sourceWatcher.create
+      description: Whether to deploy the source-watcher controller.
+      default: true
+      required: false
+      type: bool
+    - name: policies.create
+      description: Whether to create the flux NetworkPolicies.
+      default: true
+      required: false
+      type: bool
+    - name: rbac.create
+      description: Whether to create the flux RBAC resources.
+      default: true
+      required: false
+      type: bool
+    - name: rbac.roleRef.name
+      description: ClusterRole the flux controllers are bound to.
+      default: "cluster-admin"
+      required: false
+      type: string
