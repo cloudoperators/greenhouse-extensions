@@ -1,0 +1,29 @@
+{{/*
+SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "rootstock.fullname" . }}-test-connection
+  labels:
+    {{- include "rootstock.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: healthz
+      image: {{ .Values.testConnection.image.repository }}:{{ .Values.testConnection.image.tag }}
+      imagePullPolicy: {{ .Values.testConnection.image.pullPolicy }}
+      command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "checking /healthz"
+          curl -sf "http://{{ include "rootstock.fullname" . }}:{{ .Values.service.port }}/healthz"
+          echo "checking /ready"
+          curl -sf "http://{{ include "rootstock.fullname" . }}:{{ .Values.service.port }}/ready"

@@ -23,8 +23,18 @@ to the Helm release name (.Release.Name).
 {{- end }}
 
 {{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+Create a default fully qualified app name, used as the common name for all
+Kubernetes resources this chart renders.
+
+Properties:
+  - It is a valid fully qualified name on its own (no suffix required).
+  - It leaves room for a suffix of up to 30 characters: resources append
+    suffixes such as "-redfish-pdu-access", and the combined
+    "<fullname>-<suffix>" must still satisfy the 63-char DNS label limit.
+  - When the underlying name is longer than the budget (33 chars) and would be
+    truncated, a 5-hex-digit hash of the full, untruncated name is appended
+    (as "<truncated>-<hash>"). This keeps otherwise-colliding long names
+    distinct and stable across renders.
 */}}
 {{- define "rootstock.fullname" -}}
 {{- $maxLen := 33 -}}
@@ -55,7 +65,7 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Print the image reference. Digest takes precedence over tag; tag defaults to appVersion.
+Print the image reference. Digest takes precedence over tag; tag defaults to version.
 */}}
 {{- define "rootstock.image" -}}
 {{- $repository := .Values.image.repository -}}
@@ -63,7 +73,7 @@ Print the image reference. Digest takes precedence over tag; tag defaults to app
 {{- if $digest -}}
   {{- printf "%s@%s" $repository $digest -}}
 {{- else -}}
-  {{- printf "%s:%s" $repository (.Values.image.tag | default .Chart.AppVersion) -}}
+  {{- printf "%s:%s" $repository (.Values.image.tag | default .Chart.Version) -}}
 {{- end -}}
 {{- end -}}
 
@@ -103,5 +113,10 @@ Resolve the namespace: use .Values.namespace when set, otherwise fall back to
 the Helm release namespace (.Release.Namespace).
 */}}
 {{- define "rootstock.namespace" -}}
+{{- if eq .Release.Namespace "default" }}
+{{- default "rootstock" .Values.namespace }}
+{{- else }}
 {{- default .Release.Namespace .Values.namespace }}
 {{- end }}
+{{- end }}
+

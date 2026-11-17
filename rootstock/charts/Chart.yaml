@@ -3,14 +3,13 @@
 
 apiVersion: v2
 name: rootstock
-version: 0.1.0
+version: 0.2.0
 description: A Helm chart for rootstock, a data-center energy/carbon telemetry collector that scrapes Redfish targets and exposes Prometheus metrics.
 type: application
 maintainers:
 - name: blackhat-jan
 - name: Frazia04
 - name: idafurjes
-appVersion: "0.1.0"
 keywords:
   - rootstock
 sources:
