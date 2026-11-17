@@ -1,0 +1,33 @@
+{{/*
+SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+
+{{- if .Values.serviceMonitor.enabled }}
+{{- if not (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor") }}
+{{- fail "serviceMonitor.enabled is true but the ServiceMonitor CRD (monitoring.coreos.com/v1) is not installed" }}
+{{- end }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "rootstock.fullname" . }}
+  namespace: {{ include "rootstock.namespace" . }}
+  labels:
+    {{- include "rootstock.labels" . | nindent 4 }}
+    {{- with .Values.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+    - honorLabels: {{ .Values.serviceMonitor.honorLabels }}
+      interval: {{ .Values.serviceMonitor.interval }}
+      port: http
+      scheme: http
+      path: {{ .Values.serviceMonitor.path }}
+  namespaceSelector:
+    matchNames:
+      - {{ include "rootstock.namespace" . }}
+  selector:
+    matchLabels:
+      {{- include "rootstock.selectorLabels" . | nindent 6 }}
+{{- end }}
