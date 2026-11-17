@@ -113,10 +113,6 @@ Resolve the namespace: use .Values.namespace when set, otherwise fall back to
 the Helm release namespace (.Release.Namespace).
 */}}
 {{- define "rootstock.namespace" -}}
-{{- if eq .Release.Namespace "default" }}
-{{- default "rootstock" .Values.namespace }}
-{{- else }}
 {{- default .Release.Namespace .Values.namespace }}
-{{- end }}
 {{- end }}
 
