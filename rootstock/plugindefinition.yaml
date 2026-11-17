@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: rootstock
 spec:
-  version: 0.1.0
+  version: 0.2.0
   displayName: rootstock
   description: >-
     Data-center energy/carbon telemetry collector. Scrapes Redfish targets and
@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: rootstock
     repository: "oci://ghcr.io/cloudoperators/greenhouse-extensions/charts"
-    version: 0.1.0
+    version: 0.2.0
   options:
     - name: image.repository
       description: Container image repository for rootstock.
