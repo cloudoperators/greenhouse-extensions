@@ -55,3 +55,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /shoot-grafter/           @cloudoperators/greenhouse-backend
 /oidc-discovery-access    @cloudoperators/greenhouse-backend
 /permission-manager/      @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-src
+/rootstock/               @cloudoperators/greenhouse-observability
