@@ -64,11 +64,20 @@ transform/perses:
       statements:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "time=%{QUOTEDSTRING} level=%{WORD:log.level} msg=%{GREEDYDATA:msg}", true),"upsert")
         - set(log.attributes["config.parsed"], "perses")
+
+transform/kvm_cluster_type:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      statements:
+        - 'set(log.attributes["netbox.virtualization.cluster.type.slug"], "cc-kvm-compute") where IsMatch(log.attributes["k8s.cluster.name"], "^cc-")'
+        - 'set(log.attributes["netbox.virtualization.cluster.type.slug"], "sci-k8s-runtime") where IsMatch(log.attributes["k8s.cluster.name"], "^rt-")'
+        - 'set(log.attributes["netbox.virtualization.cluster.type.slug"], "sci-k8s-management") where IsMatch(log.attributes["k8s.cluster.name"], "^mgmt-")'
 {{ end }}
 
 {{- define "containerd.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses, transform/kvm_cluster_type]
   exporters: [routing]
 {{- end }}
