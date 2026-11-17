@@ -42,6 +42,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - run
+            - {{ printf "--config=%s/.rootstock.yaml" .Values.rootstock.config.folder | quote }}
           # NOTE: the Redfish password is NEVER passed as an environment
           # variable. It is read exclusively from the mounted file below.
           ports:
