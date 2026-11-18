@@ -67,6 +67,17 @@ transform/openstack_api:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601} %{NOTSPACE} %{NOTSPACE:log.level} %{NOTSPACE:logger} (\\[)?(req-)%{NOTSPACE:request.id} ?(g%{NOTSPACE:global.request.id}) ?%{NOTSPACE:user.id} ?%{NOTSPACE:project.id} ?%{NOTSPACE:domain.id} ?%{NOTSPACE:user.domain.id} ?%{NOTSPACE:project.domain.id}\\] %{IPV4:ip.client}(,%{IPV4:ip.target})? \"%{WORD:http.request.method} %{NOTSPACE:url.path} HTTP/%{NOTSPACE}\" %{NOTSPACE} %{NUMBER:http.response.status_code}?( ).*%{NOTSPACE} %{NUMBER:http.response.body.size:int} %{NOTSPACE} %{BASE10NUM:request.time:float} ?%{NOTSPACE} ?%{NOTSPACE:agent}", true), "upsert")
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "%{TIMESTAMP_ISO8601} %{NOTSPACE} %{NOTSPACE:log.level} %{NOTSPACE:logger} (\\[)?(req-)%{NOTSPACE:request.id} ?(g%{NOTSPACE:global.request.id}) ?%{NOTSPACE:user.id} ?%{NOTSPACE:project.id} ?%{NOTSPACE:domain.id} ?%{NOTSPACE:user.domain.id} ?%{NOTSPACE:project.domain.id}\\]", true), "upsert")
 
+transform/openstack_oslo_log:
+  error_mode: ignore
+  log_statements:
+    - context: log
+      conditions:
+        - IsMatch(resource.attributes["k8s.container.name"], "^(nova|neutron|cinder|glance|keystone|manila|designate|ironic|barbican|octavia|placement)-")
+          and log.attributes["log.level"] == nil
+      statements:
+        - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "^(?:\\[[^\\]]*\\] )*(\\d{4}-\\d{2}-\\d{2}[ T]\\d{2}:\\d{2}:\\d{2}[.,]\\d+ ){1,2}%{NUMBER:pid} %{WORD:log.level} %{NOTSPACE:logger}(?: \\[req-%{NOTSPACE:request.id}(?: greq-%{NOTSPACE:global.request.id})?[^\\]]*\\])?", true), "insert")
+        - set(log.attributes["config.parsed"], "oslo-log")
+
 transform/non_openstack:
   error_mode: ignore
   log_statements:
@@ -228,6 +239,6 @@ opensearch/storage_failover_b:
 {{- define "openstack.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}, filter/rgw{{- end }}, transform/swift_proxy, attributes/swift_proxy]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/neutron_agent, transform/neutron_errors, transform/openstack_api, transform/openstack_oslo_log, transform/non_openstack, transform/network_generic_ssh_exporter, transform/snmp_exporter, transform/elektra, transform/keystone_api, transform/kvm-ha-service, transform/coredns_api, transform/perses, filter/hermes_logstash{{- if .Values.openTelemetry.logsCollector.cephConfig.enabled }}, filter/rgw{{- end }}, transform/swift_proxy, attributes/swift_proxy]
   exporters: [routing]
 {{- end }}
