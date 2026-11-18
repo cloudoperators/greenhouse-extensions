@@ -217,7 +217,7 @@ spec:
         retry_on_failure:
           enabled: true
           initial_interval: 1s
-          max_interval: 5s
+          max_interval: 30s
           max_elapsed_time: {{ dig "retry" "maxElapsedTime" "30s" $cfg.opensearch }}
         timeout: {{ dig "timeout" "30s" $cfg.opensearch }}
       opensearch/{{ $name }}_failover_b:
@@ -256,8 +256,8 @@ spec:
         retry_on_failure:
           enabled: true
           initial_interval: 1s
-          max_interval: 5s
-          max_elapsed_time: {{ dig "retry" "maxElapsedTime" "30s" $cfg.opensearch }}
+          max_interval: 30s
+          max_elapsed_time: {{ dig "retry" "maxElapsedTimeB" "0s" $cfg.opensearch }}
         timeout: {{ dig "timeout" "30s" $cfg.opensearch }}
     connectors:
       failover/opensearch_{{ $name }}:
