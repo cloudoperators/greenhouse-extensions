@@ -418,4 +418,237 @@ spec:
           summary: 'Deadletter index flush failing on {{`{{ $labels.index }}`}} ({{`{{ $labels.failure_stage }}`}}), {{`{{ $labels.k8s_cluster_name }}`}}'
           description: 'Failed to flush documents to the OpenSearch deadletter index {{`{{ $labels.index }}`}} at stage {{`{{ $labels.failure_stage }}`}} on {{`{{ $labels.k8s_cluster_name }}`}}. Documents are being dropped entirely — the error fallback itself is failing.'
   {{- end }}
+
+  ##############################################################################
+  # Falco fortlogs rules (CRITICAL priority only).
+  #
+  # Each alert fires when the opensearch-query-exporter sees one or more
+  # Falco events for the matching rule name in the last 5 minutes. Queries
+  # live in opensearch/chart/queries/falco-fortlogs.yaml and must be loaded
+  # into the opensearch plugin via queryExporter.queries.
+  ##############################################################################
+
+  {{- if (has "FalcoOTelQueueRenameOrDelete" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelQueueRenameOrDelete
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_queue_rename_or_delete_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelQueueRenameOrDelete }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: OpenTelemetry persistent queue file modified on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A non-collector process renamed or deleted files on /var/lib/otel-queue inside an ingester pod. This destroys not-yet-flushed OpenSearch documents and is a strong tampering / data-loss signal (PCI-DSS 10.3).'
+  {{- end }}
+
+  {{- if (has "FalcoOTelOpenSearchCAWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelOpenSearchCAWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_opensearch_ca_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelOpenSearchCAWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: OpenSearch CA volume modified inside collector on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A write or delete occurred on the projected /etc/ssl/opensearch secret volume inside a logs/audit-logs collector. The volume is read-only by design; any write indicates a rogue sidecar, remount, or in-pod cert swap attempt.'
+  {{- end }}
+
+  {{- if (has "FalcoOTelKafkaCAWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelKafkaCAWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_kafka_ca_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelKafkaCAWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Kafka CA volume modified inside collector on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A write or delete occurred on /etc/ssl/kafka or /etc/ssl/audit-kafka inside a logs/audit-logs collector. These are projected read-only secret mounts; mutation indicates tampering with Kafka broker trust.'
+  {{- end }}
+
+  {{- if (has "FalcoOTelSyslogTLSWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelSyslogTLSWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_syslog_tls_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelSyslogTLSWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Syslog TLS secret modified inside external collector on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A write or delete occurred on the /etc/ssl/syslog-tls cert/key mount inside an external collector. The private key never rotates from inside the pod; this indicates key compromise or substitution.'
+  {{- end }}
+
+  {{- if (has "FalcoOTelElasticCertWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelElasticCertWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_elastic_cert_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelElasticCertWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Elastic client certs modified inside audit collector on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A write or delete occurred on the /etc/otel/certs mount inside an audit-logs collector. The elastic exporter certs are projected read-only; any mutation indicates tampering with exfiltration-path trust.'
+  {{- end }}
+
+  {{- if (has "FalcoOTelPodMountSyscall" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOTelPodMountSyscall
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_otel_pod_mount_syscall_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOTelPodMountSyscall }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: mount/umount syscall inside collector pod on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A mount or umount syscall was executed from inside a logs/audit-logs collector. Collectors do not need to mount anything at runtime; this is a strong indicator of volume remount tampering or privilege escalation.'
+  {{- end }}
+
+  {{- if (has "FalcoOpenSearchDataWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOpenSearchDataWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_opensearch_data_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOpenSearchDataWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: OpenSearch data dir written by non-server process on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A non-JVM process wrote under /usr/share/opensearch/data. Only the OpenSearch server should touch the shard store; this is tampering, index exfiltration staging, or an operator shell editing data.'
+  {{- end }}
+
+  {{- if (has "FalcoOpenSearchDataRenameOrDelete" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOpenSearchDataRenameOrDelete
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_opensearch_data_rename_or_delete_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOpenSearchDataRenameOrDelete }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: OpenSearch shard file modified by non-server process on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'An external process renamed, deleted, truncated, chmoded, or chowned a file under /usr/share/opensearch/data. This destroys shards or audit history (PCI-DSS 10.3).'
+  {{- end }}
+
+  {{- if (has "FalcoOpenSearchConfigWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOpenSearchConfigWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_opensearch_config_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOpenSearchConfigWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: OpenSearch config dir modified at runtime on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A non-trusted process wrote or deleted files under /usr/share/opensearch/config inside a data pod. The config volume is projected read-only; a runtime mutation means remount or in-pod tampering.'
+  {{- end }}
+
+  {{- if (has "FalcoOpenSearchDataExecve" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoOpenSearchDataExecve
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_opensearch_data_execve_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoOpenSearchDataExecve }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: execve from OpenSearch data dir on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A binary was executed from under /usr/share/opensearch/data. The server never runs code from the shard store; this almost always means an attacker dropped and launched a payload inside the pod.'
+  {{- end }}
+
+  {{- if (has "FalcoKafkaDataWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoKafkaDataWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_kafka_data_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoKafkaDataWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Kafka data dir written by non-broker process on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A non-broker process wrote to a Kafka JBOD data volume (/var/lib/kafka/data-*). This is tampering with the message log — segment integrity is compromised.'
+  {{- end }}
+
+  {{- if (has "FalcoKafkaDataRenameOrDelete" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoKafkaDataRenameOrDelete
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_kafka_data_rename_or_delete_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoKafkaDataRenameOrDelete }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Kafka data file modified by non-broker process on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'An external process renamed or deleted a file under a Kafka data volume. Normal rollover is broker-driven; external deletes destroy message history.'
+  {{- end }}
+
+  {{- if (has "FalcoKafkaConfigWrite" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoKafkaConfigWrite
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_kafka_config_write_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoKafkaConfigWrite }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: Kafka config modified at runtime on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A non-trusted process wrote to /opt/kafka/config, /opt/kafka/custom-config, or /tmp/strimzi.properties. Broker config is rendered from projected volumes; a runtime write means tampering (PCI-DSS 10.3.2).'
+  {{- end }}
+
+  {{- if (has "FalcoKafkaDataExecve" .Values.openTelemetry.prometheus.rules.enabled) }}
+      - alert: FalcoKafkaDataExecve
+        expr: sum by (k8s_cluster_name) (opensearch_query_falco_kafka_data_execve_hits) > 0
+        for: 0m
+        labels:
+          context: security
+          severity: warning #depending on severity consideration: critical
+          service: fortlogs
+          no_alert_on_absence: "true"
+          playbook: {{ .Values.openTelemetry.prometheus.rules.playbooksUrls.falcoKafkaDataExecve }}
+          {{- include "plugin.additionalRuleLabels" . | nindent 10 }}
+        annotations:
+          summary: 'Falco: execve from Kafka data dir on {{`{{ $labels.k8s_cluster_name }}`}}'
+          description: 'A binary was executed from under /var/lib/kafka/data-*. The broker never runs code from the log store; this almost always means a dropped-and-executed payload inside the pod.'
+  {{- end }}
 {{- end }}
