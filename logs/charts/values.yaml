@@ -58,7 +58,7 @@ openTelemetry:
     # -- Image repository for OpenTelemetry Collector
     repository: ghcr.io/cloudoperators/opentelemetry-collector-contrib
     # -- Image tag for OpenTelemetry Collector
-    tag: "78a44dd"
+    tag: "86737a0"
 
   # -- custom Labels applied to servicemonitor, secrets and collectors
   customLabels: {}
@@ -294,6 +294,14 @@ openTelemetry:
       auditKafkaTopic: ""
       # -- Kafka topic for non-audit syslog logs (only used when kafka is enabled)
       nonAuditKafkaTopic: ""
+      # -- Plausibility bounds for parsed syslog timestamps, used by the syslog TCP/UDP receivers and by syslogTLSConfig. Each is one number with unit h, m or s (no d).
+      # A record whose parsed time is more than maxFuture ahead of, or maxPast behind, the collector's receive time gets the receive time;
+      # the parsed time goes to attribute event.created if that is not set yet.
+      timestampBounds:
+        # -- Parsed timestamps more than this ahead of the receive time are replaced.
+        maxFuture: 15m
+        # -- Parsed timestamps more than this behind the receive time are replaced (168h = 7 days). Raise it if senders replay older buffered events.
+        maxPast: 168h
       # -- OpenSearch configuration for syslog logs
       openSearchLogs:
         # -- OpenSearch endpoint for audit-relevant syslog logs
@@ -432,6 +440,14 @@ openTelemetry:
     enabled: false
     # -- Pod affinity rules for the metrics collector CR
     affinity: {}
+  # -- Go runtime pprof extension; exposes `/debug/pprof/*` for heap, goroutine,
+  # CPU, and trace profiling via `kubectl port-forward`. Intended for ad-hoc
+  # debugging only; leave disabled in production unless actively investigating.
+  pprof:
+    # -- Enable pprof extension on all collectors in this chart.
+    enabled: false
+    # -- TCP port the pprof extension listens on inside each collector pod.
+    port: 1777
   prometheus:
     # -- Activates the service-monitoring for the Logs Collector.
     serviceMonitor:

@@ -24,8 +24,8 @@ webhookevent/external-http:
 {{- define "external_http.transform" }}
 transform/external-http:
   error_mode: ignore
-  # Sets resource attributes from per-log data: give every log its own resource copy (needs transform.flatten.logs).
-  flatten_data: true
+  flatten:
+    log: true
   log_statements:
     - context: log
       statements:

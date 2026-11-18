@@ -92,10 +92,35 @@ transform/collector_parse:
   log_statements:
     - context: log
       conditions:
-        - IsMatch(resource.attributes["k8s.pod.name"], ".*collector.*")
+        - IsMatch(resource.attributes["k8s.pod.name"], ".*collector.*") and IsMatch(log.body, "^\\{")
       statements:
-        - merge_maps(log.cache, ParseJSON(log.body), "upsert") where IsMatch(log.body, "^\\{")
+        - merge_maps(log.cache, ParseJSON(log.body), "upsert")
+        # severity + timestamp
         - set(attributes["level"], log.cache["level"]) where log.cache["level"] != nil
+        - set(log.time, Time(log.cache["ts"], "%Y-%m-%dT%H:%M:%S.%fZ")) where log.cache["ts"] != nil
+        # code location (caller is "pkg/file.go:line")
+        - set(attributes["code.filepath"], log.cache["caller"]) where log.cache["caller"] != nil
+        # collector component metadata (OTel collector well-known fields)
+        - set(attributes["otelcol.component.id"], log.cache["otelcol.component.id"]) where log.cache["otelcol.component.id"] != nil
+        - set(attributes["otelcol.component.kind"], log.cache["otelcol.component.kind"]) where log.cache["otelcol.component.kind"] != nil
+        - set(attributes["otelcol.signal"], log.cache["otelcol.signal"]) where log.cache["otelcol.signal"] != nil
+        # HTTP context (semconv)
+        - set(attributes["http.request.method"], log.cache["method"]) where log.cache["method"] != nil
+        - set(attributes["url.path"], log.cache["path"]) where log.cache["path"] != nil
+        - set(attributes["http.request.duration"], log.cache["duration"]) where log.cache["duration"] != nil
+        # error context
+        - set(attributes["error.reason"], log.cache["reason"]) where log.cache["reason"] != nil
+        - set(attributes["exception.message"], log.cache["error"]) where log.cache["error"] != nil
+        # collapse known high-volume repeated error lines (e.g. retry storms writing to opensearch/kafka)
+        - 'replace_pattern(attributes["exception.message"], "(Permanent error: flush: context deadline exceeded\n)(?:Permanent error: flush: context deadline exceeded\n){2,}", "$1... (repeated)\n") where attributes["exception.message"] != nil'
+        # safety-net truncation at 512 bytes if still oversized
+        - 'set(attributes["exception.message"], Concat([Substring(attributes["exception.message"], 0, 512), "... (truncated)"], "")) where attributes["exception.message"] != nil and Len(attributes["exception.message"]) > 512'
+        # promote nested resource.* fields to resource attributes
+        - set(resource.attributes["k8s.cluster.name"], log.cache["resource"]["k8s_cluster_name"]) where log.cache["resource"] != nil and log.cache["resource"]["k8s_cluster_name"] != nil
+        - set(resource.attributes["cloud.region"], log.cache["resource"]["region"]) where log.cache["resource"] != nil and log.cache["resource"]["region"] != nil
+        - set(resource.attributes["service.name"], log.cache["resource"]["service.name"]) where log.cache["resource"] != nil and log.cache["resource"]["service.name"] != nil
+        - set(resource.attributes["service.instance.id"], log.cache["resource"]["service.instance.id"]) where log.cache["resource"] != nil and log.cache["resource"]["service.instance.id"] != nil
+        - set(resource.attributes["service.version"], log.cache["resource"]["service.version"]) where log.cache["resource"] != nil and log.cache["resource"]["service.version"] != nil and log.cache["resource"]["service.version"] != ""
 
 transform/kafka_parse:
   error_mode: ignore
