@@ -178,6 +178,10 @@ auditLogs:
     #     replicas: <int>                        # optional; per-collector replica count, falls back to ingesterCollector.replicas
     #     affinity: {}                           # optional; per-collector node/pod affinity overriding ingesterCollector.affinity
     #     extraProcessors: <list>               # optional, ordered list of {name, config} entries; each is added to processors: and appended to the pipeline in this order
+    #     falcoParsing: bool                    # optional, default false; adds transform/falco_parsing. Normalises Falco syscall alerts
+    #                                           # (sap.cc.audit.source == "falco") arriving via the external-http webhook path: parses output_fields_string,
+    #                                           # promotes k8s.namespace.name/process.*/container.*/falco.*, maps Falco priority to severity, and moves
+    #                                           # the OCB envelope to resource.attributes.
     #     kafka: { brokers, protocol_version, encoding, tls }  # optional override of auditLogs.logsCollector.kafka (only applied when kafka.brokers is non-empty)
     #     opensearch:
     #       endpoint: <url>
