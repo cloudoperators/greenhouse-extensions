@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Enables every alert rule for test-alerts.sh, on top of logs/charts/ci/test-values.yaml, and three ingesters: logs and
+# syslog with the default sending queue (waitForResult false), storage with waitForResult true.
+openTelemetry:
+  ingesterCollector:
+    enabled: true
+    collectors:
+      logs:
+        enabled: true
+        topic: logs
+        opensearch:
+          endpoint: https://opensearch.test:9200
+          tls: { caSecret: opensearch-ca, caSecretKey: ca.crt, insecure: false }
+          failover_username_a: test
+          failover_password_a: test
+          failover_username_b: test
+          failover_password_b: test
+      syslog:
+        enabled: true
+        topic: syslog
+        opensearch:
+          endpoint: https://opensearch.test:9200
+          tls: { caSecret: opensearch-ca, caSecretKey: ca.crt, insecure: false }
+          failover_username_a: test
+          failover_password_a: test
+          failover_username_b: test
+          failover_password_b: test
+      storage:
+        enabled: true
+        topic: storage
+        opensearch:
+          endpoint: https://opensearch.test:9200
+          tls: { caSecret: opensearch-ca, caSecretKey: ca.crt, insecure: false }
+          failover_username_a: test
+          failover_password_a: test
+          failover_username_b: test
+          failover_password_b: test
+          sendingQueue: { waitForResult: true }
+  prometheus:
+    rules:
+      enabled:
+        - FilelogRefusedLogs
+        - ReceiverRefusedLogs
+        - ReceiverRefusedMetric
+        - OTelLogsMissing
+        - ReconcileErrors
+        - WorkqueueDepth
+        - OTelLogsIncreasing
+        - OTelLogsDecreasing
+        - OTelLogsExportingFailed
+        - OTelLogsSLOBurnRateCritical
+        - OTelLogsSLOBurnRateWarning
+        - OTelLogsExportFailureRatioHigh
+        - OTelExternalLogsDropped
+        - OTelExporterQueueFilling
+        - OTelExporterQueueFull
+        - OTelLogsVolumeSpike
+        - OTelLogsVolumeDropFast
+        - ExternalCollectorMemoryHigh
+        - OTelLogsDeadletterIndexGrowing
+        - OTelLogsDeadletterFlushFailing
