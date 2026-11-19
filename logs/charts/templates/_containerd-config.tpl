@@ -65,7 +65,7 @@ transform/perses:
         - merge_maps(log.attributes, ExtractGrokPatterns(log.body, "time=%{QUOTEDSTRING} level=%{WORD:log.level} msg=%{GREEDYDATA:msg}", true),"upsert")
         - set(log.attributes["config.parsed"], "perses")
 
-transform/kvm_cluster_type:
+transform/cluster_type:
   error_mode: ignore
   log_statements:
     - context: log
@@ -78,6 +78,6 @@ transform/kvm_cluster_type:
 {{- define "containerd.pipeline" }}
 logs/containerd:
   receivers: [file_log/containerd]
-  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses, transform/kvm_cluster_type]
+  processors: [k8s_attributes, attributes/cluster, transform/ingress, transform/protocol, transform/perses, transform/cluster_type]
   exporters: [routing]
 {{- end }}
