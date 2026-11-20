@@ -170,6 +170,15 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.externalCollector.tracesConfig | object | `{"enabled":false,"otlp_grpc_port":4317,"otlp_http_port":4318}` | Activates OTLP traces ingestion (gRPC and HTTP). |
 | openTelemetry.externalCollector.tracesConfig.otlp_grpc_port | int | `4317` | gRPC port for OTLP traces |
 | openTelemetry.externalCollector.tracesConfig.otlp_http_port | int | `4318` | HTTP port for OTLP traces |
+| openTelemetry.fileExporter | object | See values.yaml | File exporter configuration. When enabled, all logs are written to a file on each node instead of being sent to OpenSearch or Kafka. |
+| openTelemetry.fileExporter.enabled | bool | `false` | Enable the file exporter. Mutually exclusive with kafka and OpenSearch (when true, opensearch/kafka exporters, their credentials, and the failover connectors are all omitted from the collector config). |
+| openTelemetry.fileExporter.hostPath | string | `"/var/log/otel-output"` | Host directory mounted into the collector container for writing. Corresponds to the directory portion of `path`. |
+| openTelemetry.fileExporter.path | string | `"/var/log/otel-output/logs.json"` | File path inside the collector container to write logs to. The parent directory must match hostPath so writes land on the host. |
+| openTelemetry.fileExporter.rotation | object | `{"localtime":true,"max_backups":3,"max_days":3,"max_megabytes":100}` | File rotation settings. Omit the whole block to disable rotation. |
+| openTelemetry.fileExporter.rotation.localtime | bool | `true` | Use host local time for rotation timestamps (false = UTC). |
+| openTelemetry.fileExporter.rotation.max_backups | int | `3` | Maximum number of rotated files to keep. |
+| openTelemetry.fileExporter.rotation.max_days | int | `3` | Maximum number of days to retain rotated files (0 = unlimited). |
+| openTelemetry.fileExporter.rotation.max_megabytes | int | `100` | Maximum file size in MiB before the file is rotated. |
 | openTelemetry.ingesterCollector | object | see values.yaml | Kafka -> OpenSearch ingest collectors. One Deployment per entry. |
 | openTelemetry.ingesterCollector.affinity | object | `{}` | Pod affinity rules for the ingester collector CRs |
 | openTelemetry.ingesterCollector.collectors | object | `{}` | Map of ingest collectors keyed by name. Configured via PluginPreset. |
