@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
   name: logs
 spec:
-  version: 0.17.4
+  version: 0.17.5
   displayName: Logs
   description: Observability framework for instrumenting, generating, collecting, and exporting logs.
   icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/logs/logo.png
   helmChart:
     name: logs
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.17.4
+    version: 0.17.5
   options:
     - default: true
       description: Set to true to enable the installation of the OpenTelemetry Operator.
@@ -53,6 +53,11 @@ spec:
     - default: false
       description: Enables Kafka exporter (replaces OpenSearch failover with Kafka buffering)
       name: openTelemetry.kafka.enabled
+      required: false
+      type: bool
+    - default: false
+      description: Routes all log pipelines to a local file on each node instead of OpenSearch or Kafka. Files are written to openTelemetry.fileExporter.path (default /var/log/otel-output/logs.json).
+      name: openTelemetry.fileExporter.enabled
       required: false
       type: bool
     - default: false

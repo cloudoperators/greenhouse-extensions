@@ -440,6 +440,31 @@ openTelemetry:
     enabled: false
     # -- Pod affinity rules for the metrics collector CR
     affinity: {}
+  # -- File exporter configuration. When enabled, all logs are written to a
+  # file on each node instead of being sent to OpenSearch or Kafka.
+  # @default -- See values.yaml
+  fileExporter:
+    # -- Enable the file exporter. Mutually exclusive with kafka and OpenSearch
+    # (when true, opensearch/kafka exporters, their credentials, and the
+    # failover connectors are all omitted from the collector config).
+    enabled: false
+    # -- File path inside the collector container to write logs to.
+    # The parent directory must match hostPath so writes land on the host.
+    path: /var/log/otel-output/logs.json
+    # -- Host directory mounted into the collector container for writing.
+    # Corresponds to the directory portion of `path`.
+    hostPath: /var/log/otel-output
+    # -- File rotation settings. Omit the whole block to disable rotation.
+    rotation:
+      # -- Maximum file size in MiB before the file is rotated.
+      max_megabytes: 100
+      # -- Maximum number of days to retain rotated files (0 = unlimited).
+      max_days: 3
+      # -- Maximum number of rotated files to keep.
+      max_backups: 3
+      # -- Use host local time for rotation timestamps (false = UTC).
+      localtime: true
+
   # -- Go runtime pprof extension; exposes `/debug/pprof/*` for heap, goroutine,
   # CPU, and trace profiling via `kubectl port-forward`. Intended for ad-hoc
   # debugging only; leave disabled in production unless actively investigating.

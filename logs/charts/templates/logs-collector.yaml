@@ -54,7 +54,7 @@ spec:
       value: "{{ .Values.openTelemetry.cluster }}"
     - name: region
       value: "{{ .Values.openTelemetry.region }}"
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if and (not .Values.openTelemetry.kafka.enabled) (not (dig "fileExporter" "enabled" false .Values.openTelemetry)) }}
   envFrom:
     - secretRef:
          name: otel-basic-auth
@@ -89,6 +89,10 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+  - mountPath: {{ (dig "fileExporter" "hostPath" "/var/log/otel-output" .Values.openTelemetry) | quote }}
+    name: varlog-otel-output
+{{- end }}
 {{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
   - name: kafka-ca
     mountPath: /etc/ssl/kafka
@@ -98,6 +102,12 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+  - name: varlog-otel-output
+    hostPath:
+      path: {{ (dig "fileExporter" "hostPath" "/var/log/otel-output" .Values.openTelemetry) | quote }}
+      type: DirectoryOrCreate
+{{- end }}
 {{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
   - name: kafka-ca
     secret:
@@ -152,7 +162,7 @@ spec:
           - action: insert
             key: k8s.node.name
             value: ${KUBE_NODE_NAME}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if and (not .Values.openTelemetry.kafka.enabled) (not (dig "fileExporter" "enabled" false .Values.openTelemetry)) }}
       attributes/failover_username_a:
         actions:
           - action: insert
@@ -277,6 +287,17 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+      file:
+        path: {{ (dig "fileExporter" "path" "/var/log/otel-output/logs.json" .Values.openTelemetry) | quote }}
+{{- if dig "fileExporter" "rotation" nil .Values.openTelemetry }}
+        rotation:
+          max_megabytes: {{ dig "fileExporter" "rotation" "max_megabytes" 100 .Values.openTelemetry }}
+          max_days: {{ dig "fileExporter" "rotation" "max_days" 3 .Values.openTelemetry }}
+          max_backups: {{ dig "fileExporter" "rotation" "max_backups" 3 .Values.openTelemetry }}
+          localtime: {{ dig "fileExporter" "rotation" "localtime" true .Values.openTelemetry }}
+{{- end }}
+{{- end }}
 {{- if .Values.openTelemetry.kafka.enabled }}
       kafka:
         brokers:
@@ -346,7 +367,7 @@ spec:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- else }}
+{{- else if not (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
       opensearch/failover_a:
         http:
           auth:
@@ -406,6 +427,7 @@ spec:
     extensions:
       file_storage/journald:
         directory: .
+{{- if and (not .Values.openTelemetry.kafka.enabled) (not (dig "fileExporter" "enabled" false .Values.openTelemetry)) }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -414,6 +436,7 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- end }}
 {{- if (dig "pprof" "enabled" false .Values.openTelemetry) }}
       {{- include "pprof.extension" . | nindent 6 }}
 {{- end }}
@@ -441,7 +464,7 @@ spec:
               - logs/route_storage
             statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
 {{- end }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if and (not .Values.openTelemetry.kafka.enabled) (not (dig "fileExporter" "enabled" false .Values.openTelemetry)) }}
       failover/opensearch:
         priority_levels:
           - [logs/failover_a]
@@ -481,8 +504,10 @@ spec:
     service:
       extensions:
         - file_storage/journald
+{{- if and (not .Values.openTelemetry.kafka.enabled) (not (dig "fileExporter" "enabled" false .Values.openTelemetry)) }}
         - basicauth/failover_a
         - basicauth/failover_b
+{{- end }}
 {{- if .Values.openTelemetry.logsCollector.k8seventsConfig.enabled }}
         - k8s_leader_elector
 {{- end }}
@@ -521,7 +546,9 @@ spec:
         logs/route_default:
           receivers: [routing]
           processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+          exporters: [file]
+{{- else if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover/opensearch]
@@ -537,7 +564,9 @@ spec:
         logs/route_cronus:
           receivers: [routing]
           processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+          exporters: [file]
+{{- else if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover/opensearch_cronus]
@@ -571,7 +600,9 @@ spec:
         logs/route_storage:
           receivers: [routing]
           processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if (dig "fileExporter" "enabled" false .Values.openTelemetry) }}
+          exporters: [file]
+{{- else if .Values.openTelemetry.kafka.enabled }}
           exporters: [kafka/storage]
 {{- else }}
           exporters: [failover/opensearch_storage]

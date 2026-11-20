@@ -61,8 +61,10 @@ spec:
         fieldRef:
           fieldPath: spec.nodeName
   envFrom:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
     - secretRef:
         name: logs-ingester-{{ $name }}-auth
+{{- end }}
     {{- if not (empty $root.Values.openTelemetry.kafka.users) }}
     {{- range $user := $root.Values.openTelemetry.kafka.users }}
     {{- if eq $user.type "consumer" }}
@@ -91,18 +93,32 @@ spec:
 {{- $kafkaCASecret := $kafka.tls.caSecret }}
 {{- $shouldMountKafkaCASecret := and $kafka.tls $kafka.tls.enabled (not (empty $kafkaCASecret)) (not (empty ($kafka.tls.caSecretKey))) }}
   volumeMounts:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
     - name: opensearch-ca
       mountPath: /etc/ssl/opensearch
       readOnly: true
+{{- end }}
+{{- if (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
+    - mountPath: {{ (dig "fileExporter" "hostPath" "/var/log/otel-output" $root.Values.openTelemetry) | quote }}
+      name: varlog-otel-output
+{{- end }}
 {{- if $shouldMountKafkaCASecret }}
     - name: kafka-ca
       mountPath: /etc/ssl/kafka
       readOnly: true
 {{- end }}
   volumes:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
     - name: opensearch-ca
       secret:
         secretName: {{ $cfg.opensearch.tls.caSecret | quote }}
+{{- end }}
+{{- if (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
+  - name: varlog-otel-output
+    hostPath:
+      path: {{ (dig "fileExporter" "hostPath" "/var/log/otel-output" $root.Values.openTelemetry) | quote }}
+      type: DirectoryOrCreate
+{{- end }}
 {{- if $shouldMountKafkaCASecret }}
     - name: kafka-ca
       secret:
@@ -172,6 +188,7 @@ spec:
             key: region
             value: ${region}
     extensions:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -180,12 +197,24 @@ spec:
         client_auth:
           username: ${failover_username_b}
           password: ${failover_password_b}
+{{- end }}
 {{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
       {{- include "pprof.extension" $root | nindent 6 }}
 {{- end }}
     exporters:
       debug:
         verbosity: basic
+{{- if (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
+      file:
+        path: {{ (dig "fileExporter" "path" "/var/log/otel-output/logs.json" $root.Values.openTelemetry) | quote }}
+{{- if dig "fileExporter" "rotation" nil $root.Values.openTelemetry }}
+        rotation:
+          max_megabytes: {{ dig "fileExporter" "rotation" "max_megabytes" 100 $root.Values.openTelemetry }}
+          max_days: {{ dig "fileExporter" "rotation" "max_days" 3 $root.Values.openTelemetry }}
+          max_backups: {{ dig "fileExporter" "rotation" "max_backups" 3 $root.Values.openTelemetry }}
+          localtime: {{ dig "fileExporter" "rotation" "localtime" true $root.Values.openTelemetry }}
+{{- end }}
+{{- else }}
       opensearch/{{ $name }}_failover_a:
         http:
           auth:
@@ -230,7 +259,9 @@ spec:
           max_interval: 5s
           max_elapsed_time: {{ $maxElapsed | quote }}
         timeout: {{ $timeout | quote }}
+{{- end }}
     connectors:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
       failover/opensearch_{{ $name }}:
         priority_levels:
           - [logs/{{ $name }}_failover_a]
@@ -238,10 +269,13 @@ spec:
         retry_interval: 1m
         sending_queue:
           enabled: false
+{{- end }}
     service:
       extensions:
+{{- if not (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
         - basicauth/failover_a
         - basicauth/failover_b
+{{- end }}
 {{- if (dig "pprof" "enabled" false $root.Values.openTelemetry) }}
         - pprof
 {{- end }}
@@ -277,6 +311,9 @@ spec:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
           processors: [memory_limiter, attributes/cluster]
+{{- if (dig "fileExporter" "enabled" false $root.Values.openTelemetry) }}
+          exporters: [file]
+{{- else }}
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
@@ -284,6 +321,7 @@ spec:
         logs/{{ $name }}_failover_b:
           receivers: [failover/opensearch_{{ $name }}]
           exporters: [opensearch/{{ $name }}_failover_b]
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
