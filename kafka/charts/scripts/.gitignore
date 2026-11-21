@@ -1,0 +1,4 @@
+*.p12
+*.password
+client.properties
+truststore.jks
