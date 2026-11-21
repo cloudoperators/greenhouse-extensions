@@ -377,12 +377,63 @@ jobs:
           fi
 
           echo "Waiting for HelmRelease $hr_name..."
-            if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=3m; then
-            echo "HelmRelease not Ready diagnostics:"
+          # Background poller: print HelmRelease status + events while wait is running
+          (
+            while true; do
+              echo "---- [poll $(date -u +%H:%M:%S)] HelmRelease $hr_name status ----"
+              kubectl -n flux-system get helmrelease "$hr_name" \
+                -o jsonpath='{range .status.conditions[*]}{.type}={.status} reason={.reason} msg={.message}{"\n"}{end}' 2>/dev/null || true
+              echo "---- events (flux-system, last 20) ----"
+              kubectl -n flux-system get events \
+                --field-selector involvedObject.name="$hr_name" \
+                --sort-by=.lastTimestamp 2>/dev/null | tail -n 20 || true
+              sleep 15
+            done
+          ) &
+          POLL_PID=$!
+          trap 'kill $POLL_PID 2>/dev/null || true' EXIT
+
+          if ! kubectl -n flux-system wait helmrelease/"$hr_name" --for=condition=Ready --timeout=3m; then
+            kill $POLL_PID 2>/dev/null || true
+            echo "==================== HelmRelease NOT Ready — diagnostics ===================="
+
+            echo "---- HelmRelease $hr_name (yaml) ----"
             kubectl -n flux-system get helmrelease "$hr_name" -o yaml || true
-            kubectl -n flux-system logs deploy/helm-controller | tail -n 200 || true
+
+            echo "---- HelmRelease $hr_name conditions ----"
+            kubectl -n flux-system get helmrelease "$hr_name" \
+              -o jsonpath='{range .status.conditions[*]}{.type}={.status} reason={.reason} msg={.message}{"\n"}{end}' || true
+
+            echo "---- Events for HelmRelease $hr_name ----"
+            kubectl -n flux-system get events \
+              --field-selector involvedObject.name="$hr_name" \
+              --sort-by=.lastTimestamp || true
+
+            echo "---- All events in flux-system (sorted) ----"
+            kubectl -n flux-system get events --sort-by=.lastTimestamp || true
+
+            echo "---- HelmChart objects ----"
+            kubectl -n flux-system get helmchart -o wide || true
+            kubectl -n flux-system get helmchart -o yaml || true
+
+            echo "---- GitRepository workspace ----"
+            kubectl -n flux-system get gitrepository workspace -o yaml || true
+
+            echo "---- Pods in flux-system ----"
+            kubectl -n flux-system get pods -o wide || true
+
+            echo "---- helm-controller logs (tail 400) ----"
+            kubectl -n flux-system logs deploy/helm-controller --tail=400 || true
+
+            echo "---- source-controller logs (tail 200) ----"
+            kubectl -n flux-system logs deploy/source-controller --tail=200 || true
+
+            echo "---- Events across all namespaces (sorted) ----"
+            kubectl get events --all-namespaces --sort-by=.lastTimestamp || true
+
             exit 1
           fi
+          kill $POLL_PID 2>/dev/null || true
           echo "HelmRelease $hr_name Ready."
 
       - name: Run Helm tests
