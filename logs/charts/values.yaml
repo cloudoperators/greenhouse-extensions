@@ -481,6 +481,23 @@ openTelemetry:
         - ExternalCollectorMemoryHigh
         - OTelLogsDeadletterFlushFailing
         - OTelLogsDeadletterIndexGrowing
+        # Falco fortlogs (CRITICAL). Require the opensearch-query-exporter
+        # queries from opensearch/chart/queries/falco-fortlogs.yaml to be
+        # loaded via the opensearch plugin's queryExporter.queries.
+        - FalcoOTelQueueRenameOrDelete
+        - FalcoOTelOpenSearchCAWrite
+        - FalcoOTelKafkaCAWrite
+        - FalcoOTelSyslogTLSWrite
+        - FalcoOTelElasticCertWrite
+        - FalcoOTelPodMountSyscall
+        - FalcoOpenSearchDataWrite
+        - FalcoOpenSearchDataRenameOrDelete
+        - FalcoOpenSearchConfigWrite
+        - FalcoOpenSearchDataExecve
+        - FalcoKafkaDataWrite
+        - FalcoKafkaDataRenameOrDelete
+        - FalcoKafkaConfigWrite
+        - FalcoKafkaDataExecve
       # Opt-in alerts (not enabled by default):
       #   - OTelExporterQueueFilling: early warning at >80% queue capacity. OTelExporterQueueFull
       #     (100%) is already in the default set; this earlier signal can be noisy on clusters with
@@ -528,6 +545,21 @@ openTelemetry:
         externalCollectorMemoryHigh: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/ExternalCollectorMemoryHigh.md"
         otelLogsDeadletterIndexGrowing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterIndexGrowing.md"
         otelLogsDeadletterFlushFailing: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/OTelLogsDeadletterFlushFailing.md"
+        # Falco fortlogs playbooks.
+        falcoOTelQueueRenameOrDelete: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelQueueRenameOrDelete.md"
+        falcoOTelOpenSearchCAWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelOpenSearchCAWrite.md"
+        falcoOTelKafkaCAWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelKafkaCAWrite.md"
+        falcoOTelSyslogTLSWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelSyslogTLSWrite.md"
+        falcoOTelElasticCertWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelElasticCertWrite.md"
+        falcoOTelPodMountSyscall: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOTelPodMountSyscall.md"
+        falcoOpenSearchDataWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOpenSearchDataWrite.md"
+        falcoOpenSearchDataRenameOrDelete: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOpenSearchDataRenameOrDelete.md"
+        falcoOpenSearchConfigWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOpenSearchConfigWrite.md"
+        falcoOpenSearchDataExecve: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoOpenSearchDataExecve.md"
+        falcoKafkaDataWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoKafkaDataWrite.md"
+        falcoKafkaDataRenameOrDelete: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoKafkaDataRenameOrDelete.md"
+        falcoKafkaConfigWrite: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoKafkaConfigWrite.md"
+        falcoKafkaDataExecve: "https://github.com/cloudoperators/greenhouse-extensions/tree/main/logs/playbooks/FalcoKafkaDataExecve.md"
 
 testFramework:
   # -- Activates the Helm chart testing framework.
