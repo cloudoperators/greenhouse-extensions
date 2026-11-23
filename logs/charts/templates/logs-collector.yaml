@@ -4,6 +4,9 @@ SPDX-License-Identifier: Apache-2.0
 */}}
 
 {{- if .Values.openTelemetry.logsCollector.enabled }}
+{{- $fileExporter := .Values.openTelemetry.logsCollector.fileExporter.enabled }}
+{{- $kafka := and (not $fileExporter) .Values.openTelemetry.kafka.enabled }}
+{{- $opensearch := not (or $fileExporter .Values.openTelemetry.kafka.enabled) }}
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
@@ -89,6 +92,9 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if $fileExporter }}
+  {{- include "fileExporter.volumeMount" . | nindent 2 }}
+{{- end }}
 {{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
   - name: kafka-ca
     mountPath: /etc/ssl/kafka
@@ -98,6 +104,9 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if $fileExporter }}
+  {{- include "fileExporter.volume" . | nindent 2 }}
+{{- end }}
 {{- if and .Values.openTelemetry.kafka.enabled .Values.openTelemetry.kafka.tls.enabled (not (empty .Values.openTelemetry.kafka.tls.caSecret)) }}
   - name: kafka-ca
     secret:
@@ -122,6 +131,9 @@ spec:
     {{- include "kvm.receiver" . | nindent 6 -}}
 {{- end }}
     processors:
+{{- if $fileExporter }}
+      {{- include "fileExporter.processor" . | nindent 6 }}
+{{- end }}
       batch:
         send_batch_max_size: {{ dig "batch" "sendBatchMaxSize" 5000 .Values.openTelemetry.logsCollector }}
         timeout: {{ dig "batch" "timeout" "30s" .Values.openTelemetry.logsCollector | quote }}
@@ -277,7 +289,10 @@ spec:
     exporters:
       debug:
         verbosity: basic
-{{- if .Values.openTelemetry.kafka.enabled }}
+{{- if $fileExporter }}
+      {{- include "fileExporter.exporter" . | nindent 6 }}
+{{- end }}
+{{- if $kafka }}
       kafka:
         brokers:
 {{- range .Values.openTelemetry.kafka.brokers }}
@@ -346,7 +361,7 @@ spec:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- else }}
+{{- else if $opensearch }}
       opensearch/failover_a:
         http:
           auth:
@@ -441,7 +456,7 @@ spec:
               - logs/route_storage
             statement: route() where resource.attributes["k8s.namespace.name"] == "swift"
 {{- end }}
-{{- if not .Values.openTelemetry.kafka.enabled }}
+{{- if $opensearch }}
       failover/opensearch:
         priority_levels:
           - [logs/failover_a]
@@ -520,8 +535,10 @@ spec:
       pipelines:
         logs/route_default:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+          processors: [transform/fix_log_attribute, transform/truncate_message{{ if $fileExporter }}, transform/file_date{{ end }}, batch]
+{{- if $fileExporter }}
+          exporters: [file]
+{{- else if $kafka }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover/opensearch]
@@ -536,8 +553,10 @@ spec:
 {{- end }}
         logs/route_cronus:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+          processors: [transform/fix_log_attribute, transform/truncate_message{{ if $fileExporter }}, transform/file_date{{ end }}, batch]
+{{- if $fileExporter }}
+          exporters: [file]
+{{- else if $kafka }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover/opensearch_cronus]
@@ -570,8 +589,10 @@ spec:
 {{- if or .Values.openTelemetry.logsCollector.openstackConfig.enabled (and .Values.openTelemetry.logsCollector.cephConfig.enabled .Values.openTelemetry.logsCollector.containerdConfig.enabled) }}
         logs/route_storage:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.openTelemetry.kafka.enabled }}
+          processors: [transform/fix_log_attribute, transform/truncate_message{{ if $fileExporter }}, transform/file_date{{ end }}, batch]
+{{- if $fileExporter }}
+          exporters: [file]
+{{- else if $kafka }}
           exporters: [kafka/storage]
 {{- else }}
           exporters: [failover/opensearch_storage]
