@@ -253,6 +253,10 @@ tests:
     assertions:
     - violations: 1
       message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.containers\["app"\]\.securityContext\.privileged = true \(image = "alpine"\)$'
+  - name: pod-privileged-allowlisted-glob
+    object: fixtures/pod-security-v2/pod-privileged-allowlisted-glob.yaml
+    assertions:
+    - violations: 0
   - name: pod-readonly-machine-id-pass
     object: fixtures/pod-security-v2/pod-readonly-machine-id-pass.yaml
     assertions:
@@ -338,3 +342,30 @@ tests:
     assertions:
     - violations: 1
       message: '^\{"owned_by":"none"\} >> has prometheus\.io/scrape annotation, but prometheus\.io/targets annotation is missing or does not have a valid value \(got: \[""\], valid: \[\]\)$'
+
+- name: oli-labels-required
+  template: rendered/gatekeeper-config/templates/constrainttemplate-oli-labels-required.yaml
+  constraint: rendered/gatekeeper-config/templates/constraint-oli-labels-required.yaml
+  cases:
+  - name: plugin-with-owned-by
+    object: fixtures/oli-labels-required/plugin-owned.out.yaml
+    assertions:
+    - violations: 0
+  - name: plugin-with-null-owned-by
+    object: fixtures/oli-labels-required/plugin-owned-by-null.out.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> Helm release has no owner\. Set greenhouse\.sap/owned-by on the Plugin or add the owner-info chart with a support-group\.$'
+  - name: owner-info-with-support-group
+    object: fixtures/oli-labels-required/owner-info.out.yaml
+    assertions:
+    - violations: 0
+  - name: no-owner
+    object: fixtures/oli-labels-required/no-owner.out.yaml
+    assertions:
+    - violations: 1
+      message: '^\{"owned_by":"none"\} >> Helm release has no owner\. Set greenhouse\.sap/owned-by on the Plugin or add the owner-info chart with a support-group\.$'
+  - name: no-owner-superseded
+    object: fixtures/oli-labels-required/no-owner-superseded.out.yaml
+    assertions:
+    - violations: 0

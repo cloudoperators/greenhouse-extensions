@@ -18,6 +18,10 @@ spec:
     labelSelector:
       matchLabels:
         owner: helm
+      matchExpressions:
+        - key: status
+          operator: In
+          values: ["pending-install", "pending-upgrade", "deployed"]
     excludedNamespaces:
       {{- toYaml .Values.policies.oliLabelsRequired.excludedNamespaces | nindent 6 }}
   parameters:

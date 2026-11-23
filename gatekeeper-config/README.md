@@ -21,7 +21,7 @@ Requires the [OPA Gatekeeper](https://github.com/cloudoperators/greenhouse-exten
 | `ingressAnnotationsMigration` | During the nginx annotation prefix migration, flags Ingresses that set only one of the old/new prefix or set both with mismatched values. |
 | `prometheusScrapeAnnotations` | Flags Pods and Services that opt into scraping via `prometheus.io/scrape: "true"` but are not matched by any configured Prometheus CR. |
 | `deprecatedApiVersion` | Flags Helm releases that declare resources using API versions removed in a specific Kubernetes release. Requires `gatekeeper-doop`. |
-| `oliLabelsRequired` | Flags Helm release Secrets without the `greenhouse.sap/owned-by` label injected by Owner Label Injector. Requires `gatekeeper-doop`. |
+| `oliLabelsRequired` | Flags active Helm releases without an owner. Greenhouse plugins get it from `global.greenhouse.ownedBy`, other charts from the `support-group` in their owner-info ConfigMap. Requires `gatekeeper-doop`. |
 | `outdatedImageBases` | Flags workloads whose container base images are older than `maxAgeDays`, as reported by `doop-image-checker`. Requires `gatekeeper-doop`. |
 | `vulnerableImages` | Flags workloads running container images with known vulnerabilities, as reported by `doop-image-checker`. Requires `gatekeeper-doop`. |
 
@@ -44,6 +44,9 @@ To run the suite locally:
 GATOR_VERSION=v3.22.2
 curl -sL "https://github.com/open-policy-agent/gatekeeper/releases/download/${GATOR_VERSION}/gator-${GATOR_VERSION}-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m | sed 's/x86_64/amd64/').tar.gz" \
   | sudo tar xz -C /usr/local/bin gator
+
+# install the tools that build and decode the Helm release fixtures
+go install github.com/sapcc/gatekeeper-addons/helm-manifest-generator@latest github.com/sapcc/gatekeeper-addons/helm-manifest-parser@latest
 
 # render the chart with test values and run gator
 ./tests/run.sh
