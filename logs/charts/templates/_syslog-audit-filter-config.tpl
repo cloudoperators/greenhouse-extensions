@@ -710,6 +710,15 @@ transform/syslog_audit_classification:
         - 'log.attributes["netbox.manufacturer.slug"] == nil'
       statements:
         - 'set(log.attributes["audit_relevant"], "true") where IsMatch(log.attributes["_mb"], "attacker")'
+    # KVM catch-all: audit-relevant logs with an empty source whose hostname or
+    # any extracted syslog identifier contains "-kvm-" are tagged "kvm". Runs
+    # before the netbox slug fallbacks so KVM wins over a generic vmware/platform
+    # slug; the empty-source guard (nil or "") keeps explicit sender sources intact.
+    - context: log
+      conditions:
+        - 'log.attributes["audit_relevant"] == "true" and (log.attributes["sap.cc.audit.source"] == nil or log.attributes["sap.cc.audit.source"] == "") and (IsMatch(resource.attributes["host.name"], "-kvm-") or IsMatch(log.attributes["hostname"], "-kvm-") or IsMatch(log.attributes["net.peer.name"], "-kvm-") or IsMatch(log.attributes["client.address"], "-kvm-") or IsMatch(log.attributes["log.syslog.hostname"], "-kvm-") or IsMatch(log.attributes["syslog.host.name"], "-kvm-") or IsMatch(log.attributes["node_nodename"], "-kvm-") or IsMatch(log.attributes["host.name"], "-kvm-") or IsMatch(log.attributes["dvchost"], "-kvm-"))'
+      statements:
+        - 'set(log.attributes["sap.cc.audit.source"], "kvm")'
     - context: log
       conditions:
         - 'log.attributes["audit_relevant"] == "true" and log.attributes["sap.cc.audit.source"] == nil and log.attributes["netbox.platform.slug"] != nil'
