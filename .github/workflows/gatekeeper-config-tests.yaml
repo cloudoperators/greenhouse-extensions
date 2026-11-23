@@ -30,6 +30,14 @@ jobs:
             | sudo tar xz -C /usr/local/bin gator
           gator version
 
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: "stable"
+
+      - name: Install helm-manifest-generator and helm-manifest-parser
+        run: go install github.com/sapcc/gatekeeper-addons/helm-manifest-generator@latest github.com/sapcc/gatekeeper-addons/helm-manifest-parser@latest
+
       - name: Run gator tests
         run: |
           set -o pipefail

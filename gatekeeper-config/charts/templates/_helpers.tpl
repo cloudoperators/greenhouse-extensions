@@ -29,9 +29,17 @@ from_k8s_object(obj, msg) := result if {
 
 # `body` must be the response body from helm-manifest-parser
 from_helm_release(body, msg) := result if {
-	owned_by := object.get(body, ["owner_info", "owned-by"], "none")
-	result := sprintf("{\"owned_by\":%s} >> %s", [json.marshal(owned_by), msg])
+	result := sprintf("{\"owned_by\":%s} >> %s", [json.marshal(helm_release_owner(body)), msg])
 }
+
+helm_release_owner(body) := owner if {
+	owner := object.get(body, ["values", "global", "greenhouse", "ownedBy"], "")
+	is_string(owner)
+	owner != ""
+} else := owner if {
+	owner := object.get(body, ["owner_info", "support-group"], "")
+	owner != ""
+} else := "none"
 
 # Adds an additional label to a message that already had support labels added with one of the above methods.
 extra(key, value, msg) := result if {
