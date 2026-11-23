@@ -253,6 +253,10 @@ tests:
     assertions:
     - violations: 1
       message: '^\{"owned_by":"none"\} >> pod is not allowed to set spec\.containers\["app"\]\.securityContext\.privileged = true \(image = "alpine"\)$'
+  - name: pod-privileged-allowlisted-glob
+    object: fixtures/pod-security-v2/pod-privileged-allowlisted-glob.yaml
+    assertions:
+    - violations: 0
   - name: pod-readonly-machine-id-pass
     object: fixtures/pod-security-v2/pod-readonly-machine-id-pass.yaml
     assertions:

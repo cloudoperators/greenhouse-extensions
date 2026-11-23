@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privileged-glob-allowed
+  namespace: kube-system
+spec:
+  containers:
+  - name: app
+    image: ghcr.io/k8s/versioned-pod-v1_34_8:v1
+    securityContext:
+      privileged: true
