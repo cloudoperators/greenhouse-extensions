@@ -205,6 +205,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | openTelemetry.logsCollector.containerdConfig | object | `{"enabled":true,"exclude":[]}` | Activates the containerd file log receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.containerdConfig.exclude | list | `[]` | Paths to exclude from the containerd ingestion. |
 | openTelemetry.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| openTelemetry.logsCollector.fileExporter | object | `{"enabled":false,"fileName":"logs","hostPath":"/var/lib/otel-file-exporter/logs","rotation":{"maxBackups":0,"maxDays":0,"maxMegabytes":5120}}` | Writes logs to one JSON file per UTC day on each node. |
+| openTelemetry.logsCollector.fileExporter.enabled | bool | `false` | Enables the file exporter instead of OpenSearch or Kafka. |
+| openTelemetry.logsCollector.fileExporter.fileName | string | `"logs"` | File name prefix, written as <fileName>-<YYYY-MM-DD>.json. |
+| openTelemetry.logsCollector.fileExporter.hostPath | string | `"/var/lib/otel-file-exporter/logs"` | Host directory the files are written to, mounted read-write into the collector. |
+| openTelemetry.logsCollector.fileExporter.rotation.maxBackups | int | `0` | Rotated files to keep, 0 keeps all. |
+| openTelemetry.logsCollector.fileExporter.rotation.maxDays | int | `0` | Days to keep rotated files, 0 keeps them forever. |
+| openTelemetry.logsCollector.fileExporter.rotation.maxMegabytes | int | `5120` | Megabytes before a day's file rotates. High enough that a normal day stays one file. |
 | openTelemetry.logsCollector.journaldConfig | object | `{"enabled":true}` | Activates the journald receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.k8seventsConfig | object | `{"enabled":true}` | Activates the k8s events receiver (requires logsCollector to be enabled). |
 | openTelemetry.logsCollector.kafkaStorageTopic | string | `""` | Kafka topic name for storage logs — swift, ceph (e.g., "logs-storage") |

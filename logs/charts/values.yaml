@@ -232,6 +232,21 @@ openTelemetry:
     # -- Max characters for the log body in the truncate_message processor. Keep below the
     # Lucene 32766-byte term limit so OpenSearch never permanently rejects a document.
     maxMessageLength: 32000
+    # -- Writes logs to one JSON file per UTC day on each node.
+    fileExporter:
+      # -- Enables the file exporter instead of OpenSearch or Kafka.
+      enabled: false
+      # -- Host directory the files are written to, mounted read-write into the collector.
+      hostPath: /var/lib/otel-file-exporter/logs
+      # -- File name prefix, written as <fileName>-<YYYY-MM-DD>.json.
+      fileName: logs
+      rotation:
+        # -- Megabytes before a day's file rotates. High enough that a normal day stays one file.
+        maxMegabytes: 5120
+        # -- Days to keep rotated files, 0 keeps them forever.
+        maxDays: 0
+        # -- Rotated files to keep, 0 keeps all.
+        maxBackups: 0
     # -- Activates the journald receiver (requires logsCollector to be enabled).
     journaldConfig:
       enabled: true
