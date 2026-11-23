@@ -90,6 +90,13 @@ The **Logs** Plugin comes with a [Failover Connector](https://github.com/open-te
 | auditLogs.logsCollector.auditpoller.enabled | bool | `false` | Activates the receiver for ingesting audit-poller logs |
 | auditLogs.logsCollector.containerd.enabled | bool | `false` | Activates ingestion of container stdout/stderr logs from /var/log/pods |
 | auditLogs.logsCollector.enabled | bool | `true` | Activates the standard configuration for Logs. |
+| auditLogs.logsCollector.fileExporter | object | `{"enabled":false,"fileName":"audit-logs","hostPath":"/var/lib/otel-file-exporter/audit-logs","rotation":{"maxBackups":0,"maxDays":0,"maxMegabytes":5120}}` | Writes logs to one JSON file per UTC day on each node. |
+| auditLogs.logsCollector.fileExporter.enabled | bool | `false` | Enables the file exporter instead of OpenSearch or Kafka. |
+| auditLogs.logsCollector.fileExporter.fileName | string | `"audit-logs"` | File name prefix, written as <fileName>-<YYYY-MM-DD>.json. |
+| auditLogs.logsCollector.fileExporter.hostPath | string | `"/var/lib/otel-file-exporter/audit-logs"` | Host directory the files are written to, mounted read-write into the collector. |
+| auditLogs.logsCollector.fileExporter.rotation.maxBackups | int | `0` | Rotated files to keep, 0 keeps all. |
+| auditLogs.logsCollector.fileExporter.rotation.maxDays | int | `0` | Days to keep rotated files, 0 keeps them forever. |
+| auditLogs.logsCollector.fileExporter.rotation.maxMegabytes | int | `5120` | Megabytes before a day's file rotates. High enough that a normal day stays one file. |
 | auditLogs.logsCollector.journald.enabled | bool | `false` | Activates ingestion of systemd journal logs |
 | auditLogs.logsCollector.kafka | object | `{"brokers":[],"compression":"","enabled":false,"encoding":"","max_message_bytes":1000000,"protocol_version":"","tls":{"caSecret":"","caSecretKey":"","enabled":false,"insecure_skip_verify":false},"topic":"","users":[]}` | Kafka exporter configuration for buffering audit logs |
 | auditLogs.logsCollector.kafka.brokers | list | `[]` | Kafka broker addresses (e.g., ["kafka-bootstrap.kafka.svc.cluster.local:9092"]) |

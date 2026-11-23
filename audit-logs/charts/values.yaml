@@ -71,6 +71,21 @@ auditLogs:
       include: []
       # -- Paths to exclude from the filelog self-logging ingestion. To prevent a recursive log explosion, the collector always excludes itself from the ingestion via filelog. An OTLP endpoint and internal telemetry is setup for the collector's internal logging.
       exclude: []
+    # -- Writes logs to one JSON file per UTC day on each node.
+    fileExporter:
+      # -- Enables the file exporter instead of OpenSearch or Kafka.
+      enabled: false
+      # -- Host directory the files are written to, mounted read-write into the collector.
+      hostPath: /var/lib/otel-file-exporter/audit-logs
+      # -- File name prefix, written as <fileName>-<YYYY-MM-DD>.json.
+      fileName: audit-logs
+      rotation:
+        # -- Megabytes before a day's file rotates. High enough that a normal day stays one file.
+        maxMegabytes: 5120
+        # -- Days to keep rotated files, 0 keeps them forever.
+        maxDays: 0
+        # -- Rotated files to keep, 0 keeps all.
+        maxBackups: 0
     # -- Kafka exporter configuration for buffering audit logs
     kafka:
       # -- Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.
