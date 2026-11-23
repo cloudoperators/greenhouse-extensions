@@ -160,6 +160,9 @@ spec:
           - action: insert
             key: region
             value: ${region}
+{{- if $cfg.falcoParsing }}
+      {{- include "falco.parsing.processor" $root | nindent 6 }}
+{{- end }}
 {{- range $cfg.extraProcessors }}
       {{ .name }}:
         {{- toYaml .config | nindent 8 }}
@@ -303,7 +306,7 @@ spec:
       pipelines:
         logs/{{ $name }}:
           receivers: [kafka/{{ $name }}]
-          processors: [memory_limiter, attributes/cluster{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
+          processors: [memory_limiter, attributes/cluster{{- if $cfg.falcoParsing }}, transform/falco_parsing{{- end }}{{- range $cfg.extraProcessors }}, {{ .name }}{{- end }}, batch/audit]
           exporters: [failover/opensearch_{{ $name }}]
         logs/{{ $name }}_failover_a:
           receivers: [failover/opensearch_{{ $name }}]
