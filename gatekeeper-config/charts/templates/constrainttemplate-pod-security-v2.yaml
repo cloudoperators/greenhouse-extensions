@@ -294,12 +294,22 @@ spec:
                   entry.matchNamespace != "*"
                   iro.metadata.namespace == entry.matchNamespace
                   repo := extract_repository(container.image)
-                  repo == entry.matchRepository
+                  repo_matches(repo, entry.matchRepository)
               }
 
               isMatchingContainer(entry, container) if {
                   entry.matchNamespace == "*"
                   repo := extract_repository(container.image)
-                  repo == entry.matchRepository
+                  repo_matches(repo, entry.matchRepository)
+              }
+
+              repo_matches(repo, pattern) if {
+                  not contains(pattern, "*")
+                  repo == pattern
+              }
+
+              repo_matches(repo, pattern) if {
+                  contains(pattern, "*")
+                  glob.match(pattern, [], repo)
               }
 {{- end }}

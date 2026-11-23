@@ -38,6 +38,9 @@ policies:
         mayUseCapabilities: ["NET_ADMIN"]
         mayReadHostPathVolumes: []
         mayWriteHostPathVolumes: []
+      - matchNamespace: kube-system
+        matchRepository: k8s/versioned-pod-*
+        mayBePrivileged: true
 
   ingressAnnotations:
     enabled: true
