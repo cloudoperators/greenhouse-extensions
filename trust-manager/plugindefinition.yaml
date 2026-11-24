@@ -14,7 +14,7 @@ spec:
   helmChart:
     name: trust-manager
     repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-    version: 0.24.0
+    version: 0.24.1
   options:
     - name: trust-manager.app.trust.namespace
       description: Namespace where trust bundles are managed

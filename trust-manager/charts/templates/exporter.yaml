@@ -5,6 +5,7 @@
 
 {{- if .Values.certExporter.enabled }}
 {{- range $i, $namespace := .Values.certExporter.namespaces }}
+{{- if lookup "v1" "Namespace" "" $namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -57,5 +58,6 @@ spec:
             path: /metrics
             port: 8080
           periodSeconds: 10
+{{- end }}
 {{- end }}
 {{- end }}
