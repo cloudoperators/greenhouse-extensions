@@ -63,9 +63,8 @@ spec:
 
                   helm_release.is_helm_release(iro)
 
-                  owned_by := object.get(release, ["owner_info", "owned-by"], "")
-                  owned_by == ""
+                  add_support_labels.helm_release_owner(release) == "none"
 
-                  msg := "Helm release is missing greenhouse.sap/owned-by label. Ensure Owner Label Injector is running and has labelled this namespace."
+                  msg := "Helm release has no owner. Set greenhouse.sap/owned-by on the Plugin or add the owner-info chart with a support-group."
               }
 {{- end }}

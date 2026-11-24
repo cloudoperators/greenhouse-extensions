@@ -71,11 +71,20 @@ It builds the image for `linux/amd64`, pushes to `ghcr.io/cloudoperators/opentel
 
 ## Step-by-Step: Updating the Image
 
+Important context and branches of `cloudoperators/opentelemetry-collector-contrib` (`origin` and `upstream` are opinionated names, but refers to the fork or the upstream respectively):
+- `origin/development`: here the development of the fork, custom components, are happening. Here you can sprawl with commits or do whatever to make it work/debug/develop.
+- `origin/main`: once development is ready for release or for fork-syncing, a squash merge `development->main` should be made. Squashing can be however you want, but as development is usually limited to each directory, it could make sense to make a commit per directory.
+- `upstream/main`: this is just the reference for the `upstream/main`. This is used to then merge to sync the fork.
+
+
+The reason for this is that it should make fork-syncing a lot easier. If the squash to `main` is limited (less than a handful commits, limited to one dir each) then the replaying of merge/rebase messages are a lot less.
+
 ### 1. Update the Fork (if needed)
 
 If you need to pull in upstream changes or modify custom components:
 
 ```bash
+git checkout main # should have all of the development branch squash-merged.
 cd opentelemetry-collector-contrib   # the fork
 git fetch upstream
 git merge upstream/main              # or rebase onto the target release tag. only rebase if difference is small, otherwise you have to replay all commits on all upstream ones -- massive headache.

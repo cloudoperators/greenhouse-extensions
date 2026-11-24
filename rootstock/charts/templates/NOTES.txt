@@ -1,0 +1,29 @@
+{{/*
+SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+SPDX-License-Identifier: Apache-2.0
+*/}}
+rootstock has been deployed.
+
+Release:   {{ include "rootstock.releaseName" . }}
+Namespace: {{ include "rootstock.namespace" . }}
+Image:     {{ include "rootstock.image" . }}
+
+The Redfish credentials are mounted (never set as an env var) from the Secret
+{{ include "rootstock.fullname" . }}-redfish into:
+  {{ .Values.rootstock.config.folder }}/redfish_pdus.yaml
+{{ if .Values.rootstock.redfish.existingSecret }}
+Using the pre-existing Secret: {{ .Values.rootstock.redfish.existingSecret }}
+{{- else }}
+Using a chart-managed Secret rendered from redfish.access.
+For an externally-managed Secret, set rootstock.redfish.existingSecret instead.
+{{- end }}
+
+To reach the exporter locally:
+  kubectl -n {{ include "rootstock.namespace" . }} port-forward svc/{{ include "rootstock.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+
+Then query:
+  curl http://localhost:{{ .Values.service.port }}/healthz
+  curl "http://localhost:{{ .Values.service.port }}/probe?target=<REDFISH_URL>&labels=<PDU_ID>"
+
+Run the chart's smoke test with:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

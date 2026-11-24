@@ -7,6 +7,36 @@
 {{- range $i, $namespace := .Values.certExporter.namespaces }}
 {{- if lookup "v1" "Namespace" "" $namespace }}
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: trust-manager-cert-exporter
+subjects:
+- kind: ServiceAccount
+  name: trust-manager-cert-exporter
+  namespace: {{ $namespace }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,12 +61,16 @@ spec:
         app.kubernetes.io/name: cert-exporter
         app.kubernetes.io/component: cert-exporter-{{ $namespace }}
         cert-exporter.io/type: deployment
+      {{- with $.Values.certExporter.additionalPodAnnotations }}
       annotations:
-        prometheus.io/scrape: "true"
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
+      serviceAccountName: trust-manager-cert-exporter
       containers:
       - args:
         - --configmaps-label-selector=trust.cert-manager.io/bundle
+        - --configmaps-namespaces={{ $namespace }}
         - --logtostderr
         command:
         - ./app

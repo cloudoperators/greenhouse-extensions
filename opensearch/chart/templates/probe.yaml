@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2026 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.probes.enabled }}
+{{- if not .Values.probes.prober }}
+{{- fail "probes.enabled is true but probes.prober (blackbox exporter endpoint) is not set" }}
+{{- end }}
+{{- range .Values.probes.targets }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "opensearch.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: probe
+    {{- if $.Values.cluster.cluster.general.monitoring.labels }}
+    {{- toYaml $.Values.cluster.cluster.general.monitoring.labels | nindent 4 }}
+    {{- end }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  jobName: {{ .name }}
+  interval: {{ .interval | default $.Values.probes.interval | default "60s" }}
+  scrapeTimeout: {{ .scrapeTimeout | default $.Values.probes.scrapeTimeout | default "30s" }}
+  module: {{ .module }}
+  prober:
+    path: /probe
+    scheme: https
+    url: {{ $.Values.probes.prober }}
+  targets:
+    staticConfig:
+      static:
+        {{- toYaml .targets | nindent 8 }}
+      {{- with .staticLabels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -112,6 +112,17 @@ kafka/syslog_audit:
     enabled: {{ .Values.openTelemetry.auditKafka.sendingQueue.enabled }}
     num_consumers: {{ .Values.openTelemetry.auditKafka.sendingQueue.numConsumers | default 1 | int64 }}
     queue_size: {{ .Values.openTelemetry.auditKafka.sendingQueue.queueSize | int64 }}
+{{- if .Values.openTelemetry.auditKafka.sendingQueue.enabled }}
+    # Each request becomes one Kafka message, and one bigger than max_message_bytes is dropped. Split by size
+    # instead, keeping 10% for the producer's record overhead with otlp_proto (flatten_data gives records from
+    # different hosts their own resource, which makes requests bigger). A record over max_size can not be split:
+    # it and the rest of its request are dropped with a "Failed to split request" warning, not counted in send_failed.
+    batch:
+      flush_timeout: 200ms
+      sizer: bytes
+      min_size: 0
+      max_size: {{ div (mul (.Values.openTelemetry.auditKafka.max_message_bytes | int64) 9) 10 }}
+{{- end }}
 {{- if .Values.openTelemetry.auditKafka.tls.enabled }}
   tls:
     insecure: false
