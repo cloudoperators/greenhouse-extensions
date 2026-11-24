@@ -6,7 +6,7 @@ kind: PluginDefinition
 metadata:
   name: trust-manager
 spec:
-  version: 0.24.3
+  version: 0.24.4
   displayName: Trust Manager
   description: Automated trust bundle management for Kubernetes
   docMarkDownUrl: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/trust-manager/README.md
