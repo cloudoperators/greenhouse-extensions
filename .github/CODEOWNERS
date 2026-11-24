@@ -56,3 +56,4 @@ ui/                       @cloudoperators/greenhouse-frontend
 /oidc-discovery-access    @cloudoperators/greenhouse-backend
 /permission-manager/      @cloudoperators/greenhouse-backend @cloudoperators/greenhouse-src
 /rootstock/               @cloudoperators/greenhouse-observability
+/trust-manager/           @jagoleni @fwiesel @chuan137
