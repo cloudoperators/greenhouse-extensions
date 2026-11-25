@@ -6,14 +6,14 @@ kind: PluginDefinition
 metadata:
     name: audit-logs
 spec:
-    version: 0.2.65
+    version: 0.2.66
     displayName: OpenTelemetry for Audit Logs
     description: Audit Logs relevant Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs.
     icon: https://raw.githubusercontent.com/cloudoperators/greenhouse-extensions/main/audit-logs/logo.png
     helmChart:
         name: 'audit-logs'
         repository: oci://ghcr.io/cloudoperators/greenhouse-extensions/charts
-        version: 0.2.65
+        version: 0.2.66
     options:
         - name: auditLogs.region
           description: Region label for logging
@@ -107,6 +107,16 @@ spec:
           description: Enable systemd journal logs ingestion
           required: false
           type: bool
+        - name: auditLogs.logsCollector.fileExporter.enabled
+          default: false
+          description: Writes the audit logs to files in a hostPath directory on each node
+          required: false
+          type: bool
+        - name: auditLogs.logsCollector.fileExporter.hostPath
+          default: /var/lib/otel-file-exporter/audit-logs
+          description: Host directory the file exporter writes to
+          required: false
+          type: string
         - name: auditLogs.logsCollector.kafka.enabled
           default: false
           description: Enable Kafka exporter for audit logs buffering. When enabled, audit logs are exported to Kafka instead of OpenSearch.

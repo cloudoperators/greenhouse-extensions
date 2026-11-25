@@ -3,6 +3,9 @@ SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse c
 SPDX-License-Identifier: Apache-2.0
 */}}
 {{- if .Values.auditLogs.logsCollector.enabled }}
+{{- $fileExporter := .Values.auditLogs.logsCollector.fileExporter.enabled }}
+{{- $kafka := and (not $fileExporter) .Values.auditLogs.logsCollector.kafka.enabled }}
+{{- $opensearch := not (or $fileExporter .Values.auditLogs.logsCollector.kafka.enabled) }}
 
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
@@ -103,6 +106,9 @@ spec:
   - mountPath: /var/log
     name: varlog
     readOnly: true
+{{- if $fileExporter }}
+  {{- include "fileExporter.volumeMount" . | nindent 2 }}
+{{- end }}
 {{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) }}
   - name: kafka-ca
     mountPath: /etc/ssl/kafka
@@ -118,6 +124,9 @@ spec:
   - name: varlog
     hostPath:
       path: /var/log
+{{- if $fileExporter }}
+  {{- include "fileExporter.volume" . | nindent 2 }}
+{{- end }}
 {{- if and .Values.auditLogs.logsCollector.kafka.enabled .Values.auditLogs.logsCollector.kafka.tls.enabled (not (empty .Values.auditLogs.logsCollector.kafka.tls.caSecret)) }}
   - name: kafka-ca
     secret:
@@ -203,6 +212,9 @@ spec:
 {{- end }}
 
     processors:
+{{- if $fileExporter }}
+      {{- include "fileExporter.processor" . | nindent 6 }}
+{{- end }}
       batch:
         send_batch_max_size: 500
         timeout: 5s
@@ -685,6 +697,9 @@ spec:
     exporters:
       debug:
         verbosity: basic
+{{- if $fileExporter }}
+      {{- include "fileExporter.exporter" . | nindent 6 }}
+{{- end }}
 {{- if and .Values.auditLogs.logsCollector.kubeApiAudit.enabled .Values.auditLogs.prometheus.podMonitor.enabled }}
       # Counts the kube-apiserver audit events whose credential bodies transform/kube_audit
       # removed, as otelcol_exporter_sent_log_records_total{exporter="debug/credential_body_removed"},
@@ -692,7 +707,7 @@ spec:
       debug/credential_body_removed:
         verbosity: basic
 {{- end }}
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+{{- if $kafka }}
       kafka:
         brokers:
 {{- range .Values.auditLogs.logsCollector.kafka.brokers }}
@@ -724,7 +739,7 @@ spec:
         producer:
           compression: {{ .Values.auditLogs.logsCollector.kafka.compression }}
           max_message_bytes: {{ .Values.auditLogs.logsCollector.kafka.max_message_bytes | int64 }}
-{{- else }}
+{{- else if $opensearch }}
       opensearch/failover_a:
         http:
           auth:
@@ -746,7 +761,7 @@ spec:
         auth_type: serviceAccount
         lease_name: audit-logs-k8s-events
         lease_namespace: {{ .Release.Namespace }}
-{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
+{{- if $opensearch }}
       basicauth/failover_a:
         client_auth:
           username: ${failover_username_a}
@@ -777,7 +792,7 @@ spec:
             pipelines:
             - logs/credential_body_removed
 {{- end }}
-{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
+{{- if $opensearch }}
       failover:
         retry_interval: 2m
         sending_queue:
@@ -790,7 +805,7 @@ spec:
           - [logs/failover_b]
 {{- end }}
     service:
-{{- if not .Values.auditLogs.logsCollector.kafka.enabled }}
+{{- if $opensearch }}
       extensions:
         - basicauth/failover_a
         - basicauth/failover_b
@@ -833,8 +848,10 @@ spec:
       pipelines:
         logs/default:
           receivers: [routing]
-          processors: [transform/fix_log_attribute, transform/truncate_message, batch]
-{{- if .Values.auditLogs.logsCollector.kafka.enabled }}
+          processors: [transform/fix_log_attribute, transform/truncate_message{{ if $fileExporter }}, transform/file_date{{ end }}, batch]
+{{- if $fileExporter }}
+          exporters: [file]
+{{- else if $kafka }}
           exporters: [kafka]
 {{- else }}
           exporters: [failover]
