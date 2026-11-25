@@ -1,0 +1,99 @@
+# SPDX-FileCopyrightText: 2024 SAP SE or an SAP affiliate company and Greenhouse contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: Manual Plugin OCI Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Plugin release tag in format pluginName/version (e.g. kube-monitoring/17.0.2)'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  release:
+    runs-on: [ubuntu-latest]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Parse and validate tag format
+        id: parse
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const tag = '${{ inputs.tag }}';
+            const slashIdx = tag.lastIndexOf('/');
+
+            if (slashIdx <= 0 || slashIdx === tag.length - 1) {
+              core.setFailed(`Tag must be in format 'pluginName/version' (got: ${tag})`);
+              return;
+            }
+
+            const pluginName = tag.substring(0, slashIdx);
+            const pluginVersion = tag.substring(slashIdx + 1);
+
+            core.setOutput('plugin_name', pluginName);
+            core.setOutput('plugin_version', pluginVersion);
+            core.info(`Parsed: name=${pluginName} version=${pluginVersion}`);
+
+      - name: Checkout repository at tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Validate plugin directory
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const plugin = '${{ steps.parse.outputs.plugin_name }}';
+
+            if (!fs.existsSync(plugin)) {
+              core.setFailed(`Plugin directory '${plugin}' does not exist at tag '${{ inputs.tag }}'`);
+              return;
+            }
+
+            if (!fs.existsSync(`${plugin}/plugindefinition.yaml`)) {
+              core.setFailed(`Plugin '${plugin}' is missing plugindefinition.yaml`);
+              return;
+            }
+
+            core.info(`Validated plugin directory: ${plugin}`);
+
+      - name: Install oras
+        run: |
+          ORAS_VERSION="1.2.0"
+          curl -sSfL \
+            "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" \
+            -o /tmp/oras.tar.gz
+          tar -xzf /tmp/oras.tar.gz -C /tmp oras
+          sudo mv /tmp/oras /usr/local/bin/oras
+          oras version
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push plugin OCI artifact to GHCR
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const plugin = '${{ steps.parse.outputs.plugin_name }}';
+            const version = '${{ steps.parse.outputs.plugin_version }}';
+            const target = `${{ env.REGISTRY }}/${{ github.repository }}/plugin-definition-${plugin}:${version}`;
+
+            await exec.exec('oras', [
+              'push', target,
+              '--config', '/dev/null:application/vnd.greenhouse.plugin.config.v1+json',
+              `${plugin}/plugindefinition.yaml:application/vnd.greenhouse.plugindefinition.v1+yaml`,
+            ]);
+
+            core.info(`Published plugin-definition-${plugin}:${version} → ${target}`);
