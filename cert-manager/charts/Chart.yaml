@@ -7,12 +7,12 @@ keywords:
   - kube-lego
   - letsencrypt
   - tls
-version: 1.20.1
-appVersion: 1.18.2
+version: 1.21.0
+appVersion: v1.21.3
 maintainers:
   - name: ivogoman
   - name: kengou
 dependencies:
   - name: cert-manager
     repository: https://charts.jetstack.io
-    version: v1.20.3
+    version: v1.21.3
