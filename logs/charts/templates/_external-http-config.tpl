@@ -34,6 +34,10 @@ transform/external-http:
         - merge_maps(log.attributes, ParseJSON(log.body), "upsert") where IsMatch(log.body,"^\\{")
         - set(log.attributes["sap.cc.audit.source"], log.attributes["sap"]["cc"]["audit"]["source"]) where log.attributes["sap.cc.audit.source"] == nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil
         - delete_key(log.attributes["sap"]["cc"]["audit"], "source") where log.attributes["sap.cc.audit.source"] != nil and log.attributes["sap"] != nil and log.attributes["sap"]["cc"] != nil and log.attributes["sap"]["cc"]["audit"] != nil and log.attributes["sap"]["cc"]["audit"]["source"] != nil
+        # Windows Event Log (Winlogbeat) records: host is a Windows VM running on a VCSA-managed hypervisor.
+        # agent.type is a scalar string set by the Winlogbeat agent itself (survives ParseJSON as a map key
+        # before `agent` is stringified below). Fallback only: never overwrites an explicit sender source.
+        - set(log.attributes["sap.cc.audit.source"], "VCSA") where log.attributes["sap.cc.audit.source"] == nil and log.attributes["agent"] != nil and log.attributes["agent"]["type"] == "winlogbeat"
         - set(log.attributes["audit_relevant"], "true")
         - set(log.attributes["forwarded_by"], {{ .Values.openTelemetry.externalCollector.externalHttpConfig.forwardedBy | quote }}) where log.attributes["forwarded_by"] == nil
         - delete_matching_keys(log.attributes, "^\\.*$")
